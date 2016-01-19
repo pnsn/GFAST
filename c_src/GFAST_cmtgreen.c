@@ -21,7 +21,7 @@
  *
  * @author Brendan Crowell, PNSN
  * @author Ben Baker, ISTI - converted from Python to C
- * @date February, 2015
+ * @date January, 2015
  *
  */
 int GFAST_CMTgreenF(int l1, int ldg, 
@@ -47,7 +47,7 @@ int GFAST_CMTgreenF(int l1, int ldg,
         return 1;
     }
     if (ldg < 3*l1){
-        printf("%s: ldg is too small %d\n", fcnm, ldg);
+        printf("%s: Error ldg is too small %d\n", fcnm, ldg);
         return 1;
     }
     // Loop on points and fill up Green's functions matrix
