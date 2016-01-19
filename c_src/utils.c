@@ -15,9 +15,10 @@ extern void dgelsd_(int *M, int *N, int *NRHS, double *A, int *LDA,
  * @result arithmetic mean of array x where NaN's have been ignored
  *
  * @author Ben Baker, ISTI
+ * @date January 2016
  *
  */
-double numpy_nanmean(int n, double *x)
+inline double numpy_nanmean(int n, double *x)
 {
     const char *fcnm = "numpy_nanmean\0";
     double xavg;
@@ -43,7 +44,36 @@ double numpy_nanmean(int n, double *x)
     return xavg;
 }
 //============================================================================//
-
+/*!
+ * @brief Solves the least squares problem Ax = b via the singular value
+ *        decomposition.
+ *
+ * @param[in] m          number of rows in matrix Aref (>= 1)
+ * @param[in] n          number of columns in matrix Arev (>= 1)
+ * @param[in] nrhs       number of right hand sides to solve (>= 1)
+ * @param[in] Aref       matrix A in Ax = b.  this matrix is in column major 
+ *                       ord with leading dimension m [m x m]
+ * @param[in] b          right hand side matrix.  this matrix is in column major
+ *                       order with leading dimension m [m x nrhs]
+ * @param[in] rcond_in   if NULL then the least squares problem will use
+ *                       machine epsilon as a cutoff for `small' singular
+ *                       values
+ *                       if > 0 then this is the cutoff defining `small'
+ *                       singular values in the least squares problem 
+ *
+ * @param[out] x         on successful exit this is a matrix in column major
+ *                       order with leading dimension n that holds the 
+ *                       solution to the least squares problem Ax=b [n x nrhs]
+ * @param[out] rank_out  if not NULL then this will be the rank of the matrix
+ *                       Aref.  if NULL this variable will not be set.
+ * @param[out] svals     if not NULL then this will be the singular values of 
+ *                       A and must be of size min(m,n).  if NULL this 
+ *                       variable will not be set.
+ *
+ * @author Ben Baker, ISTI
+ * @date January 2016
+ *
+ */ 
 int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
                 double *rcond_in, double *x, int *rank_out, double *svals)
 {
@@ -161,7 +191,8 @@ ERROR:;
  *        the back-azimuth, that is defined as the angle measured between
  *        the vector pointing from the station to the source, and the 
  *        vector pointing from the station from the station to the north.
- *        https://docs.obspy.org/_modules/obspy/signal/rotate.html
+ *
+ * @ref https://docs.obspy.org/_modules/obspy/signal/rotate.html
  *
  * @param[in] np   number of data points 
  * @param[in] e    data on east component [np]
@@ -173,6 +204,8 @@ ERROR:;
  * @param[out] t   data rotated onto the east component [np]
  *
  * @author Ben Baker, ISTI
+ * @date January 2016
+ *
  */
 inline void rotate_NE_RT(int np, double *e, double *n, double ba,
                          double *r, double *t)
