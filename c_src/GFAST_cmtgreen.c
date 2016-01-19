@@ -4,8 +4,7 @@
 #include "gfast.h"
 
 /*!
- * @brief Computes the matrix of Green's functions required in the 
- *        centroid moment tensor inversion. 
+ * @brief Computes matrix of Green's functions required in the CMT inversion
  *
  * @param[in] l1        length of arrays
  * @param[in] ldg       leading dimension of G matrix [must be at least 3*l1]
