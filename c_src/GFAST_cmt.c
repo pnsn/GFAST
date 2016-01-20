@@ -15,7 +15,7 @@ int GFAST_moment_tensor(int l1, int *signal_ptr,
     double *U, *G, *azi, *azims, *backazi, *xrs, *yrs, *zrs,
            NN[n10], EE[n10], UU[n10],
            E, N, r, t, x1, x2, y1, y2;
-    int efftime, i, ierr, indx, k, ldg;
+    int efftime, i, ierr, indx, iwarn, k, ldg;
     const double pi180i = 180.0/M_PI;
     //------------------------------------------------------------------------//
     //
@@ -75,15 +75,15 @@ getchar();
             UU[k] = u[indx]; //[i,efftime:efftime+10]
             indx = indx + 1;
         }
-        N = numpy_nanmean(n10, NN);
-        E = numpy_nanmean(n10, EE);
+        N = numpy_nanmean(n10, NN, &iwarn);
+        E = numpy_nanmean(n10, EE, &iwarn);
         // Rotate
         rotate_NE_RT(1, &N, &E, backazi[i], &r, &t);
         // Fill the obervation array 
         indx = 3*i;
         U[indx  ] = r;
         U[indx+1] = t; 
-        U[indx+2] = numpy_nanmean(n10, UU); 
+        U[indx+2] = numpy_nanmean(n10, UU, &iwarn); 
     }
     // Compute the corresponding Green's functions
     ierr = GFAST_CMTgreenF(l1, ldg, 

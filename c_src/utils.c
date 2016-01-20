@@ -1,29 +1,79 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "gfast.h"
+#include "gfast_numpy.h"
 
 extern void dcopy_(int *n, double *x, int *incx, double *y, int *incy);
 extern void dgelsd_(int *M, int *N, int *NRHS, double *A, int *LDA,
                     double *B, int *LDB, double *S, double *RCOND,
                     int *RANK, double *work, int *lwork, int *iwork, int *info);
+
+/*! 
+ * @brief Returns index corresponding to largest value in an array
+ *
+ * @param[in] n   number of points in array x
+ * @param[in] x   array of which to find maximum [n]
+ *
+ * @result index of x which corresonds to largest value
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+inline int numpy_argmax(int n, double *x) 
+{
+    const char *fcnm = "numpy_argmax\0";
+    double cmax;
+    int imax, i;
+    if (n < 1){ 
+        printf("%s: Warning no values in array x!",fcnm);
+        return 0;
+    }
+    cmax = x[0];
+    imax = 0;
+    for (i=1; i<n; i++){
+        if (x[i] > cmax){
+            cmax = x[i];
+            imax = i;
+        }    
+    }    
+    return imax;
+}
 /*!
  * @brief Computes the arithmetic mean of x where any NaN's are ignored
  * 
  * @param[in] n     number of elements in x
  * @param[in] x     array from which to compute mean (while ignoring NaNs)
  *
- * @result arithmetic mean of array x where NaN's have been ignored
+ * @param[out] iwarn   0 indicates success
+ *                     1 indicates there are no entries in the array x
+ *                       and thus there is a division by zero
+ *                     2 indicates that all entries in x were NaN and
+ *                       thus there is a division by zero
+ *
+ * @result arithmetic mean of array x where NaN's have been ignored.
+ *         if iwarn is 1 or 2 then the result of this function is NaN
+ *         as a division by zero was encountered and thus does not
+ *         necessarily indicate that the average of all numbers in x
+ *         is NaN.
  *
  * @author Ben Baker, ISTI
  * @date January 2016
  *
  */
-inline double numpy_nanmean(int n, double *x)
+inline double numpy_nanmean(int n, double *x, int *iwarn)
 {
     const char *fcnm = "numpy_nanmean\0";
     double xavg;
     int i, iavg;
+    *iwarn = 0;
+    // Size check
+    if (n < 1){
+        printf("%s: Warning no elements; division by zero\n", fcnm);
+        *iwarn = 1;
+        xavg = NAN;
+        return xavg;
+    }
+    // Compute the average
     iavg = 0;
     xavg = 0.0;
     for (i=0; i<n; i++){
@@ -31,13 +81,10 @@ inline double numpy_nanmean(int n, double *x)
             xavg = xavg + x[i];
             iavg = iavg + 1;
         }
-     }
+    }
     if (iavg == 0){
-        if (n > 0){
-            printf("%s: Warning all elements of x are NaN's\n", fcnm);
-        }else{
-            printf("%s: Warning division by zero\n", fcnm);
-        }
+        printf("%s: Warning all elements of x are NaN's\n", fcnm);
+        *iwarn = 2;
         xavg = NAN; 
     }else{
         xavg = xavg/(double) iavg;
@@ -208,10 +255,10 @@ ERROR:;
  * @date January 2016
  *
  */
-inline void rotate_NE_RT(int np, double *e, double *n, double ba,
-                         double *r, double *t)
+inline void obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
+                               double *r, double *t)
 {
-    const char *fcnm = "rotate_NE_RT\0";
+    const char *fcnm = "obspy_rotate_NE2RT\0";
     const double pi180 = M_PI/180.0;
     double cosbaz, sinbaz, et, nt;
     int i;
