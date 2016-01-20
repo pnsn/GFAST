@@ -6,7 +6,6 @@
 extern "C"
 {
 #endif
-
 int GFAST_CMTgreenF(int l1, int ldg, 
                     double *x1, double *y1, double *z1, double *azi, 
                     double *G);

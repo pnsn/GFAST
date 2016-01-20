@@ -19,7 +19,7 @@ extern void dgelsd_(int *M, int *N, int *NRHS, double *A, int *LDA,
  * @author Ben Baker, ISTI
  *
  */
-inline int numpy_argmax(int n, double *x) 
+int numpy_argmax(int n, double *x) 
 {
     const char *fcnm = "numpy_argmax\0";
     double cmax;
@@ -60,7 +60,7 @@ inline int numpy_argmax(int n, double *x)
  * @date January 2016
  *
  */
-inline double numpy_nanmean(int n, double *x, int *iwarn)
+double numpy_nanmean(int n, double *x, int *iwarn)
 {
     const char *fcnm = "numpy_nanmean\0";
     double xavg;
@@ -255,8 +255,8 @@ ERROR:;
  * @date January 2016
  *
  */
-inline void obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
-                               double *r, double *t)
+int obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
+                       double *r, double *t)
 {
     const char *fcnm = "obspy_rotate_NE2RT\0";
     const double pi180 = M_PI/180.0;
@@ -264,7 +264,7 @@ inline void obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
     int i;
     if (np < 1){
         printf("%s: Warning there are no points %d\n", fcnm, np);
-        return;
+        return 1;
     }
     if (ba < 0.0 || ba > 360.0){
         printf("%s: Warning back-azimuth=%f should be between [0,360]\n",
@@ -278,5 +278,5 @@ inline void obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
         r[i] = et*sinbaz + nt*cosbaz;
         t[i] = et*cosbaz - nt*sinbaz;
     }
-    return;
+    return 0;
 }
