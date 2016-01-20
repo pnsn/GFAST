@@ -118,6 +118,10 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  *                       A and must be of size min(m,n).  if NULL this 
  *                       variable will not be set.
  *
+ * @result 0 indicates success
+ *         1 indicates invalid parameter
+ *         2 indicates an error encountered in Lapack
+ *
  * @author Ben Baker, ISTI
  * @date January 2016
  *
@@ -164,7 +168,7 @@ int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
     }
     s = (double *)calloc(fmin(n, n), sizeof(double));
     if (s == NULL){
-        printf("%s: ERror setting space for singular values\n", fcnm);
+        printf("%s: Error setting space for singular values\n", fcnm);
         goto ERROR;
     }
     // Set space for right hand side/solution
@@ -187,7 +191,7 @@ int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
             &work8, &lwork, &iwork4, &info);
     if (info != 0){
         printf("%s: There was an error in the space query!\n", fcnm);
-        return -1;
+        goto ERROR; 
     }
     lwork = (int) work8;
     liwork = iwork4;
@@ -195,11 +199,11 @@ int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
     iwork = (int *)calloc(liwork, sizeof(int));
     if (work == NULL){
         printf("%s: Error setting space for work\n", fcnm);
-        return 2;
+        goto ERROR; 
     }
     if (iwork == NULL){
         printf("%s: Error setting space for iwork\n", fcnm);
-        return 2;
+        goto ERROR; 
     }
     // Compute the SVD
     dgelsd_(&m, &n, &nrhs, A, &lda, bwork, &ldb, s, &rcond, &rank,
@@ -222,8 +226,9 @@ int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
         mn = fmin(m, n);
         dcopy_(&mn, s, &incx, svals, &incy);
     }
-    // Free space
+    ierr = 0;
 ERROR:;
+    // Free space
     if (iwork != NULL){free(iwork);}
     if (work  != NULL){free(work);}
     if (bwork != NULL){free(bwork);}
@@ -250,6 +255,9 @@ ERROR:;
  *
  * @param[out] r   data rotated onto the radial component [np]
  * @param[out] t   data rotated onto the east component [np]
+ *
+ * @result 0 indicates success
+ *         1 indicates there is no data to rotate
  *
  * @author Ben Baker, ISTI
  * @date January 2016
