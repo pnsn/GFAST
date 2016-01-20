@@ -1,6 +1,16 @@
 
 Introduction:
 
+Dependencies:
+
+(a)  You must have BLAS and LAPACK.  These are very likely located in 
+     /usr/lib/ or /usr/lib64(32) depending on your OS (e.g. Ubuntu or
+     CentOS respectively).  Otherwise these are availabe from:
+     http://www.netlib.org/lapack/
+
+(b)  It is recommended you have geographiclib available from:
+     http://geographiclib.sourceforge.net/
+
 Install:
 
 (a)  First descend into the make_inc directory and choose an appropriate 
@@ -16,12 +26,14 @@ Install:
      functions can be used directly from Python.  Hopefully, the compile.sh
      bash script is sufficient.  Additionally, if you are installing to 
      non-system standard directories you will need to set/modify your 
-     PYTHON_PATH and LD_LIBRARY_PATH environment variables.  Furthermore, 
-     the calling sequences have been altered for C's benefit so the Python 
-     legacy source will likely be unable to call any GFAST module directly 
-     without modifcation.  I do not recommend using this functionality until
-     the c_src is stabilized as the interfaces will likely not reflect the
-     changes in the C calling sequences.
+     LD_LIBRARY_PATH environment variable.
+
+     Furthermore, the calling sequences have been altered for C's benefit 
+     so the Python legacy source will likely be unable to call any GFASTc 
+     module directly without modification to the call sequence.  I do not 
+     recommend using this functionality until the c_src is stabilized as 
+     the interfaces will likely not reflect the changes in the C calling
+     sequences.
 
 Examples:
 
