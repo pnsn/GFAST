@@ -100,7 +100,7 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  * @param[in] n          number of columns in matrix Arev (>= 1)
  * @param[in] nrhs       number of right hand sides to solve (>= 1)
  * @param[in] Aref       matrix A in Ax = b.  this matrix is in column major 
- *                       ord with leading dimension m [m x m]
+ *                       order with leading dimension m [m x m]
  * @param[in] b          right hand side matrix.  this matrix is in column major
  *                       order with leading dimension m [m x nrhs]
  * @param[in] rcond_in   if NULL then the least squares problem will use
