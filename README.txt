@@ -28,12 +28,12 @@ Install:
      non-system standard directories you will need to set/modify your 
      LD_LIBRARY_PATH environment variable.
 
-     Furthermore, the calling sequences have been altered for C's benefit 
-     so the Python legacy source will likely be unable to call any GFASTc 
-     module directly without modification to the call sequence.  I do not 
-     recommend using this functionality until the c_src is stabilized as 
-     the interfaces will likely not reflect the changes in the C calling
-     sequences.
+     A word of caution: the calling sequences have been altered for C's 
+     benefit so the Python legacy source will likely be unable to call any 
+     GFASTc module directly without modification to the call sequence.  
+     I do not recommend using this functionality until the c_src hass 
+     stabilized.  This is because the Python to C interfaces are low
+     priority for development at the project onset.
 
 Examples:
 
