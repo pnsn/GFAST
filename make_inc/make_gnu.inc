@@ -11,4 +11,4 @@ GFAST_STATIC = libgfast.a
 GFAST = xgfast
 
 # Lapack and BLAS
-LLAPACK = /usr/lib/liblapack.a /usr/lib/libblas.a
+LLAPACK = /usr/lib/liblapack.so /usr/lib/libblas.so
