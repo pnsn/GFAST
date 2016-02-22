@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <lapacke.h>
 #include "gfast_numpy.h"
 
 extern void dcopy_(int *n, double *x, int *incx, double *y, int *incy);
@@ -25,7 +26,7 @@ int numpy_argmax(int n, double *x)
     double cmax;
     int imax, i;
     if (n < 1){ 
-        printf("%s: Warning no values in array x!",fcnm);
+        printf("%s: Warning no values in array x!", fcnm);
         return 0;
     }
     cmax = x[0];
@@ -37,6 +38,33 @@ int numpy_argmax(int n, double *x)
         }    
     }    
     return imax;
+}
+/*!
+ * @brief Finds the minimum value in an array x
+ *
+ * @param[in] n      number of elements in x
+ * @param[in] x      array of which to find minimum
+ *
+ * @result the minimum value of x 
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+double numpy_min(int n, double *x)
+{
+    const char *fcnm = "numpy_min\0";
+    double xmin;
+    int i;
+    xmin = 0.0;
+    if (n < 1){
+        printf("%s: Warning no values in array x!\n", fcnm);
+        return xmin;
+    }
+    xmin = x[0];
+    for (i=1; i<n; i++){
+        xmin = fmin(xmin, x[i]);
+    }
+    return xmin;
 }
 /*!
  * @brief Computes the arithmetic mean of x where any NaN's are ignored
@@ -96,6 +124,8 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  * @brief Solves the least squares problem Ax = b via the singular value
  *        decomposition.
  *
+ * @param[in] mtx_fmt    matrix format: LAPACK_COL_MAJOR or LAPACK_ROW_MAJOR
+ *                       for a column or row major ordering matrix respectively
  * @param[in] m          number of rows in matrix Aref (>= 1)
  * @param[in] n          number of columns in matrix Arev (>= 1)
  * @param[in] nrhs       number of right hand sides to solve (>= 1)
@@ -126,20 +156,18 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  * @date January 2016
  *
  */ 
-int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
+int numpy_lstsq(int mtx_fmt,
+                int m, int n, int nrhs, double *Aref, double *b,
                 double *rcond_in, double *x, int *rank_out, double *svals)
 {
     const char *fcnm = "numpy_lstsq\0";
-    double *A, *bwork, *work, *s, rcond, work8;
-    int *iwork, ierr, indx, jndx, info, iwork4, k,
-        lda, ldb, liwork, lwork, mn, rank;
+    double *A, *bwork, *s, rcond;
+    int ierr, indx, jndx, info, k, lda, ldb, mn, rank;
     int incx = 1, incy = 1;
     // Initialize
     A = NULL;
     s = NULL;
-    work = NULL;
     bwork = NULL;
-    iwork = NULL;
     // Check sizes
     ierr = 1;
     if (m < 1){
@@ -185,29 +213,8 @@ int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
         jndx = ldb*k;
         dcopy_(&m, &b[indx], &incx, &bwork[indx], &incy);
     }
-    // Space inquiry and then set workspace
-    lwork =-1;
-    dgelsd_(&m, &n, &nrhs, A, &lda, bwork, &ldb, s, &rcond, &rank,
-            &work8, &lwork, &iwork4, &info);
-    if (info != 0){
-        printf("%s: There was an error in the space query!\n", fcnm);
-        goto ERROR; 
-    }
-    lwork = (int) work8;
-    liwork = iwork4;
-    work = (double *)calloc(lwork, sizeof(double));
-    iwork = (int *)calloc(liwork, sizeof(int));
-    if (work == NULL){
-        printf("%s: Error setting space for work\n", fcnm);
-        goto ERROR; 
-    }
-    if (iwork == NULL){
-        printf("%s: Error setting space for iwork\n", fcnm);
-        goto ERROR; 
-    }
     // Compute the SVD
-    dgelsd_(&m, &n, &nrhs, A, &lda, bwork, &ldb, s, &rcond, &rank,
-            work, &lwork, iwork, &info);
+    info = LAPACKE_dgelsd(mtx_fmt, m, n, nrhs, A, lda, b, ldb, s, rcond, &rank);
     if (info != 0){
         printf("%s: There was an error solving the least squares problem\n",
                fcnm);
@@ -229,8 +236,6 @@ int numpy_lstsq(int m, int n, int nrhs, double *Aref, double *b,
     ierr = 0;
 ERROR:;
     // Free space
-    if (iwork != NULL){free(iwork);}
-    if (work  != NULL){free(work);}
     if (bwork != NULL){free(bwork);}
     if (s     != NULL){free(s);}
     if (A     != NULL){free(A);}
