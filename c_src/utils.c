@@ -2,12 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <lapacke.h>
+#include <cblas.h>
 #include "gfast_numpy.h"
-
-extern void dcopy_(int *n, double *x, int *incx, double *y, int *incy);
-extern void dgelsd_(int *M, int *N, int *NRHS, double *A, int *LDA,
-                    double *B, int *LDB, double *S, double *RCOND,
-                    int *RANK, double *work, int *lwork, int *iwork, int *info);
 
 /*! 
  * @brief Returns index corresponding to largest value in an array
@@ -23,49 +19,56 @@ extern void dgelsd_(int *M, int *N, int *NRHS, double *A, int *LDA,
 int numpy_argmax(int n, double *x) 
 {
     const char *fcnm = "numpy_argmax\0";
-    double cmax;
-    int imax, i;
-    if (n < 1){ 
+    struct Compare_struct{
+       double val;
+       int index;
+    } max;
+    int i;
+    //------------------------------------------------------------------------//
+    if (n < 1){
         printf("%s: Warning no values in array x!", fcnm);
         return 0;
     }
-    cmax = x[0];
-    imax = 0;
+    if (n == 1){return 0;}
+    max.val = x[0];
+    max.index = 0;
     for (i=1; i<n; i++){
-        if (x[i] > cmax){
-            cmax = x[i];
-            imax = i;
-        }    
-    }    
-    return imax;
+        if (x[i] > max.val){
+            max.val = x[i];
+            max.index = i;
+        }
+    }
+    return max.index;
 }
-/*!
- * @brief Finds the minimum value in an array x
+//============================================================================//
+/*! 
+ * @brief Returns the minimum of a double array
  *
- * @param[in] n      number of elements in x
- * @param[in] x      array of which to find minimum
+ * @param[in] n   number of points in array x
+ * @param[in] x   array of which to find minimum [n]
  *
- * @result the minimum value of x 
+ * @result minimum value in x
  *
  * @author Ben Baker, ISTI
  *
  */
-double numpy_min(int n, double *x)
+double numpy_min(int n, double *x) 
 {
     const char *fcnm = "numpy_min\0";
     double xmin;
     int i;
-    xmin = 0.0;
-    if (n < 1){
-        printf("%s: Warning no values in array x!\n", fcnm);
-        return xmin;
-    }
+    if (n < 1){ 
+        printf("%s: Warning no values in array x!",fcnm);
+        return 0.0;
+    }   
+    if (n == 1){return x[0];}
     xmin = x[0];
     for (i=1; i<n; i++){
         xmin = fmin(xmin, x[i]);
-    }
+    }   
     return xmin;
 }
+//============================================================================//
 /*!
  * @brief Computes the arithmetic mean of x where any NaN's are ignored
  * 
@@ -91,32 +94,35 @@ double numpy_min(int n, double *x)
 double numpy_nanmean(int n, double *x, int *iwarn)
 {
     const char *fcnm = "numpy_nanmean\0";
-    double xavg;
-    int i, iavg;
+    double xavg, xt; 
+    int i, iavg, it, lnan;
     *iwarn = 0;
     // Size check
-    if (n < 1){
+    if (n < 1){ 
         printf("%s: Warning no elements; division by zero\n", fcnm);
         *iwarn = 1;
         xavg = NAN;
         return xavg;
-    }
+    }   
     // Compute the average
     iavg = 0;
     xavg = 0.0;
     for (i=0; i<n; i++){
-        if (isnan(x[i]) == 0){
-            xavg = xavg + x[i];
-            iavg = iavg + 1;
-        }
-    }
-    if (iavg == 0){
+        xt = 0.0;
+        it = 0;
+        lnan = isnan(x[i]);
+        if (!lnan){xt = x[i];}
+        if (!lnan){it = 1;} 
+        xavg = xavg + xt; 
+        iavg = iavg + it; 
+    }   
+    if (iavg == 0){ 
         printf("%s: Warning all elements of x are NaN's\n", fcnm);
         *iwarn = 2;
-        xavg = NAN; 
+        xavg = NAN;
     }else{
         xavg = xavg/(double) iavg;
-    }
+    }   
     return xavg;
 }
 //============================================================================//
@@ -207,11 +213,11 @@ int numpy_lstsq(int mtx_fmt,
         goto ERROR; 
     }
     // Copy RHS
-    dcopy_(&mn, Aref, &incx, A, &incy);
+    cblas_dcopy(mn, Aref, incx, A, incy);
     for (k=0; k<nrhs; k++){
         indx = m*k;
         jndx = ldb*k;
-        dcopy_(&m, &b[indx], &incx, &bwork[indx], &incy);
+        cblas_dcopy(m, &b[indx], incx, &bwork[indx], incy);
     }
     // Compute the SVD
     info = LAPACKE_dgelsd(mtx_fmt, m, n, nrhs, A, lda, b, ldb, s, rcond, &rank);
@@ -224,14 +230,14 @@ int numpy_lstsq(int mtx_fmt,
     for (k=0; k<nrhs; k++){
         indx = k*ldb;
         jndx = k*n;
-        dcopy_(&m, &bwork[indx], &incx, &x[jndx], &incy);
+        cblas_dcopy(m, &bwork[indx], incx, &x[jndx], incy);
     }
     // Do you want the rank?
     if (rank_out != NULL){*rank_out = rank;}
     // Do you want the singular values?
     if (svals != NULL){
         mn = fmin(m, n);
-        dcopy_(&mn, s, &incx, svals, &incy);
+        cblas_dcopy(mn, s, incx, svals, incy);
     }
     ierr = 0;
 ERROR:;
