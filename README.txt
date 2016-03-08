@@ -3,13 +3,22 @@ Introduction:
 
 Dependencies:
 
-(a)  You must have BLAS and LAPACK.  These are very likely located in 
-     /usr/lib/ or /usr/lib64(32) depending on your OS (e.g. Ubuntu or
-     CentOS respectively).  Otherwise these are availabe from:
-     http://www.netlib.org/lapack/
+(a)  You must have BLAS and LAPACK as well as the C extensions (cblas and 
+     LAPACKe) with the header files.  These are very likely located in
+       /usr/lib/
+     or 
+       /usr/lib64(32)
+     depending on your OS (e.g. Ubuntu or CentOS respectively).
+     The accompanying header files are likely in /usr/include.  Otherwise,
+     all files are available from:
+       http://www.netlib.org/lapack/
 
-(b)  It is recommended you have geographiclib available from:
-     http://geographiclib.sourceforge.net/
+(b)  To parse the ini file you must install iniparser:
+       https://github.com/ndevilla/iniparser
+
+(c)  For lat/lon to UTM conversions it is recommended you have geographiclib.
+     It can be obtained from:
+       http://geographiclib.sourceforge.net/
 
 Install:
 
@@ -20,7 +29,7 @@ Install:
      needs as is then cp make_gnu.inc ../Makefile.inc
 
 (b)  Next, build the shared GFAST C libraries by descending into the 
-     c_src directory and typing make.   
+     src directory and typing make.   
 
 (c)  As an example, one can also SWIG the shared library so that the C
      functions can be used directly from Python.  Hopefully, the compile.sh
@@ -31,7 +40,7 @@ Install:
      A word of caution: the calling sequences have been altered for C's 
      benefit so the Python legacy source will likely be unable to call any 
      GFASTc module directly without modification to the call sequence.  
-     I do not recommend using this functionality until the c_src hass 
+     I do not recommend using this functionality until the src has
      stabilized.  This is because the Python to C interfaces are low
      priority for development at the project onset.
 
