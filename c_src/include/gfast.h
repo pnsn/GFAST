@@ -1,5 +1,6 @@
 #include "gfast_numpy.h"
 #include "gfast_obspy.h"
+#include "gfast_struct.h"
 #ifndef __GFAST__
 #define __GFAST__
 #ifdef __cplusplus
