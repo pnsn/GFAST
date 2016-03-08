@@ -11,4 +11,7 @@ GFAST_STATIC = libgfast.a
 GFAST = xgfast
 
 # Lapack and BLAS
-LLAPACK = /usr/lib/liblapack.so /usr/lib/libblas.so
+LLAPACK = /usr/lib/liblapacke.so /usr/lib/liblapack.so /usr/lib/libblas.so /usr/lib/libcblas.so
+# Iniparser
+LIBINI = /usr/lib/libiniparser.a
+INCINI = -I/usr/include
