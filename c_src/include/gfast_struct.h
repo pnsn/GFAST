@@ -7,9 +7,29 @@
 
 struct GFAST_parms_struct
 {
-    int utm_zone;   // UTM zone
-                    // if this is -12345 then will extract the UTM zone
-                    // from the event origin
+    char streamfile[512];  /*!< File of streams to include in the system */
+    char siteposfile[512]; /*!< File of all the site locations.  The
+                                format used is currently from the SOPAC
+                                SECTOR web service */
+    char eewfile[512];     /*!< File to output the results of the ActiveMQ
+                                listener from the seismic warning file */
+    char syndriver[512];   /*!< The synthetic mode driver file */
+    char synoutput[512];   /*!< The synthetic mode output file */
+    char AMQhost[512];     /*!< ActiveMQ hostname to access ElarmsS messages 
+                               (siren) */
+    int bufflen;           /*!< The number of epochs to keep in the data
+                                buffer */
+    int AMQport;           /*!< ActiveMQ Port to access ElarmS messages 
+                                (61620) */
+    bool symmode;          /*!< False -> real-time mode (default) 
+                                True  -> synthetic mode */
+    int utm_zone;          /*!< UTM zone.  If this is -12345 then will extract
+                                the UTM zone from the event origin */
+    int verbose;           /*!< = 0 -> output nothing
+                                = 1 -> output errors only
+                                = 2 -> output errors and generic information
+                                = 3 -> output errors, generic information, and 
+                                       debug information */
 };
 
 struct GFAST_strongMotion_struct
