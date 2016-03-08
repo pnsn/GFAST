@@ -1,6 +1,8 @@
+CXX = g++
 CC = gcc
 CSHARED = -fPIC
 MAKE_SHARED = -shared
+CXXFLAGS = -O2 -Wall
 CFLAGS =-O2 -Wall
 INC_DIR = ./include
 OBJ = ./Obj
@@ -12,6 +14,7 @@ GFAST = xgfast
 
 # Lapack and BLAS
 LLAPACK = /usr/lib/liblapacke.so /usr/lib/liblapack.so /usr/lib/libblas.so /usr/lib/libcblas.so
+INC_LAPACK = -I/usr/include
 # Iniparser
-LIBINI = /usr/lib/libiniparser.a
-INCINI = -I/usr/include
+LIB_INI = /usr/lib/libiniparser.a
+INC_INI = -I/usr/include
