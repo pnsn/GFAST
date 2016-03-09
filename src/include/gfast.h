@@ -9,6 +9,15 @@
 extern "C"
 {
 #endif
+/* Initializes station locations/names */
+int GFAST_locinit(struct GFAST_props_struct props,
+                  struct GFAST_data_struct *gps_data);
+void GFAST_locinit_printLocations(struct GFAST_data_struct *gps_data);
+/* Frees memory on data structures */
+void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm);
+void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data);
+void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
+void GFAST_memory_freeProps(struct GFAST_props_struct *props);
 /* Initializes the GFAST parameters */
 int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props);
 

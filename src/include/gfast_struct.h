@@ -1,64 +1,71 @@
 #include <stdbool.h>
+#include <limits.h>
 
 #ifndef __GFAST_STRUCT_H__
 #define __GFAST_STRUCT_H__
 
 struct GFAST_props_struct
 {
-    char streamfile[512];  /*!< File of streams to include in the system. */
-    char siteposfile[512]; /*!< File of all the site locations.  The
-                                format used is currently from the SOPAC
-                                SECTOR web service. */
-    char eewsfile[512];    /*!< File to output the results of the ActiveMQ
-                                listener from the seismic warning file. */
-    char eewgfile[512];    /*!< File to output the results of G-FAST */ 
-    char syndriver[512];   /*!< The synthetic mode driver file. */
-    char synoutput[512];   /*!< The synthetic mode output file. */
-    char AMQhost[512];     /*!< ActiveMQ hostname to access ElarmS messages 
-                               (siren). */
-    char AMQtopic[512];    /*!< ActiveMQ topic to access ElarmS messages
-                                (eew.alg.elarms.data). */
-    char AMQuser[512];     /*!< ActiveMQ username to access ElarmS messages */
-    char AMQpassword[512]; /*!< ActiveMQ password to access ElarmS messages */
-    char RMQhost[512];     /*!< RabbitMQ hostname to acceess processed GPS
-                                positions.  PANGA separates this into two 
-                                distinct processing groups, CWU-ppp and
-                                UNAVCO-rtx */
-    char RMQtopic[512];    /*!< RabbitMQ topic to access processed GPS
-                                positions (www.panga.org) */
-    char RMQuser[512];     /*!< RabbitMQ username to acess processed GPS
-                                positions */
-    char RMQpassword[512]; /*!< RabbitMQ password to access processed GPS
-                                positions */
-    char RMQexchange[512]; /*!< RabbitMQ exchange to access processed GPS
-                                positions (nev-cor) */
-    int bufflen;           /*!< The number of epochs to keep in the data
-                                buffer. */
-    int AMQport;           /*!< ActiveMQ port to access ElarmS messages 
-                                (61620). */
-    int RMQport;           /*!< RabbitMQ port to access processed GPS
-                                positions (5672) */
-    bool synmode;          /*!< False -> real-time mode (default).
-                                True  -> synthetic mode. */
-    int utm_zone;          /*!< UTM zone.  If this is -12345 then will extract
-                                the UTM zone from the event origin. */
-    int verbose;           /*!< = 0 -> Output nothing.
-                                = 1 -> Output errors only.
-                                = 2 -> Output errors and generic information.
-                                = 3 -> Output errors, generic information, and 
-                                       debug information. */
+    char streamfile[PATH_MAX];  /*!< File of streams to include in the
+                                     processing. */
+    char siteposfile[PATH_MAX]; /*!< File of all the site locations.  The
+                                     format used is currently from the SOPAC
+                                     SECTOR web service. */
+    char eewsfile[PATH_MAX];    /*!< File to output the results of the ActiveMQ
+                                     listener from the seismic warning file. */
+    char eewgfile[PATH_MAX];    /*!< File to output the results of G-FAST */
+    char syndriver[PATH_MAX];   /*!< The synthetic mode driver file. */
+    char synoutput[PATH_MAX];   /*!< The synthetic mode output file. */
+    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
+                                     (siren). */
+    char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages
+                                     (eew.alg.elarms.data). */
+    char AMQuser[512];          /*!< ActiveMQ username to access ElarmS
+                                     messages */
+    char AMQpassword[512];      /*!< ActiveMQ password to access ElarmS
+                                     messages */
+    char RMQhost[512];          /*!< RabbitMQ hostname to acceess processed GPS
+                                     positions.  PANGA separates this into two 
+                                     distinct processing groups, CWU-ppp and
+                                     UNAVCO-rtx */
+    char RMQtopic[512];         /*!< RabbitMQ topic to access processed GPS
+                                     positions (www.panga.org) */
+    char RMQuser[512];          /*!< RabbitMQ username to acess processed GPS
+                                     positions */
+    char RMQpassword[512];      /*!< RabbitMQ password to access processed GPS
+                                     positions */
+    char RMQexchange[512];      /*!< RabbitMQ exchange to access processed GPS
+                                     positions (nev-cor) */
+    int bufflen;                /*!< The number of epochs to keep in the data
+                                     buffer. */
+    int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
+                                    (61620). */
+    int RMQport;                /*!< RabbitMQ port to access processed GPS
+                                     positions (5672) */
+    bool synmode;               /*!< False -> real-time mode (default).
+                                     True  -> synthetic mode. */
+    int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
+                                     extract the UTM zone from the event
+                                     origin. */
+    int verbose;               /*!< Controls verbosity.
+                                     = 0 -> Output nothing.
+                                     = 1 -> Output errors only.
+                                     = 2 -> Output errors and generic
+                                            information.
+                                     = 3 -> Output errors, generic information,
+                                            and debug information. */
 };
 
 struct GFAST_strongMotion_struct
 {
-    double *z;      // Vertical channel [npts]
-    double *n;      // North (radial, 2) channel [npts]
-    double *e;      // East (transverse, 3) channel [npts]
-    int npts;       // Number of points
-    double dt;      // Sampling period (s)
+    double *z;      /*!< Vertical channel [npts] */
+    double *n;      /*!< North (radial, 2) channel [npts] */
+    double *e;      /*!< East (transverse, 3) channel [npts] */
+    int npts;       /*!< Number of points */
+    double dt;      /*!< Sampling period (s) */
 };
 
-struct GFAST_gps_struct
+struct GFAST_collocatedData_struct
 {
     struct GFAST_strongMotion_struct sm;  /*!< Collocated strong motion data
                                                structure */ 
@@ -77,10 +84,21 @@ struct GFAST_gps_struct
     double sta_lon;   /*!< Station longitude [0,360] (degrees) */
     int npts;         /*!< Number of points in time series.  This should be 
                            equivalent GFAST_parms_struct's bufflen */
+    int nstream;      /*!< Number of streams in GPS structure */
     bool lcollocated; /*!< True -> station is collocated with a strong
                                    motion station.
                            False -> station is not collocated with a strong
                                    motion station. */
+    bool lskip;       /*!< True  -> this station is ignored during processing
+                           False -> will attempt to use this station during
+                                    processing */
+};
+
+struct GFAST_data_struct
+{
+    struct GFAST_collocatedData_struct *data;  /*!< Collocated data structure
+                                                    [stream_length] */
+    int stream_length;                         /*!< Number of streams */
 };
 
 #endif /* __GFAST_STRUCT_H__ */
