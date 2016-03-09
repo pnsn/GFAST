@@ -34,8 +34,48 @@ int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
     ierr = 1;
     ini = iniparser_load(propfilename);
     //-------------------------GFAST General Parameters-----------------------//
-    props->verbose = iniparser_getint(ini, "genreal:verbose\0", 2);
+    s = iniparser_getstring(ini, "general:streamfile\0", "GFAST_streams.txt\0");
+    strcpy(props->streamfile, s);
+    s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
+    if (s == NULL){
+        log_errorF("%s: Could not find ElarmS message filename!\n", fcnm);
+        goto ERROR;
+    }else{
+        strcpy(props->eewsfile, s);
+    }
+    s = iniparser_getstring(ini, "general:eewgfile\0", "GFAST_output.txt\0");
+    strcpy(props->eewgfile, s);
+    s = iniparser_getstring(ini, "general:siteposfile\0", NULL);
+    if (s == NULL){
+        log_errorF("%s: Could not find site position file!\n", fcnm);
+    }else{
+        strcpy(props->siteposfile, s);
+        //if (!os_path_isfile(props->siteposfile)){
+        //    log_errorF("%s: Position file %s does not exist1!\n",
+        //               fcnm, props->siteposfile);
+        //    goto ERROR;
+        //}
+    }
+    props->bufflen = iniparser_getint(ini, "general:bufflen\0", 300);
+    if (props->bufflen < 1){
+        log_errorF("%s: Buffer lengths must be positive!\n", fcnm);
+        goto ERROR;
+    }
     props->synmode = iniparser_getboolean(ini, "general:synmode\0", false);
+    if (props->synmode){
+        s = iniparser_getstring(ini, "general:syndriver\0", NULL);
+        if (s == NULL){
+            log_errorF("%s: Synthetic driver file must be specified!\n", fcnm);
+            goto ERROR;
+        }else{
+            strcpy(props->syndriver, s);
+            if (!os_path_isfile(props->syndriver)){
+                log_errorF("%s: Synthetic driver file %s doesnt exist\n",
+                           fcnm, props->syndriver);
+                goto ERROR;
+            }
+        }
+    } 
     props->utm_zone = iniparser_getint(ini, "general:utm_zone\0", -12345);
     if (props->utm_zone < 0 || props->utm_zone > 60){
         if (props->utm_zone ==-12345){
@@ -46,6 +86,11 @@ int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
             props->utm_zone =-12345;
         } 
     }
+    props->verbose = iniparser_getint(ini, "general:verbose\0", 2);
+    //------------------------------PGD Parameters----------------------------//
+
+    //----------------------------CMT/FF Parameters---------------------------//
+
     //---------------------------ActiveMQ Parameters--------------------------//
     s = iniparser_getstring(ini, "ActiveMQ:AMQhost\0", NULL);
     if (s == NULL){
