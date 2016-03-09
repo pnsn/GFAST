@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iniparser.h>
 #include "gfast.h"
-#include "iniparser.h"
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
  *

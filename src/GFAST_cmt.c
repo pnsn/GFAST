@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <lapacke.h>
 #include "gfast.h"
 
 #define n10 10
@@ -131,7 +132,7 @@ printf("%s: finish here\n", fcnm);
 getchar();
     // Solve the least squares problem via the SVD
     rcond =-1.0; // Use machine epsilon for singular value cutoff
-    ierr = numpy_lstsq(m, n6, nrhs, G, U,
+    ierr = numpy_lstsq(LAPACK_ROW_MAJOR, m, n6, nrhs, G, U,
                        &rcond, S, &rank, NULL);
     if (ierr != 0){
         printf("%s: Error solving least squares problem\n", fcnm);
