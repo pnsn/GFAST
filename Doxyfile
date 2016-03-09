@@ -753,8 +753,8 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = /home/bakerb3/C/GFAST/c_src \
-                         /home/bakerb3/C/GFAST/c_src/include
+INPUT                  = /home/bakerb3/C/GFAST/src \
+                         /home/bakerb3/C/GFAST/src/include
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
