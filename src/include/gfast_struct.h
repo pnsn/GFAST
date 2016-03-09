@@ -3,7 +3,7 @@
 #ifndef __GFAST_STRUCT_H__
 #define __GFAST_STRUCT_H__
 
-struct GFAST_parms_struct
+struct GFAST_props_struct
 {
     char streamfile[512];  /*!< File of streams to include in the system. */
     char siteposfile[512]; /*!< File of all the site locations.  The
@@ -38,7 +38,7 @@ struct GFAST_parms_struct
                                 (61620). */
     int RMQport;           /*!< RabbitMQ port to access processed GPS
                                 positions (5672) */
-    bool symmode;          /*!< False -> real-time mode (default).
+    bool synmode;          /*!< False -> real-time mode (default).
                                 True  -> synthetic mode. */
     int utm_zone;          /*!< UTM zone.  If this is -12345 then will extract
                                 the UTM zone from the event origin. */
@@ -62,6 +62,7 @@ struct GFAST_gps_struct
 {
     struct GFAST_strongMotion_struct sm;  /*!< Collocated strong motion data
                                                structure */ 
+    char site[64];    /*!< Name of site */
     double *ubuff;    /*!< Up position buffer (m?).  If any sample is 
                            not known it should be a NAN. [npts] */
     double *nbuff;    /*!< North position buffer (m?) [npts].  If any sample
