@@ -13,7 +13,8 @@
  *
  * @result index of x which corresonds to largest value
  *
- * @author Ben Baker, ISTI
+ * @author Ben Baker (benbaker@isti.com)
+ * @date March 2016
  *
  */
 int numpy_argmax(int n, double *x) 
@@ -49,7 +50,8 @@ int numpy_argmax(int n, double *x)
  *
  * @result minimum value in x
  *
- * @author Ben Baker, ISTI
+ * @author Ben Baker (benbaker@isti.com)
+ * @date March 2016
  *
  */
 double numpy_min(int n, double *x) 
@@ -87,8 +89,8 @@ double numpy_min(int n, double *x)
  *         necessarily indicate that the average of all numbers in x
  *         is NaN.
  *
- * @author Ben Baker, ISTI
- * @date January 2016
+ * @author Ben Baker (benbaker@isti.com)
+ * @date March 2016
  *
  */
 double numpy_nanmean(int n, double *x, int *iwarn)
@@ -158,8 +160,8 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  *         1 indicates invalid parameter
  *         2 indicates an error encountered in Lapack
  *
- * @author Ben Baker, ISTI
- * @date January 2016
+ * @author Ben Baker (benbaker@isti.com)
+ * @date March 2016
  *
  */ 
 int numpy_lstsq(int mtx_fmt,
@@ -270,8 +272,8 @@ ERROR:;
  * @result 0 indicates success
  *         1 indicates there is no data to rotate
  *
- * @author Ben Baker, ISTI
- * @date January 2016
+ * @author Ben Baker (benbaker@isti.com)
+ * @date March 2016
  *
  */
 int obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
