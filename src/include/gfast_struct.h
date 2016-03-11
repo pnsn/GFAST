@@ -50,8 +50,8 @@ struct GFAST_props_struct
     int verbose;               /*!< Controls verbosity.
                                      = 0 -> Output nothing.
                                      = 1 -> Output errors only.
-                                     = 2 -> Output errors and generic
-                                            information.
+                                     = 2 -> Output errors, generic
+                                            information, and warnings.
                                      = 3 -> Output errors, generic information,
                                             and debug information. */
 };
@@ -89,9 +89,14 @@ struct GFAST_collocatedData_struct
                                    motion station.
                            False -> station is not collocated with a strong
                                    motion station. */
-    bool lskip;       /*!< True  -> this station is ignored during processing
-                           False -> will attempt to use this station during
-                                    processing */
+    bool lskip_pgd;   /*!< True  -> This site is ignored during the PGD
+                                    estimation.
+                           False -> Will  attempt to use this site during
+                                    the PGD estimation. */
+    bool lskip_cmtff; /*!< True  -> this site is ignored during the CMT and
+                                    finite fault inversion. 
+                           False -> Will attempt to use this site during the
+                                    CMT and finite fault inversion */
 };
 
 struct GFAST_data_struct
@@ -99,6 +104,16 @@ struct GFAST_data_struct
     struct GFAST_collocatedData_struct *data;  /*!< Collocated data structure
                                                     [stream_length] */
     int stream_length;                         /*!< Number of streams */
+};
+
+struct GFAST_shakeAlert_struct
+{
+    char eventid[128];  /*!< Event ID */
+    double lat;         /*!< Event latitude (degrees) */
+    double lon;         /*!< Event longitude (degrees) */
+    double dep;         /*!< Event depth (kilometers) */ 
+    double mag;         /*!< Event magnitude */
+    double time;        /*!< Event epochal time (s) */
 };
 
 #endif /* __GFAST_STRUCT_H__ */

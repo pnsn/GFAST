@@ -2,6 +2,7 @@
 #include "gfast_obspy.h"
 #include "gfast_struct.h"
 #include "gfast_log.h"
+#include "gfast_time.h"
 #include "gfast_os.h"
 #ifndef __GFAST__
 #define __GFAST__
@@ -20,7 +21,10 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
 void GFAST_memory_freeProps(struct GFAST_props_struct *props);
 /* Initializes the GFAST parameters */
 int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props);
-
+/* Reads the ElarmS file */
+int GFAST_readElarmS(struct GFAST_props_struct props);
+int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
+                                            struct GFAST_shakeAlert_struct *SA);
 
 int GFAST_CMTgreenF(int l1, int ldg, 
                     double *x1, double *y1, double *z1, double *azi, 

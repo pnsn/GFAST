@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gfast.h"
+#include "gfast.hpp"
 
 /*!
  * This is a mock GFAST driver module
@@ -12,6 +12,7 @@ int main()
     char propfilename[] = "gfast.props\0"; /* TODO take from EW config file */
     struct GFAST_props_struct props;
     struct GFAST_data_struct gps_data;
+    int nsites_read;
     int ierr = 0;
     //------------------------------------------------------------------------//
     // 
@@ -28,15 +29,17 @@ int main()
     if (props.verbose >= 2){
         log_infoF("%s: Initializing locations...\n", fcnm);
     }
-    ierr = GFAST_locinit(props, &gps_data);
-    if (ierr != 0){
+    nsites_read = GFAST_locinit(props, &gps_data);
+    if (nsites_read < 0){
         log_errorF("%s: Error getting locations!\n", fcnm);
-        //goto ERROR;
+        ierr = 1;
+        goto ERROR;
     }
     // Connect ActiveMQ for ElarmS messages
     if (props.verbose >= 2){
         log_infoF("%s: Subscribing to ElarmS messages...\n", fcnm);
     }
+ GFAST_readElarmS(props);
     //GFAST_CMTgreenF();
     //obspy_rotate_NE2RT();
 ERROR:;
