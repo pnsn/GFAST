@@ -45,6 +45,13 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
            &ev_year, &ev_month, &ev_dom,
            &ev_hour, &ev_min, &ev_sec,
            &SA->mag, &SA->lon, &SA->lat);
+    if (SA->lat <-90.0 || SA->lat > 90.0){
+        if (verbose > 1){
+            log_warnF("%s: eLarms latitude %f is invalid\n",
+                      fcnm, SA->lat);
+        }
+    }
+    if (SA->lon < 0.0){SA->lon = SA->lon + 360.0;}
     // Create the time
     ev_isec = (int) ev_sec;
     ev_musec = (int) ((ev_sec - (double) ev_isec)*1.e6);
@@ -67,6 +74,7 @@ struct GFAST_shakeAlert_struct SA;
     const char *fcnm = "GFAST_readElarmS\0";
     FILE *ew;
     char buffer[128], line[128];
+    int lenb;
     bool lempty;
     if (!os_path_isfile(props.eewsfile)){
         if (props.verbose > 0){
@@ -78,13 +86,19 @@ struct GFAST_shakeAlert_struct SA;
     // Open file and read until end
     ew = fopen(props.eewsfile, "r");
     memset(buffer, 0, sizeof(buffer));
+    memset(line, 0, sizeof(line));
     lempty = true;
     while (fgets(buffer, 128, ew) != NULL){
         lempty = false;
+        lenb = strlen(buffer);
+        if (lenb > 0){
+            if (buffer[lenb-1] == '\n'){buffer[lenb-1] = '\0';}
+        }
+        memset(line, 0, sizeof(line));
+        strcpy(line, buffer); 
         memset(buffer, 0, sizeof(buffer));
     }
     if (!lempty){
-        memset(line, 0, sizeof(line));
         sscanf(buffer, "%s\n", line);
         GFAST_readElarmS_ElarmSMessage2SAStruct(props.verbose, line, &SA);
     }
