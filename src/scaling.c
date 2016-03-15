@@ -9,11 +9,17 @@
  * @brief Computes the predicted mangitude using PGD and Pd from
  *        the seismogeodetic data by solving the overdetermined system:
  *         \f[ 
- *            \left [B + C \log_{10}(r) \right ] \textbf{m}
- *          = \log_{10}(d) - A
+ *            W \left [B + C \log_{10}(r) \right ] \textbf{m}
+ *          = W \left \{ \log_{10}(d) - A \right \}
  *         \f] 
  *        for the the magnitude m.  Here r is the hypocentral distance,
  *        d is the displacement, A, B, and C are defined in the routine. 
+ *        The weighting matrix is a diagonal matrix defined by: 
+ *          \f[ W = diag
+ *                  \left[
+ *                     e^{-\frac{\Delta^2}{8 \min(\Delta^2) }}
+ *                  \right ] \f]
+ *        where \f$ \Delta \f$ is the epicentral distance.
  *
  * @param[in] n         length of arrays 
  * @param[in] verbose   controls verbosity (0 is completely quiet)
@@ -30,8 +36,6 @@
  * @result 0 indicates success
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
- *
- * @addtogroup PGD
  *
  */
 int GFAST_scaling_PGD(int n, int verbose,
@@ -161,8 +165,6 @@ ERROR:; // An error was encountered
  *
  * @author Ben Baker (ISTI)
  *
- * @addtogroup PGD
- * 
  */
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
                                        double B, double C,
@@ -202,8 +204,6 @@ int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
  * @result 0 indicates success
  *
  * @author Ben Baker (ISTI)
- *
- * @addtogroup PGD
  *
  */
 int GFAST_scaling_PGD__setRHS(int n, int verbose,
