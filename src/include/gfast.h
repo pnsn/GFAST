@@ -61,10 +61,13 @@ int GFAST_scaling_PGD__setRHS(int n, int verbose,
                               double dist_tol, double dist_def,
                               double A, double *__restrict__ d,
                               double *__restrict__ b);
-
-int GFAST_CMTgreenF(int l1, int ldg, 
-                    double *x1, double *y1, double *z1, double *azi, 
-                    double *G);
+/* Matrix of Green's functions for CMT */
+int GFAST_CMTgreenF(int l1, int verbose, 
+                    double *__restrict__ x1, 
+                    double *__restrict__ y1, 
+                    double *__restrict__ z1, 
+                    double *__restrict__ azi, 
+                    double *__restrict__ G);
 #ifdef __cplusplus
 }
 #endif
