@@ -149,8 +149,9 @@ void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
  * @author Ben Baker, ISTI
  */
 extern "C"
-int geodetic_gps2utm(double lat, double lon, double *xutm, double *yutm,
-                     bool *lnorthp, int *zone)
+int geodetic_coordtools_ll2utm(double lat, double lon,
+                               double *xutm, double *yutm,
+                               bool *lnorthp, int *zone)
 {
     double x, y, gamma, k;
     int setzone, zone_loc;
@@ -167,7 +168,7 @@ int geodetic_gps2utm(double lat, double lon, double *xutm, double *yutm,
     }else{
         if (*zone < GeographicLib::UTMUPS::MINZONE ||
             *zone > GeographicLib::UTMUPS::MAXZONE){
-            strcpy(error,"geodetic_gps2utm: Invalid zone\0");
+            strcpy(error,"geodetic_ll2utm: Invalid zone\n");
             setzone = GeographicLib::UTMUPS::STANDARD;
             log_warnF(error);
         }else{
@@ -182,7 +183,7 @@ int geodetic_gps2utm(double lat, double lon, double *xutm, double *yutm,
         *lnorthp = northp_loc;
     }
     catch (const exception &e){
-        strcpy(error, "geodetic_gps2utm: Error converting latlon to utm\0");
+        strcpy(error, "geodetic_ll2utm: Error converting latlon to utm\n");
         log_errorF(error);
         return -1;
     }
@@ -211,8 +212,8 @@ int geodetic_gps2utm(double lat, double lon, double *xutm, double *yutm,
  *
  */
 extern "C" 
-int geodetic_utm2gps(int zone, bool lnorthp, double xutm, double yutm,
-                     double *lat, double *lon)
+int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
+                               double *lat, double *lon)
 {
     double plat, plon, gamma, k;
     bool mgrslimits;
@@ -226,7 +227,7 @@ int geodetic_utm2gps(int zone, bool lnorthp, double xutm, double yutm,
     plon = 0.0;
     if (zone < GeographicLib::UTMUPS::MINZONE ||
         zone > GeographicLib::UTMUPS::MAXZONE){
-        strcpy(error, "geodetic_utm2gps: Invalid zone\0");
+        strcpy(error, "geodetic_utm2ll: Invalid zone\n");
         log_errorF(error);
         return -1;
     }
@@ -239,7 +240,7 @@ int geodetic_utm2gps(int zone, bool lnorthp, double xutm, double yutm,
         if (plon < 0.0){plon = plon + 360.0;}
     }
     catch (const exception &e){
-        strcpy(error, "geodetic_utm2gps: Error converting latlon to utm\0");
+        strcpy(error, "geodetic_utm2ll: Error converting latlon to utm\n");
         log_errorF(error);
         return -1;
     }
