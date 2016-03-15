@@ -25,7 +25,7 @@
  * @param[in] repi      epicentral distance (km) [n]
  *
  * @param[out] M        magnitude
- * @param[out] VR       variance reduction
+ * @param[out] VR       variance reduction (percentage)
  *
  * @result 0 indicates success
  *
@@ -126,9 +126,9 @@ int GFAST_scaling_PGD(int n, int verbose,
     }
     // Copy results
     *M = M1[0];
-    *VR = (1.0 - sqrt(xnum)/sqrt(xden))*100.0;
+    *VR = (1.0 - sqrt(xnum/xden))*100.0;
+ERROR:; // An error was encountered
     // Free space
-ERROR:;
     if (b  != NULL){free(b);}
     if (G  != NULL){free(G);}
     if (UP != NULL){free(UP);}
