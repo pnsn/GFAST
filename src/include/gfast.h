@@ -20,10 +20,11 @@ void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
                                 double lat_deg, double lon_deg,
                                 double *dn, double *de, double *du);
 #ifdef WITH_LIBGEO
-int geodetic_ll2utm(double lat, double lon, double *xutm, double *yutm,
-                    bool *lnorthp, int *zone);
-int geodetic_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
-                    double *lat, double *lon);
+int geodetic_coordtools_ll2utm(double lat, double lon,
+                               double *xutm, double *yutm,
+                               bool *lnorthp, int *zone);
+int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
+                               double *lat, double *lon);
 #else
 void GFAST_coordtools_ll2utm(double lon_deg, double lat_deg, double lon0_deg,
                              double *UTMNorthing, double *UTMEasting);
