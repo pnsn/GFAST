@@ -1,31 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 #include "gfast.h"
 
 /*!
  * @brief Computes matrix of Green's functions required in the CMT inversion
  *
  * @param[in] l1        length of arrays
- * @param[in] ldg       leading dimension of G matrix [must be at 6]
+ * @param[in] verbose   controls verbosity (0 is quiet)
  * @param[in] x1        x UTM position of receiver (meters) [l1]
  * @param[in] y1        y UTM posiiton of receiver (meters) [l1]
  * @param[in] z1        z elevation above source (meters) [l1]
  * @param[in] azi       source receiver azimuth (degrees) [l1]
  *
  * @param[out] G        matrix of Green's functions stored in row major
- *                      format [ldg x 3*l1]
+ *                      format [3*l1 x 6]
  *
  * @result 0 indicates success
  *
  * @author Brendan Crowell, PNSN
  * @author Ben Baker, ISTI - converted from Python to C
  * @date January, 2015
+ * @addtogroup CMT
  *
  */
-int GFAST_CMTgreenF(int l1, int ldg, 
-                    double *x1, double *y1, double *z1, double *azi, 
-                    double *G)
+int GFAST_CMTgreenF(int l1, int verbose,
+                    double *__restrict__ x1,
+                    double *__restrict__ y1,
+                    double *__restrict__ z1,
+                    double *__restrict__ azi, 
+                    double *__restrict__ G)
 {
     const char *fcnm = "GFAST_CMTgreenF\0";
     double azi1, C1, C2, cosaz, cosaz2,  
@@ -41,14 +46,13 @@ int GFAST_CMTgreenF(int l1, int ldg,
     //
     // Size check
     if (l1 < 1){
-        printf("%s: Error invalid number of points %d\n", fcnm, l1);
-        return 1;
-    }
-    if (ldg < 6){
-        printf("%s: Error ldg is too small %d\n", fcnm, ldg);
-        return 1;
+        if (verbose > 0){
+            log_errorF("%s: Error invalid number of points %d\n", fcnm, l1);
+        }
+        return -1;
     }
     // Loop on points and fill up Green's functions matrix
+    indx = 0;
     for (i=0; i<l1; i++){
         // define some constants for this point
         azi1 = azi[i]*pi180;
@@ -63,7 +67,7 @@ int GFAST_CMTgreenF(int l1, int ldg,
         R = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
         C1= 1.0/pow(R,2)/MU/M_PI/8.0;
         C2 = (3.0*K + MU)/(3.0*K + 4.0*MU);
-        R3 = pow(R,3);
+        R3 = pow(R, 3);
         // coefficients for row 1
         g111 = C1*( C2*(3.0*x*x*x/R3 - 3.0*x/R) + 2.0*x/R );
         g122 = C1*( C2*(3.0*x*y*y/R3 - x/R) );
@@ -85,8 +89,7 @@ int GFAST_CMTgreenF(int l1, int ldg,
         g312 = C1*( C2*(3.0*z*x*y/R3) );
         g313 = C1*( C2*(3.0*z*x*z/R3) + 2.0*x/R);
         g323 = C1*( C2*(3.0*z*y*z/R3) + 2.0*y/R);
-        // row 1
-        indx = 3*i*ldg + 0*ldg;
+        // Fill G; row 1
         G[indx+0] = g111*cosaz2 + g122*sinaz2 + 2.0*g112*cosaz*sinaz;
         G[indx+1] = g111*sinaz2 + g122*cosaz2 - 2.0*g112*cosaz*sinaz;
         G[indx+2] = g133;
@@ -94,8 +97,8 @@ int GFAST_CMTgreenF(int l1, int ldg,
                   - g112*sinaz2 + g122*sinaz*cosaz;
         G[indx+4] = g113*cosaz + g123*sinaz;
         G[indx+5] = g123*cosaz - g113*sinaz;
+        indx = indx + 6;//ldg;
         // row 2
-        indx = 3*i*ldg + 1*ldg;
         G[indx+0] = g211*cosaz2 + g222*sinaz2 + 2.0*g212*cosaz*sinaz;
         G[indx+1] = g211*sinaz2 + g222*cosaz2 - 2.0*g212*cosaz*sinaz;
         G[indx+2] = g233;
@@ -103,8 +106,8 @@ int GFAST_CMTgreenF(int l1, int ldg,
                   - g212*sinaz2 + g222*sinaz*cosaz;
         G[indx+4] = g213*cosaz + g223*sinaz;
         G[indx+5] = g223*cosaz - g213*sinaz;
+        indx = indx + 6;//ldg;
         // row 3
-        indx = 3*i*ldg + 2*ldg;
         G[indx+0] = g311*cosaz2 + g322*sinaz2 + 2.0*g312*cosaz*sinaz;
         G[indx+1] = g311*sinaz2 + g322*cosaz2 - 2.0*g312*cosaz*sinaz;
         G[indx+2] = g333;
@@ -112,6 +115,8 @@ int GFAST_CMTgreenF(int l1, int ldg,
                   - g312*sinaz2 + g322*sinaz*cosaz;
         G[indx+4] = g313*cosaz + g323*sinaz;
         G[indx+5] = g323*cosaz - g313*sinaz;
+        indx = indx + 6;//ldg;
     } // Loop on points
     return 0;
 }
+
