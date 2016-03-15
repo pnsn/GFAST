@@ -2,16 +2,23 @@
 #include <stdlib.h>
 #include <math.h>
 #include <lapacke.h>
+#include <cblas.h>
 #include "gfast.h"
 
 #define n10 10
 
-extern void dgemv_(char *TRANS, int *M, int *N, double *ALPHA,
-                   double *A, int *LDA, double *X, int *INCX,
-                   double *BETA, double *Y, int *INCY);
+/*!
+ * @defgroup CMT
+ *
+ * This module is responsible for estimating the centroid moment tensor 
+ * and finite fault.
+ *
+ */
 
 /*!
- * @callgraph
+ * @brief Drives the centroid moment tensor inversion.
+ *
+ * @addtogroup CMT
  */
 int GFAST_moment_tensor(int l1, int *signal_ptr,
                         double *sta_lat, double *sta_lon,
@@ -150,7 +157,8 @@ getchar();
         *Mw = 2.0*log10(Mo)/3.0 - 6.0;
     }
     // Compute the estimates
-    dgemv_("N", &m, &n6, &alpha, G, &ldg, S, &incx, &beta, UP, &incy);
+    cblas_dgemv(CblasRowMajor, CblasNoTrans,
+                m, n6, alpha, G, ldg, S, incx, beta, UP, incy);
     // Compute the variance reduction 
     res_norm2 = 0.0;
     u_norm2 = 0.0;
