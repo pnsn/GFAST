@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
+#ifdef WITH_LIBGEO
+#include <GeographicLib/UTMUPS.hpp>
+#endif
+#include "gfast.h"
+
+using namespace std;
 
 /*!
  * @brief This converts WGS84 coordinates to ITRF xyz
@@ -19,6 +26,7 @@
  * @date February 2016
  *
  */
+extern "C"
 void GFAST_coordtools_lla2ecef(double lat_in, double lon_in, double alt,
                                double *x, double *y, double *z)
 {
@@ -35,105 +43,327 @@ void GFAST_coordtools_lla2ecef(double lat_in, double lon_in, double alt,
     sin_lon = sin(lon);
 
     e2 = pow(e, 2);
-    N = a/sqrt(1.0 - e2*pow(sin_lat,2));
+    N = a/sqrt(1.0 - e2*pow(sin_lat, 2));
 
     *x = (N + alt)*cos_lat*cos_lon;
     *y = (N + alt)*cos_lat*sin_lon;
     *z = ((1.0 - e2)*N+alt)*sin_lat;
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Converts ITRF xyz coordinates to WGS84
+ *
+ * @param[in] x      x ITRF coordinate (m)
+ * @param[in] y      y ITRF coordinate (m)
+ * @param[in] z      z ITRF coordinate (m)
+ *
+ * @param[out] lat_deg   corresponding WGS84 latitude (degrees)
+ * @param[out] lon_deg   corresponding WGS84 longitude (degrees)
+ * @param[out] alt       altitude (m)
+ * 
+ * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
+ *
+ */
+extern "C"
+void GFAST_coordtools_ecef2lla(double x, double y, double z,
+                               double *lat_deg, double *lon_deg, double *alt)
+{
+    double a2, b, b2, e2, ep, lat, lon, N, p, th; 
+    const double a = 6378137.0;
+    const double e = 8.1819190842622e-2;
+    const double pi180i = 180.0/M_PI;
+
+    a2 = pow(a, 2);
+    e2 = pow(e, 2);
+    b = sqrt(a2*(1.0 - pow(e, 2)));
+    b2 = pow(b, 2);
+    ep = sqrt((a2 - b2)/b2);
+    p =  sqrt(pow(x, 2) + pow(y, 2));
+    th = atan2(a*z, b*p);
+    lon = atan2(y, x);
+    lat = atan2((z + pow(ep, 2)*b*pow(sin(th), 3)),
+                (p - e2*a*pow(cos(th), 3)));
+    N = a/sqrt(1.0 - e2*pow(sin(lat), 2));
+
+    *alt = p/cos(lat) - N;
+    *lon_deg = lon*pi180i;
+    *lat_deg = lat*pi180i;
+    return;
+}
+//============================================================================//
+/*!
+ * @brief This takes displacements in x, y, z and converts them to
+ *        north, east, up
+ *
+ * @param[in] dx         displacement in x
+ * @param[in] dy         displacement in y
+ * @param[in] dz         displacement in z
+ * @param[in] lat_deg    latitude (degrees)
+ * @param[in] lon_deg    longitude (degrees)
+ * 
+ * @param[out] dn        displacement in north
+ * @param[out] de        displacement in east
+ * @param[out] du        displacement in up
+ *
+ * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
+ *
+ */
+extern "C"
+void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
+                                double lat_deg, double lon_deg,
+                                double *dn, double *de, double *du)
+{
+    double cos_lat, cos_lon, lat, lon, sin_lat, sin_lon;
+    const double pi180 = M_PI/180.0;
+    lat = lat_deg*pi180;
+    lon = lon_deg*pi180;
+    cos_lat = cos(lat);
+    cos_lon = cos(lon);
+    sin_lat = sin(lat);
+    sin_lon = sin(lon);
+    *dn =-sin_lat*cos_lon*dx - sin_lat*sin_lon*dy + cos_lat*dz;
+    *de =-sin_lon*dx + cos(lon)*dy;
+    *du = cos_lat*cos_lon*dx + cos_lat*sin_lon*dy + sin_lat*dz;
+    return;
+}
+#ifdef WITH_LIBGEO
+//============================================================================//
+/*!
+ * @brief Converts latitude/longitudes to UTM location
+ *
+ * @param[in] lat       latitude (degrees) [-90,90]
+ * @param[in] lon       longitude (degrees) [-540,540)
+ *
+ * @param[out] xutm     corresponding x utm location (meters)
+ * @param[out] yutm     corresponding y utm location (meters)
+ * @param[out] lnorthp  False -> indicates southern hemisphere
+ *                      True  -> indicates northern hemisphere
+ *
+ * @param[inout] zone   -1 -> then the corresponding UTM zone be returned
+ *                      >-1-> force GeographicLib to use this UTM zone 
+ *                            [0,60]
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ */
+extern "C"
+int geodetic_gps2utm(double lat, double lon, double *xutm, double *yutm,
+                     bool *lnorthp, int *zone)
+{
+    double x, y, gamma, k;
+    int setzone, zone_loc;
+    bool mgrslimits, northp_loc;
+    char error[1024];
+    //------------------------------------------------------------------------//
+    //
+    // Check if the zone is to be specified
+    *xutm = 0.0;
+    *yutm = 0.0;
+    *lnorthp = true;
+    if (*zone ==-1){ // Compute zone
+        setzone = GeographicLib::UTMUPS::STANDARD;
+    }else{
+        if (*zone < GeographicLib::UTMUPS::MINZONE ||
+            *zone > GeographicLib::UTMUPS::MAXZONE){
+            strcpy(error,"geodetic_gps2utm: Invalid zone\0");
+            setzone = GeographicLib::UTMUPS::STANDARD;
+            log_warnF(error);
+        }else{
+            setzone = *zone;
+        }
+    }
+    // Convert lat/lon to utm
+    mgrslimits = false;
+    try{
+        GeographicLib::UTMUPS::Forward(lat, lon, zone_loc, northp_loc, x, y,
+                                       gamma, k, setzone, mgrslimits);
+        *lnorthp = northp_loc;
+    }
+    catch (const exception &e){
+        strcpy(error, "geodetic_gps2utm: Error converting latlon to utm\0");
+        log_errorF(error);
+        return -1;
+    }
+    // Return the zone and (x,y) utm's
+    if (*zone ==-1){*zone = zone_loc;}
+    *xutm = x;
+    *yutm = y;
+    return 0;
+}
+//============================================================================//
+/*!
+ * @brief Converts UTM location to latitude/longitude
+ *
+ * @param[in] zone     UTM zone containing (xutm,yutm) [0,60]
+ * @param[in] lnorthp  False -> then in the southern hemisphere
+ *                     True  -> then in the northern hemisphere
+ * @param[in] xutm     x utm location (meters) 
+ * @param[in] yutm     y utm location (meters) 
+ *
+ * @param[out] lat     latitude (degrees) [-90,90]
+ * @param[out] lon     longitude (degrees) [0,360)
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+extern "C" 
+int geodetic_utm2gps(int zone, bool lnorthp, double xutm, double yutm,
+                     double *lat, double *lon)
+{
+    double plat, plon, gamma, k;
+    bool mgrslimits;
+    char error[1024];
+    //------------------------------------------------------------------------//
+    //
+    // Check if the zone is to be specified
+    *lat = 0.0;
+    *lon = 0.0;
+    plat = 0.0;
+    plon = 0.0;
+    if (zone < GeographicLib::UTMUPS::MINZONE ||
+        zone > GeographicLib::UTMUPS::MAXZONE){
+        strcpy(error, "geodetic_utm2gps: Invalid zone\0");
+        log_errorF(error);
+        return -1;
+    }
+    // Convert lat/lon to utm
+    mgrslimits = false;
+    try{
+        GeographicLib::UTMUPS::Reverse(zone, lnorthp, xutm, yutm,
+                                       plat, plon,
+                                       gamma, k, mgrslimits);
+        if (plon < 0.0){plon = plon + 360.0;}
+    }
+    catch (const exception &e){
+        strcpy(error, "geodetic_utm2gps: Error converting latlon to utm\0");
+        log_errorF(error);
+        return -1;
+    }
+    // Return the zone and (x,y) utm's
+    *lat = plat;
+    *lon = plon;
+    return 0;
+}
+#else
+//============================================================================//
+/*!
+ * @brief This takes lat and lon values and converts to UTM northing and easting
+ *        for the Pacific Northwest.  The central meridian is fixed by lon0
+ *        (no lookup table included), so don't use if you are covering a large
+ *        geographic area (probably greater than 3 UTM zones).  For Cascadia,
+ *        use lon0=-123.  Also, this is northern hemisphere fixed. If in
+ *        southern hemisphere, you need to add 10000 km to the northing
+ *
+ * @param[in] lon_deg       longitude to convert to UTM easting (degrees)
+ * @param[in] lat_deg       latitude to convert to UTM northing (degrees)
+ * @param[in] lon0_deg      controls UTM zone - see above (degrees)
+ *
+ * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
+ * @param[out] UTMEasting   corresponding easting UTM coordinate (m)
+ *
+ * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
+ *
+ */
+extern "C"
+void GFAST_coordtools_ll2utm(double lon_deg, double lat_deg, double lon0_deg,
+                             double *UTMNorthing, double *UTMEasting)
+{
+    double A, C, lat, lon, lon0, M, T, v;
+    // WGS84 parameters
+    const double a = 6378137.0000;
+    const double esq = 0.006694380069978522;
+    const double epsq = esq/(1.0 - esq);
+    const double k0 = 0.9996;
+    const double pi180 = M_PI/180.0;
+
+    lon = lon_deg*pi180;
+    lat = lat_deg*pi180;
+    lon0 = lon0_deg*pi180;   //central meridian (-123 for zone 10)
+
+    A = (lon - lon0)*cos(lat);
+    v = a/sqrt(1.0 - esq*pow(sin(lat), 2));
+    T = pow(tan(lat), 2);
+    C = esq*pow(cos(lat), 2)/(1.0 - esq);
+
+    M = a*(
+           (1.0 - esq/4.0 - 3.0*pow(esq, 2)/64.0 - 5.0*pow(esq, 3)/256.0)*lat
+          -(3.0*esq/8.0 + 3.0*pow(esq, 2)/32.0
+           + 45.0*pow(esq, 3)/1024.0)*sin(2.0*lat)
+          +(15.0*pow(esq, 2)/256.0 + 45.0*pow(esq, 3)/1024.0)*sin(4.0*lat)
+          -(35.0*pow(esq, 3)/3072.0)*sin(6.0*lat)
+        );
+
+    *UTMNorthing = k0*( M + v*tan(lat)*( A*A/2.0 + (5.0 - T + 9.0*C +4.0*C*C)
+                     *pow(A, 4)/24.0 + (61.0 - 58.0*T + T*T
+                     + 600.0*C - 330.0*epsq)*pow(A,6)/720.0 ) );
+
+    *UTMEasting = k0*v*( A + (1.0 - T + C)*pow(A, 3)/6.0 
+                      + (5.0 - 18.0*T + T*T 
+                      + 72.0*C - 58.0*epsq)*pow(A, 5)/120.0 ) + 500000.0;
 
     return;
 }
+//============================================================================//
+/*!
+ * @brief Takes UTM easting and northing with a central meridian and converts
+ *        to lat and lon. Obviously running ll2utm then putting output into
+ *        utm2ll should result in the original value (off by a small amount
+ *        due to truncation of the UTM parameters)
+ *
+ * @param[in] UTMEasting   UTM east coordinate to convert to longitude (m)
+ * @param[in] UTMNorthing  UTM north coordinate to convert to latitude (m)
+ * @param[in] lon0_deg     controls the UTM zone - see above (degrees)
+ *
+ * @param[out] lat_deg     corresponding latitude (degrees)
+ * @param[out] lon_deg     corresponding longitude (degrees)
+ *
+ * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
+ * 
+ */
+extern "C"
+void GFAST_coordtools_utm2ll(double UTMEasting, double UTMNorthing,
+                             double lon0_deg,
+                             double *lat_deg, double *lon_deg)
+{
+    double C1, D, e1, lat, lat1, lon, M1, mu1, T1, p1, v1;
+    // WGS84 parameters
+    const double a = 6378137.0000;
+    const double esq = 0.006694380069978522;
+    const double epsq = esq/(1.0 - esq);
+    const double k0 = 0.9996;
+    const double pi180 = M_PI/180.0;
+    const double pi180i = 180.0/M_PI;
+    const double lon0 = lon0_deg*pi180;
 
-/*
-#This converts ITRF xyz coordinates to WGS84
+    M1 = UTMNorthing/k0;
+    mu1 = M1/(a * (1.0 - esq/4.0 - 3.0/64.0*pow(esq, 2)
+              - 5.0/256.0*pow(esq, 3)) );
+    e1 = ( 1.0 - sqrt(1.0 - esq) ) / ( 1.0 + sqrt(1.0 - esq) );
+    lat1 = mu1 + (3.0*e1/2.0 - 27.0/32.0*pow(e1, 3))*sin(2.0*mu1)
+               + (21.0/16.0*pow(e1, 2) - 55.0/32.0*pow(e1, 4))*sin(4.0*mu1)
+               + (151.0/96.0*pow(e1, 3))*sin(6.0*mu1)
+               + (1097.0/512.0*pow(e1, 4))*sin(8*mu1);
+    T1 = pow(tan(lat1), 2);
+    C1 = epsq*pow(cos(lat1), 2);
 
-def ecef2lla(x,y,z):
-        a = 6378137
-        e = 8.1819190842622e-2
+    v1 = a/sqrt(1.0 - esq*pow(sin(lat1),2));
+    p1 = a*(1.0 - esq)/pow(1.0 - esq*pow(sin(lat1), 2), 1.5);
+    D = (UTMEasting - 500000.0)/v1/k0;
 
-        b = numpy.sqrt(numpy.power(a,2)*(1-numpy.power(e,2)))
-        ep = numpy.sqrt((numpy.power(a,2)-numpy.power(b,2))/numpy.power(b,2))
-        p = numpy.sqrt(numpy.power(x,2)+numpy.power(y,2))
-        th = numpy.atan2(a*z,b*p)
-        lon = numpy.atan2(y,x)
-        lat = numpy.atan2((z+numpy.power(ep,2)*b*numpy.power(numpy.sin(th),3)),(p-numpy.power(e,2)*a*numpy.power(numpy.cos(th),3)))
-        N = a/numpy.sqrt(1-numpy.power(e,2)*numpy.power(numpy.sin(lat),2))
-        alt = p/numpy.cos(lat)-N
+    lat = lat1 - (v1*tan(lat1)/p1) * ( pow(D, 2)/2.0 - (5.0 + 3.0*T1 + 10.0*C1
+                 - 4.0*pow(C1,2) - 9.0*epsq)*pow(D, 4)/24.0 + (61.0 + 90.0*T1
+                 + 298.0*C1 + 45.0*pow(T1, 2) - 252.0*epsq - 3.0*pow(C1, 2))
+                 *pow(D, 6)/720.0 );
+    lon = lon0 + ( D - (1.0 + 2.0*T1 + C1)*pow(D, 3)/6.0 + (5.0 - 2.0*C1
+                 + 28.0*T1 - 3.0*pow(C1, 2) + 8.0*epsq + 24.0*pow(T1, 2))
+                  *pow(D, 5)/120.0 )/cos(lat1);
 
-        lon = lon*180/math.pi
-        lat = lat*180/math.pi
-
-        return (lat,lon,alt)
-
-#This takes displacements in x, y, z and converts them to north, east up
-
-def dxyz2dneu(dx,dy,dz,lat,lon):
-        lat = lat*math.pi/180
-        lon = lon*math.pi/180
-        dn = -numpy.sin(lat)*numpy.cos(lon)*dx-numpy.sin(lat)*numpy.sin(lon)*dy+numpy.cos(lat)*dz
-        de = -numpy.sin(lon)*dx+numpy.cos(lon)*dy
-        du = numpy.cos(lat)*numpy.cos(lon)*dx+numpy.cos(lat)*numpy.sin(lon)*dy+numpy.sin(lat)*dz
-        return (dn, de, du)
-
-#This takes lat and lon values and converts to UTM northing and easting for the Pacific Northwest. 
-#The central meridian is fixed by lon0 (no lookup table included), so dont use if you are covering a large geographic area (probably greater than 3 UTM zones)
-#For Cascadia, use lon0=-123.
-#Also, this is northern hemisphere fixed. If in southern hemisphere, you need to add 10000 km to the northin
-
-def ll2utm(lon,lat,lon0):
-        #WGS84 parameters
-        a = 6378137.0000
-        esq = 0.006694380069978522
-        epsq = esq/(1-esq)
-        k0 = 0.9996
-
-        lon = lon*math.pi/180
-        lat = lat*math.pi/180
-        lon0 = lon0*math.pi/180 #central meridian (-123 for zone 10)
-
-        A = (lon-lon0)*numpy.cos(lat)
-        v = a/numpy.sqrt(1-esq*numpy.power(numpy.sin(lat),2))
-        T = numpy.power(numpy.tan(lat),2)
-        C = esq*numpy.power(numpy.cos(lat),2)/(1-esq)
-
-        M = a*(
-                (1-esq/4-3*numpy.power(esq,2)/64-5*numpy.power(esq,3)/256)*lat
-                -(3*esq/8+3*numpy.power(esq,2)/32+45*numpy.power(esq,3)/1024)*numpy.sin(2*lat)
-                +(15*numpy.power(esq,2)/256+45*numpy.power(esq,3)/1024)*numpy.sin(4*lat)
-                -(35*numpy.power(esq,3)/3072)*numpy.sin(6*lat)
-        )
-
-        UTMNorthing = k0*( M + v*numpy.tan(lat)*( A*A/2 + (5-T+9*C+4*C*C)*numpy.power(A,4)/24 + (61-58*T+T*T+600*C-330*epsq)*numpy.power(A,6)/720 ) )
-
-        UTMEasting = k0*v*( A + (1-T+C)*numpy.power(A,3)/6 + (5-18*T+T*T+72*C-58*epsq)*numpy.power(A,5)/120 )  + 500000.0
-
-        return (UTMEasting, UTMNorthing)
-
-#Takes UTM easting and northing with a central meridian and converts to lat and lon. Obviously running ll2utm then putting output into utm2ll should result in the original value (off by a small amount due to truncation of the UTM parameters)
-def utm2ll(UTMEasting,UTMNorthing,lon0):
-        #WGS84 parameters
-        a = 6378137.0000
-        esq = 0.006694380069978522
-        epsq = esq/(1-esq)
-        k0 = 0.9996
-        lon0 = lon0*math.pi/180
-
-        M1 = UTMNorthing/k0
-        mu1 = M1/(a * (1 - esq/4 - 3/64*numpy.power(esq,2) - 5/256*numpy.power(esq,3)) )
-        e1 = ( 1 - numpy.sqrt(1-esq) ) / ( 1 + numpy.sqrt(1-esq) )
-        lat1 = mu1 + (3*e1/2 - 27/32*numpy.power(e1,3))*numpy.sin(2*mu1) + (21/16*numpy.power(e1,2) - 55/32*numpy.power(e1,4))*numpy.sin(4*mu1) + (151/96*numpy.power(e1,3))*numpy.sin(6*mu1) + (1097/512*numpy.power(e1,4))*numpy.sin(8*mu1)
-        T1 = numpy.power(numpy.tan(lat1),2)
-        C1 = epsq*numpy.power(numpy.cos(lat1),2)
-
-        v1 = a/numpy.sqrt(1 - esq*numpy.power(numpy.sin(lat1),2))
-        p1 = a*(1-esq)/numpy.power(1 - esq*numpy.power(numpy.sin(lat1),2),1.5)
-        D = (UTMEasting - 500000.0)/v1/k0
-
-        lat = lat1 - (v1*numpy.tan(lat1)/p1) * ( numpy.power(D,2)/2 - (5 + 3*T1 + 10*C1 - 4*numpy.power(C1,2) - 9*epsq)*numpy.power(D,4)/24 + (61 + 90*T1 +298*C1 + 45*numpy.power(T1,2) - 252*epsq - 3*numpy.power(C1,2))*numpy.power(D,6)/720 )
-        lon = lon0 + ( D - (1 + 2*T1 + C1)*numpy.power(D,3)/6 + (5 - 2*C1 + 28*T1 - 3*numpy.power(C1,2) + 8*epsq + 24*numpy.power(T1,2))*numpy.power(D,5)/120 )/numpy.cos(lat1)
-
-        lat = lat*180/math.pi
-        lon = lon*180/math.pi
-
-        return(lon, lat)
-*/
+    *lat_deg = lat*pi180i;
+    *lon_deg = lon*pi180i;
+    return;
+}
+#endif

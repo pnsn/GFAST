@@ -4,6 +4,7 @@
 #include <lapacke.h>
 #include <cblas.h>
 #include "gfast_numpy.h"
+#include "gfast_log.h"
 
 /*! 
  * @brief Returns index corresponding to largest value in an array
@@ -101,7 +102,7 @@ double numpy_nanmean(int n, double *x, int *iwarn)
     *iwarn = 0;
     // Size check
     if (n < 1){ 
-        printf("%s: Warning no elements; division by zero\n", fcnm);
+        log_warnF("%s: Warning no elements; division by zero\n", fcnm);
         *iwarn = 1;
         xavg = NAN;
         return xavg;
@@ -119,7 +120,7 @@ double numpy_nanmean(int n, double *x, int *iwarn)
         iavg = iavg + it; 
     }   
     if (iavg == 0){ 
-        printf("%s: Warning all elements of x are NaN's\n", fcnm);
+        log_warnF("%s: Warning all elements of x are NaN's\n", fcnm);
         *iwarn = 2;
         xavg = NAN;
     }else{
@@ -172,6 +173,8 @@ int numpy_lstsq(int mtx_fmt,
     double *A, *bwork, *s, rcond;
     int ierr, indx, jndx, info, k, lda, ldb, mn, rank;
     int incx = 1, incy = 1;
+    //------------------------------------------------------------------------//
+    //
     // Initialize
     A = NULL;
     s = NULL;
@@ -179,15 +182,15 @@ int numpy_lstsq(int mtx_fmt,
     // Check sizes
     ierr = 1;
     if (m < 1){
-        printf("%s: Error no rows in matrix\n", fcnm);
+        log_errorF("%s: Error no rows in matrix\n", fcnm);
         goto ERROR; 
     }
     if (n < 1){
-        printf("%s: Error no columns in matrix\n", fcnm);
+        log_errorF("%s: Error no columns in matrix\n", fcnm);
         goto ERROR; 
     }
     if (nrhs < 1){
-        printf("%s: Error there are no right hand sides\n", fcnm);
+        log_errorF("%s: Error there are no right hand sides\n", fcnm);
         goto ERROR; 
     }
     // Figure out the condition number
@@ -199,19 +202,20 @@ int numpy_lstsq(int mtx_fmt,
     mn = lda*n;
     A = (double *)calloc(mn, sizeof(double));
     if (A == NULL){
-        printf("%s: There was an error setting space\n", fcnm);
+        log_errorF("%s: There was an error setting space\n", fcnm);
         goto ERROR; 
     }
-    s = (double *)calloc(fmin(n, n), sizeof(double));
+    s = (double *)calloc(fmin(n, m), sizeof(double));
     if (s == NULL){
-        printf("%s: Error setting space for singular values\n", fcnm);
+        log_errorF("%s: Error setting space for singular values\n", fcnm);
         goto ERROR;
     }
     // Set space for right hand side/solution
-    ldb = fmax(m,n);
+    ldb = fmax(m, n);
     bwork = (double *)calloc(ldb*nrhs, sizeof(double));
     if (bwork == NULL){
-        printf("%s: There was an error setting workspace for bwork\n", fcnm);
+        log_errorF("%s: There was an error setting workspace for bwork\n",
+                   fcnm);
         goto ERROR; 
     }
     // Copy RHS
@@ -222,17 +226,18 @@ int numpy_lstsq(int mtx_fmt,
         cblas_dcopy(m, &b[indx], incx, &bwork[indx], incy);
     }
     // Compute the SVD
-    info = LAPACKE_dgelsd(mtx_fmt, m, n, nrhs, A, lda, b, ldb, s, rcond, &rank);
+    info = LAPACKE_dgelsd(mtx_fmt, m, n, nrhs, A, lda, bwork, ldb,
+                          s, rcond, &rank);
     if (info != 0){
-        printf("%s: There was an error solving the least squares problem\n",
-               fcnm);
+        log_errorF("%s: There was an error solving the least squares problem\n",
+                   fcnm);
         goto ERROR;
     }
     // Copy the solution
     for (k=0; k<nrhs; k++){
         indx = k*ldb;
         jndx = k*n;
-        cblas_dcopy(m, &bwork[indx], incx, &x[jndx], incy);
+        cblas_dcopy(n, &bwork[indx], incx, &x[jndx], incy);
     }
     // Do you want the rank?
     if (rank_out != NULL){*rank_out = rank;}
