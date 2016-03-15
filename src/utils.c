@@ -28,7 +28,7 @@ int numpy_argmax(int n, double *x)
     int i;
     //------------------------------------------------------------------------//
     if (n < 1){
-        printf("%s: Warning no values in array x!", fcnm);
+        log_warnF("%s: Warning no values in array x!", fcnm);
         return 0;
     }
     if (n == 1){return 0;}
@@ -61,7 +61,7 @@ double numpy_min(int n, double *x)
     double xmin;
     int i;
     if (n < 1){ 
-        printf("%s: Warning no values in array x!",fcnm);
+        log_warnF("%s: Warning no values in array x!",fcnm);
         return 0.0;
     }   
     if (n == 1){return x[0];}
@@ -289,12 +289,12 @@ int obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
     double cosbaz, sinbaz, et, nt;
     int i;
     if (np < 1){
-        printf("%s: Warning there are no points %d\n", fcnm, np);
+        log_warnF("%s: Warning there are no points %d\n", fcnm, np);
         return 1;
     }
     if (ba < 0.0 || ba > 360.0){
-        printf("%s: Warning back-azimuth=%f should be between [0,360]\n",
-               fcnm, ba);
+        log_warnF("%s: Warning back-azimuth=%f should be between [0,360]\n",
+                  fcnm, ba);
     }
     cosbaz = cos((ba + 180.0)*pi180);
     sinbaz = sin((ba + 180.0)*pi180);
