@@ -3,12 +3,12 @@
 #include <math.h>
 #include <lapacke.h>
 #include <cblas.h>
+#include <stdbool.h>
 #include "gfast.h"
 
 #define n10 10
-
 /*!
- * @defgroup CMT
+ * @defgroup CMT Centroid Moment Tensor and Finite Fault Estimation
  *
  * This module is responsible for estimating the centroid moment tensor 
  * and finite fault.
@@ -18,9 +18,8 @@
 /*!
  * @brief Drives the centroid moment tensor inversion.
  *
- * @addtogroup CMT
  */
-int GFAST_moment_tensor(int l1, int *signal_ptr,
+int GFAST_moment_tensor(int l1, int verbose, int zone_in, int *signal_ptr,
                         double *sta_lat, double *sta_lon,
                         double *n, double *e, double *u,
                         double SA_lat, double SA_lon, double SA_dep,
@@ -28,10 +27,14 @@ int GFAST_moment_tensor(int l1, int *signal_ptr,
                         double *S, double *VR, double *Mw)
 {
     const char *fcnm = "GFAST_moment_tensor\0"; 
-    double *U, *UP, *G, *azi, *azims, *backazi, *xrs, *yrs, *zrs,
-           NN[n10], EE[n10], UU[n10], 
+    double *U, *UP, *G, *azims, *backazi, *xrs, *yrs, *zrs,
+           NN[n10], EE[n10], UU[n10], azi,
            E, Mo, N, r, rcond, res_norm2, t, u_norm2, x1, x2, y1, y2;
-    int efftime, i, ierr, indx, iwarn, k, ldg, m, rank;
+#ifndef WITH_LIBGEO
+    double lon0_deg =-123.0;
+#endif
+    int efftime, i, ierr, indx, iwarn, k, ldg, m, rank, zone;
+    bool lnorthp;
     const double sqrt22 = 0.7071067811865475; // 1/sqrt(2)
     const double pi180i = 180.0/M_PI;
     const int nrhs = 1;
@@ -55,7 +58,6 @@ int GFAST_moment_tensor(int l1, int *signal_ptr,
     xrs = NULL;
     yrs = NULL;
     zrs = NULL;
-    azi = NULL;
     azims = NULL;
     backazi = NULL;
     U = NULL;
@@ -66,41 +68,67 @@ int GFAST_moment_tensor(int l1, int *signal_ptr,
     xrs = (double *)calloc(l1, sizeof(double));
     yrs = (double *)calloc(l1, sizeof(double));
     zrs = (double *)calloc(l1, sizeof(double));
-    azi = (double *)calloc(l1, sizeof(double));
-    azims = (double *)calloc(l1, sizeof(double));
-    backazi = (double *)calloc(l1, sizeof(double));
-    UP = (double *)calloc(m, sizeof(double));     // Estimates UP = G*S
-    U = (double *)calloc(m, sizeof(double));      // Data G*S = U
-    G = (double *)calloc(ldg*n6, sizeof(double)); // Forward modeling matrix; G
-    S = (double *)calloc(n6, sizeof(double));     // Solution; G*S = U
+    azims = (double *)calloc(l1, sizeof(double));  // Azimuths
+    backazi = (double *)calloc(l1, sizeof(double));// Backazimuth
+    UP = (double *)calloc(m, sizeof(double));      // Estimates UP = G*S
+    U = (double *)calloc(m, sizeof(double));       // Data G*S = U
+    G = (double *)calloc(ldg*n6, sizeof(double));  // Forward modeling matrix; G
+    S = (double *)calloc(n6, sizeof(double));      // Solution; G*S = U
+    // Compute the source UTM location
+#ifdef WITH_LIBGEO
+    if (zone_in < 0 || zone_in > 60){
+        zone =-1;
+    }else{
+        zone = zone_in;
+    }
+    ierr = geodetic_coordtools_ll2utm(sta_lat[i], sta_lon[i],
+                                      &x2, &y2,
+                                      &lnorthp, &zone);
+    if (ierr != 0){ 
+        if (verbose > 0){ 
+            log_errorF("%s: Error computing source UTM\n", fcnm);
+        }   
+        goto ERROR;
+    }
+    for (i=0; i<l1; i++){
+        ierr = geodetic_coordtools_ll2utm(sta_lat[i], sta_lon[i],
+                                          &xrs[i], &yrs[i],
+                                          &lnorthp, &zone);
+        if (ierr != 0){ 
+            if (verbose > 0){ 
+                log_errorF("%s: Error computing station UTM\n", fcnm);
+            }
+            goto ERROR;
+        }
+    }
+#else
+    if (zone == 10){
+        lon0_deg =-123.0;
+    }
+    GFAST_coordtools_ll2utm(SA_lon, SA_lat, lon0_deg,
+                            &x2, &y2);
+    for (i=0; i<l1; i++){
+        GFAST_coordtools_ll2utm(SA_lon, SA_lat, lon0_deg,
+                                &xrs[i], &yrs[i]);
+    }
+#endif
     // Compute distances, azimuths, and relative offsets in (x,y,z) coordinates
     for (i=0; i<l1; i++){
-        // Convert source/station lat/lons to UTMs
-y2 = x2 = x1 = y1 = 0.0;
-printf("need a lat/lon to UTM routine!\n");
-getchar();
+        // Compute the station UTM location
+        x1 = xrs[i];
+        y1 = yrs[i];
         // Compute azimuth and back-azimuth 
-        azi[i] = 90.0 - pi180i*atan2(x2-x1, y2-y1);
-        if (azi[i] < 0.0){
-            azi[i] = azi[i] + 360.0;
-        }
-        if (azi[i] > 360.0){
-            azi[i] = azi[i] - 360.0;
-        }
-        if (azi[i] < 180.0){
-            backazi[i] = azi[i] + 180.0;
-        }
-        if (azi[i] > 180.0){
-            backazi[i] = azi[i] - 180.0;
-        }
-        if (azi[i] == 180.0){
-            backazi[i] = 0.0;
-        }
+        azi = 90.0 - pi180i*atan2(x2-x1, y2-y1);
+        if (azi  < 0.0)  {azi = azi + 360.0;}
+        if (azi  > 360.0){azi = azi - 360.0;}
+        if (azi  < 180.0){backazi[i] = azi + 180.0;}
+        if (azi  > 180.0){backazi[i] = azi - 180.0;}
+        if (azi == 180.0){backazi[i] = 0.0;}
         // Relative source receiver location in (x,y,z) coordinates
         xrs[i] = x1 - x2;
         yrs[i] = y1 - y2;
         zrs[i] = SA_dep*1000.0;
-        azims[i] = 90.0 - azi[i] + 180.0;
+        azims[i] = 90.0 - azi + 180.0;
     } // Loop on stations
     // Extract the time series
     for (i=0; i<l1; i++){
@@ -128,25 +156,30 @@ getchar();
         U[indx+2] = numpy_nanmean(n10, UU, &iwarn); 
     }
     // Compute the corresponding Green's functions
-    ierr = GFAST_CMTgreenF(l1, ldg, 
+    ierr = GFAST_CMTgreenF(l1, verbose, 
                            xrs, yrs, zrs, azims,
                            G); 
     if (ierr != 0){
-        printf("%s: Error computing Green's functions\n", fcnm);
+        if (verbose > 0){
+            log_errorF("%s: Error computing Green's functions\n", fcnm);
+        }
         goto ERROR; 
     }
-printf("%s: finish here\n", fcnm);
-getchar();
     // Solve the least squares problem via the SVD
     rcond =-1.0; // Use machine epsilon for singular value cutoff
     ierr = numpy_lstsq(LAPACK_ROW_MAJOR, m, n6, nrhs, G, U,
                        &rcond, S, &rank, NULL);
     if (ierr != 0){
-        printf("%s: Error solving least squares problem\n", fcnm);
+        if (verbose > 0){
+            log_errorF("%s: Error solving least squares problem\n", fcnm);
+        }
         goto ERROR;
     }
     if (rank != n6){
-        printf("%s: Warning: G has rank=%d which is deficient\n", fcnm, rank);
+        if (verbose > 1){
+            log_warnF("%s: Warning: G has rank=%d which is deficient\n",
+                      fcnm, rank);
+        }
     }
     // Compute the scalar moment
     Mo = sqrt22*sqrt(   pow(S[0],2) +   pow(S[1],2) +   pow(S[2],2)
@@ -164,10 +197,10 @@ getchar();
     u_norm2 = 0.0;
     for (i=0; i<m; i++){
         r = U[i] - UP[i];
-        res_norm2 = res_norm2 + pow(r,2);
-        u_norm2 = u_norm2 + pow(U[i],2);
+        res_norm2 = res_norm2 + r*r;
+        u_norm2 = u_norm2 + U[i]*U[i];
     }
-    *VR = (1.0 - res_norm2)/u_norm2*100.0;
+    *VR = (1.0 - sqrt(res_norm2/u_norm2))*100.0;
     // Compute the nodal planes
  
     // Free memory
@@ -175,7 +208,6 @@ ERROR:;
     if (xrs != NULL){free(xrs);}
     if (yrs != NULL){free(yrs);}
     if (zrs != NULL){free(zrs);}
-    if (azi != NULL){free(azi);}
     if (azims != NULL){free(azims);}
     if (backazi != NULL){free(backazi);}
     if (UP != NULL){free(UP);}
