@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <limits.h>
+#include "gfast_enum.h"
 
 #ifndef __GFAST_STRUCT_H__
 #define __GFAST_STRUCT_H__
@@ -8,6 +9,8 @@ struct GFAST_props_struct
 {
     char streamfile[PATH_MAX];  /*!< File of streams to include in the
                                      processing. */
+    char dtfile[PATH_MAX];      /*!< File with site names and sampling periods
+                                     if initializing from file */
     char siteposfile[PATH_MAX]; /*!< File of all the site locations.  The
                                      format used is currently from the SOPAC
                                      SECTOR web service. */
@@ -36,24 +39,29 @@ struct GFAST_props_struct
                                      positions */
     char RMQexchange[512];      /*!< RabbitMQ exchange to access processed GPS
                                      positions (nev-cor) */
-    int bufflen;                /*!< The number of epochs to keep in the data
-                                     buffer. */
+    double dt_default;          /*!< Default sampling period (s) for GPS
+                                     stations */
+    double bufflen;             /*!< The number of seconds to keep in the data
+                                     buffers */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
                                      positions (5672) */
-    bool synmode;               /*!< False -> real-time mode (default).
-                                     True  -> synthetic mode. */
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
-    int verbose;               /*!< Controls verbosity.
-                                     = 0 -> Output nothing.
-                                     = 1 -> Output errors only.
-                                     = 2 -> Output errors, generic
-                                            information, and warnings.
-                                     = 3 -> Output errors, generic information,
-                                            and debug information. */
+    int verbose;                /*!< Controls verbosity.
+                                      = 0 -> Output nothing.
+                                      = 1 -> Output errors only.
+                                      = 2 -> Output errors, generic
+                                             information, and warnings.
+                                      = 3 -> Output errors, generic information,
+                                             and debug information. */
+    enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
+                                     playback, offline) */
+    enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
+                                     period */
+    enum locinit_type loc_init; /*!< Defines how to initialize GPS locations */
 };
 
 struct GFAST_strongMotion_struct
