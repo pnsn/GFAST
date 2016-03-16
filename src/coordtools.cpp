@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#ifdef WITH_LIBGEO
 #include <GeographicLib/UTMUPS.hpp>
-#endif
 #include "gfast.h"
 
 using namespace std;
@@ -127,7 +125,6 @@ void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
     *du = cos_lat*cos_lon*dx + cos_lat*sin_lon*dy + sin_lat*dz;
     return;
 }
-#ifdef WITH_LIBGEO
 //============================================================================//
 /*!
  * @brief Converts latitude/longitudes to UTM location
@@ -249,7 +246,6 @@ int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
     *lon = plon;
     return 0;
 }
-#else
 //============================================================================//
 /*!
  * @brief This takes lat and lon values and converts to UTM northing and easting
@@ -263,15 +259,16 @@ int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
  * @param[in] lat_deg       latitude to convert to UTM northing (degrees)
  * @param[in] lon0_deg      controls UTM zone - see above (degrees)
  *
- * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
  * @param[out] UTMEasting   corresponding easting UTM coordinate (m)
+ * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
 extern "C"
-void GFAST_coordtools_ll2utm(double lon_deg, double lat_deg, double lon0_deg,
-                             double *UTMNorthing, double *UTMEasting)
+void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
+                                 double lon0_deg,
+                                 double *UTMEasting, double *UTMNorthing)
 {
     double A, C, lat, lon, lon0, M, T, v;
     // WGS84 parameters
@@ -326,9 +323,9 @@ void GFAST_coordtools_ll2utm(double lon_deg, double lat_deg, double lon0_deg,
  * 
  */
 extern "C"
-void GFAST_coordtools_utm2ll(double UTMEasting, double UTMNorthing,
-                             double lon0_deg,
-                             double *lat_deg, double *lon_deg)
+void GFAST_coordtools_utm2ll_ori(double UTMEasting, double UTMNorthing,
+                                 double lon0_deg,
+                                 double *lat_deg, double *lon_deg)
 {
     double C1, D, e1, lat, lat1, lon, M1, mu1, T1, p1, v1;
     // WGS84 parameters
@@ -367,4 +364,3 @@ void GFAST_coordtools_utm2ll(double UTMEasting, double UTMNorthing,
     *lon_deg = lon*pi180i;
     return;
 }
-#endif
