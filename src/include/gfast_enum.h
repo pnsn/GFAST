@@ -19,8 +19,8 @@ enum locinit_type
 
 enum opmode_type
 {
-    REAL_TIME = 1,   /*<! GFAST is running in `real time' mode */
-    PLAYBACK = 2,    /*!< GFAST is running in historicaly playback mode */
+    REAL_TIME = 1,   /*!< GFAST is running in `real time' mode */
+    PLAYBACK = 2,    /*!< GFAST is running in historical playback mode */
     OFFLINE = 3      /*!< GFAST is running offline and obtaining data 
                           and configuration purely from files */
 };
