@@ -57,7 +57,7 @@ int GFAST_locinit(struct GFAST_props_struct props,
     const char *fcnm = "GFAST_locinit\0";
     char *string[256], buf[1024], site[64];
     char delimit[] = " ,;\t\r\n\v\f";
-    double dt, lat, lon;
+    double lat, lon;
     int i, k, stream_length;
     bool *lfound, ldone, nuse;
     //------------------------------------------------------------------------//
@@ -99,15 +99,10 @@ int GFAST_locinit(struct GFAST_props_struct props,
                 return -1;
             }
         }
-        sscanf(buf, "%s %lf\n", site, &dt);
-        if (dt != 1.0){
-            log_warnF("%s: Sampling periods not equal to 1 are not tested\n",
-                      fcnm);
-        }
+        sscanf(buf, "%s\n", site);
         strcpy(gps_data->data[k].site, site);
         gps_data->data[k].sta_lat = lat;
         gps_data->data[k].sta_lon = lon;
-        gps_data->data[k].dt = dt;
     }
     fclose(streamfile);
     // Attach the positions
@@ -129,7 +124,8 @@ int GFAST_locinit(struct GFAST_props_struct props,
         }
         if (lat <-90.0 || lat > 90.0){
             if (props.verbose > 0){
-                log_warnF("%s: Station latitude is out of bounds\n", fcnm);
+                log_warnF("%s: Station latitude %f is out of bounds [-90,90]\n",
+                          fcnm, lat);
             }
         }
         if (lon < 0.0){lon = lon + 360.0;}
@@ -192,12 +188,13 @@ int GFAST_locinit(struct GFAST_props_struct props,
 void GFAST_locinit_printLocations(struct GFAST_data_struct *gps_data)
 {
     const char *fcnm = "GFAST_locinit_printLocations\0";
+    const char *lspace = "    \0";
     int k;
+    log_debugF("\n%s: Location summary:\n", fcnm);
     for (k=0; k<gps_data->stream_length; k++){
-        log_debugF("%s: Site %s located at (%f,%f) with sampling period %f\n",
-                   fcnm, gps_data->data[k].site,
-                   gps_data->data[k].sta_lat, gps_data->data[k].sta_lon,
-                   gps_data->data[k].dt);
+        log_debugF("%s Site %s located at (%f,%f)\n",
+                   lspace, gps_data->data[k].site,
+                   gps_data->data[k].sta_lat, gps_data->data[k].sta_lon);
         if (gps_data->data[k].lskip_pgd){
             log_debugF("%s: This site will be skipped in PGD estimation\n",
                        fcnm);
@@ -207,5 +204,6 @@ void GFAST_locinit_printLocations(struct GFAST_data_struct *gps_data)
                        fcnm);
         }
     }
+    log_debugF("\n");
     return;
 }
