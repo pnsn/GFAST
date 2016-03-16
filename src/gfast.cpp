@@ -20,10 +20,14 @@ int main()
     memset(&props,    0, sizeof(struct GFAST_props_struct));
     memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
     // Read the properties file
+    log_infoF("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_paraminit(propfilename, &props);
     if (ierr != 0){
         log_errorF("%s: Error reading the GFAST properties file\n", fcnm);
         goto ERROR;
+    }
+    if (props.verbose > 2){
+        GFAST_paraminit_print(props);
     }
     // Initialize the stations locations/names for the module
     if (props.verbose >= 2){
@@ -35,11 +39,24 @@ int main()
         ierr = 1;
         goto ERROR;
     }
+    // Connect to EW trace buffer and ring with ElarmS messages 
+    if (props.opmode != OFFLINE){
+        log_infoF("%s: Connecting to Earthworm rings...\n", fcnm);
+    }
+    // Initialize the sampling periods
+    ierr = GFAST_buffer_setSiteSamplingPeriod(props, &gps_data);
+    if (ierr != 0){
+        log_errorF("%s: Error setting sampling periods\n", fcnm);
+        goto ERROR;
+    }
+    if (props.verbose > 2){
+        GFAST_buffer_print_samplingPeriod(gps_data);
+    }
     // Connect ActiveMQ for ElarmS messages
     if (props.verbose >= 2){
         log_infoF("%s: Subscribing to ElarmS messages...\n", fcnm);
     }
- GFAST_readElarmS(props);
+ //GFAST_readElarmS(props);
     //GFAST_CMTgreenF();
     //obspy_rotate_NE2RT();
 ERROR:;

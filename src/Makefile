@@ -9,7 +9,7 @@ ifeq "$(wildcard $(OBJ) )" ""
 endif
 
 OBJ_GFAST = $(OBJ)/gfast.o
-OBJ_LIB = $(OBJ)/cmt_driver.o $(OBJ)/cmtgreen.o \
+OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o $(OBJ)/cmtgreen.o \
 	  $(OBJ)/coordtools.o \
 	  $(OBJ)/locinit.o \
 	  $(OBJ)/log.o \
@@ -37,6 +37,9 @@ $(GFAST): $(OBJ_GFAST)
 
 $(OBJ)/gfast.o: gfast.cpp
 	$(CXX) $(CXXFLAGS) $(INCC) -c gfast.cpp -o $(OBJ)/gfast.o
+
+$(OBJ)/buffer.o: buffer.c
+	$(CC) $(CFLAGS) $(INCC) $(CSHARED) -c buffer.c -o $(OBJ)/buffer.o
 
 $(OBJ)/coordtools.o: coordtools.cpp
 	$(CXX) $(CXXFLAGS) $(PRE_PROC) $(INCC) $(CSHARED) -c coordtools.cpp -o $(OBJ)/coordtools.o

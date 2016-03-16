@@ -36,6 +36,15 @@ int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
     //-------------------------GFAST General Parameters-----------------------//
     s = iniparser_getstring(ini, "general:streamfile\0", "GFAST_streams.txt\0");
     strcpy(props->streamfile, s);
+    if (!os_path_isfile(props->streamfile)){
+        log_errorF("%s: Cannot find station list %s\n",
+                   fcnm, props->streamfile);
+        return -1;
+    }
+    props->opmode = iniparser_getint(ini, "general:opmode\0", 0);
+    if (props->opmode < 1 || props->opmode > 3){
+        log_errorF("%s: Invalid operation mode %d\n", fcnm, props->opmode); 
+    }
     s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
     if (s == NULL){
         log_errorF("%s: Could not find ElarmS message filename!\n", fcnm);
@@ -56,13 +65,12 @@ int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
         //    goto ERROR;
         //}
     }
-    props->bufflen = iniparser_getint(ini, "general:bufflen\0", 300);
-    if (props->bufflen < 1){
+    props->bufflen = iniparser_getint(ini, "general:bufflen\0", 300.0);
+    if (props->bufflen <= 0.0){
         log_errorF("%s: Buffer lengths must be positive!\n", fcnm);
         goto ERROR;
     }
-    props->synmode = iniparser_getboolean(ini, "general:synmode\0", false);
-    if (props->synmode){
+    if (props->opmode == OFFLINE){
         s = iniparser_getstring(ini, "general:syndriver\0", NULL);
         if (s == NULL){
             log_errorF("%s: Synthetic driver file must be specified!\n", fcnm);
@@ -75,7 +83,8 @@ int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
                 goto ERROR;
             }
         }
-    } 
+    }
+    // UTM zone
     props->utm_zone = iniparser_getint(ini, "general:utm_zone\0", -12345);
     if (props->utm_zone < 0 || props->utm_zone > 60){
         if (props->utm_zone ==-12345){
@@ -86,7 +95,49 @@ int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
             props->utm_zone =-12345;
         } 
     }
+    // Verbosity
     props->verbose = iniparser_getint(ini, "general:verbose\0", 2);
+    // Sampling period
+    props->dt_default = iniparser_getdouble(ini, "general:dt_default\0", 1.0);
+    if (props->dt_default <= 0.0){
+        log_warnF("%s: Default sampling period %f invalid; defaulting to %f!\n",
+                  fcnm, props->dt_init, 1.0);
+        props->dt_default = 1.0; 
+    }
+    props->dt_init = iniparser_getint(ini, "general:dt_init\0", 3);
+    if (props->opmode != OFFLINE){
+        if (props->dt_init != INIT_DT_FROM_TRACEBUF){
+            log_warnF("%s: Obtaining sampling period from tracebuf\n", fcnm);
+            props->dt_init = 3;
+        }
+    }
+    s = iniparser_getstring(ini, "general:dtfile\0", NULL);
+    if (props->opmode == OFFLINE){
+        if (props->dt_init == INIT_DT_FROM_FILE){
+            props->dt_init = iniparser_getint(ini, "general:dt_init\0", 1);
+            if (s == NULL){
+                log_errorF("%s: Must specify dtfile!\n", fcnm);
+                return -1;
+            }else{
+                strcpy(props->dtfile, s);
+                if (!os_path_isfile(props->dtfile)){
+                    log_errorF("%s: Cannot find dtfile %s!\n", fcnm, s);
+                    return -1;
+                }
+            }
+        }else{
+            if (props->dt_init != INIT_DT_FROM_DEFAULT){
+                log_warnF("%s: Setting dt from default\n", fcnm);
+                props->dt_init = INIT_DT_FROM_DEFAULT;
+            }
+        }
+    }else{
+        if (props->dt_init != INIT_DT_FROM_TRACEBUF){
+            log_warnF("%s: Will get GPS sampling period from trace buffer!\n",
+                      fcnm);
+            props->dt_init = INIT_DT_FROM_TRACEBUF;
+        }
+    }
     //------------------------------PGD Parameters----------------------------//
 
     //----------------------------CMT/FF Parameters---------------------------//
@@ -172,4 +223,51 @@ ERROR:;
     // Free the ini file
     iniparser_freedict(ini);
     return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Prints the GFAST properties to the debug file.  Note, there is 
+ *        no verbosity check.
+ *
+ * @param[in] props    GFAST properties structure to write to the debug file
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_paraminit_print(struct GFAST_props_struct props)
+{
+    const char *fcnm = "GFAST_paraminit_print\0";
+    const char *lspace = "     \0";
+    log_debugF("\n%s: GFAST properties\n", fcnm);
+    if (props.opmode == OFFLINE){
+        log_debugF("%s GFAST site position file %s\n", lspace,
+                   props.siteposfile);  
+        log_debugF("%s GFAST results file %s\n", lspace, props.eewgfile);
+        log_debugF("%s GFAST is operating in offline mode\n", lspace);
+        log_debugF("%s GFAST default sampling period is %f (s)\n", lspace,
+                   props.dt_default);
+        if (props.dt_init == INIT_DT_FROM_FILE){
+            log_debugF("%s GFAST will get sampling period from file %s\n",
+                       lspace, props.dtfile); 
+        }else if (props.dt_init == INIT_DT_FROM_DEFAULT){
+            log_debugF("%s GFAST will set all GPS sampling periods to %f (s)\n",
+                       lspace, props.dt_default); 
+        }
+    }else if (props.opmode == PLAYBACK){
+        log_debugF("%s GFAST is operating in playback mode\n", lspace);
+    }else if (props.opmode == REAL_TIME){
+        log_debugF("%s GFAST is operating in real-time mode\n", lspace);
+    }
+    log_debugF("%s GFAST buffer length is %f seconds\n", lspace, props.bufflen);
+    if (props.utm_zone ==-12345){
+        log_debugF("%s GFAST will get UTM zone from hypocenters\n", lspace);
+    }else{
+        log_debugF("%s GFAST will set UTM zone to %d\n", lspace,
+                   props.utm_zone);
+    }
+    log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
+    log_debugF("%s GFAST stream file: %s\n", lspace, props.streamfile);
+
+    log_debugF("\n");
+    return;
 }
