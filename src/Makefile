@@ -42,10 +42,10 @@ $(OBJ)/buffer.o: buffer.c
 	$(CC) $(CFLAGS) $(INCC) $(CSHARED) -c buffer.c -o $(OBJ)/buffer.o
 
 $(OBJ)/coordtools.o: coordtools.cpp
-	$(CXX) $(CXXFLAGS) $(PRE_PROC) $(INCC) $(CSHARED) -c coordtools.cpp -o $(OBJ)/coordtools.o
+	$(CXX) $(CXXFLAGS) $(INCC) $(CSHARED) -c coordtools.cpp -o $(OBJ)/coordtools.o
 
 $(OBJ)/cmt_driver.o: cmt_driver.c
-	$(CC) $(PRE_PROC) $(CFLAGS) $(INCC) $(INC_LAPACK) $(CSHARED) -c cmt_driver.c -o $(OBJ)/cmt_driver.o
+	$(CC) $(CFLAGS) $(INCC) $(INC_LAPACK) $(CSHARED) -c cmt_driver.c -o $(OBJ)/cmt_driver.o
 
 $(OBJ)/cmtgreen.o: cmtgreen.c
 	$(CC) $(CFLAGS) $(INCC) $(CSHARED) -c cmtgreen.c -o $(OBJ)/cmtgreen.o
