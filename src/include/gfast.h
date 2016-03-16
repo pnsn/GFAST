@@ -1,16 +1,21 @@
 #include <stdbool.h>
+#include "gfast_enum.h"
+#include "gfast_log.h"
 #include "gfast_numpy.h"
 #include "gfast_obspy.h"
-#include "gfast_struct.h"
-#include "gfast_log.h"
-#include "gfast_time.h"
 #include "gfast_os.h"
+#include "gfast_struct.h"
+#include "gfast_time.h"
 #ifndef __GFAST__
 #define __GFAST__
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+/* Buffer initialization */
+int GFAST_buffer_setSiteSamplingPeriod(struct GFAST_props_struct props,
+                                       struct GFAST_data_struct *gps_data);
+void GFAST_buffer_print_samplingPeriod(struct GFAST_data_struct gps_data);
 /* Coordinate tools */
 void GFAST_coordtools_lla2ecef(double lat_in, double lon_in, double alt,
                                double *x, double *y, double *z);
@@ -44,6 +49,7 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
 void GFAST_memory_freeProps(struct GFAST_props_struct *props);
 /* Initializes the GFAST parameters */
 int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props);
+void GFAST_paraminit_print(struct GFAST_props_struct props);
 /* Reads the ElarmS file */
 int GFAST_readElarmS(struct GFAST_props_struct props);
 int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
