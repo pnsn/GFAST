@@ -3,9 +3,9 @@
 #include <math.h>
 #include "gfast.h"
 // Small number to test cos(90) = 0 
-#define eps 6.1232e-14
+#define eps 6.1232e-14 /*!< A close number for okadaGreenF */
 // Poisson's ratio
-#define nu 0.25
+#define nu 0.25 /*!< Poisson's ratio for okadaGreenF */
 
 /* TODO atan is used a lot, should it be atan2 */
 
