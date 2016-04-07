@@ -43,7 +43,26 @@ Install:
      stabilized.  This is because the Python to C interfaces are low
      priority for development at the project onset.
 
+Directories:
+
+(a)  doc - documentation for algorithms
+
+(b)  include - include files for GFAST
+
+(c)  legacy - the original Python GFAST
+
+(d)  libsrc - contains the libgfast source code
+
+(e)  make_inc - template makefile include files
+
+(f)  modules - contains the modules for gfast and subsequent modules
+               such as finite fault, CMT, and PGD
+
+(g)  python - swig/ctypes interface to libgfast.so
+
+(h)  unit_tests - regression testing for libsrc
+
 Examples:
 
-(a)  You mean test software prior to use?  That's a novel idea. 
+(a)  No exercises in futility yet... 
 
