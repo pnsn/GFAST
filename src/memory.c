@@ -14,18 +14,9 @@
 void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm)
 {
     if (sm == NULL){return;}
-    if (sm->z != NULL){
-        free(sm->z);
-        sm->z = NULL;
-    }
-    if (sm->n != NULL){
-        free(sm->n);
-        sm->n = NULL;
-    }
-    if (sm->e != NULL){
-        free(sm->e);
-        sm->e = NULL;
-    }
+    GFAST_memory_free(sm->z);
+    GFAST_memory_free(sm->n);
+    GFAST_memory_free(sm->e);
     memset(sm, 0, sizeof(struct GFAST_strongMotion_struct));
     return;
 }
@@ -41,22 +32,10 @@ void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm)
 void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data)
 {
     if (data == NULL){return;}
-    if (data->ubuff != NULL){
-        free(data->ubuff);
-        data->ubuff = NULL;
-    }
-    if (data->nbuff != NULL){
-        free(data->nbuff);
-        data->nbuff = NULL;
-    }
-    if (data->ebuff != NULL){
-        free(data->ebuff);
-        data->ebuff = NULL;
-    }
-    if (data->tbuff != NULL){
-        free(data->tbuff);
-        data->tbuff = NULL;
-    }
+    GFAST_memory_free(data->ubuff);
+    GFAST_memory_free(data->nbuff);
+    GFAST_memory_free(data->ebuff);
+    GFAST_memory_free(data->tbuff);
     GFAST_memory_freeStrongMotionData(&data->sm);
     memset(data, 0, sizeof(struct GFAST_collocatedData_struct));
     return;
@@ -78,8 +57,7 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
         for (k=0; k<gps_data->stream_length; k++){
             GFAST_memory_freeCollocatedData(&gps_data->data[k]);
         }
-        free(gps_data->data);
-        gps_data->data = NULL;
+        GFAST_memory_free(gps_data->data);
     }
     memset(gps_data, 0, sizeof(struct GFAST_data_struct));
     return;
@@ -96,5 +74,139 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
 void GFAST_memory_freeProps(struct GFAST_props_struct *props)
 {
     memset(props, 0, sizeof(struct GFAST_props_struct));
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Allocates a double array 64 byte alignment 
+ *
+ * @param[in] n      size of array to allocate
+ *
+ * @result on successful exit this is the 64 byte memory aligned
+ *         double array of length n.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+double *GFAST_memory_alloc__double(int n)
+{
+    const char *fcnm = "GFAST_memory_alloc__double\0";
+    double *x = NULL;
+    int ierr;
+    if (n < 1){ 
+        log_errorF("%s: Error invalid size %d\n", fcnm, n); 
+        return x;
+    }   
+    ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(double));
+    if (ierr != 0){ 
+        log_errorF("%s: Error allocating array\n", fcnm);
+        return NULL;
+    }   
+    return x;
+}
+//============================================================================//
+/*!
+ * @brief Allocates an integer array with 64 byte alignment 
+ *
+ * @param[in] n      size of array to allocate
+ *
+ * @result on successful exit this is the 64 byte memory aligned
+ *         integer array of length n.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+int *GFAST_memory_alloc__int(int n)
+{
+    const char *fcnm = "GFAST_memory_alloc__int\0";
+    int *x = NULL;
+    int ierr;
+    if (n < 1){
+        log_errorF("%s: Error invalid size %d\n", fcnm, n);
+        return x;
+    }
+    ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(int));
+    if (ierr != 0){
+        log_errorF("%s: Error allocating array\n", fcnm);
+        return NULL;
+    }
+    return x;
+}
+//============================================================================//
+/*!
+ * @brief Allocates a double array 64 byte alignment 
+ *
+ * @param[in] n      size of array to allocate
+ *
+ * @result on successful exit this is the 64 byte memory aligned
+ *         double array of length n with all elements of array set
+ *         to zero.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+double *GFAST_memory_calloc__double(int n)
+{
+    const char *fcnm = "GFAST_memory_calloc__double\0";
+    double *x = NULL;
+    if (n < 1){
+        log_errorF("%s: Error invalid size %d\n", fcnm, n);
+        return x;
+    }
+    x = GFAST_memory_alloc__double(n);
+    if (x == NULL){
+        log_errorF("%s: Error allocating array\n", fcnm);
+        return NULL;
+    }
+    memset(x, 0, n*sizeof(x));
+    return x;
+}
+//============================================================================//
+/*!
+ * @brief Allocates an integer array with 64 byte alignment 
+ *
+ * @param[in] n      size of array to allocate
+ *
+ * @result on successful exit this is the 64 byte memory aligned
+ *         integer array of length n with all elements of array set
+ *         to zero.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+int *GFAST_memory_calloc__int(int n)
+{
+    const char *fcnm = "GFAST_memory_calloc__int\0";
+    int *x = NULL; 
+    int i;
+    const int zero = 0;
+    if (n < 1){
+        log_errorF("%s: Error invalid size %d\n", fcnm, n);
+        return x;
+    }
+    x = GFAST_memory_alloc__int(n);
+    if (x == NULL){
+        log_errorF("%s: Error allocating array\n", fcnm);
+        return NULL;
+    }
+    for (i=0; i<n; i++){
+        x[i] = zero;
+    }
+    return x;
+}
+//============================================================================//
+/*!
+ * @brief Frees a pointer and sets it to NULL
+ *
+ * @param[inout] p     On input the pointer to free and set to NULL.
+ *                     On output a NULL pointer 
+ *
+ */
+void GFAST_memory_free(void *p) 
+{
+    if (p != NULL){
+        free(p);
+        p = NULL;
+    }   
     return;
 }

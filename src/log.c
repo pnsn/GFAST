@@ -59,7 +59,7 @@ int log_initWarnLog(int (*outf)(const char *, va_list))
 }
 
 /*!
- * @brief Initializes the deubg lof file
+ * @brief Initializes the debug lof file
  *
  * @result 1 indicates success
  *

@@ -16,9 +16,9 @@
  * @result 0 indicates success
  *
  */
-int GFAST_paraminit(char *propfilename, struct GFAST_props_struct *props)
+int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
 {
-    const char *fcnm = "GFAST_paraminit\0";
+    const char *fcnm = "GFAST_properties__init\0";
     const char *s;
     int ierr; 
     dictionary *ini;
@@ -234,9 +234,9 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-void GFAST_paraminit_print(struct GFAST_props_struct props)
+void GFAST_properties__print(struct GFAST_props_struct props)
 {
-    const char *fcnm = "GFAST_paraminit_print\0";
+    const char *fcnm = "GFAST_properties__print\0";
     const char *lspace = "     \0";
     log_debugF("\n%s: GFAST properties\n", fcnm);
     if (props.opmode == OFFLINE){

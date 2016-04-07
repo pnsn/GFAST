@@ -55,7 +55,7 @@ int numpy_argmax(int n, double *x)
  * @date March 2016
  *
  */
-double numpy_min(int n, double *x) 
+double numpy_min(int n, double *x)
 {
     const char *fcnm = "numpy_min\0";
     double xmin;
@@ -263,7 +263,8 @@ ERROR:;
  *        the vector pointing from the station to the source, and the 
  *        vector pointing from the station from the station to the north.
  *
- * @ref https://docs.obspy.org/_modules/obspy/signal/rotate.html
+ * @reference https://docs.obspy.org/_modules/obspy/signal/rotate.html
+ * @reference https://service.iris.edu/irisws/rotation/docs/1/help/
  *
  * @param[in] np   number of data points 
  * @param[in] e    data on east component [np]
@@ -286,7 +287,7 @@ int obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
 {
     const char *fcnm = "obspy_rotate_NE2RT\0";
     const double pi180 = M_PI/180.0;
-    double cosbaz, sinbaz, et, nt;
+    double cosaz, sinaz, et, nt;
     int i;
     if (np < 1){
         log_warnF("%s: Warning there are no points %d\n", fcnm, np);
@@ -296,13 +297,13 @@ int obspy_rotate_NE2RT(int np, double *e, double *n, double ba,
         log_warnF("%s: Warning back-azimuth=%f should be between [0,360]\n",
                   fcnm, ba);
     }
-    cosbaz = cos((ba + 180.0)*pi180);
-    sinbaz = sin((ba + 180.0)*pi180);
+    cosaz = cos((ba + 180.0)*pi180);
+    sinaz = sin((ba + 180.0)*pi180);
     for (i=0; i<np; i++){
         et = e[i];
         nt = n[i];
-        r[i] = et*sinbaz + nt*cosbaz;
-        t[i] = et*cosbaz - nt*sinbaz;
+        r[i] = nt*cosaz + et*sinaz;
+        t[i] =-nt*sinaz + et*cosaz;
     }
     return 0;
 }

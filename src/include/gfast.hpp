@@ -12,13 +12,13 @@ namespace GFAST
        public:
            //Properties(std::string propfilename);
            struct GFAST_props_struct props;
-           int paraminit()
+           int init()
            {
                int ierr;
-               //return GFAST_paraminit(_propfilename, &props);
+               //return GFAST_properties__init(_propfilename, &props);
                char *fname = new char [propfilename.length()+1]; 
                std::strcpy(fname, propfilename.c_str());
-               ierr = GFAST_paraminit(fname, &props);
+               ierr = GFAST_properties__init(fname, &props);
                delete[] fname;
                return ierr; 
            }
@@ -41,18 +41,36 @@ namespace GFAST
    /* GFAST buffer (data) class */
    class Buffer
    {
-       struct GFAST_props_struct props;
        public:
+           struct GFAST_props_struct props;
            struct GFAST_data_struct gps_data;
+       public:
            /*!< Initialize locations */
-           int locinit()
+           int initLocations()
            {
-               return GFAST_locinit(props, &gps_data);
+               return GFAST_buffer__setLocations(props, &gps_data);
+           }
+           /*!< Initialize sampling period */
+           int initSamplingPeriod()
+           {
+               return GFAST_buffer__setSiteSamplingPeriod(props, &gps_data);
+           }
+           /*!< Initialize buffers */
+           int init()
+           {
+               int ierr = 0;
+               gps_data.stream_length 
+                  = GFAST_buffer__getNumberOfStreams(props);
+               ierr = ierr + initLocations();
+               ierr = ierr + initSamplingPeriod();
+               return ierr;
            }
            /*!< Print locations */
            void print()
            {
-               return GFAST_locinit_printLocations(&gps_data);
+               GFAST_buffer_print__locations(gps_data);
+               GFAST_buffer_print__samplingPeriod(gps_data);
+               return;
            }
            /*!< Free data */
            void clear()

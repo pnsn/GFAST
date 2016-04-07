@@ -21,19 +21,27 @@ int main()
     memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
     // Read the properties file
     log_infoF("%s: Reading the properties file...\n", fcnm);
-    ierr = GFAST_paraminit(propfilename, &props);
+    ierr = GFAST_properties__init(propfilename, &props);
     if (ierr != 0){
         log_errorF("%s: Error reading the GFAST properties file\n", fcnm);
         goto ERROR;
     }
     if (props.verbose > 2){
-        GFAST_paraminit_print(props);
+        GFAST_properties__print(props);
     }
     // Initialize the stations locations/names for the module
-    if (props.verbose >= 2){
+    if (props.verbose > 0){
         log_infoF("%s: Initializing locations...\n", fcnm);
     }
-    nsites_read = GFAST_locinit(props, &gps_data);
+    gps_data.stream_length = GFAST_buffer__getNumberOfStreams(props);
+    if (gps_data.stream_length <= 0){
+        log_errorF("%s: Error no streams to initialize\n", fcnm);
+        goto ERROR;
+    }
+    gps_data.data = (struct GFAST_collocatedData_struct *)
+                    calloc(gps_data.stream_length,
+                           sizeof(struct GFAST_collocatedData_struct));
+    nsites_read = GFAST_buffer__setLocations(props, &gps_data);
     if (nsites_read < 0){
         log_errorF("%s: Error getting locations!\n", fcnm);
         ierr = 1;
@@ -44,18 +52,19 @@ int main()
         log_infoF("%s: Connecting to Earthworm rings...\n", fcnm);
     }
     // Initialize the sampling periods
-    ierr = GFAST_buffer_setSiteSamplingPeriod(props, &gps_data);
+    ierr = GFAST_buffer__setSiteSamplingPeriod(props, &gps_data);
     if (ierr != 0){
         log_errorF("%s: Error setting sampling periods\n", fcnm);
         goto ERROR;
     }
     if (props.verbose > 2){
-        GFAST_buffer_print_samplingPeriod(gps_data);
+        GFAST_buffer_print__samplingPeriod(gps_data);
     }
     // Connect ActiveMQ for ElarmS messages
     if (props.verbose >= 2){
         log_infoF("%s: Subscribing to ElarmS messages...\n", fcnm);
     }
+    //GFAST::Buffer init();
  //GFAST_readElarmS(props);
     //GFAST_CMTgreenF();
     //obspy_rotate_NE2RT();
