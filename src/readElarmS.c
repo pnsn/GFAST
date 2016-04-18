@@ -12,7 +12,7 @@
  *
  * @param[in] buff      null terminated string containing the ElarmS
  *                      string
- * @param[in] verbose   controls verbosity
+ * @param[in] verbose   controls verbosity (< 2 is quiet)
  *
  * @param[out] SA       shakeAlert event structure (lat, lon, depth, magnitude,
  *                      ID, and time)
@@ -26,37 +26,47 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
                                             struct GFAST_shakeAlert_struct *SA)
 {
     const char *fcnm = "GFAST_readElarmS_ElarmSMessage2SAStruct\0";
-    double ev_sec;
+    double ev_sec, lon_print;
     int ev_year, ev_month, ev_dom, ev_hour, ev_isec, ev_min, ev_musec;
     //------------------------------------------------------------------------//
     //
     // Zero out output and ensure message isn't NULL
     memset(SA, 0, sizeof(struct GFAST_shakeAlert_struct));
     if (buff == NULL){
-        if (verbose > 0){
-            log_errorF("%s: Error the buffer is NULL\n", fcnm);
-        }
+        log_errorF("%s: Error the buffer is NULL\n", fcnm);
         return -1;
     }
-    // Parse it
+    // Parse it:
     //      1999 2015-08-24 14:33:43.612000 2.60 -122.2033 46.7320
     sscanf(buff, "%s %04d-%02d-%02d %02d:%02d:%lf %lf %lf %lf",
            SA->eventid,
            &ev_year, &ev_month, &ev_dom,
            &ev_hour, &ev_min, &ev_sec,
            &SA->mag, &SA->lon, &SA->lat);
+    // Warn on latitude
     if (SA->lat <-90.0 || SA->lat > 90.0){
         if (verbose > 1){
             log_warnF("%s: eLarms latitude %f is invalid\n",
                       fcnm, SA->lat);
         }
     }
+    // Put longitude in [0,360]
     if (SA->lon < 0.0){SA->lon = SA->lon + 360.0;}
+    // Warn on screwy longitudes
+    if ((SA->lon < 0.0 || SA->lon > 360.0) && verbose > 1){
+        log_warnF("%s: eLarms longitude %f is strange\n", fcnm, SA->lon);
+    }
     // Create the time
     ev_isec = (int) ev_sec;
     ev_musec = (int) ((ev_sec - (double) ev_isec)*1.e6);
     SA->time = time_calendar2epoch2(ev_year, ev_month, ev_dom, ev_hour,
                                     ev_min, ev_isec, ev_musec);
+    if (verbose > 2){
+        lon_print = SA->lon;
+        if (lon_print > 180.0){lon_print = lon_print - 360.0;}
+        log_debugF("%s: eLarms location (time,lat,lon)=(%lf %f %f)\n",
+                   fcnm, SA->time, SA->lat, lon_print);
+    }
     return 0;
 }
 //============================================================================//
@@ -65,22 +75,25 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
  *
  * @param[in] props     GFAST properties structure (verbosity and eewsfile name)
  *
+ * @param[out] SA       shakeAlert structure
+ *
+ * @result 0 indicates success
+ *
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_readElarmS(struct GFAST_props_struct props)
+int GFAST_readElarmS(struct GFAST_props_struct props,
+                     struct GFAST_shakeAlert_struct *SA)
 {
-struct GFAST_shakeAlert_struct SA;
     const char *fcnm = "GFAST_readElarmS\0";
     FILE *ew;
     char buffer[128], line[128];
     int lenb;
     bool lempty;
+    memset(SA, 0, sizeof(struct GFAST_shakeAlert_struct));
     if (!os_path_isfile(props.eewsfile)){
-        if (props.verbose > 0){
-            log_errorF("%s: Error cannot find EEW file %s\n",
-                       fcnm, props.eewsfile);
-        }
+        log_errorF("%s: Error cannot find EEW file %s\n",
+                   fcnm, props.eewsfile);
         return -1;
     }
     // Open file and read until end
@@ -90,6 +103,7 @@ struct GFAST_shakeAlert_struct SA;
     lempty = true;
     while (fgets(buffer, 128, ew) != NULL){
         lempty = false;
+        // Replace carriage return with NULL terminator
         lenb = strlen(buffer);
         if (lenb > 0){
             if (buffer[lenb-1] == '\n'){buffer[lenb-1] = '\0';}
@@ -100,7 +114,7 @@ struct GFAST_shakeAlert_struct SA;
     }
     if (!lempty){
         sscanf(buffer, "%s\n", line);
-        GFAST_readElarmS_ElarmSMessage2SAStruct(props.verbose, line, &SA);
+        GFAST_readElarmS_ElarmSMessage2SAStruct(props.verbose, line, SA);
     }
     fclose(ew);
     return 0;
