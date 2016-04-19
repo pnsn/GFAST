@@ -19,6 +19,8 @@ struct GFAST_props_struct
     char eewgfile[PATH_MAX];    /*!< File to output the results of G-FAST */
     char syndriver[PATH_MAX];   /*!< The synthetic mode driver file. */
     char synoutput[PATH_MAX];   /*!< The synthetic mode output file. */
+    char syndata_dir[PATH_MAX]; /*!< Synthetic data directory */
+    char syndata_pre[PATH_MAX]; /*!< Synthetic data prefix (LX) */
     char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
                                      (siren). */
     char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages
@@ -41,8 +43,13 @@ struct GFAST_props_struct
                                      positions (nev-cor) */
     double dt_default;          /*!< Default sampling period (s) for GPS
                                      stations */
+    double pgd_dist_tol;        /*!< PGD source station distance
+                                     tolerance (km) */
+    double pgd_dist_def;        /*!< PGD default station distance (km) if
+                                     d < pgd_dist_tol */
     double bufflen;             /*!< The number of seconds to keep in the data
                                      buffers */
+    double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
@@ -50,12 +57,15 @@ struct GFAST_props_struct
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
-    int verbose;                /*!< Controls verbosity.
-                                      = 0 -> Output nothing.
-                                      = 1 -> Output errors only.
-                                      = 2 -> Output errors, generic
-                                             information, and warnings.
-                                      = 3 -> Output errors, generic information,
+    int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
+    int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
+    int verbose;                /*!< Controls verbosity - errors will always
+                                     be output.
+                                      = 1 -> Output generic information
+                                      = 2 -> Output generic information and
+                                             warnings 
+                                      = 3 -> Output generic information,
+                                             warnings, and debug information
                                              and debug information. */
     enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
                                      playback, offline) */
@@ -90,9 +100,9 @@ struct GFAST_collocatedData_struct
     double dt;        /*!< Sampling period (seconds). */
     double sta_lat;   /*!< Station latitude [-90,90] (degrees) */
     double sta_lon;   /*!< Station longitude [0,360] (degrees) */
+    double sta_alt;   /*!< Station altitude (m) */
     int npts;         /*!< Number of points in time series.  This should be 
                            equivalent GFAST_parms_struct's bufflen */
-    int nstream;      /*!< Number of streams in GPS structure */
     bool lcollocated; /*!< True -> station is collocated with a strong
                                    motion station.
                            False -> station is not collocated with a strong
@@ -101,10 +111,14 @@ struct GFAST_collocatedData_struct
                                     estimation.
                            False -> Will  attempt to use this site during
                                     the PGD estimation. */
-    bool lskip_cmtff; /*!< True  -> this site is ignored during the CMT and
-                                    finite fault inversion. 
+    bool lskip_cmt;   /*!< True  -> this site is ignored during the CMT 
+                                    inversion. 
                            False -> Will attempt to use this site during the
-                                    CMT and finite fault inversion */
+                                    CMT inversion */
+    bool lskip_ff;    /*!< True  -> this site is ignored during the finite
+                                    fault inversion
+                           False -> Will attempt to use this during the 
+                                    finite fault inversion */
 };
 
 struct GFAST_data_struct
@@ -122,6 +136,13 @@ struct GFAST_shakeAlert_struct
     double dep;         /*!< Event depth (kilometers) */ 
     double mag;         /*!< Event magnitude */
     double time;        /*!< Event epochal time (s) */
+};
+
+struct GFAST_activeEvents_struct
+{
+    struct GFAST_shakeAlert_struct *SA; /*<! Shake alert structure with 
+                                             requisite event info [nev] */
+    int nev;                            /*!< Number of events */ 
 };
 
 #endif /* __GFAST_STRUCT_H__ */
