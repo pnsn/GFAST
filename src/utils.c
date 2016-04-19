@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include <lapacke.h>
 #include <cblas.h>
+#include <omp.h>
+#include "gfast.h"
 #include "gfast_numpy.h"
 #include "gfast_log.h"
 
@@ -20,27 +23,25 @@
  */
 int numpy_argmax(int n, double *x) 
 {
-    const char *fcnm = "numpy_argmax\0";
-    struct Compare_struct{
-       double val;
-       int index;
-    } max;
-    int i;
+    const char *fcnm = "numpy_array\0";
+    double val;
+    int i, index;
     //------------------------------------------------------------------------//
-    if (n < 1){
-        log_warnF("%s: Warning no values in array x!", fcnm);
+    if (n < 1 || x == NULL){
+        if (n < 1){log_errorF("%s: Warning no values in array x!", fcnm);}
+        if (x == NULL){log_errorF("%s: Error x is NULL\n", fcnm);}
         return 0;
     }
     if (n == 1){return 0;}
-    max.val = x[0];
-    max.index = 0;
+    val = x[0];
+    index = 0;
     for (i=1; i<n; i++){
-        if (x[i] > max.val){
-            max.val = x[i];
-            max.index = i;
+        if (x[i] > val){
+            index = i;
+            val = x[i];
         }
     }
-    return max.index;
+    return index;
 }
 //============================================================================//
 /*! 
@@ -60,16 +61,59 @@ double numpy_min(int n, double *x)
     const char *fcnm = "numpy_min\0";
     double xmin;
     int i;
-    if (n < 1){ 
-        log_warnF("%s: Warning no values in array x!",fcnm);
+    if (n < 1 || x == NULL){
+        if (n < 1){log_errorF("%s: Warning no values in array x!", fcnm);}
+        if (x == NULL){log_errorF("%s: Error x is NULL\n", fcnm);}
         return 0.0;
-    }   
+    }
     if (n == 1){return x[0];}
     xmin = x[0];
+    #pragma omp simd reduction(min:xmin)
     for (i=1; i<n; i++){
         xmin = fmin(xmin, x[i]);
-    }   
+    }
     return xmin;
+}
+//============================================================================//
+/*!
+ * @brief Returns the maximum of a double array while ignoring NaN's
+ *
+ * @param[in] n       number of points in array x
+ * @param[in] x       array of which to find maximum [n]
+ *
+ * @param[out] iwarn  0 indicates success
+ *                    1 indicates there are no values in x and the result is
+ *                    NaN
+ *                    2 indicates all values in x are NaN's
+ *
+ * @result maximum value of x where the max cannot be NaN
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */ 
+double numpy_nanmax(int n, double *x, int *iwarn)
+{
+    const char *fcnm = "numpy_nanmean\0";
+    double xmax;
+    int i;
+    *iwarn = 0;
+    if (n < 1 || x == NULL){
+        if (n < 1){log_errorF("%s: Warning no values in array x!", fcnm);}
+        if (x == NULL){log_errorF("%s: Error x is NULL\n", fcnm);}
+        *iwarn = 1;
+        return NAN;
+    }
+    xmax =-DBL_MAX;
+    #pragma omp simd reduction(max:xmax)
+    for (i=0; i<n; i++){
+        if (!isnan(x[i])){xmax = fmax(xmax, x[i]);}
+    }
+    if (xmax ==-DBL_MAX){
+        log_warnF("%s: All values are NaNs!\n", fcnm);
+        *iwarn = 2;
+        xmax = NAN;
+    }
+    return xmax;
 }
 //============================================================================//
 /*!
@@ -110,6 +154,7 @@ double numpy_nanmean(int n, double *x, int *iwarn)
     // Compute the average
     iavg = 0;
     xavg = 0.0;
+    #pragma omp simd reduction(+:xavg,iavg)
     for (i=0; i<n; i++){
         xt = 0.0;
         it = 0;
@@ -127,6 +172,107 @@ double numpy_nanmean(int n, double *x, int *iwarn)
         xavg = xavg/(double) iavg;
     }   
     return xavg;
+}
+//============================================================================//
+/*!
+ * @brief Solves the least squares problem Ax = b via the QR factorization
+ *
+ * @param[in] mtx_fmt    matrix format: LAPACK_COL_MAJOR or LAPACK_ROW_MAJOR
+ *                       for a column or row major ordering matrix respectively
+ * @param[in] m          number of rows in matrix Aref (>= 1)
+ * @param[in] n          number of columns in matrix Arev (>= 1)
+ * @param[in] nrhs       number of right hand sides to solve (>= 1)
+ * @param[in] Aref       matrix A in Ax = b.  this matrix is in column major 
+ *                       order with leading dimension m [m x m]
+ * @param[in] b          right hand side matrix.  this matrix is in column major
+ *                       order with leading dimension m [m x nrhs]
+ *
+ * @param[out] x         on successful exit this is a matrix in column major
+ *                       order with leading dimension n that holds the 
+ *                       solution to the least squares problem Ax=b [n x nrhs]
+ *
+ * @result 0 indicates success
+ *         1 indicates invalid parameter
+ *         2 indicates an error encountered in Lapack
+ *
+ * @author Ben Baker (benbaker@isti.com)
+ * @date March 2016
+ */
+int numpy_lstsq__qr(int mtx_fmt,
+                    int m, int n, int nrhs, double *Aref, double *b,
+                    double *x)
+{
+    const char *fcnm = "numpy_lstsq__qr\0";
+    double *A, *bwork;
+    int ierr, info, indx, jndx, lda, ldb, k, mn;
+    const int incx = 1, incy = 1;
+    //------------------------------------------------------------------------//
+    //
+    // Initialize
+    A = NULL;
+    bwork = NULL;
+    // Check sizes
+    ierr = 1;
+    if (m < 1 || n < 1 || nrhs < 1){
+        if (m < 1){log_errorF("%s: Error no rows in matrix\n", fcnm);}
+        if (n < 1){log_errorF("%s: Error no columns in matrix\n", fcnm);}
+        if (nrhs < 1){
+            log_errorF("%s: Error there are no right hand sides\n", fcnm);
+        }
+        goto ERROR;
+    }
+    if (Aref == NULL || b == NULL || x == NULL){
+        if (Aref == NULL){log_errorF("%s: Error input matrix NULL\n", fcnm);}
+        if (b == NULL){log_errorF("%s: Error RHS is NULL\n", fcnm);}
+        if (x == NULL){log_errorF("%s: Error solution x is NULL\n", fcnm);}
+        goto ERROR;
+    }
+    // Set space for A
+    ierr = 2;
+    lda = m;
+    mn = lda*n;
+    A = GFAST_memory_calloc__double(mn);
+    if (A == NULL){
+        log_errorF("%s: There was an error setting space\n", fcnm);
+        goto ERROR;
+    }
+    // Set space for right hand side/solution
+    ldb = fmax(m, n);
+    bwork = GFAST_memory_calloc__double(ldb*nrhs);
+    if (bwork == NULL){
+        log_errorF("%s: There was an error setting workspace for bwork\n",
+                   fcnm);
+        goto ERROR;
+    }
+    // Copy RHS
+    cblas_dcopy(mn, Aref, incx, A, incy);
+    for (k=0; k<nrhs; k++){
+        indx = m*k;
+        jndx = ldb*k;
+        cblas_dcopy(m, &b[indx], incx, &bwork[indx], incy);
+    }
+    // Solve the least squares problem
+    info = LAPACKE_dgels(mtx_fmt, 'N', m, n, nrhs, A, lda, bwork, ldb);
+    if (info != 0){
+        log_errorF("%s: Error solving the least squares problem\n", fcnm);
+        if (info > 0){
+            log_errorF("%s: Error rank %d deficient %d\n",
+                       fcnm, info - fmin(m,n ), fmin(m, n));
+        }
+        goto ERROR;
+    }
+    // Copy the solution
+    for (k=0; k<nrhs; k++){
+        indx = k*ldb;
+        jndx = k*n;
+        cblas_dcopy(n, &bwork[indx], incx, &x[jndx], incy);
+    }
+    ierr = 0;
+ERROR:;
+    // Free space
+    GFAST_memory_free__double(&bwork);
+    GFAST_memory_free__double(&A);
+    return ierr;
 }
 //============================================================================//
 /*!
@@ -181,17 +327,19 @@ int numpy_lstsq(int mtx_fmt,
     bwork = NULL;
     // Check sizes
     ierr = 1;
-    if (m < 1){
-        log_errorF("%s: Error no rows in matrix\n", fcnm);
+    if (m < 1 || n < 1 || nrhs < 1){
+        if (m < 1){log_errorF("%s: Error no rows in matrix\n", fcnm);}
+        if (n < 1){log_errorF("%s: Error no columns in matrix\n", fcnm);}
+        if (nrhs < 1){
+            log_errorF("%s: Error there are no right hand sides\n", fcnm);
+        }
         goto ERROR; 
     }
-    if (n < 1){
-        log_errorF("%s: Error no columns in matrix\n", fcnm);
-        goto ERROR; 
-    }
-    if (nrhs < 1){
-        log_errorF("%s: Error there are no right hand sides\n", fcnm);
-        goto ERROR; 
+    if (Aref == NULL || b == NULL || x == NULL){
+        if (Aref == NULL){log_errorF("%s: Error input matrix NULL\n", fcnm);}
+        if (b == NULL){log_errorF("%s: Error RHS is NULL\n", fcnm);}
+        if (x == NULL){log_errorF("%s: Error solution x is NULL\n", fcnm);}
+        goto ERROR;
     }
     // Figure out the condition number
     rcond =-1.0;
@@ -200,19 +348,19 @@ int numpy_lstsq(int mtx_fmt,
     ierr = 2;
     lda = m;
     mn = lda*n;
-    A = (double *)calloc(mn, sizeof(double));
+    A = GFAST_memory_calloc__double(mn);
     if (A == NULL){
         log_errorF("%s: There was an error setting space\n", fcnm);
         goto ERROR; 
     }
-    s = (double *)calloc(fmin(n, m), sizeof(double));
+    s = GFAST_memory_calloc__double(fmin(n, m));
     if (s == NULL){
         log_errorF("%s: Error setting space for singular values\n", fcnm);
         goto ERROR;
     }
     // Set space for right hand side/solution
     ldb = fmax(m, n);
-    bwork = (double *)calloc(ldb*nrhs, sizeof(double));
+    bwork = GFAST_memory_calloc__double(ldb*nrhs);
     if (bwork == NULL){
         log_errorF("%s: There was an error setting workspace for bwork\n",
                    fcnm);
@@ -249,9 +397,9 @@ int numpy_lstsq(int mtx_fmt,
     ierr = 0;
 ERROR:;
     // Free space
-    if (bwork != NULL){free(bwork);}
-    if (s     != NULL){free(s);}
-    if (A     != NULL){free(A);}
+    GFAST_memory_free__double(&bwork);
+    GFAST_memory_free__double(&s);
+    GFAST_memory_free__double(&A);
     return ierr;
 }
 //============================================================================//
