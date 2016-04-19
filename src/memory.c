@@ -64,6 +64,24 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
 }
 //============================================================================//
 /*!
+ * @brief Free the PGD results structure
+ *
+ * @param[inout] pgd       PGD results structure with memory to be freed
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
+{
+    if (pgd == NULL){return;}
+    GFAST_memory_free__double(&pgd->mpgd);
+    GFAST_memory_free__double(&pgd->mpgd_vr);
+    GFAST_memory_free(pgd->lsiteUsed);
+    memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+    return;
+}
+//============================================================================//
+/*!
  * @brief Frees memory on the active events structure
  *
  * @param[inout] events     active event list with data to be freed
@@ -151,6 +169,34 @@ int *GFAST_memory_alloc__int(int n)
 }
 //============================================================================//
 /*!
+ * @brief Allocates an boolean array with 64 byte alignment 
+ *
+ * @param[in] n      size of array to allocate
+ *
+ * @result on successful exit this is the 64 byte memory aligned
+ *         boolean array of length n.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+bool *GFAST_memory_alloc__bool(int n)
+{
+    const char *fcnm = "GFAST_memory_alloc__bool\0";
+    bool *x = NULL;
+    int ierr;
+    if (n < 1){
+        log_errorF("%s: Error invalid size %d\n", fcnm, n);
+        return x;
+    }
+    ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(bool));
+    if (ierr != 0){ 
+        log_errorF("%s: Error allocating array\n", fcnm);
+        return NULL;
+    }
+    return x;
+}
+//============================================================================//
+/*!
  * @brief Allocates a double array 64 byte alignment 
  *
  * @param[in] n      size of array to allocate
@@ -213,6 +259,39 @@ int *GFAST_memory_calloc__int(int n)
 }
 //============================================================================//
 /*!
+ * @brief Allocates a boolean array with 64 byte alignment 
+ *
+ * @param[in] n      size of array to allocate
+ *
+ * @result on successful exit this is the 64 byte memory aligned
+ *         boolean array of length n with all elements of array set
+ *         to false.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+bool *GFAST_memory_calloc__bool(int n)
+{
+    const char *fcnm = "GFAST_memory_calloc__bool\0";
+    bool *x = NULL; 
+    int i;
+    const bool zero = false;
+    if (n < 1){
+        log_errorF("%s: Error invalid size %d\n", fcnm, n);
+        return x;
+    }
+    x = GFAST_memory_alloc__bool(n);
+    if (x == NULL){
+        log_errorF("%s: Error allocating array\n", fcnm);
+        return NULL;
+    }
+    for (i=0; i<n; i++){
+        x[i] = zero;
+    }
+    return x;
+}
+//============================================================================//
+/*!
  * @brief Frees a pointer and sets it to NULL
  *
  * @param[inout] p     On input the pointer to free and set to NULL.
@@ -252,6 +331,22 @@ void GFAST_memory_free__double(double **p)
  *
  */
 void GFAST_memory_free__int(int **p)
+{
+    if (*p != NULL){
+        free(*p);
+        *p = NULL;
+    }
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Frees a bool pointer and sets it to NULL
+ *
+ * @param[inout] p     On input the pointer to free and set to NULL.
+ *                     On output a NULL pointer 
+ *
+ */
+void memory_free__bool(bool **p)
 {
     if (*p != NULL){
         free(*p);
