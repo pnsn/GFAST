@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <omp.h>
 #include <GeographicLib/UTMUPS.hpp>
 #include "gfast.h"
 
@@ -258,6 +259,14 @@ int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
  * @param[in] lon_deg       longitude to convert to UTM easting (degrees)
  * @param[in] lat_deg       latitude to convert to UTM northing (degrees)
  * @param[in] lon0_deg      controls UTM zone - see above (degrees)
+ * @param[out] lnorthp      if true then this UTM point is in the northern
+ *                          hemistphere.  
+ *                          if false then this UTM point is in the southern
+ *                          hermisphere
+ * @param[inout] zone       if ==-1 then choose the central meridian from the 
+ *                          input longitude.
+ *                          otherwise set the desired zone in range [0,60]
+ *                          from the input longitude
  *
  * @param[out] UTMEasting   corresponding easting UTM coordinate (m)
  * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
@@ -265,12 +274,14 @@ int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
+#pragma omp declare simd
 extern "C"
-void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
-                                 double lon0_deg,
-                                 double *UTMEasting, double *UTMNorthing)
+void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
+                                 double *UTMNorthing, double *UTMEasting,
+                                 bool *lnorthp, int *zone)
 {
-    double A, C, lat, lon, lon0, M, T, v;
+    double A, C, lat, lon, lon0, lon0_deg, M, T, v;
+    int zone_loc;
     // WGS84 parameters
     const double a = 6378137.0000;
     const double esq = 0.006694380069978522;
@@ -280,6 +291,11 @@ void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
 
     lon = lon_deg*pi180;
     lat = lat_deg*pi180;
+    zone_loc = *zone;
+    if (zone_loc ==-1){
+        zone_loc = fmod( floor((lon_deg + 180.0)/6.0) , 60.0) + 1;
+    }
+    lon0_deg = fabs(zone_loc)*6.0 - 183.0;
     lon0 = lon0_deg*pi180;   //central meridian (-123 for zone 10)
 
     A = (lon - lon0)*cos(lat);
@@ -302,7 +318,10 @@ void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
     *UTMEasting = k0*v*( A + (1.0 - T + C)*pow(A, 3)/6.0 
                       + (5.0 - 18.0*T + T*T 
                       + 72.0*C - 58.0*epsq)*pow(A, 5)/120.0 ) + 500000.0;
-
+    *lnorthp = true;
+    if (lat_deg < 0.0){*UTMNorthing = *UTMNorthing + 10000000.0;}
+    if (lat_deg < 0.0){*lnorthp = false;}
+    if (*zone ==-1){*zone = fmod( floor((lon0_deg + 180.0)/6.0) , 60.0) + 1;}
     return;
 }
 //============================================================================//
@@ -312,6 +331,9 @@ void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
  *        utm2ll should result in the original value (off by a small amount
  *        due to truncation of the UTM parameters)
  *
+ * @param[in] zone         UTM zone
+ * @param[in] lnorthp      if true then we are in the northern hemistphere
+ *                         if false then we are in the southern hemisphere
  * @param[in] UTMEasting   UTM east coordinate to convert to longitude (m)
  * @param[in] UTMNorthing  UTM north coordinate to convert to latitude (m)
  * @param[in] lon0_deg     controls the UTM zone - see above (degrees)
@@ -322,12 +344,13 @@ void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  * 
  */
+#pragma omp declare simd
 extern "C"
-void GFAST_coordtools_utm2ll_ori(double UTMEasting, double UTMNorthing,
-                                 double lon0_deg,
+void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
+                                 double UTMNorthing, double UTMEasting,
                                  double *lat_deg, double *lon_deg)
 {
-    double C1, D, e1, lat, lat1, lon, M1, mu1, T1, p1, v1;
+    double C1, D, e1, lat, lat1, lon, lon0, lon0_deg, M1, mu1, T1, p1, v1;
     // WGS84 parameters
     const double a = 6378137.0000;
     const double esq = 0.006694380069978522;
@@ -335,9 +358,11 @@ void GFAST_coordtools_utm2ll_ori(double UTMEasting, double UTMNorthing,
     const double k0 = 0.9996;
     const double pi180 = M_PI/180.0;
     const double pi180i = 180.0/M_PI;
-    const double lon0 = lon0_deg*pi180;
 
+    lon0_deg = fabs(zone)*6.0 - 183.0;
+    lon0 = lon0_deg*pi180;
     M1 = UTMNorthing/k0;
+    if (!lnorthp){M1 = (UTMNorthing - 10000000.0)/k0;}
     mu1 = M1/(a * (1.0 - esq/4.0 - 3.0/64.0*pow(esq, 2)
               - 5.0/256.0*pow(esq, 3)) );
     e1 = ( 1.0 - sqrt(1.0 - esq) ) / ( 1.0 + sqrt(1.0 - esq) );
