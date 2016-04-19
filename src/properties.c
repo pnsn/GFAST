@@ -54,17 +54,6 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     }
     s = iniparser_getstring(ini, "general:eewgfile\0", "GFAST_output.txt\0");
     strcpy(props->eewgfile, s);
-    s = iniparser_getstring(ini, "general:siteposfile\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find site position file!\n", fcnm);
-    }else{
-        strcpy(props->siteposfile, s);
-        //if (!os_path_isfile(props->siteposfile)){
-        //    log_errorF("%s: Position file %s does not exist1!\n",
-        //               fcnm, props->siteposfile);
-        //    goto ERROR;
-        //}
-    }
     props->bufflen = iniparser_getint(ini, "general:bufflen\0", 300.0);
     if (props->bufflen <= 0.0){
         log_errorF("%s: Buffer lengths must be positive!\n", fcnm);
@@ -83,13 +72,25 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
                 goto ERROR;
             }
         }
+        s = iniparser_getstring(ini, "general:synthetic_data_directory\0",
+                                "./"); 
+        if (strlen(s) > 0){
+            strcpy(props->syndata_dir, s);
+            if (!os_path_isdir(props->syndata_dir)){
+                log_errorF("%s: Synthetic data directory %s doesn't exist\n",
+                           fcnm, props->syndata_dir);
+                goto ERROR;
+            }
+        }else{
+            strcpy(props->syndata_dir, "./\0");
+        }
+        s = iniparser_getstring(ini, "general:synthetic_data_prefix\0", "LX\0");
+        if (strlen(s) > 0){strcpy(props->syndata_pre, s);}
     }
     // UTM zone
     props->utm_zone = iniparser_getint(ini, "general:utm_zone\0", -12345);
     if (props->utm_zone < 0 || props->utm_zone > 60){
-        if (props->utm_zone ==-12345){
-            log_infoF("%s: Will estimate UTM zone from hypocenter\n", fcnm);
-        }else{
+        if (props->utm_zone !=-12345){
             log_warnF("%s: UTM zone %d is invalid estimating from hypocenter\n",
                    fcnm, props->utm_zone);
             props->utm_zone =-12345;
@@ -125,6 +126,8 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
                     return -1;
                 }
             }
+        }else if (props->dt_init == INIT_DT_FROM_SAC){
+            props->dt_init = INIT_DT_FROM_SAC;
         }else{
             if (props->dt_init != INIT_DT_FROM_DEFAULT){
                 log_warnF("%s: Setting dt from default\n", fcnm);
@@ -138,10 +141,62 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
             props->dt_init = INIT_DT_FROM_TRACEBUF;
         }
     }
+    // Location initialization
+    props->loc_init = iniparser_getint(ini, "general:loc_init\0", 1);
+    if (props->opmode == OFFLINE){
+        if (props->loc_init == INIT_LOCS_FROM_TRACEBUF){
+            log_errorF("%s: offline can't initialize locations from tracebuf\n",
+                       fcnm);
+            goto ERROR;
+        }
+    }
+    if (props->loc_init == INIT_LOCS_FROM_FILE){
+        s = iniparser_getstring(ini, "general:siteposfile\0", NULL);
+        if (s == NULL){
+            log_errorF("%s: Site position file must be defined\n");
+            return -1;
+        }else{
+            strcpy(props->siteposfile, s);
+        }
+        if (!os_path_isfile(props->siteposfile)){
+            log_errorF("%s: Position file %s does not exist!\n",
+                       fcnm, props->siteposfile);
+            goto ERROR;
+        }
+    }
+    // Synthetic runtime
+    if (props->opmode == OFFLINE){
+        props->synthetic_runtime
+           = iniparser_getdouble(ini, "general:synthetic_runtime\0", 0.0); 
+    } 
     //------------------------------PGD Parameters----------------------------//
-
+    props->pgd_dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0", 6.0);
+    if (props->pgd_dist_tol < 0.0){
+        log_errorF("%s: Error ndistance tolerance %f cannot be negative\n",
+                   fcnm, props->pgd_dist_tol);
+        goto ERROR;
+    }
+    props->pgd_dist_def = iniparser_getdouble(ini, "PGD:dist_default\0", 0.01);
+    if (props->pgd_dist_def <= 0.0){
+        log_errorF("%s: Error PGD distance default %f must be positive\n",
+                   fcnm, props->pgd_dist_def);
+        goto ERROR;
+    }
+    props->pgd_ngridSearch_deps
+         = iniparser_getint(ini, "PGD:ndepths_in_pgd_gridSearch\0", 100);
+    if (props->pgd_ngridSearch_deps < 1){
+        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
+                   fcnm, props->pgd_ngridSearch_deps);
+        goto ERROR;
+    } 
     //----------------------------CMT/FF Parameters---------------------------//
-
+    props->cmt_ngridSearch_deps
+         = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);
+    if (props->pgd_ngridSearch_deps < 1){
+        log_errorF("%s: Error CMT grid search depths %d must be positive\n",
+                   fcnm, props->cmt_ngridSearch_deps);
+        goto ERROR;
+    }
     //---------------------------ActiveMQ Parameters--------------------------//
     s = iniparser_getstring(ini, "ActiveMQ:AMQhost\0", NULL);
     if (s == NULL){
@@ -250,8 +305,29 @@ void GFAST_properties__print(struct GFAST_props_struct props)
             log_debugF("%s GFAST will get sampling period from file %s\n",
                        lspace, props.dtfile); 
         }else if (props.dt_init == INIT_DT_FROM_DEFAULT){
-            log_debugF("%s GFAST will set all GPS sampling periods to %f (s)\n",
+            log_debugF("%s GFAST will set GPS sampling periods to %f (s)\n",
                        lspace, props.dt_default); 
+        }else if (props.dt_init == INIT_DT_FROM_SAC){
+            log_debugF("%s GFAST will set GPS sampling period from SAC files\n",
+                       lspace);
+        }
+        if (props.loc_init == INIT_LOCS_FROM_FILE){
+            log_debugF("%s GFAST will initialize locations from file %s\n",
+                       lspace, props.siteposfile);
+        }else if (props.loc_init == INIT_LOCS_FROM_TRACEBUF){
+            log_debugF("%s GFAST will initialize locations from tracebuf\n",
+                       lspace);
+        }else if (props.loc_init == INIT_LOCS_FROM_SAC){
+            log_debugF("%s GFAST will initialize locations from SAC files\n",
+                       lspace);
+        }
+        log_debugF("%s GFAST simulation time (s) %f\n",
+                   lspace, props.synthetic_runtime);
+        log_debugF("%s GFAST synthetic data directory: %s\n",
+                   lspace, props.syndata_dir);
+        if (strlen(props.syndata_pre) > 0){
+            log_debugF("%s GFAST synthetic data prefix: %s\n", 
+                       lspace, props.syndata_pre); 
         }
     }else if (props.opmode == PLAYBACK){
         log_debugF("%s GFAST is operating in playback mode\n", lspace);
@@ -267,7 +343,17 @@ void GFAST_properties__print(struct GFAST_props_struct props)
     }
     log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
     log_debugF("%s GFAST stream file: %s\n", lspace, props.streamfile);
-
+    //--------------------------------pgd-------------------------------------//
+    log_debugF("%s GFAST PGD source receiver distance tolerance %f (km)\n",
+               lspace, props.pgd_dist_tol);
+    log_debugF("%s GFAST PGD default source receiver distance %f (km)\n",
+               lspace, props.pgd_dist_def);
+    log_debugF("%s GFAST Number of PGD grid search depths is %d\n",
+               lspace, props.pgd_ngridSearch_deps);
+    //--------------------------------cmt-------------------------------------//
+    log_debugF("%s GFAST Number of CMT grid search depths is %d\n",
+               lspace, props.cmt_ngridSearch_deps);
     log_debugF("\n");
+    
     return;
 }
