@@ -64,6 +64,23 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
 }
 //============================================================================//
 /*!
+ * @brief Frees memory on the active events structure
+ *
+ * @param[inout] events     active event list with data to be freed
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_memory_freeEvents(struct GFAST_activeEvents_struct *events)
+{
+    if (events->nev > 0){
+        GFAST_memory_free(events->SA);
+    }
+    memset(events, 0, sizeof(struct GFAST_activeEvents_struct));
+    return;
+}
+//============================================================================//
+/*!
  * @brief Frees memory associated with parameter structure
  *
  * @param[inout] props     GFAST properties structure with memory to be freed
@@ -208,5 +225,37 @@ void GFAST_memory_free(void *p)
         free(p);
         p = NULL;
     }   
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Frees a double pointer and sets it to NULL
+ *
+ * @param[inout] p     On input the pointer to free and set to NULL.
+ *                     On output a NULL pointer 
+ *
+ */
+void GFAST_memory_free__double(double **p)
+{
+    if (*p != NULL){
+        free(*p);
+        *p = NULL;
+    }
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Frees an integer pointer and sets it to NULL
+ *
+ * @param[inout] p     On input the pointer to free and set to NULL.
+ *                     On output a NULL pointer 
+ *
+ */
+void GFAST_memory_free__int(int **p)
+{
+    if (*p != NULL){
+        free(*p);
+        *p = NULL;
+    }
     return;
 }
