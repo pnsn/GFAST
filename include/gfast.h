@@ -15,14 +15,28 @@
 extern "C"
 {
 #endif
+/* Data acquisition */
+int GFAST_acquisition__init(struct GFAST_props_struct props,
+                            struct GFAST_data_struct *gps_acquisition);
+int GFAST_acquisition__updateFromSAC(struct GFAST_props_struct props,
+                                     double eventTime,
+                                     double currentTime,
+                                     double *latency,
+                                     struct GFAST_data_struct *gps_acquisition);
+double GFAST_acquisition__getT0FromSAC(struct GFAST_props_struct props,
+                                       struct GFAST_data_struct gps_acquisition,
+                                       int *ierr);
 /* Buffer initialization */
 int GFAST_buffer__getNumberOfStreams(struct GFAST_props_struct props);
 int GFAST_buffer__setBufferSpace(struct GFAST_props_struct props,
                                 struct GFAST_data_struct *gps_data);
-int GFAST_buffer__setLocations(struct GFAST_props_struct props,
-                               struct GFAST_data_struct *gps_data);
+int GFAST_buffer__setSitesAndLocations(struct GFAST_props_struct props,
+                                       struct GFAST_data_struct *gps_data);
 int GFAST_buffer__setSiteSamplingPeriod(struct GFAST_props_struct props,
                                         struct GFAST_data_struct *gps_data);
+int GFAST_buffer__readDataFromSAC(int job,
+                                  struct GFAST_props_struct props,
+                                  struct GFAST_data_struct *gps_data);
 void GFAST_buffer_print__samplingPeriod(struct GFAST_data_struct gps_data);
 void GFAST_buffer_print__locations(struct GFAST_data_struct gps_data);
 /* Coordinate tools */
@@ -39,12 +53,22 @@ int geodetic_coordtools_ll2utm(double lat, double lon,
 int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
                                double *lat, double *lon);
 
-void GFAST_coordtools_ll2utm_ori(double lon_deg, double lat_deg,
-                                double lon0_deg,
-                                double *UTMEasting, double *UTMNorthing);
-void GFAST_coordtools_utm2ll_ori(double UTMEasting, double UTMNorthing,
-                                double lon0_deg,
-                                double *lat_deg, double *lon_deg);
+void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
+                                 double *UTMEasting, double *UTMNorthing,
+                                 bool *lnorthp, int *zone);
+void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
+                                 double UTMEasting, double UTMNorthing,
+                                 double *lat_deg, double *lon_deg);
+/* Handles events */
+double GFAST_events__getMinOriginTime(struct GFAST_props_struct props,
+                                      struct GFAST_activeEvents_struct events,
+                                      bool *lnoEvents);
+bool GFAST_events__newEvent(struct GFAST_shakeAlert_struct SA,
+                            struct GFAST_activeEvents_struct *events);
+bool GFAST_events__updateEvent(struct GFAST_shakeAlert_struct SA,
+                               struct GFAST_activeEvents_struct *events,
+                               int *ierr);
+void GFAST_events__print__event(struct GFAST_shakeAlert_struct SA);
 /* Meshes a fault plane from the CMT */
 int GFAST_faultplane_CMT(double lat, double lon, double depth,
                          double fact_pct,
@@ -59,17 +83,21 @@ void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm);
 void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data);
 void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
 void GFAST_memory_freeProps(struct GFAST_props_struct *props);
+void GFAST_memory_freeEvents(struct GFAST_activeEvents_struct *events);
 int *GFAST_memory_calloc__int(int n);
 int *GFAST_memory_alloc__int(int n);
 double *GFAST_memory_calloc__double(int n);
 double *GFAST_memory_alloc__double(int n);
 void GFAST_memory_free(void *p);
+void GFAST_memory_free__double(double **p);
+void GFAST_memory_free__int(int **p);
 /* Initializes the GFAST parameters */
 int GFAST_properties__init(char *propfilename,
                            struct GFAST_props_struct *props);
 void GFAST_properties__print(struct GFAST_props_struct props);
 /* Reads the ElarmS file */
-int GFAST_readElarmS(struct GFAST_props_struct props);
+int GFAST_readElarmS(struct GFAST_props_struct props,
+                     struct GFAST_shakeAlert_struct *SA);
 int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
                                             struct GFAST_shakeAlert_struct *SA);
 /* PGD Scaling */
@@ -77,7 +105,6 @@ int GFAST_scaling_PGD(int n, int verbose,
                       double dist_tol, double dist_def,
                       double *d, double *r, double *repi,
                       double *M, double *VR);
-
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
                                        double B, double C, double *__restrict__ r,
                                        double *__restrict__ G);
@@ -85,13 +112,14 @@ int GFAST_scaling_PGD__setRHS(int n, int verbose,
                               double dist_tol, double dist_def,
                               double A, double *__restrict__ d,
                               double *__restrict__ b);
-/* Matrix of Green's functions for CMT */
-int GFAST_CMTgreenF(int l1,
-                    double *__restrict__ x1, 
-                    double *__restrict__ y1, 
-                    double *__restrict__ z1, 
-                    double *__restrict__ azi, 
-                    double *__restrict__ G);
+/* Centroid moment tensor inversion */
+
+int GFAST_CMT__setForwardModel(int l1, bool deviatoric,
+                               double *__restrict__ x1,
+                               double *__restrict__ y1,
+                               double *__restrict__ z1,
+                               double *__restrict__ azi,
+                               double *__restrict__ G);
 #ifdef __cplusplus
 }
 #endif
