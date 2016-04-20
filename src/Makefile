@@ -1,10 +1,18 @@
 include ../Makefile.inc
 
+OBJ_SCALING_DIR = scaling/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
 endif
+ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
+-include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
+endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
+OBJ_SCALING = $(OBJ_SCALING_DIR)/depthGridSearch.o \
+	      $(OBJ_SCALING_DIR)/init.o \
+	      $(OBJ_SCALING_DIR)/setForwardModel.o \
+	      $(OBJ_SCALING_DIR)/setRHS.o
 OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
 	  $(OBJ)/coordtools.o \
 	  $(OBJ)/events.o \
@@ -13,9 +21,10 @@ OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
 	  $(OBJ)/memory.o \
 	  $(OBJ)/okadagreen.o \
 	  $(OBJ)/os.o \
+	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
-	  $(OBJ)/scaling.o \
+	  $(OBJ_SCALING) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o $(OBJ_UTILS)
 
@@ -63,14 +72,30 @@ $(OBJ)/memory.o: memory.c
 $(OBJ)/okadagreen.o: okadagreen.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c okadagreen.c -o $(OBJ)/okadagreen.o
 
+$(OBJ)/pgd_driver.o: pgd_driver.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c pgd_driver.c -o $(OBJ)/pgd_driver.o
+
 $(OBJ)/properties.o: properties.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_INI) $(CSHARED) -c properties.c -o $(OBJ)/properties.o
 
 $(OBJ)/readElarmS.o: readElarmS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
 
-$(OBJ)/scaling.o: scaling.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling.c -o $(OBJ)/scaling.o 
+####################################### Scaling #######################################
+
+$(OBJ_SCALING_DIR)/depthGridSearch.o: scaling/depthGridSearch.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/depthGridSearch.c -o $(OBJ_SCALING_DIR)/depthGridSearch.o
+
+$(OBJ_SCALING_DIR)/init.o: scaling/init.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/init.c -o $(OBJ_SCALING_DIR)/init.o
+
+$(OBJ_SCALING_DIR)/setForwardModel.o: scaling/setForwardModel.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/setForwardModel.c -o $(OBJ_SCALING_DIR)/setForwardModel.o
+
+$(OBJ_SCALING_DIR)/setRHS.o: scaling/setRHS.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/setRHS.c -o $(OBJ_SCALING_DIR)/setRHS.o
+
+####################################### Generic #######################################
 
 $(OBJ)/log.o: log.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c log.c -o $(OBJ)/log.o
@@ -94,5 +119,5 @@ $(OBJ)/utils.o: utils.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o $(OBJ_SCALING) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
 
