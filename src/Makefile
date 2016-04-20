@@ -1,11 +1,15 @@
 include ../Makefile.inc
 
 OBJ_SCALING_DIR = scaling/$(OBJ)
+OBJ_CMT_DIR = cmt/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
 endif
 ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 -include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_CMT_DIR) )" ""
+-include $(shell mkdir $(OBJ_CMT_DIR)) $(wildcard $(OBJ_CMT_DIR)/*)
 endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
@@ -13,6 +17,7 @@ OBJ_SCALING = $(OBJ_SCALING_DIR)/depthGridSearch.o \
 	      $(OBJ_SCALING_DIR)/init.o \
 	      $(OBJ_SCALING_DIR)/setForwardModel.o \
 	      $(OBJ_SCALING_DIR)/setRHS.o
+OBJ_CMT = $(OBJ_CMT_DIR)/setForwardModel.o
 OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
 	  $(OBJ)/coordtools.o \
 	  $(OBJ)/events.o \
@@ -24,6 +29,7 @@ OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
+	  $(OBJ_CMT) \
 	  $(OBJ_SCALING) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o $(OBJ_UTILS)
@@ -80,6 +86,11 @@ $(OBJ)/properties.o: properties.c
 
 $(OBJ)/readElarmS.o: readElarmS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
+
+######################################## CMT ##########################################
+
+$(OBJ_CMT_DIR)/setForwardModel.o: cmt/setForwardModel.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setForwardModel.c -o $(OBJ_CMT_DIR)/setForwardModel.o
 
 ####################################### Scaling #######################################
 
