@@ -23,8 +23,8 @@
  *        where \f$ \Delta \f$ is the epicentral distance.
  *
  * @param[in] l1               number of sites
+ * @param[in] ndeps            number of source depths
  * @param[in] verbose          controls verbosity (< 2 is quiet)
- * @param[in] dep              event depth (km)
  * @param[in] dist_tol         displacement tolerance (cm).  if the displacment
  *                             is less than dist_tol it would be set to dist_tol
  * @param[in] dist_def         displacement default (cm) if d < dist_tol
@@ -86,11 +86,32 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     if (l1 < 1){
         log_errorF("%s: Error invalid number of input stations: %d\n",
                    fcnm, l1);
+        ierr = 1;
         goto ERROR;
     }
     if (ndeps < 1){
         log_errorF("%s: Error invalid number of source depths: %d\n",
                    fcnm, ndeps);
+        ierr = 1;
+        goto ERROR;
+    }
+    if (srcDepths == NULL || utmRecvEasting == NULL || 
+        utmRecvNorthing == NULL || staAlt == NULL || 
+        d == NULL || repi == NULL || M == NULL || VR == NULL)
+    {
+        if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
+        if (utmRecvEasting == NULL){
+            log_errorF("%s: utmRecvEasting is NULL!\n", fcnm);
+        }
+        if (utmRecvNorthing == NULL){
+            log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
+        }
+        if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
+        if (d == NULL){log_errorF("%s: d is NULL\n", fcnm);}
+        if (repi == NULL){log_errorF("%s: repi is NULL\n", fcnm);}
+        if (M == NULL){log_errorF("%s: M is NULL\n", fcnm);}
+        if (VR == NULL){log_errorF("%s: VR is NULL\n", fcnm);}
+        ierr = 1;
         goto ERROR;
     }
     // Initialize result to nothing
@@ -166,7 +187,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         // Compute the variance reduction
         xnum = 0.0;
         xden = 0.0;
-        #pragma omp simd reduction(+:xnum, xden) aligned(UP,b:CACHE_LINE_SIZE)
+        #pragma omp simd reduction(+:xnum, xden) aligned(UP,W:CACHE_LINE_SIZE)
         for (i=0; i<l1; i++){
             res = W[i]*(d[i] - pow(10.0, UP[i] + A));
             xnum = xnum + sqrt(res*res);
