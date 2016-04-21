@@ -1468,12 +1468,14 @@ double __cmopad_trace3(double M[3][3])
  * @brief Calculates all eigenvalues and eigenvectors (job = 0) of a
  *        symmetric 3 x 3 matrix using LAPACK. 
  *
- * @param[in] a      matrix of which to calculate eigenvalues and optionally
- *                   eigenvectors
+ * @param[inout] a   on input matrix of which to calculate eigenvalues
+ *                   and optionally eigenvectors.
+ *                   on output if the eigenvectors are desired they are
+ *                   stored on a 
+ *
  * @param[in] job    = 0 calculate eigenvectors, otherwise, just eigenvalues
- * @param[in] n      number of rows/columns of A
  * 
- * @param[out] a     if job = 1, holds the eigenvectors of A
+ * @param[out] eigs  eigenvalues of matrix a [3]
  *
  * @result 0 indicates success
  * 
