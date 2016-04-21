@@ -1,11 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <cblas.h>
+#include <math.h>
 #include <lapacke.h>
 #include "gfast.h"
 
 /*!
  * @brief Performs the CMT depth grid search.
+ *
+ * @param[in] l1               number of sites
+ * @param[in] ndeps            number of depths
+ * @param[in] verbose          controls the verbosity (0 is quiet)
+ * @param[in] deviatoric       if true then constrain the inversion s.t. 
+ *                             resulting moment tensor is purely deviatoric.
+ *                             otherwise, invert for all six moment tensor
+ *                             terms.
+ * @param[in] utmSrcEasting    source easting UTM position (m)
+ * @param[in] utmSrcNorthing   source northing UTM position (m)
+ * @param[in] utmRecvEasting   receiver easting UTM positions (m) [l1]
+ * @param[in] utmRecvNorthing  receiver northing UMT positions (m) [l1]
+ * @param[in] staAlt           station elevations above sea level (m) [l1]
+ *
+ * @result 0 indicates success
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
@@ -22,12 +39,20 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                double *__restrict__ nAvgDisp,
                                double *__restrict__ eAvgDisp,
                                double *__restrict__ uAvgDisp,
+                               double *__restrict__ cmt_vr,
                                double *__restrict__ mts,
-                               double *__restrict__ cmt_vr)
+                               double *__restrict__ str1,
+                               double *__restrict__ str2,
+                               double *__restrict__ dip1,
+                               double *__restrict__ dip2,
+                               double *__restrict__ rak1,
+                               double *__restrict__ rak2,
+                               double *__restrict__ Mw)
 {
     const char *fcnm = "GFAST_CMT__depthGridSearch\0";
     double *G, *U, *UP, *xrs, *yrs, *zrs_negative, S[6],
-           eq_alt, m11, m12, m13, m22, m23, m33;
+           DC_pct, eq_alt, m11, m12, m13, m22, m23, m33,
+           res, sum_res2;
     int i, idep, ierr, ierr1, ldg, mrows, ncols;
     // Initialize
     ierr = 0;
@@ -86,6 +111,13 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         mts[6*idep+4] = 0.0;
         mts[6*idep+5] = 0.0;
         cmt_vr[idep] = 0.0;
+        str1[idep] = 0.0;
+        str2[idep] = 0.0;
+        dip1[idep] = 0.0;
+        dip2[idep] = 0.0;
+        rak1[idep] = 0.0;
+        rak2[idep] = 0.0;
+        Mw[idep] = 0.0;
     }
     // Set space
     if (deviatoric){
@@ -94,8 +126,8 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         ncols = 6;
     }
     mrows = 3*l1;
-    ldg = mrows;
-    G = GFAST_memory_calloc__double(ldg*ncols);
+    ldg = ncols;  // In row major format
+    G = GFAST_memory_calloc__double(mrows*ncols);
     U = GFAST_memory_calloc__double(mrows);
     UP = GFAST_memory_calloc__double(mrows);
     xrs = GFAST_memory_calloc__double(l1);
@@ -158,8 +190,30 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         mts[6*idep+5] = m23; // myz
 //for (i=0; i<ncols; i++){printf("%e\n",S[i]);}
 //getchar();
-        // Get the double couple percentage
-
+        // Compute the forward problem
+        cblas_dgemv(CblasRowMajor, CblasNoTrans,
+                    mrows, ncols, 1.0, G, ldg, S, 1, 0.0, UP, 1);
+        // Compute the L2 misfit which is called the variance reduction
+        sum_res2 = 0.0;
+        #pragma omp simd aligned(UP:CACHE_LINE_SIZE) reduction(+:sum_res2)
+        for (i=0; i<mrows; i++){
+            res = U[i] - UP[i];
+            sum_res2 = sum_res2 + res*res;
+        }
+        sum_res2 = sqrt(sum_res2); 
+        // Compute the moment tensor decomposition
+        ierr1 = GFAST_CMT__decomposeMomentTensor(&mts[6*idep],
+                                                 &DC_pct,
+                                                 &Mw[idep],
+                                                 &str1[idep], &str2[idep],
+                                                 &dip1[idep], &dip2[idep],
+                                                 &rak1[idep], &rak2[idep]);
+        if (ierr1 != 0){
+            log_errorF("%s: Error decomposing moment tensor\n", fcnm);
+            ierr = ierr + 1;
+        }
+        // Prefer results with larger double couple percentages
+        cmt_vr[idep] = sum_res2/DC_pct;
     } // Loop on source depths
 ERROR:;
     GFAST_memory_free__double(&G);

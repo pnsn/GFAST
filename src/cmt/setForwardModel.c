@@ -43,15 +43,14 @@ int GFAST_CMT__setForwardModel__deviatoric(int l1,
                                            double *__restrict__ G)
 {
     const char *fcnm = "GFAST_CMT__setForwardModel__deviatoric\0";
-    double azi1, C1, C2, cosaz, cosaz_sinaz, cosaz2,  
+    double C1, C2, 
            g111, g122, g133, g112, g113, g123,
            g211, g222, g233, g212, g213, g223,
            g311, g322, g333, g312, g313, g323,
-           R, R3, sinaz, sinaz2, x, y, z;
+           R, R3, x, y, z;
     int i, indx;
     const double MU = 3.e10;
     const double K = 5.0*MU/3.0;
-    const double pi180 = M_PI/180.0;
     //------------------------------------------------------------------------//
     //  
     // Size check

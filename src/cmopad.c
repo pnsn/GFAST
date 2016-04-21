@@ -1152,7 +1152,7 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
         log_errorF("%s: Error computing eigs (a)!\n",fcnm);
         return -1;
     } 
-    ierr = __cmopad_Eigs3x3(eigenvdevi,ival, eigenwdevi);
+    ierr = __cmopad_Eigs3x3(eigenvdevi, ival, eigenwdevi);
     if (ierr != 0){
         log_errorF("%s: Error computing eigs (b)!\n",fcnm);
         return -1;
@@ -1168,7 +1168,7 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
 
     M0_devi =-1.0;
     for (i=0; i<3; i++){
-        M0_devi = fmax(M0_devi,fabs(eigenwdevi[i]));
+        M0_devi = fmax(M0_devi, fabs(eigenwdevi[i]));
     }
 
     // Named according to Jost and Herrmann
@@ -1372,8 +1372,8 @@ int __cmopad_argsort3(double x[3], int iperm[3])
     iperm[c] = c;
     if (x[iperm[a]] > x[iperm[c]]){
         temp = iperm[c];
-        iperm[a] = iperm[c];
-        iperm[c] = temp;
+        iperm[c] = iperm[a];
+        iperm[a] = temp;
     }
     if (x[iperm[a]] > x[iperm[b]]){
         temp = iperm[b];
@@ -1381,7 +1381,7 @@ int __cmopad_argsort3(double x[3], int iperm[3])
         iperm[a] = temp;
     }
     //Now the smallest element is the first one. Just check the 2-nd and 3-rd
-    if (iperm[b] > iperm[c]){
+    if (x[iperm[b]] > x[iperm[c]]){
         temp = iperm[c];
         iperm[c] = iperm[b];
         iperm[b] = temp;
