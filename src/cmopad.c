@@ -16,7 +16,7 @@ Contact
 lars.krieger@zmaw.de  &  sebastian.heimann@zmaw.de
 
 Modifications - 2015
-Converted original Python to mopad.py to C - Ben Baker (ISTI)
+Converted original Python mopad.py to C - Ben Baker (ISTI)
 
 Contact
 benbaker@isti.com
@@ -1227,7 +1227,7 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     src->CLVD_percentage = 100.0 - src->ISO_percentage - src->DC_percentage;
     ////src->seismic_moment   = sqrt(1./2.0*(pow(eigenw[0],2) + pow(eigenw[0],2) + pow(eigenw[0],2))); 
     src->seismic_moment   = M0;
-    src->moment_magnitude = log10(src->seismic_moment*1.0e7)/1.5 - 10.7;
+    src->moment_magnitude = log10(src->seismic_moment*1.0e7)/1.5 - 16.1/1.5;
 
     return 0;
 }
