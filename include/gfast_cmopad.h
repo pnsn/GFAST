@@ -26,7 +26,7 @@ struct cmopad_struct
     double fp2[3];                /*!< Strike, dip, and rake of fault
                                        describing plane 2 (degrees) */
     double seismic_moment;        /*!< Scalar moment (Nm) */
-    double moment_magnitude;      /*!< Moment magnitude (Mw) */
+    double moment_magnitude;      /*!< Moment magnitude (e.g. Kanamori 1977) */
 
     double DC_percentage;         /*!< Double couple percentage [0,100] */
     double ISO_percentage;        /*!< Isotrpic percentage [0,100] */
