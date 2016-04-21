@@ -119,11 +119,13 @@ namespace GFAST
                /*! @brief Evaluates the PGD scaling */
                int ierr, n;
                ierr = 0;
+/*
                n = _d.size();
                ierr = GFAST_scaling_PGD(n, props.verbose,
                                         props.pgd_dist_tol, props.pgd_dist_def,
                                         &_d[0], &_r[0], &_repi[0],
                                         &_variance_reduction, &_magnitude);
+*/
                if (ierr != 0){
                    log_errorF("Error computing PGD scaling\n");
                    return ierr;

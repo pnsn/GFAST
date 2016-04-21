@@ -118,7 +118,7 @@ int GFAST_buffer__setBufferSpace(struct GFAST_props_struct props,
 {
     const char *fcnm = "GFAST_buffer__setBufferSpace\0";
     double dt, time_window;
-    int i, k, npts;
+    int i, k, maxpts;
     // Error handling
     time_window = props.bufflen;
     if (time_window < 0.0){
@@ -152,13 +152,14 @@ int GFAST_buffer__setBufferSpace(struct GFAST_props_struct props,
         // Compute the length - normally I'd add one but if the user meant
         // 30 seconds window length at 1 samples per second there would be
         // [0,29] = 30 samples in buffer
-        npts = (int) (time_window/dt + 0.5);
-        gps_data->data[k].npts = npts;
+        maxpts = (int) (time_window/dt + 0.5);
+        gps_data->data[k].maxpts = maxpts;
+        gps_data->data[k].npts = 0; // No points yet acquired in acquisition
         // Set the space
-        gps_data->data[k].nbuff = GFAST_memory_calloc__double(npts);
-        gps_data->data[k].ebuff = GFAST_memory_calloc__double(npts);
-        gps_data->data[k].ubuff = GFAST_memory_calloc__double(npts);
-        gps_data->data[k].tbuff = GFAST_memory_calloc__double(npts);
+        gps_data->data[k].nbuff = GFAST_memory_calloc__double(maxpts);
+        gps_data->data[k].ebuff = GFAST_memory_calloc__double(maxpts);
+        gps_data->data[k].ubuff = GFAST_memory_calloc__double(maxpts);
+        gps_data->data[k].tbuff = GFAST_memory_calloc__double(maxpts);
         // Make sure the space was allocated
         if (gps_data->data[k].nbuff == NULL ||
             gps_data->data[k].ebuff == NULL ||
@@ -172,14 +173,13 @@ int GFAST_buffer__setBufferSpace(struct GFAST_props_struct props,
             continue;
         }
         // Fill with NaN's
-        for (i=0; i<gps_data->data[k].npts; i++){
+        #pragma omp simd
+        for (i=0; i<gps_data->data[k].maxpts; i++){
             gps_data->data[k].nbuff[i] = NAN;
             gps_data->data[k].ebuff[i] = NAN;
             gps_data->data[k].ubuff[i] = NAN;
             gps_data->data[k].tbuff[i] = NAN;
         }
-        // Set with the current time
- 
     } // Loop on sites
     return 0;
 }
@@ -481,6 +481,27 @@ int GFAST_buffer__readDataFromSAC(int job,
 }
 //============================================================================//
 /*!
+ * @brief Sets the initial time in all buffers
+ *
+ * @param[in] epoch0        intial UTC epochal time (s) to start gps_data 
+ *                          traces at
+ * @param[inout] gps_data   on input holds the stream_length traces
+ *                          on output each trace begins at epoch0
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_buffer__setInitialTime(double epoch0,
+                                  struct GFAST_data_struct *gps_data)
+{
+    int k;
+    for (k=0; k<gps_data->stream_length; k++){
+        gps_data->data[k].epoch = epoch0;
+    }
+    return;
+}
+//============================================================================//
+/*!
  * @brief Sets the site names and locations in the GPS data structure 
  *
  * @param[in] props       GFAST properties
@@ -671,6 +692,7 @@ void GFAST_buffer_print__samplingPeriod(struct GFAST_data_struct gps_data)
                        lspace, gps_data.data[k].site, gps_data.data[k].sm.dt);
         }
     }
+    log_debugF("\n");
     return;
 }
 //============================================================================//

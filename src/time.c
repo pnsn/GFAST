@@ -117,4 +117,19 @@ int time_epoch2calendar(double epoch,
     return 0;
 }
 //============================================================================//
-
+/*!
+ * @brief Computes the epochal time (s) right now since 1970
+ *
+ * @result UTC epochal time (s) of right now
+ *
+ * @bug This does not work if case 1970 is not defined on the epoch on this
+ *      computer.
+ */
+double time_currentTime()
+{
+    time_t epoch;
+    double now;
+    epoch = time(NULL); // Current time
+    now = (double) epoch;
+    return now;
+}

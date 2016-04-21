@@ -21,7 +21,7 @@
  * @param[in] zone_in      UTM zone.  If out of bounds [0,60] then the UTM zone
  *                         will be selected by computing the UTM zone for the
  *                         source and applying that too all the receivers
- * @param[in] verbose      controls verbosity (0 is quiet)
+ * @param[in] verbose      controls verbosity (< 2 is quiet)
  *
  * @param[out] fault_lon   fault patch longitudes (degrees) [nstr*ndip]
  * @param[out] fault_lat   fault patch latitudes (degrees) [nstr*ndip]
@@ -59,29 +59,21 @@ int GFAST_faultplane_CMT(double lat, double lon, double depth,
     //
     // Error handling
     if (ndip < 1){
-        if (verbose > 0){
-            log_errorF("%s: Invalid number of fault patches down dip: %d\n",
-                       fcnm, ndip);
-        }
+        log_errorF("%s: Invalid number of fault patches down dip: %d\n",
+                    fcnm, ndip);
         return -1;
     }
     if (nstr < 1){
-        if (verbose > 0){
-            log_errorF("%s: Invalid number of fault patches along strike: %d\n",
-                       fcnm, nstr);
-        }
+        log_errorF("%s: Invalid number of fault patches along strike: %d\n",
+                   fcnm, nstr);
         return -1;
     }
     if (lat <-90.0 || lat > 90.0){
-        if (verbose > 0){
-            log_errorF("%s: Source latitude %f is invalid\n", fcnm, lat);
-        }
+        log_errorF("%s: Source latitude %f is invalid\n", fcnm, lat);
         return -1;
     }
     if (lon < -540.0 || lon >= 540.0){
-        if (verbose > 0){
-            log_errorF("%s: Source longitude %f is invalid\n", fcnm, lon);
-        }
+        log_errorF("%s: Source longitude %f is invalid\n", fcnm, lon);
         return -1;
     }
     // Compute location
@@ -103,9 +95,7 @@ int GFAST_faultplane_CMT(double lat, double lon, double depth,
                                       &x0, &y0,
                                       &lnorthp, &zone);
     if (ierr != 0){
-        if (verbose > 0){
-            log_errorF("%s: Error computing UTM origin\n", fcnm);
-        }
+        log_errorF("%s: Error computing UTM origin\n", fcnm);
         return -1;
     }
     x0 = x0*1.e-3;
@@ -159,10 +149,7 @@ int GFAST_faultplane_CMT(double lat, double lon, double depth,
                                               fault_X, fault_Y,
                                               &latF, &lonF);
             if (ierr != 0){
-                if (verbose > 0){
-                    log_errorF("%s: Error computing fault lat/lon\n",
-                               fcnm);
-                }
+                log_errorF("%s: Error computing fault lat/lon\n", fcnm);
                 return -1;
             }
             fault_lat[k] = latF;

@@ -73,7 +73,8 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
 /*!
  * @brief Reads the ElarmS file into the Shake Alert structure 
  *
- * @param[in] props     GFAST properties structure (verbosity and eewsfile name)
+ * @param[in] props     GFAST properties structure (verbosity, 
+                        eewsfile name, and default earthquake depth)
  *
  * @param[out] SA       shakeAlert structure
  *
@@ -115,6 +116,7 @@ int GFAST_readElarmS(struct GFAST_props_struct props,
     if (!lempty){
         sscanf(buffer, "%s\n", line);
         GFAST_readElarmS_ElarmSMessage2SAStruct(props.verbose, line, SA);
+        if (props.eqDefaultDepth >= 0.0){SA->dep = props.eqDefaultDepth;}
     }
     fclose(ew);
     return 0;

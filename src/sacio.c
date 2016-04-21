@@ -191,16 +191,18 @@ double *sacio_readData(char *flname, int *npts, int *ierr)
         return data;
     }
     // Copy single precision to double precision
-    data = (double *)calloc(nlen, sizeof(double));
+    data = GFAST_memory_calloc__double(nlen);
     if (data == NULL){
         log_errorF("%s: Error allocating output\n", fcnm);
         *ierr = 1;
         return data; 
     }
+    #pragma omp simd aligned(data:64)
     for (i = 0; i<nlen; i++) {
         data[i] = (double) y[i];
     }
     free(y);
+    y = NULL;
     return data;
 }
 //============================================================================//

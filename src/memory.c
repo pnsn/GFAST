@@ -76,8 +76,34 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
     if (pgd == NULL){return;}
     GFAST_memory_free__double(&pgd->mpgd);
     GFAST_memory_free__double(&pgd->mpgd_vr);
+    GFAST_memory_free__double(&pgd->srcDepths);
     GFAST_memory_free(pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Free the CMT results structure
+ *
+ * @param[inout] cmt       CMT results structure with memory to be freed
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
+{
+    if (cmt == NULL){return;}
+    GFAST_memory_free__double(&cmt->cmt_vr);
+    GFAST_memory_free__double(&cmt->mts);
+    GFAST_memory_free__double(&cmt->str1); 
+    GFAST_memory_free__double(&cmt->str2);
+    GFAST_memory_free__double(&cmt->dip1); 
+    GFAST_memory_free__double(&cmt->dip2);
+    GFAST_memory_free__double(&cmt->rak1); 
+    GFAST_memory_free__double(&cmt->rak2);
+    GFAST_memory_free__double(&cmt->Mw); 
+    GFAST_memory_free__double(&cmt->srcDepths);
+    memset(cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     return;
 }
 //============================================================================//

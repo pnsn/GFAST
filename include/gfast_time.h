@@ -17,7 +17,8 @@ double time_calendar2epoch2(int nzyear, int month, int dom, int nzhour,
 int time_epoch2calendar(double epoch,
                         int *nzyear, int *nzjday, int *month, int *mday,
                         int *nzhour, int *nzmin, int *nzsec, int *nzmusec);
-
+/* Get the UTC epochal time right now */
+double time_currentTime();
 #ifdef __cplusplus
 }
 #endif

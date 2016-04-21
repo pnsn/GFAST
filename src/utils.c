@@ -204,7 +204,7 @@ int numpy_lstsq__qr(int mtx_fmt,
 {
     const char *fcnm = "numpy_lstsq__qr\0";
     double *A, *bwork;
-    int ierr, info, indx, jndx, lda, ldb, k, mn;
+    int i, ierr, info, indx, j, jndx, k, lda, ldb, mn;
     const int incx = 1, incy = 1;
     //------------------------------------------------------------------------//
     //
@@ -230,7 +230,7 @@ int numpy_lstsq__qr(int mtx_fmt,
     // Set space for A
     ierr = 2;
     lda = m;
-    mn = lda*n;
+    mn = m*n;
     A = GFAST_memory_calloc__double(mn);
     if (A == NULL){
         log_errorF("%s: There was an error setting space\n", fcnm);
@@ -244,15 +244,28 @@ int numpy_lstsq__qr(int mtx_fmt,
                    fcnm);
         goto ERROR;
     }
+    // Copy matrix into column major format
+    if (mtx_fmt == LAPACK_COL_MAJOR){
+        cblas_dcopy(mn, Aref, incx, A, incy);
+    }else{
+        jndx = 0;
+        #pragma omp simd collapse(2)
+        for (j=0; j<n; j++){
+            for (i=0; i<m; i++){
+                indx = i*n + j;
+                jndx = j*lda + i;
+                A[jndx] = Aref[indx];
+            }
+        }
+    }
     // Copy RHS
-    cblas_dcopy(mn, Aref, incx, A, incy);
     for (k=0; k<nrhs; k++){
         indx = m*k;
         jndx = ldb*k;
-        cblas_dcopy(m, &b[indx], incx, &bwork[indx], incy);
+        cblas_dcopy(m, &b[indx], incx, &bwork[jndx], incy);
     }
     // Solve the least squares problem
-    info = LAPACKE_dgels(mtx_fmt, 'N', m, n, nrhs, A, lda, bwork, ldb);
+    info = LAPACKE_dgels(LAPACK_COL_MAJOR, 'N', m, n, nrhs, A, lda, bwork, ldb);
     if (info != 0){
         log_errorF("%s: Error solving the least squares problem\n", fcnm);
         if (info > 0){
@@ -317,7 +330,7 @@ int numpy_lstsq(int mtx_fmt,
 {
     const char *fcnm = "numpy_lstsq\0";
     double *A, *bwork, *s, rcond;
-    int ierr, indx, jndx, info, k, lda, ldb, mn, rank;
+    int i, ierr, indx, jndx, info, j, k, lda, ldb, mn, rank;
     int incx = 1, incy = 1;
     //------------------------------------------------------------------------//
     //
@@ -347,8 +360,8 @@ int numpy_lstsq(int mtx_fmt,
     // Set space for A
     ierr = 2;
     lda = m;
-    mn = lda*n;
-    A = GFAST_memory_calloc__double(mn);
+    mn = m*n;
+    A = GFAST_memory_calloc__double(m*n);
     if (A == NULL){
         log_errorF("%s: There was an error setting space\n", fcnm);
         goto ERROR; 
@@ -366,15 +379,28 @@ int numpy_lstsq(int mtx_fmt,
                    fcnm);
         goto ERROR; 
     }
+    // Copy matrix into column major format
+    if (mtx_fmt == LAPACK_COL_MAJOR){
+        cblas_dcopy(mn, Aref, incx, A, incy);
+    }else{
+        jndx = 0;
+        #pragma omp simd collapse(2)
+        for (j=0; j<n; j++){
+            for (i=0; i<m; i++){
+                indx = i*n + j;
+                jndx = j*lda + i;
+                A[jndx] = Aref[indx];
+            }
+        }
+    }
     // Copy RHS
-    cblas_dcopy(mn, Aref, incx, A, incy);
     for (k=0; k<nrhs; k++){
         indx = m*k;
         jndx = ldb*k;
-        cblas_dcopy(m, &b[indx], incx, &bwork[indx], incy);
+        cblas_dcopy(m, &b[indx], incx, &bwork[jndx], incy);
     }
     // Compute the SVD
-    info = LAPACKE_dgelsd(mtx_fmt, m, n, nrhs, A, lda, bwork, ldb,
+    info = LAPACKE_dgelsd(LAPACK_COL_MAJOR, m, n, nrhs, A, lda, bwork, ldb,
                           s, rcond, &rank);
     if (info != 0){
         log_errorF("%s: There was an error solving the least squares problem\n",

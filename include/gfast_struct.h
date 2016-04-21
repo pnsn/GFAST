@@ -49,7 +49,22 @@ struct GFAST_props_struct
                                      d < pgd_dist_tol */
     double bufflen;             /*!< The number of seconds to keep in the data
                                      buffers */
+    double processingTime;      /*!< Max processing time (s) after origin time
+                                     which GFAST module will declare an event 
+                                     done. This must be less than bufflen
+                                     less than or equal to the synthetic
+                                     runtime */
+    double eqDefaultDepth;      /*!< Default earthquake depth (km) to be applied
+                                     to shakeAlert structure */
     double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode */
+    double pgd_window_vel;      /*!< Velocity used in determining if enough
+                                     data has arrived at a station in PGD
+                                     inversion */
+    double cmt_window_vel;      /*!< Velocity used in determining if enough
+                                     data has arrived at a station in CMT
+                                     inversion */
+    double cmt_window_avg;      /*!< Window length (s) over which data positions
+                                     are averaged */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
@@ -57,6 +72,10 @@ struct GFAST_props_struct
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
+    int pgd_min_sites;          /*!< Minimum number of sites to proceed with
+                                     PGD estimation */
+    int cmt_min_sites;          /*!< Minimum number of sites to proceed with
+                                     CMT estimation */
     int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
     int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
     int verbose;                /*!< Controls verbosity - errors will always
@@ -67,11 +86,49 @@ struct GFAST_props_struct
                                       = 3 -> Output generic information,
                                              warnings, and debug information
                                              and debug information. */
+    bool lremove_disp0;         /*!< Remove the (u,n,e) component at the 
+                                     origin time from the displacement
+                                     streams */
+    bool ldeviatoric_cmt;       /*!< If true then the CMT inversion is 
+                                     constrained to purely deviatoric sources.
+                                     Otherwise, all 6 moment tensor terms
+                                     are inverted for. */
     enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
                                      playback, offline) */
     enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
                                      period */
     enum locinit_type loc_init; /*!< Defines how to initialize GPS locations */
+};
+
+struct GFAST_cmtResults_struct
+{
+    double *cmt_vr;    /*!< Variance reduction at all depths */
+    double *mts;       /*!< Holds the NED moment tensor terms packed
+                            \f$ \{m_{xx}, m_{yy}, m_{zz},
+                                  m_{xy}, m_{xz}, m_{yz} \} \f$.  [6*ndeps] */
+    double *str1;      /*!< Strike on first nodal plane for
+                            all depths [ndeps] */
+    double *str2;      /*!< Strike on second nodal plane for
+                            all depths [ndeps] */
+    double *dip1;      /*!< Dip on first nodal plane for all depths [ndeps] */
+    double *dip2;      /*!< Dip on second nodal plane for all depths [ndeps] */
+    double *rak1;      /*!< Rake on first nodal plane for all depths [ndeps] */
+    double *rak2;      /*!< Rake on second nodal plane for all depths [ndeps] */
+    double *Mw;        /*!< Moment magnitude for all depths [ndeps] */
+    double *srcDepths; /*!< Source depths in moment tensor inversion grid
+                            search (km) [ndeps] */
+    int ndeps;         /*!< Number of depths in grid search */
+};
+
+struct GFAST_pgdResults_struct
+{
+    double *mpgd;      /*!< PGD magnitude at id'th depth [ndeps] */
+    double *mpgd_vr;   /*!< PGD variance reduction at id'th depth [ndeps] */
+    double *srcDepths; /*!< PGD source depths in grid search (km) [ndeps] */
+    bool *lsiteUsed;   /*!< If true then then the isite'th from the 
+                            site list was used in the PGD estimation [nsites] */
+    int ndeps;         /*!< Number of depths in PGD estimation */ 
+    int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
 };
 
 struct GFAST_strongMotion_struct
@@ -89,20 +146,23 @@ struct GFAST_collocatedData_struct
                                                structure */ 
     char site[64];    /*!< Name of site */
     double *ubuff;    /*!< Up position buffer (m?).  If any sample is 
-                           not known it should be a NAN. [npts] */
-    double *nbuff;    /*!< North position buffer (m?) [npts].  If any sample
+                           not known it should be a NAN. [maxpts] */
+    double *nbuff;    /*!< North position buffer (m?) [maxpts].  If any sample
                            is not known it should be a NAN. */
-    double *ebuff;    /*!< East position buffer (m?) [npts].  If any sample
+    double *ebuff;    /*!< East position buffer (m?) [maxpts].  If any sample
                            is not known it should be a NAN. */
-    double *tbuff;    /*!< Epochal time buffer (s) [npts] */ 
+    double *tbuff;    /*!< Epochal time buffer (s) [maxpts] */ 
     double epoch;     /*!< Epoch time (seconds) corresponding to first sample 
                            of u, n, and e traces */
     double dt;        /*!< Sampling period (seconds). */
     double sta_lat;   /*!< Station latitude [-90,90] (degrees) */
     double sta_lon;   /*!< Station longitude [0,360] (degrees) */
     double sta_alt;   /*!< Station altitude (m) */
-    int npts;         /*!< Number of points in time series.  This should be 
-                           equivalent GFAST_parms_struct's bufflen */
+    int maxpts;       /*!< Max number of poitns in buffer.  This is 
+                           computed from the site sampling period and
+                           the GFAST_parm_struct's bufflen */
+    int npts;         /*!< Number of points in time series.  This cannot
+                           exceed maxpts */
     bool lcollocated; /*!< True -> station is collocated with a strong
                                    motion station.
                            False -> station is not collocated with a strong

@@ -54,7 +54,7 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     }
     s = iniparser_getstring(ini, "general:eewgfile\0", "GFAST_output.txt\0");
     strcpy(props->eewgfile, s);
-    props->bufflen = iniparser_getint(ini, "general:bufflen\0", 300.0);
+    props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
     if (props->bufflen <= 0.0){
         log_errorF("%s: Buffer lengths must be positive!\n", fcnm);
         goto ERROR;
@@ -169,6 +169,25 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         props->synthetic_runtime
            = iniparser_getdouble(ini, "general:synthetic_runtime\0", 0.0); 
     } 
+    // Remove the displacement at origin time?
+    props->lremove_disp0
+       = iniparser_getboolean(ini, "general:remove_displacement_t0\0", true);
+    // Processing time
+    props->processingTime
+       = iniparser_getdouble(ini, "general:processing_time\0", 300.0);
+    if (props->processingTime > props->bufflen){
+        log_errorF("%s: Error processing time cannot exceed buffer length\n",
+                   fcnm);
+        goto ERROR;
+    }
+    // Default earthquake depth
+    props->eqDefaultDepth
+        = iniparser_getdouble(ini, "general:default_event_depth\0", 8.0);
+    if (props->eqDefaultDepth < 0.0){
+        log_errorF("%s: Error default earthquake depth must be positive %f\n",
+                   fcnm, props->eqDefaultDepth);
+        goto ERROR;
+    }
     //------------------------------PGD Parameters----------------------------//
     props->pgd_dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0", 6.0);
     if (props->pgd_dist_tol < 0.0){
@@ -189,7 +208,19 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
                    fcnm, props->pgd_ngridSearch_deps);
         goto ERROR;
     } 
-    //----------------------------CMT/FF Parameters---------------------------//
+    props->pgd_window_vel = iniparser_getdouble(ini,
+                                                "PGD:pgd_window_vel\0", 3.0);
+    if (props->pgd_window_vel <= 0.0){
+        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
+        goto ERROR;
+    }
+    props->pgd_min_sites = iniparser_getint(ini, "PGD:pgd_min_sites\0", 4);
+    if (props->pgd_min_sites < 1){
+        log_errorF("%s: Error at least one site needed to estimate PGD!\n", 
+                   fcnm);
+        goto ERROR;
+    }
+    //----------------------------CMT Parameters------------------------------//
     props->cmt_ngridSearch_deps
          = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);
     if (props->pgd_ngridSearch_deps < 1){
@@ -197,6 +228,33 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
                    fcnm, props->cmt_ngridSearch_deps);
         goto ERROR;
     }
+    props->cmt_min_sites = iniparser_getint(ini, "CMT:cmt_min_sites\0", 4);
+    if (props->cmt_min_sites < 3){
+        log_errorF("%s: Error at least two sites needed to estimate CMT!\n",
+                   fcnm);
+        goto ERROR;
+    }
+    props->cmt_window_vel = iniparser_getdouble(ini,
+                                                "CMT:cmt_window_vel\0", 3.0);
+    if (props->cmt_window_vel <= 0.0){
+        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
+        goto ERROR;
+    }
+    props->cmt_window_avg = iniparser_getdouble(ini,
+                                                "CMT:cmt_window_avg\0", 10.0);
+    if (props->cmt_window_avg <= 0.0){
+        log_errorF("%s: Error window average time must be positive!\n", fcnm);
+        goto ERROR;
+    }
+    props->ldeviatoric_cmt
+        = iniparser_getboolean(ini, "CMT:ldeviatoric_cmt\0", true);
+    if (!props->ldeviatoric_cmt){
+        log_errorF("%s: Error general CMT inversions not yet programmed\n",
+                   fcnm);
+        goto ERROR;
+    }
+    //------------------------------FF Parameters-----------------------------//
+
     //---------------------------ActiveMQ Parameters--------------------------//
     s = iniparser_getstring(ini, "ActiveMQ:AMQhost\0", NULL);
     if (s == NULL){
@@ -292,7 +350,7 @@ ERROR:;
 void GFAST_properties__print(struct GFAST_props_struct props)
 {
     const char *fcnm = "GFAST_properties__print\0";
-    const char *lspace = "     \0";
+    const char *lspace = "    \0";
     log_debugF("\n%s: GFAST properties\n", fcnm);
     if (props.opmode == OFFLINE){
         log_debugF("%s GFAST site position file %s\n", lspace,
@@ -341,8 +399,19 @@ void GFAST_properties__print(struct GFAST_props_struct props)
         log_debugF("%s GFAST will set UTM zone to %d\n", lspace,
                    props.utm_zone);
     }
+    if (props.lremove_disp0){
+        log_debugF("%s GFAST will remove displacement at origin time\n",
+                   lspace);
+    }else{
+        log_debugF("%s GFAST will not remove displacement at origin time\n",
+                   lspace);
+    }
     log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
     log_debugF("%s GFAST stream file: %s\n", lspace, props.streamfile);
+    log_debugF("%s GFAST will finish processing an event after %f (s)\n",
+               lspace, props.processingTime);
+    log_debugF("%s GFAST will use a default earthquake depth of %f\n",
+               lspace, props.eqDefaultDepth);
     //--------------------------------pgd-------------------------------------//
     log_debugF("%s GFAST PGD source receiver distance tolerance %f (km)\n",
                lspace, props.pgd_dist_tol);
@@ -350,10 +419,25 @@ void GFAST_properties__print(struct GFAST_props_struct props)
                lspace, props.pgd_dist_def);
     log_debugF("%s GFAST Number of PGD grid search depths is %d\n",
                lspace, props.pgd_ngridSearch_deps);
+    log_debugF("%s GFAST PGD data selection velocity is %f (km/s)\n",
+               lspace, props.pgd_window_vel);
+    log_debugF("%s GFAST Number of sites required to compute PGD is %d\n",
+               lspace, props.pgd_min_sites);
     //--------------------------------cmt-------------------------------------//
     log_debugF("%s GFAST Number of CMT grid search depths is %d\n",
                lspace, props.cmt_ngridSearch_deps);
+    log_debugF("%s GFAST CMT data selection velocity is %f (km/s)\n",
+               lspace, props.cmt_window_vel);
+    log_debugF("%s GFAST CMT data averaging window length %f (s)\n",
+               lspace, props.cmt_window_avg);
+    log_debugF("%s GFAST Number of sites required to compute CMT is %d\n",
+               lspace, props.cmt_min_sites); 
+    if (props.ldeviatoric_cmt){
+        log_debugF("%s GFAST will apply deviatoric constraint to CMT\n",
+                   lspace);
+    }else{
+        log_debugF("%s GFAST will invert for all 6 MT terms\n", lspace);
+    }
     log_debugF("\n");
-    
     return;
 }
