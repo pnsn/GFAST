@@ -36,7 +36,7 @@ int GFAST_scaling_PGD__setRHS(int n, int verbose,
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
         return -1;
     }
-    #pragma omp simd aligned(b:CACHE_LINE_SIZE)
+    #pragma omp simd
     for (i=0; i<n; i++){
         dist = d[i];
         if (dist - dist_tol < 0.0){dist = dist_def;}
