@@ -280,7 +280,7 @@ void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
                                  double *UTMNorthing, double *UTMEasting,
                                  bool *lnorthp, int *zone)
 {
-    double A, C, lat, lon, lon0, lon0_deg, M, T, v;
+    double A, C, lat, lon, lon_deg_use, lon0, lon0_deg, M, T, v;
     int zone_loc;
     // WGS84 parameters
     const double a = 6378137.0000;
@@ -289,11 +289,13 @@ void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
     const double k0 = 0.9996;
     const double pi180 = M_PI/180.0;
 
-    lon = lon_deg*pi180;
+    lon_deg_use = lon_deg;
+    if (lon_deg_use > 180.0){lon_deg_use = lon_deg_use - 360.0;} // [0,360]
+    lon = lon_deg_use*pi180;
     lat = lat_deg*pi180;
     zone_loc = *zone;
     if (zone_loc ==-1){
-        zone_loc = fmod( floor((lon_deg + 180.0)/6.0) , 60.0) + 1;
+        zone_loc = fmod( floor((lon_deg_use + 180.0)/6.0) , 60.0) + 1;
     }
     lon0_deg = fabs(zone_loc)*6.0 - 183.0;
     lon0 = lon0_deg*pi180;   //central meridian (-123 for zone 10)
@@ -306,14 +308,14 @@ void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
     M = a*(
            (1.0 - esq/4.0 - 3.0*pow(esq, 2)/64.0 - 5.0*pow(esq, 3)/256.0)*lat
           -(3.0*esq/8.0 + 3.0*pow(esq, 2)/32.0
-           + 45.0*pow(esq, 3)/1024.0)*sin(2.0*lat)
+          + 45.0*pow(esq, 3)/1024.0)*sin(2.0*lat)
           +(15.0*pow(esq, 2)/256.0 + 45.0*pow(esq, 3)/1024.0)*sin(4.0*lat)
           -(35.0*pow(esq, 3)/3072.0)*sin(6.0*lat)
         );
 
     *UTMNorthing = k0*( M + v*tan(lat)*( A*A/2.0 + (5.0 - T + 9.0*C +4.0*C*C)
                      *pow(A, 4)/24.0 + (61.0 - 58.0*T + T*T
-                     + 600.0*C - 330.0*epsq)*pow(A,6)/720.0 ) );
+                     + 600.0*C - 330.0*epsq)*pow(A, 6)/720.0 ) );
 
     *UTMEasting = k0*v*( A + (1.0 - T + C)*pow(A, 3)/6.0 
                       + (5.0 - 18.0*T + T*T 
