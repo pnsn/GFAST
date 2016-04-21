@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include "gfast_cmopad.h"
 #include "gfast_enum.h"
 #include "gfast_log.h"
 #include "gfast_numpy.h"
