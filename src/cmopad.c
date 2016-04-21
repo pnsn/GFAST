@@ -1464,25 +1464,24 @@ double __cmopad_trace3(double M[3][3])
     return trace;
 }
 //===========================================================================//
-
+/*!  
+ * @brief Calculates all eigenvalues and eigenvectors (job = 0) of a
+ *        symmetric 3 x 3 matrix using LAPACK. 
+ *
+ * @param[in] a      matrix of which to calculate eigenvalues and optionally
+ *                   eigenvectors
+ * @param[in] job    = 0 calculate eigenvectors, otherwise, just eigenvalues
+ * @param[in] n      number of rows/columns of A
+ * 
+ * @param[out] a     if job = 1, holds the eigenvectors of A
+ *
+ * @result 0 indicates success
+ * 
+ * @author B. Baker (ISTI)
+ * @date April 2016
+ */
 int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
 {
-    /*!
-     * Calculates all eigenvalues and eigenvectors (job = 0) of a
-     * symmetric matrix using LAPACK. 
-     * @author B. Baker (ISTI) February 2014
-     * 
-     * @param[in] a      matrix of which to calculate eigenvalues and optionally
-     *                   eigenvectors
-     * @param[in] job    = 0 calculate eigenvectors, otherwise, just eigenvalues
-     * @param[in] n      number of rows/columns of A
-     * 
-     * @param[out] a     if job = 1, holds the eigenvectors of A
-     * @result < 0 error calling dsyev or dsyevd_ 
-     *         > 0 error in dsyev or
-     *         = 0 success
-     * 
-     */
     const char *fcnm = "__cmopad_Eigs3x3\0";
     double avec[9];
     int n = 3;
