@@ -75,6 +75,9 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
                                      enum cmopad_basis_enum out_sys);
 void cmopad_strikeDipRake2MT6(double strike, double dip, double rake,
                               double moments[6]);
+int cmopad_SetupMT(int nmech, double *mech, 
+                   enum cmopad_basis_enum input_basisIn,
+                   double Mech_out[3][3]);
 int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src);
 int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src);
 int cmopad_sortEigenvAscending(bool isabs, double e[3], double ev[3][3]);

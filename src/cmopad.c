@@ -5,7 +5,8 @@
 #include <math.h>
 #include <lapacke.h>
 #include <cblas.h>
-#include "gfast.h"
+#include "gfast_cmopad.h"
+#include "gfast_log.h"
 
 /*
 Copyright (C) 2010
@@ -75,15 +76,7 @@ int cmopad_basis__switcher(enum cmopad_basis_enum in_system,
     }
     // Classify in
     if (in_system == NED){
-        /*
-        From[0] = 1.0; From[4] = 1.0; From[8] = 1.0;
-        ierr = utilsMathLinearAlgebraInv_lu_lapack(n3, n3, From); 
-        if (ierr != 0){
-            log_errorF("%s: Error in matrix inversion 1!",fcnm);
-            return -1;
-        }
-        */
-        // Inverse of identity is identity
+        // Inverse of identity: From[0] = 1.0; From[4] = 1.0; From[8] = 1.0 is:
         From[0] = 1.0; From[4] = 1.0; From[8] = 1.0;
     }else if (in_system == USE){
         From[3] =-1.0; From[7] = 1.0; From[2] =-1.0;  
@@ -101,33 +94,12 @@ int cmopad_basis__switcher(enum cmopad_basis_enum in_system,
     }else if (out_system == USE){
         // Inverse of: To[3] =-1.0; To[7] = 1.0; To[2] =-1.0; is
         To[1] =-1.0; To[5] = 1.0; To[6] =-1.0;
-        /*
-        ierr = utilsMathLinearAlgebraInv_lu_lapack(n3, n3, To);
-        if (ierr != 0){
-            log_errorF("%s: Error in matrix inversion 2!",fcnm);
-            return -1;
-        }
-        */
     }else if (out_system == XYZ){ 
         // Inverse of To[3] = 1.0; To[1] = 1.0; To[8] =-1.0; is:
         To[1] = 1.0; To[3] = 1.0; To[8] =-1.0;
-        /*
-        ierr = utilsMathLinearAlgebraInv_lu_lapack(n3, n3, To);
-        if (ierr != 0){
-            log_errorF("%s: Error in matrix inversion 3!",fcnm);
-            return -1;
-        }
-        */
     }else if (out_system == NWU){ 
         //Inverse of: To[0] = 1.0; To[4] =-1.0; To[8] =-1.0; is
         To[0] = 1.0; To[4] =-1.0; To[8] =-1.0;
-        /*
-        ierr = utilsMathLinearAlgebraInv_lu_lapack(n3, n3, To);
-        if (ierr != 0){
-            log_errorF("%s: Error in matrix inversion 4!",fcnm);
-            return -1;
-        }
-        */
     }else{
         log_errorF("%s: Invalid out coordinate system %d\n", fcnm, out_system);
         return -1;
@@ -231,7 +203,6 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
         }
     }
     // compute inv(R)
-    //ierr = utilsMathLinearAlgebraInv_lu_lapack(n3, n3, invR9);
     ierr = __cmopad_inv3(invR); //double Amat[3][3])
     if (ierr != 0){
         log_errorF("%s: Unlikely error!\n", fcnm);
@@ -505,13 +476,6 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
         }
     }
     // check if rotation has correct orientation
-    //det = cmopadDeterminant(n3, rot_matrix_fp1); 
-    //det = utilsMathLinearAlgebraDeterminant_matrix_lapack(n3,0,rot_matrix_fp1,
-    //                                                      &ierr);
-    //if (ierr != 0){
-    //    log_errorF("%s: Error computing determinant\n"); 
-    //    return -1;
-    //}
     det = __cmopad_determinant3x3(rot_matrix_fp1);
     if (det < 0.0){
        for (i=0; i<3; i++){
@@ -534,18 +498,9 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
             rot_matrix_fp2[i][j] = work2[j*3 + i];
         }
     }
-    //printf("rot_mat_fp1\n");
-    //for (i=0; i<3; i++){
-    //   printf("%f %f %f\n",rot_matrix_fp1[i][0],rot_matrix_fp1[i][1],rot_matrix_fp1[i][2]);
-    //}
-    //printf("rot_mat_fp2\n");
-    //for (i=0; i<3; i++){
-    //   printf("%f %f %f\n",rot_matrix_fp2[i][0],rot_matrix_fp2[i][1],rot_matrix_fp2[i][2]);
-    //}
     // Calculate strike, dip, rake of fault planes
     cmopad_findStrikeDipRake(rot_matrix_fp1, 
                              &src->fp1[1], &src->fp1[0], &src->fp1[2]);
-    //printf("----------------------------------------\n");
     cmopad_findStrikeDipRake(rot_matrix_fp2,
                              &src->fp2[1], &src->fp2[0], &src->fp2[2]);
     return 0;
@@ -621,13 +576,12 @@ void cmopad_MatrixToEuler(double rotmat[3][3],
     }
     // Multiply
     cos_alpha = cblas_ddot(n3, ez, inc, ezs, inc); 
-    cos_alpha = fmin( 1.0,cos_alpha);
-    cos_alpha = fmax(-1.0,cos_alpha);
+    cos_alpha = fmin( 1.0, cos_alpha);
+    cos_alpha = fmax(-1.0, cos_alpha);
     a = acos(cos_alpha); 
-    a1 = atan2( enodes[1], enodes[0]);
-    a2 =-atan2(enodess[1],enodess[0]);
-    b = numpy_mod(a1,twopi);
-    //printf("before g %f\n",a2);
+    a1 = atan2( enodes[1],  enodes[0]);
+    a2 =-atan2(enodess[1], enodess[0]);
+    b = numpy_mod(a1, twopi);
     g = numpy_mod(a2, twopi);
     // Compute unique Euler angles
     cmopad_uniqueEuler(&a, &b, &g);
@@ -690,7 +644,6 @@ double numpy_mod(double a, double b)
 int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
 {
     const char *fcnm = "cmopad_MT2PrincipalAxisSystem\0";
-    struct cmopad_struct src_work;
     int ival = 0;
     double M[3][3], M_devi[3][3], EV_devi[3][3], EV[3][3], EW[3], 
            EW_devi[3], EV1[3], EV2[3], EV3[3], EVh[3], EVs[3], EVn[3],  
@@ -707,7 +660,6 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
             EV_devi[i][j] = M_devi[i][j];
         }
     }
-    //ierr = lapackEigen(n3, EV_devi, ival, EW_devi);
     ierr = __cmopad_Eigs3x3(EV_devi, ival, EW_devi);
     if (ierr != 0){ 
         log_errorF("%s: Error computing eigenvalues (a)!",fcnm);
@@ -717,7 +669,6 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // Removed if statement, always true in python code
     trace_M = __cmopad_trace3(M);
     if (trace_M < epsilon){trace_M = 0.0;}
-    //ierr = lapackEigen(n3, EV, ival, EW);
     ierr = __cmopad_Eigs3x3(EV, ival, EW);
     if (ierr != 0){
         log_errorF("%s: Error computing eigenvalues (b)!", fcnm);
@@ -738,12 +689,12 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     EW2 = EW[EW_order[1]];
     EW3 = EW[EW_order[2]];
     for (i=0; i<3; i++){
-       //EV1_devi[i] = EV_devi[i][EW_order[0]];
-       //EV2_devi[i] = EV_devi[i][EW_order[1]]; 
-       //EV3_devi[i] = EV_devi[i][EW_order[2]]; 
-       EV1[i] = EV[i][EW_order[0]];
-       EV2[i] = EV[i][EW_order[1]];
-       EV3[i] = EV[i][EW_order[2]]; 
+        //EV1_devi[i] = EV_devi[i][EW_order[0]];
+        //EV2_devi[i] = EV_devi[i][EW_order[1]]; 
+        //EV3_devi[i] = EV_devi[i][EW_order[2]]; 
+        EV1[i] = EV[i][EW_order[0]];
+        EV2[i] = EV[i][EW_order[1]];
+        EV3[i] = EV[i][EW_order[2]]; 
     }
 
     // Classify tension axis symmetry
@@ -925,13 +876,10 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     src->plot_clr_order = clr;
 
     ierr = cmopad_findFaultPlanes(iverb, src);
-    src_work = *src;
-    ierr = cmopad_findFaultPlanes(iverb, &src_work);
-    *src = src_work;
-    //printf("%f\n",src->fp1[0]);
-    //printf("%f\n",src->fp1[1]);
-    //printf("%f\n",src->fp1[2]);
-    return 0;
+    if (ierr != 0){
+        log_errorF("%s: Error computing fault planes!\n", fcnm);
+    }
+    return ierr;
 }
 //============================================================================//
 /*!  
@@ -980,33 +928,32 @@ void cmopad_printMatrix3x3(bool lfact, double m[3][3])
     return;
 }
 //============================================================================//
-
-int mopad_SetupMT(int nmech, double *mech, 
-                  enum cmopad_basis_enum input_basisIn,
-                  double Mech_out[3][3])
+/*!
+ * @brief Brings the provided mechanism into symmetric 3x3 matrix form.
+ *
+ *        The source mechanism may be provided in different forms:
+ *
+ *        -- as 3x3 matrix - symmetry is checked - one basis 
+ *           system has to be chosen, or NED as default is taken
+ *        -- as 3-element tuple or array - interpreted as 
+ *           strike, dip, slip-rake angles in degree
+ *        -- as 4-element tuple or array - interpreted as strike, dip, 
+ *           slip-rake angles in degree + seismic scalar moment in Nm
+ *        -- as 6-element tuple or array - interpreted as the 6 independent 
+ *           entries of the moment tensor
+ *        -- as 7-element tuple or array - interpreted as the 6 independent 
+ *           entries of the moment tensor + seismic scalar moment in Nm
+ *        -- as 9-element tuple or array - interpreted as the 9 entries 
+ *           of the moment tensor - checked for symmetry
+ *        -- as a nesting of one of the upper types (e.g. a list of 
+ *           n-tuples) - first element of outer nesting is taken
+ *
+ */
+int cmopad_SetupMT(int nmech, double *mech, 
+                   enum cmopad_basis_enum input_basisIn,
+                   double Mech_out[3][3])
 {
-    /*
-     *  Brings the provided mechanism into symmetric 3x3 matrix form.
-     *
-     *  The source mechanism may be provided in different forms:
-     *
-     *  -- as 3x3 matrix - symmetry is checked - one basis 
-     *     system has to be chosen, or NED as default is taken
-     *  -- as 3-element tuple or array - interpreted as 
-     *     strike, dip, slip-rake angles in degree
-     *  -- as 4-element tuple or array - interpreted as strike, dip, 
-     *     slip-rake angles in degree + seismic scalar moment in Nm
-     *  -- as 6-element tuple or array - interpreted as the 6 independent 
-     *     entries of the moment tensor
-     *  -- as 7-element tuple or array - interpreted as the 6 independent 
-     *     entries of the moment tensor + seismic scalar moment in Nm
-     *  -- as 9-element tuple or array - interpreted as the 9 entries 
-     *     of the moment tensor - checked for symmetry
-     *  -- as a nesting of one of the upper types (e.g. a list of 
-     *     n-tuples) - first element of outer nesting is taken
-     *
-     */
-    const char *fcnm = "mopad_SetupMT\0";
+    const char *fcnm = "cmopad_SetupMT\0";
     enum cmopad_basis_enum input_basis;
     double rotmat[9], mtemp1[9], mtemp2[9], m_unrot[9], scalar_moment,  
            strike, dip, rake;
@@ -1200,13 +1147,11 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
             eigenvdevi[i][j]= M_devi[i][j];
         }
     }
-    //ierr = lapackEigen(n3, eigenvtot, ival, eigenwtot);
     ierr = __cmopad_Eigs3x3(eigenvtot, ival, eigenwtot);
     if (ierr != 0){ 
         log_errorF("%s: Error computing eigs (a)!\n",fcnm);
         return -1;
     } 
-    //ierr = lapackEigen(n3, eigenvdevi,ival, eigenwdevi); 
     ierr = __cmopad_Eigs3x3(eigenvdevi,ival, eigenwdevi);
     if (ierr != 0){
         log_errorF("%s: Error computing eigs (b)!\n",fcnm);
@@ -1240,23 +1185,6 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
         F =-eigenwdevi[0]/eigenwdevi[2]; 
     }
 
-    /*a3out = (double *)calloc(3*3, sizeof(double));
-    a2out = (double *)calloc(3*3, sizeof(double));
-    a1out = (double *)calloc(3 * 3, sizeof(double));*/
-
-    //utilsMathLinearAlgebraOuter_matrix(3,3,a3,a3,a3out);
-    //utilsMathLinearAlgebraOuter_matrix(3,3,a2,a2,a2out);
-    //utilsMathLinearAlgebraOuter_matrix(3,3,a1,a1,a1out);
-/*    for(i = 0; i < 3; i++)
-    {
-        for(j = 0; j < 3; j++)
-        {
-            a3out[3*i + j] = a3[i]*a3[j];
-            a2out[3*i + j] = a2[i]*a2[j];
-            a1out[3*i + j] = a1[i]*a1[j];
-        }
-    }*/
-
     for (i=0; i<3; i++){
         for (j=0; j<3; j++){
             a3out = a3[i]*a3[j];
@@ -1274,9 +1202,6 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
             }
         }
     }
-    /*free(a1out);
-    free(a2out);
-    free(a3out);*/
 
     //according to Bowers & Hudson:
     M0 = M0_iso + M0_devi;
@@ -1473,6 +1398,9 @@ int __cmopad_argsort3(double x[3], int iperm[3])
 //============================================================================//
 /*!
  * @brief Determinant of a 3 x 3 matrix
+ *
+ * @result determinant of a 3 x 3 matrix
+ *
  */
 double __cmopad_determinant3x3(double A[3][3])
 {
@@ -1485,6 +1413,12 @@ double __cmopad_determinant3x3(double A[3][3])
 //============================================================================//
 /*!
  * @brief Computes the inverse of a 3 x 3 matrix
+ *
+ * @param[inout] Amat    on input the 3 x 3 matrix to invert.
+ *                       on output the inverted matrix
+ *
+ * @result 0 indicates success
+ *
  */
 int __cmopad_inv3(double Amat[3][3])
 {
