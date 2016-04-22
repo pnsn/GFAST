@@ -219,6 +219,9 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         // Prefer results with larger double couple percentages
         cmt_vr[idep] = sum_res2/DC_pct;
     } // Loop on source depths
+    if (ierr != 0){
+        log_errorF("%s: Errors were detect during the grid search\n", fcnm);
+    }
 ERROR:;
     GFAST_memory_free__double(&G);
     GFAST_memory_free__double(&U);

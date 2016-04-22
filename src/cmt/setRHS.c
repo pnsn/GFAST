@@ -26,7 +26,7 @@ int GFAST_CMT__setRHS(int n, int verbose,
                       double *__restrict__ uAvg,
                       double *__restrict__ U)
 {
-    const char *fcnm = "GFAST_scaling_PGD__setRHS\0";
+    const char *fcnm = "GFAST_CMT__setRHS\0";
     int i, i3;
     if (n < 1){
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
