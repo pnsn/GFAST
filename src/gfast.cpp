@@ -12,11 +12,12 @@ int main()
     char fcnm[] = "GFAST\0";
     char propfilename[] = "gfast.props\0"; /* TODO take from EW config file */
     struct GFAST_props_struct props;
-    struct GFAST_data_struct *gps_event_data, gps_acquisition;
+    struct GFAST_data_struct gps_acquisition;
     struct GFAST_shakeAlert_struct SA;
     struct GFAST_activeEvents_struct events;
     struct GFAST_pgdResults_struct pgd;
     struct GFAST_cmtResults_struct cmt;
+    struct GFAST_ffResults_struct ff;
     double *latency, currentTime, dtmax, eventTime, t0sim;
     int iev, k, kt, ntsim, verbose0;
     int ierr = 0;
@@ -29,8 +30,8 @@ int main()
     memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
     memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+    memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
     latency = NULL;
-    gps_event_data = NULL;
     // Read the properties file
     log_infoF("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_properties__init(propfilename, &props);
@@ -60,6 +61,12 @@ int main()
     ierr = GFAST_CMT__init(props, gps_acquisition, &cmt);
     if (ierr != 0){
         log_errorF("%s: Error initializing CMT\n", fcnm);
+        goto ERROR;
+    }
+    // Initialize finite fault
+    ierr = GFAST_FF__init(props, gps_acquisition, &ff);
+    if (ierr != 0){
+        log_errorF("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
     // Connect to EW trace buffer and ring with ElarmS messages 
@@ -121,7 +128,7 @@ int main()
         verbose0 = props.verbose;
         // Loop on time-steps in simulation
 //ntsim = 59;
-        //for (kt=0; kt<ntsim; kt++){
+//        for (kt=0; kt<ntsim; kt++){
 for (kt=58; kt<59; kt++){
             // Update the time
             currentTime = t0sim + (double) kt;
@@ -206,6 +213,7 @@ ERROR:;
     GFAST_memory_freeData(&gps_acquisition);
     GFAST_memory_freePGDResults(&pgd);
     GFAST_memory_freeCMTResults(&cmt);
+    GFAST_memory_freeFFResults(&ff);
     GFAST_memory_freeProps(&props);
     return ierr;
 }

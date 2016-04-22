@@ -46,7 +46,7 @@ static inline double __I5(double cos_dip, double sin_dip,
                           bool ldip, double R);
 
 /*!
- * @brief This program computes the Green's functions from Okada's formulation 
+ * @brief This program computes the Green's functions from Okada's formulation
  *        for slip on fault patches at a set of station locations
  *
  * @param[in] l1      number of station locations
@@ -58,7 +58,9 @@ static inline double __I5(double cos_dip, double sin_dip,
  * @param[in] dip     fault dips [l2]
  * @param[in] W       fault widths [l2]
  * @param[in] L       fault lengths [l2]
- * @param[out] G      [3*l1 x 2*l2]
+ *
+ * @param[out] G      [3*l1 x 2*l2] stored in column major format with
+ *                    leading dimension 2*l2
  *
  * @author Brendan Crowell, PNSN
  *         Ben Baker, ISTI -> translated to C

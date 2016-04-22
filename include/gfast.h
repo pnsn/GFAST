@@ -11,6 +11,7 @@
 #define __GFAST__
 
 #define CACHE_LINE_SIZE 64
+#define GFAST_VERSION 0.01
 
 #ifdef __cplusplus
 extern "C"
@@ -73,15 +74,6 @@ bool GFAST_events__updateEvent(struct GFAST_shakeAlert_struct SA,
                                struct GFAST_activeEvents_struct *events,
                                int *ierr);
 void GFAST_events__print__event(struct GFAST_shakeAlert_struct SA);
-/* Meshes a fault plane from the CMT */
-int GFAST_faultplane_CMT(double lat, double lon, double depth,
-                         double fact_pct,
-                         double M, double strikeF, double dipF,
-                         int nstr, int ndip, int zone_in, int verbose,
-                         double *fault_lon, double *fault_lat, 
-                         double *fault_alt,
-                         double *strike, double *dip,
-                         double *length, double *width);
 /* Frees memory on pointers and data structures */
 void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm);
 void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data);
@@ -90,6 +82,8 @@ void GFAST_memory_freeProps(struct GFAST_props_struct *props);
 void GFAST_memory_freeEvents(struct GFAST_activeEvents_struct *events);
 void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd);
 void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt);
+void GFAST_memory_freeFaultPlane(struct GFAST_faultPlane_struct *fp);
+void GFAST_memory_freeFFResults(struct GFAST_ffResults_struct *ff);
 int *GFAST_memory_calloc__int(int n);
 int *GFAST_memory_alloc__int(int n);
 bool *GFAST_memory_calloc__bool(int n);
@@ -189,6 +183,32 @@ int GFAST_CMT__setRHS(int n, int verbose,
                       double *__restrict__ eAvg,
                       double *__restrict__ uAvg,
                       double *__restrict__ U);
+/* Finite fault inversion */
+int GFAST_FF__init(struct GFAST_props_struct props,
+                   struct GFAST_data_struct gps_data,
+                   struct GFAST_ffResults_struct *ff);
+int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
+                             double flen_pct,
+                             double fwid_pct,
+                             double M, double strikeF, double dipF,
+                             int nstr, int ndip,
+                             int utm_zone, int verbose,
+                             double *__restrict__ fault_lon,
+                             double *__restrict__ fault_lat,
+                             double *__restrict__ fault_alt,
+                             double *__restrict__ strike,
+                             double *__restrict__ dip,
+                             double *__restrict__ length,
+                             double *__restrict__ width);
+int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
+                             double *__restrict__ width,
+                             double *__restrict__ length,
+                             double *__restrict__ T);
+int GFAST_FF__setRHS(int n, int verbose,
+                     double *__restrict__ nAvg,
+                     double *__restrict__ eAvg,
+                     double *__restrict__ uAvg,
+                     double *__restrict__ U);
 #ifdef __cplusplus
 }
 #endif

@@ -254,7 +254,36 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         goto ERROR;
     }
     //------------------------------FF Parameters-----------------------------//
-
+    props->ff_nfp = iniparser_getint(ini, "FF:ff_number_of_faultplanes\0", 2);
+    if (props->ff_nfp != 2){
+        log_errorF("%s: Error only 2 fault planes considered in ff\n", fcnm);
+        goto ERROR;
+    }
+    props->ff_nstr = iniparser_getint(ini, "FF:ff_nstr\0", 10);
+    if (props->ff_nstr < 1){
+        log_errorF("%s: Error no fault patches along strike!\n", fcnm);
+        goto ERROR;
+    }
+    props->ff_ndip = iniparser_getint(ini, "FF:ff_ndip\0", 5);
+    if (props->ff_ndip < 1){
+        log_errorF("%s: Error no fault patches down dip!\n", fcnm);
+        goto ERROR;
+    }
+    props->ff_min_sites = iniparser_getint(ini, "FF:ff_min_sites\0", 4);
+    if (props->ff_min_sites < props->cmt_min_sites){
+        log_errorF("%s: Error FF needs at least as many sites as CMT\n", fcnm);
+        goto ERROR;
+    }
+    props->ff_flen_pct = iniparser_getdouble(ini, "FF:ff_flen_pct\0", 10.0);
+    if (props->ff_flen_pct < 0.0){
+        log_errorF("%s: Error cannot shrink fault length\n", fcnm);
+        goto ERROR;
+    }
+    props->ff_fwid_pct = iniparser_getdouble(ini, "FF:ff_fwid_pct\0", 10.0);
+    if (props->ff_fwid_pct < 0.0){
+        log_errorF("%s: Error cannot shrink fault width\n", fcnm);
+        goto ERROR;
+    }
     //---------------------------ActiveMQ Parameters--------------------------//
     s = iniparser_getstring(ini, "ActiveMQ:AMQhost\0", NULL);
     if (s == NULL){
@@ -438,6 +467,17 @@ void GFAST_properties__print(struct GFAST_props_struct props)
     }else{
         log_debugF("%s GFAST will invert for all 6 MT terms\n", lspace);
     }
+    //--------------------------------ff--------------------------------------//
+    log_debugF("%s GFAST will use %d fault patches along strike\n",
+               lspace, props.ff_nstr);
+    log_debugF("%s GFAST will use %d fault patches down-dip\n",
+               lspace, props.ff_ndip);
+    log_debugF("%s GFAST Number of sites required to compute FF is %d\n",
+               lspace, props.ff_min_sites);
+    log_debugF("%s GFAST fault length safety factor %.2f %\n",
+               lspace, props.ff_flen_pct);
+    log_debugF("%s GFAST fault width safety factor %.2f %\n",
+               lspace, props.ff_fwid_pct); 
     log_debugF("\n");
     return;
 }

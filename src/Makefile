@@ -1,15 +1,19 @@
 include ../Makefile.inc
 
-OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_CMT_DIR = cmt/$(OBJ)
+OBJ_FF_DIR = ff/$(OBJ)
+OBJ_SCALING_DIR = scaling/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
 endif
-ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
--include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
-endif
 ifeq "$(wildcard $(OBJ_CMT_DIR) )" ""
 -include $(shell mkdir $(OBJ_CMT_DIR)) $(wildcard $(OBJ_CMT_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
+-include $(shell mkdir $(OBJ_FF_DIR)) $(wildcard $(OBJ_FF_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
+-include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
 endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
@@ -22,20 +26,24 @@ OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
 	  $(OBJ_CMT_DIR)/init.o \
 	  $(OBJ_CMT_DIR)/setForwardModel.o \
 	  $(OBJ_CMT_DIR)/setRHS.o
+OBJ_FF = $(OBJ_FF_DIR)/init.o \
+	 $(OBJ_FF_DIR)/meshFaultPlane.o \
+	 $(OBJ_FF_DIR)/setForwardModel.o \
+	 $(OBJ_FF_DIR)/setRegularizer.o \
+	 $(OBJ_FF_DIR)/setRHS.o
 OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
 	  $(OBJ)/cmopad.o \
 	  $(OBJ)/coordtools.o \
 	  $(OBJ)/events.o \
-	  $(OBJ)/faultplane.o \
 	  $(OBJ)/log.o \
 	  $(OBJ)/memory.o \
-	  $(OBJ)/okadagreen.o \
 	  $(OBJ)/os.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
 	  $(OBJ_UTILS) \
 	  $(OBJ_CMT) \
+	  $(OBJ_FF) \
 	  $(OBJ_SCALING) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o # $(OBJ_LIB)
@@ -78,9 +86,6 @@ $(OBJ)/cmtgreen.o: cmtgreen.c
 $(OBJ)/events.o: events.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events.c -o $(OBJ)/events.o
 
-$(OBJ)/faultplane.o: faultplane.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c faultplane.c -o $(OBJ)/faultplane.o
-
 $(OBJ)/memory.o: memory.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c memory.c -o $(OBJ)/memory.o
 
@@ -112,6 +117,23 @@ $(OBJ_CMT_DIR)/setForwardModel.o: cmt/setForwardModel.c
 
 $(OBJ_CMT_DIR)/setRHS.o: cmt/setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setRHS.c -o $(OBJ_CMT_DIR)/setRHS.o
+
+##################################### Finite Fault ####################################
+
+$(OBJ_FF_DIR)/init.o: ff/init.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/init.c -o $(OBJ_FF_DIR)/init.o
+
+$(OBJ_FF_DIR)/meshFaultPlane.o: ff/meshFaultPlane.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/meshFaultPlane.c -o $(OBJ_FF_DIR)/meshFaultPlane.o
+
+$(OBJ_FF_DIR)/setForwardModel.o: ff/setForwardModel.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/setForwardModel.c -o $(OBJ_FF_DIR)/setForwardModel.o
+
+$(OBJ_FF_DIR)/setRegularizer.o: ff/setRegularizer.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/setRegularizer.c -o $(OBJ_FF_DIR)/setRegularizer.o
+
+$(OBJ_FF_DIR)/setRHS.o: ff/setRHS.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/setRHS.c -o $(OBJ_FF_DIR)/setRHS.o
 
 ####################################### Scaling #######################################
 

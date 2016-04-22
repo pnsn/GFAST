@@ -117,7 +117,7 @@ namespace GFAST
            int evaluate()
            {
                /*! @brief Evaluates the PGD scaling */
-               int ierr, n;
+               int ierr; //, n;
                ierr = 0;
 /*
                n = _d.size();

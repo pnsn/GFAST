@@ -64,7 +64,11 @@ struct GFAST_props_struct
                                      data has arrived at a station in CMT
                                      inversion */
     double cmt_window_avg;      /*!< Window length (s) over which data positions
-                                     are averaged */
+                                     are averaged in CMT inversion */
+    double ff_window_avg;       /*!< Window length (s) over which data positions
+                                     are averaged in FF inversion */
+    double ff_flen_pct;         /*!< Fault length safety factor */
+    double ff_fwid_pct;         /*!< Fault width safety factor */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
@@ -76,6 +80,12 @@ struct GFAST_props_struct
                                      PGD estimation */
     int cmt_min_sites;          /*!< Minimum number of sites to proceed with
                                      CMT estimation */
+    int ff_min_sites;           /*!< Minimum number of sites to proceed with
+                                     FF estimation */
+    int ff_nstr;                /*!< Number of fault patches along strike */
+    int ff_ndip;                /*!< Number of fault patches down dip */
+    int ff_nfp;                 /*!< Number of fault planes considered in
+                                     inversion */
     int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
     int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
     int verbose;                /*!< Controls verbosity - errors will always
@@ -98,6 +108,58 @@ struct GFAST_props_struct
     enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
                                      period */
     enum locinit_type loc_init; /*!< Defines how to initialize GPS locations */
+};
+
+
+struct GFAST_faultPlane_struct
+{
+    double *fault_lon;  /*!< Fault patch longitudes (degrees).  The size is
+                             [nstr x ndip] with leading dimension nstr */
+    double *fault_lat;  /*!< Fault patch latitudes (degrees).  The size is
+                             [nstr x ndip] with leading dimension nstr */
+    double *fault_alt;  /*!< Depth at fault patch (km) The size is 
+                             [nstr x ndip] with leading dimension nstr */
+    double *strike;     /*!< Strike angles of fault patches (degrees)
+                             [nstr x ndip] with leading dimension nstr */
+    double *dip;        /*!< Dip angles of fault patches (degrees).  The size
+                             is [nstr x ndip] with leading dimension nstr */
+    double *length;     /*!< Length of fault patches (km).  The size is
+                             [nstr x ndip] with leading dimension nstr */
+    double *width;      /*!< Width of fault patches (km).  The size is 
+                             [nstr x ndip] with leading dimension nstr */
+    double *sslip;      /*!< Strike-slip along each fault patch.  The size
+                             is [nstr x ndip] with leading dimension nstr */
+    double *dslip;      /*!< Dip-slip along each fault patch.  The size
+                             is [nstr x ndip] with leading dimension nstr */
+    double *EN;         /*!< Modeled east displacements [nobs] */
+    double *NN;         /*!< Modeled north displacements [nobs] */
+    double *UN;         /*!< Modeled vertical displacements [nobs] */
+    double *Einp;       /*!< Observed input east displacements [nobs] */
+    double *Ninp;       /*!< Observed input north displacements [nobs] */
+    double *Uinp;       /*!< Observed input vertical displacements [nobs] */
+    int maxobs;         /*!< Max number of allowable observations */
+    int nobs;           /*!< Number of observations (3 x number_of_sites) */
+    int nstr;           /*!< Number of fault patches along strike */
+    int ndip;           /*!< Number of fault patches down dip */
+};
+
+struct GFAST_ffResults_struct
+{
+    struct GFAST_faultPlane_struct *fp;   /*!< Fault planes [nfp] */
+    double *vr;                           /*!< Variance reduction on ifp'th
+                                               fault plane [nfp] */
+    double *Mw;                           /*!< Moment magnitude on ifp'th
+                                               fault plane [nfp] */
+    double *str;                          /*!< Strike of ifp'th fault
+                                               (degrees) [nfp] */
+    double *dip;                          /*!< Dip on ifp'th fault plane 
+                                               (degrees) [nfp] */
+    double SA_lat;                        /*!< Source latitude (degrees) */
+    double SA_lon;                        /*!< Source longitude (degrees) */
+    double SA_dep;                        /*!< Source depth (km) */
+    double SA_mag;                        /*!< Source magnitude (Mw) */
+    int preferred_fault_plane;            /*!< Preferred fault plane */
+    int nfp;                              /*!< Number of fault planes */
 };
 
 struct GFAST_cmtResults_struct

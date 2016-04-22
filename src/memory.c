@@ -108,6 +108,61 @@ void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
 }
 //============================================================================//
 /*!
+ * @brief Free the fault plane structure
+ *
+ * @param[inout] fp       fault plane structure with memory to be freed
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_memory_freeFaultPlane(struct GFAST_faultPlane_struct *fp)
+{
+    if (fp == NULL){return;}
+    GFAST_memory_free__double(&fp->fault_lon);
+    GFAST_memory_free__double(&fp->fault_lat);
+    GFAST_memory_free__double(&fp->fault_alt);
+    GFAST_memory_free__double(&fp->strike);
+    GFAST_memory_free__double(&fp->dip);
+    GFAST_memory_free__double(&fp->length);
+    GFAST_memory_free__double(&fp->width);
+    GFAST_memory_free__double(&fp->sslip);
+    GFAST_memory_free__double(&fp->dslip);
+    GFAST_memory_free__double(&fp->EN);
+    GFAST_memory_free__double(&fp->NN);
+    GFAST_memory_free__double(&fp->UN);
+    GFAST_memory_free__double(&fp->Einp);
+    GFAST_memory_free__double(&fp->Ninp);
+    GFAST_memory_free__double(&fp->Uinp);
+    memset(fp, 0, sizeof(struct GFAST_faultPlane_struct));
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Free the finite fault results structure
+ *
+ * @param[inout] ff      finite fault results structure with memory to be freed
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void GFAST_memory_freeFFResults(struct GFAST_ffResults_struct *ff)
+{
+    int ifp;
+    if (ff == NULL){return;}
+    if (ff->nfp < 1){return;}
+    for (ifp=0; ifp<ff->nfp; ifp++){
+        GFAST_memory_freeFaultPlane(&ff->fp[ifp]);
+    }
+    GFAST_memory_free(ff->fp);
+    GFAST_memory_free__double(&ff->vr);
+    GFAST_memory_free__double(&ff->Mw);
+    GFAST_memory_free__double(&ff->str);
+    GFAST_memory_free__double(&ff->dip);
+    memset(ff, 0, sizeof(struct GFAST_ffResults_struct));
+    return;    
+}
+//============================================================================//
+/*!
  * @brief Frees memory on the active events structure
  *
  * @param[inout] events     active event list with data to be freed
