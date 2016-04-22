@@ -5,7 +5,7 @@
 /*!
  * @brief Sets the RHS for the moment tensor inversion.  The right hand
  *        side for the i'th site is packed 
- *        \f$ \{ n_{avg}^{(i)}, e_{avg}^{(i)}, -u_{avg}^{(i)} \} \f$. 
+ *        \f$ \{ n_{avg}^{(i)}, e_{avg}^{(i)}, -u_{avg}^{(i)} \} \f$.
  *
  * @param[in] n         number of points
  * @param[in] verbose   controls verbosity (0 is quiet)
@@ -35,10 +35,10 @@ int GFAST_CMT__setRHS(int n, int verbose,
     i3 = 0;
     #pragma omp simd
     for (i=0; i<n; i++){
+        i3 = 3*i;
         U[i3+0] = nAvg[i];
         U[i3+1] = eAvg[i];
         U[i3+2] =-uAvg[i]; 
-        i3 = i3 + 3;
     }
     return 0;
 }
