@@ -147,8 +147,14 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         goto ERROR;
     }
     // Grid search on source depths
+#ifdef __PARALLEL_CMT
+    #pragma omp parallel for \
+     firstprivate(G, U, zrs_negative) \
+     private (DC_pct, i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, res, S, sum_res2 ) \
+     shared (cmt_vr, dip1, dip2, fcnm, ldg, l1, mts, mrows, Mw, ncols, ndeps, rak1, rak2, srcDepths, staAlt, str1, str2, UP, xrs, yrs) \
+     reduction(+:ierr) default(none)
+#endif
     for (idep=0; idep<ndeps; idep++){
-//for (idep=0; idep<1; idep++){
         eq_alt = srcDepths[idep]*1.e3;
         #pragma omp simd
         for (i=0; i<l1; i++){
@@ -188,8 +194,6 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         mts[6*idep+3] = m12; // mxy
         mts[6*idep+4] = m13; // mxz
         mts[6*idep+5] = m23; // myz
-//for (i=0; i<ncols; i++){printf("%e\n",S[i]);}
-//getchar();
         // Compute the forward problem
         cblas_dgemv(CblasRowMajor, CblasNoTrans,
                     mrows, ncols, 1.0, G, ldg, S, 1, 0.0, UP, 1);
