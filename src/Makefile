@@ -17,8 +17,13 @@ OBJ_SCALING = $(OBJ_SCALING_DIR)/depthGridSearch.o \
 	      $(OBJ_SCALING_DIR)/init.o \
 	      $(OBJ_SCALING_DIR)/setForwardModel.o \
 	      $(OBJ_SCALING_DIR)/setRHS.o
-OBJ_CMT = $(OBJ_CMT_DIR)/setForwardModel.o
+OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
+	  $(OBJ_CMT_DIR)/depthGridSearch.o \
+	  $(OBJ_CMT_DIR)/init.o \
+	  $(OBJ_CMT_DIR)/setForwardModel.o \
+	  $(OBJ_CMT_DIR)/setRHS.o
 OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
+	  $(OBJ)/cmopad.o \
 	  $(OBJ)/coordtools.o \
 	  $(OBJ)/events.o \
 	  $(OBJ)/faultplane.o \
@@ -29,10 +34,11 @@ OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
+	  $(OBJ_UTILS) \
 	  $(OBJ_CMT) \
 	  $(OBJ_SCALING) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
-OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o $(OBJ_UTILS)
+OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o # $(OBJ_LIB)
 
 all: $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
 
@@ -41,12 +47,12 @@ $(GFAST_STATIC): $(OBJ_LIB)
 	ranlib $(GFAST_STATIC)
 
 $(GFAST_SHARED): $(OBJ_LIB)
-	$(CXX) $(MAKE_SHARED) -o $(GFAST_SHARED) $(OBJ_LIB) $(LIB_INI) $(LIB_LAPACK) $(LIB_GEO) -lm
+	$(CXX) $(MAKE_SHARED) -o $(GFAST_SHARED) $(OBJ_LIB)
 #$(GFAST_SHARED):
 #	$(CXX) $(MAKE_SHARED) -o $(GFAST_SHARED) -Wl,--whole-archive $(GFAST_STATIC) $(LIBINI) -Wl,--no-whole-archive
 
 $(GFAST): $(OBJ_GFAST)
-	$(CXX) $(CXXFLAGS) -o $(GFAST) $(OBJ_GFAST) $(GFAST_SHARED) $(LIB_GEO) $(LIB_INI) $(LLAPACK) $(LIB_SACIO) -lm
+	$(CXX) $(CXXFLAGS) -o $(GFAST) $(OBJ_GFAST) $(GFAST_SHARED) $(LIB_ALL)
 
 $(OBJ)/gfast.o: gfast.cpp
 	$(CXX) $(CXXFLAGS) $(INC_GFAST) -c gfast.cpp -o $(OBJ)/gfast.o
@@ -56,6 +62,9 @@ $(OBJ)/acquisition.o: acquisition.c
 
 $(OBJ)/buffer.o: buffer.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer.c -o $(OBJ)/buffer.o
+
+$(OBJ)/cmopad.o: cmopad.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmopad.c -o $(OBJ)/cmopad.o
 
 $(OBJ)/coordtools.o: coordtools.cpp
 	$(CXX) $(CXXFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools.cpp -o $(OBJ)/coordtools.o
@@ -89,8 +98,20 @@ $(OBJ)/readElarmS.o: readElarmS.c
 
 ######################################## CMT ##########################################
 
+$(OBJ_CMT_DIR)/decompose.o: cmt/decompose.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/decompose.c -o $(OBJ_CMT_DIR)/decompose.o
+
+$(OBJ_CMT_DIR)/depthGridSearch.o: cmt/depthGridSearch.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/depthGridSearch.c -o $(OBJ_CMT_DIR)/depthGridSearch.o
+
+$(OBJ_CMT_DIR)/init.o: cmt/init.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/init.c -o $(OBJ_CMT_DIR)/init.o
+
 $(OBJ_CMT_DIR)/setForwardModel.o: cmt/setForwardModel.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setForwardModel.c -o $(OBJ_CMT_DIR)/setForwardModel.o
+
+$(OBJ_CMT_DIR)/setRHS.o: cmt/setRHS.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setRHS.c -o $(OBJ_CMT_DIR)/setRHS.o
 
 ####################################### Scaling #######################################
 
@@ -130,5 +151,5 @@ $(OBJ)/utils.o: utils.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(OBJ_SCALING) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o $(OBJ_SCALING) $(OBJ_CMT) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
 
