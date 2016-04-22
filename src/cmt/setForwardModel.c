@@ -60,7 +60,7 @@ int GFAST_CMT__setForwardModel__deviatoric(int l1,
     }   
     // Loop on sites and fill up Green's function deviatoric matrix
     indx = 0;
-    //#pragma omp simd aligned(x1, y1, z1, G:CACHE_LINE_SIZE)
+    #pragma omp simd aligned(x1, y1, z1, G:CACHE_LINE_SIZE)
     for (i=0; i<l1; i++){
         // compute coefficients in greens functions
         x = x1[i];
@@ -91,6 +91,8 @@ int GFAST_CMT__setForwardModel__deviatoric(int l1,
         g312 = C1*(C2*6.0*z*x*y/R3);
         g313 = C1*(C2*6.0*z*x*z/R3 - 2.0*C2*x/R + 2.0*x/R);
         g323 = C1*(C2*6.0*z*y*z/R3 - 2.0*C2*y/R + 2.0*y/R);
+        // Set the index where 15 accounts for 3 rows of length 5
+        indx = i*15;
         // Fill row 1
         G[indx+0] = g112;
         G[indx+1] = g113;
@@ -109,8 +111,6 @@ int GFAST_CMT__setForwardModel__deviatoric(int l1,
         G[indx+12] = g333;
         G[indx+13] = 0.5*(g311 - g322);
         G[indx+14] = g323;
-        // Update the index 3 rows
-        indx = indx + 15;
     } // Loop on sites 
     return 0;
 }
