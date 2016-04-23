@@ -106,7 +106,7 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
         zone_loc =-1;
     }else{
         zone_loc = utm_zone;
-    }   
+    }
     GFAST_coordtools_ll2utm_ori(SA_lat, SA_lon,
                                 &y0, &x0,
                                 &lnorthp, &zone_loc);
@@ -153,6 +153,7 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
             fault_X = x0 + (0.5 + di)*xsoff + (0.5 + dj)*xdoff;
             fault_Y = y0 + (0.5 + di)*ysoff + (0.5 + dj)*ydoff;
             fault_Z = z0 + (0.5 + dj)*dalt;
+
             // Convert from UTMs back to lat/lon 
             fault_X = fault_X*1000.0; // km -> m
             fault_Y = fault_Y*1000.0; // km -> m
