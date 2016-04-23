@@ -143,9 +143,6 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
         // In a perfect world is there any chance of having data?
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
-        // In a perfect world is there any chance of having data?
-        currentTime = gps_data.data[k].epoch
-                    + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - SA.time)*props.cmt_window_vel;
         if (distance < effectiveHypoDist){
             luse = __GFAST_CMT__getAvgDisplacement(gps_data.data[k].npts,

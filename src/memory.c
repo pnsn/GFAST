@@ -93,7 +93,7 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
 void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
 {
     if (cmt == NULL){return;}
-    GFAST_memory_free__double(&cmt->cmt_vr);
+    GFAST_memory_free__double(&cmt->objfn);
     GFAST_memory_free__double(&cmt->mts);
     GFAST_memory_free__double(&cmt->str1); 
     GFAST_memory_free__double(&cmt->str2);
@@ -120,6 +120,8 @@ void GFAST_memory_freeFaultPlane(struct GFAST_faultPlane_struct *fp)
     if (fp == NULL){return;}
     GFAST_memory_free__double(&fp->fault_lon);
     GFAST_memory_free__double(&fp->fault_lat);
+    GFAST_memory_free__double(&fp->fault_xutm);
+    GFAST_memory_free__double(&fp->fault_yutm);
     GFAST_memory_free__double(&fp->fault_alt);
     GFAST_memory_free__double(&fp->strike);
     GFAST_memory_free__double(&fp->dip);

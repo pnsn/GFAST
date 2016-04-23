@@ -52,15 +52,16 @@ void GFAST_coordtools_ecef2lla(double x, double y, double z,
 void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
                                 double lat_deg, double lon_deg,
                                 double *dn, double *de, double *du);
-int geodetic_coordtools_ll2utm(double lat, double lon,
-                               double *xutm, double *yutm,
-                               bool *lnorthp, int *zone);
-int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
-                               double *lat, double *lon);
 
+#if __GNUC__ >= 5
+#pragma omp declare simd
+#endif
 void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
                                  double *UTMEasting, double *UTMNorthing,
                                  bool *lnorthp, int *zone);
+#if __GNUC__ >= 5
+#pragma omp declare simd
+#endif
 void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
                                  double UTMEasting, double UTMNorthing,
                                  double *lat_deg, double *lon_deg);
@@ -184,6 +185,10 @@ int GFAST_CMT__setRHS(int n, int verbose,
                       double *__restrict__ uAvg,
                       double *__restrict__ U);
 /* Finite fault inversion */
+int GFAST_FF__driver(struct GFAST_props_struct props,
+                     struct GFAST_shakeAlert_struct SA, 
+                     struct GFAST_data_struct gps_data,
+                     struct GFAST_ffResults_struct *ff);
 int GFAST_FF__init(struct GFAST_props_struct props,
                    struct GFAST_data_struct gps_data,
                    struct GFAST_ffResults_struct *ff);
@@ -193,13 +198,24 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double M, double strikeF, double dipF,
                              int nstr, int ndip,
                              int utm_zone, int verbose,
-                             double *__restrict__ fault_lon,
                              double *__restrict__ fault_lat,
+                             double *__restrict__ fault_lon,
+                             double *__restrict__ fault_xutm,
+                             double *__restrict__ fault_yutm,
                              double *__restrict__ fault_alt,
                              double *__restrict__ strike,
                              double *__restrict__ dip,
                              double *__restrict__ length,
                              double *__restrict__ width);
+int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
+                                           double *__restrict__ e,
+                                           double *__restrict__ n,
+                                           double *__restrict__ depth,
+                                           double *__restrict__ strike,
+                                           double *__restrict__ dip,
+                                           double *__restrict__ W,
+                                           double *__restrict__ L,
+                                           double *__restrict__ G);
 int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
                              double *__restrict__ width,
                              double *__restrict__ length,

@@ -45,6 +45,39 @@ int numpy_argmax(int n, double *x)
 }
 //============================================================================//
 /*! 
+ * @brief Returns index corresponding to smallest value in a double array
+ *
+ * @param[in] n   number of points in array x
+ * @param[in] x   array of which to find minimum [n]
+ *
+ * @result index of x which corresonds to smallest value
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+int numpy_argmin(int n, double *x)
+{
+    const char *fcnm = "numpy_argmin\0";
+    double val;
+    int i, index;
+    if (n < 1 || x == NULL){
+        if (n < 1){log_errorF("%s: Warning no values in array x!", fcnm);}
+        if (x == NULL){log_errorF("%s: Error x is NULL\n", fcnm);}
+        return 0;
+    }
+    if (n == 1){return 0;}
+    val = x[0];
+    index = 0;
+    for (i=1; i<n; i++){
+        if (x[i] < val){
+            index = i;
+            val = x[i];
+        }
+    }
+    return index;
+}
+//============================================================================//
+/*! 
  * @brief Returns the minimum of a double array
  *
  * @param[in] n   number of points in array x

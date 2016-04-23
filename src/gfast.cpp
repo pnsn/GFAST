@@ -186,6 +186,25 @@ for (kt=58; kt<59; kt++){
                                          events.SA[iev],
                                          gps_acquisition,
                                          &cmt);
+                // If we got a CMT see if we can run an MT inversion  
+                if (ierr == 0){
+                    ff.nfp = 2;
+                    ff.SA_lat = events.SA[iev].lat;
+                    ff.SA_lon = events.SA[iev].lon;
+                    ff.SA_dep = cmt.srcDepths[cmt.opt_indx];
+                    ff.SA_mag = cmt.Mw[cmt.opt_indx];
+                    ff.str[0] = cmt.str1[cmt.opt_indx];
+                    ff.str[1] = cmt.str2[cmt.opt_indx];
+                    ff.dip[0] = cmt.dip1[cmt.opt_indx];
+                    ff.dip[1] = cmt.dip2[cmt.opt_indx];
+ff.SA_mag = 9.07945726;
+ff.str[1] = 219.96796844;
+ff.dip[1] = 69.27746075;
+ff.str[0] = 116.78477424;
+ff.dip[0] = 58.91674731;
+                    ierr = GFAST_FF__driver(props, events.SA[iev],
+                                            gps_acquisition, &ff);
+                }
                 // Am I ready to publish this event?
                 if (currentTime - SA.time >= props.processingTime){
                     if (props.verbose > 0){

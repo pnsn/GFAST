@@ -27,13 +27,15 @@
  *                         source and applying that too all the receivers
  * @param[in] verbose      controls verbosity (< 2 is quiet)
  *
- * @param[out] fault_lon   fault patch longitudes (degrees) [nstr*ndip]
  * @param[out] fault_lat   fault patch latitudes (degrees) [nstr*ndip]
+ * @param[out] fault_lon   fault patch longitudes (degrees) [nstr*ndip]
+ * @param[out] fault_xutm  fault patch easting UTM (m) [nstr*ndip]
+ * @param[out] fault_yutm  fault patch northing UTM (m) [nstr*ndip]
  * @param[out] fault_alt   fault patch depths (km) [nstr*ndip]
  * @param[out] strike      strike on each fault patch [nstr*ndip]
  * @param[out] dip         dip of each fault patch [nstr*ndip]
- * @param[out] length      length of each fault patch (km) [nstr*ndip]
- * @param[out] width       width of each fault patch (km) [nstr*ndip]
+ * @param[out] length      length of each fault patch (m) [nstr*ndip]
+ * @param[out] width       width of each fault patch (m) [nstr*ndip]
  *
  * @result 0 indicates success
  *
@@ -52,8 +54,10 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double M, double strikeF, double dipF,
                              int nstr, int ndip,
                              int utm_zone, int verbose,
-                             double *__restrict__ fault_lon,
                              double *__restrict__ fault_lat,
+                             double *__restrict__ fault_lon,
+                             double *__restrict__ fault_xutm,
+                             double *__restrict__ fault_yutm,
                              double *__restrict__ fault_alt,
                              double *__restrict__ strike,
                              double *__restrict__ dip,
@@ -163,11 +167,13 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
             k = j*nstr + i;
             fault_lat[k] = latF;
             fault_lon[k] = lonF;
+            fault_xutm[k] = fault_X;
+            fault_yutm[k] = fault_Y;
             fault_alt[k] = fault_Z;
             strike[k] = strikeF;
             dip[k] = dipF;
-            length[k] = dlen;
-            width[k] = dwid;
+            length[k] = dlen*1.e3; // km -> m
+            width[k] = dwid*1.e3;  // km -> m
         } // Loop on strike 
     } // Loop on dip
     return 0;

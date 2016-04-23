@@ -274,6 +274,18 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         log_errorF("%s: Error FF needs at least as many sites as CMT\n", fcnm);
         goto ERROR;
     }
+    props->ff_window_vel = iniparser_getdouble(ini,
+                                               "FF:ff_window_vel\0", 3.0);
+    if (props->ff_window_vel <= 0.0){
+        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
+        goto ERROR;
+    }
+    props->ff_window_avg = iniparser_getdouble(ini,
+                                               "FF:ff_window_avg\0", 10.0);
+    if (props->ff_window_avg <= 0.0){
+        log_errorF("%s: Error window average time must be positive!\n", fcnm);
+        goto ERROR;
+    }
     props->ff_flen_pct = iniparser_getdouble(ini, "FF:ff_flen_pct\0", 10.0);
     if (props->ff_flen_pct < 0.0){
         log_errorF("%s: Error cannot shrink fault length\n", fcnm);
@@ -474,6 +486,10 @@ void GFAST_properties__print(struct GFAST_props_struct props)
                lspace, props.ff_ndip);
     log_debugF("%s GFAST Number of sites required to compute FF is %d\n",
                lspace, props.ff_min_sites);
+    log_debugF("%s GFAST finite fault data selection velocity is %f (km/s)\n",
+               lspace, props.ff_window_vel);
+    log_debugF("%s GFAST finite fault data averaging window length %f (s)\n",
+               lspace, props.ff_window_avg);
     log_debugF("%s GFAST fault length safety factor %.2f %\n",
                lspace, props.ff_flen_pct);
     log_debugF("%s GFAST fault width safety factor %.2f %\n",

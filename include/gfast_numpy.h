@@ -5,6 +5,7 @@ extern "C"
 {
 #endif
 int numpy_argmax(int n, double *x);
+int numpy_argmin(int n, double *x);
 double numpy_nanmean(int n, double *x, int *iwarn);
 double numpy_nanmax(int n, double *x, int *iwarn);
 double numpy_min(int n, double *x);

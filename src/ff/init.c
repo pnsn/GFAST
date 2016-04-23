@@ -45,7 +45,9 @@ int GFAST_FF__init(struct GFAST_props_struct props,
         ff->fp[ifp].nstr = props.ff_nstr;
         ff->fp[ifp].ndip = props.ff_ndip;
         ff->fp[ifp].fault_lon = GFAST_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].fault_lat = GFAST_memory_calloc__double(nstr_ndip); 
+        ff->fp[ifp].fault_lat = GFAST_memory_calloc__double(nstr_ndip);
+        ff->fp[ifp].fault_xutm = GFAST_memory_calloc__double(nstr_ndip);
+        ff->fp[ifp].fault_yutm = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].fault_alt = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].strike = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].dip = GFAST_memory_calloc__double(nstr_ndip);

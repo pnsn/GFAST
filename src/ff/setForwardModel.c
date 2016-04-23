@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "gfast.h"
+//#include "gfast.h"
 // Small number to test cos(90) = 0 
 #define eps 6.1232e-14 /*!< A close number for okadaGreenF */
 // Poisson's ratio
@@ -51,13 +51,16 @@ static inline double __I5(double cos_dip, double sin_dip,
  *
  * @param[in] l1      number of station locations
  * @param[in] l2      number of fault locations
- * @param[in] e       station/fault eastings [l1 x l2 - row major order]
- * @param[in] n       station/fault northings [l1 x l2 - row major order]
- * @param[in] depth   station/fault depths [l1 x l2 - row major order]
- * @param[in] strike  fault strikes [l2]
- * @param[in] dip     fault dips [l2]
- * @param[in] W       fault widths [l2]
- * @param[in] L       fault lengths [l2]
+ * @param[in] e       station/fault offset (m) fault eastings [l1 x l2 - row
+ *                    major order]
+ * @param[in] n       station/fault offset (m) fault northings [l1 x l2 - row
+                      major order]
+ * @param[in] depth   station/fault depth offsets (m) [l1 x l2 - row major
+                      order]
+ * @param[in] strike  fault strikes (degrees) [l2]
+ * @param[in] dip     fault dips (degrees) [l2]
+ * @param[in] W       fault widths (m) [l2]
+ * @param[in] L       fault lengths (m) [l2]
  *
  * @param[out] G      [3*l1 x 2*l2] stored in column major format with
  *                    leading dimension 2*l2
@@ -67,32 +70,32 @@ static inline double __I5(double cos_dip, double sin_dip,
  * @date February 2016
  *
  */
-int GFAST_FF_setForwardModel__okadagreenF(int l1, int l2,
-                                          double *__restrict__ e,
-                                          double *__restrict__ n,
-                                          double *__restrict__ depth,
-                                          double *__restrict__ strike,
-                                          double *__restrict__ dip,
-                                          double *__restrict__ W,
-                                          double *__restrict__ L,
-                                          double *__restrict__ G)
+int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
+                                           double *__restrict__ e,
+                                           double *__restrict__ n,
+                                           double *__restrict__ depth,
+                                           double *__restrict__ strike,
+                                           double *__restrict__ dip,
+                                           double *__restrict__ W,
+                                           double *__restrict__ L,
+                                           double *__restrict__ G)
 {
     double cos_dip, cos_strike, d, dip1, ec, 
            g1, g1n, g2, g2n, g3, g3n, g4, g4n, g5, g6,
            nc, p, q, strike1, sin_dip, sin_strike, x, y;
     int i, j, ij, indx;
-    const double pi180i = M_PI/180.0;
+    const double pi180 = M_PI/180.0;
     const double one_twopi = 1.0/(2.0*M_PI);
     //------------------------------------------------------------------------//
     indx = 0;
     // Loop on the observations
     for (j=0; j<l1; j++){
-        // Loop on the fault patches
+        // Loop on faults
         for (i=0; i<l2; i++){
-            ij = l2*i + j;
+            ij = l1*i + j;
 
-            strike1 = strike[i]*pi180i;
-            dip1 = dip[i]*pi180i;
+            strike1 = strike[i]*pi180;
+            dip1 = dip[i]*pi180;
             cos_strike = cos(strike1);
             sin_strike = sin(strike1);
             cos_dip = cos(dip1);
@@ -221,17 +224,17 @@ int GFAST_FF_setForwardModel__okadagreenF(int l1, int l2,
             g2n = sin_strike*g2 - cos_strike*g4;
             g4n = cos_strike*g2 + sin_strike*g4;
 
-            indx = 3*j*l2 + 2*i;
+            indx = 3*2*j*l2 + 2*i;
             G[indx+0] = g1n;
             G[indx+1] = g2n;
 
             //indx = 3*(j+1)*l2 + 2*i;
-            G[indx+3*l2+0] = g3n;
-            G[indx+3*l2+1] = g4n;
+            G[indx+2*l2+0] = g3n;
+            G[indx+2*l2+1] = g4n;
 
             //indx = 3*(j+2)*l2 + 2*i;
-            G[indx+6*l2+0] = g5;
-            G[indx+6*l2+1] = g6;
+            G[indx+4*l2+0] = g5;
+            G[indx+4*l2+1] = g6;
 
         } // Loop on stations
     } // Loop on faults

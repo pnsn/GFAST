@@ -67,6 +67,9 @@ struct GFAST_props_struct
                                      are averaged in CMT inversion */
     double ff_window_avg;       /*!< Window length (s) over which data positions
                                      are averaged in FF inversion */
+    double ff_window_vel;       /*!< Velocity used in determining if enough
+                                     data has arrived at a station in CMT
+                                     inversion */
     double ff_flen_pct;         /*!< Fault length safety factor */
     double ff_fwid_pct;         /*!< Fault width safety factor */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
@@ -117,15 +120,19 @@ struct GFAST_faultPlane_struct
                              [nstr x ndip] with leading dimension nstr */
     double *fault_lat;  /*!< Fault patch latitudes (degrees).  The size is
                              [nstr x ndip] with leading dimension nstr */
+    double *fault_xutm; /*!< Fault easting UTM (m).  The size is
+                             [nstr x ndip] with leading dimension nstr */
+    double *fault_yutm; /*!< Fault northing UTM (m).  The size is
+                             [nstr x ndip] with leading dimension nstr */
     double *fault_alt;  /*!< Depth at fault patch (km) The size is 
                              [nstr x ndip] with leading dimension nstr */
     double *strike;     /*!< Strike angles of fault patches (degrees)
                              [nstr x ndip] with leading dimension nstr */
     double *dip;        /*!< Dip angles of fault patches (degrees).  The size
                              is [nstr x ndip] with leading dimension nstr */
-    double *length;     /*!< Length of fault patches (km).  The size is
+    double *length;     /*!< Length of fault patches (m).  The size is
                              [nstr x ndip] with leading dimension nstr */
-    double *width;      /*!< Width of fault patches (km).  The size is 
+    double *width;      /*!< Width of fault patches (m).  The size is 
                              [nstr x ndip] with leading dimension nstr */
     double *sslip;      /*!< Strike-slip along each fault patch.  The size
                              is [nstr x ndip] with leading dimension nstr */
@@ -164,7 +171,7 @@ struct GFAST_ffResults_struct
 
 struct GFAST_cmtResults_struct
 {
-    double *cmt_vr;    /*!< Variance reduction at all depths */
+    double *objfn;     /*!< Objective function at all depths */
     double *mts;       /*!< Holds the NED moment tensor terms packed
                             \f$ \{m_{xx}, m_{yy}, m_{zz},
                                   m_{xy}, m_{xz}, m_{yz} \} \f$.  [6*ndeps] */
@@ -179,6 +186,7 @@ struct GFAST_cmtResults_struct
     double *Mw;        /*!< Moment magnitude for all depths [ndeps] */
     double *srcDepths; /*!< Source depths in moment tensor inversion grid
                             search (km) [ndeps] */
+    int opt_indx;      /*!< Optimal index in depth grid search [0, ndeps) */
     int ndeps;         /*!< Number of depths in grid search */
 };
 

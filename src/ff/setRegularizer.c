@@ -23,6 +23,8 @@
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
+ * @date April 2016
+ *
  */
 int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
                              double *__restrict__ width,
@@ -32,7 +34,7 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
     const char *fcnm = "GFAST_FF__setRegularizer\0";
     double len02i, lnwidi, wid02i;
     int i, indx1, indx2, indx3, indx4, indx5, j, k, l, ldt,
-           kndx1, kndx2, kndx3, kndx4, kndx5, m, ntref;
+           kndx1, kndx2, kndx3, kndx4, kndx5, koff, m, ntref;
     //------------------------------------------------------------------------//
     //
     // Error handling
@@ -96,11 +98,7 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
                     T[kndx2] = len02i;
                 }
                 if (indx1 >= 0 && indx1 < l2){
-                    T[kndx1] =-(2.0*len02i + 2.0*wid02i);
-                }
-                // Boundary condiiton: NOTE no check on j == 0 
-                if (j == ndip - 1 || i == 0 || i == nstr - 1){
-                    T[kndx1] = 100.0*lnwidi;
+                    T[kndx1] =-2.0*(len02i + wid02i);
                 }
                 if (indx3 >= 0 && indx3 < l2){
                     T[kndx3] = len02i;
@@ -111,5 +109,20 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
             } // Loop on m
         } // Loop on strike
     } // Loop on dip
+    koff = ndip*nstr*m;
+    for (j=0; j<ndip; j++){
+        for (i=0; i<nstr; i++){
+            for (m=0; m<2; m++){
+                k = koff + j*nstr*m + i*m + m; // Row number
+                indx1 = j*nstr  + i;           // Grid index
+                kndx1 = k*ldt + 2*indx1 + m;   // T[k,2*index1+m]
+                lnwidi = 1.0/(width[l]*length[l])*1.e6;  // 1/dx/dy; km^2 -> m^2
+                // Boundary condiiton: NOTE no check on j == 0 
+                if (j == ndip - 1 || i == 0 || i == nstr - 1){
+                    T[kndx1] = 100.0*lnwidi;
+                }
+            } // Loop on m
+        } // Loop on strike
+    } // Loop on  on dip
     return 0;
 }

@@ -19,6 +19,8 @@
  *
  * @author Ben Baker (ISTI)
  *
+ * @date April 2016
+ *
  */
 int GFAST_FF__setRHS(int n, int verbose,
                      double *__restrict__ nAvg,
