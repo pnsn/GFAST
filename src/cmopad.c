@@ -1166,10 +1166,16 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
         return -1;
     }
 
+    /* TODO: Email Lars Krieger; confirm this is a mistake
+           : Jost and Herrmann Eqn 19 
     M0_devi =-1.0;
     for (i=0; i<3; i++){
         M0_devi = fmax(M0_devi, fabs(eigenwdevi[i]));
     }
+    */
+    // Compute mangnitude (Jost and Herrmann Eqn 19 noting the eigenvalues are
+    // in ascending order)
+    M0_devi = 0.5*(fabs(eigenwdevi[1]) + fabs(eigenwdevi[2])); 
 
     // Named according to Jost and Herrmann
     for (i=0; i<3; i++){
