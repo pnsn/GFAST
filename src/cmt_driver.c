@@ -8,14 +8,14 @@
 #include <lapacke.h>
 #include "gfast.h"
 
-static bool __GFAST_getAvgDisplacement(int npts, bool lremove_disp0,
-                                      double dt, double SA_time,
-                                      double cmt_window_avg,
-                                      double epoch,
-                                      double *__restrict__ ubuff,
-                                      double *__restrict__ nbuff,
-                                      double *__restrict__ ebuff,
-                                      double *uAvg, double *nAvg, double *eAvg);
+bool __GFAST_CMT__getAvgDisplacement(int npts, bool lremove_disp0,
+                                     double dt, double SA_time,
+                                     double cmt_window_avg,
+                                     double epoch,
+                                     double *__restrict__ ubuff,
+                                     double *__restrict__ nbuff,
+                                     double *__restrict__ ebuff,
+                                     double *uAvg, double *nAvg, double *eAvg);
 
 /*!
  * @brief Drives the CMT estimation.
@@ -26,8 +26,9 @@ static bool __GFAST_getAvgDisplacement(int npts, bool lremove_disp0,
  *
  * @param[inout] cmt     on input contains the depths for the grid search
  *                       on output contains the corresponding variance
- *                       reduction, moment tensors, and nodal planes at
- *                       each depth in the CMT grid search.
+ *                       reduction, moment tensors, nodal planes at each
+ *                       depth in the CMT grid search, and optimal depth
+ *                       index.
  *
  * @result 0 indicates success
  *
@@ -71,8 +72,8 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
         if (props.verbose > 1){
             ierr = CMT_GPS_DATA_ERROR;
             log_warnF("%s: No GPS streams\n", fcnm);
-            goto ERROR;
         }
+        goto ERROR;
     }
     if (cmt->ndeps < 1){ 
         log_errorF("%s: No depths in CMT gridsearch!\n", fcnm);
@@ -147,16 +148,16 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - SA.time)*props.cmt_window_vel;
         if (distance < effectiveHypoDist){
-            luse = __GFAST_getAvgDisplacement(gps_data.data[k].npts,
-                                              props.lremove_disp0,
-                                              gps_data.data[k].dt,
-                                              SA.time,
-                                              props.cmt_window_avg,
-                                              gps_data.data[k].epoch,
-                                              gps_data.data[k].ubuff,
-                                              gps_data.data[k].nbuff,
-                                              gps_data.data[k].ebuff,
-                                              &uAvg, &nAvg, &eAvg);
+            luse = __GFAST_CMT__getAvgDisplacement(gps_data.data[k].npts,
+                                                   props.lremove_disp0,
+                                                   gps_data.data[k].dt,
+                                                   SA.time,
+                                                   props.cmt_window_avg,
+                                                   gps_data.data[k].epoch,
+                                                   gps_data.data[k].ubuff,
+                                                   gps_data.data[k].nbuff,
+                                                   gps_data.data[k].ebuff,
+                                                   &uAvg, &nAvg, &eAvg);
             if (luse){
                 uAvgDisp[l1] = uAvg;
                 nAvgDisp[l1] = nAvg;
@@ -195,7 +196,7 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                                       nAvgDisp,
                                       eAvgDisp,
                                       uAvgDisp,
-                                      cmt->cmt_vr,
+                                      cmt->objfn,
                                       cmt->mts,
                                       cmt->str1, cmt->str2,
                                       cmt->dip1, cmt->dip2,
@@ -204,6 +205,8 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     if (ierr != 0){
         log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
         goto ERROR;
+    }else{
+        cmt->opt_indx = numpy_argmin(cmt->ndeps, cmt->objfn);
     }
 ERROR:;
     GFAST_memory_free__double(&x2);
@@ -218,8 +221,8 @@ ERROR:;
 }
 //============================================================================//
 /*!
- * @brief Computes the maximum site distance (offset) from the 
- *        3 channel GPS site data 
+ * @brief Computes the maximum site distance (offset) from the
+ *        3 channel GPS site data
  *
  * @param[in] npts             number of points in time series
  * @param[in] lremove_disp0    if true then remove the (u,n,e) position at 
@@ -242,14 +245,14 @@ ERROR:;
  *
  * @author Ben Baker (ISTI)
  */
-bool __GFAST_getAvgDisplacement(int npts, bool lremove_disp0,
-                                double dt, double SA_time,
-                                double cmt_window_avg,
-                                double epoch,
-                                double *__restrict__ ubuff,
-                                double *__restrict__ nbuff,
-                                double *__restrict__ ebuff,
-                                double *uAvg, double *nAvg, double *eAvg)
+bool __GFAST_CMT__getAvgDisplacement(int npts, bool lremove_disp0,
+                                     double dt, double SA_time,
+                                     double cmt_window_avg,
+                                     double epoch,
+                                     double *__restrict__ ubuff,
+                                     double *__restrict__ nbuff,
+                                     double *__restrict__ ebuff,
+                                     double *uAvg, double *nAvg, double *eAvg)
 {
     double diffT, de, dn, du, e0, n0, u0, eAvgNan, nAvgNan, uAvgNan;
     int i, iavg, iavg1, indx0;

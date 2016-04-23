@@ -60,8 +60,8 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
         if (props.verbose > 1){
             ierr = PGD_GPS_DATA_ERROR;
             log_warnF("%s: No GPS streams\n", fcnm);
-            goto ERROR;
         }
+        goto ERROR;
     }
     if (pgd->ndeps < 1){
         log_errorF("%s: No depths in PGD gridsearch!\n", fcnm);
