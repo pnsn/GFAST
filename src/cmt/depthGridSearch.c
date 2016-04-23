@@ -205,6 +205,7 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
             sum_res2 = sum_res2 + res*res;
         }
         sum_res2 = sqrt(sum_res2); 
+ 
         // Compute the moment tensor decomposition
         ierr1 = GFAST_CMT__decomposeMomentTensor(&mts[6*idep],
                                                  &DC_pct,

@@ -27,7 +27,7 @@ int GFAST_CMT__init(struct GFAST_props_struct props,
                    fcnm, props.cmt_ngridSearch_deps);
         return -1;
     }
-    cmt->cmt_vr    = GFAST_memory_calloc__double(cmt->ndeps);
+    cmt->objfn     = GFAST_memory_calloc__double(cmt->ndeps);
     cmt->mts       = GFAST_memory_calloc__double(6*cmt->ndeps);
     cmt->str1      = GFAST_memory_calloc__double(cmt->ndeps);
     cmt->str2      = GFAST_memory_calloc__double(cmt->ndeps);
