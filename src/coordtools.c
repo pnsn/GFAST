@@ -3,10 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <omp.h>
-#include <GeographicLib/UTMUPS.hpp>
 #include "gfast.h"
-
-using namespace std;
 
 /*!
  * @brief This converts WGS84 coordinates to ITRF xyz
@@ -25,14 +22,16 @@ using namespace std;
  * @date February 2016
  *
  */
-extern "C"
 void GFAST_coordtools_lla2ecef(double lat_in, double lon_in, double alt,
                                double *x, double *y, double *z)
 {
+    const char *fcnm = "GFAST_coordtools_lla2ecef\0";
     double cos_lat, cos_lon, e2, lat, lon, N, sin_lat, sin_lon;
     const double a = 6378137.0;
     const double e = 8.1819190842622e-2;
     const double pi180 = M_PI/180.0;
+
+    log_warnF("%s: Untested\n", fcnm);
 
     lat = lat_in*pi180;
     lon = lon_in*pi180;
@@ -64,15 +63,15 @@ void GFAST_coordtools_lla2ecef(double lat_in, double lon_in, double alt,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-extern "C"
 void GFAST_coordtools_ecef2lla(double x, double y, double z,
                                double *lat_deg, double *lon_deg, double *alt)
 {
+    const char *fcnm = "GFAST_coordtools_ecef2lla\0";
     double a2, b, b2, e2, ep, lat, lon, N, p, th; 
     const double a = 6378137.0;
     const double e = 8.1819190842622e-2;
     const double pi180i = 180.0/M_PI;
-
+    log_warnF("%s: Untested\n", fcnm);
     a2 = pow(a, 2);
     e2 = pow(e, 2);
     b = sqrt(a2*(1.0 - pow(e, 2)));
@@ -108,13 +107,14 @@ void GFAST_coordtools_ecef2lla(double x, double y, double z,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-extern "C"
 void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
                                 double lat_deg, double lon_deg,
                                 double *dn, double *de, double *du)
 {
+    const char *fcnm = "GFAST_coordtools_dxyz2dneu\0";
     double cos_lat, cos_lon, lat, lon, sin_lat, sin_lon;
     const double pi180 = M_PI/180.0;
+    log_warnF("%s: Untested\n", fcnm);
     lat = lat_deg*pi180;
     lon = lon_deg*pi180;
     cos_lat = cos(lat);
@@ -125,127 +125,6 @@ void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
     *de =-sin_lon*dx + cos(lon)*dy;
     *du = cos_lat*cos_lon*dx + cos_lat*sin_lon*dy + sin_lat*dz;
     return;
-}
-//============================================================================//
-/*!
- * @brief Converts latitude/longitudes to UTM location
- *
- * @param[in] lat       latitude (degrees) [-90,90]
- * @param[in] lon       longitude (degrees) [-540,540)
- *
- * @param[out] xutm     corresponding x utm location (meters)
- * @param[out] yutm     corresponding y utm location (meters)
- * @param[out] lnorthp  False -> indicates southern hemisphere
- *                      True  -> indicates northern hemisphere
- *
- * @param[inout] zone   -1 -> then the corresponding UTM zone be returned
- *                      >-1-> force GeographicLib to use this UTM zone 
- *                            [0,60]
- *
- * @result 0 indicates success
- *
- * @author Ben Baker, ISTI
- */
-extern "C"
-int geodetic_coordtools_ll2utm(double lat, double lon,
-                               double *xutm, double *yutm,
-                               bool *lnorthp, int *zone)
-{
-    double x, y, gamma, k;
-    int setzone, zone_loc;
-    bool mgrslimits, northp_loc;
-    char error[1024];
-    //------------------------------------------------------------------------//
-    //
-    // Check if the zone is to be specified
-    *xutm = 0.0;
-    *yutm = 0.0;
-    *lnorthp = true;
-    if (*zone ==-1){ // Compute zone
-        setzone = GeographicLib::UTMUPS::STANDARD;
-    }else{
-        if (*zone < GeographicLib::UTMUPS::MINZONE ||
-            *zone > GeographicLib::UTMUPS::MAXZONE){
-            strcpy(error,"geodetic_ll2utm: Invalid zone\n");
-            setzone = GeographicLib::UTMUPS::STANDARD;
-            log_warnF(error);
-        }else{
-            setzone = *zone;
-        }
-    }
-    // Convert lat/lon to utm
-    mgrslimits = false;
-    try{
-        GeographicLib::UTMUPS::Forward(lat, lon, zone_loc, northp_loc, x, y,
-                                       gamma, k, setzone, mgrslimits);
-        *lnorthp = northp_loc;
-    }
-    catch (const exception &e){
-        strcpy(error, "geodetic_ll2utm: Error converting latlon to utm\n");
-        log_errorF(error);
-        return -1;
-    }
-    // Return the zone and (x,y) utm's
-    if (*zone ==-1){*zone = zone_loc;}
-    *xutm = x;
-    *yutm = y;
-    return 0;
-}
-//============================================================================//
-/*!
- * @brief Converts UTM location to latitude/longitude
- *
- * @param[in] zone     UTM zone containing (xutm,yutm) [0,60]
- * @param[in] lnorthp  False -> then in the southern hemisphere
- *                     True  -> then in the northern hemisphere
- * @param[in] xutm     x utm location (meters) 
- * @param[in] yutm     y utm location (meters) 
- *
- * @param[out] lat     latitude (degrees) [-90,90]
- * @param[out] lon     longitude (degrees) [0,360)
- *
- * @result 0 indicates success
- *
- * @author Ben Baker, ISTI
- *
- */
-extern "C" 
-int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
-                               double *lat, double *lon)
-{
-    double plat, plon, gamma, k;
-    bool mgrslimits;
-    char error[1024];
-    //------------------------------------------------------------------------//
-    //
-    // Check if the zone is to be specified
-    *lat = 0.0;
-    *lon = 0.0;
-    plat = 0.0;
-    plon = 0.0;
-    if (zone < GeographicLib::UTMUPS::MINZONE ||
-        zone > GeographicLib::UTMUPS::MAXZONE){
-        strcpy(error, "geodetic_utm2ll: Invalid zone\n");
-        log_errorF(error);
-        return -1;
-    }
-    // Convert lat/lon to utm
-    mgrslimits = false;
-    try{
-        GeographicLib::UTMUPS::Reverse(zone, lnorthp, xutm, yutm,
-                                       plat, plon,
-                                       gamma, k, mgrslimits);
-        if (plon < 0.0){plon = plon + 360.0;}
-    }
-    catch (const exception &e){
-        strcpy(error, "geodetic_utm2ll: Error converting latlon to utm\n");
-        log_errorF(error);
-        return -1;
-    }
-    // Return the zone and (x,y) utm's
-    *lat = plat;
-    *lon = plon;
-    return 0;
 }
 //============================================================================//
 /*!
@@ -275,7 +154,6 @@ int geodetic_coordtools_utm2ll(int zone, bool lnorthp, double xutm, double yutm,
  *
  */
 #pragma omp declare simd
-extern "C"
 void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
                                  double *UTMNorthing, double *UTMEasting,
                                  bool *lnorthp, int *zone)
@@ -288,7 +166,7 @@ void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
     const double epsq = esq/(1.0 - esq);
     const double k0 = 0.9996;
     const double pi180 = M_PI/180.0;
-
+    //------------------------------------------------------------------------//
     lon_deg_use = lon_deg;
     if (lon_deg_use > 180.0){lon_deg_use = lon_deg_use - 360.0;} // [0,360]
     lon = lon_deg_use*pi180;
@@ -347,7 +225,6 @@ void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
  * 
  */
 #pragma omp declare simd
-extern "C"
 void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
                                  double UTMNorthing, double UTMEasting,
                                  double *lat_deg, double *lon_deg)
@@ -360,7 +237,7 @@ void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
     const double k0 = 0.9996;
     const double pi180 = M_PI/180.0;
     const double pi180i = 180.0/M_PI;
-
+    //------------------------------------------------------------------------//
     lon0_deg = fabs(zone)*6.0 - 183.0;
     lon0 = lon0_deg*pi180;
     M1 = UTMNorthing/k0;
@@ -389,5 +266,6 @@ void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
 
     *lat_deg = lat*pi180i;
     *lon_deg = lon*pi180i;
+    if (*lon_deg < 0.0){*lon_deg = *lon_deg + 360.0;}
     return;
 }
