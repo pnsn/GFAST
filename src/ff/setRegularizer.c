@@ -4,8 +4,8 @@
 #include "gfast.h"
 /*!
  * @brief Computes the second order Tikhonov regularizer along
- *        strike and down dip for slip along strike and slip down
- *        dip
+ *        strike and down dip for estimation of the slip 
+ *        along strike and slip down dip
  *
  * @param[in] l2       total number of faults in plane (nstr*ndip)
  * @param[in] nstr     number of faults along strike
@@ -34,7 +34,7 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
     const char *fcnm = "GFAST_FF__setRegularizer\0";
     double len02i, lnwidi, wid02i;
     int i, indx1, indx2, indx3, indx4, indx5, j, k, l, ldt,
-           kndx1, kndx2, kndx3, kndx4, kndx5, koff, m, ntref;
+           kndx1, kndx2, kndx3, kndx4, kndx5, m, ntref;
     //------------------------------------------------------------------------//
     //
     // Error handling
@@ -64,6 +64,7 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
         if (T == NULL){
             log_errorF("%s: Error regularizer T can't be NULL\n", fcnm);
         }
+        return -1;
     }
     // Null out regularizer
     #pragma omp simd
@@ -75,14 +76,14 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
     for (j=0; j<ndip; j++){
         for (i=0; i<nstr; i++){
             for (m=0; m<2; m++){
-                l = i*nstr + j;         // Fault patch number
-                k = j*nstr*m + i*m + m; // Row number
+                l = j*nstr + i;         // Fault patch number
+                k = j*nstr*2 + i*2 + m; // Row number
                 wid02i = 1.0/(width[l]*width[l])*1.e6;   // 1/dy^2; km^2 -> m^2
                 len02i = 1.0/(length[l]*length[l])*1.e6; // 1/dx^2; km^2 -> m^2
                 lnwidi = 1.0/(width[l]*length[l])*1.e6;  // 1/dx/dy; km^2 -> m^2
-                indx1 =       j*nstr  + i;     // Grid index
-                indx2 =       j*nstr  + i - 1; // Backward along strike
-                indx3 =       j*nstr  + i + 1; // Forward along strike 
+                indx1 =       j*nstr + i;      // Grid index
+                indx2 =       j*nstr + i - 1;  // Backward along strike
+                indx3 =       j*nstr + i + 1;  // Forward along strike 
                 indx4 = (j - 1)*nstr + i;      // Backward along dip (up dp)
                 indx5 = (j + 1)*nstr + i;      // Forward along dip (down dip)
                 kndx1 = k*ldt + 2*indx1 + m;   // T[k,2*index1+m]
@@ -109,20 +110,25 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
             } // Loop on m
         } // Loop on strike
     } // Loop on dip
-    koff = ndip*nstr*m;
+    k = 2*ndip*nstr; // Begin row counter at end
     for (j=0; j<ndip; j++){
         for (i=0; i<nstr; i++){
             for (m=0; m<2; m++){
-                k = koff + j*nstr*m + i*m + m; // Row number
-                indx1 = j*nstr  + i;           // Grid index
-                kndx1 = k*ldt + 2*indx1 + m;   // T[k,2*index1+m]
-                lnwidi = 1.0/(width[l]*length[l])*1.e6;  // 1/dx/dy; km^2 -> m^2
-                // Boundary condiiton: NOTE no check on j == 0 
-                if (j == ndip - 1 || i == 0 || i == nstr - 1){
-                    T[kndx1] = 100.0*lnwidi;
+                if (j == 0 || j == ndip - 1 || i == 0 || i == nstr - 1){
+                    l = j*nstr + i;              // Fault patch number
+                    indx1 = j*nstr + i;          // Grid index
+                    kndx1 = k*ldt + 2*indx1 + m; // T[k,2*index1+m]
+                    // 1/dx/dy; km^2 -> m^2
+                    lnwidi = 1.0/(width[l]*length[l])*1.e6;
+                    T[kndx1] = 100.0*lnwidi; 
+                    k = k + 1;                   // Update row 
                 }
             } // Loop on m
         } // Loop on strike
-    } // Loop on  on dip
+    } // Loop on on dip
+    // Did we get them all?
+    if (k != (2*l2 + 2*(2*nstr + 2*(ndip-2)))){
+        log_warnF("%s: Warning failed to initialize all rows in T!\n", fcnm);
+    }
     return 0;
 }

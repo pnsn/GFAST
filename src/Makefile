@@ -31,17 +31,20 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/setForwardModel.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o
-OBJ_LIB = $(OBJ)/buffer.o $(OBJ)/cmt_driver.o \
+OBJ_ISCL = $(OBJ)/log.o \
+	   $(OBJ)/os.o
+OBJ_LIB = $(OBJ)/buffer.o \
+	  $(OBJ)/cmt_driver.o \
 	  $(OBJ)/cmopad.o \
 	  $(OBJ)/coordtools.o \
 	  $(OBJ)/events.o \
-	  $(OBJ)/log.o \
+	  $(OBJ)/ff_driver.o \
 	  $(OBJ)/memory.o \
-	  $(OBJ)/os.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
 	  $(OBJ_UTILS) \
+	  $(OBJ_ISCL) \
 	  $(OBJ_CMT) \
 	  $(OBJ_FF) \
 	  $(OBJ_SCALING) \
@@ -74,8 +77,8 @@ $(OBJ)/buffer.o: buffer.c
 $(OBJ)/cmopad.o: cmopad.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmopad.c -o $(OBJ)/cmopad.o
 
-$(OBJ)/coordtools.o: coordtools.cpp
-	$(CXX) $(CXXFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools.cpp -o $(OBJ)/coordtools.o
+$(OBJ)/coordtools.o: coordtools.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools.c -o $(OBJ)/coordtools.o
 
 $(OBJ)/cmt_driver.o: cmt_driver.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_LAPACK) $(CSHARED) -c cmt_driver.c -o $(OBJ)/cmt_driver.o
@@ -86,11 +89,11 @@ $(OBJ)/cmtgreen.o: cmtgreen.c
 $(OBJ)/events.o: events.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events.c -o $(OBJ)/events.o
 
+$(OBJ)/ff_driver.o: ff_driver.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff_driver.c -o $(OBJ)/ff_driver.o
+
 $(OBJ)/memory.o: memory.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c memory.c -o $(OBJ)/memory.o
-
-$(OBJ)/okadagreen.o: okadagreen.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c okadagreen.c -o $(OBJ)/okadagreen.o
 
 $(OBJ)/pgd_driver.o: pgd_driver.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c pgd_driver.c -o $(OBJ)/pgd_driver.o

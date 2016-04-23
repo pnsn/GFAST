@@ -138,14 +138,15 @@ struct GFAST_faultPlane_struct
                              is [nstr x ndip] with leading dimension nstr */
     double *dslip;      /*!< Dip-slip along each fault patch.  The size
                              is [nstr x ndip] with leading dimension nstr */
-    double *EN;         /*!< Modeled east displacements [nobs] */
-    double *NN;         /*!< Modeled north displacements [nobs] */
-    double *UN;         /*!< Modeled vertical displacements [nobs] */
-    double *Einp;       /*!< Observed input east displacements [nobs] */
-    double *Ninp;       /*!< Observed input north displacements [nobs] */
-    double *Uinp;       /*!< Observed input vertical displacements [nobs] */
+    double *EN;         /*!< Modeled east displacements [nsites_used] */
+    double *NN;         /*!< Modeled north displacements [nsites_used] */
+    double *UN;         /*!< Modeled vertical displacements [nsites_used] */
+    double *Einp;       /*!< Observed input east displacements [nsites_used] */
+    double *Ninp;       /*!< Observed input north displacements [nsites_used] */
+    double *Uinp;       /*!< Observed input vertical displacements
+                             [nsites_used] */
     int maxobs;         /*!< Max number of allowable observations */
-    int nobs;           /*!< Number of observations (3 x number_of_sites) */
+    int nsites_used;    /*!< Number of sites used in inversion */
     int nstr;           /*!< Number of fault patches along strike */
     int ndip;           /*!< Number of fault patches down dip */
 };

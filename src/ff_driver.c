@@ -4,6 +4,7 @@
 #include <math.h>
 #include <omp.h>
 #include <string.h>
+#include <lapacke.h>
 #include <cblas.h>
 #include "gfast.h"
 
@@ -53,7 +54,7 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
            currentTime, distance, eAvg, effectiveHypoDist,
            lampred, nAvg, res, uAvg, x1, x2, xden, xnum, y1, y2;
     int i, ierr, ierr1, ifp, ij, j, k, l1, l2, mrowsG, mrowsG2, mrowsT,
-        ncolsG, ncolsG2, ncolsT, ndip, nf, ng2, nstr, nt, nwork, zone_loc;
+        ncolsG, ncolsG2, ncolsT, ndip, ng, ng2, nstr, nt, nwork, zone_loc;
     bool lnorthp, luse;
     //------------------------------------------------------------------------//
     //
@@ -175,6 +176,11 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         ierr = FF_INSUFFICIENT_DATA;
         goto ERROR;
     }
+    // Invert!
+    if (props.verbose > 2){ 
+        log_debugF("%s: Performing finite fault inversion with %d sites\n",
+                   fcnm, l1);
+    }
     nstr = props.ff_nstr;
     ndip = props.ff_ndip;
     l2 = nstr*ndip;
@@ -191,10 +197,12 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     mrowsG = 3*l1;
     ncolsG = 2*l2;
     mrowsT = 2*l2 + 2*(2*nstr + 2*(ndip - 2));
+    mrowsT = 2*ndip*nstr + 2*(2*nstr+2*(ndip - 2));
     ncolsT = 2*l2;
     mrowsG2 = mrowsG + mrowsT;
     ncolsG2 = ncolsG;
     nt = mrowsT*ncolsT;
+    ng = mrowsG*ncolsG;
     ng2 = mrowsG2*ncolsG2;
     G2 = GFAST_memory_calloc__double(ng2);
     UD = GFAST_memory_calloc__double(mrowsG2);
@@ -217,32 +225,20 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     ff->SA_dep = SA.dep;
 */
     ff->preferred_fault_plane =-1;
-    for (ifp=0; ifp<ff->nfp; ifp++){ ff->fp[ifp].nobs = l1; }
-/*
-    // Get the strikes, dips, and rakes for plane 1 
-    ff->fp[0].str = str1;
-    ff->fp[0].dip = dip1;
-    ff->fp[0].nobs = l1;
-    // Get the strikes, dips, and rakes for plane 2
-    ff->fp[1].str = str2;
-    ff->fp[1].dip = dip2;
-    ff->fp[1].nobs = l1;
-*/
+    for (ifp=0; ifp<ff->nfp; ifp++){ff->fp[ifp].nsites_used = l1;}
     // Set the RHS
-/*
     ierr = GFAST_FF__setRHS(l1, props.verbose,
-                            nAvg, eAvg, uAvg, U);
+                            nAvgDisp, eAvgDisp, uAvgDisp, UD);
     if (ierr != 0){
-        log_errorF("%s: \n", fcnm);
+        log_errorF("%s: Error setting right hand side\n", fcnm);
         ierr = FF_COMPUTE_ERROR;
         goto ERROR; 
     }
-*/
     // Loop on the fault planes
 #ifdef __PARALLEL_FF
     #pragma omp parallel for \
      firstprivate(G2, S, UP) \
-     private(i, ierr1, ifp, res, xden, xnum) \
+     private(i, ierr1, ifp, ij, res, xden, xnum) \
      shared(ff, l1, l2, mrowsG2, ncolsG2, props, U) \
      reduction(+:ierr) default(none)
 #endif
@@ -305,13 +301,28 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
             ierr = ierr + 1;
             continue;
         }
-/*
         // Compute scale factor for regularizer
         lampred = 1.0/pow( (double) l2*2.0, 2);
-        lampred = lampred*cblas_dasum(ng, G2, 1)/(double) ng;
-        lampred = lampred/4.0*fp[ifp].length[0]*fp[ifp].width[0]/1.e6;
+        lampred = lampred/(cblas_dasum(ng, G2, 1)/(double) ng);
+        lampred = lampred/4.0*ff->fp[ifp].length[0]*ff->fp[ifp].width[0]/1.e6;
+
+/*
+int count = 0;
+double tij;
+for (i=0; i<mrowsT; i++){
+for (j=0; j<ncolsT; j++){
+tij = T[i*ncolsT + j];
+if (fabs(tij) > 0.0){
+count = count + 1;
+printf("%d %d %d %e\n", count, i, j, T[i*ncolsT + j]);
+}
+}
+}
+printf("%f\n", lampred);
+getchar();
+*/
         // Append lampred*T to G2
-        cblas_daxpy(nt, lampred, T, 1, &G2[ng], 1); 
+        cblas_daxpy(nt, lampred, T, 1, &G2[ng], 1);
         // Solve the least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrowsG2, ncolsG2, 1, G2, UD,
@@ -329,25 +340,37 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         xden = 0.0;
         #pragma omp simd reduction(+:xnum, xden)
         for (i=0; i<mrowsG; i++){
-            res = UP[i] - U[i];
+            res = UP[i] - UD[i];
             xnum = xnum + res*res;
-            xden = xden + U[i]*U[i];
+            xden = xden + UD[i]*UD[i];
         }
         ff->vr[ifp] = (1.0 - xnum/xden)*100.0;
-        // Extract the estimates 
+        // Extract the estimates
         #pragma omp simd
         for (i=0; i<l1; i++){
             ff->fp[ifp].EN[i] = UP[3*i+0];
             ff->fp[ifp].NN[i] = UP[3*i+1];
             ff->fp[ifp].UN[i] = UP[3*i+2];
+            ff->fp[ifp].Einp[i] = UD[3*i+0];
+            ff->fp[ifp].Ninp[i] = UD[3*i+1];
+            ff->fp[ifp].Uinp[i] = UD[3*i+2]; 
          }
-*/
+         // Extract the slip
+         for (i=0; i<l2; i++){
+             ff->fp[ifp].sslip[i] = S[2*i+0];
+             ff->fp[ifp].dslip[i] = S[2*i+1];
+printf("%f %f\n", S[2*i+0], S[2*i+1]);
+         }
+getchar();
+
+         //  Set the number of observations
+         ff->fp[ifp].nsites_used = l1;
     } // Loop on fault planes
-/*
     if (ierr != 0){
         log_errorF("%s: There were errors detected in the inversion\n", fcnm);
         ierr = FF_COMPUTE_ERROR;
     }else{
+/*
         // Choose a preferred plane
         ff->preferred_plane = 0;
         for (ifp=1; ifp<props.nfp; ifp++){
@@ -355,14 +378,17 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
                 ff->preferred_plane = ifp;
             }
         }
-    }
 */
+    }
 ERROR:;
     GFAST_memory_free__double(&G2);
     GFAST_memory_free__double(&UD);
     GFAST_memory_free__double(&UP);
     GFAST_memory_free__double(&T);
     GFAST_memory_free__double(&S);
+    GFAST_memory_free__double(&xrs);
+    GFAST_memory_free__double(&yrs);
+    GFAST_memory_free__double(&zrs);
     GFAST_memory_free__double(&staAlt);
     GFAST_memory_free__double(&utmRecvEasting);
     GFAST_memory_free__double(&utmRecvNorthing);

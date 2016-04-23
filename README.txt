@@ -16,7 +16,7 @@ Dependencies:
 (b)  To parse the ini file you must install iniparser:
        https://github.com/ndevilla/iniparser
 
-(c)  For lat/lon to UTM conversions you must install geographiclib:
+(c)  For testing the lat/lon to UTM conversions you must install geographiclib:
        http://geographiclib.sourceforge.net/
 
 Install:

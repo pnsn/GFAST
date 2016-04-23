@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-//#include "gfast.h"
+#include "gfast.h"
 // Small number to test cos(90) = 0 
 #define eps 6.1232e-14 /*!< A close number for okadaGreenF */
 // Poisson's ratio
