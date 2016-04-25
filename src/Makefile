@@ -17,10 +17,10 @@ ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
-OBJ_SCALING = $(OBJ_SCALING_DIR)/depthGridSearch.o \
-	      $(OBJ_SCALING_DIR)/init.o \
-	      $(OBJ_SCALING_DIR)/setForwardModel.o \
-	      $(OBJ_SCALING_DIR)/setRHS.o
+OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
+	      $(OBJ_SCALING_DIR)/pgd_init.o \
+	      $(OBJ_SCALING_DIR)/pgd_setForwardModel.o \
+	      $(OBJ_SCALING_DIR)/pgd_setRHS.o
 OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
 	  $(OBJ_CMT_DIR)/depthGridSearch.o \
 	  $(OBJ_CMT_DIR)/init.o \
@@ -48,7 +48,7 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_ISCL) \
 	  $(OBJ_CMT) \
 	  $(OBJ_FF) \
-	  $(OBJ_SCALING) \
+	  $(OBJ_SCALING_PGD) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o # $(OBJ_LIB)
 
@@ -144,17 +144,17 @@ $(OBJ_FF_DIR)/xml.o: ff/xml.c
 
 ####################################### Scaling #######################################
 
-$(OBJ_SCALING_DIR)/depthGridSearch.o: scaling/depthGridSearch.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/depthGridSearch.c -o $(OBJ_SCALING_DIR)/depthGridSearch.o
+$(OBJ_SCALING_DIR)/pgd_depthGridSearch.o: scaling/pgd_depthGridSearch.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_depthGridSearch.c -o $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o
 
-$(OBJ_SCALING_DIR)/init.o: scaling/init.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/init.c -o $(OBJ_SCALING_DIR)/init.o
+$(OBJ_SCALING_DIR)/pgd_init.o: scaling/pgd_init.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_init.c -o $(OBJ_SCALING_DIR)/pgd_init.o
 
-$(OBJ_SCALING_DIR)/setForwardModel.o: scaling/setForwardModel.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/setForwardModel.c -o $(OBJ_SCALING_DIR)/setForwardModel.o
+$(OBJ_SCALING_DIR)/pgd_setForwardModel.o: scaling/pgd_setForwardModel.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setForwardModel.c -o $(OBJ_SCALING_DIR)/pgd_setForwardModel.o
 
-$(OBJ_SCALING_DIR)/setRHS.o: scaling/setRHS.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/setRHS.c -o $(OBJ_SCALING_DIR)/setRHS.o
+$(OBJ_SCALING_DIR)/pgd_setRHS.o: scaling/pgd_setRHS.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setRHS.c -o $(OBJ_SCALING_DIR)/pgd_setRHS.o
 
 ####################################### Generic #######################################
 
@@ -180,5 +180,5 @@ $(OBJ)/utils.o: utils.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(OBJ_SCALING) $(OBJ_CMT) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o $(OBJ_SCALING_PGD) $(OBJ_CMT) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
 
