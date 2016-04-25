@@ -116,10 +116,18 @@ struct GFAST_props_struct
 
 struct GFAST_faultPlane_struct
 {
-    double *fault_lon;  /*!< Fault patch longitudes (degrees).  The size is
-                             [nstr x ndip] with leading dimension nstr */
-    double *fault_lat;  /*!< Fault patch latitudes (degrees).  The size is
-                             [nstr x ndip] with leading dimension nstr */
+    double *lon_vtx;    /*!< For plotting this defines the longitude of each
+                             vertex (degrees) on each fault patch.  The ifp'th
+                             fault patch is accessed by 4*(idip*nstr + istr).
+                             The size is [4 x nstr x ndip] */
+    double *lat_vtx;    /*!< For plotting this defines the latitude of each
+                             vertex (degrees) on each fault patch.  The ifp'th
+                             fault patch is accessed by 4*(idip*nstr + istr).
+                             The size is [4 x nstr x ndip] */
+    double *dep_vtx;    /*!< For plotting this defines the depth of each
+                             vertex (km) on each fault patch.  The ifp'th
+                             fault patch is accessed by 4*(idip*nstr + istr).
+                             The size is [4 x nstr x ndip] */
     double *fault_xutm; /*!< Fault easting UTM (m).  The size is
                              [nstr x ndip] with leading dimension nstr */
     double *fault_yutm; /*!< Fault northing UTM (m).  The size is
@@ -145,6 +153,9 @@ struct GFAST_faultPlane_struct
     double *Ninp;       /*!< Observed input north displacements [nsites_used] */
     double *Uinp;       /*!< Observed input vertical displacements
                              [nsites_used] */
+    int *fault_ptr;     /*!< Maps from the ifp'th fault patch to the 
+                             start index of in (lon_vtx, lat_vtx, dep_vtx)
+                             [nstr*ndip + 1] */
     int maxobs;         /*!< Max number of allowable observations */
     int nsites_used;    /*!< Number of sites used in inversion */
     int nstr;           /*!< Number of fault patches along strike */

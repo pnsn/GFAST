@@ -41,11 +41,12 @@ int GFAST_FF__init(struct GFAST_props_struct props,
              calloc(ff->nfp, sizeof(struct GFAST_faultPlane_struct));
     for (ifp=0; ifp<ff->nfp; ifp++){
         ff->fp[ifp].maxobs = maxobs;
-        ff->fp[ifp].nobs = 0;
+        ff->fp[ifp].nsites_used = 0;
         ff->fp[ifp].nstr = props.ff_nstr;
         ff->fp[ifp].ndip = props.ff_ndip;
-        ff->fp[ifp].fault_lon = GFAST_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].fault_lat = GFAST_memory_calloc__double(nstr_ndip);
+        ff->fp[ifp].lon_vtx = GFAST_memory_calloc__double(4*nstr_ndip);
+        ff->fp[ifp].lat_vtx = GFAST_memory_calloc__double(4*nstr_ndip);
+        ff->fp[ifp].dep_vtx = GFAST_memory_calloc__double(4*nstr_ndip);
         ff->fp[ifp].fault_xutm = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].fault_yutm = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].fault_alt = GFAST_memory_calloc__double(nstr_ndip);
@@ -61,6 +62,7 @@ int GFAST_FF__init(struct GFAST_props_struct props,
         ff->fp[ifp].Einp = GFAST_memory_calloc__double(maxobs);
         ff->fp[ifp].Ninp = GFAST_memory_calloc__double(maxobs);
         ff->fp[ifp].Uinp = GFAST_memory_calloc__double(maxobs);
+        ff->fp[ifp].fault_ptr = GFAST_memory_calloc__int(nstr_ndip + 1);
     }
     return 0;
 } 

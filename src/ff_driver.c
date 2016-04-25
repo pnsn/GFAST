@@ -52,7 +52,7 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
            *uAvgDisp, *utmRecvEasting, *utmRecvNorthing,
            *UD, *UP, *xrs, *yrs, *zrs,
            currentTime, distance, eAvg, effectiveHypoDist,
-           lampred, nAvg, res, uAvg, x1, x2, xden, xnum, y1, y2;
+           lampred, M0, nAvg, res, st, uAvg, x1, x2, xden, xnum, y1, y2;
     int i, ierr, ierr1, ifp, ij, j, k, l1, l2, mrowsG, mrowsG2, mrowsT,
         ncolsG, ncolsG2, ncolsT, ndip, ng, ng2, nstr, nt, nwork, zone_loc;
     bool lnorthp, luse;
@@ -187,13 +187,7 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     xrs = GFAST_memory_calloc__double(l1*l2);
     yrs = GFAST_memory_calloc__double(l1*l2);
     zrs = GFAST_memory_calloc__double(l1*l2);
-/*
-    utmSrcNorthing = y1; 
-    utmSrcEasting = x1;
-*/
-    // Set space for regularizer
-/*
-*/
+    // Compute sizes of matrices in G2 S = UP where G2 = [G; T]
     mrowsG = 3*l1;
     ncolsG = 2*l2;
     mrowsT = 2*l2 + 2*(2*nstr + 2*(ndip - 2));
@@ -237,14 +231,15 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     // Loop on the fault planes
 #ifdef __PARALLEL_FF
     #pragma omp parallel for \
-     firstprivate(G2, S, UP) \
-     private(i, ierr1, ifp, ij, res, xden, xnum) \
-     shared(ff, l1, l2, mrowsG2, ncolsG2, props, U) \
+     firstprivate(G2, S, T, UP, xrs, yrs, zrs) \
+     private(i, ierr1, ifp, ij, j, lampred, M0, res, st, xden, xnum) \
+     shared(fcnm, ff, l1, l2, mrowsG2, ncolsG2, mrowsG, ng, ng2, nt, props, staAlt, UD, utmRecvEasting, utmRecvNorthing) \
      reduction(+:ierr) default(none)
 #endif
     for (ifp=0; ifp<ff->nfp; ifp++){
-        // Null out G2
+        // Null out G2 and regularizer
         memset(G2, 0, ng2*sizeof(double));
+        memset(T, 0, nt*sizeof(double)); 
         // Mesh the fault plane
         ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
                                          props.ff_flen_pct,
@@ -252,8 +247,10 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
                                          ff->SA_mag, ff->str[ifp], ff->dip[ifp],
                                          ff->fp[ifp].nstr, ff->fp[ifp].ndip,
                                          props.utm_zone, props.verbose,
-                                         ff->fp[ifp].fault_lat,
-                                         ff->fp[ifp].fault_lon,
+                                         ff->fp[ifp].fault_ptr,
+                                         ff->fp[ifp].lat_vtx,
+                                         ff->fp[ifp].lon_vtx,
+                                         ff->fp[ifp].dep_vtx,
                                          ff->fp[ifp].fault_xutm,
                                          ff->fp[ifp].fault_yutm,
                                          ff->fp[ifp].fault_alt,
@@ -345,6 +342,7 @@ getchar();
             xden = xden + UD[i]*UD[i];
         }
         ff->vr[ifp] = (1.0 - xnum/xden)*100.0;
+//printf("%f\n", ff->vr[ifp]);
         // Extract the estimates
         #pragma omp simd
         for (i=0; i<l1; i++){
@@ -359,10 +357,21 @@ getchar();
          for (i=0; i<l2; i++){
              ff->fp[ifp].sslip[i] = S[2*i+0];
              ff->fp[ifp].dslip[i] = S[2*i+1];
-printf("%f %f\n", S[2*i+0], S[2*i+1]);
+//printf("%f %f\n", S[2*i+0], S[2*i+1]);
          }
-getchar();
+//getchar();
+         // Compute the magnitude
+         M0 = 0.0;
+         #pragma omp simd reduction(+:M0)
+         for (i=0; i<l2; i++){
+             st = sqrt( pow(ff->fp[ifp].sslip[i], 2)
+                      + pow(ff->fp[ifp].dslip[i], 2) );
+             M0 = M0 + 3.e10*st*ff->fp[ifp].length[i]*ff->fp[ifp].width[i];
 
+         }
+         ff->Mw[ifp] = 0.0;
+         if (M0 > 0.0){ff->Mw[ifp] = (log10(M0*1.e7) - 16.1)/1.5;}
+//printf("%f\n", ff->Mw[ifp]);
          //  Set the number of observations
          ff->fp[ifp].nsites_used = l1;
     } // Loop on fault planes

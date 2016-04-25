@@ -27,8 +27,14 @@
  *                         source and applying that too all the receivers
  * @param[in] verbose      controls verbosity (< 2 is quiet)
  *
- * @param[out] fault_lat   fault patch latitudes (degrees) [nstr*ndip]
- * @param[out] fault_lon   fault patch longitudes (degrees) [nstr*ndip]
+ * @param[out] fault_ptr   maps from the ifp'th fault to the start index
+ *                         (lat_vtx, lon_vtx, dep_vtx) [nstr*ndip + 1]
+ * @param[out] lat_vtx     defines the latitudes on each vertex of a 
+ *                         rectangular fault patch (degrees) [4*nstr*ndip]
+ * @param[out] lon_vtx     defines the longitudes on each vertex of a
+ *                         rectangular fault patch (degrees) [4*nstr*ndip]
+ * @param[out] dep_vtx     defines the depths on each vertex of a 
+ *                         retangular fault patch (km) [4*nstr*ndip] 
  * @param[out] fault_xutm  fault patch easting UTM (m) [nstr*ndip]
  * @param[out] fault_yutm  fault patch northing UTM (m) [nstr*ndip]
  * @param[out] fault_alt   fault patch depths (km) [nstr*ndip]
@@ -54,8 +60,10 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double M, double strikeF, double dipF,
                              int nstr, int ndip,
                              int utm_zone, int verbose,
-                             double *__restrict__ fault_lat,
-                             double *__restrict__ fault_lon,
+                             int *__restrict__ fault_ptr,
+                             double *__restrict__ lat_vtx,
+                             double *__restrict__ lon_vtx,
+                             double *__restrict__ dep_vtx,
                              double *__restrict__ fault_xutm,
                              double *__restrict__ fault_yutm,
                              double *__restrict__ fault_alt,
@@ -150,6 +158,7 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
     xsoff = dlen*sin(strikeF*pi180);
     ysoff = dlen*cos(strikeF*pi180);
     // Mesh fault by quickly stepping along strike and slowly stepping down dip
+    fault_ptr[0] = 0;
     for (j=0; j<ndip; j++){
         for (i=0; i<nstr; i++){
             dj = (double) j;
@@ -165,8 +174,12 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                                         fault_Y, fault_X,
                                         &latF, &lonF);
             k = j*nstr + i;
-            fault_lat[k] = latF;
-            fault_lon[k] = lonF;
+            fault_ptr[k+1] = 4*(k + 1);
+/*
+            lat_vtx[k] = latF;
+            lon_vtx[k] = lonF;
+            dep_vtx[k] = depF;
+*/
             fault_xutm[k] = fault_X;
             fault_yutm[k] = fault_Y;
             fault_alt[k] = fault_Z;

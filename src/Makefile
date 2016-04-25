@@ -30,7 +30,8 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/meshFaultPlane.o \
 	 $(OBJ_FF_DIR)/setForwardModel.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
-	 $(OBJ_FF_DIR)/setRHS.o
+	 $(OBJ_FF_DIR)/setRHS.o \
+	 $(OBJ_FF_DIR)/xml.o
 OBJ_ISCL = $(OBJ)/log.o \
 	   $(OBJ)/os.o
 OBJ_LIB = $(OBJ)/buffer.o \
@@ -137,6 +138,9 @@ $(OBJ_FF_DIR)/setRegularizer.o: ff/setRegularizer.c
 
 $(OBJ_FF_DIR)/setRHS.o: ff/setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/setRHS.c -o $(OBJ_FF_DIR)/setRHS.o
+
+$(OBJ_FF_DIR)/xml.o: ff/xml.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c ff/xml.c -o $(OBJ_FF_DIR)/xml.o
 
 ####################################### Scaling #######################################
 

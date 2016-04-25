@@ -11,7 +11,9 @@
 #define __GFAST__
 
 #define CACHE_LINE_SIZE 64
-#define GFAST_VERSION 0.01
+#define GFAST_ALGORITHM_VERSION 0.01
+#define GFAST_VERSION 0
+ 
 
 #ifdef __cplusplus
 extern "C"
@@ -198,8 +200,10 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double M, double strikeF, double dipF,
                              int nstr, int ndip,
                              int utm_zone, int verbose,
-                             double *__restrict__ fault_lat,
-                             double *__restrict__ fault_lon,
+                             int *__restrict__ fault_ptr,
+                             double *__restrict__ lat_vtx,
+                             double *__restrict__ lon_vtx,
+                             double *__restrict__ dep_vtx,
                              double *__restrict__ fault_xutm,
                              double *__restrict__ fault_yutm,
                              double *__restrict__ fault_alt,
