@@ -18,6 +18,9 @@ Dependencies:
 
 (c)  For testing the lat/lon to UTM conversions you must install geographiclib:
        http://geographiclib.sourceforge.net/
+(d)  To use the Python interfaces you must have cython
+       http://cython.org/
+     which likely will be available through a package manager.
 
 Install:
 
@@ -30,7 +33,7 @@ Install:
 (b)  Next, build the shared GFAST C libraries by descending into the 
      src directory and typing make.   
 
-(c)  As an example, one can also SWIG the shared library so that the C
+(c)  As an example, one can also Cython the shared library so that the C
      functions can be used directly from Python.  Hopefully, the compile.sh
      bash script is sufficient.  Additionally, if you are installing to 
      non-system standard directories you will need to set/modify your 
@@ -58,7 +61,9 @@ Directories:
 (f)  modules - contains the modules for gfast and subsequent modules
                such as finite fault, CMT, and PGD
 
-(g)  python - swig/ctypes interface to libgfast.so
+(g)  cython - (C)Python interface to libgfast.so.  After successfully
+              building the cython wrappers one can use them as if the
+              wrappers were Python modules. 
 
 (h)  unit_tests - regression testing for libsrc
 
