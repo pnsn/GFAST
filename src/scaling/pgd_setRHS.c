@@ -7,15 +7,15 @@
  * @brief Computes the right hand side in the peak ground displacement 
  *        estimation s.t.
  *        \f$ \textbf{b} = \left \{ \log_{10}(d) - A \right \} \f$
- *        where A is a scalar shift and d is the displacement at each station.
+ *        where A is a scalar shift and d is the distance at each station.
  *
  * @param[in] n         number of points
  * @param[in] verbose   controls verbosity (0 is quiet)
  * @param[in] dist_tol  distance tolerance - if d is less than this then
  *                      it will be set to a default value (cm)
  * @param[in] dist_def  distance default value (cm)
- * @param[in] d         displacement (cm) [n]
  * @param[in] A         shift so that b = log10(d) - A
+ * @param[in] d         max distance (cm) at each site [n]
  *
  * @param[out] b        right hand side in Gm = b [n]
  *
