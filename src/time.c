@@ -125,7 +125,7 @@ int time_epoch2calendar(double epoch,
  * @bug This does not work if case 1970 is not defined on the epoch on this
  *      computer.
  */
-double time_currentTime()
+double time_currentTime(void)
 {
     time_t epoch;
     double now;

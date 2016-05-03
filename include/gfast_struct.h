@@ -5,8 +5,52 @@
 #ifndef __GFAST_STRUCT_H__
 #define __GFAST_STRUCT_H__
 
+struct GFAST_pgd_props_struct
+{
+    double window_vel;    /*!< Velocity used in determining if enough
+                               data has arrived at a station in PGD
+                               inversion */
+    double dist_tol;      /*!< PGD source station distance
+                               tolerance (km) */
+    double dist_def;      /*!< PGD default station distance (km) if
+                               d < pgd_dist_tol */
+    int min_sites;        /*!< Minimum number of sites to proceed with
+                               PGD estimation */
+    int verbose;          /*!< Controls verbosity - errors will always
+                                be output.
+                               = 1 -> Output generic information.
+                               = 2 -> Output generic information and
+                                      warnings.
+                               = 3 -> Output generic information,
+                                      warnings, and debug information
+                                      and debug information. */
+    int utm_zone;         /*!< UTM zone.  If this is -12345 then will 
+                               extract the UTM zone from the event
+                               origin. */
+    int ngridSearch_deps; /*!< Number of depths in PGD grid-search */
+    bool lremove_disp0;   /*!< Remove the (u,n,e) component at the 
+                               origin time from the displacement
+                               streams */
+};
+
+struct GFAST_cmt_props_struct
+{
+
+};
+
+struct GFAST_ff_props_struct
+{
+
+};
+
 struct GFAST_props_struct
 {
+    struct GFAST_pgd_props_struct
+           pgd_props;           /*!< PGD properties structure */
+    struct GFAST_cmt_props_struct
+           cmt_props;           /*!< CMT properties structure */
+    struct GFAST_ff_props_struct
+           ff_props;            /*!< FF properties structure */
     char streamfile[PATH_MAX];  /*!< File of streams to include in the
                                      processing. */
     char dtfile[PATH_MAX];      /*!< File with site names and sampling periods
@@ -43,10 +87,10 @@ struct GFAST_props_struct
                                      positions (nev-cor) */
     double dt_default;          /*!< Default sampling period (s) for GPS
                                      stations */
-    double pgd_dist_tol;        /*!< PGD source station distance
-                                     tolerance (km) */
-    double pgd_dist_def;        /*!< PGD default station distance (km) if
-                                     d < pgd_dist_tol */
+    //double pgd_dist_tol;        /*!< PGD source station distance
+    //                                 tolerance (km) */
+    //double pgd_dist_def;        /*!< PGD default station distance (km) if
+    //                                 d < pgd_dist_tol */
     double bufflen;             /*!< The number of seconds to keep in the data
                                      buffers */
     double processingTime;      /*!< Max processing time (s) after origin time
@@ -57,9 +101,9 @@ struct GFAST_props_struct
     double eqDefaultDepth;      /*!< Default earthquake depth (km) to be applied
                                      to shakeAlert structure */
     double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode */
-    double pgd_window_vel;      /*!< Velocity used in determining if enough
-                                     data has arrived at a station in PGD
-                                     inversion */
+    //double pgd_window_vel;      /*!< Velocity used in determining if enough
+    //                                 data has arrived at a station in PGD
+    //                                 inversion */
     double cmt_window_vel;      /*!< Velocity used in determining if enough
                                      data has arrived at a station in CMT
                                      inversion */
@@ -79,8 +123,6 @@ struct GFAST_props_struct
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
-    int pgd_min_sites;          /*!< Minimum number of sites to proceed with
-                                     PGD estimation */
     int cmt_min_sites;          /*!< Minimum number of sites to proceed with
                                      CMT estimation */
     int ff_min_sites;           /*!< Minimum number of sites to proceed with
@@ -89,13 +131,13 @@ struct GFAST_props_struct
     int ff_ndip;                /*!< Number of fault patches down dip */
     int ff_nfp;                 /*!< Number of fault planes considered in
                                      inversion */
-    int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
+    //int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
     int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
     int verbose;                /*!< Controls verbosity - errors will always
                                      be output.
-                                      = 1 -> Output generic information
+                                      = 1 -> Output generic information.
                                       = 2 -> Output generic information and
-                                             warnings 
+                                             warnings.
                                       = 3 -> Output generic information,
                                              warnings, and debug information
                                              and debug information. */

@@ -67,6 +67,18 @@ void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
 void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
                                  double UTMEasting, double UTMNorthing,
                                  double *lat_deg, double *lon_deg);
+#if __GNUC__ >= 5
+#pragma omp declare simd
+#endif
+void GFAST_coordtools__ll2utm(double lat_deg, double lon_deg,
+                              double *UTMEasting, double *UTMNorthing,
+                              bool *lnorthp, int *zone);
+#if __GNUC__ >= 5
+#pragma omp declare simd
+#endif
+void GFAST_coordtools__utm2ll(int zone, bool lnorthp,
+                              double UTMEasting, double UTMNorthing,
+                              double *lat_deg, double *lon_deg);
 /* Handles events */
 double GFAST_events__getMinOriginTime(struct GFAST_props_struct props,
                                       struct GFAST_activeEvents_struct events,
@@ -107,7 +119,7 @@ int GFAST_readElarmS(struct GFAST_props_struct props,
 int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
                                             struct GFAST_shakeAlert_struct *SA);
 /* PGD Scaling */
-int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
+int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                               struct GFAST_shakeAlert_struct SA,
                               struct GFAST_data_struct gps_data,
                               struct GFAST_pgdResults_struct *pgd);
@@ -125,7 +137,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                        double *__restrict__ repi,
                                        double *__restrict__ M,
                                        double *__restrict__ VR);
-int GFAST_scaling_PGD__init(struct GFAST_props_struct props,
+int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
                             struct GFAST_data_struct gps_data,
                             struct GFAST_pgdResults_struct *pgd);
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,

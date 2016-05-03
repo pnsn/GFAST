@@ -15,6 +15,17 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
 /*!
  * @brief Peak ground displacement estimation driver routine
  *
+ * @param[in] pgd_props  holds properties for the PGD estimation
+ * @param[in] SA         holds the hypocentral information (most importantly
+ *                       the latitude, longitude, and event time)
+ * @param[in] gps_data   holds the GPS data, site locations, and a logical
+ *                       mask of whether or not to include a site in the
+ *                       inversion 
+ *
+ * @param[out] pgd       results of the PGD estimation grid-search, 
+ *                       the variance reduction at each depth in the grid
+ *                       search, and the sites used in the inversion
+ *
  * @result 0 indicates success
  *         1 indicates an error on the input PGD structure
  *         2 indicates insusfficient data with cause from input GPS data 
@@ -24,7 +35,7 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
+int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                               struct GFAST_shakeAlert_struct SA,
                               struct GFAST_data_struct gps_data,
                               struct GFAST_pgdResults_struct *pgd)
@@ -57,7 +68,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
     repi = NULL;
     // Reality check
     if (gps_data.stream_length < 1){
-        if (props.verbose > 1){
+        if (pgd_props.verbose > 1){
             ierr = PGD_GPS_DATA_ERROR;
             log_warnF("%s: No GPS streams\n", fcnm);
         }
@@ -76,8 +87,8 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
         nwork = fmax(gps_data.data[k].npts, nwork);
         l1 = l1 + 1;
     }
-    if (l1 < props.pgd_min_sites){
-        if (props.verbose > 1){
+    if (l1 < pgd_props.min_sites){
+        if (pgd_props.verbose > 1){
             if (l1 < 1){
                 log_warnF("%s: All sites masked in PGD estimation\n", fcnm);
             }else{
@@ -88,7 +99,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
         goto ERROR;
     }
     if (nwork < 1){
-        if (props.verbose > 1){
+        if (pgd_props.verbose > 1){
             log_warnF("%s: There is no data\n", fcnm);
         }
         ierr = PGD_GPS_DATA_ERROR;
@@ -104,24 +115,24 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
     staAlt          = GFAST_memory_calloc__double(gps_data.stream_length);
     repi            = GFAST_memory_calloc__double(gps_data.stream_length);
     // Get the source location
-    if (props.utm_zone ==-12345){
+    if (pgd_props.utm_zone ==-12345){
         zone_loc =-1;
     }else{
-        zone_loc = props.utm_zone;
+        zone_loc = pgd_props.utm_zone;
     }   
-    GFAST_coordtools_ll2utm_ori(SA.lat, SA.lon,
-                                &y1, &x1,
-                                &lnorthp, &zone_loc);
+    GFAST_coordtools__ll2utm(SA.lat, SA.lon,
+                             &y1, &x1,
+                             &lnorthp, &zone_loc);
     utmSrcNorthing = y1; 
     utmSrcEasting = x1;
     // Loop on the receivers, get distances, and data
     for (k=0; k<gps_data.stream_length; k++){
         if (gps_data.data[k].lskip_pgd){continue;} // Not in inversion
         // Get the recevier UTM
-        GFAST_coordtools_ll2utm_ori(gps_data.data[k].sta_lat,
-                                    gps_data.data[k].sta_lon,
-                                    &y2[k], &x2[k],
-                                    &lnorthp, &zone_loc);
+        GFAST_coordtools__ll2utm(gps_data.data[k].sta_lat,
+                                 gps_data.data[k].sta_lon,
+                                 &y2[k], &x2[k],
+                                 &lnorthp, &zone_loc);
         // Get the distance - remember source is + down and receiver is + up 
         distance = sqrt( pow(x1 - x2[k], 2)
                        + pow(y1 - y2[k], 2)
@@ -130,11 +141,11 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
         // In a perfect world is there any chance of having data?
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
-        effectiveHypoDist = (currentTime - SA.time)*props.pgd_window_vel;
+        effectiveHypoDist = (currentTime - SA.time)*pgd_props.window_vel;
         if (distance < effectiveHypoDist){
             // Get the maximum offset
             distMax = __GFAST_getMaxDistance(gps_data.data[k].npts,
-                                             props.lremove_disp0,
+                                             pgd_props.lremove_disp0,
                                              gps_data.data[k].dt,
                                              SA.time,
                                              gps_data.data[k].epoch,
@@ -155,9 +166,10 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
         }
     }
     // Is there enough data to invert?
-    if (l1 < props.pgd_min_sites){
-        if (props.verbose > 1){
-            log_warnF("%s: Insufficient data to invert\n", fcnm);  
+    if (l1 < pgd_props.min_sites){
+        if (pgd_props.verbose > 1){
+            log_warnF("%s: Insufficient data to invert %d < %d\n",
+                      fcnm, l1, pgd_props.min_sites);  
         }
         ierr = PGD_INSUFFICIENT_DATA;
         goto ERROR;
@@ -167,13 +179,13 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
         log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
     }
     // Invert!
-    if (props.verbose > 2){
+    if (pgd_props.verbose > 2){
         log_debugF("%s: Inverting for PGD with %d sites\n", fcnm, l1);
     }
     ierr = GFAST_scaling_PGD__depthGridSearch(l1, pgd->ndeps,
-                                              props.verbose,
-                                              props.pgd_dist_tol,
-                                              props.pgd_dist_def,
+                                              pgd_props.verbose,
+                                              pgd_props.dist_tol,
+                                              pgd_props.dist_def,
                                               utmSrcEasting,
                                               utmSrcNorthing,
                                               pgd->srcDepths,
@@ -185,7 +197,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_props_struct props,
                                               pgd->mpgd,
                                               pgd->mpgd_vr);
     if (ierr != 0){
-        if (props.verbose > 0){
+        if (pgd_props.verbose > 0){
             log_errorF("%s: Error in PGD grid search!\n", fcnm);
         }
         ierr = PGD_COMPUTE_ERROR;

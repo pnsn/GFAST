@@ -122,19 +122,19 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     }else{
         zone_loc = props.utm_zone;
     }   
-    GFAST_coordtools_ll2utm_ori(SA.lat, SA.lon,
-                                &y1, &x1,
-                                &lnorthp, &zone_loc);
+    GFAST_coordtools__ll2utm(SA.lat, SA.lon,
+                             &y1, &x1,
+                             &lnorthp, &zone_loc);
     utmSrcNorthing = y1; 
     utmSrcEasting = x1;
     // Loop on the receivers, get distances, and data
     for (k=0; k<gps_data.stream_length; k++){
         if (gps_data.data[k].lskip_cmt){continue;} // Not in inversion
         // Get the recevier UTM
-        GFAST_coordtools_ll2utm_ori(gps_data.data[k].sta_lat,
-                                    gps_data.data[k].sta_lon,
-                                    &y2[k], &x2[k],
-                                    &lnorthp, &zone_loc);
+        GFAST_coordtools__ll2utm(gps_data.data[k].sta_lat,
+                                 gps_data.data[k].sta_lon,
+                                 &y2[k], &x2[k],
+                                 &lnorthp, &zone_loc);
         // Get the distance - remember source is + down and receiver is + up
         distance = sqrt( pow(x1 - x2[k], 2)
                        + pow(y1 - y2[k], 2)

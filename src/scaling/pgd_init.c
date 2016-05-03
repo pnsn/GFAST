@@ -15,19 +15,19 @@
  *
  * @author Ben Baker (ISTI) 
  */
-int GFAST_scaling_PGD__init(struct GFAST_props_struct props,
+int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
                             struct GFAST_data_struct gps_data,
                             struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__init\0";
     int i;
-    pgd->ndeps = props.pgd_ngridSearch_deps;
+    pgd->ndeps = pgd_props.ngridSearch_deps;
     if (pgd->ndeps < 1){
         log_errorF("%s: No depths in PGD grid search\n", fcnm);
         return -1;
     }
     pgd->nsites = gps_data.stream_length;
-    if (pgd->nsites < props.pgd_min_sites){
+    if (pgd->nsites < pgd_props.min_sites){
         log_errorF("%s: Insufficient number of sites to compute PGD!\n", fcnm);
         return -1;
     }

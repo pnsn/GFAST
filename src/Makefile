@@ -3,6 +3,7 @@ include ../Makefile.inc
 OBJ_CMT_DIR = cmt/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
+OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
 endif
@@ -14,6 +15,9 @@ ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
 endif
 ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 -include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_COORDTOOLS_DIR) )" ""
+-include $(shell mkdir $(OBJ_COORDTOOLS_DIR)) $(wildcard $(OBJ_COORDTOOLS_DIR)/*)
 endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
@@ -32,18 +36,20 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o \
 	 $(OBJ_FF_DIR)/xml.o
+OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
+	         $(OBJ_COORDTOOLS_DIR)/utm2ll.o
 OBJ_ISCL = $(OBJ)/log.o \
 	   $(OBJ)/os.o
 OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/cmt_driver.o \
 	  $(OBJ)/cmopad.o \
-	  $(OBJ)/coordtools.o \
 	  $(OBJ)/events.o \
 	  $(OBJ)/ff_driver.o \
 	  $(OBJ)/memory.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
+	  $(OBJ_COORDTOOLS) \
 	  $(OBJ_UTILS) \
 	  $(OBJ_ISCL) \
 	  $(OBJ_CMT) \
@@ -59,15 +65,15 @@ $(GFAST_STATIC): $(OBJ_LIB)
 	ranlib $(GFAST_STATIC)
 
 $(GFAST_SHARED): $(OBJ_LIB)
-	$(CXX) $(MAKE_SHARED) -o $(GFAST_SHARED) $(OBJ_LIB)
+	$(CC) $(MAKE_SHARED) -o $(GFAST_SHARED) $(OBJ_LIB)
 #$(GFAST_SHARED):
-#	$(CXX) $(MAKE_SHARED) -o $(GFAST_SHARED) -Wl,--whole-archive $(GFAST_STATIC) $(LIBINI) -Wl,--no-whole-archive
+#	$(CC) $(MAKE_SHARED) -o $(GFAST_SHARED) -Wl,--whole-archive $(GFAST_STATIC) $(LIB_ALL) -Wl,--no-whole-archive
 
 $(GFAST): $(OBJ_GFAST)
-	$(CXX) $(CXXFLAGS) -o $(GFAST) $(OBJ_GFAST) $(GFAST_SHARED) $(LIB_ALL)
+	$(CC) $(CFLAGS) -o $(GFAST) $(OBJ_GFAST) $(GFAST_SHARED) $(LIB_ALL)
 
-$(OBJ)/gfast.o: gfast.cpp
-	$(CXX) $(CXXFLAGS) $(INC_GFAST) -c gfast.cpp -o $(OBJ)/gfast.o
+$(OBJ)/gfast.o: gfast.c
+	$(CC) $(CFLAGS) $(INC_GFAST) -c gfast.c -o $(OBJ)/gfast.o
 
 $(OBJ)/acquisition.o: acquisition.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c acquisition.c -o $(OBJ)/acquisition.o
@@ -77,9 +83,6 @@ $(OBJ)/buffer.o: buffer.c
 
 $(OBJ)/cmopad.o: cmopad.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmopad.c -o $(OBJ)/cmopad.o
-
-$(OBJ)/coordtools.o: coordtools.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools.c -o $(OBJ)/coordtools.o
 
 $(OBJ)/cmt_driver.o: cmt_driver.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_LAPACK) $(CSHARED) -c cmt_driver.c -o $(OBJ)/cmt_driver.o
@@ -121,6 +124,14 @@ $(OBJ_CMT_DIR)/setForwardModel.o: cmt/setForwardModel.c
 
 $(OBJ_CMT_DIR)/setRHS.o: cmt/setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setRHS.c -o $(OBJ_CMT_DIR)/setRHS.o
+
+###################################### Coordtools #####################################
+
+$(OBJ_COORDTOOLS_DIR)/ll2utm.o: coordtools/ll2utm.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools/ll2utm.c -o $(OBJ_COORDTOOLS_DIR)/ll2utm.o
+
+$(OBJ_COORDTOOLS_DIR)/utm2ll.o: coordtools/utm2ll.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools/utm2ll.c -o $(OBJ_COORDTOOLS_DIR)/utm2ll.o
 
 ##################################### Finite Fault ####################################
 
@@ -180,5 +191,5 @@ $(OBJ)/utils.o: utils.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(OBJ_SCALING_PGD) $(OBJ_CMT) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
 

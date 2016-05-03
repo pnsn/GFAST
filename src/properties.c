@@ -189,33 +189,39 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         goto ERROR;
     }
     //------------------------------PGD Parameters----------------------------//
-    props->pgd_dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0", 6.0);
-    if (props->pgd_dist_tol < 0.0){
+    props->pgd_props.verbose = props->verbose;
+    props->pgd_props.lremove_disp0 = props->lremove_disp0;
+    props->pgd_props.utm_zone = props->utm_zone;
+    props->pgd_props.dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0",
+                                                    6.0);
+    if (props->pgd_props.dist_tol < 0.0){
         log_errorF("%s: Error ndistance tolerance %f cannot be negative\n",
-                   fcnm, props->pgd_dist_tol);
+                   fcnm, props->pgd_props.dist_tol);
         goto ERROR;
     }
-    props->pgd_dist_def = iniparser_getdouble(ini, "PGD:dist_default\0", 0.01);
-    if (props->pgd_dist_def <= 0.0){
+    props->pgd_props.dist_def = iniparser_getdouble(ini, "PGD:dist_default\0",
+                                                    0.01);
+    if (props->pgd_props.dist_def <= 0.0){
         log_errorF("%s: Error PGD distance default %f must be positive\n",
-                   fcnm, props->pgd_dist_def);
+                   fcnm, props->pgd_props.dist_def);
         goto ERROR;
     }
-    props->pgd_ngridSearch_deps
+    props->pgd_props.ngridSearch_deps
          = iniparser_getint(ini, "PGD:ndepths_in_pgd_gridSearch\0", 100);
-    if (props->pgd_ngridSearch_deps < 1){
+    if (props->pgd_props.ngridSearch_deps < 1){
         log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, props->pgd_ngridSearch_deps);
+                   fcnm, props->pgd_props.ngridSearch_deps);
         goto ERROR;
     } 
-    props->pgd_window_vel = iniparser_getdouble(ini,
+    props->pgd_props.window_vel = iniparser_getdouble(ini,
                                                 "PGD:pgd_window_vel\0", 3.0);
-    if (props->pgd_window_vel <= 0.0){
+    if (props->pgd_props.window_vel <= 0.0){
         log_errorF("%s: Error window velocity must be positive!\n", fcnm);
         goto ERROR;
     }
-    props->pgd_min_sites = iniparser_getint(ini, "PGD:pgd_min_sites\0", 4);
-    if (props->pgd_min_sites < 1){
+    props->pgd_props.min_sites = iniparser_getint(ini, "PGD:pgd_min_sites\0",
+                                                  4);
+    if (props->pgd_props.min_sites < 1){
         log_errorF("%s: Error at least one site needed to estimate PGD!\n", 
                    fcnm);
         goto ERROR;
@@ -223,7 +229,7 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     //----------------------------CMT Parameters------------------------------//
     props->cmt_ngridSearch_deps
          = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);
-    if (props->pgd_ngridSearch_deps < 1){
+    if (props->pgd_props.ngridSearch_deps < 1){
         log_errorF("%s: Error CMT grid search depths %d must be positive\n",
                    fcnm, props->cmt_ngridSearch_deps);
         goto ERROR;
@@ -455,15 +461,15 @@ void GFAST_properties__print(struct GFAST_props_struct props)
                lspace, props.eqDefaultDepth);
     //--------------------------------pgd-------------------------------------//
     log_debugF("%s GFAST PGD source receiver distance tolerance %f (km)\n",
-               lspace, props.pgd_dist_tol);
-    log_debugF("%s GFAST PGD default source receiver distance %f (km)\n",
-               lspace, props.pgd_dist_def);
+               lspace, props.pgd_props.dist_tol);
+    log_debugF("%s GFAST PGD default distance %f (cm)\n",
+               lspace, props.pgd_props.dist_def);
     log_debugF("%s GFAST Number of PGD grid search depths is %d\n",
-               lspace, props.pgd_ngridSearch_deps);
+               lspace, props.pgd_props.ngridSearch_deps);
     log_debugF("%s GFAST PGD data selection velocity is %f (km/s)\n",
-               lspace, props.pgd_window_vel);
+               lspace, props.pgd_props.window_vel);
     log_debugF("%s GFAST Number of sites required to compute PGD is %d\n",
-               lspace, props.pgd_min_sites);
+               lspace, props.pgd_props.min_sites);
     //--------------------------------cmt-------------------------------------//
     log_debugF("%s GFAST Number of CMT grid search depths is %d\n",
                lspace, props.cmt_ngridSearch_deps);
