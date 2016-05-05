@@ -36,7 +36,8 @@ OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
 OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
 	     $(OBJ_BUFFER_DIR)/setBufferSpace.o \
 	     $(OBJ_BUFFER_DIR)/setInitialTime.o \
-	     $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o
+	     $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o \
+	     $(OBJ_BUFFER_DIR)/updateBuffer.o
 OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
 	  $(OBJ_CMT_DIR)/depthGridSearch.o \
 	  $(OBJ_CMT_DIR)/init.o \
@@ -108,9 +109,6 @@ $(OBJ)/cmt_driver.o: cmt_driver.c
 $(OBJ)/cmtgreen.o: cmtgreen.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmtgreen.c -o $(OBJ)/cmtgreen.o
 
-$(OBJ)/events.o: events.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events.c -o $(OBJ)/events.o
-
 $(OBJ)/ff_driver.o: ff_driver.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff_driver.c -o $(OBJ)/ff_driver.o
 
@@ -139,6 +137,9 @@ $(OBJ_BUFFER_DIR)/setInitialTime.o: buffer/setInitialTime.c
 
 $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o: buffer/setSiteSamplingPeriod.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer/setSiteSamplingPeriod.c -o $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o
+
+$(OBJ_BUFFER_DIR)/updateBuffer.o: buffer/updateBuffer.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer/updateBuffer.c -o $(OBJ_BUFFER_DIR)/updateBuffer.o
 
 ######################################## CMT ##########################################
 
