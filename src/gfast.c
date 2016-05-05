@@ -2,7 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "gfast.hpp"
+#include "gfast.h"
+
+//extern "C"
+int GFAST_FF__xml__write(int mode,
+                         char *orig_sys,
+                         char *evid,
+                         double Mw, 
+                         double SA_lat,
+                         double SA_lon,
+                         double SA_depth,
+                         double SA_time,
+                         int nseg,
+                         int *fptr,
+                         double *lat_vtx,
+                         double *lon_vtx,
+                         double *dep_vtx,
+                         double *ss,
+                         double *ds);
+
 
 /*!
  * This is a mock GFAST driver module
@@ -21,7 +39,7 @@ int main()
     double *latency, currentTime, dtmax, eventTime, t0sim;
     int iev, k, kt, ntsim, verbose0;
     int ierr = 0;
-    bool lnew_event, lupd_event;
+    bool ldel_event, lnew_event, lupd_event;
     //------------------------------------------------------------------------//
     // 
     // Initializations
@@ -35,6 +53,7 @@ int main()
     // Read the properties file
     log_infoF("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_properties__init(propfilename, &props);
+printf("%f\n", props.synthetic_runtime);
     if (ierr != 0){
         log_errorF("%s: Error reading the GFAST properties file\n", fcnm);
         goto ERROR;
@@ -52,7 +71,7 @@ int main()
         goto ERROR;
     }
     // Initialize PGD
-    ierr = GFAST_scaling_PGD__init(props, gps_acquisition, &pgd);
+    ierr = GFAST_scaling_PGD__init(props.pgd_props, gps_acquisition, &pgd);
     if (ierr != 0){
         log_errorF("%s: Error initializing PGD\n", fcnm);
         goto ERROR;
@@ -128,8 +147,8 @@ int main()
         verbose0 = props.verbose;
         // Loop on time-steps in simulation
 //ntsim = 59;
-//        for (kt=0; kt<ntsim; kt++){
-for (kt=58; kt<59; kt++){
+        for (kt=0; kt<ntsim; kt++){
+//for (kt=58; kt<59; kt++){
             // Update the time
             currentTime = t0sim + (double) kt;
             // Read the elarmS file
@@ -145,7 +164,7 @@ for (kt=58; kt<59; kt++){
             if (lnew_event){
                 if (props.verbose > 0){
                     log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
-                    if (props.verbose > 2){GFAST_events__print__event(SA);}
+                    if (props.verbose > 2){GFAST_events__print(SA);}
                 }
             }else{
                 // Has the event been updated?
@@ -157,7 +176,7 @@ for (kt=58; kt<59; kt++){
                 if (props.verbose > 0 && lupd_event){
                     log_infoF("%s: Event %s has been modified\n",
                               fcnm, SA.eventid);
-                    if (props.verbose > 2){GFAST_events__print__event(SA);}
+                    if (props.verbose > 2){GFAST_events__print(SA);}
                 }
             }
             // Acquire the data
@@ -177,7 +196,7 @@ for (kt=58; kt<59; kt++){
             for (iev=0; iev<events.nev; iev++){
                 // Run the PGD scaling 
 //props.verbose = 0;
-                ierr = GFAST_scaling_PGD__driver(props,
+                ierr = GFAST_scaling_PGD__driver(props.pgd_props,
                                                  events.SA[iev],
                                                  gps_acquisition,
                                                  &pgd);
@@ -204,11 +223,56 @@ ff.str[0] = 116.78477424;
 ff.dip[0] = 58.91674731;
                     ierr = GFAST_FF__driver(props, events.SA[iev],
                                             gps_acquisition, &ff);
+
+/*
+int GFAST_FF__xml__write(int mode,
+                         char *orig_sys,
+                         char *evid,
+                         double Mw, 
+                         double SA_lat,
+                         double SA_lon,
+                         double SA_depth,
+                         double SA_time,
+                         int nseg,
+                         int *fptr,
+                         double *lat_vtx,
+                         double *lon_vtx,
+                         double *dep_vtx,
+                         double *ss,
+                         double *ds);
+*/
+/*
+int iopt = ff.preferred_fault_plane;
+ierr = GFAST_FF__xml__write(props.opmode,
+                            "ElarmsS\0",
+                            events.SA[iev].eventid,
+                            events.SA[iev].mag,
+                            events.SA[iev].lat,
+                            events.SA[iev].lon,
+                            events.SA[iev].dep,
+                            events.SA[iev].time,
+                            ff.fp[iopt].nstr*ff.fp[iopt].ndip,
+                            ff.fp[iopt].fault_ptr,
+                            ff.fp[iopt].lat_vtx,
+                            ff.fp[iopt].lon_vtx,
+                            ff.fp[iopt].dep_vtx,
+                            ff.fp[iopt].sslip,
+                            ff.fp[iopt].dslip);
+*/
+
                 }
                 // Am I ready to publish this event?
                 if (currentTime - SA.time >= props.processingTime){
                     if (props.verbose > 0){
                         log_infoF("%s: Publishing event: %s\n", fcnm, SA.eventid);
+                    }
+                    ldel_event = GFAST_events__removeEvent(props.processingTime,
+                                                           currentTime,
+                                                           props.verbose,
+                                                           SA,
+                                                           &events);
+                    if (ldel_event && props.verbose > 0){
+                        log_infoF("%s: Deleted event %s\n", fcnm, SA.eventid);
                     }
                 }
             } // Loop on active events

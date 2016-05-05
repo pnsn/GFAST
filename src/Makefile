@@ -2,6 +2,7 @@ include ../Makefile.inc
 
 OBJ_BUFFER_DIR = buffer/$(OBJ)
 OBJ_CMT_DIR = cmt/$(OBJ)
+OBJ_EVENTS_DIR = events/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
@@ -14,14 +15,17 @@ endif
 ifeq "$(wildcard $(OBJ_CMT_DIR) )" ""
 -include $(shell mkdir $(OBJ_CMT_DIR)) $(wildcard $(OBJ_CMT_DIR)/*)
 endif
+ifeq "$(wildcard $(OBJ_COORDTOOLS_DIR) )" ""
+-include $(shell mkdir $(OBJ_COORDTOOLS_DIR)) $(wildcard $(OBJ_COORDTOOLS_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_EVENTS_DIR) )" ""
+-include $(shell mkdir $(OBJ_EVENTS_DIR)) $(wildcard $(OBJ_EVENTS_DIR)/*)
+endif
 ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
 -include $(shell mkdir $(OBJ_FF_DIR)) $(wildcard $(OBJ_FF_DIR)/*)
 endif
 ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 -include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
-endif
-ifeq "$(wildcard $(OBJ_COORDTOOLS_DIR) )" ""
--include $(shell mkdir $(OBJ_COORDTOOLS_DIR)) $(wildcard $(OBJ_COORDTOOLS_DIR)/*)
 endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
@@ -38,6 +42,11 @@ OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
 	  $(OBJ_CMT_DIR)/init.o \
 	  $(OBJ_CMT_DIR)/setForwardModel.o \
 	  $(OBJ_CMT_DIR)/setRHS.o
+OBJ_EVENTS = $(OBJ_EVENTS_DIR)/getMinOriginTime.o \
+	     $(OBJ_EVENTS_DIR)/newEvent.o \
+	     $(OBJ_EVENTS_DIR)/print.o \
+	     $(OBJ_EVENTS_DIR)/removeEvent.o \
+	     $(OBJ_EVENTS_DIR)/updateEvent.o
 OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/meshFaultPlane.o \
 	 $(OBJ_FF_DIR)/setForwardModel.o \
@@ -51,7 +60,6 @@ OBJ_ISCL = $(OBJ)/log.o \
 OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/cmt_driver.o \
 	  $(OBJ)/cmopad.o \
-	  $(OBJ)/events.o \
 	  $(OBJ)/ff_driver.o \
 	  $(OBJ)/memory.o \
 	  $(OBJ)/pgd_driver.o \
@@ -62,6 +70,7 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_UTILS) \
 	  $(OBJ_ISCL) \
 	  $(OBJ_CMT) \
+	  $(OBJ_EVENTS) \
 	  $(OBJ_FF) \
 	  $(OBJ_SCALING_PGD) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
@@ -151,10 +160,27 @@ $(OBJ_CMT_DIR)/setRHS.o: cmt/setRHS.c
 ###################################### Coordtools #####################################
 
 $(OBJ_COORDTOOLS_DIR)/ll2utm.o: coordtools/ll2utm.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools/ll2utm.c -o $(OBJ_COORDTOOLS_DIR)/ll2utm.o
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c coordtools/ll2utm.c -o $(OBJ_COORDTOOLS_DIR)/ll2utm.o
 
 $(OBJ_COORDTOOLS_DIR)/utm2ll.o: coordtools/utm2ll.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_GEO) $(CSHARED) -c coordtools/utm2ll.c -o $(OBJ_COORDTOOLS_DIR)/utm2ll.o
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c coordtools/utm2ll.c -o $(OBJ_COORDTOOLS_DIR)/utm2ll.o
+
+######################################## Events #######################################
+
+$(OBJ_EVENTS_DIR)/getMinOriginTime.o: events/getMinOriginTime.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events/getMinOriginTime.c -o $(OBJ_EVENTS_DIR)/getMinOriginTime.o
+
+$(OBJ_EVENTS_DIR)/newEvent.o: events/newEvent.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events/newEvent.c -o $(OBJ_EVENTS_DIR)/newEvent.o
+
+$(OBJ_EVENTS_DIR)/print.o: events/print.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events/print.c -o $(OBJ_EVENTS_DIR)/print.o
+
+$(OBJ_EVENTS_DIR)/removeEvent.o: events/removeEvent.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events/removeEvent.c -o $(OBJ_EVENTS_DIR)/removeEvent.o
+
+$(OBJ_EVENTS_DIR)/updateEvent.o: events/updateEvent.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c events/updateEvent.c -o $(OBJ_EVENTS_DIR)/updateEvent.o
 
 ##################################### Finite Fault ####################################
 

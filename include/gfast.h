@@ -88,7 +88,11 @@ bool GFAST_events__newEvent(struct GFAST_shakeAlert_struct SA,
 bool GFAST_events__updateEvent(struct GFAST_shakeAlert_struct SA,
                                struct GFAST_activeEvents_struct *events,
                                int *ierr);
-void GFAST_events__print__event(struct GFAST_shakeAlert_struct SA);
+void GFAST_events__print(struct GFAST_shakeAlert_struct SA);
+bool GFAST_events__removeEvent(double maxtime, double currentTime,
+                               int verbose,
+                               struct GFAST_shakeAlert_struct SA, 
+                               struct GFAST_activeEvents_struct *events);
 /* Frees memory on pointers and data structures */
 void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm);
 void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data);
