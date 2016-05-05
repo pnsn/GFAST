@@ -1,9 +1,29 @@
 #!/usr/bin/cython
 import numpy as np
 cimport numpy as np
+#from cpython cimport bool
+from libcpp cimport bool
 
 np.import_array()
 
+cdef struct GFAST_pgd_props_struct:
+    double window_vel
+    double dist_tol
+    double dist_def
+    int min_sites
+    int verbose
+    int utm_zone
+    int ngridSearch_deps
+    bool lremove_disp0
+
+cdef struct GFAST_shakeAlert_struct:
+    char eventid[128]
+    double lat
+    double lon
+    double dep
+    double mag
+    double time
+ 
 # cdefine the signature of the c function
 cdef extern from "gfast.h":
     int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
@@ -16,10 +36,12 @@ cdef extern from "gfast.h":
                                   double A, double *d,
                                   double *b)
 
-def setForwardModel(np.ndarray[double, ndim=1, mode="c"] r not None,
-                    B = 1.500,
-                    C =-0.214,
-                    verbose = 0):
+class Scaling:
+ def setForwardModel(self,
+                     np.ndarray[double, ndim=1, mode="c"] r not None,
+                     B = 1.500,
+                     C =-0.214,
+                     verbose = 0):
     """
 
       Parameters
@@ -56,13 +78,14 @@ def setForwardModel(np.ndarray[double, ndim=1, mode="c"] r not None,
         return None, ierr
     G.reshape([n,1]) #, order='F')
     return G, ierr
-#end setForwardModel
+ #end setForwardModel
 
-def setRHS(np.ndarray[double, ndim=1, mode="c"] d not None,
-           dist_tol = 6.0,
-           dist_def = 0.01,
-           A =-6.687,
-           verbose = 0):
+ def setRHS(self, 
+            np.ndarray[double, ndim=1, mode="c"] d not None,
+            dist_tol = 6.0,
+            dist_def = 0.01,
+            A =-6.687,
+            verbose = 0):
     """
     Sets the RHS for the PGD scaling s.t. b = log_10(d) - A where
     A is a scalar shift and d the distance at each station
@@ -107,6 +130,6 @@ def setRHS(np.ndarray[double, ndim=1, mode="c"] d not None,
         print "setRHS: Error setting the RHS!"
         b = None
     return b, ierr
-# end setRHS 
+ # end setRHS 
  
     

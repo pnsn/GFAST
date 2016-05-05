@@ -32,6 +32,7 @@ int GFAST_FF__init(struct GFAST_props_struct props,
         log_errorF("%s: Error not fault patches!\n", fcnm);
         return -1;
     }
+    ff->preferred_fault_plane = 0;
     ff->nfp = props.ff_nfp;
     ff->vr = GFAST_memory_calloc__double(ff->nfp);
     ff->Mw = GFAST_memory_calloc__double(ff->nfp);

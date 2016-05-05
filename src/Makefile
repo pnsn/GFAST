@@ -1,11 +1,15 @@
 include ../Makefile.inc
 
+OBJ_BUFFER_DIR = buffer/$(OBJ)
 OBJ_CMT_DIR = cmt/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
+endif
+ifeq "$(wildcard $(OBJ_BUFFER_DIR) )" ""
+-include $(shell mkdir $(OBJ_BUFFER_DIR)) $(wildcard $(OBJ_BUFFER_DIR)/*)
 endif
 ifeq "$(wildcard $(OBJ_CMT_DIR) )" ""
 -include $(shell mkdir $(OBJ_CMT_DIR)) $(wildcard $(OBJ_CMT_DIR)/*)
@@ -25,6 +29,10 @@ OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
 	      $(OBJ_SCALING_DIR)/pgd_init.o \
 	      $(OBJ_SCALING_DIR)/pgd_setForwardModel.o \
 	      $(OBJ_SCALING_DIR)/pgd_setRHS.o
+OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
+	     $(OBJ_BUFFER_DIR)/setBufferSpace.o \
+	     $(OBJ_BUFFER_DIR)/setInitialTime.o \
+	     $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o
 OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
 	  $(OBJ_CMT_DIR)/depthGridSearch.o \
 	  $(OBJ_CMT_DIR)/init.o \
@@ -49,6 +57,7 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
+	  $(OBJ_BUFFER) \
 	  $(OBJ_COORDTOOLS) \
 	  $(OBJ_UTILS) \
 	  $(OBJ_ISCL) \
@@ -107,6 +116,20 @@ $(OBJ)/properties.o: properties.c
 
 $(OBJ)/readElarmS.o: readElarmS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
+
+####################################### Buffer ########################################
+
+$(OBJ_BUFFER_DIR)/getNumberOfStreams.o: buffer/getNumberOfStreams.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer/getNumberOfStreams.c -o $(OBJ_BUFFER_DIR)/getNumberOfStreams.o
+
+$(OBJ_BUFFER_DIR)/setBufferSpace.o: buffer/setBufferSpace.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer/setBufferSpace.c -o $(OBJ_BUFFER_DIR)/setBufferSpace.o
+
+$(OBJ_BUFFER_DIR)/setInitialTime.o: buffer/setInitialTime.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer/setInitialTime.c -o $(OBJ_BUFFER_DIR)/setInitialTime.o
+
+$(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o: buffer/setSiteSamplingPeriod.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer/setSiteSamplingPeriod.c -o $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o
 
 ######################################## CMT ##########################################
 

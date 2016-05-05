@@ -126,18 +126,18 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     }else{
         zone_loc = props.utm_zone;
     }
-    GFAST_coordtools_ll2utm_ori(ff->SA_lat, ff->SA_lon,
-                                &y1, &x1,
-                                &lnorthp, &zone_loc);
+    GFAST_coordtools__ll2utm(ff->SA_lat, ff->SA_lon,
+                             &y1, &x1,
+                             &lnorthp, &zone_loc);
     // Loop on the receivers, get distances, and data
     l1 = 0;
     for (k=0; k<gps_data.stream_length; k++){
         if (gps_data.data[k].lskip_ff){continue;} // Not in inversion
         // Get the recevier UTM
-        GFAST_coordtools_ll2utm_ori(gps_data.data[k].sta_lat,
-                                    gps_data.data[k].sta_lon,
-                                    &y2, &x2,
-                                    &lnorthp, &zone_loc);
+        GFAST_coordtools__ll2utm(gps_data.data[k].sta_lat,
+                                 gps_data.data[k].sta_lon,
+                                 &y2, &x2,
+                                 &lnorthp, &zone_loc);
         // Get the distance - remember source is + down and receiver is + up
         distance = sqrt( pow(x1 - x2, 2)
                        + pow(y1 - y2, 2)
@@ -379,15 +379,13 @@ getchar();
         log_errorF("%s: There were errors detected in the inversion\n", fcnm);
         ierr = FF_COMPUTE_ERROR;
     }else{
-/*
         // Choose a preferred plane
-        ff->preferred_plane = 0;
-        for (ifp=1; ifp<props.nfp; ifp++){
-            if (ff->vr[i] < ff->VR[ff->preferred_plane]){
-                ff->preferred_plane = ifp;
+        ff->preferred_fault_plane = 0;
+        for (ifp=1; ifp<ff->nfp; ifp++){
+            if (ff->vr[ifp] < ff->vr[ff->preferred_fault_plane]){
+                ff->preferred_fault_plane = ifp;
             }
         }
-*/
     }
 ERROR:;
     GFAST_memory_free__double(&G2);

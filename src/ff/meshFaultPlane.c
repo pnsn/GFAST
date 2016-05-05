@@ -74,8 +74,10 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
 {
     const char *fcnm = "GFAST_FF__meshFaultPlane\0";
     double area, dalt, di, dj, dlen, dwid,
-           fact_len, fact_wid, fault_X, fault_Y, fault_Z,
-           latF, len, lonF, wid,
+           fact_len, fact_wid,
+           fault_X, fault_X1, fault_X2, fault_X3, fault_X4,
+           fault_Y, fault_Y1, fault_Y2, fault_Y3, fault_Y4,
+           fault_Z, latF, len, lonF, wid,
            x0, xdoff, xsoff, y0, ydoff, ysoff, z0;
     int i, j, k, zone_loc;
     bool lnorthp;
@@ -119,9 +121,9 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
     }else{
         zone_loc = utm_zone;
     }
-    GFAST_coordtools_ll2utm_ori(SA_lat, SA_lon,
-                                &y0, &x0,
-                                &lnorthp, &zone_loc);
+    GFAST_coordtools__ll2utm(SA_lat, SA_lon,
+                             &y0, &x0,
+                             &lnorthp, &zone_loc);
     x0 = x0*1.e-3; // Convert to km
     y0 = y0*1.e-3; // Convert to km
     // Estimate the fault size
@@ -167,19 +169,44 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
             fault_Y = y0 + (0.5 + di)*ysoff + (0.5 + dj)*ydoff;
             fault_Z = z0 + (0.5 + dj)*dalt;
 
+            fault_X1 = (x0 + di*xsoff + dj*xdoff)*1.e3;
+            fault_Y1 = (y0 + di*ysoff + dj*ydoff)*1.e3;
+
+            fault_X2 = (x0 + (di + 1.0)*xsoff + dj*xdoff)*1.e3;
+            fault_Y2 = (y0 + (di + 1.0)*ysoff + dj*ydoff)*1.e3;
+
+            fault_X3 = (x0 + (di + 1.0)*xsoff + (dj + 1.0)*xdoff)*1.e3; //km->m
+            fault_Y3 = (y0 + (di + 1.0)*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
+
+            fault_X4 = (x0 + di*xsoff + (dj + 1.0)*xdoff)*1.e3; //km->m
+            fault_Y4 = (x0 + di*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
+
             // Convert from UTMs back to lat/lon 
             fault_X = fault_X*1000.0; // km -> m
             fault_Y = fault_Y*1000.0; // km -> m
-            GFAST_coordtools_utm2ll_ori(zone_loc, lnorthp,
-                                        fault_Y, fault_X,
-                                        &latF, &lonF);
+            GFAST_coordtools__utm2ll(zone_loc, lnorthp,
+                                     fault_Y, fault_X,
+                                     &latF, &lonF);
             k = j*nstr + i;
             fault_ptr[k+1] = 4*(k + 1);
-/*
-            lat_vtx[k] = latF;
-            lon_vtx[k] = lonF;
-            dep_vtx[k] = depF;
-*/
+            // Generate output
+            GFAST_coordtools__utm2ll(zone_loc, lnorthp,
+                                     fault_Y1, fault_X1,
+                                     &lat_vtx[4*k+0], &lon_vtx[4*k+0]);
+            GFAST_coordtools__utm2ll(zone_loc, lnorthp,
+                                     fault_Y2, fault_X2,
+                                     &lat_vtx[4*k+1], &lon_vtx[4*k+1]);
+            GFAST_coordtools__utm2ll(zone_loc, lnorthp,
+                                     fault_Y3, fault_X3,
+                                     &lat_vtx[4*k+2], &lon_vtx[4*k+2]);
+            GFAST_coordtools__utm2ll(zone_loc, lnorthp,
+                                     fault_Y4, fault_X4,
+                                     &lat_vtx[4*k+3], &lon_vtx[4*k+3]);
+            dep_vtx[4*k+0] = fault_Z; //depF;
+            dep_vtx[4*k+1] = fault_Z; //depF;
+            dep_vtx[4*k+2] = fault_Z; //depF;
+            dep_vtx[4*k+3] = fault_Z; //depF;
+            // Save the fault patch centers for the actual inversion 
             fault_xutm[k] = fault_X;
             fault_yutm[k] = fault_Y;
             fault_alt[k] = fault_Z;

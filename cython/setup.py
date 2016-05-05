@@ -6,8 +6,9 @@ from Cython.Distutils import build_ext
 gfast_incdir = "/home/bakerb3/C/GFAST/include"
 libdirs = ['/usr/lib/',
            '/home/bakerb3/C/iniparser',
-           '/home/bakerb3/C/GFAST/src']
-libraries = ['gfast', 'lapacke', 'lapack', 'cblas', 'blas', 'iniparser']
+           '/home/bakerb3/C/GFAST/src',
+           '/home/bakerb3/TIM/utils/sacio']
+libraries = ['gfast', 'lapacke', 'lapack', 'cblas', 'blas', 'iniparser', 'sacio', 'xml2']
 
 setup(
     cmdclass = {'build_ext': build_ext},
