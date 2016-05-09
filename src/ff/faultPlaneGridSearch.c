@@ -191,8 +191,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     yrs = GFAST_memory_calloc__double(l1*l2);
     zrs = GFAST_memory_calloc__double(l1*l2);
     G2 = GFAST_memory_calloc__double(ng2);
-    UD = GFAST_memory_calloc__double(mrowsG2);
-    UP = GFAST_memory_calloc__double(mrowsG2);
+    UD = GFAST_memory_calloc__double(mrowsG);
+    UP = GFAST_memory_calloc__double(mrowsG);
     T  = GFAST_memory_calloc__double(nt);
     S  = GFAST_memory_calloc__double(ncolsG2);
     if (lrmtx){R = GFAST_memory_calloc__double(ncolsG2*ncolsG2);}
@@ -226,6 +226,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     }
     // Begin the grid search on fault planes
     ierr = 0;
+    time_tic();
     if (verbose > 2){
         log_debugF("%s: Beginning search on fault planes...\n", fcnm);
     }
@@ -246,7 +247,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         // Set the offsets
         if_off = ifp*l2; // Offset the fault plane
         io_off = ifp*l1; // Offset the observations/estimates
-        // Null out G2 and regularizer
+        // Null out G2, regularizer, and possibly R matrix
         memset(G2, 0, ng2*sizeof(double));
         memset(T, 0, nt*sizeof(double));
         if (lrmtx){memset(R, 0, ncolsG2*ncolsG2*sizeof(double));}
@@ -272,10 +273,10 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
             ierr = ierr + 1;
             continue;
         }
-        // Set the regularizer
+        // Set the regularizer (also in row major format)
         ierr1 = GFAST_FF__setRegularizer(l2,
-                                         nstr, //ff->fp[ifp].nstr,
-                                         ndip, //ff->fp[ifp].ndip,
+                                         nstr,
+                                         ndip,
                                          nt,
                                          &width[if_off],
                                          &length[if_off],
@@ -325,9 +326,9 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                 if (ldslip_unc){dslip_unc[if_off+i] = ds_unc;}
             }
         }
-        // Compute the forward problem 
+        // Compute the forward problem UP = G2*S (ignoring regularizer)
         cblas_dgemv(CblasRowMajor, CblasNoTrans,
-                    mrowsG2, ncolsG2, 1.0, G2, ncolsG2, S, 1, 0.0, UP, 1);
+                    mrowsG, ncolsG2, 1.0, G2, ncolsG2, S, 1, 0.0, UP, 1);
         // Compute the variance reduction
         xnum = 0.0;
         xden = 0.0;
@@ -347,22 +348,22 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
             //Einp[io_off+i] = UD[3*i+0];
             //Ninp[io_off+i] = UD[3*i+1];
             //Uinp[io_off+i] = UD[3*i+2];
-         }
-         // Extract the slip
-         #pragma omp simd
-         for (i=0; i<l2; i++){
-             sslip[if_off+i] = S[2*i+0];
-             dslip[if_off+i] = S[2*i+1];
-         }
-         // Compute the magnitude
-         M0 = 0.0;
-         #pragma omp simd reduction(+:M0)
-         for (i=0; i<l2; i++){
-             st = sqrt( pow(sslip[if_off+i], 2) + pow(dslip[if_off+i], 2) );
-             M0 = M0 + 3.e10*st*length[if_off+i]*width[if_off+i];
-         }
-         Mw[ifp] = 0.0;
-         if (M0 > 0.0){Mw[ifp] = (log10(M0*1.e7) - 16.1)/1.5;}
+        }
+        // Extract the slip
+        #pragma omp simd
+        for (i=0; i<l2; i++){
+            sslip[if_off+i] = S[2*i+0];
+            dslip[if_off+i] = S[2*i+1];
+        }
+        // Compute the magnitude
+        M0 = 0.0;
+        #pragma omp simd reduction(+:M0)
+        for (i=0; i<l2; i++){
+            st = sqrt( pow(sslip[if_off+i], 2) + pow(dslip[if_off+i], 2) );
+            M0 = M0 + 3.e10*st*length[if_off+i]*width[if_off+i];
+        }
+        Mw[ifp] = 0.0;
+        if (M0 > 0.0){Mw[ifp] = (log10(M0*1.e7) - 16.1)/1.5;}
     } // Loop on fault planes 
     if (ierr != 0){
         log_errorF("%s: There was an error in the fault plane grid-search\n",
@@ -370,10 +371,11 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         ierr = 4;
     }else{
         if (verbose > 2){
-            log_debugF("%s: Grid-search time: %f\n", fcnm, time); 
+            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, time_toc()); 
         }
     }
 ERROR:;
+    // Clean up
     GFAST_memory_free__double(&xrs);
     GFAST_memory_free__double(&yrs);
     GFAST_memory_free__double(&zrs);

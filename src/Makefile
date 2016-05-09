@@ -49,6 +49,7 @@ OBJ_EVENTS = $(OBJ_EVENTS_DIR)/getMinOriginTime.o \
 	     $(OBJ_EVENTS_DIR)/removeEvent.o \
 	     $(OBJ_EVENTS_DIR)/updateEvent.o
 OBJ_FF = $(OBJ_FF_DIR)/init.o \
+	 $(OBJ_FF_DIR)/faultPlaneGridSearch.o \
 	 $(OBJ_FF_DIR)/meshFaultPlane.o \
 	 $(OBJ_FF_DIR)/setForwardModel.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
@@ -187,6 +188,9 @@ $(OBJ_EVENTS_DIR)/updateEvent.o: events/updateEvent.c
 
 $(OBJ_FF_DIR)/init.o: ff/init.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/init.c -o $(OBJ_FF_DIR)/init.o
+
+$(OBJ_FF_DIR)/faultPlaneGridSearch.o: ff/faultPlaneGridSearch.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/faultPlaneGridSearch.c -o $(OBJ_FF_DIR)/faultPlaneGridSearch.o
 
 $(OBJ_FF_DIR)/meshFaultPlane.o: ff/meshFaultPlane.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/meshFaultPlane.c -o $(OBJ_FF_DIR)/meshFaultPlane.o

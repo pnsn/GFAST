@@ -310,7 +310,7 @@ int numpy_lstsq__qr(int mtx_fmt,
         log_errorF("%s: Error solving the least squares problem\n", fcnm);
         if (info > 0){
             log_errorF("%s: Error rank %d deficient %d\n",
-                       fcnm, info - fmin(m,n ), fmin(m, n));
+                       fcnm, info - fmin(m, n), fmin(m, n));
         }
         goto ERROR;
     }
