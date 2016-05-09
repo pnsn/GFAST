@@ -4,6 +4,8 @@
 #ifndef __TIME_H__
 #define __TIME_H__
 
+typedef unsigned long long timerTimeStampType;
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -19,6 +21,11 @@ int time_epoch2calendar(double epoch,
                         int *nzhour, int *nzmin, int *nzsec, int *nzmusec);
 /* Get the UTC epochal time right now */
 double time_currentTime(void);
+/* Get time stampe - useful for timing a function */
+double time_timeStamp(void);
+/* Begins and ends clock for matlab esque tictoc */
+void time_tic(void);
+double time_toc(void);
 #ifdef __cplusplus
 }
 #endif

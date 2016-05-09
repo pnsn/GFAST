@@ -323,7 +323,7 @@ getchar();
         // Solve the least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrowsG2, ncolsG2, 1, G2, UD,
-                                S);
+                                S, NULL, NULL);
         if (ierr1 != 0){
             log_errorF("%s: Error solving least squares problem\n", fcnm);
             ierr = ierr + 1;

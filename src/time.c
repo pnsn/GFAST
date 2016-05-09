@@ -1,8 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
 #include "gfast.h"
+
+static double tic = 0.0;
+#ifdef OPENMP
+#pragma omp threadprivate(tic)
+#endif
+/*!
+ * @brief Begins the time for toc
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+void time_tic(void)
+{
+    tic = time_timeStamp(); 
+    return;
+}
+/*!
+ * @brief Returns the time elapsed since calling time_tic
+ * 
+ * @result elapsed execution time in seconds
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+double time_toc(void)
+{
+    double toc;
+    toc = time_timeStamp() - tic;
+    return toc;
+}
 /*!
  * @brief Converts the time given by the year, julian day, hour, minute, second
  *        and microsecond to seconds since epoch where the epoch is the first
@@ -132,4 +163,30 @@ double time_currentTime(void)
     epoch = time(NULL); // Current time
     now = (double) epoch;
     return now;
+}
+//============================================================================//
+/*! 
+ * @brief Returns the current system time in seconds.  Useful when timing 
+ * a routine.  For example: 
+ *
+ *    tstart = time_timeStamp();
+ *    some code
+ *    tend = time_timeStamp();
+ *    tsim = tstart - tend; // Time of simulation
+ *
+ * @result Current system time (seconds)
+ *
+ */
+double time_timeStamp(void)
+{
+    double time;
+#ifdef MPI
+    time = MPI_Wtime();
+#else
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    time = (double)
+           (now.tv_usec + (timerTimeStampType) now.tv_sec * 1000000)*10.e-7;
+#endif
+    return time;
 }

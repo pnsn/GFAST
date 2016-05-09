@@ -11,8 +11,8 @@
  *                       then it is added to events
  *
  * @param[inout] events  on input holds the current active list of events.
- *                       on output if events, if SA is not initially in events,
- *                       then it has now been added
+ *                       on output holds the new event in SA provided that 
+ *                       SA does not already exist.
  *
  * @result if true then the new event in SA has been added to the events list
  *

@@ -5,14 +5,17 @@
 #include "gfast.h"
 /*!
  * @brief Checks if the shakeAlert event differs from the version in the 
- *        current events list and if it does updates the events list
+ *        current events list and if it does differ then this function 
+ *        updates the events list to match the input SA event
  *
  * @param[in] SA         shakeAlert structure to check for in events list
  *
  * @param[inout] events  on input contains the current list of events.
- *                       on output, if SA is not identical an SA in the 
+ *                       on output, if SA is not identical to an SA in the 
  *                       events list, the input SA then overrides the 
- *                       the corresponding SA in events
+ *                       the corresponding SA in events.  additionally, if
+ *                       SA does not exist in events then the program will
+ *                       attempt to add the event.
  *
  * @param[out] ierr      0 indicates success
  *

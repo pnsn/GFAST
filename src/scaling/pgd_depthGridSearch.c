@@ -175,7 +175,8 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         }
         // Solve the weighted least squares problem (M = lstsq(W*G,W*b)[0])
         ierr1 = numpy_lstsq__qr(LAPACK_COL_MAJOR,
-                                l1, 1, 1, WG, Wb, M1);
+                                l1, 1, 1, WG, Wb,
+                                M1, NULL, NULL);
         if (ierr1 != 0){
             log_errorF("%s: Error solving the least-squares problem\n", fcnm);
             ierr = ierr + 1;

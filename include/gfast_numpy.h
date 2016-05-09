@@ -14,7 +14,7 @@ int numpy_lstsq(int mtx_fmt,
                 double *rcond_in, double *x, int *rank_out, double *svals);
 int numpy_lstsq__qr(int mtx_fmt,
                     int m, int n, int nrhs, double *Aref, double *b, 
-                    double *x);
+                    double *x, double *Q, double *R);
 #ifdef __cplusplus
 }
 #endif
