@@ -92,21 +92,21 @@ double time_calendar2epoch(int nzyear, int nzjday, int nzhour,
 double time_calendar2epoch2(int nzyear, int month, int dom, int nzhour,
                             int nzmin, int nzsec, int nzmusec)
 {
-   struct tm t, t0;
-   double epoch; 
-   memset(&t, 0, sizeof(t));
-   t.tm_year = nzyear - 1900;  // This is year-1900, so 112 = 2012
-   t.tm_hour = nzhour;
-   t.tm_mon = month - 1;       // Month of year [0,11]
-   t.tm_mday = dom - 1;        // Day of month [0,30] 
-   t.tm_min = nzmin;
-   t.tm_sec = nzsec;
-   // Time since epoch which is 1970 
-   memset(&t0, 0, sizeof(t0));
-   t0.tm_year = 70;  // 1970
-   epoch = difftime(mktime(&t), mktime(&t0));
-   epoch = epoch + (double) (nzmusec)*1.e-6;
-   return epoch;
+    struct tm t, t0;
+    double epoch; 
+    memset(&t, 0, sizeof(t));
+    t.tm_year = nzyear - 1900;  // This is year-1900, so 112 = 2012
+    t.tm_hour = nzhour;
+    t.tm_mon = month - 1;       // Month of year [0,11]
+    t.tm_mday = dom - 1;        // Day of month [0,30] 
+    t.tm_min = nzmin;
+    t.tm_sec = nzsec;
+    // Time since epoch which is 1970 
+    memset(&t0, 0, sizeof(t0));
+    t0.tm_year = 70;  // 1970
+    epoch = difftime(mktime(&t), mktime(&t0));
+    epoch = epoch + (double) (nzmusec)*1.e-6;
+    return epoch;
 }
 //============================================================================//
 /*!

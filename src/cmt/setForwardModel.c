@@ -37,9 +37,9 @@
  *
  */
 int GFAST_CMT__setForwardModel__deviatoric(int l1,
-                                           double *__restrict__ x1,
-                                           double *__restrict__ y1,
-                                           double *__restrict__ z1,
+                                           const double *__restrict__ x1,
+                                           const double *__restrict__ y1,
+                                           const double *__restrict__ z1,
                                            double *__restrict__ G)
 {
     const char *fcnm = "GFAST_CMT__setForwardModel__deviatoric\0";

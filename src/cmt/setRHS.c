@@ -21,9 +21,9 @@
  *
  */
 int GFAST_CMT__setRHS(int n, int verbose,
-                      double *__restrict__ nAvg,
-                      double *__restrict__ eAvg,
-                      double *__restrict__ uAvg,
+                      const double *__restrict__ nAvg,
+                      const double *__restrict__ eAvg,
+                      const double *__restrict__ uAvg,
                       double *__restrict__ U)
 {
     const char *fcnm = "GFAST_CMT__setRHS\0";
