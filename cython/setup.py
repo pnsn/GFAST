@@ -12,8 +12,8 @@ libraries = ['gfast', 'lapacke', 'lapack', 'cblas', 'blas', 'iniparser', 'sacio'
 
 setup(
     cmdclass = {'build_ext': build_ext},
-    ext_modules = [Extension("scaling",
-                   sources = ["scaling.pyx"],
+    ext_modules = [Extension("gfast_wrap",
+                   sources = ["gfast_wrap.pyx"],
                    library_dirs = libdirs,
                    libraries = libraries,
                    include_dirs = [numpy.get_include(),
