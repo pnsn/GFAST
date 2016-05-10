@@ -224,9 +224,6 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  *                       order with leading dimension n that holds the 
  *                       solution to the least squares problem Ax=b [n x nrhs]
  *
- * @param[inout] Q       if Q is NULL then orthogonal matrix will not be 
- *                       returned.
- *                       otherwise, the 
  * @param[inout] R       if R is NULL then the right matrix will not be return.
  *                       otherwise, the upper right [n x n] matrix R will be
  *                       returned in the specified mtx_fmt [n*n] 
@@ -236,11 +233,13 @@ double numpy_nanmean(int n, double *x, int *iwarn)
  *         2 indicates an error encountered in Lapack
  *
  * @author Ben Baker (benbaker@isti.com)
+ *
  * @date March 2016
+ *
  */
 int numpy_lstsq__qr(int mtx_fmt,
                     int m, int n, int nrhs, double *Aref, double *b,
-                    double *x, double *Q, double *R)
+                    double *x, double *R)
 {
     const char *fcnm = "numpy_lstsq__qr\0";
     double *A, *bwork;
@@ -305,7 +304,8 @@ int numpy_lstsq__qr(int mtx_fmt,
         cblas_dcopy(m, &b[indx], incx, &bwork[jndx], incy);
     }
     // Solve the least squares problem
-    info = LAPACKE_dgels(LAPACK_COL_MAJOR, 'N', m, n, nrhs, A, lda, bwork, ldb);
+    info = LAPACKE_dgels(LAPACK_COL_MAJOR, 'N', m, n, nrhs,
+                         A, lda, bwork, ldb);
     if (info != 0){
         log_errorF("%s: Error solving the least squares problem\n", fcnm);
         if (info > 0){
@@ -324,17 +324,19 @@ int numpy_lstsq__qr(int mtx_fmt,
     // Get the right matrix
     if (R != NULL){
         if (mtx_fmt == LAPACK_COL_MAJOR){
+            #pragma omp simd collapse(2)
             for (j=0; j<n; j++){
                 for (i=0; i<n; i++){
                     R[n*j+i] = 0.0;
-                    if (i >= j){R[n*j+i] = A[m*j+i];}
+                    if (i <= j){R[n*j+i] = A[lda*j+i];}
                 }
             }
         }else{
+            #pragma omp simd collapse(2)
             for (i=0; i<n; i++){
                 for (j=0; j<n; j++){
                     R[n*i+j] = 0.0;
-                    if (j >= i){R[n*i+j] = A[m*j+i];}
+                    if (i <= j){R[n*i+j] = A[lda*j+i];}
                 }
             }
         }

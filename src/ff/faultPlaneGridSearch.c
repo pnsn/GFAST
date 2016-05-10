@@ -7,6 +7,43 @@
 #include <lapacke.h>
 #include <cblas.h>
 #include "gfast.h"
+
+/*
+int GFAST_FF__faultPlaneGridSearch(int l1, int verbose,
+                                   double *nAvgDisp,
+                                   double *eAvgDisp,
+                                   double *uAvgDisp,
+                                   double *utmRecvEasting,
+                                   double *utmRecvNorthing,
+                                   double *staAlt) 
+int __GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
+                                     int nstr, int ndip, int nfp,
+                                     int verbose,
+                                     double *nAvgDisp,
+                                     double *eAvgDisp,
+                                     double *uAvgDisp,
+                                     double *utmRecvEasting,
+                                     double *utmRecvNorthing,
+                                     double *staAlt,
+                                     double *fault_xutm,
+                                     double *fault_yutm,
+                                     double *fault_alt,
+                                     double *length,
+                                     double *width,
+                                     double *strike,
+                                     double *dip,
+                                     double *sslip,
+                                     double *dslip,
+                                     double *Mw,
+                                     double *vr,
+                                     double *NN,
+                                     double *EN,
+                                     double *UN,
+                                     double *sslip_unc,
+                                     double *dslip_unc
+                                     )
+*/
+
 /*!
  * @brief This performs the grid-search finite-fault slip inversion
  *        for the given fault planes.
@@ -87,39 +124,41 @@
  * @bug The units are unknown on the observations and slips are unknown 
  *
  */
-int GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
-                                   int nstr, int ndip, int nfp,
-                                   int verbose,
-                                   double *nAvgDisp,
-                                   double *eAvgDisp,
-                                   double *uAvgDisp,
-                                   double *utmRecvEasting,
-                                   double *utmRecvNorthing,
-                                   double *staAlt,
-                                   double *fault_xutm,
-                                   double *fault_yutm,
-                                   double *fault_alt,
-                                   double *length,
-                                   double *width,
-                                   double *strike,
-                                   double *dip,
-                                   double *sslip,
-                                   double *dslip,
-                                   double *Mw,
-                                   double *vr,
-                                   double *NN,
-                                   double *EN,
-                                   double *UN,
-                                   double *sslip_unc,
-                                   double *dslip_unc
-                                   )
+int __GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
+                                     int nstr, int ndip, int nfp,
+                                     int verbose,
+                                     const double *__restrict__ nAvgDisp,
+                                     const double *__restrict__ eAvgDisp,
+                                     const double *__restrict__ uAvgDisp,
+                                     const double *__restrict__ utmRecvEasting,
+                                     const double *__restrict__ utmRecvNorthing,
+                                     const double *__restrict__ staAlt,
+                                     const double *__restrict__ fault_xutm,
+                                     const double *__restrict__ fault_yutm,
+                                     const double *__restrict__ fault_alt,
+                                     const double *__restrict__ length,
+                                     const double *__restrict__ width,
+                                     const double *__restrict__ strike,
+                                     const double *__restrict__ dip,
+                                     double *__restrict__ sslip,
+                                     double *__restrict__ dslip,
+                                     double *__restrict__ Mw,
+                                     double *__restrict__ vr,
+                                     double *__restrict__ NN,
+                                     double *__restrict__ EN,
+                                     double *__restrict__ UN,
+                                     double *__restrict__ sslip_unc,
+                                     double *__restrict__ dslip_unc
+                                     )
 {
-    const char *fcnm = "GFAST_FF__faultPlaneGridSearch\0";
+    const char *fcnm = "__GFAST_FF__faultPlaneGridSearch\0";
     double *G2, *R, *S, *T, *UD, *UP, *xrs, *yrs, *zrs,
            ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
     int i, ierr, ierr1, if_off, ifp, ij, io_off, j,
         mrowsG, mrowsG2, mrowsT, ncolsG, ncolsG2, ncolsT, ng, ng2, nt;
     bool lrmtx, lsslip_unc, ldslip_unc;
+    //------------------------------------------------------------------------//
+    //
     // Initialize
     ierr = 0;
     xrs = NULL;
@@ -297,7 +336,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         // Solve the least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrowsG2, ncolsG2, 1, G2, UD,
-                                S, NULL, R);
+                                S, R);
         if (ierr1 != 0){
             log_errorF("%s: Error solving least squares problem\n", fcnm);
             ierr = ierr + 1;
@@ -306,9 +345,10 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         // From the right matrix compute the covariance matrix: inv(G^T*G)
         // Notice, because G = QR the inner term is G^T G = R^T Q^T Q R = R^T R
         // Thus, we must simply solve C = inv(R^T R) = inv(R) inv(R^T).  Hence
-        // it is sufficient to compute inv(R) and multiply it by its transpose.
+        // it is sufficient to compute Ri = inv(R) then multiply Ri*Ri^T.
         // Futhermore, we only retain the diagonals so computing a full matrix
-        // matrix multiply is unnecessary
+        // matrix multiply is unnecessary.  What is necessary is instead taking
+        // the inner products which would produce the diagonal elements.
         if (lrmtx){
             ierr1 = LAPACKE_dtrtri(LAPACK_ROW_MAJOR, 'U', 'N', ncolsG2,
                                    R, ncolsG2);
@@ -318,10 +358,10 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                 continue;
             }            
             for (i=0; i<l2; i++){
-                ss_unc = cblas_ddot(ncolsG2, &R[2*(i+0)*ncolsG2], 1,
-                                             &R[2*(i+0)*ncolsG2], 1);
-                ds_unc = cblas_ddot(ncolsG2, &R[2*(i+1)*ncolsG2], 1,
-                                             &R[2*(i+1)*ncolsG2], 1);
+                ss_unc = cblas_ddot(ncolsG2, &R[(2*i+0)*ncolsG2], 1,
+                                             &R[(2*i+0)*ncolsG2], 1);
+                ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
+                                             &R[(2*i+1)*ncolsG2], 1);
                 if (lsslip_unc){sslip_unc[if_off+i] = ss_unc;} 
                 if (ldslip_unc){dslip_unc[if_off+i] = ds_unc;}
             }

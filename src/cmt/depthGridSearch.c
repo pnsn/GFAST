@@ -175,7 +175,7 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         // Solve the least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrows, ncols, 1, G, U,
-                                S, NULL, NULL);
+                                S, NULL);
         if (ierr1 != 0){
             log_errorF("%s: Error solving least squares problem\n", fcnm);
             ierr = ierr + 1;

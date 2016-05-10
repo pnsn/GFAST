@@ -23,12 +23,15 @@
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
+ * @bug the counting is incorrect the model is supposed to not have a 
+ *      boundary condition on one edge
+ *
  * @date April 2016
  *
  */
 int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
-                             double *__restrict__ width,
-                             double *__restrict__ length,
+                             const double *__restrict__ width,
+                             const double *__restrict__ length,
                              double *__restrict__ T)
 {
     const char *fcnm = "GFAST_FF__setRegularizer\0";

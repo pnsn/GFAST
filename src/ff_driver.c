@@ -212,35 +212,17 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         ierr = FF_MEMORY_ERROR;
         goto ERROR;
     }
-    // Set the hypocenter information
-/*
-    ff->SA_lat = SA.lat;
-    ff->SA_lon = SA.lon;
-    ff->SA_dep = SA.dep;
-*/
+    // Mesh the fault planes remembering the event hypocenter and strike/dip 
+    // information were defined in the calling routine
     ff->preferred_fault_plane =-1;
-    for (ifp=0; ifp<ff->nfp; ifp++){ff->fp[ifp].nsites_used = l1;}
-    // Set the RHS
-    ierr = GFAST_FF__setRHS(l1, props.verbose,
-                            nAvgDisp, eAvgDisp, uAvgDisp, UD);
-    if (ierr != 0){
-        log_errorF("%s: Error setting right hand side\n", fcnm);
-        ierr = FF_COMPUTE_ERROR;
-        goto ERROR; 
-    }
-    // Loop on the fault planes
+    ierr = 0;
 #ifdef __PARALLEL_FF
     #pragma omp parallel for \
-     firstprivate(G2, S, T, UP, xrs, yrs, zrs) \
-     private(i, ierr1, ifp, ij, j, lampred, M0, res, st, xden, xnum) \
-     shared(fcnm, ff, l1, l2, mrowsG2, ncolsG2, mrowsG, ng, ng2, nt, props, staAlt, UD, utmRecvEasting, utmRecvNorthing) \
+     private(ierr1, ifp) \
+     shared(fcnm, ff, props) \
      reduction(+:ierr) default(none)
 #endif
     for (ifp=0; ifp<ff->nfp; ifp++){
-        // Null out G2 and regularizer
-        memset(G2, 0, ng2*sizeof(double));
-        memset(T, 0, nt*sizeof(double)); 
-        // Mesh the fault plane
         ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
                                          props.ff_flen_pct,
                                          props.ff_fwid_pct,
@@ -263,6 +245,59 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
             ierr = ierr + 1;
             continue;
         }
+    } // Loop on fault planes
+    if (ierr != 0){
+        log_errorF("%s: Error meshing fault planes!\n", fcnm);
+        goto ERROR;
+    }
+    // Save the number of sites used in the inversion
+    for (ifp=0; ifp<ff->nfp; ifp++){
+        ff->fp[ifp].nsites_used = l1;
+    }
+    // Set the RHS
+    ierr = GFAST_FF__setRHS(l1, props.verbose,
+                            nAvgDisp, eAvgDisp, uAvgDisp, UD);
+    if (ierr != 0){
+        log_errorF("%s: Error setting right hand side\n", fcnm);
+        ierr = FF_COMPUTE_ERROR;
+        goto ERROR; 
+    }
+    // Loop on the fault planes
+    ierr = 0;
+#ifdef __PARALLEL_FF
+    #pragma omp parallel for \
+     firstprivate(G2, S, T, UP, xrs, yrs, zrs) \
+     private(i, ierr1, ifp, ij, j, lampred, M0, res, st, xden, xnum) \
+     shared(fcnm, ff, l1, l2, mrowsG2, ncolsG2, mrowsG, ng, ng2, nt, props, staAlt, UD, utmRecvEasting, utmRecvNorthing) \
+     reduction(+:ierr) default(none)
+#endif
+    for (ifp=0; ifp<ff->nfp; ifp++){
+        // Null out G2 and regularizer
+        memset(G2, 0, ng2*sizeof(double));
+        memset(T, 0, nt*sizeof(double)); 
+        // Mesh the fault plane
+        //ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
+        //                                 props.ff_flen_pct,
+        //                                 props.ff_fwid_pct,
+        //                                 ff->SA_mag, ff->str[ifp], ff->dip[ifp],
+        //                                 ff->fp[ifp].nstr, ff->fp[ifp].ndip,
+        //                                 props.utm_zone, props.verbose,
+        //                                 ff->fp[ifp].fault_ptr,
+        //                                 ff->fp[ifp].lat_vtx,
+        //                                 ff->fp[ifp].lon_vtx,
+        //                                 ff->fp[ifp].dep_vtx,
+        //                                 ff->fp[ifp].fault_xutm,
+        //                                 ff->fp[ifp].fault_yutm,
+        //                                 ff->fp[ifp].fault_alt,
+        //                                 ff->fp[ifp].strike,
+        //                                 ff->fp[ifp].dip,
+        //                                 ff->fp[ifp].length,
+        //                                 ff->fp[ifp].width);
+        //if (ierr1 != 0){
+        //    log_errorF("%s: Error meshing fault plane\n", fcnm);
+        //    ierr = ierr + 1;
+        //    continue;
+        //}
         // Compute the site/fault patch offsets
         for (i=0; i<l2; i++){
             for (j=0; j<l1; j++){
@@ -323,7 +358,7 @@ getchar();
         // Solve the least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrowsG2, ncolsG2, 1, G2, UD,
-                                S, NULL, NULL);
+                                S, NULL);
         if (ierr1 != 0){
             log_errorF("%s: Error solving least squares problem\n", fcnm);
             ierr = ierr + 1;
