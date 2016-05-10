@@ -19,9 +19,9 @@
  *        and 3*l+2'th row corresponds to the negative vertical observation.
  *
  * @param[in] l1          length of arrays
- * @param[in] x1          x (North) source-receiver offset (meters) [l1]
- * @param[in] y1          y (East) source-receiver offset (meters) [l1]
- * @param[in] z1          z source-receiver distance (meters) [l1].
+ * @param[in] x1          x (North) receiver-source distance (meters) [l1]
+ * @param[in] y1          y (East) receiver-source distance (meters) [l1]
+ * @param[in] z1          z receiver-source distance (meters) [l1].
  *                        Note, that z increases up from the free
  *                        surface in the observation frame, hence, for most
  *                        applications z will be negative.

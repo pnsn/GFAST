@@ -25,7 +25,7 @@
  */
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
                                        double B, double C,
-                                       double *__restrict__ r,
+                                       const double *__restrict__ r,
                                        double *__restrict__ G)
 {
     const char *fcnm = "GFAST_scaling_PGD__setForwardModel\0";

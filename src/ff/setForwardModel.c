@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <cblas.h>
 #include "gfast.h"
 // Small number to test cos(90) = 0 
 #define eps 6.1232e-14 /*!< A close number for okadaGreenF */
@@ -8,43 +9,11 @@
 #define nu 0.25 /*!< Poisson's ratio for okadaGreenF */
 
 /* TODO atan is used a lot, should it be atan2 */
-// Local functions
 #pragma omp declare simd
-static inline double __ux_ss(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip); //double dip);
-#pragma omp declare simd
-static inline double __uy_ss(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip); //double dip);
-#pragma omp declare simd
-static inline double __uz_ss(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip); //double dip);
-#pragma omp declare simd
-static inline double __ux_ds(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip); //double dip);
-#pragma omp declare simd
-static inline double __uy_ds(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip); //double dip);
-#pragma omp declare simd
-static inline double __uz_ds(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip); //double dip);
-#pragma omp declare simd
-static inline double __I1(double cos_dip, double sin_dip,
-                          double xi, double eta, double q,
-                          bool ldip, double R);
-#pragma omp declare simd
-static inline double __I2(double cos_dip, double sin_dip,
-                          double eta, double q, bool ldip, double R);
-#pragma omp declare simd
-static inline double __I3(double cos_dip, double sin_dip,
-                          double eta, double q, bool ldip, double R);
-#pragma omp declare simd
-static inline double __I4(double cos_dip, double sin_dip,
-                          double eta, double q, bool ldip, double R);
-#pragma omp declare simd
-static inline double __I5(double cos_dip, double sin_dip,
-                          double xi, double eta, double q, 
-                          bool ldip, double R);
-
+static inline void __ss_ds(double cos_dip, double sin_dip,
+                           double xi, double eta, double q,
+                           double *ux_ss, double *uy_ss, double *uz_ss,
+                           double *ux_ds, double *uy_ds, double *uz_ds);
 /*!
  * @brief This program computes the Green's functions from Okada's formulation
  *        for slip on fault patches at a set of station locations
@@ -71,22 +40,33 @@ static inline double __I5(double cos_dip, double sin_dip,
  *
  */
 int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
-                                           double *__restrict__ e,
-                                           double *__restrict__ n,
-                                           double *__restrict__ depth,
-                                           double *__restrict__ strike,
-                                           double *__restrict__ dip,
-                                           double *__restrict__ W,
-                                           double *__restrict__ L,
+                                           const double *__restrict__ e,
+                                           const double *__restrict__ n,
+                                           const double *__restrict__ depth,
+                                           const double *__restrict__ strike,
+                                           const double *__restrict__ dip,
+                                           const double *__restrict__ W,
+                                           const double *__restrict__ L,
                                            double *__restrict__ G)
 {
+    const char *fcnm = "GFAST_FF__setForwardModel__okadagreenF\0";
     double cos_dip, cos_strike, d, dip1, ec, 
            g1, g1n, g2, g2n, g3, g3n, g4, g4n, g5, g6,
-           nc, p, q, strike1, sin_dip, sin_strike, x, y;
+           nc, p, q,
+           ux_ss_1, uy_ss_1, uz_ss_1,  ux_ds_1, uy_ds_1, uz_ds_1,
+           ux_ss_2, uy_ss_2, uz_ss_2,  ux_ds_2, uy_ds_2, uz_ds_2,
+           ux_ss_3, uy_ss_3, uz_ss_3,  ux_ds_3, uy_ds_3, uz_ds_3,
+           ux_ss_4, uy_ss_4, uz_ss_4,  ux_ds_4, uy_ds_4, uz_ds_4,
+           strike1, sin_dip, sin_strike, x, y;
     int i, j, ij, indx;
     const double pi180 = M_PI/180.0;
     const double one_twopi = 1.0/(2.0*M_PI);
     //------------------------------------------------------------------------//
+    if (l1 < 1 || l2 < 1){
+        if (l1 < 1){log_errorF("%s: Error no observations\n", fcnm);}
+        if (l2 < 1){log_errorF("%s: Error no fault patches\n", fcnm);}
+        return -1;
+    }
     indx = 0;
     // Loop on the observations
     for (j=0; j<l1; j++){
@@ -110,6 +90,31 @@ int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
             p = y*cos_dip + d*sin_dip;
             q = y*sin_dip - d*cos_dip;
 
+            __ss_ds(cos_dip, sin_dip,
+                    x, p, q,
+                    &ux_ss_1, &uy_ss_1, &uz_ss_1,
+                    &ux_ds_1, &uy_ds_1, &uz_ds_1);
+            __ss_ds(cos_dip, sin_dip,
+                    x, p-W[i], q,
+                    &ux_ss_2, &uy_ss_2, &uz_ss_2,
+                    &ux_ds_2, &uy_ds_2, &uz_ds_2);
+            __ss_ds(cos_dip, sin_dip,
+                    x-L[i], p, q,
+                    &ux_ss_3, &uy_ss_3, &uz_ss_3,
+                    &ux_ds_3, &uy_ds_3, &uz_ds_3);
+            __ss_ds(cos_dip, sin_dip,
+                    x-L[i], p-W[i], q,
+                    &ux_ss_4, &uy_ss_4, &uz_ss_4,
+                    &ux_ds_4, &uy_ds_4, &uz_ds_4);
+
+            g1 =-one_twopi*( ux_ss_1 - ux_ss_2 - ux_ss_3 + ux_ss_4);
+            g2 =-one_twopi*( ux_ds_1 - ux_ds_2 - ux_ds_3 + ux_ds_4);
+            g3 =-one_twopi*( uy_ss_1 - uy_ss_2 - uy_ss_3 + uy_ss_4);
+            g4 =-one_twopi*( uy_ds_1 - uy_ds_2 - uy_ds_3 + uy_ds_4);
+            g5 =-one_twopi*( uz_ss_1 - uz_ss_2 - uz_ss_3 + uz_ss_4);
+            g6 =-one_twopi*( uz_ds_1 - uz_ds_2 - uz_ds_3 + uz_ds_4);
+
+/*
             g1 = -one_twopi*( __ux_ss(cos_dip, sin_dip,
                                       x,p,q, false) 
                             - __ux_ss(cos_dip, sin_dip,
@@ -217,6 +222,7 @@ int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
                                 + __uz_ds(cos_dip, sin_dip,
                                           x-L[i],p-W[i],q, true));
             }
+*/
 
             g1n = sin_strike*g1 - cos_strike*g3;
             g3n = cos_strike*g1 + sin_strike*g3;
@@ -235,147 +241,59 @@ int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
             //indx = 3*(j+2)*l2 + 2*i;
             G[indx+4*l2+0] = g5;
             G[indx+4*l2+1] = g6;
-
-        } // Loop on stations
-    } // Loop on faults
+        } // Loop on faults (i)
+    } // Loop on observations (j) 
     return 0;
 }
 
 #pragma omp declare simd
-static inline double __ux_ss(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip)
+static inline void __ss_ds(double cos_dip, double sin_dip,
+                           double xi, double eta, double q,
+                           double *ux_ss, double *uy_ss, double *uz_ss,
+                           double *ux_ds, double *uy_ds, double *uz_ds)
 {
-    double R, u;
-    R = sqrt(xi*xi + eta*eta + q*q);
-    u = xi*q/(R*(R+eta)) 
-      + atan(xi*eta/(q*R)) 
-      + __I1(cos_dip, sin_dip, xi, eta, q, ldip, R)*sin_dip;
-    return u;
-}
-
-#pragma omp declare simd
-static inline double __uy_ss(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip)
-{
-    double R, u, yb;
-    R = sqrt(xi*xi + eta*eta + q*q);
-    yb = eta*cos_dip+ q*sin_dip;
-    u = yb*q/(R*(R + eta)) + q*cos_dip/(R + eta)
-      + __I2(cos_dip, sin_dip, eta, q, ldip, R)*sin_dip;
-    return u;
-}
-
-#pragma omp declare simd
-static inline double __uz_ss(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip)
-{
-    double db, R, u;
-    R = sqrt(xi*xi + eta*eta + q*q);
-    db = eta*sin_dip - q*cos_dip;
-    u = db*q/(R*(R + eta)) + q*sin_dip/(R + eta) 
-      + __I4(cos_dip, sin_dip, eta, q, ldip, R)*sin_dip;
-    return u;
-}
-
-#pragma omp declare simd
-static inline double __ux_ds(double cos_dip, double sin_dip, 
-                             double xi, double eta, double q, bool ldip)
-{
-    double R, u;
-    R = sqrt(xi*xi + eta*eta + q*q);
-    u = q/R - __I3(cos_dip, sin_dip, eta, q, ldip, R)*sin_dip*cos_dip;
-    return u;
-}
-
-#pragma omp declare simd
-static inline double __uy_ds(double cos_dip, double sin_dip, 
-                             double xi, double eta, double q, bool ldip)
-{
-    double R, u, yb;
+    double atan_xeqr, db, I1, I2, I3, I4, I5, log_rpeta, pow_rpdb2, R, X, yb;
     R = sqrt(xi*xi + eta*eta + q*q);
     yb = eta*cos_dip + q*sin_dip;
-    u = yb*q/(R*(R + xi)) + cos_dip*atan(xi*eta/(q*R)) 
-      - __I1(cos_dip, sin_dip, xi, eta, q, ldip, R)*sin_dip*cos_dip;
-    return u;
-}
-
-#pragma omp declare simd
-static inline double __uz_ds(double cos_dip, double sin_dip,
-                             double xi, double eta, double q, bool ldip)
-{
-    double db, R, u;
-    R = sqrt(xi*xi + eta*eta + q*q);
-    db = eta*sin_dip - q*cos_dip;
-    u = db*q/(R*(R + xi)) + sin_dip*atan(xi*eta/(q*R)) 
-      - __I5(cos_dip, sin_dip, xi, eta, q, ldip, R)*sin_dip*cos_dip;
-    return u;
-}
-
-#pragma omp declare simd
-static inline double __I1(double cos_dip, double sin_dip,
-                          double xi, double eta, double q, bool ldip, double R)
-{
-    double db, I;
-    db = eta*sin_dip - q*cos_dip;
-    I =-(1.0 - 2.0*nu)/2.0*xi*q/pow(R+db,2);
-    if (ldip){
-        I = (1.0 - 2.0*nu)*(-xi/cos_dip/(R+db)) 
-          - sin_dip/cos_dip*__I5(cos_dip, sin_dip, xi, eta, q, ldip, R);
-    }
-    return I;
-}
-
-#pragma omp declare simd
-static inline double __I2(double cos_dip, double sin_dip,
-                          double eta, double q, bool ldip, double R)
-{
-    double I;
-    I = (1.0 - 2.0*nu)*(-log(R+eta)) - __I3(cos_dip, sin_dip, eta, q, ldip, R);
-    return I;
-}
-
-#pragma omp declare simd
-static inline double __I3(double cos_dip, double sin_dip,
-                          double eta, double q, bool ldip, double R)
-{
-    double db, I, log_rpeta, yb;
-    yb = eta*cos_dip + q*sin_dip;
-    db = eta*sin_dip - q*cos_dip;
-    log_rpeta = log(R + eta);
-    I = (1.0 - 2.0*nu)/2.0*( eta/(R+db) + yb*q/pow(R+db,2) - log_rpeta ); 
-    if (ldip){
-        I = (1.0 - 2.0*nu)*(yb/cos_dip/(R+db) - log_rpeta) 
-          + sin_dip/cos_dip*__I4(cos_dip, sin_dip, eta, q, ldip, R);
-    }
-    return I;
-}
-
-#pragma omp declare simd
-static inline double __I4(double cos_dip, double sin_dip,
-                          double eta, double q, bool ldip, double R)
-{
-    double db, I;
-    db = eta*sin_dip - q*cos_dip;
-    I =-(1.0 - 2.0*nu)*q/(R+db);
-    if (ldip){
-        I = (1.0 - 2.0*nu)/cos_dip*(log(R+db) - sin_dip*log(R+eta));
-    }
-    return I;
-}
-
-#pragma omp declare simd
-static inline double __I5(double cos_dip, double sin_dip,
-                          double xi, double eta, double q, bool ldip, double R)
-{
-    double db, I, X;
     db = eta*sin_dip - q*cos_dip;
     X = sqrt(xi*xi + q*q);
-    I = -(1.0 - 2.0*nu)*xi*sin_dip/(R + db);
-    if (ldip){
-        I = (1.0 - 2.0*nu)*2.0/cos_dip
-           *atan( ( eta*(X + q*cos_dip) + X*(R + X)*sin_dip )
-                 /(xi*(R + X)*cos_dip));
+    log_rpeta = log(R + eta);
+    pow_rpdb2 = pow(R + db, 2);
+    atan_xeqr = atan(xi*eta/(q*R));
+    if (cos_dip > eps){
+        I5 = (1.0 - 2.0*nu)*2.0/cos_dip
+            *atan( ( eta*(X + q*cos_dip) + X*(R + X)*sin_dip )
+                  /(xi*(R + X)*cos_dip));
+        I4 = (1.0 - 2.0*nu)/cos_dip*(log(R+db) - sin_dip*log_rpeta);
+        I3 = (1.0 - 2.0*nu)*(yb/cos_dip/(R+db) - log_rpeta) 
+           + sin_dip/cos_dip*I4;
+        I2 = (1.0 - 2.0*nu)*(-log_rpeta) - I3;
+        I1 = (1.0 - 2.0*nu)*(-xi/cos_dip/(R+db)) 
+           - sin_dip/cos_dip*I5;
+    }else{
+        I5 =-(1.0 - 2.0*nu)*xi*sin_dip/(R + db);
+        I4 =-(1.0 - 2.0*nu)*q/(R + db);
+        I3 = (1.0 - 2.0*nu)/2.0*( eta/(R+db) + yb*q/pow_rpdb2 - log_rpeta );
+        I2 = (1.0 - 2.0*nu)*(-log_rpeta) - I3; 
+        I1 =-(1.0 - 2.0*nu)/2.0*xi*q/pow_rpdb2;
     }
-    return I;
+    *ux_ss = xi*q/(R*(R+eta)) 
+           + atan_xeqr
+           + I1*sin_dip; 
+    *uy_ss = yb*q/(R*(R + eta))
+           + q*cos_dip/(R + eta)
+           + I2*sin_dip;
+    *uz_ss = db*q/(R*(R + eta))
+           + q*sin_dip/(R + eta)
+           + I4*sin_dip;
+    *ux_ds = q/R
+           - I3*sin_dip*cos_dip;
+    *uy_ds = yb*q/(R*(R + xi))
+           + cos_dip*atan_xeqr
+           - I1*sin_dip*cos_dip;
+    *uz_ds = db*q/(R*(R + xi))
+           + sin_dip*atan_xeqr
+           - I5*sin_dip*cos_dip;
+    return;
 }
 

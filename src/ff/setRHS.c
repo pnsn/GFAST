@@ -23,9 +23,9 @@
  *
  */
 int GFAST_FF__setRHS(int n, int verbose,
-                     double *__restrict__ nAvg,
-                     double *__restrict__ eAvg,
-                     double *__restrict__ uAvg,
+                     const double *__restrict__ nAvg,
+                     const double *__restrict__ eAvg,
+                     const double *__restrict__ uAvg,
                      double *__restrict__ U)
 {
     const char *fcnm = "GFAST_FF__setRHS\0";

@@ -26,7 +26,8 @@
  */
 int GFAST_scaling_PGD__setRHS(int n, int verbose,
                               double dist_tol, double dist_def,
-                              double A, double *__restrict__ d,
+                              double A,
+                              const double *__restrict__ d,
                               double *__restrict__ b)
 {
     const char *fcnm = "GFAST_scaling_PGD__setRHS\0";

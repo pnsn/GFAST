@@ -130,6 +130,8 @@ void GFAST_memory_freeFaultPlane(struct GFAST_faultPlane_struct *fp)
     GFAST_memory_free__double(&fp->width);
     GFAST_memory_free__double(&fp->sslip);
     GFAST_memory_free__double(&fp->dslip);
+    GFAST_memory_free__double(&fp->sslip_unc);
+    GFAST_memory_free__double(&fp->dslip_unc);
     GFAST_memory_free__double(&fp->EN);
     GFAST_memory_free__double(&fp->NN);
     GFAST_memory_free__double(&fp->UN);

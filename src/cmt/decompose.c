@@ -22,7 +22,7 @@
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_CMT__decomposeMomentTensor(double *M,
+int GFAST_CMT__decomposeMomentTensor(const double *M,
                                      double *DC_pct,
                                      double *Mw,
                                      double *strike1, double *strike2,

@@ -57,6 +57,8 @@ int GFAST_FF__init(struct GFAST_props_struct props,
         ff->fp[ifp].width = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].sslip = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].dslip = GFAST_memory_calloc__double(nstr_ndip);
+        ff->fp[ifp].sslip_unc = GFAST_memory_calloc__double(nstr_ndip);
+        ff->fp[ifp].dslip_unc = GFAST_memory_calloc__double(nstr_ndip);
         ff->fp[ifp].EN = GFAST_memory_calloc__double(maxobs);
         ff->fp[ifp].NN = GFAST_memory_calloc__double(maxobs);
         ff->fp[ifp].UN = GFAST_memory_calloc__double(maxobs);
