@@ -5,6 +5,48 @@
 #include "gfast.h"
 
 /*!
+ * @brief Reads a elarmS based shakeAlert message into the GFAST 
+ *        shakeAlert structure which wants to know the event ID,
+ *        origin time, latitude, longitude, depth, and magnitude
+ *
+ * @param[in] message    null terminated XML shakeAlert message to parse
+ * @param[in] SA_NAN     if a value does not exist in the message it will
+ *                       be given this default value
+ *
+ * @param[out] SA        shake alert structure  
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+int GFAST_readElarmS__xml(const char *message, double SA_NAN,
+                          struct GFAST_shakeAlert_struct *SA)
+{
+    const char *fcnm = "GFAST_alert__parse__shakeAlertXML\0";
+    struct coreInfo_struct core;
+    int ierr, length;
+    // Initialize
+    memset(SA, 0, sizeof(struct GFAST_shakeAlert_struct));
+    memset(&core, 0, sizeof(struct coreInfo_struct));
+    length = strlen(message);
+    if (length == 0){ 
+        printf("%s: Error the message is empty\n", fcnm);
+        return -1; 
+    }   
+    // Extract the pertinent shakeAlert information for GFAST
+    ierr = GFAST_xml_read__SACoreInfo(message, SA_NAN, &core);
+    if (ierr != 0){ 
+        printf("%s: Error parsing core shakeAlert information\n", fcnm);
+    }else{
+        strcpy(SA->eventid, core.id);
+        SA->time = core.orig_time;
+        SA->lat = core.lat;
+        SA->lon = core.lon;
+        SA->dep = core.depth;
+        SA->mag = core.mag;
+    }   
+    return 0;
+}
+/*!
  * @brief Extracts data from an ElarmS message and fills a shake alert struct
  *        A characteristic ElarmS message will look like:
  *         ID  Year Mo Da HH:MM:SS.SSSSSS Mag     lon      lat

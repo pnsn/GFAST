@@ -1,14 +1,19 @@
 include ../Makefile.inc
 
+#OBJ_ALERT_DIR = alert/$(OBJ)
 OBJ_BUFFER_DIR = buffer/$(OBJ)
 OBJ_CMT_DIR = cmt/$(OBJ)
 OBJ_EVENTS_DIR = events/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
+OBJ_XML_DIR = xml/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
 endif
+#ifeq "$(wildcard $(OBJ_ALERT_DIR) )" ""
+#-include $(shell mkdir $(OBJ_ALERT_DIR)) $(wildcard $(OBJ_ALERT_DIR)/*)
+#endif
 ifeq "$(wildcard $(OBJ_BUFFER_DIR) )" ""
 -include $(shell mkdir $(OBJ_BUFFER_DIR)) $(wildcard $(OBJ_BUFFER_DIR)/*)
 endif
@@ -27,12 +32,16 @@ endif
 ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 -include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
 endif
+ifeq "$(wildcard $(OBJ_XML_DIR) )" ""
+-include $(shell mkdir $(OBJ_XML_DIR)) $(wildcard $(OBJ_XML_DIR)/*)
+endif
 
 OBJ_UTILS = $(OBJ)/sacio.o
 OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
 	      $(OBJ_SCALING_DIR)/pgd_init.o \
 	      $(OBJ_SCALING_DIR)/pgd_setForwardModel.o \
 	      $(OBJ_SCALING_DIR)/pgd_setRHS.o
+OBJ_ALERT = $(OBJ_ALERT_DIR)/readShakeAlert.o
 OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
 	     $(OBJ_BUFFER_DIR)/setBufferSpace.o \
 	     $(OBJ_BUFFER_DIR)/setInitialTime.o \
@@ -55,6 +64,8 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o \
 	 $(OBJ_FF_DIR)/xml.o
+OBJ_XML = $(OBJ_XML_DIR)/read__SACoreInfo.o \
+	  $(OBJ_XML_DIR)/units.o
 OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
 	         $(OBJ_COORDTOOLS_DIR)/utm2ll.o
 OBJ_ISCL = $(OBJ)/log.o \
@@ -75,8 +86,9 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_EVENTS) \
 	  $(OBJ_FF) \
 	  $(OBJ_SCALING_PGD) \
+	  $(OBJ_XML) \
 	  $(OBJ)/time.o $(OBJ)/utils.o
-OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o # $(OBJ_LIB)
+OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o $(OBJ_LIB)
 
 all: $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
 
@@ -124,6 +136,11 @@ $(OBJ)/properties.o: properties.c
 
 $(OBJ)/readElarmS.o: readElarmS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
+
+######################################## Alert ########################################
+
+$(OBJ_ALERT_DIR)/readShakeAlert.o: alert/readShakeAlert.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c alert/readShakeAlert.c $(OBJ_ALERT_DIR)/readShakeAlert.o 
 
 ####################################### Buffer ########################################
 
@@ -220,6 +237,14 @@ $(OBJ_SCALING_DIR)/pgd_setForwardModel.o: scaling/pgd_setForwardModel.c
 
 $(OBJ_SCALING_DIR)/pgd_setRHS.o: scaling/pgd_setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setRHS.c -o $(OBJ_SCALING_DIR)/pgd_setRHS.o
+
+######################################### XML #########################################
+
+$(OBJ_XML_DIR)/read__SACoreInfo.o: xml/read__SACoreInfo.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/read__SACoreInfo.c -o $(OBJ_XML_DIR)/read__SACoreInfo.o 
+
+$(OBJ_XML_DIR)/units.o: xml/units.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/units.c -o $(OBJ_XML_DIR)/units.o
 
 ####################################### Generic #######################################
 

@@ -7,6 +7,7 @@
 #include "gfast_os.h"
 #include "gfast_struct.h"
 #include "gfast_time.h"
+#include "gfast_xml.h"
 #ifndef __GFAST__
 #define __GFAST__
 
@@ -118,6 +119,8 @@ int GFAST_properties__init(char *propfilename,
                            struct GFAST_props_struct *props);
 void GFAST_properties__print(struct GFAST_props_struct props);
 /* Reads the ElarmS file */
+int GFAST_readElarmS__xml(const char *message, double SA_NAN,
+                          struct GFAST_shakeAlert_struct *SA);
 int GFAST_readElarmS(struct GFAST_props_struct props,
                      struct GFAST_shakeAlert_struct *SA);
 int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
@@ -145,11 +148,13 @@ int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
                             struct GFAST_data_struct gps_data,
                             struct GFAST_pgdResults_struct *pgd);
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
-                                       double B, double C, double *__restrict__ r,
+                                       double B, double C,
+                                       const double *__restrict__ r,
                                        double *__restrict__ G);
 int GFAST_scaling_PGD__setRHS(int n, int verbose,
                               double dist_tol, double dist_def,
-                              double A, double *__restrict__ d,
+                              double A,
+                              const double *__restrict__ d,
                               double *__restrict__ b);
 /* Centroid moment tensor inversion */
 int GFAST_CMT__decomposeMomentTensor(double *M, 
@@ -163,13 +168,13 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                bool deviatoric,
                                double utmSrcEasting,
                                double utmSrcNorthing,
-                               double *__restrict__ srcDepths,
-                               double *__restrict__ utmRecvEasting,
-                               double *__restrict__ utmRecvNorthing,
-                               double *__restrict__ staAlt,
-                               double *__restrict__ nAvgDisp,
-                               double *__restrict__ eAvgDisp,
-                               double *__restrict__ uAvgDisp,
+                               const double *__restrict__ srcDepths,
+                               const double *__restrict__ utmRecvEasting,
+                               const double *__restrict__ utmRecvNorthing,
+                               const double *__restrict__ staAlt,
+                               const double *__restrict__ nAvgDisp,
+                               const double *__restrict__ eAvgDisp,
+                               const double *__restrict__ uAvgDisp,
                                double *__restrict__ cmt_vr,
                                double *__restrict__ mts,
                                double *__restrict__ str1,
@@ -187,26 +192,46 @@ int GFAST_CMT__init(struct GFAST_props_struct props,
                     struct GFAST_data_struct gps_data,
                     struct GFAST_cmtResults_struct *cmt);
 int GFAST_CMT__setForwardModel__deviatoric(int l1, 
-                                           double *__restrict__ x1, 
-                                           double *__restrict__ y1, 
-                                           double *__restrict__ z1, 
+                                           const double *__restrict__ x1, 
+                                           const double *__restrict__ y1, 
+                                           const double *__restrict__ z1, 
                                            double *__restrict__ G);
-int GFAST_CMT__setForwardModel(int l1, bool deviatoric,
-                               double *__restrict__ x1,
-                               double *__restrict__ y1,
-                               double *__restrict__ z1,
-                               double *__restrict__ azi,
-                               double *__restrict__ G);
 int GFAST_CMT__setRHS(int n, int verbose,
-                      double *__restrict__ nAvg,
-                      double *__restrict__ eAvg,
-                      double *__restrict__ uAvg,
+                      const double *__restrict__ nAvg,
+                      const double *__restrict__ eAvg,
+                      const double *__restrict__ uAvg,
                       double *__restrict__ U);
 /* Finite fault inversion */
 int GFAST_FF__driver(struct GFAST_props_struct props,
                      struct GFAST_shakeAlert_struct SA, 
                      struct GFAST_data_struct gps_data,
                      struct GFAST_ffResults_struct *ff);
+int __GFAST_FF__faultPlaneGridSearch(int l1, int l2,
+                                     int nstr, int ndip, int nfp,
+                                     int verbose,
+                                     const double *__restrict__ nAvgDisp,
+                                     const double *__restrict__ eAvgDisp,
+                                     const double *__restrict__ uAvgDisp,
+                                     const double *__restrict__ utmRecvEasting,
+                                     const double *__restrict__ utmRecvNorthing,
+                                     const double *__restrict__ staAlt,
+                                     const double *__restrict__ fault_xutm,
+                                     const double *__restrict__ fault_yutm,
+                                     const double *__restrict__ fault_alt,
+                                     const double *__restrict__ length,
+                                     const double *__restrict__ width,
+                                     const double *__restrict__ strike,
+                                     const double *__restrict__ dip,
+                                     double *__restrict__ sslip,
+                                     double *__restrict__ dslip,
+                                     double *__restrict__ Mw,
+                                     double *__restrict__ vr,
+                                     double *__restrict__ NN,
+                                     double *__restrict__ EN,
+                                     double *__restrict__ UN,
+                                     double *__restrict__ sslip_unc,
+                                     double *__restrict__ dslip_unc
+                                     );
 int GFAST_FF__init(struct GFAST_props_struct props,
                    struct GFAST_data_struct gps_data,
                    struct GFAST_ffResults_struct *ff);
@@ -228,22 +253,22 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double *__restrict__ length,
                              double *__restrict__ width);
 int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
-                                           double *__restrict__ e,
-                                           double *__restrict__ n,
-                                           double *__restrict__ depth,
-                                           double *__restrict__ strike,
-                                           double *__restrict__ dip,
-                                           double *__restrict__ W,
-                                           double *__restrict__ L,
+                                           const double *__restrict__ e,
+                                           const double *__restrict__ n,
+                                           const double *__restrict__ depth,
+                                           const double *__restrict__ strike,
+                                           const double *__restrict__ dip,
+                                           const double *__restrict__ W,
+                                           const double *__restrict__ L,
                                            double *__restrict__ G);
 int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
-                             double *__restrict__ width,
-                             double *__restrict__ length,
+                             const double *__restrict__ width,
+                             const double *__restrict__ length,
                              double *__restrict__ T);
 int GFAST_FF__setRHS(int n, int verbose,
-                     double *__restrict__ nAvg,
-                     double *__restrict__ eAvg,
-                     double *__restrict__ uAvg,
+                     const double *__restrict__ nAvg,
+                     const double *__restrict__ eAvg,
+                     const double *__restrict__ uAvg,
                      double *__restrict__ U);
 #ifdef __cplusplus
 }

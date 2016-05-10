@@ -188,6 +188,12 @@ struct GFAST_faultPlane_struct
                              is [nstr x ndip] with leading dimension nstr */
     double *dslip;      /*!< Dip-slip along each fault patch.  The size
                              is [nstr x ndip] with leading dimension nstr */
+    double *sslip_unc;  /*!< Uncertainty in strike-slip on each fault patch.
+                             The size is [nstr x ndip] with leading dimension
+                             nstr. */
+    double *dslip_unc;  /*!< Uncertainty in dip slip on each fault patch.
+                             The size is [nstr x ndip] with leading dimension
+                             nstr. */
     double *EN;         /*!< Modeled east displacements [nsites_used] */
     double *NN;         /*!< Modeled north displacements [nsites_used] */
     double *UN;         /*!< Modeled vertical displacements [nsites_used] */
