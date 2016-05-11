@@ -8,42 +8,6 @@
 #include <cblas.h>
 #include "gfast.h"
 
-/*
-int GFAST_FF__faultPlaneGridSearch(int l1, int verbose,
-                                   double *nAvgDisp,
-                                   double *eAvgDisp,
-                                   double *uAvgDisp,
-                                   double *utmRecvEasting,
-                                   double *utmRecvNorthing,
-                                   double *staAlt) 
-int __GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
-                                     int nstr, int ndip, int nfp,
-                                     int verbose,
-                                     double *nAvgDisp,
-                                     double *eAvgDisp,
-                                     double *uAvgDisp,
-                                     double *utmRecvEasting,
-                                     double *utmRecvNorthing,
-                                     double *staAlt,
-                                     double *fault_xutm,
-                                     double *fault_yutm,
-                                     double *fault_alt,
-                                     double *length,
-                                     double *width,
-                                     double *strike,
-                                     double *dip,
-                                     double *sslip,
-                                     double *dslip,
-                                     double *Mw,
-                                     double *vr,
-                                     double *NN,
-                                     double *EN,
-                                     double *UN,
-                                     double *sslip_unc,
-                                     double *dslip_unc
-                                     )
-*/
-
 /*!
  * @brief This performs the grid-search finite-fault slip inversion
  *        for the given fault planes.
@@ -124,34 +88,34 @@ int __GFAST_FF__faultPlaneGridSearch(int l1, int l2,
  * @bug The units are unknown on the observations and slips are unknown 
  *
  */
-int __GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
-                                     int nstr, int ndip, int nfp,
-                                     int verbose,
-                                     const double *__restrict__ nAvgDisp,
-                                     const double *__restrict__ eAvgDisp,
-                                     const double *__restrict__ uAvgDisp,
-                                     const double *__restrict__ utmRecvEasting,
-                                     const double *__restrict__ utmRecvNorthing,
-                                     const double *__restrict__ staAlt,
-                                     const double *__restrict__ fault_xutm,
-                                     const double *__restrict__ fault_yutm,
-                                     const double *__restrict__ fault_alt,
-                                     const double *__restrict__ length,
-                                     const double *__restrict__ width,
-                                     const double *__restrict__ strike,
-                                     const double *__restrict__ dip,
-                                     double *__restrict__ sslip,
-                                     double *__restrict__ dslip,
-                                     double *__restrict__ Mw,
-                                     double *__restrict__ vr,
-                                     double *__restrict__ NN,
-                                     double *__restrict__ EN,
-                                     double *__restrict__ UN,
-                                     double *__restrict__ sslip_unc,
-                                     double *__restrict__ dslip_unc
-                                     )
+int GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
+                                   int nstr, int ndip, int nfp,
+                                   int verbose,
+                                   const double *__restrict__ nAvgDisp,
+                                   const double *__restrict__ eAvgDisp,
+                                   const double *__restrict__ uAvgDisp,
+                                   const double *__restrict__ utmRecvEasting,
+                                   const double *__restrict__ utmRecvNorthing,
+                                   const double *__restrict__ staAlt,
+                                   const double *__restrict__ fault_xutm,
+                                   const double *__restrict__ fault_yutm,
+                                   const double *__restrict__ fault_alt,
+                                   const double *__restrict__ length,
+                                   const double *__restrict__ width,
+                                   const double *__restrict__ strike,
+                                   const double *__restrict__ dip,
+                                   double *__restrict__ sslip,
+                                   double *__restrict__ dslip,
+                                   double *__restrict__ Mw,
+                                   double *__restrict__ vr,
+                                   double *__restrict__ NN,
+                                   double *__restrict__ EN,
+                                   double *__restrict__ UN,
+                                   double *__restrict__ sslip_unc,
+                                   double *__restrict__ dslip_unc
+                                   )
 {
-    const char *fcnm = "__GFAST_FF__faultPlaneGridSearch\0";
+    const char *fcnm = "GFAST_FF__faultPlaneGridSearch\0";
     double *G2, *R, *S, *T, *UD, *UP, *xrs, *yrs, *zrs,
            ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
     int i, ierr, ierr1, if_off, ifp, ij, io_off, j,
@@ -230,7 +194,7 @@ int __GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     yrs = GFAST_memory_calloc__double(l1*l2);
     zrs = GFAST_memory_calloc__double(l1*l2);
     G2 = GFAST_memory_calloc__double(ng2);
-    UD = GFAST_memory_calloc__double(mrowsG);
+    UD = GFAST_memory_calloc__double(mrowsG2);
     UP = GFAST_memory_calloc__double(mrowsG);
     T  = GFAST_memory_calloc__double(nt);
     S  = GFAST_memory_calloc__double(ncolsG2);
