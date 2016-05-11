@@ -21,10 +21,41 @@
  * @param[in] utmRecvEasting   receiver easting UTM positions (m) [l1]
  * @param[in] utmRecvNorthing  receiver northing UMT positions (m) [l1]
  * @param[in] staAlt           station elevations above sea level (m) [l1]
+ * @param[in] nAvgDisp         average observed offset in north component (m)
+ *                             for i'th site [l1]
+ * @param[in] eAvgDisp         average observed offset in east component (m)
+ *                             for i'th site [l1]
+ * @param[in] uAvgDisp         averaged observed offset in vertical comonent (m)
+ *                             for i'th site [l1]
+ *
+ * @param[out] cmt_vr          CMT objective function which is the L2 misfit
+ *                             weighted to prefer more double couple solutions
+ *                             [ndeps]
+ * @param[out] mts             the moment tensor terms (Nm) inverted for in
+ *                             an NED system at each depth.  the id'th depth
+ *                             is begins at index 6*id.  the moment tensors at
+ *                             at each depth are packed:  
+ *                             \f$ \{m_{xx}, m_{yy}, m_{zz},
+ *                                   m_{xy}, m_{xz}, m_{yz} \} \f$. 
+ * @param[out] str1            the strike on nodal plane 1 (degrees) at each
+ *                             depth [ndeps]
+ * @param[out] str2            the strike on nodal plane 2 (degrees) at each
+ *                             depth [ndeps]
+ * @param[out] dip1            the dip on nodal plane 1 (degrees) at each
+ *                             depth [ndeps]
+ * @param[out] dip2            the dip on nodal plane 2 (degrees) at each 
+ *                             depth [ndeps]
+ * @param[out] rak1            the rake on nodal plane 1 (degrees) at each
+ *                             depth [ndeps]
+ * @param[out] rak2            the rake on nodal plane 2 (degrees) at each
+ *                             depth [ndeps] 
+ * @param[out] Mw              the moment magnitude at each depth [ndeps]
  *
  * @result 0 indicates success
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
+ *
+ * @bug Only deviatoric constraint programmed.
  *
  */
 int GFAST_CMT__depthGridSearch(int l1, int ndeps,
