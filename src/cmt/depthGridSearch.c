@@ -147,6 +147,10 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         goto ERROR;
     }
     // Grid search on source depths
+    time_tic();
+    if (verbose > 2){
+        log_debugF("%s: Beginning search on depths...\n", fcnm);
+    }
 #ifdef __PARALLEL_CMT
     #pragma omp parallel for \
      firstprivate(G, U, zrs_negative) \
@@ -222,6 +226,10 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     } // Loop on source depths
     if (ierr != 0){
         log_errorF("%s: Errors were detect during the grid search\n", fcnm);
+    }else{
+        if (verbose > 2){
+            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, time_toc());
+        }
     }
 ERROR:;
     GFAST_memory_free__double(&G);
