@@ -50,10 +50,11 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
         CMT_COMPUTE_ERROR = 4
     };
     double *utmRecvEasting, *utmRecvNorthing, *staAlt, *x2, *y2,
-           *eAvgDisp, *nAvgDisp, *uAvgDisp, 
-           currentTime, distance, eAvg, effectiveHypoDist, nAvg,
-           uAvg, utmSrcEasting, utmSrcNorthing, x1, y1;
-    int ierr, k, l1, nwork, zone_loc;
+           *eAvgDisp, *eEst, *nAvgDisp, *nEst, *uAvgDisp, *uEst,
+           currentTime, DC_pct, distance, eAvg, effectiveHypoDist,
+           eres, nAvg, nres, sum_res2, uAvg, ures, utmSrcEasting,
+           utmSrcNorthing, x1, y1;
+    int i, idep, ierr, ierr1, k, l1, nwork, zone_loc;
     bool lnorthp, luse;
     //------------------------------------------------------------------------//
     //
@@ -67,6 +68,9 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     uAvgDisp = NULL;
     nAvgDisp = NULL;
     eAvgDisp = NULL;
+    nEst = NULL;
+    eEst = NULL;
+    uEst = NULL;
     // Reality check
     if (gps_data.stream_length < 1){
         if (props.verbose > 1){
@@ -173,6 +177,9 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
         ierr = CMT_INSUFFICIENT_DATA;
         goto ERROR;
     }
+    nEst = GFAST_memory_calloc__double(l1*cmt->ndeps);
+    eEst = GFAST_memory_calloc__double(l1*cmt->ndeps);
+    uEst = GFAST_memory_calloc__double(l1*cmt->ndeps);
     // Warn in case hypocenter is outside of grid-search
     if (SA.dep < cmt->srcDepths[0] || SA.dep > cmt->srcDepths[cmt->ndeps-1]){
         log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
@@ -193,16 +200,50 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                                       nAvgDisp,
                                       eAvgDisp,
                                       uAvgDisp,
-                                      cmt->objfn,
-                                      cmt->mts,
-                                      cmt->str1, cmt->str2,
-                                      cmt->dip1, cmt->dip2,
-                                      cmt->rak1, cmt->rak2,
-                                      cmt->Mw);
+                                      nEst,
+                                      eEst,
+                                      uEst,
+                                      cmt->mts);
     if (ierr != 0){
         log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
         goto ERROR;
     }else{
+        // Compute the derived objective function
+        ierr = 0;
+#ifdef __PARALLEL_CMT
+        #pragma omp parallel for \
+         private(DC_pct, eres, i, idep, ierr1, sum_res2, nres, ures) \
+         shared(cmt, eAvgDisp, eEst, fcnm, l1, nAvgDisp, nEst, uAvgDisp, uEst) \
+         reduction(+:ierr), default(none) 
+#endif
+        for (idep=0; idep<cmt->ndeps; idep++){
+            sum_res2 = 0.0;
+            #pragma omp simd reduction(+:sum_res2)
+            for (i=0; i<l1; i++){
+                nres = nAvgDisp[i] - nEst[idep*l1+i];
+                eres = eAvgDisp[i] - eEst[idep*l1+i];
+                ures = uAvgDisp[i] - uEst[idep*l1+i];
+                sum_res2 = sum_res2 + nres*nres + eres*eres + ures*ures;
+            }
+            sum_res2 = sqrt(sum_res2);
+            // Decompose the moment tensor
+            ierr1 = GFAST_CMT__decomposeMomentTensor(1, &cmt->mts[6*idep],
+                                                     &DC_pct,
+                                                     &cmt->Mw[idep],
+                                                     &cmt->str1[idep],
+                                                     &cmt->str2[idep],
+                                                     &cmt->dip1[idep],
+                                                     &cmt->dip2[idep],
+                                                     &cmt->rak1[idep],
+                                                     &cmt->rak2[idep]);
+            if (ierr1 != 0){
+                log_errorF("%s: Error decomposing mt\n", fcnm);
+                ierr = ierr + 1;
+                continue;
+            }
+            // Prefer results with larger double couple percentages
+            cmt->objfn[idep] = sum_res2/DC_pct;
+        }
         cmt->opt_indx = numpy_argmin(cmt->ndeps, cmt->objfn);
     }
 ERROR:;
@@ -214,6 +255,9 @@ ERROR:;
     GFAST_memory_free__double(&uAvgDisp);
     GFAST_memory_free__double(&nAvgDisp);
     GFAST_memory_free__double(&eAvgDisp);
+    GFAST_memory_free__double(&nEst);
+    GFAST_memory_free__double(&eEst);
+    GFAST_memory_free__double(&uEst);
     return ierr;
 }
 //============================================================================//

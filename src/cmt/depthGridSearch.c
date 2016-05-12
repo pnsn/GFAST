@@ -28,28 +28,24 @@
  * @param[in] uAvgDisp         averaged observed offset in vertical comonent (m)
  *                             for i'th site [l1]
  *
- * @param[out] cmt_vr          CMT objective function which is the L2 misfit
- *                             weighted to prefer more double couple solutions
- *                             [ndeps]
+ * @param[out] nEst            estimate offset in the north component (m)
+ *                             for the i'th site at all depths [l1*ndeps]
+ *                             the i'th site at the idep'th depth is given by
+ *                             idep*l1 + i
+ * @param[out] eEst            estimate offset in the east component (m)
+ *                             for the i'th site at all depths [l1*ndeps] 
+ *                             the i'th site at the idep'th depth is given by
+ *                             idep*l1 + i
+ * @param[out] uEst            estimate offset in the vertical component (m)
+ *                             for the i'th site at all depth s[l1*ndeps]
+ *                             the i'th site at the idep'th depth is given by
+ *                             idep*l1 + i
  * @param[out] mts             the moment tensor terms (Nm) inverted for in
  *                             an NED system at each depth.  the id'th depth
  *                             is begins at index 6*id.  the moment tensors at
  *                             at each depth are packed:  
  *                             \f$ \{m_{xx}, m_{yy}, m_{zz},
  *                                   m_{xy}, m_{xz}, m_{yz} \} \f$. 
- * @param[out] str1            the strike on nodal plane 1 (degrees) at each
- *                             depth [ndeps]
- * @param[out] str2            the strike on nodal plane 2 (degrees) at each
- *                             depth [ndeps]
- * @param[out] dip1            the dip on nodal plane 1 (degrees) at each
- *                             depth [ndeps]
- * @param[out] dip2            the dip on nodal plane 2 (degrees) at each 
- *                             depth [ndeps]
- * @param[out] rak1            the rake on nodal plane 1 (degrees) at each
- *                             depth [ndeps]
- * @param[out] rak2            the rake on nodal plane 2 (degrees) at each
- *                             depth [ndeps] 
- * @param[out] Mw              the moment magnitude at each depth [ndeps]
  *
  * @result 0 indicates success
  *
@@ -70,20 +66,14 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                const double *__restrict__ nAvgDisp,
                                const double *__restrict__ eAvgDisp,
                                const double *__restrict__ uAvgDisp,
-                               double *__restrict__ cmt_vr,
-                               double *__restrict__ mts,
-                               double *__restrict__ str1,
-                               double *__restrict__ str2,
-                               double *__restrict__ dip1,
-                               double *__restrict__ dip2,
-                               double *__restrict__ rak1,
-                               double *__restrict__ rak2,
-                               double *__restrict__ Mw)
+                               double *__restrict__ nEst,
+                               double *__restrict__ eEst,
+                               double *__restrict__ uEst,
+                               double *__restrict__ mts)
 {
     const char *fcnm = "GFAST_CMT__depthGridSearch\0";
     double *G, *U, *UP, *xrs, *yrs, *zrs_negative, S[6],
-           DC_pct, eq_alt, m11, m12, m13, m22, m23, m33,
-           res, sum_res2;
+           eq_alt, m11, m12, m13, m22, m23, m33;
     int i, idep, ierr, ierr1, ldg, mrows, ncols;
     // Initialize
     ierr = 0;
@@ -103,7 +93,8 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     if (srcDepths == NULL || utmRecvEasting == NULL ||
         utmRecvNorthing == NULL || staAlt == NULL ||
         nAvgDisp == NULL || eAvgDisp == NULL || uAvgDisp == NULL ||
-        mts == NULL || cmt_vr == NULL)
+        nEst == NULL || eEst == NULL || uEst == NULL || 
+        mts == NULL)
     {
         if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
         if (utmRecvEasting == NULL){
@@ -116,8 +107,10 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         if (nAvgDisp == NULL){log_errorF("%s: nAvgDisp is NULL\n", fcnm);}
         if (eAvgDisp == NULL){log_errorF("%s: eAvgDisp is NULL\n", fcnm);}
         if (uAvgDisp == NULL){log_errorF("%s: uAvgDisp is NULL\n", fcnm);}
+        if (nEst == NULL){log_errorF("%s: nEst is NULL\n", fcnm);}
+        if (eEst == NULL){log_errorF("%s: eEst is NULL\n", fcnm);}
+        if (uEst == NULL){log_errorF("%s: uEst is NULL\n", fcnm);}
         if (mts == NULL){log_errorF("%s: mts is NULL\n", fcnm);}
-        if (cmt_vr == NULL){log_errorF("%s: cmt_vr is NULL\n", fcnm);}
         ierr = 1;
         goto ERROR;
     }
@@ -141,14 +134,12 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         mts[6*idep+3] = 0.0;
         mts[6*idep+4] = 0.0;
         mts[6*idep+5] = 0.0;
-        cmt_vr[idep] = 0.0;
-        str1[idep] = 0.0;
-        str2[idep] = 0.0;
-        dip1[idep] = 0.0;
-        dip2[idep] = 0.0;
-        rak1[idep] = 0.0;
-        rak2[idep] = 0.0;
-        Mw[idep] = 0.0;
+    }
+    #pragma omp simd
+    for (i=0; i<ndeps*l1; i++){
+        uEst[i] = 0.0;
+        nEst[i] = 0.0;
+        eEst[i] = 0.0;
     }
     // Set space
     if (deviatoric){
@@ -184,9 +175,11 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     }
 #ifdef __PARALLEL_CMT
     #pragma omp parallel for \
-     firstprivate(G, U, zrs_negative) \
-     private (DC_pct, i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, res, S, sum_res2 ) \
-     shared (cmt_vr, dip1, dip2, fcnm, ldg, l1, mts, mrows, Mw, ncols, ndeps, rak1, rak2, srcDepths, staAlt, str1, str2, UP, xrs, yrs) \
+     firstprivate(G, UP, zrs_negative) \
+     private (i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, S ) \
+     shared (eEst, fcnm, ldg, l1, mts, mrows, \
+             ncols, ndeps, nEst, srcDepths, staAlt, \
+             uEst, U, xrs, yrs) \
      reduction(+:ierr) default(none)
 #endif
     for (idep=0; idep<ndeps; idep++){
@@ -232,28 +225,13 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         // Compute the forward problem
         cblas_dgemv(CblasRowMajor, CblasNoTrans,
                     mrows, ncols, 1.0, G, ldg, S, 1, 0.0, UP, 1);
-        // Compute the L2 misfit which is called the variance reduction
-        sum_res2 = 0.0;
-        #pragma omp simd aligned(UP:CACHE_LINE_SIZE) reduction(+:sum_res2)
-        for (i=0; i<mrows; i++){
-            res = U[i] - UP[i];
-            sum_res2 = sum_res2 + res*res;
+        // Copy estimates back
+        #pragma omp simd
+        for (i=0; i<l1; i++){
+            nEst[idep*l1+i] = UP[3*i+0];
+            eEst[idep*l1+i] = UP[3*i+1];
+            uEst[idep*l1+i] =-UP[3*i+2];
         }
-        sum_res2 = sqrt(sum_res2); 
- 
-        // Compute the moment tensor decomposition
-        ierr1 = GFAST_CMT__decomposeMomentTensor(&mts[6*idep],
-                                                 &DC_pct,
-                                                 &Mw[idep],
-                                                 &str1[idep], &str2[idep],
-                                                 &dip1[idep], &dip2[idep],
-                                                 &rak1[idep], &rak2[idep]);
-        if (ierr1 != 0){
-            log_errorF("%s: Error decomposing moment tensor\n", fcnm);
-            ierr = ierr + 1;
-        }
-        // Prefer results with larger double couple percentages
-        cmt_vr[idep] = sum_res2/DC_pct;
     } // Loop on source depths
     if (ierr != 0){
         log_errorF("%s: Errors were detect during the grid search\n", fcnm);

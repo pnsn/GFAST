@@ -72,13 +72,15 @@
  *                             component (m) for the i'th site on the ifp'th
  *                             fault plane [l1*nfp].
  *
- * @param[inout] sslip_unc     if not NULL then this is the uncertainty
- *                             (diagonal of the resolution matrix) for the
- *                             slip along strike on the if'th fault patch
+ * @param[inout] sslip_unc     if not NULL then this is the uncertainty (m)
+ *                             estimated from the diagonal of the model
+ *                             covariance matrix for the slip along strike on
+ *                             the if'th fault patch
  *                             on the ifp'th fault plane [l2*nfp]
- * @param[inout] dslip_unc     if not NULL then this is the uncertainty
- *                             (diagonal of the resolution matrix) for the
- *                             slip down dip on the if'th fault patch
+ * @param[inout] dslip_unc     if not NULL then this is the uncertainty (m)
+ *                             estimated from the diagonal of the model
+ *                             covariance matrix for the slip down dip on
+ *                             the on the if'th fault patch
  *                             on the ifp'th fault plane [l2*nfp]
  *  
  * @result 0 indicates success.
@@ -181,8 +183,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     // Compute sizes of matrices in G2 S = UP where G2 = [G; T]
     mrowsG = 3*l1;
     ncolsG = 2*l2;
-    mrowsT = 2*l2 + 2*(2*nstr + 2*(ndip - 2));
-    mrowsT = 2*ndip*nstr + 2*(2*nstr+2*(ndip - 2));
+    mrowsT = 2*ndip*nstr + 2*(2*ndip + nstr - 2);
     ncolsT = 2*l2;
     mrowsG2 = mrowsG + mrowsT;
     ncolsG2 = ncolsG;
@@ -326,8 +327,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                              &R[(2*i+0)*ncolsG2], 1);
                 ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
                                              &R[(2*i+1)*ncolsG2], 1);
-                if (lsslip_unc){sslip_unc[if_off+i] = ss_unc;} 
-                if (ldslip_unc){dslip_unc[if_off+i] = ds_unc;}
+                if (lsslip_unc){sslip_unc[if_off+i] = sqrt(ss_unc);} 
+                if (ldslip_unc){dslip_unc[if_off+i] = sqrt(ds_unc);}
             }
         }
         // Compute the forward problem UP = G2*S (ignoring regularizer)

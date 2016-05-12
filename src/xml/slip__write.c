@@ -43,14 +43,14 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
     int rc;
     //------------------------------------------------------------------------//
     rc = 0;
-    writer = (xmlTextWriterPtr) xml_writer;
+    writer = (xmlTextWriterPtr ) xml_writer;
     // <slip>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "slip\0");
     // slip along strike: <ss units="m">float</ss>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "ss\0");
     __xml_units__enum2string(ss_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST ss_units);
+                                      BAD_CAST units);
     memset(var, 0, sizeof(var));
     sprintf(var, "%f", ss);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
@@ -59,7 +59,7 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "ds\0");
     __xml_units__enum2string(ds_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST ss_units);
+                                      BAD_CAST units);
     memset(var, 0, sizeof(var));
     sprintf(var, "%f", ds);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
@@ -68,7 +68,7 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "ss_uncer\0");
     __xml_units__enum2string(ss_uncer_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST ss_units);
+                                      BAD_CAST units);
     memset(var, 0, sizeof(var));
     sprintf(var, "%f", ss_uncer);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
@@ -77,7 +77,7 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "ds_uncer\0");
     __xml_units__enum2string(ds_uncer_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST ss_units);
+                                      BAD_CAST units);
     memset(var, 0, sizeof(var));
     sprintf(var, "%f", ds_uncer);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
@@ -88,5 +88,5 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
         log_errorF("%s: Error writing slip\n", fcnm);
         return -1;
     }
-    return rc;
+    return 0;
 } 

@@ -13,8 +13,12 @@
  */
 int GFAST_FF__xml__write(int mode,
                          char *orig_sys,
-                         char *evid,
+                         char *alg_vers,
+                         char *instance,
+                         char *message_type,
+                         char *version,
                          double Mw,
+                         char *evid,
                          double SA_lat,
                          double SA_lon,
                          double SA_depth,
@@ -77,15 +81,26 @@ int GFAST_FF__xml__write(int mode,
         log_warnF("%s: Defaulting to live mode\n", fcnm);
         strcpy(cmode, "live\0");
     }
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category",
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
                                      BAD_CAST cmode);
-
     now = time_currentTime();
     rc = xml_epoch2string(now, cnow);
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp",
-                                     BAD_CAST cnow);
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "orig_sys",
-                                     BAD_CAST orig_sys);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp\0",
+                                      BAD_CAST cnow);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "orig_sys\0",
+                                      BAD_CAST orig_sys);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "alg_vers\0",
+                                      BAD_CAST alg_vers);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "instance\0",
+                                      BAD_CAST instance);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "message_type\0",
+                                      BAD_CAST message_type);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "version\0",
+                                      BAD_CAST version);
+    if (rc < 0){
+        log_errorF("%s: Error setting attributes\n", fcnm);
+        return -1;
+    }
     //-------------------------------<core_info>------------------------------//
     memset(&core, 0, sizeof(struct coreInfo_struct));
     strcpy(core.id, evid);

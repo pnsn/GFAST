@@ -33,7 +33,7 @@ int GFAST_readElarmS__xml(const char *message, double SA_NAN,
         return -1; 
     }   
     // Extract the pertinent shakeAlert information for GFAST
-    ierr = GFAST_xml_read__SACoreInfo(message, SA_NAN, &core);
+    ierr = GFAST_xml_coreInfo__read(message, SA_NAN, &core);
     if (ierr != 0){ 
         printf("%s: Error parsing core shakeAlert information\n", fcnm);
     }else{

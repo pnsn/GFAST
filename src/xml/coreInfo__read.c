@@ -24,10 +24,10 @@
  *
  * @author Ben Baker 
  */
-int GFAST_xml_read__SACoreInfo(const char *message, double SA_NAN,
-                               struct coreInfo_struct *core)
+int GFAST_xml_coreInfo__read(const char *message, double SA_NAN,
+                             struct coreInfo_struct *core)
 {
-    const char *fcnm = "GFAST_xml_read__SACoreInfo\0";
+    const char *fcnm = "GFAST_xml_coreInfo__read\0";
     xmlDocPtr doc;
     xmlNodePtr event_xml, core_xml, core_xml_info;
     xmlAttrPtr attr;

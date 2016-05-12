@@ -5,7 +5,9 @@
 /*!
  * @brief Computes the second order Tikhonov regularizer along
  *        strike and down dip for estimation of the slip 
- *        along strike and slip down dip
+ *        along strike and slip down dip.  There is an additional
+ *        penalty on the model boundaries excluding the most nstr - 2
+ *        updip elements 
  *
  * @param[in] l2       total number of faults in plane (nstr*ndip)
  * @param[in] nstr     number of faults along strike
@@ -15,7 +17,7 @@
  * @param[in] length   length of fault patches (km) [l2]
  *
  * @param[out] T       second order Tikonov regularizer.  T is dimension
- *                     [2*l2 + 2*(2*nstr + 2*(ndip-2)) x 2*l2] with
+ *                     [2*l2 + 2*(2*ndip + nstr - 2) x 2*l2] with
  *                     leading dimension 2*l2 stored in row major
  *                     order.
  *
@@ -41,7 +43,7 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
     //------------------------------------------------------------------------//
     //
     // Error handling
-    ntref = (2*l2 + 2*(2*nstr + 2*(ndip-2)))*2*l2;
+    ntref = (2*l2 + 2*(2*ndip + nstr - 2))*2*l2;
     if (nstr < 1 || ndip < 1 || l2 != nstr*ndip || nt != ntref){
         if (nstr < 1){
             log_errorF("%s: Error no faults along strike\n", fcnm);
@@ -53,7 +55,8 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
             log_errorF("%s: Error size inconsistency\n", fcnm);
         }
         if (nt != ntref){
-            log_errorF("%s: Error nt is not proper size\n", fcnm);
+            log_errorF("%s: Error nt is not proper size %d %d\n",
+                       fcnm, nt, ntref);
         }
         return -1;
     }
@@ -113,11 +116,18 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
             } // Loop on m
         } // Loop on strike
     } // Loop on dip
+    if (k != 2*ndip*nstr - 1){
+        log_errorF("%s: Error lost count part 1 %d %d\n",
+                   fcnm, k, 2*ndip*nstr - 1);
+        return -1;
+    }
+    // Now apply boundary conditions s.t. the fault ends excluding 
+    // the free service are penalized if they slip 
     k = 2*ndip*nstr; // Begin row counter at end
     for (j=0; j<ndip; j++){
         for (i=0; i<nstr; i++){
             for (m=0; m<2; m++){
-                if (j == 0 || j == ndip - 1 || i == 0 || i == nstr - 1){
+                if (j == ndip - 1 || i == 0 || i == nstr - 1){
                     l = j*nstr + i;              // Fault patch number
                     indx1 = j*nstr + i;          // Grid index
                     kndx1 = k*ldt + 2*indx1 + m; // T[k,2*index1+m]
@@ -130,8 +140,9 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
         } // Loop on strike
     } // Loop on on dip
     // Did we get them all?
-    if (k != (2*l2 + 2*(2*nstr + 2*(ndip-2)))){
-        log_warnF("%s: Warning failed to initialize all rows in T!\n", fcnm);
+    if (k != (2*l2 + 2*(2*ndip + nstr - 2))){
+        log_warnF("%s: Warning failed to initialize all rows in T %d %d\n",
+                  fcnm, k, 2*l2 + 2*(2*ndip + nstr - 2));
     }
     return 0;
 }

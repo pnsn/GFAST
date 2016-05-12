@@ -6,8 +6,6 @@
 #include <libxml/parser.h>
 #include "gfast.h"
 
-static int __xml_epoch2string(double epoch, char cepoch[128]);
-
 /*!
  * @brief Writes the shakeAlert core info to the xmlTextWriter xml_writer
  *
@@ -26,9 +24,10 @@ static int __xml_epoch2string(double epoch, char cepoch[128]);
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_xml_write__SACoreInfo(struct coreInfo_struct core,
-                                void *xml_writer)
+int GFAST_xml_coreInfo__write(struct coreInfo_struct core,
+                              void *xml_writer)
 {
+    const char *fcnm = "GFAST_xml_coreInfo__write\0";
     xmlTextWriterPtr writer;
     char units[128], var[128], cevtime[128];
     int rc;
@@ -136,6 +135,8 @@ int GFAST_xml_write__SACoreInfo(struct coreInfo_struct core,
     rc += xmlTextWriterEndElement(writer); 
     // </core_info>
     rc = xmlTextWriterEndElement(writer); // </core_info>
-    //xml_writer = (void *)writer;
+    if (rc < 0){
+        log_errorF("%s: Error writing core info\n", fcnm);
+    }
     return rc;
 }

@@ -240,7 +240,7 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
                               double *__restrict__ nbuff,
                               double *__restrict__ ebuff)
 {
-    double diffT, disp_i, distMax, e0, n0, u0;
+    double diffT, dist_i, distMax, e0, n0, u0;
     int i, indx0;
     //------------------------------------------------------------------------//
     //
@@ -265,14 +265,14 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
     distMax = DIST_MAX_NAN;
     #pragma omp simd reduction(max:distMax)
     for (i=indx0; i<npts; i++){
-        disp_i = DIST_MAX_NAN;
+        dist_i = DIST_MAX_NAN;
         if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) )
         {
-            disp_i = sqrt( pow(ubuff[i] - u0, 2)
+            dist_i = sqrt( pow(ubuff[i] - u0, 2)
                          + pow(nbuff[i] - n0, 2)
                          + pow(ebuff[i] - e0, 2));
         }
-        distMax = fmax(disp_i, distMax);
+        distMax = fmax(dist_i, distMax);
     } // Loop on data points
     if (distMax == DIST_MAX_NAN){distMax = NAN;}
     return distMax; 

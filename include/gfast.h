@@ -12,8 +12,9 @@
 #define __GFAST__
 
 #define CACHE_LINE_SIZE 64
-#define GFAST_ALGORITHM_VERSION 0.01
-#define GFAST_VERSION 0
+#define GFAST_ALGORITHM_VERSION "0.01"
+#define GFAST_VERSION "0.01"
+#define GFAST_INSTANCE "PNSN"
  
 
 #ifdef __cplusplus

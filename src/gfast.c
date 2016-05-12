@@ -7,11 +7,16 @@
 //extern "C"
 int GFAST_FF__xml__write(int mode,
                          char *orig_sys,
+                         char *alg_vers,
+                         char *instance,
+                         char *message_type,
+                         char *version,
                          char *evid,
                          double Mw, 
                          double SA_lat,
                          double SA_lon,
                          double SA_depth,
+                         double SA_mag,
                          double SA_time,
                          int nseg,
                          int *fptr,
@@ -19,7 +24,9 @@ int GFAST_FF__xml__write(int mode,
                          double *lon_vtx,
                          double *dep_vtx,
                          double *ss,
-                         double *ds);
+                         double *ds,
+                         double *ss_unc,
+                         double *ds_unc);
 
 
 /*!
@@ -223,33 +230,19 @@ ff.str[0] = 116.78477424;
 ff.dip[0] = 58.91674731;
                     ierr = GFAST_FF__driver(props, events.SA[iev],
                                             gps_acquisition, &ff);
-
-/*
-int GFAST_FF__xml__write(int mode,
-                         char *orig_sys,
-                         char *evid,
-                         double Mw, 
-                         double SA_lat,
-                         double SA_lon,
-                         double SA_depth,
-                         double SA_time,
-                         int nseg,
-                         int *fptr,
-                         double *lat_vtx,
-                         double *lon_vtx,
-                         double *dep_vtx,
-                         double *ss,
-                         double *ds);
-*/
-/*
 int iopt = ff.preferred_fault_plane;
 ierr = GFAST_FF__xml__write(props.opmode,
-                            "ElarmsS\0",
+                            "GFAST\0",
+                            GFAST_ALGORITHM_VERSION,
+                            GFAST_INSTANCE,
+                            "new\0",
+                            GFAST_VERSION,
                             events.SA[iev].eventid,
                             events.SA[iev].mag,
                             events.SA[iev].lat,
                             events.SA[iev].lon,
                             events.SA[iev].dep,
+                            events.SA[iev].mag,
                             events.SA[iev].time,
                             ff.fp[iopt].nstr*ff.fp[iopt].ndip,
                             ff.fp[iopt].fault_ptr,
@@ -257,9 +250,10 @@ ierr = GFAST_FF__xml__write(props.opmode,
                             ff.fp[iopt].lon_vtx,
                             ff.fp[iopt].dep_vtx,
                             ff.fp[iopt].sslip,
-                            ff.fp[iopt].dslip);
-*/
-
+                            ff.fp[iopt].dslip,
+                            ff.fp[iopt].sslip_unc,
+                            ff.fp[iopt].dslip_unc);
+goto ERROR;
                 }
                 // Am I ready to publish this event?
                 if (currentTime - SA.time >= props.processingTime){

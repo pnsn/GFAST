@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include <libxml/parser.h>
 #include "gfast.h"
 
 /*!
@@ -31,7 +31,7 @@ int GFAST_xml_vertex__write(double lat, enum alert_units_enum lat_units,
 {
     const char *fcnm = "__GFAST_xml_vertex__write\0";
     xmlTextWriterPtr writer;
-    char units[128];
+    char units[128], var[128];
     int rc;
     //------------------------------------------------------------------------//
     rc = 0;
@@ -40,31 +40,36 @@ int GFAST_xml_vertex__write(double lat, enum alert_units_enum lat_units,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "vertex");
     // Latitude: <lat units="deg">float</lat> 
     rc += xmlTextWriterStartElement(writer, BAD_CAST "lat\0");
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST lat_units);
     __xml_units__enum2string(lat_units, units);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST units);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                      BAD_CAST units);
+    memset(var, 0, sizeof(var));
+    sprintf(var, "%f", lat);
+    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
     // Longitude: <lon units="deg">float</lon>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "lon\0");
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST lon_units);
     __xml_units__enum2string(lon_units, units);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST units);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                      BAD_CAST units);
+    memset(var, 0, sizeof(var));
+    sprintf(var, "%f", lon);
+    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
     // Depth: <depth units="km">float</depth>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "depth\0");
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST depth_units);
     __xml_units__enum2string(depth_units, units);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST units);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                      BAD_CAST units);
+    memset(var, 0, sizeof(var));
+    sprintf(var, "%f", depth);
+    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
     // </vertex>
     rc += xmlTextWriterEndElement(writer); // </vertex>
     if (rc < 0){
         log_errorF("%s: Error writing vertex!\n", fcnm);
-    }else{
-        rc = 0;
+        return -1;
     }
-    return rc;
+    return 0;
 }

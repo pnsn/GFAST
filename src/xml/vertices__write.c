@@ -68,15 +68,16 @@ int GFAST_xml_vertices__write(enum xml_segmentShape_enum shape,
                                      lons[i], lon_units,
                                      depths[i], depth_units,
                                      (void *)writer);
-        if (rc != 0){ 
+        if (rc < 0){ 
             log_errorF("%s: Error writing vertex\n", fcnm);
-            return rc; 
+            return -1;
         }
-    }   
+    }
+    // </vertices>
     rc = xmlTextWriterEndElement(writer); // </vertices>
     if (rc < 0){
-        log_errorF("%s: Error closing vertices\n", fcnm);
-        rc =-1;
+        log_errorF("%s: Error closing vertices %d\n", fcnm, rc);
+        return -1;
     } 
-    return rc; 
+    return 0;
 }
