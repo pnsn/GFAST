@@ -37,7 +37,8 @@ cdef extern from "gfast.h":
                                const double *d,
                                double *b)
  #################################### cmt ######################################
- int GFAST_CMT__decomposeMomentTensor(const double *M, 
+ int GFAST_CMT__decomposeMomentTensor(int nmt,
+                                      const double *M, 
                                       double *DC_pct,
                                       double *Mw,
                                       double *strike1, double *strike2,
@@ -53,6 +54,22 @@ cdef extern from "gfast.h":
                                             const double *y1, 
                                             const double *z1, 
                                             double *G)
+ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
+                                int verbose,
+                                bool deviatoric,
+                                double utmSrcEasting,
+                                double utmSrcNorthing,
+                                const double *srcDepths,
+                                const double *utmRecvEasting,
+                                const double *utmRecvNorthing,
+                                const double *staAlt,
+                                const double *nAvgDisp,
+                                const double *eAvgDisp,
+                                const double *uAvgDisp,
+                                double *nEst,
+                                double *eEst,
+                                double *uEst,
+                                double *mts)
  
 class Scaling:
  def setForwardModel(self,
@@ -164,50 +181,70 @@ class CMT:
     Parameters
     ----------
     M : array_like
-        Moment tensor in NED coordinates packed
+        Moment tensor (Nm) in NED coordinates where each column of M is packed
         {mxx, myy, mzz, mxy, mxz, myz}
 
     Returns
     -------
-    DC_pct : float
+    DC_pct : array_like 
              double couple percentage
-    Mw : float
-         scalar moment 
-    strike1 : float
-              strike angle of first nodal plane (degrees)
-    strike2 : float
-              strike angle of second nodal plane (degrees)
-    dip1 : float
-           dip angle of first nodal plane (degrees)
-    dip2 : float
-           dip angle of second nodal plane (degrees)
-    rake1 : float
-            rake angle of first nodal plane (degrees)
-    rake2 : float
-            rake angle of second nodal plane (degrees)
+    Mw : array_like
+         scalar moment for all moment tensors
+    strike1 : array_like 
+              strike angle of first nodal plane (degrees) for all
+              moment tensors
+    strike2 : array_like 
+              strike angle of second nodal plane (degrees) for all
+              moment tensors
+    dip1 : array_like 
+           dip angle of first nodal plane (degrees) for all moment tensors
+    dip2 : array_lke
+           dip angle of second nodal plane (degrees) for all moment tensors
+    rake1 : array_like
+            rake angle of first nodal plane (degrees) for all moment tensors
+    rake2 : array_like 
+            rake angle of second nodal plane (degrees) for all moment tensors
     ierr : int
            0 indicates success 
     """
     ierr = 0 
-    DC_pct = 0.0 
-    Mw = 0.0 
-    strike1 = 0.0 
-    strike2 = 0.0 
-    dip1 = 0.0 
-    dip2 = 0.0 
-    rake1 = 0.0 
-    rake2 = 0.0 
-    n = M.shape[0]
+    DC_pct = None
+    Mw = None
+    strike1 = None
+    strike2 = None
+    dip1 = None
+    dip2 = None
+    rake1 = None
+    rake2 = None
+    if (M.size() == 6):
+        nmt = 1
+        n = M.shape[0]
+    else:
+        nmt = M.shape[0]
+    M.reshape([nmt*6], format='c') 
     if (n != 6): 
-        print "decompose: Error M must be length 6!"
+        print "decompose: Error MTs must be 6!"
         ierr = 1
     else:
-        ierr = GFAST_CMT__decomposeMomentTensor(<double *> np.PyArray_DATA(M),
-                                                &DC_pct,
-                                                &Mw,
-                                                &strike1, &strike2,
-                                                &dip1, &dip2,
-                                                &rake1, &rake2)
+        DC_pct = np.zeros(nmt, dtype='float64')
+        Mw = np.zeros(nmt, dtype='float64')
+        strike1 = np.zeros(nmt, dtype='float64')
+        strike2 = np.zeros(nmt, dtype='float64')
+        dip1 = np.zeros(nmt, dtype='float64')
+        dip2 = np.zeros(nmt, dtype='float64')
+        rake1 = np.zeros(nmt, dtype='float64')
+        rake2 = np.zeros(nmt, dtype='float64')
+        nmt = n/6
+        ierr = GFAST_CMT__decomposeMomentTensor(nmt,
+                                                <double *> np.PyArray_DATA(M),
+                                                <double *> np.PyArray_DATA(DC_pct),
+                                                <double *> np.PyArray_DATA(Mw),
+                                                <double *> np.PyArray_DATA(strike1),
+                                                <double *> np.PyArray_DATA(strike2),
+                                                <double *> np.PyArray_DATA(dip1),
+                                                <double *> np.PyArray_DATA(dip2),
+                                                <double *> np.PyArray_DATA(rake1),
+                                                <double *> np.PyArray_DATA(rake2))
         if (ierr != 0):
             print "decompose: Error in moment tensor decomposition"
     return DC_pct, Mw, strike1, strike2, dip1, dip2, rake1, rake2, ierr
@@ -310,7 +347,7 @@ class CMT:
         if (ierr != 0):
             print "setForwardModel: Error setting G"
             return None, -1
-        G = G.reshape([l1,5])
+        G = G.reshape([l1, 5])
         return G, ierr
     # Compute general moment tensor
     else:
@@ -318,3 +355,107 @@ class CMT:
         return None, -1
 
     return None, -1 
+
+ def depthGridSearch(self,
+                     utmSrcEasting, utmSrcNorthing,
+                     np.ndarray[double, ndim=1, mode="c"] srcDepths not None,
+                     np.ndarray[double, ndim=1, mode="c"] utmRecvEasting not None,
+                     np.ndarray[double, ndim=1, mode="c"] utmRecvNorthing not None,
+                     np.ndarray[double, ndim=1, mode="c"] staAlt not None,
+                     np.ndarray[double, ndim=1, mode="c"] nAvgDisp not None,
+                     np.ndarray[double, ndim=1, mode="c"] eAvgDisp not None,
+                     np.ndarray[double, ndim=1, mode="c"] uAvgDisp,
+                     deviatoric = True,
+                     verbose = 0):
+    """
+    Performs the CMT depth grid search.
+
+    Parameters
+    ----------
+    utmSrcEasting : array_like
+                    UTM source position in x or east (m)
+    utmSrcNorthing : array_like
+                     UTM source position in y or north (m)
+    utmRecvEasting : array_like
+                     UTM receiver position in x or east (m)
+    utmRecvNorthing : array_like
+                      UTM receiver position in y or north (m)
+    staAlt : array_like
+             station altitude - positive above sea-level (m)
+    nAvgDisp : array_like
+               observed average displacement in the north component
+               (m) at each station
+    eAvgDisp : array_like
+               observed average displacement in the east component
+               (m) at each station
+    uAvgDisp : array_like
+               observed average displacement in the north component
+               (m) at each station
+    deviatoric : bool
+                 if True then the moment tensor inversion constrains
+                 the solution s.t. the result must be purely deviatoric.
+                 At present this is the only option.
+    verbose : int
+              Controls the verbosity - 0 is quiet 
+
+    Returns
+    -------
+    nEst : array_like
+    eEst : array_like
+    nEst : array_like
+
+    mts : array_like
+    """
+    ierr = 0
+    ndeps = srcDepths.shape[0]
+    l1 = utmRecvEasting.shape[0]
+    nEst = None
+    eEst = None
+    uEst = None
+    mts = None
+    if (not deviatoric):
+        ierr = 1
+        print "depthGridSearch: General moment tensor inversion not yet done"
+    if (ndeps < 1):
+        ierr = 1
+        print "depthGridSearch: No depths in grid search"
+    if (l1 != utmRecvNorthing.shape[0] or l1 != staAlt.shape[0] or
+        l1 != nAvgDisp.shape[0] or l1 != eAvgDisp.shape[0] or
+        l1 != uAvgDisp.shape[0]):
+        ierr = 1
+        print "depthGridSearch: Inconsistent size"
+    if (ierr != 0):
+        nEst = np.zeros(l1*ndeps, dtype='float64')
+        eEst = np.zeros(l1*ndeps, dtype='float64')
+        uEst = np.zeros(l1*ndeps, dtype='float64')
+        mts = np.zeros(6*ndeps, dtype='float64')
+        ierr = GFAST_CMT__depthGridSearch(l1, ndeps,
+                                      verbose,
+                                      deviatoric,
+                                      utmSrcEasting,
+                                      utmSrcNorthing,
+                                      <double *> np.PyArray_DATA(srcDepths),
+                                      <double *> np.PyArray_DATA(utmRecvEasting),
+                                      <double *> np.PyArray_DATA(utmRecvNorthing),
+                                      <double *> np.PyArray_DATA(staAlt),
+                                      <double *> np.PyArray_DATA(nAvgDisp),
+                                      <double *> np.PyArray_DATA(eAvgDisp),
+                                      <double *> np.PyArray_DATA(uAvgDisp),
+                                      <double *> np.PyArray_DATA(nEst),
+                                      <double *> np.PyArray_DATA(eEst),
+                                      <double *> np.PyArray_DATA(uEst),
+                                      <double *> np.PyArray_DATA(mts))
+        if (ierr != 0):
+            print "depthGridSearch: Error performing depth grid search"
+            nEst = None
+            eEst = None
+            uEst = None
+            mts = None
+        else:
+            nEst = nEst.reshape([ndeps, l1])
+            eEst = eEst.reshape([ndeps, l1])
+            uEst = uEst.reshape([ndeps, l1])
+            mts = mts.reshape([ndeps, 6])
+        # end check on error
+    # end check on no input error
+    return nEst, eEst, uEst, mts, ierr

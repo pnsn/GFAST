@@ -64,7 +64,13 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o \
 	 $(OBJ_FF_DIR)/xml.o
-OBJ_XML = $(OBJ_XML_DIR)/read__SACoreInfo.o \
+OBJ_XML = $(OBJ_XML_DIR)/coreInfo__read.o \
+	  $(OBJ_XML_DIR)/coreInfo__write.o \
+	  $(OBJ_XML_DIR)/epoch2string.o \
+	  $(OBJ_XML_DIR)/segment__write.o \
+	  $(OBJ_XML_DIR)/slip__write.o \
+	  $(OBJ_XML_DIR)/vertices__write.o \
+	  $(OBJ_XML_DIR)/vertex__write.o \
 	  $(OBJ_XML_DIR)/units.o
 OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
 	         $(OBJ_COORDTOOLS_DIR)/utm2ll.o
@@ -240,8 +246,26 @@ $(OBJ_SCALING_DIR)/pgd_setRHS.o: scaling/pgd_setRHS.c
 
 ######################################### XML #########################################
 
-$(OBJ_XML_DIR)/read__SACoreInfo.o: xml/read__SACoreInfo.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/read__SACoreInfo.c -o $(OBJ_XML_DIR)/read__SACoreInfo.o 
+$(OBJ_XML_DIR)/coreInfo__read.o: xml/coreInfo__read.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/coreInfo__read.c -o $(OBJ_XML_DIR)/coreInfo__read.o
+
+$(OBJ_XML_DIR)/coreInfo__write.o: xml/coreInfo__write.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/coreInfo__write.c -o $(OBJ_XML_DIR)/coreInfo__write.o
+
+$(OBJ_XML_DIR)/epoch2string.o: xml/epoch2string.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/epoch2string.c -o $(OBJ_XML_DIR)/epoch2string.o
+
+$(OBJ_XML_DIR)/segment__write.o: xml/segment__write.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/segment__write.c -o $(OBJ_XML_DIR)/segment__write.o
+
+$(OBJ_XML_DIR)/slip__write.o: xml/slip__write.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/slip__write.c -o $(OBJ_XML_DIR)/slip__write.o
+
+$(OBJ_XML_DIR)/vertices__write.o: xml/vertices__write.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/vertices__write.c -o $(OBJ_XML_DIR)/vertices__write.o
+
+$(OBJ_XML_DIR)/vertex__write.o: xml/vertex__write.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/vertex__write.c -o $(OBJ_XML_DIR)/vertex__write.o
 
 $(OBJ_XML_DIR)/units.o: xml/units.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/units.c -o $(OBJ_XML_DIR)/units.o
