@@ -80,7 +80,7 @@ int GFAST_xml_coreInfo__read(const char *message, double SA_NAN,
     item0 =-1;
     // Find the event_message
     while (event_xml != NULL){
-        if ((xmlStrcmp(event_xml->name, (const xmlChar *) "event_message"))){
+        if ((xmlStrcmp(event_xml->name, (const xmlChar *) "event_message\0"))){
              event_xml = event_xml->next;
              continue;
         }

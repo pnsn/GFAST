@@ -13,7 +13,7 @@ enum alert_units_enum
     UTC = 5,              /*!< Time - UTC */
     MOMENT_MAGNITUDE = 6, /*!< Moment magnitude Mw */
     DYNE_CENTIMETERS = 7, /*!< Torque - dyne centimeters */
-    NEWTON_METERS= 8,     /*!< Toqrue - Newton meters */
+    NEWTON_METERS= 8,     /*!< Torque - Newton meters */
 };
 
 enum xml_segmentShape_enum
@@ -85,12 +85,22 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
 /* Write core info to shake Alert XML message */
 int GFAST_xml_coreInfo__write(struct coreInfo_struct core,
                               void *xml_writer);
+/* Read vertices */
+int GFAST_xml_vertices__read(void *xml_reader,
+                             enum xml_segmentShape_enum shape,
+                             double VTX_NAN,
+                             double *__restrict__ lat,
+                             double *__restrict__ lon,
+                             double *__restrict__ depth);
 /* Write vertices */
 int GFAST_xml_vertices__write(enum xml_segmentShape_enum shape,
                               double *lats, enum alert_units_enum lat_units,
                               double *lons, enum alert_units_enum lon_units,
                               double *depths, enum alert_units_enum depth_units,
                               void *xml_writer);
+/* Read vertex */
+int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
+                           double *lat, double *lon, double *depth);
 /* Write a vertex */
 int GFAST_xml_vertex__write(double lat, enum alert_units_enum lat_units,
                             double lon, enum alert_units_enum lon_units,
