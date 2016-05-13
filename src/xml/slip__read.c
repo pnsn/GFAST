@@ -10,12 +10,13 @@
  * @brief Unpacks the vertex's latitude, longitude, and depth 
  *
  * @param[in] xml_reader  corresponds to the children of the xmlNodePtr
- *                        vertex node pointer
- * @param[in] VTX_NAN     default value for node
+ *                        segment node pointer
+ * @param[in] VTX_NAN     default value for element 
  *
- * @param[out] lat        latitude of vertex (degrees)
- * @param[out] lon        longitude of vertex (degrees)
- * @param[out] depth      depth of vertex (km) 
+ * @param[out] ss         slip along strike (m)
+ * @param[out] ss_uncer   uncertainty in the slip along strike (m)
+ * @param[out] ds         slip down dip (m)
+ * @param[out] ds_uncer   uncertainty in slip down dip (m)
  *
  * @result 0 indicates success
  *
@@ -24,25 +25,28 @@
  * @date May 2016
  *
  * @bug There are no unit conversions thus the shakeAlert XML is expected to
- *      have units degrees for lat and lon, and km for depth
+ *      have units meters for all variables 
  *
  */
-int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
-                           double *lat, double *lon, double *depth)
+int GFAST_xml_slip__read(void *xml_reader, double VTX_NAN,
+                         double *ss, double *ss_uncer,
+                         double *ds, double *ds_uncer)
 {
-    const char *fcnm = "GFAST_xml_vertex__read\0";
-    xmlNodePtr vertex_xml;
+    const char *fcnm = "GFAST_xml_slip__read\0";
+    xmlNodePtr slip_xml;
     xmlChar *value;
     enum unpack_types_enum
     {
         UNPACK_DOUBLE = 1
     };
-    const int nitems = 3;
-    const xmlChar *citems[3] = { BAD_CAST "lat\0",
-                                 BAD_CAST "lon\0",
-                                 BAD_CAST "depth\0" };
-    double values[3];
-    const int types[3] = {UNPACK_DOUBLE,
+    const int nitems = 4;
+    const xmlChar *citems[4] = { BAD_CAST "ss\0",
+                                 BAD_CAST "ss_uncer\0",
+                                 BAD_CAST "ds\0",
+                                 BAD_CAST "ds_uncer\0" };
+    double values[4];
+    const int types[4] = {UNPACK_DOUBLE,
+                          UNPACK_DOUBLE,
                           UNPACK_DOUBLE,
                           UNPACK_DOUBLE};
     int ierr, item, item0, nfound;
@@ -53,30 +57,30 @@ int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
     ierr = 0;
     nfound = 0;
     for (item=0; item<nitems; item++)
-    {
+    {   
         values[item] = VTX_NAN;
-    }
+    }   
     if (xml_reader == NULL)
     {
         log_errorF("%s: Error NULL poitner\n", fcnm);
-        goto ERROR; 
+        goto ERROR;
     }
-    vertex_xml = (xmlNodePtr )xml_reader;
-    if (xmlStrcmp(vertex_xml->parent->name, BAD_CAST "vertex\0") != 0)
+    slip_xml = (xmlNodePtr )xml_reader;
+    if ((xmlStrcmp(slip_xml->name, (const xmlChar *) "slip\0")))
     {
-        log_errorF("%s: Error reader must start at <vertex>\n", fcnm);
+        log_errorF("%s: Error reader must start at <slip>\n", fcnm);
         ierr = 1;
         goto ERROR;
-    }   
-    // Try to get the lat, lon, depth
+    }
+    // Try to get the ss, ss_uncer, ds, ds_uncer 
     item0 =-1;
-    while (vertex_xml != NULL){
+    while (slip_xml != NULL){
         // Require we are working on an element node
-        if (vertex_xml->type != XML_ELEMENT_NODE){goto NEXT_VERTEX_XML;}
+        if (slip_xml->type != XML_ELEMENT_NODE){goto NEXT_SLIP_XML;}
         lunpack = false;
         // Try taking the next item in the citems
         if (item0 < nitems){
-            if (!xmlStrcmp(vertex_xml->name, citems[item0+1]))
+            if (!xmlStrcmp(slip_xml->name, citems[item0+1]))
             {
                 lunpack = true;
                 item0 = item0 + 1;
@@ -87,7 +91,7 @@ int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
         {
             for (item=0; item<nitems; item++)
             {
-                if (!xmlStrcmp(vertex_xml->name, citems[item]))
+                if (!xmlStrcmp(slip_xml->name, citems[item]))
                 {
                     lunpack = true;
                     item0 = item + 1;
@@ -99,21 +103,21 @@ int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
         if (!lunpack)
         {
             log_warnF("%s: Warning couldn't find item %s\n", fcnm,
-                      (char *)vertex_xml->name);
-            goto NEXT_VERTEX_XML;
+                      (char *)slip_xml->name);
+            goto NEXT_SLIP_XML;
         }
         // Check on item index to avoid a segfault
         if (item0 < 0 || item0 > nitems - 1)
         {
             log_errorF("%s: Invalid index %s %d\n",
-                        fcnm, (char *)vertex_xml->name, item0);
+                        fcnm, (char *)slip_xml->name, item0);
             ierr = 1;
             goto ERROR;
         }
         // FIXME - unpack units and convert
 
         // Is there a value to unpack
-        value = xmlNodeGetContent(vertex_xml);
+        value = xmlNodeGetContent(slip_xml);
         if (value != NULL)
         {
             if (types[item0] == UNPACK_DOUBLE)
@@ -128,26 +132,24 @@ int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
             nfound = nfound + 1;
             free(value);
         }
-NEXT_VERTEX_XML:;
-        vertex_xml = vertex_xml->next;
-    } // Loop on vertex
+NEXT_SLIP_XML:;
+        slip_xml = slip_xml->next;
+    } // Loop on slip 
 ERROR:;
     // Get what we can
-    if (ierr == 0)
-    {
-        *lat = values[0];
-        *lon = values[1];
-        *depth = values[2];
-        if (nfound < 3)
+    if (ierr == 0){
+        *ss       = values[0];
+        *ss_uncer = values[1];
+        *ds       = values[2];
+        *ds_uncer = values[3];
+        if (nfound < 4)
         {
             for (item=0; item<nitems; item++)
             {
                 log_warnF("%s: Couldn't find: %s\n", fcnm, citems[item]);
             }
         }
-    }
-    else
-    {
+    }else{
         log_errorF("%s: Internal error\n", fcnm);
         ierr = 1;
     }

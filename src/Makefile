@@ -68,8 +68,12 @@ OBJ_XML = $(OBJ_XML_DIR)/coreInfo__read.o \
 	  $(OBJ_XML_DIR)/coreInfo__write.o \
 	  $(OBJ_XML_DIR)/epoch2string.o \
 	  $(OBJ_XML_DIR)/segment__write.o \
+	  $(OBJ_XML_DIR)/slip__read.o \
 	  $(OBJ_XML_DIR)/slip__write.o \
+	  $(OBJ_XML_DIR)/tensor__write.o \
+	  $(OBJ_XML_DIR)/vertices__read.o \
 	  $(OBJ_XML_DIR)/vertices__write.o \
+	  $(OBJ_XML_DIR)/vertex__read.o \
 	  $(OBJ_XML_DIR)/vertex__write.o \
 	  $(OBJ_XML_DIR)/units.o
 OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
@@ -141,7 +145,7 @@ $(OBJ)/properties.o: properties.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_INI) $(CSHARED) -c properties.c -o $(OBJ)/properties.o
 
 $(OBJ)/readElarmS.o: readElarmS.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
 
 ######################################## Alert ########################################
 
@@ -258,11 +262,23 @@ $(OBJ_XML_DIR)/epoch2string.o: xml/epoch2string.c
 $(OBJ_XML_DIR)/segment__write.o: xml/segment__write.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/segment__write.c -o $(OBJ_XML_DIR)/segment__write.o
 
+$(OBJ_XML_DIR)/slip__read.o: xml/slip__read.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/slip__read.c -o $(OBJ_XML_DIR)/slip__read.o
+
 $(OBJ_XML_DIR)/slip__write.o: xml/slip__write.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/slip__write.c -o $(OBJ_XML_DIR)/slip__write.o
 
+$(OBJ_XML_DIR)/tensor__write.o: xml/tensor__write.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/tensor__write.c -o $(OBJ_XML_DIR)/tensor__write.o
+
+$(OBJ_XML_DIR)/vertices__read.o: xml/vertices__read.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/vertices__read.c -o $(OBJ_XML_DIR)/vertices__read.o
+
 $(OBJ_XML_DIR)/vertices__write.o: xml/vertices__write.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/vertices__write.c -o $(OBJ_XML_DIR)/vertices__write.o
+
+$(OBJ_XML_DIR)/vertex__read.o: xml/vertex__read.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/vertex__read.c -o $(OBJ_XML_DIR)/vertex__read.o
 
 $(OBJ_XML_DIR)/vertex__write.o: xml/vertex__write.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/vertex__write.c -o $(OBJ_XML_DIR)/vertex__write.o

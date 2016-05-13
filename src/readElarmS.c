@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
+#include <libxml/tree.h>
 #include "gfast.h"
 
 /*!
@@ -22,18 +25,66 @@ int GFAST_readElarmS__xml(const char *message, double SA_NAN,
                           struct GFAST_shakeAlert_struct *SA)
 {
     const char *fcnm = "GFAST_alert__parse__shakeAlertXML\0";
+    xmlDocPtr doc;
+    xmlNodePtr core_xml, event_xml;
     struct coreInfo_struct core;
     int ierr, length;
+    bool lfound;
     // Initialize
+    ierr = 0;
     memset(SA, 0, sizeof(struct GFAST_shakeAlert_struct));
     memset(&core, 0, sizeof(struct coreInfo_struct));
     length = strlen(message);
-    if (length == 0){ 
-        printf("%s: Error the message is empty\n", fcnm);
-        return -1; 
-    }   
-    // Extract the pertinent shakeAlert information for GFAST
-    ierr = GFAST_xml_coreInfo__read(message, SA_NAN, &core);
+    if (length == 0)
+    {
+        log_errorF("%s: Error the message is empty\n", fcnm);
+        return -1;
+    }
+    doc = xmlReadMemory(message, length, "noname.xml\0", NULL, 0);
+    if (doc == NULL)
+    {
+        log_errorF("%s: Error - failed to parse xml document\n", fcnm);
+        return -1;
+    }
+    // Make sure there's something in the message
+    event_xml = xmlDocGetRootElement(doc);
+    if (event_xml == NULL)
+    {
+        log_errorF("%s: Empty document\n", fcnm);
+        return -1;
+    }
+    lfound = false;
+    // Loop on the event_xml
+    while (event_xml != NULL)
+    {
+        if (xmlStrcmp(event_xml->name, BAD_CAST "event_message\0") != 0)
+        {
+             goto NEXT_EVENT_XML;
+        }
+        // Find the core_info in the event message
+        core_xml = event_xml->xmlChildrenNode;
+        while (core_xml != NULL)
+        {
+            // Require this be core_info
+            if (xmlStrcmp(core_xml->name, BAD_CAST "core_info\0") != 0)
+            {
+                 goto NEXT_CORE_XML;
+            }
+            lfound = true;
+            // Parse it
+            ierr = GFAST_xml_coreInfo__read((void *) core_xml, SA_NAN, &core);
+            if (ierr != 0)
+            {
+                 log_errorF("%s: Error reading core info!\n", fcnm);
+            }
+            break; 
+NEXT_CORE_XML:;
+            core_xml = core_xml->next;
+        } // Loop on search for core_xml
+        if (lfound){break;}
+NEXT_EVENT_XML:;
+        event_xml = event_xml->next;
+    } // Loop on events
     if (ierr != 0){ 
         printf("%s: Error parsing core shakeAlert information\n", fcnm);
     }else{
@@ -43,8 +94,11 @@ int GFAST_readElarmS__xml(const char *message, double SA_NAN,
         SA->lon = core.lon;
         SA->dep = core.depth;
         SA->mag = core.mag;
-    }   
-    return 0;
+    }
+    // Clean up
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+    return ierr;
 }
 /*!
  * @brief Extracts data from an ElarmS message and fills a shake alert struct

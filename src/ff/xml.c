@@ -130,18 +130,19 @@ int GFAST_FF__xml__write(int mode,
         log_errorF("%s: Error writing core info\n", fcnm);
     }
     //-----------------------------<finite_fault>-----------------------------//
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "finite_fault");
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "atten_geom",
-                                     BAD_CAST "false");
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "finite_fault\0");
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "atten_geom\0",
+                                     BAD_CAST "false\0");
     memset(cseg, 0, sizeof(cseg));
     sprintf(cseg, "%d", nseg); 
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "segment_number",
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "segment_number\0",
                                      BAD_CAST cseg);
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "segment_shape",
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "segment_shape\0",
                                      BAD_CAST "rectangle");
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "number_of_segments",
+    rc = xmlTextWriterWriteFormatElement(writer,
+                                         BAD_CAST "number_of_segments\0",
                                          "%d", nseg);
-    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "confidence",
+    rc = xmlTextWriterWriteFormatElement(writer, BAD_CAST "confidence\0",
                                          "%d", 1); 
     for (iseg=0; iseg<nseg; iseg++){
         indx = fault_ptr[iseg];

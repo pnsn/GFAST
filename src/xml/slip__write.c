@@ -55,6 +55,15 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
     sprintf(var, "%f", ss);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
+    // uncertainty in slip along strike <ss_uncer units="m">float</ss_unc>
+    rc += xmlTextWriterStartElement(writer, BAD_CAST "ss_uncer\0");
+    __xml_units__enum2string(ss_uncer_units, units);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                      BAD_CAST units);
+    memset(var, 0, sizeof(var));
+    sprintf(var, "%f", ss_uncer);
+    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+    rc += xmlTextWriterEndElement(writer);
     // slip down dip: <ds units="m">float</ds>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "ds\0");
     __xml_units__enum2string(ds_units, units);
@@ -64,16 +73,7 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
     sprintf(var, "%f", ds);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
-    // uncerrtainty in slip along strike <ss_uncer units="m">float</ss_unc>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "ss_uncer\0");
-    __xml_units__enum2string(ss_uncer_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", ss_uncer);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
-    // uncerrtainty in dip down dip <ds_uncer units="m">float</ds_unc>
+    // uncertainty in dip down dip <ds_uncer units="m">float</ds_unc>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "ds_uncer\0");
     __xml_units__enum2string(ds_uncer_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",

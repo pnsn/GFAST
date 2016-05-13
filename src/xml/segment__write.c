@@ -10,9 +10,9 @@
  *        
  *
  * @param[in] shape           Segment shape.  This can be:
- *                             LINE (1) which has two points.
- *                             TRIANGLE (2) which has three points.
- *                             RECTANGLE (3) which has four points.
+ *                             LINE (2) which has two points.
+ *                             TRIANGLE (3) which has three points.
+ *                             RECTANGLE (4) which has four points.
  * @param[in] lats            the latitudes at each vertex.  the length should
  *                            correspond to the number of points indicated by
  *                            shape.

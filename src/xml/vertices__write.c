@@ -8,9 +8,9 @@
  * @brief Writes the vertices for a segment
  *
  * @param[in] shape         Segment shape.  This can be:
- *                            LINE (1) which has two points.
- *                            TRIANGLE (2) which has three points.
- *                            RECTANGLE (3) which has four points.
+ *                            LINE (2) which has two points.
+ *                            TRIANGLE (3) which has three points.
+ *                            RECTANGLE (4) which has four points.
  * @param[in] lats           the latitudes at each vertex.  the length should
  *                           correspond to the number of points indicated by
  *                           shape.
@@ -50,15 +50,10 @@ int GFAST_xml_vertices__write(enum xml_segmentShape_enum shape,
     // Classify segment shape to get the number of points
     rc = 0;
     writer = (xmlTextWriterPtr )xml_writer;
-    if (shape == LINE){
-        npts = 2;
-    }else if (shape == TRIANGLE){
-        npts = 3;
-    }else if (shape == RECTANGLE){
-        npts = 4;
-    }else{
+    npts = shape;
+    if (shape < 2 || shape > 4){
         log_errorF("%s: Invalid shape %d\n", fcnm, shape);
-        return -1; 
+        return -1;
     }
     // Begin <vertices>
     rc = xmlTextWriterStartElement(writer, BAD_CAST "vertices\0");
