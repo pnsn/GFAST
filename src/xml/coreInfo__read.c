@@ -137,8 +137,8 @@ int GFAST_xml_coreInfo__read(const char *message, double SA_NAN,
                 }
                 // Check on item index to avoid a segfault
                 if (item0 < 0 || item0 > nitems - 1){
-                    log_errorF("%s: Invalid index %s\n",
-                               fcnm, (char *)core_xml_info->name);
+                    log_errorF("%s: Invalid index %s %d\n",
+                               fcnm, (char *)core_xml_info->name, item0);
                     ierr = 1;
                     lfound = false;
                     goto ERROR;

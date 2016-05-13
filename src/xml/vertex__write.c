@@ -37,7 +37,7 @@ int GFAST_xml_vertex__write(double lat, enum alert_units_enum lat_units,
     rc = 0;
     writer = (xmlTextWriterPtr) xml_writer;
     // <vertex>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "vertex");
+    rc += xmlTextWriterStartElement(writer, BAD_CAST "vertex\0");
     // Latitude: <lat units="deg">float</lat> 
     rc += xmlTextWriterStartElement(writer, BAD_CAST "lat\0");
     __xml_units__enum2string(lat_units, units);

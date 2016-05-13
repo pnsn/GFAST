@@ -61,7 +61,7 @@ int GFAST_xml_vertices__write(enum xml_segmentShape_enum shape,
         return -1; 
     }
     // Begin <vertices>
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "vertices");
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "vertices\0");
     // Write each vertex 
     for (i=0; i<npts; i++){
         rc = GFAST_xml_vertex__write(lats[i], lat_units,
