@@ -261,42 +261,66 @@ struct GFAST_pgdResults_struct
     int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
 };
 
-struct GFAST_strongMotion_struct
+struct GFAST_peakDisplacementData_struct
 {
-    double *z;      /*!< Vertical channel [npts] */
-    double *n;      /*!< North (radial, 2) channel [npts] */
-    double *e;      /*!< East (transverse, 3) channel [npts] */
-    int npts;       /*!< Number of points */
-    double dt;      /*!< Sampling period (s) */
+    char **sites;    /*!< Name of i'th site */
+    double *pd;      /*!< Peak displacement (m) observed at the i'th
+                          site [nsites] */
+    double *wt;      /*!< Data weight on the i'th peak displacement observation
+                          [nsites] */
+    bool *lmask;     /*!< If true then mask the i'th site in this inversion
+                          [nsites] */
+    bool *lactive; /*!< If true then the i'th site has data from the waveform
+                          processor and can is an active participant in the
+                          inversion [nsites] */
+    double sta_lat;  /*!< Site latitude [-90,90] (degrees) */
+    double sta_lon;  /*!< Site longitude [0,360] (degrees) */
+    double sta_alt;  /*!< Site altitude (m) */
+    int nsites;      /*!< Number of sites */
 };
 
-struct GFAST_collocatedData_struct
+struct GFAST_offsetData_struct
 {
-    struct GFAST_strongMotion_struct sm;  /*!< Collocated strong motion data
-                                               structure */ 
+    char **sites;     /*!< Name of i'th site */
+    double *ubuff;    /*!< Offset (m) in up component observed at the
+                           i'th site [nsites] */
+    double *nbuff;    /*!< Offset (m) in north component observed at the
+                           i'th site [nsites] */
+    double *ebuff;    /*!< Offset (m) in east component observed at the
+                           i'th site [nsites] */ 
+    double *wtu;      /*!< Data weight on the i'th up offset 
+                           observation [nsites] */
+    double *wtn;      /*!< Data weight on the i'th north offset 
+                           observation [nsites] */
+    double *wte;      /*!< Data weight on the i'th east offset 
+                           observation [nsites] */
+    bool *lskip;      /*!< If true then skip the i'th site in this inversion
+                           [nsites] */
+    int nsites;       /*!< Number of sites */
+};
+
+
+struct GFAST_waveformData_struct
+{
     char site[64];    /*!< Name of site */
-    double *ubuff;    /*!< Up position buffer (m?).  If any sample is 
-                           not known it should be a NAN. [maxpts] */
-    double *nbuff;    /*!< North position buffer (m?) [maxpts].  If any sample
-                           is not known it should be a NAN. */
-    double *ebuff;    /*!< East position buffer (m?) [maxpts].  If any sample
-                           is not known it should be a NAN. */
+    double *ubuff;    /*!< Up precise-point position buffer (m?).  If any
+                           sample is not known it should be a NAN. [maxpts] */
+    double *nbuff;    /*!< North precise-point position buffer (m?).  If any
+                           sample is not known it should be a NAN. [maxpts] */
+    double *ebuff;    /*!< East precise-point position buffer (m?).  If any
+                           sample is not known it should be a NAN. */
     double *tbuff;    /*!< Epochal time buffer (s) [maxpts] */ 
     double epoch;     /*!< Epoch time (seconds) corresponding to first sample 
                            of u, n, and e traces */
     double dt;        /*!< Sampling period (seconds). */
-    double sta_lat;   /*!< Station latitude [-90,90] (degrees) */
-    double sta_lon;   /*!< Station longitude [0,360] (degrees) */
-    double sta_alt;   /*!< Station altitude (m) */
+    double sta_lat;   /*!< Site latitude [-90,90] (degrees) */
+    double sta_lon;   /*!< Site longitude [0,360] (degrees) */
+    double sta_alt;   /*!< Site altitude (m) */
     int maxpts;       /*!< Max number of poitns in buffer.  This is 
                            computed from the site sampling period and
                            the GFAST_parm_struct's bufflen */
     int npts;         /*!< Number of points in time series.  This cannot
                            exceed maxpts */
-    bool lcollocated; /*!< True -> station is collocated with a strong
-                                   motion station.
-                           False -> station is not collocated with a strong
-                                   motion station. */
     bool lskip_pgd;   /*!< True  -> This site is ignored during the PGD
                                     estimation.
                            False -> Will  attempt to use this site during
@@ -313,9 +337,9 @@ struct GFAST_collocatedData_struct
 
 struct GFAST_data_struct
 {
-    struct GFAST_collocatedData_struct *data;  /*!< Collocated data structure
-                                                    [stream_length] */
-    int stream_length;                         /*!< Number of streams */
+    struct GFAST_waveformData_struct *data;  /*!< Collocated data structure
+                                                  [stream_length] */
+    int stream_length;                       /*!< Number of streams */
 };
 
 struct GFAST_shakeAlert_struct

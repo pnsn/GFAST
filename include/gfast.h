@@ -96,8 +96,7 @@ bool GFAST_events__removeEvent(double maxtime, double currentTime,
                                struct GFAST_shakeAlert_struct SA, 
                                struct GFAST_activeEvents_struct *events);
 /* Frees memory on pointers and data structures */
-void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm);
-void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data);
+void GFAST_memory_freeWaveformData(struct GFAST_waveformData_struct *data);
 void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
 void GFAST_memory_freeProps(struct GFAST_props_struct *props);
 void GFAST_memory_freeEvents(struct GFAST_activeEvents_struct *events);
@@ -270,6 +269,18 @@ int GFAST_FF__setRHS(int n, int verbose,
                      const double *__restrict__ eAvg,
                      const double *__restrict__ uAvg,
                      double *__restrict__ U);
+/* Waveform processor */
+int GFAST_waveformProcessor__peakDisplacement(
+    int utm_zone,
+    double svel_window,
+    double SA_lat,
+    double SA_lon,
+    double SA_dep,
+    double SA_time,
+    struct GFAST_data_struct gps_data,
+    struct GFAST_peakDisplacementData_struct *pgd_data,
+    int *ierr);
+
 #ifdef __cplusplus
 }
 #endif

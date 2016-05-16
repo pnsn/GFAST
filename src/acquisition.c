@@ -24,9 +24,9 @@ double GFAST_acquisition__getT0FromSAC(struct GFAST_props_struct props,
         // Initialize this channel 
         memset(&gps_sac_data, 0, sizeof(struct GFAST_data_struct)); 
         gps_sac_data.stream_length = 1;
-        gps_sac_data.data = (struct GFAST_collocatedData_struct *)
+        gps_sac_data.data = (struct GFAST_waveformData_struct *)
                             calloc(1,
-                                   sizeof(struct GFAST_collocatedData_struct));
+                                   sizeof(struct GFAST_waveformData_struct));
         strcpy(gps_sac_data.data->site, gps_acquisition.data[k].site);
         // Get the time and make sure it is in bounds
         ierr1 = GFAST_buffer__readDataFromSAC(4, props, &gps_sac_data);
@@ -85,9 +85,9 @@ int GFAST_acquisition__updateFromSAC(struct GFAST_props_struct props,
         // Initialize this channel 
         memset(&gps_sac_data, 0, sizeof(struct GFAST_data_struct)); 
         gps_sac_data.stream_length = 1;
-        gps_sac_data.data = (struct GFAST_collocatedData_struct *)
+        gps_sac_data.data = (struct GFAST_waveformData_struct *)
                             calloc(1,
-                                   sizeof(struct GFAST_collocatedData_struct));
+                                   sizeof(struct GFAST_waveformData_struct));
         strcpy(gps_sac_data.data->site, gps_acquisition->data[k].site);
         // Get the time and make sure it is in bounds
         ierr1 = GFAST_buffer__readDataFromSAC(4, props, &gps_sac_data);
@@ -232,9 +232,9 @@ int GFAST_acquisition__init(struct GFAST_props_struct props,
         return -1; 
     }
     // Set their names and locations
-    gps_acquisition->data = (struct GFAST_collocatedData_struct *)
+    gps_acquisition->data = (struct GFAST_waveformData_struct *)
                             calloc(gps_acquisition->stream_length,
-                                   sizeof(struct GFAST_collocatedData_struct));
+                                   sizeof(struct GFAST_waveformData_struct));
     ierr = GFAST_buffer__setSitesAndLocations(props, gps_acquisition);
     if (ierr != 0){
         log_errorF("%s: Error getting site locations!\n", fcnm);

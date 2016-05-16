@@ -329,7 +329,7 @@ int GFAST_buffer__setSitesAndLocations(struct GFAST_props_struct props,
     streamfile = fopen(props.streamfile, "r");
     for (k=0; k<gps_data->stream_length; k++){
         memset(&gps_data->data[k], 0,
-               sizeof(struct GFAST_collocatedData_struct));
+               sizeof(struct GFAST_waveformData_struct));
         memset(buf, 0, sizeof(buf));
         if (fgets(buf, 1024, streamfile) == NULL){
             log_errorF("%s: Premature end of stream file!\n", fcnm);
@@ -444,10 +444,6 @@ void GFAST_buffer_print__samplingPeriod(struct GFAST_data_struct gps_data)
     for (k=0; k<gps_data.stream_length; k++){
         log_debugF("%s Site %s sampling period: %f (s)\n", 
                    lspace, gps_data.data[k].site, gps_data.data[k].dt);
-        if (gps_data.data[k].lcollocated){
-            log_debugF("%s Site %s strong motion sampling period %f (s)\n",
-                       lspace, gps_data.data[k].site, gps_data.data[k].sm.dt);
-        }
     }
     log_debugF("\n");
     return;

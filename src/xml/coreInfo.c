@@ -180,7 +180,8 @@ NEXT_CORE_XML_INFO:;
         core_xml_info = core_xml_info->next;
     } // End loop on core_xml_info
     if (!lfound){
-        log_errorF("%s: Error I couldn't find any elements in core_info\n", fcnm);
+        log_errorF("%s: Error I couldn't find any elements in core_info\n",
+                   fcnm);
         ierr = 1;
     }
 ERROR:;

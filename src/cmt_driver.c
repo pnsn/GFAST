@@ -72,14 +72,17 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     eEst = NULL;
     uEst = NULL;
     // Reality check
-    if (gps_data.stream_length < 1){
-        if (props.verbose > 1){
+    if (gps_data.stream_length < 1)
+    {
+        if (props.verbose > 1)
+        {
             ierr = CMT_GPS_DATA_ERROR;
             log_warnF("%s: No GPS streams\n", fcnm);
         }
         goto ERROR;
     }
-    if (cmt->ndeps < 1){ 
+    if (cmt->ndeps < 1){
+     
         log_errorF("%s: No depths in CMT gridsearch!\n", fcnm);
         ierr = CMT_STRUCT_ERROR;
         goto ERROR;
@@ -87,24 +90,32 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     // Count the data and get the workspace 
     l1 = 0;
     nwork = 0;
-    for (k=0; k<gps_data.stream_length; k++){
+    for (k=0; k<gps_data.stream_length; k++)
+    {
         if (gps_data.data[k].lskip_cmt){continue;}
         nwork = fmax(gps_data.data[k].npts, nwork);
         l1 = l1 + 1;
     }
-    if (l1 < props.cmt_min_sites){
-        if (props.verbose > 1){
-            if (l1 < 1){
+    if (l1 < props.cmt_min_sites)
+    {
+        if (props.verbose > 1)
+        {
+            if (l1 < 1)
+            {
                 log_warnF("%s: All sites masked in CMT estimation\n", fcnm);
-            }else{
+            }
+            else
+            {
                 log_warnF("%s: Too many masked sites to compute CMT\n", fcnm);
             }
         }
         ierr = CMT_GPS_DATA_ERROR;
         goto ERROR;
     }
-    if (nwork < 1){
-        if (props.verbose > 1){
+    if (nwork < 1)
+    {
+        if (props.verbose > 1)
+        {
             log_warnF("%s: There is no data\n", fcnm);
         }
         ierr = CMT_GPS_DATA_ERROR;
@@ -121,11 +132,8 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     nAvgDisp = GFAST_memory_calloc__double(gps_data.stream_length);
     eAvgDisp = GFAST_memory_calloc__double(gps_data.stream_length);
     // Get the source location
-    if (props.utm_zone ==-12345){
-        zone_loc =-1;
-    }else{
-        zone_loc = props.utm_zone;
-    }   
+    zone_loc = props.utm_zone; // Use input UTM zone
+    if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
     GFAST_coordtools__ll2utm(SA.lat, SA.lon,
                              &y1, &x1,
                              &lnorthp, &zone_loc);
@@ -204,48 +212,50 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                                       eEst,
                                       uEst,
                                       cmt->mts);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
         goto ERROR;
-    }else{
-        // Compute the derived objective function
-        ierr = 0;
-#ifdef __PARALLEL_CMT
-        #pragma omp parallel for \
-         private(DC_pct, eres, i, idep, ierr1, sum_res2, nres, ures) \
-         shared(cmt, eAvgDisp, eEst, fcnm, l1, nAvgDisp, nEst, uAvgDisp, uEst) \
-         reduction(+:ierr), default(none) 
-#endif
-        for (idep=0; idep<cmt->ndeps; idep++){
-            sum_res2 = 0.0;
-            #pragma omp simd reduction(+:sum_res2)
-            for (i=0; i<l1; i++){
-                nres = nAvgDisp[i] - nEst[idep*l1+i];
-                eres = eAvgDisp[i] - eEst[idep*l1+i];
-                ures = uAvgDisp[i] - uEst[idep*l1+i];
-                sum_res2 = sum_res2 + nres*nres + eres*eres + ures*ures;
-            }
-            sum_res2 = sqrt(sum_res2);
-            // Decompose the moment tensor
-            ierr1 = GFAST_CMT__decomposeMomentTensor(1, &cmt->mts[6*idep],
-                                                     &DC_pct,
-                                                     &cmt->Mw[idep],
-                                                     &cmt->str1[idep],
-                                                     &cmt->str2[idep],
-                                                     &cmt->dip1[idep],
-                                                     &cmt->dip2[idep],
-                                                     &cmt->rak1[idep],
-                                                     &cmt->rak2[idep]);
-            if (ierr1 != 0){
-                log_errorF("%s: Error decomposing mt\n", fcnm);
-                ierr = ierr + 1;
-                continue;
-            }
-            // Prefer results with larger double couple percentages
-            cmt->objfn[idep] = sum_res2/DC_pct;
-        }
-        cmt->opt_indx = numpy_argmin(cmt->ndeps, cmt->objfn);
     }
+    // Compute the derived objective function
+    ierr = 0;
+#ifdef __PARALLEL_CMT
+    #pragma omp parallel for \
+     private(DC_pct, eres, i, idep, ierr1, sum_res2, nres, ures) \
+     shared(cmt, eAvgDisp, eEst, fcnm, l1, nAvgDisp, nEst, uAvgDisp, uEst) \
+     reduction(+:ierr), default(none) 
+#endif
+    for (idep=0; idep<cmt->ndeps; idep++){
+        sum_res2 = 0.0;
+        #pragma omp simd reduction(+:sum_res2)
+        for (i=0; i<l1; i++){
+            nres = nAvgDisp[i] - nEst[idep*l1+i];
+            eres = eAvgDisp[i] - eEst[idep*l1+i];
+            ures = uAvgDisp[i] - uEst[idep*l1+i];
+            sum_res2 = sum_res2 + nres*nres + eres*eres + ures*ures;
+        }
+        sum_res2 = sqrt(sum_res2);
+        // Decompose the moment tensor
+        ierr1 = GFAST_CMT__decomposeMomentTensor(1, &cmt->mts[6*idep],
+                                                 &DC_pct,
+                                                 &cmt->Mw[idep],
+                                                 &cmt->str1[idep],
+                                                 &cmt->str2[idep],
+                                                 &cmt->dip1[idep],
+                                                 &cmt->dip2[idep],
+                                                 &cmt->rak1[idep],
+                                                 &cmt->rak2[idep]);
+        if (ierr1 != 0)
+        {
+            log_errorF("%s: Error decomposing mt\n", fcnm);
+            ierr = ierr + 1;
+            continue;
+        }
+        // Prefer results with larger double couple percentages
+        cmt->objfn[idep] = sum_res2/DC_pct;
+    }
+    // Get the optimimum index
+    cmt->opt_indx = numpy_argmin(cmt->ndeps, cmt->objfn);
 ERROR:;
     GFAST_memory_free__double(&x2);
     GFAST_memory_free__double(&y2);

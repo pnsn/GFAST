@@ -3,41 +3,23 @@
 #include <string.h>
 #include "gfast.h"
 
-/*!
- * @brief Frees memory associated with strong motion data structure
- *
- * @param[inout] sm      strong motion data structure with memory to be freed
- *
- * @author Ben Baker (benbaker@isti.com)
- *
- */
-void GFAST_memory_freeStrongMotionData(struct GFAST_strongMotion_struct *sm)
-{
-    if (sm == NULL){return;}
-    GFAST_memory_free(sm->z);
-    GFAST_memory_free(sm->n);
-    GFAST_memory_free(sm->e);
-    memset(sm, 0, sizeof(struct GFAST_strongMotion_struct));
-    return;
-}
 //============================================================================//
 /*!
- * @brief Frees memory associated with collocated instrument
+ * @brief Frees memory associated with waveform data on a site 
  *
  * @param[inout] data     collocated data structure with memory to be freed 
  *
  * @author Ben Baker (benbaker@isti.com)
  *
  */
-void GFAST_memory_freeCollocatedData(struct GFAST_collocatedData_struct *data)
+void GFAST_memory_freeWaveformData(struct GFAST_waveformData_struct *data)
 {
     if (data == NULL){return;}
     GFAST_memory_free(data->ubuff);
     GFAST_memory_free(data->nbuff);
     GFAST_memory_free(data->ebuff);
     GFAST_memory_free(data->tbuff);
-    GFAST_memory_freeStrongMotionData(&data->sm);
-    memset(data, 0, sizeof(struct GFAST_collocatedData_struct));
+    memset(data, 0, sizeof(struct GFAST_waveformData_struct));
     return;
 }
 //============================================================================//
@@ -55,7 +37,7 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
     if (gps_data == NULL){return;}
     if (gps_data->stream_length > 0 && gps_data->data != NULL){
         for (k=0; k<gps_data->stream_length; k++){
-            GFAST_memory_freeCollocatedData(&gps_data->data[k]);
+            GFAST_memory_freeWaveformData(&gps_data->data[k]);
         }
         GFAST_memory_free(gps_data->data);
     }

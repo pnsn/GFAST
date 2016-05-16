@@ -67,8 +67,10 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     staAlt = NULL;
     repi = NULL;
     // Reality check
-    if (gps_data.stream_length < 1){
-        if (pgd_props.verbose > 1){
+    if (gps_data.stream_length < 1)
+    {
+        if (pgd_props.verbose > 1)
+        {
             ierr = PGD_GPS_DATA_ERROR;
             log_warnF("%s: No GPS streams\n", fcnm);
         }
@@ -82,26 +84,31 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     // Count the data and get the workspace 
     l1 = 0;
     nwork = 0;
-    for (k=0; k<gps_data.stream_length; k++){
+    for (k=0; k<gps_data.stream_length; k++)
+    {
         if (gps_data.data[k].lskip_pgd){continue;}
         nwork = fmax(gps_data.data[k].npts, nwork);
         l1 = l1 + 1;
     }
-    if (l1 < pgd_props.min_sites){
-        if (pgd_props.verbose > 1){
-            if (l1 < 1){
+    if (l1 < pgd_props.min_sites)
+    {
+        if (pgd_props.verbose > 1)
+        {
+            if (l1 < 1)
+            {
                 log_warnF("%s: All sites masked in PGD estimation\n", fcnm);
-            }else{
+            }
+            else
+            {
                 log_warnF("%s: Too many masked sites to compute PGD\n", fcnm);
             }
         }
         ierr = PGD_GPS_DATA_ERROR;
         goto ERROR;
     }
-    if (nwork < 1){
-        if (pgd_props.verbose > 1){
-            log_warnF("%s: There is no data\n", fcnm);
-        }
+    if (nwork < 1)
+    {
+        if (pgd_props.verbose > 1){log_warnF("%s: There is no data\n", fcnm);}
         ierr = PGD_GPS_DATA_ERROR;
         goto ERROR;
     }
@@ -115,18 +122,16 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     staAlt          = GFAST_memory_calloc__double(gps_data.stream_length);
     repi            = GFAST_memory_calloc__double(gps_data.stream_length);
     // Get the source location
-    if (pgd_props.utm_zone ==-12345){
-        zone_loc =-1;
-    }else{
-        zone_loc = pgd_props.utm_zone;
-    }   
+    zone_loc = pgd_props.utm_zone;
+    if (zone_loc ==-12345){zone_loc =-1;}
     GFAST_coordtools__ll2utm(SA.lat, SA.lon,
                              &y1, &x1,
                              &lnorthp, &zone_loc);
     utmSrcNorthing = y1; 
     utmSrcEasting = x1;
     // Loop on the receivers, get distances, and data
-    for (k=0; k<gps_data.stream_length; k++){
+    for (k=0; k<gps_data.stream_length; k++)
+    {
         if (gps_data.data[k].lskip_pgd){continue;} // Not in inversion
         // Get the recevier UTM
         GFAST_coordtools__ll2utm(gps_data.data[k].sta_lat,
@@ -142,7 +147,8 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - SA.time)*pgd_props.window_vel;
-        if (distance < effectiveHypoDist){
+        if (distance < effectiveHypoDist)
+        {
             // Get the maximum offset
             distMax = __GFAST_getMaxDistance(gps_data.data[k].npts,
                                              pgd_props.lremove_disp0,
@@ -153,8 +159,9 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff);
             // If it isn't a NaN then retain it for processing
-            if (distMax != NAN){
-                d[l1] = distMax*100.0; // convert to meters 
+            if (distMax != NAN)
+            {
+                d[l1] = distMax*100.0; // convert to centimeters
                 utmRecvNorthing[l1] = y2[k];
                 utmRecvEasting[l1] = x2[k];
                 epiDist = sqrt(pow(x1 - x2[k], 2) + pow(y1 - y2[k], 2));
@@ -162,12 +169,13 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                 repi[l1] = epiDist*1.e-3; // convert to kilometers 
                 l1 = l1 + 1;
             }
-            //printf("%f\n", distMax);
         }
     }
     // Is there enough data to invert?
-    if (l1 < pgd_props.min_sites){
-        if (pgd_props.verbose > 1){
+    if (l1 < pgd_props.min_sites)
+    {
+        if (pgd_props.verbose > 1)
+        {
             log_warnF("%s: Insufficient data to invert %d < %d\n",
                       fcnm, l1, pgd_props.min_sites);  
         }
@@ -175,11 +183,13 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         goto ERROR;
     }
     // Warn in case hypocenter is outside of grid-search
-    if (SA.dep < pgd->srcDepths[0] || SA.dep > pgd->srcDepths[pgd->ndeps-1]){
+    if (SA.dep < pgd->srcDepths[0] || SA.dep > pgd->srcDepths[pgd->ndeps-1])
+    {
         log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
     }
     // Invert!
-    if (pgd_props.verbose > 2){
+    if (pgd_props.verbose > 2)
+    {
         log_debugF("%s: Inverting for PGD with %d sites\n", fcnm, l1);
     }
     ierr = GFAST_scaling_PGD__depthGridSearch(l1, pgd->ndeps,
@@ -196,8 +206,10 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                                               repi,
                                               pgd->mpgd,
                                               pgd->mpgd_vr);
-    if (ierr != 0){
-        if (pgd_props.verbose > 0){
+    if (ierr != 0)
+    {
+        if (pgd_props.verbose > 0)
+        {
             log_errorF("%s: Error in PGD grid search!\n", fcnm);
         }
         ierr = PGD_COMPUTE_ERROR;

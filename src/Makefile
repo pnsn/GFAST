@@ -7,6 +7,7 @@ OBJ_EVENTS_DIR = events/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
+OBJ_WP_DIR = waveformProcessor/$(OBJ)
 OBJ_XML_DIR = xml/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
@@ -31,6 +32,9 @@ ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
 endif
 ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 -include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_WP_DIR) )" ""
+-include $(shell mkdir $(OBJ_WP_DIR)) $(wildcard $(OBJ_WP_DIR)/*)
 endif
 ifeq "$(wildcard $(OBJ_XML_DIR) )" ""
 -include $(shell mkdir $(OBJ_XML_DIR)) $(wildcard $(OBJ_XML_DIR)/*)
@@ -64,9 +68,13 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o \
 	 $(OBJ_FF_DIR)/xml.o
+OBJ_WP = $(OBJ_WP_DIR)/peakDisplacement.o
 OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
 	  $(OBJ_XML_DIR)/epoch2string.o \
+	  $(OBJ_XML_DIR)/focalMechanism.o \
+	  $(OBJ_XML_DIR)/momentTensor.o \
 	  $(OBJ_XML_DIR)/nodalPlanes.o \
+	  $(OBJ_XML_DIR)/principalAxes.o \
 	  $(OBJ_XML_DIR)/segment.o \
 	  $(OBJ_XML_DIR)/slip.o \
 	  $(OBJ_XML_DIR)/tensor.o \
@@ -76,7 +84,9 @@ OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
 OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
 	         $(OBJ_COORDTOOLS_DIR)/utm2ll.o
 OBJ_ISCL = $(OBJ)/log.o \
-	   $(OBJ)/os.o
+	   $(OBJ)/os.o \
+	   $(OBJ)/time.o \
+	   $(OBJ)/utils.o
 OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/cmt_driver.o \
 	  $(OBJ)/cmopad.o \
@@ -93,8 +103,8 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_EVENTS) \
 	  $(OBJ_FF) \
 	  $(OBJ_SCALING_PGD) \
-	  $(OBJ_XML) \
-	  $(OBJ)/time.o $(OBJ)/utils.o
+	  $(OBJ_WP) \
+	  $(OBJ_XML)
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o $(OBJ_LIB)
 
 all: $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
@@ -245,6 +255,14 @@ $(OBJ_SCALING_DIR)/pgd_setForwardModel.o: scaling/pgd_setForwardModel.c
 $(OBJ_SCALING_DIR)/pgd_setRHS.o: scaling/pgd_setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setRHS.c -o $(OBJ_SCALING_DIR)/pgd_setRHS.o
 
+################################## Waveform processor #################################
+
+$(OBJ_WP_DIR)/peakDisplacement.o: waveformProcessor/peakDisplacement.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c waveformProcessor/peakDisplacement.c -o $(OBJ_WP_DIR)/peakDisplacement.o
+
+$(OBJ_WP_DIR)/offset.o: waveformProcessor/offset.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c offset/offset.c -o $(OBJ_WP_DIR)/offset.o
+
 ######################################### XML #########################################
 
 $(OBJ_XML_DIR)/coreInfo.o: xml/coreInfo.c
@@ -256,8 +274,14 @@ $(OBJ_XML_DIR)/epoch2string.o: xml/epoch2string.c
 $(OBJ_XML_DIR)/focalMechanism.o: xml/focalMechanism.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/focalMechanism.c -o $(OBJ_XML_DIR)/focalMechanism.o
 
+$(OBJ_XML_DIR)/momentTensor.o: xml/momentTensor.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/momentTensor.c -o $(OBJ_XML_DIR)/momentTensor.o
+
 $(OBJ_XML_DIR)/nodalPlanes.o: xml/nodalPlanes.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/nodalPlanes.c -o $(OBJ_XML_DIR)/nodalPlanes.o
+
+$(OBJ_XML_DIR)/principalAxes.o: xml/principalAxes.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/principalAxes.c -o $(OBJ_XML_DIR)/principalAxes.o
 
 $(OBJ_XML_DIR)/segment.o: xml/segment.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/segment.c -o $(OBJ_XML_DIR)/segment.o

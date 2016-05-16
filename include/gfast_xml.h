@@ -96,6 +96,30 @@ int GFAST_xml_coreInfo__read(void *xml_reader, double SA_NAN,
 /* Write core info to shake Alert XML message */
 int GFAST_xml_coreInfo__write(struct coreInfo_struct core,
                               void *xml_writer);
+/* Write the focal mechanism */
+int GFAST_xml_focalMechanism__write(char *publicIDroot,
+                                    char *evid,
+                                    char *method,
+                                    const double mt[6],
+                                    void *xml_writer);
+/* Write the moment tensor to XML message */
+int GFAST_xml_momentTensor__write(char *publicIDroot,
+                                  char *evid,
+                                  char *method,
+                                  double M_use[6],
+                                  double M0, 
+                                  double dc_pct,
+                                  double clvd_pct,
+                                  void *xml_writer);
+/* Write the nodal planes */
+int GFAST_xml_nodalPlanes__write(const double np1[3],
+                                 const double np2[3],
+                                 void *xml_writer);
+/* Write the principal axes */
+int GFAST_xml_principalAxes__write(const double taxis[3],
+                                   const double paxis[3],
+                                   const double naxis[3],
+                                   void *xml_writer);
 /* Write a segment */
 int GFAST_xml_segment__write(enum xml_segmentShape_enum shape,
                              double *lats, enum alert_units_enum lat_units,
@@ -117,12 +141,8 @@ int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
                           double ds_uncer, enum alert_units_enum ds_uncer_units,
                           void *xml_writer);
 /* Write a (moment) tensor */
-int GFAST_xml_tensor__write(double Mrr, enum alert_units_enum Mrr_units,
-                            double Mtt, enum alert_units_enum Mtt_units,
-                            double Mpp, enum alert_units_enum Mpp_units,
-                            double Mrt, enum alert_units_enum Mrt_units,
-                            double Mrp, enum alert_units_enum Mrp_units,
-                            double Mtp, enum alert_units_enum Mtp_units,
+int GFAST_xml_tensor__write(double Mrr, double Mtt, double Mpp,
+                            double Mrt, double Mrp, double Mtp,
                             void *xml_writer);
 /* Read vertices */
 int GFAST_xml_vertices__read(void *xml_reader,
