@@ -309,16 +309,15 @@ int cmopad_Eigenvector2PrincipalAxis(enum cmopad_basis_enum coord, double eig,
                                      double ev[3], double paxis[3])
 {  
     const char *fcnm = "cmopad_Eigenvector2PrincipalAxis\0";
-    enum cmopad_basis_enum cuse = USE;
     double v[3], az, plunge;
     double twopi = 2.0*M_PI;
     double pi180i = 180.0/M_PI;
-    int n3 = 3, incx = 1, incy = 1, ierr;
+    int ierr;
     //------------------------------------------------------------------------//
     //
     // Convert eigenvector ev to USE convention 
-    cblas_dcopy(n3, ev, incx, v, incy);
-    ierr = cmopad_basis__transformVector(v, coord, cuse);
+    cblas_dcopy(3, ev, 1, v, 1);
+    ierr = cmopad_basis__transformVector(v, coord, USE);
     if (ierr != 0){ 
         log_errorF("%s: Error switching basis\n", fcnm);
         return -1; 
