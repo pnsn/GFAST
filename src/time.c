@@ -110,6 +110,10 @@ double time_calendar2epoch2(int nzyear, int month, int dom, int nzhour,
 }
 //============================================================================//
 /*!
+ * @brief Converts second to epoch to year, julian day, month, day of
+ *        month, hour, minute, second, microsecond.  All dates and
+ *        times are in UTC.
+ *
  * @param[in] epoch      epoch time (seconds since 1970)
  *
  * @param[out] nzyear    year corresponding to epoch
@@ -117,6 +121,7 @@ double time_calendar2epoch2(int nzyear, int month, int dom, int nzhour,
  * @param[out] month     calendar month [1,12] corresponding to epoch time
  * @param[out] mday      day of month [1,31] corresponding to epoch time
  * @param[out] nzhour    hour [0,23] corresponding to epoch time
+ * @param[out] nzmin     minute [0,59] corresponding to epoch time
  * @param[out] nzsec     second [0,59] corresponding to epoch time
  * @param[out] nzmusec   micro-second corresponding to epoch time
  *

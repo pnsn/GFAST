@@ -50,7 +50,8 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
         CMT_COMPUTE_ERROR = 4
     };
     double *utmRecvEasting, *utmRecvNorthing, *staAlt, *x2, *y2,
-           *eAvgDisp, *eEst, *nAvgDisp, *nEst, *uAvgDisp, *uEst,
+           *eAvgDisp, *eEst, *eWts, *nAvgDisp, *nEst, *nWts,
+           *uAvgDisp, *uEst, *uWts,
            currentTime, DC_pct, distance, eAvg, effectiveHypoDist,
            eres, nAvg, nres, sum_res2, uAvg, ures, utmSrcEasting,
            utmSrcNorthing, x1, y1;
@@ -68,6 +69,9 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     uAvgDisp = NULL;
     nAvgDisp = NULL;
     eAvgDisp = NULL;
+    uWts = NULL;
+    nWts = NULL;
+    eWts = NULL;
     nEst = NULL;
     eEst = NULL;
     uEst = NULL;
@@ -131,6 +135,9 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
     uAvgDisp = GFAST_memory_calloc__double(gps_data.stream_length);
     nAvgDisp = GFAST_memory_calloc__double(gps_data.stream_length);
     eAvgDisp = GFAST_memory_calloc__double(gps_data.stream_length);
+    uWts     = GFAST_memory_calloc__double(gps_data.stream_length);
+    nWts     = GFAST_memory_calloc__double(gps_data.stream_length);
+    eWts     = GFAST_memory_calloc__double(gps_data.stream_length);
     // Get the source location
     zone_loc = props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
@@ -171,6 +178,9 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                 uAvgDisp[l1] = uAvg;
                 nAvgDisp[l1] = nAvg;
                 eAvgDisp[l1] = eAvg;
+                uWts[l1] = 1.0;
+                nWts[l1] = 1.0;
+                eWts[l1] = 1.0;
                 utmRecvNorthing[l1] = y2[k]; 
                 utmRecvEasting[l1] = x2[k]; 
                 staAlt[l1] = gps_data.data[k].sta_alt;
@@ -208,6 +218,9 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                                       nAvgDisp,
                                       eAvgDisp,
                                       uAvgDisp,
+                                      nWts,
+                                      eWts,
+                                      uWts,
                                       nEst,
                                       eEst,
                                       uEst,
@@ -268,6 +281,9 @@ ERROR:;
     GFAST_memory_free__double(&nEst);
     GFAST_memory_free__double(&eEst);
     GFAST_memory_free__double(&uEst);
+    GFAST_memory_free__double(&nWts);
+    GFAST_memory_free__double(&eWts);
+    GFAST_memory_free__double(&uWts);
     return ierr;
 }
 //============================================================================//

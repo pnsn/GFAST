@@ -18,15 +18,22 @@
  *                             terms.
  * @param[in] utmSrcEasting    source easting UTM position (m)
  * @param[in] utmSrcNorthing   source northing UTM position (m)
+ * @param[in] srcDepths        source depths (km) in grid-search [ndeps]
  * @param[in] utmRecvEasting   receiver easting UTM positions (m) [l1]
  * @param[in] utmRecvNorthing  receiver northing UMT positions (m) [l1]
  * @param[in] staAlt           station elevations above sea level (m) [l1]
- * @param[in] nAvgDisp         average observed offset in north component (m)
+ * @param[in] nObsOffset       observed offset in north component (m)
  *                             for i'th site [l1]
- * @param[in] eAvgDisp         average observed offset in east component (m)
+ * @param[in] eObsOffset       observed offset in east component (m)
  *                             for i'th site [l1]
- * @param[in] uAvgDisp         averaged observed offset in vertical comonent (m)
+ * @param[in] uObsOffset       observed offset in vertical comonent (m)
  *                             for i'th site [l1]
+ * @param[in] nWts             weight corresponding to i'th north offset
+ *                             observation [l1]
+ * @param[in] eWts             weight corresponding to i'th east offset
+ *                             observation [l1]
+ * @param[in] uWts             weight corresponding to i'th vertical offset
+ *                             observation [l1]
  *
  * @param[out] nEst            estimate offset in the north component (m)
  *                             for the i'th site at all depths [l1*ndeps]
@@ -63,9 +70,12 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                const double *__restrict__ utmRecvEasting,
                                const double *__restrict__ utmRecvNorthing,
                                const double *__restrict__ staAlt,
-                               const double *__restrict__ nAvgDisp,
-                               const double *__restrict__ eAvgDisp,
-                               const double *__restrict__ uAvgDisp,
+                               const double *__restrict__ nObsOffset,
+                               const double *__restrict__ eObsOffset,
+                               const double *__restrict__ uObsOffset,
+                               const double *__restrict__ nWts,
+                               const double *__restrict__ eWts,
+                               const double *__restrict__ uWts,
                                double *__restrict__ nEst,
                                double *__restrict__ eEst,
                                double *__restrict__ uEst,
@@ -84,7 +94,8 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     yrs = NULL;
     zrs_negative = NULL;
     // Error check
-    if (l1 < 1){ 
+    if (l1 < 1)
+    {
         log_errorF("%s: Error invalid number of input stations: %d\n",
                    fcnm, l1);
         ierr = 1;
@@ -92,7 +103,7 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     }   
     if (srcDepths == NULL || utmRecvEasting == NULL ||
         utmRecvNorthing == NULL || staAlt == NULL ||
-        nAvgDisp == NULL || eAvgDisp == NULL || uAvgDisp == NULL ||
+        nObsOffset == NULL || eObsOffset == NULL || uObsOffset == NULL ||
         nEst == NULL || eEst == NULL || uEst == NULL || 
         mts == NULL)
     {
@@ -104,9 +115,9 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
             log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
         }
         if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
-        if (nAvgDisp == NULL){log_errorF("%s: nAvgDisp is NULL\n", fcnm);}
-        if (eAvgDisp == NULL){log_errorF("%s: eAvgDisp is NULL\n", fcnm);}
-        if (uAvgDisp == NULL){log_errorF("%s: uAvgDisp is NULL\n", fcnm);}
+        if (nObsOffset == NULL){log_errorF("%s: nObsOffset is NULL\n", fcnm);}
+        if (eObsOffset == NULL){log_errorF("%s: eObsOffset is NULL\n", fcnm);}
+        if (uObsOffset == NULL){log_errorF("%s: uObsOffset is NULL\n", fcnm);}
         if (nEst == NULL){log_errorF("%s: nEst is NULL\n", fcnm);}
         if (eEst == NULL){log_errorF("%s: eEst is NULL\n", fcnm);}
         if (uEst == NULL){log_errorF("%s: uEst is NULL\n", fcnm);}
@@ -114,20 +125,23 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         ierr = 1;
         goto ERROR;
     }
-    if (ndeps < 1){ 
+    if (ndeps < 1)
+    {
         log_errorF("%s: Error invalid number of source depths: %d\n",
                    fcnm, ndeps);
         ierr = 1;
         goto ERROR;
     }
-    if (!deviatoric){
+    if (!deviatoric)
+    {
         log_errorF("%s: Cannot perform general MT gridsearch!\n", fcnm);
         ierr = 1;
         goto ERROR;
     }
     // Initialize results to nothing
     #pragma omp simd
-    for (idep=0; idep<ndeps; idep++){
+    for (idep=0; idep<ndeps; idep++)
+    {
         mts[6*idep+0] = 0.0;
         mts[6*idep+1] = 0.0;
         mts[6*idep+2] = 0.0;
@@ -136,17 +150,15 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         mts[6*idep+5] = 0.0;
     }
     #pragma omp simd
-    for (i=0; i<ndeps*l1; i++){
+    for (i=0; i<ndeps*l1; i++)
+    {
         uEst[i] = 0.0;
         nEst[i] = 0.0;
         eEst[i] = 0.0;
     }
     // Set space
-    if (deviatoric){
-        ncols = 5;
-    }else{
-        ncols = 6;
-    }
+    ncols = 6;
+    if (deviatoric){ncols = 5;}
     mrows = 3*l1;
     ldg = ncols;  // In row major format
     G = GFAST_memory_calloc__double(mrows*ncols);
@@ -157,20 +169,22 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     zrs_negative = GFAST_memory_calloc__double(l1);
     // Compute the source-receiver offsets in (x, y) cartesian
     #pragma omp simd
-    for (i=0; i<l1; i++){
+    for (i=0; i<l1; i++)
+    {
         xrs[i] = utmRecvEasting[i] - utmSrcEasting;
         yrs[i] = utmRecvNorthing[i] - utmSrcNorthing;
     }
     // Set the RHS
     ierr = GFAST_CMT__setRHS(l1, verbose,
-                             nAvgDisp, eAvgDisp, uAvgDisp, U);
+                             nObsOffset, eObsOffset, uObsOffset, U);
     if (ierr != 0){
         log_errorF("%s: error setting RHS!\n", fcnm);
         goto ERROR;
     }
     // Grid search on source depths
     time_tic();
-    if (verbose > 2){
+    if (verbose > 2)
+    {
         log_debugF("%s: Beginning search on depths...\n", fcnm);
     }
 #ifdef __PARALLEL_CMT
@@ -182,10 +196,13 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
              uEst, U, xrs, yrs) \
      reduction(+:ierr) default(none)
 #endif
-    for (idep=0; idep<ndeps; idep++){
+    for (idep=0; idep<ndeps; idep++)
+    {
+        // Get the z source receiver offset
         eq_alt = srcDepths[idep]*1.e3;
         #pragma omp simd
-        for (i=0; i<l1; i++){
+        for (i=0; i<l1; i++)
+        {
             zrs_negative[i] =-(staAlt[i] + eq_alt);
         }
         // Set the forward modeling matrix - note convention of xrs and yrs 
@@ -194,7 +211,8 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                                        xrs,
                                                        zrs_negative,
                                                        G);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error constructing Green's function matrix\n",
                        fcnm);
             ierr = ierr + 1;
@@ -204,7 +222,8 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrows, ncols, 1, G, U,
                                 S, NULL);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error solving least squares problem\n", fcnm);
             ierr = ierr + 1;
             continue;
@@ -227,16 +246,21 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                     mrows, ncols, 1.0, G, ldg, S, 1, 0.0, UP, 1);
         // Copy estimates back
         #pragma omp simd
-        for (i=0; i<l1; i++){
+        for (i=0; i<l1; i++)
+        {
             nEst[idep*l1+i] = UP[3*i+0];
             eEst[idep*l1+i] = UP[3*i+1];
             uEst[idep*l1+i] =-UP[3*i+2];
         }
     } // Loop on source depths
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Errors were detect during the grid search\n", fcnm);
-    }else{
-        if (verbose > 2){
+    }
+    else
+    {
+        if (verbose > 2)
+        {
             log_debugF("%s: Grid-search time: %f (s)\n", fcnm, time_toc());
         }
     }

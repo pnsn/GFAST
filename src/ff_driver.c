@@ -48,11 +48,11 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         FF_COMPUTE_ERROR = 4,
         FF_MEMORY_ERROR = 5
     };
-    double *dip, *dslip, *dslip_unc, *eAvgDisp, *EN,
+    double *dip, *dslip, *dslip_unc, *eAvgDisp, *EN, *eWts,
            *fault_xutm, *fault_yutm, *fault_alt, *length,
-           *Mw, *nAvgDisp, *NN, *sslip, *sslip_unc, *staAlt,
+           *Mw, *nAvgDisp, *NN, *nWts, *sslip, *sslip_unc, *staAlt,
            *strike, *uAvgDisp, *utmRecvEasting, *utmRecvNorthing,
-           *UN, *vr, *width, currentTime, distance, eAvg,
+           *UN, *uWts, *vr, *width, currentTime, distance, eAvg,
            effectiveHypoDist, nAvg, uAvg, x1, x2, y1, y2;
     int i, ierr, ierr1, if_off, ifp, io_off, k, l1, l2,
         ndip, nfp, nstr, nwork, zone_loc;
@@ -64,6 +64,9 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     staAlt = NULL;
     utmRecvEasting = NULL;
     utmRecvNorthing = NULL;
+    uWts = NULL;
+    nWts = NULL;
+    eWts = NULL;
     eAvgDisp = NULL;
     nAvgDisp = NULL;
     uAvgDisp = NULL;
@@ -85,14 +88,17 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     dslip_unc = NULL;
     ff->preferred_fault_plane =-1;
     // Reality checks
-    if (gps_data.stream_length < 1){ 
-        if (props.verbose > 1){ 
+    if (gps_data.stream_length < 1)
+    {
+        if (props.verbose > 1)
+        {
             ierr = FF_GPS_DATA_ERROR;
             log_warnF("%s: No GPS streams\n", fcnm);
         }
         goto ERROR;
     }
-    if (ff->nfp < 1){
+    if (ff->nfp < 1)
+    {
         ierr = FF_STRUCT_ERROR;
         log_errorF("%s: Error no nodal planes\n", fcnm);
         goto ERROR;
@@ -105,19 +111,26 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         nwork = fmax(gps_data.data[k].npts, nwork);
         l1 = l1 + 1;
     }
-    if (l1 < props.ff_min_sites){
-        if (props.verbose > 1){ 
-            if (l1 < 1){ 
+    if (l1 < props.ff_min_sites)
+    {
+        if (props.verbose > 1)
+        {
+            if (l1 < 1)
+            {
                 log_warnF("%s: All sites masked in FF estimation\n", fcnm);
-            }else{
+            }
+            else
+            {
                 log_warnF("%s: Too many masked sites to compute FF\n", fcnm);
             }
         }
         ierr = FF_GPS_DATA_ERROR;
         goto ERROR;
     }   
-    if (nwork < 1){ 
-        if (props.verbose > 1){ 
+    if (nwork < 1)
+    {
+        if (props.verbose > 1)
+        {
             log_warnF("%s: There is no data\n", fcnm);
         }
         ierr = FF_GPS_DATA_ERROR;
@@ -130,18 +143,19 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     utmRecvEasting  = GFAST_memory_calloc__double(gps_data.stream_length);
     utmRecvNorthing = GFAST_memory_calloc__double(gps_data.stream_length);
     staAlt = GFAST_memory_calloc__double(gps_data.stream_length);
+    uWts = GFAST_memory_calloc__double(gps_data.stream_length);
+    nWts = GFAST_memory_calloc__double(gps_data.stream_length);
+    eWts = GFAST_memory_calloc__double(gps_data.stream_length);
     // Get the source location
-    if (props.utm_zone ==-12345){
-        zone_loc =-1;
-    }else{
-        zone_loc = props.utm_zone;
-    }
+    zone_loc = props.utm_zone;
+    if (zone_loc ==-12345){zone_loc =-1;} // Get UTM zone from source lat/lon
     GFAST_coordtools__ll2utm(ff->SA_lat, ff->SA_lon,
                              &y1, &x1,
                              &lnorthp, &zone_loc);
     // Loop on the receivers, get distances, and data
     l1 = 0;
-    for (k=0; k<gps_data.stream_length; k++){
+    for (k=0; k<gps_data.stream_length; k++)
+    {
         if (gps_data.data[k].lskip_ff){continue;} // Not in inversion
         // Get the recevier UTM
         GFAST_coordtools__ll2utm(gps_data.data[k].sta_lat,
@@ -157,7 +171,8 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - SA.time)*props.ff_window_vel;
-        if (distance < effectiveHypoDist){
+        if (distance < effectiveHypoDist)
+        {
             luse = __GFAST_FF__getAvgDisplacement(gps_data.data[k].npts,
                                                   props.lremove_disp0,
                                                   gps_data.data[k].dt,
@@ -168,10 +183,14 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
                                                   gps_data.data[k].nbuff,
                                                   gps_data.data[k].ebuff,
                                                   &uAvg, &nAvg, &eAvg);
-            if (luse){
+            if (luse)
+            {
                 uAvgDisp[l1] = uAvg;
                 nAvgDisp[l1] = nAvg;
                 eAvgDisp[l1] = eAvg;
+                uWts[l1] = 1.0;
+                nWts[l1] = 1.0;
+                eWts[l1] = 1.0;
                 utmRecvNorthing[l1] = y2;
                 utmRecvEasting[l1] = x2;
                 staAlt[l1] = gps_data.data[k].sta_alt;
@@ -187,7 +206,8 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
         goto ERROR;
     }
     // An inversion is going to hapen 
-    if (props.verbose > 2){ 
+    if (props.verbose > 2)
+    {
         log_debugF("%s: Performing finite fault inversion with %d sites\n",
                    fcnm, l1);
     }
@@ -198,7 +218,8 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     // Mesh the fault planes remembering the event hypocenter and strike/dip
     // information were defined in the calling routine
     ierr = 0;
-    if (props.verbose > 2){
+    if (props.verbose > 2)
+    {
         log_debugF("%s: Meshing fault plane...\n", fcnm);
     }
 #ifdef __PARALLEL_FF
@@ -207,7 +228,8 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
      shared(fcnm, ff, props) \
      reduction(+:ierr) default(none)
 #endif
-    for (ifp=0; ifp<ff->nfp; ifp++){
+    for (ifp=0; ifp<ff->nfp; ifp++)
+    {
         ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
                                          props.ff_flen_pct,
                                          props.ff_fwid_pct,
@@ -225,18 +247,21 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
                                          ff->fp[ifp].dip,
                                          ff->fp[ifp].length,
                                          ff->fp[ifp].width);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error meshing fault plane\n", fcnm);
             ierr = ierr + 1;
             continue;
         }
     } // Loop on fault planes
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error meshing fault planes!\n", fcnm);
         goto ERROR;
     }
     // Save the number of sites used in the inversion
-    for (ifp=0; ifp<ff->nfp; ifp++){
+    for (ifp=0; ifp<ff->nfp; ifp++)
+    {
         ff->fp[ifp].nsites_used = l1;
     }
     // Map the fault planes to the meshes
@@ -257,10 +282,12 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
     UN         = GFAST_memory_calloc__double(l1*nfp);
     sslip_unc  = GFAST_memory_calloc__double(l2*nfp);
     dslip_unc  = GFAST_memory_calloc__double(l2*nfp);
-    for (ifp=0; ifp<nfp; ifp++){
+    for (ifp=0; ifp<nfp; ifp++)
+    {
         if_off = ifp*l2;
         #pragma omp simd
-        for (i=0; i<l2; i++){
+        for (i=0; i<l2; i++)
+        {
             fault_xutm[if_off+i] = ff->fp[ifp].fault_xutm[i];
             fault_yutm[if_off+i] = ff->fp[ifp].fault_yutm[i];
             fault_alt[if_off+i]  = ff->fp[ifp].fault_alt[i];
@@ -276,6 +303,7 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
                                           nstr, ndip, nfp,
                                           props.verbose,
                                           nAvgDisp, eAvgDisp, uAvgDisp,
+                                          nWts, eWts, uWts,
                                           utmRecvEasting, utmRecvNorthing,
                                           staAlt,
                                           fault_xutm, fault_yutm, fault_alt,
@@ -285,30 +313,38 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
                                           Mw, vr,
                                           NN, EN, UN,
                                           sslip_unc, dslip_unc);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error performing finite fault grid search\n", fcnm);
-    }else{
+    }
+    else
+    {
         // Unpack results onto struture and choose a preferred plane
         ff->preferred_fault_plane = 0;
-        for (ifp=0; ifp<nfp; ifp++){
+        for (ifp=0; ifp<nfp; ifp++)
+        {
             if_off = ifp*l2;
             io_off = ifp*l1;
             #pragma omp simd
-            for (i=0; i<l2; i++){
+            for (i=0; i<l2; i++)
+            {
                 ff->fp[ifp].sslip[i] = sslip[if_off+i]; 
                 ff->fp[ifp].dslip[i] = dslip[if_off+i];
             }
-            if (ff->fp[ifp].sslip_unc){
+            if (ff->fp[ifp].sslip_unc)
+            {
                 cblas_dcopy(l2, &sslip_unc[if_off], 1,
                                 ff->fp[ifp].sslip_unc, 1);
             } 
-            if (ff->fp[ifp].dslip_unc){
+            if (ff->fp[ifp].dslip_unc)
+            {
                 cblas_dcopy(l2, &dslip_unc[if_off], 1,
                                 ff->fp[ifp].dslip_unc, 1);
             }
             // Observations
             #pragma omp simd
-            for (i=0; i<l1; i++){
+            for (i=0; i<l1; i++)
+            {
                 ff->fp[ifp].EN[i] = EN[io_off+i];
                 ff->fp[ifp].NN[i] = NN[io_off+i];
                 ff->fp[ifp].UN[i] = UN[io_off+i];
@@ -319,7 +355,8 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
             ff->Mw[ifp] = Mw[ifp]; // moment magnitude 
             ff->vr[ifp] = vr[ifp]; // variance reduction
             // Preferred fault plane has greatest variance reduction
-            if (ff->vr[ifp] > ff->vr[ff->preferred_fault_plane]){
+            if (ff->vr[ifp] > ff->vr[ff->preferred_fault_plane])
+            {
                 ff->preferred_fault_plane = ifp;
             }
         }
@@ -332,6 +369,9 @@ ERROR:;
     GFAST_memory_free__double(&utmRecvEasting);
     GFAST_memory_free__double(&utmRecvNorthing);
     GFAST_memory_free__double(&staAlt);
+    GFAST_memory_free__double(&nWts);
+    GFAST_memory_free__double(&eWts);
+    GFAST_memory_free__double(&uWts);
     GFAST_memory_free__double(&fault_xutm);
     GFAST_memory_free__double(&fault_yutm);
     GFAST_memory_free__double(&fault_alt);

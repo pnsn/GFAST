@@ -50,10 +50,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 /*!
  * @brief Generates basis for coordinate transform switch 
  *
- * @param[in] in_sys    input system: NED, USE, XYZ, NWU
- * @param[in] out_sys   output system: NED, USE, XYZ, NWU
+ * @param[in] in_system    input system: NED, USE, XYZ, NWU
+ * @param[in] out_system   output system: NED, USE, XYZ, NWU
  *
- * @param[out] r        rotation matrix [3 x 3] 
+ * @param[out] r           rotation matrix [3 x 3] 
  *
  * @result 0 in indicates success
  *
@@ -1356,7 +1356,7 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
 /*!
  * @brief Ascending argument sort for three numbers
  *
- * @param[in] x3      array to sort into ascending
+ * @param[in] x       array to sort into ascending[3]
  *
  * @param[out] iperm  permutation such that x3[iperm[:]] is in ascending
  *                    order

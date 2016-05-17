@@ -29,16 +29,20 @@
  * @param[in] nfp              number of fault planes in grid-search
  * @param[in] verbose          controls verbosity (0 will only report on 
  *                             errors)
- * @param[in] nAvgDisp         the average displacement in the north component
- *                             for the i'th site (m) [l1]
- * @param[in] eAvgDisp         the average displacement in the east component
- *                             for the i'th site (m) [l1]
- * @param[in] uAvgDisp         the average displacemeint in the vertical
- *                             component for the i'th site (m) [l1]
+ * @param[in] nObsOffset       the observed offset (m) in the north component
+ *                             for the i'th site [l1]
+ * @param[in] eObsOffset       the observed offset (m) in the east component
+ *                             for the i'th site [l1]
+ * @param[in] uObsOffset       the observed offset (m) in the vertical
+ *                             component for the i'th site [l1]
+ * @param[in] nWts             data weight on the i'th north observation [l1]
+ * @param[in] eWts             data weight on the i'th east observation [l1]
+ * @param[in] uWts             data weight on the i'th vertical observation [l1]
  * @param[in] utmRecvEasting   the UTM easting location (m) of the i'th
  *                             site [l1] 
  * @param[in] utmRecvNorthing  the UTM northing location (m) of the i'th
  *                             site [l1]
+ * @param[in] staAlt           altitude (m) of i'th site above sea-level [l1]
  * @param[in] fault_xutm       the UTM x (east) location (m) of the if'th
  *                             fault patch on the ifp'th fault plane [l2*nfp].
  * @param[in] fault_yutm       the UTM y (north) location (m) of the if'th
@@ -93,9 +97,12 @@
 int GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
                                    int nstr, int ndip, int nfp,
                                    int verbose,
-                                   const double *__restrict__ nAvgDisp,
-                                   const double *__restrict__ eAvgDisp,
-                                   const double *__restrict__ uAvgDisp,
+                                   const double *__restrict__ nObsOffset,
+                                   const double *__restrict__ eObsOffset,
+                                   const double *__restrict__ uObsOffset,
+                                   const double *__restrict__ nWts,
+                                   const double *__restrict__ eWts,
+                                   const double *__restrict__ uWts,
                                    const double *__restrict__ utmRecvEasting,
                                    const double *__restrict__ utmRecvNorthing,
                                    const double *__restrict__ staAlt,
@@ -155,16 +162,20 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         length == NULL || width == NULL || strike == NULL || dip == NULL ||
         sslip == NULL || dslip == NULL)
     {
-        if (utmRecvEasting == NULL){
+        if (utmRecvEasting == NULL)
+        {
             log_errorF("%s: Error utmRecvEasting is NULL\n", fcnm);
         }
-        if (utmRecvNorthing == NULL){
+        if (utmRecvNorthing == NULL)
+        {
             log_errorF("%s: Error utmRecvNorthing is NULL\n", fcnm);
         }
-        if (fault_xutm == NULL){
+        if (fault_xutm == NULL)
+        {
             log_errorF("%s: Error fault_xutm is NULL\n", fcnm);
         }
-        if (fault_yutm == NULL){
+        if (fault_yutm == NULL)
+        {
             log_errorF("%s: Error fault_yutm is NULL\n", fcnm);
         }
         if (length == NULL){log_errorF("%s: Error length is NULL\n", fcnm);}
@@ -222,8 +233,9 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     }
     // Set the RHS
     ierr = GFAST_FF__setRHS(l1, verbose,
-                            nAvgDisp, eAvgDisp, uAvgDisp, UD);
-    if (ierr != 0){
+                            nObsOffset, eObsOffset, uObsOffset, UD);
+    if (ierr != 0)
+    {
         log_errorF("%s: Error setting right hand side\n", fcnm);
         ierr = 4;
         goto ERROR;
@@ -231,7 +243,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     // Begin the grid search on fault planes
     ierr = 0;
     time_tic();
-    if (verbose > 2){
+    if (verbose > 2)
+    {
         log_debugF("%s: Beginning search on fault planes...\n", fcnm);
     }
 #ifdef __PARALLEL_FF
@@ -247,7 +260,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
      reduction(+:ierr) default(none)
 #endif
     // Loop on fault planes
-    for (ifp=0; ifp<nfp; ifp++){
+    for (ifp=0; ifp<nfp; ifp++)
+    {
         // Set the offsets
         if_off = ifp*l2; // Offset the fault plane
         io_off = ifp*l1; // Offset the observations/estimates
@@ -256,8 +270,10 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         memset(T, 0, nt*sizeof(double));
         if (lrmtx){memset(R, 0, ncolsG2*ncolsG2*sizeof(double));}
         // Compute the site/fault patch offsets
-        for (i=0; i<l2; i++){
-            for (j=0; j<l1; j++){
+        for (i=0; i<l2; i++)
+        {
+            for (j=0; j<l1; j++)
+            {
                 ij = l1*i + j;
                 xrs[ij] = utmRecvEasting[j]  - fault_xutm[if_off+i];
                 yrs[ij] = utmRecvNorthing[j] - fault_yutm[if_off+i];
@@ -272,7 +288,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                                        &width[if_off],
                                                        &length[if_off],
                                                        G2);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error setting forward model\n", fcnm);
             ierr = ierr + 1;
             continue;
@@ -302,7 +319,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
                                 mrowsG2, ncolsG2, 1, G2, UD,
                                 S, R);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error solving least squares problem\n", fcnm);
             ierr = ierr + 1;
             continue;
@@ -314,15 +332,18 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         // Futhermore, we only retain the diagonals so computing a full matrix
         // matrix multiply is unnecessary.  What is necessary is instead taking
         // the inner products which would produce the diagonal elements.
-        if (lrmtx){
+        if (lrmtx)
+        {
             ierr1 = LAPACKE_dtrtri(LAPACK_ROW_MAJOR, 'U', 'N', ncolsG2,
                                    R, ncolsG2);
-            if (ierr1 != 0){
+            if (ierr1 != 0)
+            {
                 log_errorF("%s: Error inverting triangular matrix!\n", fcnm);
                 ierr = ierr + 1;
                 continue;
             }            
-            for (i=0; i<l2; i++){
+            for (i=0; i<l2; i++)
+            {
                 ss_unc = cblas_ddot(ncolsG2, &R[(2*i+0)*ncolsG2], 1,
                                              &R[(2*i+0)*ncolsG2], 1);
                 ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
@@ -338,7 +359,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         xnum = 0.0;
         xden = 0.0;
         #pragma omp simd reduction(+:xnum, xden)
-        for (i=0; i<mrowsG; i++){
+        for (i=0; i<mrowsG; i++)
+        {
             res = UP[i] - UD[i];
             xnum = xnum + res*res;
             xden = xden + UD[i]*UD[i];
@@ -346,7 +368,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         vr[ifp] = (1.0 - xnum/xden)*100.0;
         // Extract the estimates
         #pragma omp simd
-        for (i=0; i<l1; i++){
+        for (i=0; i<l1; i++)
+        {
             EN[io_off+i] = UP[3*i+0];
             NN[io_off+i] = UP[3*i+1];
             UN[io_off+i] = UP[3*i+2];
@@ -356,26 +379,32 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         }
         // Extract the slip
         #pragma omp simd
-        for (i=0; i<l2; i++){
+        for (i=0; i<l2; i++)
+        {
             sslip[if_off+i] = S[2*i+0];
             dslip[if_off+i] = S[2*i+1];
         }
         // Compute the magnitude
         M0 = 0.0;
         #pragma omp simd reduction(+:M0)
-        for (i=0; i<l2; i++){
+        for (i=0; i<l2; i++)
+        {
             st = sqrt( pow(sslip[if_off+i], 2) + pow(dslip[if_off+i], 2) );
             M0 = M0 + 3.e10*st*length[if_off+i]*width[if_off+i];
         }
         Mw[ifp] = 0.0;
         if (M0 > 0.0){Mw[ifp] = (log10(M0*1.e7) - 16.1)/1.5;}
     } // Loop on fault planes 
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: There was an error in the fault plane grid-search\n",
                    fcnm);
         ierr = 4;
-    }else{
-        if (verbose > 2){
+    }
+    else
+    {
+        if (verbose > 2)
+        {
             log_debugF("%s: Grid-search time: %f (s)\n", fcnm, time_toc()); 
         }
     }

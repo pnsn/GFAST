@@ -12,6 +12,8 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
                               double *__restrict__ ubuff,
                               double *__restrict__ nbuff,
                               double *__restrict__ ebuff);
+
+//============================================================================//
 /*!
  * @brief Peak ground displacement estimation driver routine
  *
@@ -49,8 +51,8 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         PGD_INSUFFICIENT_DATA = 3,
         PGD_COMPUTE_ERROR = 4
     };
-    double *d, *repi, *staAlt, *utmRecvEasting, *utmRecvNorthing, *x2, *y2,
-           currentTime, distMax, distance,
+    double *d, *repi, *staAlt, *utmRecvEasting, *utmRecvNorthing,
+           *wts, *x2, *y2, currentTime, distMax, distance,
            effectiveHypoDist, epiDist,
            utmSrcEasting, utmSrcNorthing, x1, y1;
     int ierr, k, l1, nwork, zone_loc;
@@ -62,6 +64,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     x2 = NULL;
     y2 = NULL;
     d = NULL;
+    wts = NULL;
     utmRecvNorthing = NULL;
     utmRecvEasting = NULL;
     staAlt = NULL;
@@ -121,6 +124,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     utmRecvEasting  = GFAST_memory_calloc__double(gps_data.stream_length);
     staAlt          = GFAST_memory_calloc__double(gps_data.stream_length);
     repi            = GFAST_memory_calloc__double(gps_data.stream_length);
+    wts             = GFAST_memory_calloc__double(gps_data.stream_length);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;}
@@ -162,6 +166,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
             if (distMax != NAN)
             {
                 d[l1] = distMax*100.0; // convert to centimeters
+                wts[l1] = 1.0;
                 utmRecvNorthing[l1] = y2[k];
                 utmRecvEasting[l1] = x2[k];
                 epiDist = sqrt(pow(x1 - x2[k], 2) + pow(y1 - y2[k], 2));
@@ -204,6 +209,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                                               staAlt,
                                               d,
                                               repi,
+                                              wts,
                                               pgd->mpgd,
                                               pgd->mpgd_vr);
     if (ierr != 0)
@@ -222,6 +228,7 @@ ERROR:;
     GFAST_memory_free__double(&utmRecvEasting);
     GFAST_memory_free__double(&staAlt);
     GFAST_memory_free__double(&repi);
+    GFAST_memory_free__double(&wts);
     return 0;
 }
 //============================================================================//

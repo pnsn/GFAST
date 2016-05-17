@@ -15,23 +15,23 @@ static double __getPeakDisplacement(int npts,
                                     const double *__restrict__ nbuff,
                                     const double *__restrict__ ebuff);
 /*!
- * @brief Computes the peak displacement for each GPS dataset with the 
- *        additional requirement that the shear wave has passed through 
- *        the site.
+ * @brief Computes the peak displacement for each GPS precise point position
+ *        data stream with the additional requirement that the shear wave
+ *        has passed through the site.
  *
  * @param[in] utm_zone     if not -12345 then this is the desired UTM zone
  *                         in which to compute source and receiver positions.
  *                         otherwise, the UTM zone will be estimated from
  *                         the source location
- * @param[in] svel_window  the shear wave velocity window.  if the site/source
- *                         distance is less than 
- *                         (current_time - SA_time)*svel_window 
+ * @param[in] svel_window  the shear wave velocity used in data windowing
+ *                         (km/s).  if the site/source distance is less than
+ *                           (current_time - SA_time)*svel_window 
  *                         then the site will be excluded
  * @param[in] SA_lat       source hypocentral latitude (degrees) [-90,90]
  * @param[in] SA_lon       source hypocentral longitude (degrees) [0,360]
  * @param[in] SA_dep       source hypocentral depth (km) (this is positive
  *                         down from the free surface)
- * @param[in] SA_time      source epochal (s) origin time (UTC)
+ * @param[in] SA_time      source origin time in seconds since epoch (UTC)
  * @param[in] gps_data     contains the most up-to-date precise point 
  *                         positions for each site 
  *
@@ -39,6 +39,9 @@ static double __getPeakDisplacement(int npts,
  *                         be ignored.
  *                         on output holds the peak ground displacement
  *                         at each site satisfying the S velocity window mask.
+ *                         in this instance all sites with data are given
+ *                         data weights of unity and all sites without
+ *                         data are given data weights of zero.
  *
  * @param[out] ierr        0 indicates success
  *
@@ -78,6 +81,7 @@ int GFAST_waveformProcessor__peakDisplacement(
             for (k=0; k<pgd_data->nsites; k++)
             {
                 pgd_data->pd[k] = 0.0;
+                pgd_data->wt[k] = 0.0;
                 pgd_data->lactive[k] = false;
             }
         }
@@ -85,7 +89,7 @@ int GFAST_waveformProcessor__peakDisplacement(
     }
     // Get the source location
     zone_loc = utm_zone;
-    if (zone_loc ==-12345){zone_loc =-1;}
+    if (zone_loc ==-12345){zone_loc =-1;} // Get UTM zone from source lat/lon
     GFAST_coordtools__ll2utm(SA_lat, SA_lon,
                              &y1, &x1,
                              &lnorthp, &zone_loc);
@@ -93,6 +97,7 @@ int GFAST_waveformProcessor__peakDisplacement(
     for (k=0; k<gps_data.stream_length; k++)
     {
         pgd_data->pd[k] = 0.0; // Null out result
+        pgd_data->wt[k] = 0.0; // Assume no weight
         pgd_data->lactive[k] = false; // Assume site is not active in inversion
         if (pgd_data->lmask[k]){continue;} // Not in inversion
         // Get the recevier UTM
@@ -105,7 +110,7 @@ int GFAST_waveformProcessor__peakDisplacement(
                        + pow(y1 - y2, 2)
                        + pow(SA_dep*1000.0 + gps_data.data[k].sta_alt, 2));
         distance = distance*1.e-3; // convert to km
-        // Apply an S wave window mask so to preclude likely outliers in
+        // Apply an S wave window mask to preclude likely outliers in
         // the ensuing PGD inversion 
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
@@ -124,14 +129,14 @@ int GFAST_waveformProcessor__peakDisplacement(
             if (peakDisp != NAN)
             {
                 pgd_data->pd[k] = peakDisp; // meters
+                pgd_data->wt[k] = 1.0;
                 pgd_data->lactive[k] = true;
                 nsites = nsites + 1;
             }
-        } // End check on s-wave mask
+        } // End check on S-wave mask
     } // Loop on data streams
     return nsites;
 }
-
 //============================================================================//
 /*!
  * @brief Waveform processor to estimate the peak displacement observed

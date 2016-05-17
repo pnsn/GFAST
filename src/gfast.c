@@ -36,6 +36,7 @@ int main()
 {
     char fcnm[] = "GFAST\0";
     char propfilename[] = "gfast.props\0"; /* TODO take from EW config file */
+    FILE *elarms_xml_file;
     struct GFAST_props_struct props;
     struct GFAST_data_struct gps_acquisition;
     struct GFAST_shakeAlert_struct SA;
@@ -43,8 +44,12 @@ int main()
     struct GFAST_pgdResults_struct pgd;
     struct GFAST_cmtResults_struct cmt;
     struct GFAST_ffResults_struct ff;
+    struct GFAST_peakDisplacementData_struct pgd_data;
+    struct GFAST_offsetData_struct cmt_data, ff_data;
+    char *elarms_xml_message;
     double *latency, currentTime, dtmax, eventTime, t0sim;
-    int iev, k, kt, ntsim, verbose0;
+    long message_length;
+    int iev, k, kt, nsites_cmt, nsites_ff, nsites_pgd, ntsim, verbose0;
     int ierr = 0;
     bool ldel_event, lnew_event, lupd_event;
     //------------------------------------------------------------------------//
@@ -56,6 +61,9 @@ int main()
     memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
+    memset(&pgd_data, 0, sizeof( struct GFAST_peakDisplacementData_struct));
+    memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
+    memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     latency = NULL;
     // Read the properties file
     log_infoF("%s: Reading the properties file...\n", fcnm);
@@ -69,29 +77,37 @@ printf("%f\n", props.synthetic_runtime);
         GFAST_properties__print(props);
     }
     // Initialize the stations locations/names for the module
-    if (props.verbose > 0){
-        log_infoF("%s: Setting the acquisition...\n", fcnm);
+    if (props.verbose > 0)
+    {
+        log_infoF("%s: Initializing the acquisition...\n", fcnm);
     }
     ierr =  GFAST_acquisition__init(props, &gps_acquisition);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error initializating acquisition\n", fcnm);
         goto ERROR;
     }
     // Initialize PGD
-    ierr = GFAST_scaling_PGD__init(props.pgd_props, gps_acquisition, &pgd);
-    if (ierr != 0){
+    ierr = GFAST_scaling_PGD__init(props.pgd_props, gps_acquisition,
+                                   &pgd, &pgd_data);
+    if (ierr != 0)
+    {
         log_errorF("%s: Error initializing PGD\n", fcnm);
         goto ERROR;
     }
     // Initialize CMT
-    ierr = GFAST_CMT__init(props, gps_acquisition, &cmt);
-    if (ierr != 0){
+    ierr = GFAST_CMT__init(props, gps_acquisition,
+                           &cmt, &cmt_data);
+    if (ierr != 0)
+    {
         log_errorF("%s: Error initializing CMT\n", fcnm);
         goto ERROR;
     }
     // Initialize finite fault
-    ierr = GFAST_FF__init(props, gps_acquisition, &ff);
-    if (ierr != 0){
+    ierr = GFAST_FF__init(props, gps_acquisition,
+                          &ff, &ff_data);
+    if (ierr != 0)
+    {
         log_errorF("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
@@ -123,7 +139,8 @@ printf("%f\n", props.synthetic_runtime);
     //                            GFAST OFFLINE MODE                          //
     //------------------------------------------------------------------------//
     if (props.opmode == OFFLINE){
-        if (props.verbose >= 2){
+        if (props.verbose >= 2)
+        {
             log_infoF("%s: Beginning simulation...\n", fcnm);
         }
         // Compute the runtime - goal is to keep up with `slowest' data
@@ -158,29 +175,56 @@ printf("%f\n", props.synthetic_runtime);
 //for (kt=58; kt<59; kt++){
             // Update the time
             currentTime = t0sim + (double) kt;
-            // Read the elarmS file
+            // Read the elarmS/shakeAlert XML message file
+            elarms_xml_file = fopen(props.eewsfile, "rb");
+            fseek(elarms_xml_file, 0L, SEEK_END);
+            message_length = ftell(elarms_xml_file);
+            rewind(elarms_xml_file);
+            elarms_xml_message = (char *)calloc(message_length+1, sizeof(char));
+            if (fread(elarms_xml_message, message_length,
+                      1, elarms_xml_file) == 0)
+            {
+                log_errorF("%s: Error reading xml file\n", fcnm);
+                goto ERROR;
+            }
+            fclose(elarms_xml_file);
+            // Parse the shakeAlert message into the shakeAlert struture 
+            ierr = GFAST_readElarmS__xml(elarms_xml_message, -12345.0,
+                                         &SA);
+            free(elarms_xml_message);
+            elarms_xml_message = NULL;
+
+            /*
             if (kt > 0){props.verbose = 0;}
             ierr = GFAST_readElarmS(props, &SA);
+            */
             props.verbose = verbose0;
-            if (ierr != 0){
+            if (ierr != 0)
+            {
                 log_errorF("%s: Error reading shakeAlert message!\n", fcnm);
                 continue;
             }
             // Is this a new event?  If so then add it to events
             lnew_event = GFAST_events__newEvent(SA, &events);
-            if (lnew_event){
-                if (props.verbose > 0){
+            if (lnew_event)
+            {
+                if (props.verbose > 0)
+                {
                     log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_events__print(SA);}
                 }
-            }else{
+            }
+            else // Not a new event
+            {
                 // Has the event been updated?
                 lupd_event = GFAST_events__updateEvent(SA, &events, &ierr);
-                if (ierr != 0){
+                if (ierr != 0)
+                {
                     log_errorF("%s: There was an error updating event %s\n",
                                fcnm, SA.eventid);
                 } 
-                if (props.verbose > 0 && lupd_event){
+                if (props.verbose > 0 && lupd_event)
+                {
                     log_infoF("%s: Event %s has been modified\n",
                               fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_events__print(SA);}
@@ -200,7 +244,41 @@ printf("%f\n", props.synthetic_runtime);
             }
             // Loop on the events
 //printf("%f %d\n", currentTime - SA.time, kt);
-            for (iev=0; iev<events.nev; iev++){
+            for (iev=0; iev<events.nev; iev++)
+            {
+                // Extract the peak displacement from the waveform buffer
+                nsites_pgd = GFAST_waveformProcessor__peakDisplacement(
+                                    props.pgd_props.utm_zone,
+                                    props.pgd_props.window_vel,
+                                    SA.lat,
+                                    SA.lon,
+                                    SA.dep,
+                                    SA.time,
+                                    gps_acquisition,
+                                    &pgd_data,
+                                    &ierr);
+                // Extract the offset for the CMT inversion from the buffer 
+                nsites_cmt = GFAST_waveformProcessor__offset(
+                                    props.utm_zone,
+                                    props.cmt_window_vel,
+                                    SA.lat,
+                                    SA.lon,
+                                    SA.dep,
+                                    SA.time,
+                                    gps_acquisition,
+                                    &cmt_data,
+                                    &ierr);
+                // Extract the offset for the FF inversion from the buffer 
+                nsites_ff = GFAST_waveformProcessor__offset(
+                                    props.utm_zone,
+                                    props.ff_window_vel,
+                                    SA.lat,
+                                    SA.lon,
+                                    SA.dep,
+                                    SA.time,
+                                    gps_acquisition,
+                                    &ff_data,
+                                    &ierr);
                 // Run the PGD scaling 
 //props.verbose = 0;
                 ierr = GFAST_scaling_PGD__driver(props.pgd_props,
@@ -230,6 +308,7 @@ ff.str[0] = 116.78477424;
 ff.dip[0] = 58.91674731;
                     ierr = GFAST_FF__driver(props, events.SA[iev],
                                             gps_acquisition, &ff);
+/*
 int iopt = ff.preferred_fault_plane;
 ierr = GFAST_FF__xml__write(props.opmode,
                             "GFAST\0",
@@ -254,6 +333,7 @@ ierr = GFAST_FF__xml__write(props.opmode,
                             ff.fp[iopt].sslip_unc,
                             ff.fp[iopt].dslip_unc);
 goto ERROR;
+*/
                 }
                 // Am I ready to publish this event?
                 if (currentTime - SA.time >= props.processingTime){
@@ -291,6 +371,9 @@ ERROR:;
     GFAST_memory_freePGDResults(&pgd);
     GFAST_memory_freeCMTResults(&cmt);
     GFAST_memory_freeFFResults(&ff);
+    GFAST_memory_freePGDData(&pgd_data);
+    GFAST_memory_freeOffsetData(&cmt_data);
+    GFAST_memory_freeOffsetData(&ff_data);
     GFAST_memory_freeProps(&props);
     return ierr;
 }

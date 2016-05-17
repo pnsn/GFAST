@@ -8,7 +8,6 @@
 // Poisson's ratio
 #define nu 0.25 /*!< Poisson's ratio for okadaGreenF */
 
-/* TODO atan is used a lot, should it be atan2 */
 #pragma omp declare simd
 static inline void __ss_ds(double cos_dip, double sin_dip,
                            double xi, double eta, double q,
@@ -62,16 +61,19 @@ int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
     const double pi180 = M_PI/180.0;
     const double one_twopi = 1.0/(2.0*M_PI);
     //------------------------------------------------------------------------//
-    if (l1 < 1 || l2 < 1){
+    if (l1 < 1 || l2 < 1)
+    {
         if (l1 < 1){log_errorF("%s: Error no observations\n", fcnm);}
         if (l2 < 1){log_errorF("%s: Error no fault patches\n", fcnm);}
         return -1;
     }
     indx = 0;
     // Loop on the observations
-    for (j=0; j<l1; j++){
+    for (j=0; j<l1; j++)
+    {
         // Loop on faults
-        for (i=0; i<l2; i++){
+        for (i=0; i<l2; i++)
+        {
             ij = l1*i + j;
 
             strike1 = strike[i]*pi180;
@@ -150,7 +152,8 @@ static inline void __ss_ds(double cos_dip, double sin_dip,
     log_rpeta = log(R + eta);
     pow_rpdb2 = pow(R + db, 2);
     atan_xeqr = atan(xi*eta/(q*R));
-    if (cos_dip > eps){
+    if (cos_dip > eps)
+    {
         I5 = (1.0 - 2.0*nu)*2.0/cos_dip
             *atan( ( eta*(X + q*cos_dip) + X*(R + X)*sin_dip )
                   /(xi*(R + X)*cos_dip));
@@ -160,7 +163,9 @@ static inline void __ss_ds(double cos_dip, double sin_dip,
         I2 = (1.0 - 2.0*nu)*(-log_rpeta) - I3;
         I1 = (1.0 - 2.0*nu)*(-xi/cos_dip/(R+db)) 
            - sin_dip/cos_dip*I5;
-    }else{
+    }
+    else
+    {
         I5 =-(1.0 - 2.0*nu)*xi*sin_dip/(R + db);
         I4 =-(1.0 - 2.0*nu)*q/(R + db);
         I3 = (1.0 - 2.0*nu)/2.0*( eta/(R+db) + yb*q/pow_rpdb2 - log_rpeta );

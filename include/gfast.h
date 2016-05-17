@@ -104,6 +104,9 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd);
 void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt);
 void GFAST_memory_freeFaultPlane(struct GFAST_faultPlane_struct *fp);
 void GFAST_memory_freeFFResults(struct GFAST_ffResults_struct *ff);
+void GFAST_memory_freePGDData(
+     struct GFAST_peakDisplacementData_struct *pgd_data);
+void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data);
 int *GFAST_memory_calloc__int(int n);
 int *GFAST_memory_alloc__int(int n);
 bool *GFAST_memory_calloc__bool(int n);
@@ -113,7 +116,7 @@ double *GFAST_memory_alloc__double(int n);
 void GFAST_memory_free(void *p);
 void GFAST_memory_free__double(double **p);
 void GFAST_memory_free__int(int **p);
-void memory_free__bool(bool **p);
+void GFAST_memory_free__bool(bool **p);
 /* Initializes the GFAST parameters */
 int GFAST_properties__init(char *propfilename,
                            struct GFAST_props_struct *props);
@@ -131,22 +134,24 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                               struct GFAST_data_struct gps_data,
                               struct GFAST_pgdResults_struct *pgd);
 int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
-                                       int verbose,
-                                       double dist_tol,
-                                       double dist_def,
-                                       double utmSrcEasting,
-                                       double utmSrcNorthing,
-                                       double *__restrict__ srcDepths,
-                                       double *__restrict__ utmRecvEasting,
-                                       double *__restrict__ utmRecvNorthing,
-                                       double *__restrict__ staAlt,
-                                       double *__restrict__ d,
-                                       double *__restrict__ repi,
-                                       double *__restrict__ M,
-                                       double *__restrict__ VR);
+                                int verbose,
+                                double dist_tol,
+                                double dist_def,
+                                double utmSrcEasting,
+                                double utmSrcNorthing,
+                                const double *__restrict__ srcDepths,
+                                const double *__restrict__ utmRecvEasting,
+                                const double *__restrict__ utmRecvNorthing,
+                                const double *__restrict__ staAlt,
+                                const double *__restrict__ d,
+                                const double *__restrict__ repi,
+                                const double *__restrict__ wts,
+                                double *__restrict__ M,
+                                double *__restrict__ VR);
 int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
                             struct GFAST_data_struct gps_data,
-                            struct GFAST_pgdResults_struct *pgd);
+                            struct GFAST_pgdResults_struct *pgd,
+                            struct GFAST_peakDisplacementData_struct *pgd_data);
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
                                        double B, double C,
                                        const double *__restrict__ r,
@@ -176,9 +181,12 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                const double *__restrict__ utmRecvEasting,
                                const double *__restrict__ utmRecvNorthing,
                                const double *__restrict__ staAlt,
-                               const double *__restrict__ nAvgDisp,
-                               const double *__restrict__ eAvgDisp,
-                               const double *__restrict__ uAvgDisp,
+                               const double *__restrict__ nObsOffset,
+                               const double *__restrict__ eObsOffset,
+                               const double *__restrict__ uObsOffset,
+                               const double *__restrict__ nWts,
+                               const double *__restrict__ eWts,
+                               const double *__restrict__ uWts,
                                double *__restrict__ nEst,
                                double *__restrict__ eEst,
                                double *__restrict__ uEst,
@@ -189,16 +197,17 @@ int GFAST_CMT__driver(struct GFAST_props_struct props,
                       struct GFAST_cmtResults_struct *cmt);
 int GFAST_CMT__init(struct GFAST_props_struct props,
                     struct GFAST_data_struct gps_data,
-                    struct GFAST_cmtResults_struct *cmt);
+                    struct GFAST_cmtResults_struct *cmt,
+                    struct GFAST_offsetData_struct *cmt_data);
 int GFAST_CMT__setForwardModel__deviatoric(int l1, 
                                            const double *__restrict__ x1, 
                                            const double *__restrict__ y1, 
                                            const double *__restrict__ z1, 
                                            double *__restrict__ G);
 int GFAST_CMT__setRHS(int n, int verbose,
-                      const double *__restrict__ nAvg,
-                      const double *__restrict__ eAvg,
-                      const double *__restrict__ uAvg,
+                      const double *__restrict__ nOffset,
+                      const double *__restrict__ eOffset,
+                      const double *__restrict__ uOffset,
                       double *__restrict__ U);
 /* Finite fault inversion */
 int GFAST_FF__driver(struct GFAST_props_struct props,
@@ -208,9 +217,12 @@ int GFAST_FF__driver(struct GFAST_props_struct props,
 int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                    int nstr, int ndip, int nfp,
                                    int verbose,
-                                   const double *__restrict__ nAvgDisp,
-                                   const double *__restrict__ eAvgDisp,
-                                   const double *__restrict__ uAvgDisp,
+                                   const double *__restrict__ nOffset,
+                                   const double *__restrict__ eOffset,
+                                   const double *__restrict__ uOffset,
+                                   const double *__restrict__ nWts,
+                                   const double *__restrict__ eWts,
+                                   const double *__restrict__ uWts,
                                    const double *__restrict__ utmRecvEasting,
                                    const double *__restrict__ utmRecvNorthing,
                                    const double *__restrict__ staAlt,
@@ -233,7 +245,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                    );
 int GFAST_FF__init(struct GFAST_props_struct props,
                    struct GFAST_data_struct gps_data,
-                   struct GFAST_ffResults_struct *ff);
+                   struct GFAST_ffResults_struct *ff,
+                   struct GFAST_offsetData_struct *ff_data);
 int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double flen_pct,
                              double fwid_pct,
@@ -265,9 +278,9 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
                              const double *__restrict__ length,
                              double *__restrict__ T);
 int GFAST_FF__setRHS(int n, int verbose,
-                     const double *__restrict__ nAvg,
-                     const double *__restrict__ eAvg,
-                     const double *__restrict__ uAvg,
+                     const double *__restrict__ nOffset,
+                     const double *__restrict__ eOffset,
+                     const double *__restrict__ uOffset,
                      double *__restrict__ U);
 /* Waveform processor */
 int GFAST_waveformProcessor__peakDisplacement(
@@ -279,6 +292,16 @@ int GFAST_waveformProcessor__peakDisplacement(
     double SA_time,
     struct GFAST_data_struct gps_data,
     struct GFAST_peakDisplacementData_struct *pgd_data,
+    int *ierr);
+int GFAST_waveformProcessor__offset(
+    int utm_zone,
+    double svel_window,
+    double SA_lat,
+    double SA_lon,
+    double SA_dep,
+    double SA_time,
+    struct GFAST_data_struct gps_data,
+    struct GFAST_offsetData_struct *offset_data,
     int *ierr);
 
 #ifdef __cplusplus

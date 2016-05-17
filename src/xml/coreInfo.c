@@ -14,9 +14,7 @@
  * @brief Reads from the input shakeAlert XML message into the core structure
  *
  * @param[in] xml_reader  pointer to core_info xmlNodePtr
- * @param[in] message     null terminated XML message from which to extract
- *                        core_info
- * @param[in] SA          if an item is not found then this is it's default
+ * @param[in] SA_NAN      if an item is not found then this is it's default
  *                        value
  *
  * @param[out] core       on successful exit contains the event ID, magnitude,

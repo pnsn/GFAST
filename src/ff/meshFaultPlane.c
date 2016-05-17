@@ -20,6 +20,12 @@
  *                         for.  [0,100] - Dreger and Kaverina recommend
  *                         10 percent
  * @param[in] M            moment magnitude
+ * @param[in] strikeF      strike angle (degrees) of the fault plane.
+ *                         this is measured clockwise positive from north
+ *                         [0,360].
+ * @param[in] dipF         dip angle (degrees) of the fault plane.
+ *                         this is measured positive down from horizontal
+ *                         [0,90]
  * @param[in] nstr         number of fault patches along strike
  * @param[in] ndip         number of fault patches down dip
  * @param[in] utm_zone     UTM zone.  If out of bounds [0,60] then the UTM zone
@@ -47,11 +53,11 @@
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
- * @reference D. Dreger and A Kaverina,
- *            Seismic Remote Sending for the Earthquake Source Process and
- *            Near-Source STrong Shaking: A Case Study of the October 16,
- *            1999 Hector Mine Earthquake.  Geophysical Research Letters,
- *            Volume 27 (No 13), 1941-1944, (2000).
+ * @cite D. Dreger and A Kaverina,
+ *       Seismic Remote Sending for the Earthquake Source Process and
+ *       Near-Source STrong Shaking: A Case Study of the October 16,
+ *       1999 Hector Mine Earthquake.  Geophysical Research Letters,
+ *       Volume 27 (No 13), 1941-1944, (2000).
  *
  */
 int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
@@ -85,12 +91,15 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
     //------------------------------------------------------------------------//
     //
     // Error handling
-    if (ndip < 1 || nstr < 1){
-        if (ndip < 1){
+    if (ndip < 1 || nstr < 1)
+    {
+        if (ndip < 1)
+        {
             log_errorF("%s: Invalid number of fault patches down dip: %d\n",
                        fcnm, ndip);
         }
-        if (nstr < 1){
+        if (nstr < 1)
+        {
             log_errorF("%s: Invalid number of fault patches along strike: %d\n",
                        fcnm, nstr);
         }
@@ -98,29 +107,34 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
     }
     // Ensures safety factors are okay 
     fact_len = 0.1;
-    if (flen_pct < 0.0){
-        if (verbose > 1){
+    if (flen_pct < 0.0)
+    {
+        if (verbose > 1)
+        {
             log_warnF("%s: Width safety factor %f is invalid; setting to 10\n",
                       fcnm, flen_pct);
         }
-    }else{
+    }
+    else
+    {
         fact_len = flen_pct/100.0;
     }
     fact_wid = 0.1;
-    if (fwid_pct < 0.0){
-        if (verbose > 0){
+    if (fwid_pct < 0.0)
+    {
+        if (verbose > 0)
+        {
             log_warnF("%s: Length safety factor %f is invalid; setting to 10\n",
                        fcnm, fwid_pct); 
         }
-    }else{
+    }
+    else
+    {
         fact_wid = fwid_pct/100.0;
     }
     // Get the source location
-    if (utm_zone ==-12345){
-        zone_loc =-1;
-    }else{
-        zone_loc = utm_zone;
-    }
+    zone_loc = utm_zone;
+    if (zone_loc ==-12345){zone_loc =-1;} // Get UTM zone from source lat/lon
     GFAST_coordtools__ll2utm(SA_lat, SA_lon,
                              &y0, &x0,
                              &lnorthp, &zone_loc);
@@ -135,13 +149,16 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
     wid = wid + fact_wid*wid;
     // Set the initial top depth - either depth-width/2*sin(dip) or 0 
     // depending on how wide and close the surface fault is
-    if (wid/2.0*sin(dipF*pi180) > SA_dep){
+    if (wid/2.0*sin(dipF*pi180) > SA_dep)
+    {
         z0 = 0.0;
         x0 = x0 - len/2.0*sin(strikeF*pi180) 
            - SA_dep*cos(dipF*pi180)*sin((strikeF + 90.0)*pi180);
         y0 = y0 - len/2.0*cos(strikeF*pi180)
            - SA_dep*cos(dipF*pi180)*cos((strikeF + 90.0)*pi180);
-    }else{
+    }
+    else
+    {
         z0 = SA_dep - wid/2.0*sin(dipF*pi180);
         x0 = x0 - len/2.0*sin(strikeF*pi180)
            - wid/2.0*cos(dipF*pi180)*sin((strikeF + 90.0)*pi180);
@@ -161,8 +178,10 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
     ysoff = dlen*cos(strikeF*pi180);
     // Mesh fault by quickly stepping along strike and slowly stepping down dip
     fault_ptr[0] = 0;
-    for (j=0; j<ndip; j++){
-        for (i=0; i<nstr; i++){
+    for (j=0; j<ndip; j++)
+    {
+        for (i=0; i<nstr; i++)
+        {
             dj = (double) j;
             di = (double) i;
             fault_X = x0 + (0.5 + di)*xsoff + (0.5 + dj)*xdoff;

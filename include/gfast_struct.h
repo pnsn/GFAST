@@ -263,14 +263,14 @@ struct GFAST_pgdResults_struct
 
 struct GFAST_peakDisplacementData_struct
 {
-    char **sites;    /*!< Name of i'th site */
-    double *pd;      /*!< Peak displacement (m) observed at the i'th
+    char **stnm;     /*!< Name of i'th site */
+    double *pd;      /*!< Peak displacement (meters) observed at the i'th
                           site [nsites] */
     double *wt;      /*!< Data weight on the i'th peak displacement observation
                           [nsites] */
     bool *lmask;     /*!< If true then mask the i'th site in this inversion
                           [nsites] */
-    bool *lactive; /*!< If true then the i'th site has data from the waveform
+    bool *lactive;   /*!< If true then the i'th site has data from the waveform
                           processor and can is an active participant in the
                           inversion [nsites] */
     double sta_lat;  /*!< Site latitude [-90,90] (degrees) */
@@ -281,21 +281,24 @@ struct GFAST_peakDisplacementData_struct
 
 struct GFAST_offsetData_struct
 {
-    char **sites;     /*!< Name of i'th site */
-    double *ubuff;    /*!< Offset (m) in up component observed at the
+    char **stnm;      /*!< Name of i'th site [nsites x 64] */
+    double *ubuff;    /*!< Offset (meters) in up component observed at the
                            i'th site [nsites] */
-    double *nbuff;    /*!< Offset (m) in north component observed at the
+    double *nbuff;    /*!< Offset (meters) in north component observed at the
                            i'th site [nsites] */
-    double *ebuff;    /*!< Offset (m) in east component observed at the
-                           i'th site [nsites] */ 
+    double *ebuff;    /*!< Offset (meters) in east component observed at the
+                           i'th site [nsites] */
     double *wtu;      /*!< Data weight on the i'th up offset 
                            observation [nsites] */
     double *wtn;      /*!< Data weight on the i'th north offset 
                            observation [nsites] */
     double *wte;      /*!< Data weight on the i'th east offset 
                            observation [nsites] */
-    bool *lskip;      /*!< If true then skip the i'th site in this inversion
-                           [nsites] */
+    bool *lmask;     /*!< If true then mask the i'th site in this inversion
+                          [nsites] */
+    bool *lactive;   /*!< If true then the i'th site has data from the waveform
+                          processor and can is an active participant in the
+                          inversion [nsites] */
     int nsites;       /*!< Number of sites */
 };
 
@@ -303,11 +306,11 @@ struct GFAST_offsetData_struct
 struct GFAST_waveformData_struct
 {
     char site[64];    /*!< Name of site */
-    double *ubuff;    /*!< Up precise-point position buffer (m?).  If any
+    double *ubuff;    /*!< Up precise-point position buffer (meters).  If any
                            sample is not known it should be a NAN. [maxpts] */
-    double *nbuff;    /*!< North precise-point position buffer (m?).  If any
+    double *nbuff;    /*!< North precise-point position buffer (meters).  If any
                            sample is not known it should be a NAN. [maxpts] */
-    double *ebuff;    /*!< East precise-point position buffer (m?).  If any
+    double *ebuff;    /*!< East precise-point position buffer (meters).  If any
                            sample is not known it should be a NAN. */
     double *tbuff;    /*!< Epochal time buffer (s) [maxpts] */ 
     double epoch;     /*!< Epoch time (seconds) corresponding to first sample 

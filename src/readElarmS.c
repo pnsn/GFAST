@@ -85,15 +85,19 @@ NEXT_CORE_XML:;
 NEXT_EVENT_XML:;
         event_xml = event_xml->next;
     } // Loop on events
-    if (ierr != 0){ 
-        printf("%s: Error parsing core shakeAlert information\n", fcnm);
-    }else{
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error parsing core shakeAlert information\n", fcnm);
+    }
+    else
+    {
         strcpy(SA->eventid, core.id);
         SA->time = core.orig_time;
         SA->lat = core.lat;
         SA->lon = core.lon;
         SA->dep = core.depth;
         SA->mag = core.mag;
+        if (SA->lon < 0.0){SA->lon = SA->lon + 360.0;}
     }
     // Clean up
     xmlFreeDoc(doc);

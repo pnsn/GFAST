@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "gfast.h"
 
 /*!
@@ -18,20 +19,41 @@
  */
 int GFAST_FF__init(struct GFAST_props_struct props,
                    struct GFAST_data_struct gps_data,
-                   struct GFAST_ffResults_struct *ff)
+                   struct GFAST_ffResults_struct *ff,
+                   struct GFAST_offsetData_struct *ff_data)
 {
     const char *fcnm = "GFAST_FF__init\0";
-    int ifp, maxobs, nstr_ndip;
+    int i, ifp, maxobs, nstr_ndip;
     maxobs = gps_data.stream_length;
-    if (maxobs < 1){
+    if (maxobs < 1)
+    {
         log_errorF("%s: There will be no data in FF inversion!\n", fcnm);
         return -1;
     }
     nstr_ndip = props.ff_ndip*props.ff_nstr;
-    if (nstr_ndip < 1){
+    if (nstr_ndip < 1)
+    {
         log_errorF("%s: Error not fault patches!\n", fcnm);
         return -1;
     }
+    // data
+    ff_data->stnm = (char **)calloc(gps_data.stream_length, sizeof(char *));
+    ff_data->ubuff = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->nbuff = GFAST_memory_calloc__double(gps_data.stream_length); 
+    ff_data->ebuff = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->wtu   = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->wtn   = GFAST_memory_calloc__double(gps_data.stream_length); 
+    ff_data->wte   = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->lmask   = GFAST_memory_calloc__bool(gps_data.stream_length);
+    ff_data->lactive = GFAST_memory_calloc__bool(gps_data.stream_length);
+    ff_data->nsites = gps_data.stream_length;
+    for (i=0; i<ff_data->nsites; i++)
+    {   
+        ff_data->stnm[i] = (char *)calloc(64, sizeof(char));
+        strcpy(ff_data->stnm[i], gps_data.data[i].site);
+        if (gps_data.data[i].lskip_ff){ff_data->lmask[i] = true;}
+    }
+    // ff inversion structure
     ff->preferred_fault_plane = 0;
     ff->nfp = props.ff_nfp;
     ff->vr = GFAST_memory_calloc__double(ff->nfp);
@@ -40,7 +62,8 @@ int GFAST_FF__init(struct GFAST_props_struct props,
     ff->dip = GFAST_memory_calloc__double(ff->nfp);
     ff->fp = (struct GFAST_faultPlane_struct *)
              calloc(ff->nfp, sizeof(struct GFAST_faultPlane_struct));
-    for (ifp=0; ifp<ff->nfp; ifp++){
+    for (ifp=0; ifp<ff->nfp; ifp++)
+    {
         ff->fp[ifp].maxobs = maxobs;
         ff->fp[ifp].nsites_used = 0;
         ff->fp[ifp].nstr = props.ff_nstr;

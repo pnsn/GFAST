@@ -44,44 +44,57 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
     //
     // Error handling
     ntref = (2*l2 + 2*(2*ndip + nstr - 2))*2*l2;
-    if (nstr < 1 || ndip < 1 || l2 != nstr*ndip || nt != ntref){
-        if (nstr < 1){
+    if (nstr < 1 || ndip < 1 || l2 != nstr*ndip || nt != ntref)
+    {
+        if (nstr < 1)
+        {
             log_errorF("%s: Error no faults along strike\n", fcnm);
         }
-        if (ndip < 1){
+        if (ndip < 1)
+        {
             log_errorF("%s: Error no faults down dip\n", fcnm);
         }
-        if (nstr*ndip != l2){
+        if (nstr*ndip != l2)
+        {
             log_errorF("%s: Error size inconsistency\n", fcnm);
         }
-        if (nt != ntref){
+        if (nt != ntref)
+        {
             log_errorF("%s: Error nt is not proper size %d %d\n",
                        fcnm, nt, ntref);
         }
         return -1;
     }
-    if (width == NULL || length == NULL || T == NULL){
-        if (width == NULL){
+    if (width == NULL || length == NULL || T == NULL)
+    {
+        if (width == NULL)
+        {
             log_errorF("%s: Error width can't be NULL\n", fcnm);
         }
-        if (length == NULL){
+        if (length == NULL)
+        {
             log_errorF("%s: Error length can't be NULL\n", fcnm);
         }
-        if (T == NULL){
+        if (T == NULL)
+        {
             log_errorF("%s: Error regularizer T can't be NULL\n", fcnm);
         }
         return -1;
     }
     // Null out regularizer
     #pragma omp simd
-    for (i=0; i<nt; i++){
+    for (i=0; i<nt; i++)
+    {
         T[i] = 0.0;
     }
     // Fill in the regularizer
     ldt = 2*l2;
-    for (j=0; j<ndip; j++){
-        for (i=0; i<nstr; i++){
-            for (m=0; m<2; m++){
+    for (j=0; j<ndip; j++)
+    {
+        for (i=0; i<nstr; i++)
+        {
+            for (m=0; m<2; m++)
+            {
                 l = j*nstr + i;         // Fault patch number
                 k = j*nstr*2 + i*2 + m; // Row number
                 wid02i = 1.0/(width[l]*width[l])*1.e6;   // 1/dy^2; km^2 -> m^2
@@ -98,25 +111,31 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
                 kndx4 = k*ldt + 2*indx4 + m;   // T[k,2*index4+m]
                 kndx5 = k*ldt + 2*indx5 + m;   // T[k,2*index5+m]
                 // Fill s.t. the column numbers always increase 
-                if (indx4 >= 0 && indx4 < l2){
+                if (indx4 >= 0 && indx4 < l2)
+                {
                     T[kndx4] = wid02i;
                 }
-                if (indx2 >= 0 && indx2 < l2){
+                if (indx2 >= 0 && indx2 < l2)
+                {
                     T[kndx2] = len02i;
                 }
-                if (indx1 >= 0 && indx1 < l2){
+                if (indx1 >= 0 && indx1 < l2)
+                {
                     T[kndx1] =-2.0*(len02i + wid02i);
                 }
-                if (indx3 >= 0 && indx3 < l2){
+                if (indx3 >= 0 && indx3 < l2)
+                {
                     T[kndx3] = len02i;
                 }
-                if (indx5 >= 0 && indx5 < l2){
+                if (indx5 >= 0 && indx5 < l2)
+                {
                     T[kndx5] = wid02i;
                 }
             } // Loop on m
         } // Loop on strike
     } // Loop on dip
-    if (k != 2*ndip*nstr - 1){
+    if (k != 2*ndip*nstr - 1)
+    {
         log_errorF("%s: Error lost count part 1 %d %d\n",
                    fcnm, k, 2*ndip*nstr - 1);
         return -1;
@@ -124,10 +143,15 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
     // Now apply boundary conditions s.t. the fault ends excluding 
     // the free service are penalized if they slip 
     k = 2*ndip*nstr; // Begin row counter at end
-    for (j=0; j<ndip; j++){
-        for (i=0; i<nstr; i++){
-            for (m=0; m<2; m++){
-                if (j == ndip - 1 || i == 0 || i == nstr - 1){
+    for (j=0; j<ndip; j++)
+    {
+        for (i=0; i<nstr; i++)
+        {
+            for (m=0; m<2; m++)
+            {
+                // Is this a boundary condition? 
+                if (j == ndip - 1 || i == 0 || i == nstr - 1)
+                {
                     l = j*nstr + i;              // Fault patch number
                     indx1 = j*nstr + i;          // Grid index
                     kndx1 = k*ldt + 2*indx1 + m; // T[k,2*index1+m]
@@ -140,7 +164,8 @@ int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
         } // Loop on strike
     } // Loop on on dip
     // Did we get them all?
-    if (k != (2*l2 + 2*(2*ndip + nstr - 2))){
+    if (k != (2*l2 + 2*(2*ndip + nstr - 2)))
+    {
         log_warnF("%s: Warning failed to initialize all rows in T %d %d\n",
                   fcnm, k, 2*l2 + 2*(2*ndip + nstr - 2));
     }

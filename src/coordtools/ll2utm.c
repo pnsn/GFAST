@@ -9,7 +9,8 @@
  *
  * @param[in] lon_deg       longitude to convert to UTM easting (degrees)
  * @param[in] lat_deg       latitude to convert to UTM northing (degrees)
- * @param[in] lon0_deg      controls UTM zone - see above (degrees)
+ * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
+ * @param[out] UTMEasting   corresponding easting UTM coordinate (m)
  * @param[out] lnorthp      if true then this UTM point is in the northern
  *                          hemistphere.  
  *                          if false then this UTM point is in the southern
@@ -18,9 +19,6 @@
  *                          input longitude.
  *                          otherwise set the desired zone in range [0,60]
  *                          from the input longitude
- *
- * @param[out] UTMEasting   corresponding easting UTM coordinate (m)
- * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *

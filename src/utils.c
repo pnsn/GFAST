@@ -21,7 +21,7 @@
  * @date March 2016
  *
  */
-int numpy_argmax(int n, double *x) 
+int numpy_argmax(int n, const double *x) 
 {
     const char *fcnm = "numpy_array\0";
     double val;
@@ -55,7 +55,7 @@ int numpy_argmax(int n, double *x)
  * @author Ben Baker, ISTI
  *
  */
-int numpy_argmin(int n, double *x)
+int numpy_argmin(int n, const double *x)
 {
     const char *fcnm = "numpy_argmin\0";
     double val;
@@ -89,7 +89,7 @@ int numpy_argmin(int n, double *x)
  * @date March 2016
  *
  */
-double numpy_min(int n, double *x)
+double numpy_min(int n, const double *x)
 {
     const char *fcnm = "numpy_min\0";
     double xmin;
@@ -124,7 +124,7 @@ double numpy_min(int n, double *x)
  * @author Ben Baker (ISTI)
  *
  */ 
-double numpy_nanmax(int n, double *x, int *iwarn)
+double numpy_nanmax(int n, const double *x, int *iwarn)
 {
     const char *fcnm = "numpy_nanmean\0";
     double xmax;
@@ -171,7 +171,7 @@ double numpy_nanmax(int n, double *x, int *iwarn)
  * @date March 2016
  *
  */
-double numpy_nanmean(int n, double *x, int *iwarn)
+double numpy_nanmean(int n, const double *x, int *iwarn)
 {
     const char *fcnm = "numpy_nanmean\0";
     double xavg, xt; 
@@ -497,8 +497,8 @@ ERROR:;
  *        the vector pointing from the station to the source, and the 
  *        vector pointing from the station from the station to the north.
  *
- * @reference https://docs.obspy.org/_modules/obspy/signal/rotate.html
- * @reference https://service.iris.edu/irisws/rotation/docs/1/help/
+ * @cite https://docs.obspy.org/_modules/obspy/signal/rotate.html
+ * @cite https://service.iris.edu/irisws/rotation/docs/1/help/
  *
  * @param[in] np   number of data points 
  * @param[in] e    data on east component [np]

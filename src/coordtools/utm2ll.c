@@ -10,9 +10,8 @@
  * @param[in] zone         UTM zone
  * @param[in] lnorthp      if true then we are in the northern hemistphere
  *                         if false then we are in the southern hemisphere
- * @param[in] UTMEasting   UTM east coordinate to convert to longitude (m)
  * @param[in] UTMNorthing  UTM north coordinate to convert to latitude (m)
- * @param[in] lon0_deg     controls the UTM zone - see above (degrees)
+ * @param[in] UTMEasting   UTM east coordinate to convert to longitude (m)
  *
  * @param[out] lat_deg     corresponding latitude (degrees)
  * @param[out] lon_deg     corresponding longitude (degrees)

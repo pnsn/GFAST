@@ -9,7 +9,7 @@
  * @brief Writes the moment tensor terms in Up, South, East coordinates
  *        as described in Aki and Richards pg 113.
  *
- * @references Aki and Richards - Quantitative Seismology 2nd Edition pg. 113
+ * @cite Aki and Richards - Quantitative Seismology 2nd Edition pg. 113
  *
  * @param[in] Mrr            Mrr component of moment tensor (USE) coordinates.
  *                           Units are Newton-meters.

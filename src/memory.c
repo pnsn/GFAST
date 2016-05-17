@@ -3,6 +3,65 @@
 #include <string.h>
 #include "gfast.h"
 
+/*!
+ * @brief Frees memory associated with peak ground displacement
+ *
+ * @param[inout] pgd_data     peak ground displacement data structure with
+ *                            memory to be freed
+ *
+ * @author Ben Baker (benbaker@isti.com)
+ *
+ */
+void GFAST_memory_freePGDData(
+   struct GFAST_peakDisplacementData_struct *pgd_data)
+{
+    int i;
+    if (pgd_data->stnm != NULL)
+    {   
+        for (i=0; i<pgd_data->nsites; i++)
+        {
+            free(pgd_data->stnm[i]);
+        }
+        free(pgd_data->stnm);
+    }
+    GFAST_memory_free__double(&pgd_data->pd);
+    GFAST_memory_free__double(&pgd_data->wt);
+    GFAST_memory_free__bool(&pgd_data->lmask);
+    GFAST_memory_free__bool(&pgd_data->lactive);
+    memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Frees memory associated with the offset data 
+ *
+ * @param[inout] offset_data     offset data structure with memory to be freed
+ *
+ * @author Ben Baker (benbaker@isti.com)
+ *
+ */
+void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data)
+{
+    int i;
+    if (offset_data->stnm != NULL)
+    {
+        for (i=0; i<offset_data->nsites; i++)
+        {
+            free(offset_data->stnm[i]);
+        }
+        free(offset_data->stnm);
+    }
+    GFAST_memory_free__double(&offset_data->ubuff);
+    GFAST_memory_free__double(&offset_data->nbuff);
+    GFAST_memory_free__double(&offset_data->ebuff);
+    GFAST_memory_free__double(&offset_data->wtu);
+    GFAST_memory_free__double(&offset_data->wtn);
+    GFAST_memory_free__double(&offset_data->wte);
+    GFAST_memory_free__bool(&offset_data->lmask);
+    GFAST_memory_free__bool(&offset_data->lactive);
+    memset(offset_data, 0, sizeof(struct GFAST_offsetData_struct));
+    return;
+}
 //============================================================================//
 /*!
  * @brief Frees memory associated with waveform data on a site 
@@ -15,10 +74,10 @@
 void GFAST_memory_freeWaveformData(struct GFAST_waveformData_struct *data)
 {
     if (data == NULL){return;}
-    GFAST_memory_free(data->ubuff);
-    GFAST_memory_free(data->nbuff);
-    GFAST_memory_free(data->ebuff);
-    GFAST_memory_free(data->tbuff);
+    GFAST_memory_free__double(&data->ubuff);
+    GFAST_memory_free__double(&data->nbuff);
+    GFAST_memory_free__double(&data->ebuff);
+    GFAST_memory_free__double(&data->tbuff);
     memset(data, 0, sizeof(struct GFAST_waveformData_struct));
     return;
 }
@@ -35,8 +94,10 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
 {
     int k;
     if (gps_data == NULL){return;}
-    if (gps_data->stream_length > 0 && gps_data->data != NULL){
-        for (k=0; k<gps_data->stream_length; k++){
+    if (gps_data->stream_length > 0 && gps_data->data != NULL)
+    {
+        for (k=0; k<gps_data->stream_length; k++)
+        {
             GFAST_memory_freeWaveformData(&gps_data->data[k]);
         }
         GFAST_memory_free(gps_data->data);
@@ -258,7 +319,7 @@ bool *GFAST_memory_alloc__bool(int n)
         return x;
     }
     ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(bool));
-    if (ierr != 0){ 
+    if (ierr != 0){
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }
@@ -415,7 +476,7 @@ void GFAST_memory_free__int(int **p)
  *                     On output a NULL pointer 
  *
  */
-void memory_free__bool(bool **p)
+void GFAST_memory_free__bool(bool **p)
 {
     if (*p != NULL){
         free(*p);

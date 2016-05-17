@@ -9,9 +9,9 @@
  *
  * @param[in] n         number of points
  * @param[in] verbose   controls verbosity (0 is quiet)
- * @param[in] nAvgDisp  average displacement on north channel [n]
- * @param[in] eAvgDisp  average displacement on east channel [n]
- * @param[in] zAvgDisp  average displacement on vertical channel [n]
+ * @param[in] nOffset   offset on north channel [n]
+ * @param[in] eOffset   offset on east channel [n]
+ * @param[in] uOffset   offset on vertical channel [n]
  *
  * @param[out] U        right hand side in Gm = U [3*n]
  *
@@ -23,9 +23,9 @@
  *
  */
 int GFAST_FF__setRHS(int n, int verbose,
-                     const double *__restrict__ nAvg,
-                     const double *__restrict__ eAvg,
-                     const double *__restrict__ uAvg,
+                     const double *__restrict__ nOffset,
+                     const double *__restrict__ eOffset,
+                     const double *__restrict__ uOffset,
                      double *__restrict__ U)
 {
     const char *fcnm = "GFAST_FF__setRHS\0";
@@ -38,9 +38,9 @@ int GFAST_FF__setRHS(int n, int verbose,
     #pragma omp simd
     for (i=0; i<n; i++){
         i3 = 3*i;
-        U[i3+0] = eAvg[i];
-        U[i3+1] = nAvg[i];
-        U[i3+2] = uAvg[i]; 
+        U[i3+0] = eOffset[i];
+        U[i3+1] = nOffset[i];
+        U[i3+2] = uOffset[i]; 
     }   
     return 0;
 }

@@ -36,6 +36,7 @@
  * @param[in] staAlt           station elevation (m) [l1]
  * @param[in] d                distance (cm) [n]
  * @param[in] repi             epicentral distance (km) [n]
+ * @param[in] wts              data weights on each observation [n]
  *
  * @param[out] M               magnitude at each depth [ndeps]
  * @param[out] VR              variance reduction (percentage) at each
@@ -47,19 +48,20 @@
  *
  */
 int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
-                                       int verbose,
-                                       double dist_tol,
-                                       double dist_def,
-                                       double utmSrcEasting,
-                                       double utmSrcNorthing,
-                                       double *__restrict__ srcDepths,
-                                       double *__restrict__ utmRecvEasting,
-                                       double *__restrict__ utmRecvNorthing,
-                                       double *__restrict__ staAlt,
-                                       double *__restrict__ d,
-                                       double *__restrict__ repi,
-                                       double *__restrict__ M,
-                                       double *__restrict__ VR)
+                                int verbose,
+                                double dist_tol,
+                                double dist_def,
+                                double utmSrcEasting,
+                                double utmSrcNorthing,
+                                const double *__restrict__ srcDepths,
+                                const double *__restrict__ utmRecvEasting,
+                                const double *__restrict__ utmRecvNorthing,
+                                const double *__restrict__ staAlt,
+                                const double *__restrict__ d,
+                                const double *__restrict__ repi,
+                                const double *__restrict__ wts,
+                                double *__restrict__ M,
+                                double *__restrict__ VR)
 {
     const char *fcnm = "GFAST_scaling_PGD__depthGridSearch\0";
     double *b, *G, *r, *UP, *W, *Wb, *WG, M1[1],

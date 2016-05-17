@@ -182,6 +182,9 @@ ERROR:;
  * @param[in] ds_uncer_units  units for ucnertainty for slip in
  *                            dip direction (e.g. METERS)
  *
+ * @param[inout] xml_writer   pointer to xmlTExtWriterPtr to which the slip
+ *                            is to be written
+ * 
  * @author Ben Baker (ISTI)
  *
  * @date May 2016

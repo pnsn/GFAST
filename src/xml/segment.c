@@ -24,7 +24,7 @@
  * @param[in] depths          the depths at each vertex.  the length should
  *                            correspond to the number of points indicated by 
  *                            shape.
- * @param[in] dep_units       units for the input depths (e.g. KILOMETERS)
+ * @param[in] depth_units     units for the input depths (e.g. KILOMETERS)
  * @param[in] ss              slip in strike
  * @param[in] ss_units        units for slip in strike direction on segment
  *                            (e.g. METERS)

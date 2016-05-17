@@ -16,7 +16,7 @@
  * @param[in] method         method (for this project use gps)
  * @param[in] mt             moment tensor in NED format with units of
  *                           Newton-meters.   the moment tensor is packed
- *                           \f$ \ {m_{xx}, m_{yy}, m_{zz},
+ *                           \f$ \{ m_{xx}, m_{yy}, m_{zz},
  *                                  m_{xy}, m_{xz}, m_{yz} \} \f$.
  *
  * @param[inout] xml_writer  handle to XML writer to which moment tensor

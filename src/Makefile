@@ -68,7 +68,8 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o \
 	 $(OBJ_FF_DIR)/xml.o
-OBJ_WP = $(OBJ_WP_DIR)/peakDisplacement.o
+OBJ_WP = $(OBJ_WP_DIR)/offset.o \
+	 $(OBJ_WP_DIR)/peakDisplacement.o
 OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
 	  $(OBJ_XML_DIR)/epoch2string.o \
 	  $(OBJ_XML_DIR)/focalMechanism.o \
@@ -261,7 +262,7 @@ $(OBJ_WP_DIR)/peakDisplacement.o: waveformProcessor/peakDisplacement.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c waveformProcessor/peakDisplacement.c -o $(OBJ_WP_DIR)/peakDisplacement.o
 
 $(OBJ_WP_DIR)/offset.o: waveformProcessor/offset.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c offset/offset.c -o $(OBJ_WP_DIR)/offset.o
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c waveformProcessor/offset.c -o $(OBJ_WP_DIR)/offset.o
 
 ######################################### XML #########################################
 
