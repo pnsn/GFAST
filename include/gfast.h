@@ -196,14 +196,19 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                double *__restrict__ eEst,
                                double *__restrict__ uEst,
                                double *__restrict__ mts);
-int GFAST_CMT__driver(struct GFAST_props_struct props,
-                      struct GFAST_shakeAlert_struct SA, 
-                      struct GFAST_data_struct gps_data,
-                      struct GFAST_cmtResults_struct *cmt);
+int GFAST_CMT__driver2(struct GFAST_props_struct props,
+                       struct GFAST_shakeAlert_struct SA, 
+                       struct GFAST_data_struct gps_data,
+                       struct GFAST_cmtResults_struct *cmt);
 int GFAST_CMT__init(struct GFAST_props_struct props,
                     struct GFAST_data_struct gps_data,
                     struct GFAST_cmtResults_struct *cmt,
                     struct GFAST_offsetData_struct *cmt_data);
+int GFAST_CMT__setDiagonalWeightMatrix(int n, int verbose,
+                                       const double *__restrict__ nWts,
+                                       const double *__restrict__ eWts,
+                                       const double *__restrict__ uWts,
+                                       double *__restrict__ diagWt);
 int GFAST_CMT__setForwardModel__deviatoric(int l1, 
                                            const double *__restrict__ x1, 
                                            const double *__restrict__ y1, 
@@ -214,6 +219,14 @@ int GFAST_CMT__setRHS(int n, int verbose,
                       const double *__restrict__ eOffset,
                       const double *__restrict__ uOffset,
                       double *__restrict__ U);
+int GFAST_CMT__weightForwardModel(int mrows, int ncols,
+                                  const double *__restrict__ diagWt,
+                                  const double *__restrict__ G,
+                                  double *__restrict__ diagWtG);
+int GFAST_CMT__weightObservations(int mrows,
+                                  const double *__restrict__ diagWt,
+                                  const double *__restrict__ b,
+                                  double *__restrict__ diagWb);
 /* Finite fault inversion */
 int GFAST_FF__driver(struct GFAST_props_struct props,
                      struct GFAST_shakeAlert_struct SA, 

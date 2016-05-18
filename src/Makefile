@@ -54,8 +54,11 @@ OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
 OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
 	  $(OBJ_CMT_DIR)/depthGridSearch.o \
 	  $(OBJ_CMT_DIR)/init.o \
+	  $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o \
 	  $(OBJ_CMT_DIR)/setForwardModel.o \
-	  $(OBJ_CMT_DIR)/setRHS.o
+	  $(OBJ_CMT_DIR)/setRHS.o \
+	  $(OBJ_CMT_DIR)/weightForwardModel.o \
+	  $(OBJ_CMT_DIR)/weightObservations.o
 OBJ_EVENTS = $(OBJ_EVENTS_DIR)/getMinOriginTime.o \
 	     $(OBJ_EVENTS_DIR)/newEvent.o \
 	     $(OBJ_EVENTS_DIR)/print.o \
@@ -188,11 +191,20 @@ $(OBJ_CMT_DIR)/depthGridSearch.o: cmt/depthGridSearch.c
 $(OBJ_CMT_DIR)/init.o: cmt/init.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/init.c -o $(OBJ_CMT_DIR)/init.o
 
+$(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o: cmt/setDiagonalWeightMatrix.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setDiagonalWeightMatrix.c -o $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o
+
 $(OBJ_CMT_DIR)/setForwardModel.o: cmt/setForwardModel.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setForwardModel.c -o $(OBJ_CMT_DIR)/setForwardModel.o
 
 $(OBJ_CMT_DIR)/setRHS.o: cmt/setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/setRHS.c -o $(OBJ_CMT_DIR)/setRHS.o
+
+$(OBJ_CMT_DIR)/weightForwardModel.o: cmt/weightForwardModel.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/weightForwardModel.c -o $(OBJ_CMT_DIR)/weightForwardModel.o
+
+$(OBJ_CMT_DIR)/weightObservations.o: cmt/weightObservations.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c cmt/weightObservations.c -o $(OBJ_CMT_DIR)/weightObservations.o
 
 ###################################### Coordtools #####################################
 

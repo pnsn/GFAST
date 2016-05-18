@@ -82,12 +82,15 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                double *__restrict__ mts)
 {
     const char *fcnm = "GFAST_CMT__depthGridSearch\0";
-    double *G, *U, *UP, *xrs, *yrs, *zrs_negative, S[6],
+    double *diagWt, *G, *U, *UP, *WG, *WU, *xrs, *yrs, *zrs_negative, S[6],
            eq_alt, m11, m12, m13, m22, m23, m33;
     int i, idep, ierr, ierr1, ldg, mrows, ncols;
     // Initialize
     ierr = 0;
+    diagWt = NULL;
+    WG = NULL;
     G = NULL;
+    WU = NULL;
     U = NULL;
     UP = NULL;
     xrs = NULL;
@@ -108,10 +111,12 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         mts == NULL)
     {
         if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
-        if (utmRecvEasting == NULL){
+        if (utmRecvEasting == NULL)
+        {
             log_errorF("%s: utmRecvEasting is NULL!\n", fcnm);
         }
-        if (utmRecvNorthing == NULL){
+        if (utmRecvNorthing == NULL)
+        {
             log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
         }
         if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
@@ -161,7 +166,10 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     if (deviatoric){ncols = 5;}
     mrows = 3*l1;
     ldg = ncols;  // In row major format
+    diagWt = GFAST_memory_calloc__double(mrows);
     G = GFAST_memory_calloc__double(mrows*ncols);
+    WG = GFAST_memory_calloc__double(mrows*ncols);
+    WU = GFAST_memory_calloc__double(mrows);
     U = GFAST_memory_calloc__double(mrows);
     UP = GFAST_memory_calloc__double(mrows);
     xrs = GFAST_memory_calloc__double(l1);
@@ -181,6 +189,31 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         log_errorF("%s: error setting RHS!\n", fcnm);
         goto ERROR;
     }
+    // Compute the diagonal data weights
+    ierr = GFAST_CMT__setDiagonalWeightMatrix(l1, verbose,
+                                              nWts,
+                                              eWts,
+                                              uWts,
+                                              diagWt);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Failed to set weight matrix - will set to identity\n",
+                   fcnm);
+        for (i=0; i<mrows; i++)
+        {
+            diagWt[i] = 1.0;
+        }
+    }
+    // Apply the diagonal data weights to the data
+    ierr = GFAST_CMT__weightObservations(mrows,
+                                         diagWt,
+                                         U,
+                                         WU);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Failed to apply data weights to data\n", fcnm);
+        return -1;
+    }
     // Grid search on source depths
     time_tic();
     if (verbose > 2)
@@ -189,11 +222,11 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     }
 #ifdef __PARALLEL_CMT
     #pragma omp parallel for \
-     firstprivate(G, UP, zrs_negative) \
+     firstprivate(G, UP, WG, zrs_negative) \
      private (i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, S ) \
-     shared (eEst, fcnm, ldg, l1, mts, mrows, \
+     shared (diagWt, eEst, fcnm, ldg, l1, mts, mrows, \
              ncols, ndeps, nEst, srcDepths, staAlt, \
-             uEst, U, xrs, yrs) \
+             uEst, U, WU, xrs, yrs) \
      reduction(+:ierr) default(none)
 #endif
     for (idep=0; idep<ndeps; idep++)
@@ -218,9 +251,17 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
             ierr = ierr + 1;
             continue;
         }
-        // Solve the least squares problem
+        // Apply the data weights
+        ierr1 = GFAST_CMT__weightForwardModel(mrows, ncols, diagWt, G, WG);
+        if (ierr1 != 0)
+        {
+            log_errorF("%s: Error weighting forward modeling matrix!\n", fcnm);
+            ierr = ierr + 1;
+            continue;
+        }
+        // Solve the weighted least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
-                                mrows, ncols, 1, G, U,
+                                mrows, ncols, 1, WG, WU,
                                 S, NULL);
         if (ierr1 != 0)
         {
@@ -265,7 +306,10 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
         }
     }
 ERROR:;
+    GFAST_memory_free__double(&diagWt);
+    GFAST_memory_free__double(&WG);
     GFAST_memory_free__double(&G);
+    GFAST_memory_free__double(&WU);
     GFAST_memory_free__double(&U);
     GFAST_memory_free__double(&UP);
     GFAST_memory_free__double(&xrs);

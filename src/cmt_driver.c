@@ -35,10 +35,10 @@ bool __GFAST_CMT__getAvgDisplacement(int npts, bool lremove_disp0,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-int GFAST_CMT__driver(struct GFAST_props_struct props,
-                      struct GFAST_shakeAlert_struct SA,
-                      struct GFAST_data_struct gps_data,
-                      struct GFAST_cmtResults_struct *cmt)
+int GFAST_CMT__driver2(struct GFAST_props_struct props,
+                       struct GFAST_shakeAlert_struct SA,
+                       struct GFAST_data_struct gps_data,
+                       struct GFAST_cmtResults_struct *cmt)
 {
     const char *fcnm = "GFAST_CMT__driver\0";
     enum cmt_return_enum
