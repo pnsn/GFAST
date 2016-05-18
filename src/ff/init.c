@@ -38,17 +38,23 @@ int GFAST_FF__init(struct GFAST_props_struct props,
     }
     // data
     ff_data->stnm = (char **)calloc(gps_data.stream_length, sizeof(char *));
-    ff_data->ubuff = GFAST_memory_calloc__double(gps_data.stream_length);
-    ff_data->nbuff = GFAST_memory_calloc__double(gps_data.stream_length); 
-    ff_data->ebuff = GFAST_memory_calloc__double(gps_data.stream_length);
-    ff_data->wtu   = GFAST_memory_calloc__double(gps_data.stream_length);
-    ff_data->wtn   = GFAST_memory_calloc__double(gps_data.stream_length); 
-    ff_data->wte   = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->ubuff   = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->nbuff   = GFAST_memory_calloc__double(gps_data.stream_length); 
+    ff_data->ebuff   = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->wtu     = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->wtn     = GFAST_memory_calloc__double(gps_data.stream_length); 
+    ff_data->wte     = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->sta_lat = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->sta_lon = GFAST_memory_calloc__double(gps_data.stream_length);
+    ff_data->sta_alt = GFAST_memory_calloc__double(gps_data.stream_length);
     ff_data->lmask   = GFAST_memory_calloc__bool(gps_data.stream_length);
     ff_data->lactive = GFAST_memory_calloc__bool(gps_data.stream_length);
     ff_data->nsites = gps_data.stream_length;
     for (i=0; i<ff_data->nsites; i++)
-    {   
+    {
+        ff_data->sta_lat[i] = gps_data.data[i].sta_lat;
+        ff_data->sta_lon[i] = gps_data.data[i].sta_lon;
+        ff_data->sta_alt[i] = gps_data.data[i].sta_alt;
         ff_data->stnm[i] = (char *)calloc(64, sizeof(char));
         strcpy(ff_data->stnm[i], gps_data.data[i].site);
         if (gps_data.data[i].lskip_ff){ff_data->lmask[i] = true;}

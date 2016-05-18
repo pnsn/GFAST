@@ -268,15 +268,16 @@ struct GFAST_peakDisplacementData_struct
                           site [nsites] */
     double *wt;      /*!< Data weight on the i'th peak displacement observation
                           [nsites] */
+    double *sta_lat; /*!< Site latitude [-90,90] (degrees) */
+    double *sta_lon; /*!< Site longitude [0,360] (degrees) */
+    double *sta_alt; /*!< Site altitude (m) above sea-level */
     bool *lmask;     /*!< If true then mask the i'th site in this inversion
                           [nsites] */
     bool *lactive;   /*!< If true then the i'th site has data from the waveform
-                          processor and can is an active participant in the
+                          processor and can be an active participant in the
                           inversion [nsites] */
-    double sta_lat;  /*!< Site latitude [-90,90] (degrees) */
-    double sta_lon;  /*!< Site longitude [0,360] (degrees) */
-    double sta_alt;  /*!< Site altitude (m) */
-    int nsites;      /*!< Number of sites */
+    int nsites;      /*!< Number of sites (should be consistent with
+                          buffered data) */
 };
 
 struct GFAST_offsetData_struct
@@ -294,10 +295,13 @@ struct GFAST_offsetData_struct
                            observation [nsites] */
     double *wte;      /*!< Data weight on the i'th east offset 
                            observation [nsites] */
+    double *sta_lat; /*!< Site latitude [-90,90] (degrees) */
+    double *sta_lon; /*!< Site longitude [0,360] (degrees) */
+    double *sta_alt; /*!< Site altitude (m) above sea-level */
     bool *lmask;     /*!< If true then mask the i'th site in this inversion
                           [nsites] */
     bool *lactive;   /*!< If true then the i'th site has data from the waveform
-                          processor and can is an active participant in the
+                          processor and can be an active participant in the
                           inversion [nsites] */
     int nsites;       /*!< Number of sites */
 };

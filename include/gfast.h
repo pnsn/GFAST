@@ -129,10 +129,15 @@ int GFAST_readElarmS(struct GFAST_props_struct props,
 int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
                                             struct GFAST_shakeAlert_struct *SA);
 /* PGD Scaling */
-int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
-                              struct GFAST_shakeAlert_struct SA,
-                              struct GFAST_data_struct gps_data,
-                              struct GFAST_pgdResults_struct *pgd);
+int GFAST_scaling_PGD__driver(
+   struct GFAST_pgd_props_struct pgd_props,
+   double SA_lat, double SA_lon, double SA_dep,
+   struct GFAST_peakDisplacementData_struct pgd_data,
+   struct GFAST_pgdResults_struct *pgd);
+int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
+                               struct GFAST_shakeAlert_struct SA,
+                               struct GFAST_data_struct gps_data,
+                               struct GFAST_pgdResults_struct *pgd);
 int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                 int verbose,
                                 double dist_tol,

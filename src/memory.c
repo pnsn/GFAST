@@ -26,6 +26,9 @@ void GFAST_memory_freePGDData(
     }
     GFAST_memory_free__double(&pgd_data->pd);
     GFAST_memory_free__double(&pgd_data->wt);
+    GFAST_memory_free__double(&pgd_data->sta_lat);
+    GFAST_memory_free__double(&pgd_data->sta_lon);
+    GFAST_memory_free__double(&pgd_data->sta_alt);
     GFAST_memory_free__bool(&pgd_data->lmask);
     GFAST_memory_free__bool(&pgd_data->lactive);
     memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
@@ -57,6 +60,9 @@ void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data)
     GFAST_memory_free__double(&offset_data->wtu);
     GFAST_memory_free__double(&offset_data->wtn);
     GFAST_memory_free__double(&offset_data->wte);
+    GFAST_memory_free__double(&offset_data->sta_lat);
+    GFAST_memory_free__double(&offset_data->sta_lon);
+    GFAST_memory_free__double(&offset_data->sta_alt);
     GFAST_memory_free__bool(&offset_data->lmask);
     GFAST_memory_free__bool(&offset_data->lactive);
     memset(offset_data, 0, sizeof(struct GFAST_offsetData_struct));

@@ -119,6 +119,11 @@ int GFAST_waveformProcessor__offset(
     // Loop on streams and if they satisfy the S wave mask get their offsets 
     for (k=0; k<gps_data.stream_length; k++)
     {
+        // Make sure I have the latest/greatest site location 
+        offset_data->sta_lat[k] = gps_data.data[k].sta_lat;
+        offset_data->sta_lon[k] = gps_data.data[k].sta_lon; 
+        offset_data->sta_alt[k] = gps_data.data[k].sta_alt;
+        // Null out result
         offset_data->ubuff[k] = 0.0; // Null out result
         offset_data->nbuff[k] = 0.0;
         offset_data->ebuff[k] = 0.0;

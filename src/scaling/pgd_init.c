@@ -38,11 +38,17 @@ int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
     pgd_data->stnm = (char **)calloc(gps_data.stream_length, sizeof(char *));
     pgd_data->pd = GFAST_memory_calloc__double(gps_data.stream_length);
     pgd_data->wt = GFAST_memory_calloc__double(gps_data.stream_length);
+    pgd_data->sta_lat = GFAST_memory_calloc__double(gps_data.stream_length);
+    pgd_data->sta_lon = GFAST_memory_calloc__double(gps_data.stream_length);
+    pgd_data->sta_alt = GFAST_memory_calloc__double(gps_data.stream_length);
     pgd_data->lmask   = GFAST_memory_calloc__bool(gps_data.stream_length);
     pgd_data->lactive = GFAST_memory_calloc__bool(gps_data.stream_length);
     pgd_data->nsites = gps_data.stream_length;
     for (i=0; i<pgd_data->nsites; i++)
     {
+        pgd_data->sta_lat[i] = gps_data.data[i].sta_lat;
+        pgd_data->sta_lon[i] = gps_data.data[i].sta_lon; 
+        pgd_data->sta_alt[i] = gps_data.data[i].sta_alt;
         pgd_data->stnm[i] = (char *)calloc(64, sizeof(char));
         strcpy(pgd_data->stnm[i], gps_data.data[i].site);
         if (gps_data.data[i].lskip_pgd){pgd_data->lmask[i] = true;}

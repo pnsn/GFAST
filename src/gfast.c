@@ -279,19 +279,26 @@ printf("%f\n", props.synthetic_runtime);
                                     gps_acquisition,
                                     &ff_data,
                                     &ierr);
-                // Run the PGD scaling 
-//props.verbose = 0;
-                ierr = GFAST_scaling_PGD__driver(props.pgd_props,
-                                                 events.SA[iev],
-                                                 gps_acquisition,
-                                                 &pgd);
+                // Run the PGD scaling
+                ierr = GFAST_scaling_PGD__driver2(props.pgd_props,
+                                                  events.SA[iev],
+                                                  gps_acquisition,
+                                                  &pgd);
+                if (nsites_ff > props.pgd_props.min_sites)
+                {
+                    ierr = GFAST_scaling_PGD__driver(props.pgd_props,
+                                                     SA.lat, SA.lon, SA.dep,
+                                                     pgd_data,
+                                                     &pgd);
+                }
 //props.verbose = verbose0;
                 ierr = GFAST_CMT__driver(props,
                                          events.SA[iev],
                                          gps_acquisition,
                                          &cmt);
                 // If we got a CMT see if we can run an MT inversion  
-                if (ierr == 0){
+                if (ierr == 0)
+                {
                     ff.nfp = 2;
                     ff.SA_lat = events.SA[iev].lat;
                     ff.SA_lon = events.SA[iev].lon;

@@ -96,6 +96,11 @@ int GFAST_waveformProcessor__peakDisplacement(
     // Loop on streams and if they satisfy the S wave mask get their PGD
     for (k=0; k<gps_data.stream_length; k++)
     {
+        // Make sure I have the latest/greatest site location 
+        pgd_data->sta_lat[k] = gps_data.data[k].sta_lat;
+        pgd_data->sta_lon[k] = gps_data.data[k].sta_lon; 
+        pgd_data->sta_alt[k] = gps_data.data[k].sta_alt;
+        // Null out result
         pgd_data->pd[k] = 0.0; // Null out result
         pgd_data->wt[k] = 0.0; // Assume no weight
         pgd_data->lactive[k] = false; // Assume site is not active in inversion
