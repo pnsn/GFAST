@@ -12,7 +12,7 @@
  * @param[in] b          observations [mrows]
  *
  * @param[out] diagWb    weighted observations such that
- *                       \f$ \tilde{b} = \diag \{W\} b \f$ [mrows]
+ *                       \f$ \tilde{b} = diag \{W\} b \f$ [mrows]
  *
  * @result -1 indicates an error
  *          0 indicates success
