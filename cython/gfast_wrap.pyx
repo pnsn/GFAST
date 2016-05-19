@@ -368,9 +368,9 @@ class CMT:
                      np.ndarray[double, ndim=1, mode="c"] nObsOffset not None,
                      np.ndarray[double, ndim=1, mode="c"] eObsOffset not None,
                      np.ndarray[double, ndim=1, mode="c"] uObsOffset not None,
-                     np.ndarray[double, ndim=1, mode="c"] nWts,
-                     np.ndarray[double, ndim=1, mode="c"] eWts,
-                     np.ndarray[double, ndim=1, mode="c"] uWts,
+                     np.ndarray[double, ndim=1, mode="c"] nWts = None,
+                     np.ndarray[double, ndim=1, mode="c"] eWts = None,
+                     np.ndarray[double, ndim=1, mode="c"] uWts = None,
                      deviatoric = True,
                      verbose = 0):
     """

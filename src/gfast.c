@@ -51,7 +51,7 @@ int main()
     long message_length;
     int iev, k, kt, nsites_cmt, nsites_ff, nsites_pgd, ntsim, verbose0;
     int ierr = 0;
-    bool ldel_event, lnew_event, lupd_event;
+    bool lcmt_success, ldel_event, lnew_event, lupd_event;
     //------------------------------------------------------------------------//
     // 
     // Initializations
@@ -292,19 +292,22 @@ printf("%f\n", props.synthetic_runtime);
                                                      &pgd);
                 }
 //props.verbose = verbose0;
+                lcmt_success = false;
                 ierr = GFAST_CMT__driver2(props,
                                           events.SA[iev],
                                           gps_acquisition,
                                           &cmt);
+if (ierr == 0){lcmt_success = true;}
                 if (nsites_cmt > props.cmt_min_sites)
                 {
                     ierr = GFAST_scaling_CMT__driver(props,
                                                      SA.lat, SA.lon, SA.dep,
                                                      cmt_data,
                                                      &cmt);
+                    if (ierr == 0){lcmt_success = true;}
                 }
                 // If we got a CMT see if we can run an MT inversion  
-                if (ierr == 0)
+                if (lcmt_success)
                 {
                     ff.nfp = 2;
                     ff.SA_lat = events.SA[iev].lat;
@@ -320,8 +323,15 @@ ff.str[1] = 219.96796844;
 ff.dip[1] = 69.27746075;
 ff.str[0] = 116.78477424;
 ff.dip[0] = 58.91674731;
-                    ierr = GFAST_FF__driver(props, events.SA[iev],
-                                            gps_acquisition, &ff);
+                    ierr = GFAST_FF__driver2(props, events.SA[iev],
+                                             gps_acquisition, &ff);
+                    if (nsites_ff > 0)
+                    {
+                        ierr = GFAST_FF__driver(props,
+                                                SA.lat, SA.lon, SA.dep,
+                                                ff_data,
+                                                &ff);
+                    }
 /*
 int iopt = ff.preferred_fault_plane;
 ierr = GFAST_FF__xml__write(props.opmode,

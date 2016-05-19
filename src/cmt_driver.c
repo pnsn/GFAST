@@ -16,6 +16,8 @@ bool __GFAST_CMT__getAvgDisplacement(int npts, bool lremove_disp0,
                                      double *__restrict__ nbuff,
                                      double *__restrict__ ebuff,
                                      double *uAvg, double *nAvg, double *eAvg);
+static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
+                                struct GFAST_cmtResults_struct *cmt);
 
 /*!
  * @brief Drives the CMT estimation.
@@ -48,14 +50,6 @@ int GFAST_scaling_CMT__driver(
    struct GFAST_cmtResults_struct *cmt)
 {
     const char *fcnm = "GFAST_scaling_CMT__driver\0";
-    enum cmt_return_enum
-    {   
-        CMT_SUCCESS = 0,            /*<! CMT computation was successful */
-        CMT_STRUCT_ERROR = 1,       /*!< CMT structure is invalid */
-        CMT_OS_DATA_ERROR = 2,      /*!< CMT offset data structure invalid */
-        CMT_INSUFFICIENT_DATA = 3,  /*!< Insufficient data to invert */
-        CMT_COMPUTE_ERROR = 4       /*!< An internal error was encountered */
-    };
     double *utmRecvEasting, *utmRecvNorthing, *staAlt,
            *eOffset, *eEst, *eWts, *nOffset, *nEst, *nWts,
            *uOffset, *uEst, *uWts,
@@ -80,91 +74,11 @@ int GFAST_scaling_CMT__driver(
     nEst = NULL;
     eEst = NULL;
     uEst = NULL;
-    if (cmt_data.nsites < 1)
+    // Verify input data structures
+    ierr =__verify_cmt_structs(cmt_data, cmt);
+    if (ierr != CMT_SUCCESS)
     {
-        ierr = CMT_OS_DATA_ERROR;
-        if (cmt_props.verbose > 1)
-        {
-            log_warnF("%s: No peak displacement data\n", fcnm);
-        }
-        goto ERROR;
-    }
-    // Verify the output data structures
-    if (cmt->ndeps < 1)
-    {
-        log_errorF("%s: No depths in CMT gridsearch!\n", fcnm);
-        ierr = CMT_STRUCT_ERROR;
-        goto ERROR;
-    }
-    if (cmt->objfn == NULL || cmt->mts == NULL ||
-        cmt->str1 == NULL || cmt->str2 == NULL ||
-        cmt->dip1 == NULL || cmt->dip2 == NULL ||
-        cmt->rak1 == NULL || cmt->rak2 == NULL ||
-        cmt->Mw == NULL || cmt->srcDepths == NULL ||
-        cmt->EN == NULL || cmt->NN == NULL || cmt->UN == NULL)
-    {
-        if (cmt->objfn == NULL)
-        {
-            log_errorF("%s: Error cmt->objfn is NULL\n", fcnm);
-        }
-        if (cmt->mts == NULL)
-        {
-            log_errorF("%s: Error cmt->mts is NULL\n", fcnm);
-        }
-        if (cmt->str1 == NULL)
-        {
-            log_errorF("%s: Error cmt->str1 is NULL\n", fcnm);
-        }
-        if (cmt->str2 == NULL)
-        {   
-            log_errorF("%s: Error cmt->str2 is NULL\n", fcnm);
-        }
-        if (cmt->dip1 == NULL)
-        {   
-            log_errorF("%s: Error cmt->dip1 is NULL\n", fcnm);
-        }
-        if (cmt->dip2 == NULL)
-        {
-            log_errorF("%s: Error cmt->dip2 is NULL\n", fcnm);
-        }
-        if (cmt->rak1 == NULL)
-        {
-            log_errorF("%s: Error cmt->rak1 is NULL\n", fcnm);
-        }
-        if (cmt->rak2 == NULL)
-        {
-            log_errorF("%s: Error cmt->rak2 is NULL\n", fcnm);
-        }
-        if (cmt->Mw == NULL)
-        {
-            log_errorF("%s: Error Mw is NULL\n", fcnm);
-        }
-        if (cmt->srcDepths == NULL)
-        {
-            log_errorF("%s: Error srcDepths is NULL\n", fcnm);
-        }
-        if (cmt->EN == NULL)
-        {
-            log_errorF("%s: Error EN is NULL\n", fcnm);
-        }
-        if (cmt->NN == NULL)
-        {
-            log_errorF("%s: Error NN is NULL\n", fcnm);
-        }
-        if (cmt->UN == NULL)
-        {
-            log_errorF("%s: Error UN is NULL\n", fcnm);
-        }
-        ierr = CMT_STRUCT_ERROR;
-        goto ERROR;
-    }
-    // Avoid a segfault
-    if (cmt->nsites != cmt_data.nsites)
-    {   
-        log_errorF("%s: nsites on cmt and cmt_data differs %d %d\n",
-                   fcnm, cmt->nsites, cmt_data.nsites);
-        ierr = CMT_STRUCT_ERROR;
-        goto ERROR;
+        log_errorF("%s: Error failed to verify data structures\n", fcnm);
     }
     // Warn in case hypocenter is outside of grid-search
     if (cmt_props.verbose > 1 &&
@@ -244,7 +158,7 @@ int GFAST_scaling_CMT__driver(
                              &lnorthp, &zone_loc);
     utmSrcNorthing = y1;
     utmSrcEasting = x1;
-    // Require there is a sufficient amount of data to invert
+    // Get cartesian positions and observations onto local arrays
     l1 = 0;
     for (k=0; k<cmt_data.nsites; k++)
     {
@@ -343,7 +257,7 @@ int GFAST_scaling_CMT__driver(
             {
                 cmt->NN[idep*cmt->nsites+k] = nEst[idep*l1+i];
                 cmt->EN[idep*cmt->nsites+k] = eEst[idep*l1+i];
-                cmt->UN[idep*cmt->nsites+i] = uEst[idep*l1+i];
+                cmt->UN[idep*cmt->nsites+k] = uEst[idep*l1+i];
                 i = i + 1;
             }
         }
@@ -371,6 +285,117 @@ ERROR:;
     GFAST_memory_free__double(&uWts);
     return ierr;
 }
+//============================================================================//
+/*!
+ * @brief Utility function for verifying input data structures
+ *
+ * @param[in] cmt_data   cmt_data structure to verify
+ * @param[in] cmt        cmt results structure to verify
+ *
+ * @result CMT_SUCCESS indicates input structures are ready for use
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
+static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
+                                struct GFAST_cmtResults_struct *cmt)
+{
+    const char *fcnm = "__verify_cmt_structs\0";
+    int ierr;
+    ierr = CMT_SUCCESS;
+    // Require there is offset data
+    if (cmt_data.nsites < 1)
+    {
+        ierr = CMT_OS_DATA_ERROR;
+        log_errorF("%s: No offset data\n", fcnm);
+        goto ERROR;
+    }
+    if (cmt_data.nsites < 1)
+    {
+        ierr = CMT_OS_DATA_ERROR;
+        log_errorF("%s: No peak displacement data\n", fcnm);
+        goto ERROR;
+    }
+    // Verify the output data structures
+    if (cmt->ndeps < 1)
+    {
+        log_errorF("%s: No depths in CMT gridsearch!\n", fcnm);
+        ierr = CMT_STRUCT_ERROR;
+        goto ERROR;
+    }
+    if (cmt->objfn == NULL || cmt->mts == NULL ||
+        cmt->str1 == NULL || cmt->str2 == NULL ||
+        cmt->dip1 == NULL || cmt->dip2 == NULL ||
+        cmt->rak1 == NULL || cmt->rak2 == NULL ||
+        cmt->Mw == NULL || cmt->srcDepths == NULL ||
+        cmt->EN == NULL || cmt->NN == NULL || cmt->UN == NULL)
+    {
+        if (cmt->objfn == NULL)
+        {
+            log_errorF("%s: Error cmt->objfn is NULL\n", fcnm);
+        }
+        if (cmt->mts == NULL)
+        {
+            log_errorF("%s: Error cmt->mts is NULL\n", fcnm);
+        }
+        if (cmt->str1 == NULL)
+        {
+            log_errorF("%s: Error cmt->str1 is NULL\n", fcnm);
+        }
+        if (cmt->str2 == NULL)
+        {
+            log_errorF("%s: Error cmt->str2 is NULL\n", fcnm);
+        }
+        if (cmt->dip1 == NULL)
+        {
+            log_errorF("%s: Error cmt->dip1 is NULL\n", fcnm);
+        }
+        if (cmt->dip2 == NULL)
+        {
+            log_errorF("%s: Error cmt->dip2 is NULL\n", fcnm);
+        }
+        if (cmt->rak1 == NULL)
+        {
+            log_errorF("%s: Error cmt->rak1 is NULL\n", fcnm);
+        }
+        if (cmt->rak2 == NULL)
+        {
+            log_errorF("%s: Error cmt->rak2 is NULL\n", fcnm);
+        }
+        if (cmt->Mw == NULL)
+        {
+            log_errorF("%s: Error Mw is NULL\n", fcnm);
+        }
+        if (cmt->srcDepths == NULL)
+        {
+            log_errorF("%s: Error srcDepths is NULL\n", fcnm);
+        }
+        if (cmt->EN == NULL)
+        {
+            log_errorF("%s: Error EN is NULL\n", fcnm);
+        }
+        if (cmt->NN == NULL)
+        {
+            log_errorF("%s: Error NN is NULL\n", fcnm);
+        }
+        if (cmt->UN == NULL)
+        {
+            log_errorF("%s: Error UN is NULL\n", fcnm);
+        }
+        ierr = CMT_STRUCT_ERROR;
+        goto ERROR;
+    }
+    // Avoid a segfault
+    if (cmt->nsites != cmt_data.nsites)
+    {
+        log_errorF("%s: nsites on cmt and cmt_data differs %d %d\n",
+                   fcnm, cmt->nsites, cmt_data.nsites);
+        ierr = CMT_STRUCT_ERROR;
+        goto ERROR;
+    }
+ERROR:;
+    return ierr;
+}
 /*!
  * @brief Drives the CMT estimation.
  *
@@ -395,13 +420,13 @@ int GFAST_CMT__driver2(struct GFAST_props_struct props,
                        struct GFAST_cmtResults_struct *cmt)
 {
     const char *fcnm = "GFAST_CMT__driver2\0";
-    enum cmt_return_enum
-    {
-        CMT_SUCCESS = 0,
-        CMT_STRUCT_ERROR = 1,
-        CMT_GPS_DATA_ERROR = 2,
-        CMT_INSUFFICIENT_DATA = 3,
-        CMT_COMPUTE_ERROR = 4
+    enum cmt_return2_enum
+    {   
+        CMT_SUCCESS = 0,            /*<! CMT computation was successful */
+        CMT_STRUCT_ERROR = 1,       /*!< CMT structure is invalid */
+        CMT_GPS_DATA_ERROR = 2,     /*!< CMT offset data structure invalid */
+        CMT_INSUFFICIENT_DATA = 3,  /*!< Insufficient data to invert */
+        CMT_COMPUTE_ERROR = 4       /*!< An internal error was encountered */
     };
     double *utmRecvEasting, *utmRecvNorthing, *staAlt, *x2, *y2,
            *eAvgDisp, *eEst, *eWts, *nAvgDisp, *nEst, *nWts,

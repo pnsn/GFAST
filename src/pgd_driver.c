@@ -39,8 +39,6 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
  *
  * @date May 2016
  *
- * @bug The data weights are not yet applied to the data
- *
  */ 
 int GFAST_scaling_PGD__driver(
    struct GFAST_pgd_props_struct pgd_props,
@@ -49,14 +47,6 @@ int GFAST_scaling_PGD__driver(
    struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__driver\0";
-    enum pgd_return_enum
-    {
-        PGD_SUCCESS = 0,           /*!< PGD computation was successful */
-        PGD_STRUCT_ERROR = 1,      /*!< PGD structure is invalid */
-        PGD_PD_DATA_ERROR = 2,     /*!< PGD data structure invalid */
-        PGD_INSUFFICIENT_DATA = 3, /*!< Insufficient data to invert */
-        PGD_COMPUTE_ERROR = 4      /*!< An internal error was encountered */
-    };
     double *d, *repi, *staAlt, *utmRecvEasting, *utmRecvNorthing, *wts,
            epiDist, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
     int i, ierr, k, l1, zone_loc;
@@ -277,7 +267,7 @@ int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
                                struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__driver2\0";
-    enum pgd_return_enum
+    enum pgd_return2_enum
     {
         PGD_SUCCESS = 0,
         PGD_STRUCT_ERROR = 1,
