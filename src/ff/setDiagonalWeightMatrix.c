@@ -7,8 +7,8 @@
  *
  * @param[in] n         number of of observations 
  * @param[in] verbose   controls verbosity (0 is quiet)
- * @param[in] eWts      data weights on east observation [n]
  * @param[in] nWts      data weights on north observation [n]
+ * @param[in] eWts      data weights on east observation [n]
  * @param[in] uWts      data weights on vertical observations [n]
  *
  * @param[out] diagWt   diagonal matrix of data weights to apply to
@@ -20,8 +20,8 @@
  *
  */
 int GFAST_FF__setDiagonalWeightMatrix(int n, int verbose,
-                                      const double *__restrict__ eWts,
                                       const double *__restrict__ nWts,
+                                      const double *__restrict__ eWts,
                                       const double *__restrict__ uWts,
                                       double *__restrict__ diagWt)
 {
@@ -39,6 +39,7 @@ int GFAST_FF__setDiagonalWeightMatrix(int n, int verbose,
     }
     if (nWts == NULL || eWts == NULL || uWts == NULL)
     {
+        // Weights not specified
         if (nWts == NULL && eWts == NULL && uWts == NULL)
         {
             log_warnF("%s: Setting diagonal weight matrix to unity\n", fcnm);

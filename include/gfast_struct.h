@@ -221,8 +221,8 @@ struct GFAST_ffResults_struct
                                                (degrees) [nfp] */
     double *dip;                          /*!< Dip on ifp'th fault plane 
                                                (degrees) [nfp] */
-    double SA_lat;                        /*!< Source latitude (degrees) */
-    double SA_lon;                        /*!< Source longitude (degrees) */
+    double SA_lat;                        /*!< Source latitude (degrees) [-90,90] */
+    double SA_lon;                        /*!< Source longitude (degrees) [-180,360) */
     double SA_dep;                        /*!< Source depth (km) */
     double SA_mag;                        /*!< Source magnitude (Mw) */
     int preferred_fault_plane;            /*!< Preferred fault plane */

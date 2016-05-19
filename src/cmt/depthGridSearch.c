@@ -185,7 +185,8 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     // Set the RHS
     ierr = GFAST_CMT__setRHS(l1, verbose,
                              nObsOffset, eObsOffset, uObsOffset, U);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: error setting RHS!\n", fcnm);
         goto ERROR;
     }

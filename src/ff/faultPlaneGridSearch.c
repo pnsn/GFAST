@@ -125,7 +125,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                    )
 {
     const char *fcnm = "GFAST_FF__faultPlaneGridSearch\0";
-    double *G2, *R, *S, *T, *UD, *UP, *xrs, *yrs, *zrs,
+    double *diagWt, *G, *G2, *R, *S, *T, *UD, *UP, *WUD, *xrs, *yrs, *zrs,
            ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
     int i, ierr, ierr1, if_off, ifp, ij, io_off, j,
         mrowsG, mrowsG2, mrowsT, ncolsG, ncolsG2, ncolsT, ng, ng2, nt;
@@ -206,25 +206,36 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     xrs = GFAST_memory_calloc__double(l1*l2);
     yrs = GFAST_memory_calloc__double(l1*l2);
     zrs = GFAST_memory_calloc__double(l1*l2);
+    G  = GFAST_memory_calloc__double(ng);
     G2 = GFAST_memory_calloc__double(ng2);
-    UD = GFAST_memory_calloc__double(mrowsG2);
+    WUD = GFAST_memory_calloc__double(mrowsG2);
+    UD = GFAST_memory_calloc__double(mrowsG);
     UP = GFAST_memory_calloc__double(mrowsG);
     T  = GFAST_memory_calloc__double(nt);
     S  = GFAST_memory_calloc__double(ncolsG2);
+    diagWt = GFAST_memory_calloc__double(mrowsG);
     if (lrmtx){R = GFAST_memory_calloc__double(ncolsG2*ncolsG2);}
-    if (xrs == NULL || yrs == NULL || zrs == NULL ||
-        G2 == NULL || UD == NULL || UP == NULL || T == NULL || S == NULL ||
-        (lrmtx && R == NULL) )
+    if (xrs == NULL || yrs == NULL || zrs == NULL || G == NULL ||
+        G2 == NULL || UD == NULL || WUD == NULL || UP == NULL ||
+        T == NULL || S == NULL ||
+        diagWt == NULL || (lrmtx && R == NULL) )
     {
         if (xrs == NULL){log_errorF("%s: Error setting space for xrs\n", fcnm);}
         if (yrs == NULL){log_errorF("%s: Error setting space for yrs\n", fcnm);}
         if (zrs == NULL){log_errorF("%s: Error setting space for zrs\n", fcnm);}
+        if (G == NULL){log_errorF("%s: Error setting space for G\n", fcnm);}
         if (G2 == NULL){log_errorF("%s: Error setting space for G2\n", fcnm);}
+        if (WUD == NULL){log_errorF("%s: Error setting space for WUD\n", fcnm);}
         if (UD == NULL){log_errorF("%s: Error setting space for UP\n", fcnm);}
         if (UP == NULL){log_errorF("%s: Error setting space for UP\n", fcnm);}
         if (T  == NULL){log_errorF("%s: Error setting space for T\n",  fcnm);}
         if (S  == NULL){log_errorF("%s: Error setting space for S\n",  fcnm);}
-        if (lrmtx && R == NULL){
+        if (diagWt == NULL)
+        {
+            log_errorF("%s: Error setting space for diagWt\n", fcnm);
+        }
+        if (lrmtx && R == NULL)
+        {
             log_errorF("%s: Error setting space for R\n", fcnm);
         }
         ierr = 5;
@@ -239,7 +250,30 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     if (ierr != 0)
     {
         log_errorF("%s: Error setting right hand side\n", fcnm);
-        ierr = 4;
+        goto ERROR;
+    }
+    // Compute the diagonal data weights
+    ierr = GFAST_FF__setDiagonalWeightMatrix(l1, verbose,
+                                             nWts,
+                                             eWts,
+                                             uWts,
+                                             diagWt);
+    if (ierr != 0)
+    {
+        log_warnF("%s: Setting data weights to unity\n", fcnm);
+        for (i=0; i<mrowsG; i++)
+        {
+            diagWt[i] = 1.0;
+        }
+    }
+    // Weight the observations
+    ierr = GFAST_FF__weightObservations(mrowsG,
+                                        diagWt,
+                                        UD,
+                                        WUD);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error weighting observations\n", fcnm);
         goto ERROR;
     }
     // Begin the grid search on fault planes
@@ -251,14 +285,14 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     }
 #ifdef PARALLEL_FF
     #pragma omp parallel for \
-     firstprivate(G2, R, S, T, UP, xrs, yrs, zrs) \
+     firstprivate(G, G2, R, S, T, UP, xrs, yrs, zrs) \
      private(ds_unc, i, ierr1, ifp, if_off, ij, io_off, j, \
              lampred, len0, M0, res, ss_unc, st, wid0, xden, xnum) \
-     shared(dip, dslip, dslip_unc, EN, fault_alt, fault_xutm, fault_yutm, \
-            fcnm, l1, l2, ldslip_unc, length, lrmtx, lsslip_unc, \
-            Mw, mrowsG2, mrowsG, ncolsG2, ndip, \
+     shared(diagWt, dip, dslip, dslip_unc, EN, fault_alt, \
+            fault_xutm, fault_yutm, fcnm, l1, l2, ldslip_unc, length, \
+            lrmtx, lsslip_unc, Mw, mrowsG, mrowsG2, ncolsG, ncolsG2, ndip, \
             nfp, ng, ng2, NN, nstr, nt, sslip, sslip_unc, staAlt, strike, \
-            vr, UD, UN, utmRecvEasting, utmRecvNorthing, width) \
+            vr, WUD, UD, UN, utmRecvEasting, utmRecvNorthing, width) \
      reduction(+:ierr) default(none)
 #endif
     // Loop on fault planes
@@ -268,6 +302,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         if_off = ifp*l2; // Offset the fault plane
         io_off = ifp*l1; // Offset the observations/estimates
         // Null out G2, regularizer, and possibly R matrix
+        memset(G, 0, ng*sizeof(double));
         memset(G2, 0, ng2*sizeof(double));
         memset(T, 0, nt*sizeof(double));
         if (lrmtx){memset(R, 0, ncolsG2*ncolsG2*sizeof(double));}
@@ -289,10 +324,21 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                                        &dip[if_off],
                                                        &width[if_off],
                                                        &length[if_off],
-                                                       G2);
+                                                       G);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error setting forward model\n", fcnm);
+            ierr = ierr + 1;
+            continue;
+        }
+        // Weight the column major diagonal forward modeling matrix 
+        ierr1 = GFAST_FF__weightForwardModel(mrowsG, ncolsG,
+                                             diagWt,
+                                             G,
+                                             G2);
+        if (ierr1 != 0)
+        {
+            log_errorF("%s: Error weighting forward modeling matrix\n", fcnm);
             ierr = ierr + 1;
             continue;
         }
@@ -320,7 +366,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         cblas_daxpy(nt, lampred, T, 1, &G2[ng], 1);
         // Solve the least squares problem
         ierr1 = numpy_lstsq__qr(LAPACK_ROW_MAJOR,
-                                mrowsG2, ncolsG2, 1, G2, UD,
+                                mrowsG2, ncolsG2, 1, G2, WUD,
                                 S, R);
         if (ierr1 != 0)
         {
@@ -355,18 +401,18 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                 if (ldslip_unc){dslip_unc[if_off+i] = sqrt(ds_unc);}
             }
         }
-        // Compute the forward problem UP = G2*S (ignoring regularizer)
+        // Compute the forward problem UP = G*S (ignoring regularizer)
         cblas_dgemv(CblasRowMajor, CblasNoTrans,
-                    mrowsG, ncolsG2, 1.0, G2, ncolsG2, S, 1, 0.0, UP, 1);
+                    mrowsG, ncolsG, 1.0, G, ncolsG, S, 1, 0.0, UP, 1);
         // Compute the variance reduction
         xnum = 0.0;
         xden = 0.0;
         #pragma omp simd reduction(+:xnum, xden)
         for (i=0; i<mrowsG; i++)
         {
-            res = UP[i] - UD[i];
+            res = diagWt[i]*(UP[i] - UD[i]);
             xnum = xnum + res*res;
-            xden = xden + UD[i]*UD[i];
+            xden = xden + WUD[i]*WUD[i];
         }
         vr[ifp] = (1.0 - xnum/xden)*100.0;
         // Extract the estimates
@@ -416,11 +462,14 @@ ERROR:;
     GFAST_memory_free__double(&xrs);
     GFAST_memory_free__double(&yrs);
     GFAST_memory_free__double(&zrs);
+    GFAST_memory_free__double(&G);
     GFAST_memory_free__double(&G2);
+    GFAST_memory_free__double(&WUD);
     GFAST_memory_free__double(&UD);
     GFAST_memory_free__double(&UP);
     GFAST_memory_free__double(&T);
     GFAST_memory_free__double(&S);
     GFAST_memory_free__double(&R);
+    GFAST_memory_free__double(&diagWt);
     return ierr;
 }

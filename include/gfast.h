@@ -233,10 +233,14 @@ int GFAST_CMT__weightObservations(int mrows,
                                   const double *__restrict__ b,
                                   double *__restrict__ diagWb);
 /* Finite fault inversion */
-int GFAST_FF__driver(struct GFAST_props_struct props,
-                     struct GFAST_shakeAlert_struct SA, 
-                     struct GFAST_data_struct gps_data,
+int GFAST_FF__driver(struct GFAST_props_struct ff_props,
+                     double SA_lat, double SA_lon, double SA_dep,
+                     struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff);
+int GFAST_FF__driver2(struct GFAST_props_struct props,
+                      struct GFAST_shakeAlert_struct SA, 
+                      struct GFAST_data_struct gps_data,
+                      struct GFAST_ffResults_struct *ff);
 int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                    int nstr, int ndip, int nfp,
                                    int verbose,
@@ -287,6 +291,11 @@ int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
                              double *__restrict__ dip,
                              double *__restrict__ length,
                              double *__restrict__ width);
+int GFAST_FF__setDiagonalWeightMatrix(int n, int verbose,
+                                      const double *__restrict__ nWts,
+                                      const double *__restrict__ eWts,
+                                      const double *__restrict__ uWts,
+                                      double *__restrict__ diagWt);
 int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
                                            const double *__restrict__ e,
                                            const double *__restrict__ n,
@@ -305,6 +314,14 @@ int GFAST_FF__setRHS(int n, int verbose,
                      const double *__restrict__ eOffset,
                      const double *__restrict__ uOffset,
                      double *__restrict__ U);
+int GFAST_FF__weightForwardModel(int mrows, int ncols,
+                                 const double *__restrict__ diagWt,
+                                 const double *__restrict__ G,
+                                 double *__restrict__ diagWtG);
+int GFAST_FF__weightObservations(int mrows,
+                                 const double *__restrict__ diagWt,
+                                 const double *__restrict__ b,
+                                 double *__restrict__ diagWb);
 /* Waveform processor */
 int GFAST_waveformProcessor__peakDisplacement(
     int utm_zone,
