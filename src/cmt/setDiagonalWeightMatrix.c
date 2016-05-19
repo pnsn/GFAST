@@ -32,6 +32,42 @@ int GFAST_CMT__setDiagonalWeightMatrix(int n, int verbose,
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
         return -1;
     }
+    if (diagWt == NULL)
+    {
+        log_errorF("%s: Error diagWt is NULL!\n", fcnm);
+        return -1;
+    }
+    if (nWts == NULL || eWts == NULL || uWts == NULL)
+    {
+        if (nWts == NULL && eWts == NULL && uWts == NULL)
+        {
+            log_warnF("%s: Setting diagonal weight matrix to unity\n", fcnm);
+            #pragma omp simd
+            for (i=0; i<3*n; i++)
+            {
+                diagWt[i] = 1.0;
+            }
+        }
+        else // Selectively make weights 1
+        {
+            if (nWts == NULL){log_warnF("%s: Setting nWts to unity\n", fcnm);}
+            if (eWts == NULL){log_warnF("%s: Setting eWts to unity\n", fcnm);}
+            if (uWts == NULL){log_warnF("%s: Setting uWts to unity\n", fcnm);}
+            i3 = 0;
+            #pragma omp simd
+            for (i=0; i<n; i++)
+            {   
+                i3 = 3*i;
+                diagWt[i3+0] = 1.0;
+                diagWt[i3+1] = 1.0;
+                diagWt[i3+2] = 1.0;
+                if (nWts != NULL){diagWt[i3+0] = nWts[i];}
+                if (eWts != NULL){diagWt[i3+1] = eWts[i];}
+                if (uWts != NULL){diagWt[i3+2] = uWts[i];}
+            }
+        }
+        return 0;
+    }
     i3 = 0;
     #pragma omp simd
     for (i=0; i<n; i++)
@@ -39,7 +75,7 @@ int GFAST_CMT__setDiagonalWeightMatrix(int n, int verbose,
         i3 = 3*i;
         diagWt[i3+0] = nWts[i];
         diagWt[i3+1] = eWts[i];
-        diagWt[i3+2] = uWts[i]; 
+        diagWt[i3+2] = uWts[i];
     }
     return 0;
 }

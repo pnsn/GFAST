@@ -165,7 +165,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         goto ERROR;
     }
     // Loop on depths
-#ifdef __PARALLEL_PGD
+#ifdef PARALLEL_PGD
     #pragma omp parallel for \
      firstprivate(A, B, C, G, r, repi_min2, UP, verbose, W, WG, Wb) \
      private(i, idep, ierr1, M1, res, srcDepth, xden, xnum) \

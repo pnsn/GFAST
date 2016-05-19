@@ -32,6 +32,7 @@ int GFAST_CMT__init(struct GFAST_props_struct props,
                    fcnm, props.cmt_ngridSearch_deps);
         return -1;
     }
+    cmt->nsites = gps_data.stream_length;
     if (gps_data.stream_length < 1)
     {
         log_errorF("%s: Error insufficient data to estimate CMT %d\n",
@@ -71,6 +72,9 @@ int GFAST_CMT__init(struct GFAST_props_struct props,
     cmt->rak2      = GFAST_memory_calloc__double(cmt->ndeps);
     cmt->Mw        = GFAST_memory_calloc__double(cmt->ndeps);
     cmt->srcDepths = GFAST_memory_calloc__double(cmt->ndeps);
+    cmt->EN        = GFAST_memory_calloc__double(cmt->ndeps*cmt->nsites);
+    cmt->NN        = GFAST_memory_calloc__double(cmt->ndeps*cmt->nsites);
+    cmt->UN        = GFAST_memory_calloc__double(cmt->ndeps*cmt->nsites);
     /* TODO fix me */
     for (i=0; i<cmt->ndeps; i++)
     {

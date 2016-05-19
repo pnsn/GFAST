@@ -220,7 +220,7 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
     {
         log_debugF("%s: Beginning search on depths...\n", fcnm);
     }
-#ifdef __PARALLEL_CMT
+#ifdef PARALLEL_CMT
     #pragma omp parallel for \
      firstprivate(G, UP, WG, zrs_negative) \
      private (i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, S ) \

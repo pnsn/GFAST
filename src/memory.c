@@ -150,8 +150,11 @@ void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
     GFAST_memory_free__double(&cmt->dip2);
     GFAST_memory_free__double(&cmt->rak1); 
     GFAST_memory_free__double(&cmt->rak2);
-    GFAST_memory_free__double(&cmt->Mw); 
+    GFAST_memory_free__double(&cmt->Mw);
     GFAST_memory_free__double(&cmt->srcDepths);
+    GFAST_memory_free__double(&cmt->EN);
+    GFAST_memory_free__double(&cmt->NN);
+    GFAST_memory_free__double(&cmt->UN);
     memset(cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     return;
 }

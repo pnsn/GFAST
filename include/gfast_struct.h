@@ -246,8 +246,18 @@ struct GFAST_cmtResults_struct
     double *Mw;        /*!< Moment magnitude for all depths [ndeps] */
     double *srcDepths; /*!< Source depths in moment tensor inversion grid
                             search (km) [ndeps] */
+    double *EN;        /*!< Estimates on east component. The estimate
+                            for the i'th site at the j'th depth is accessed by
+                            j*sites+i [ndeps*nsites] */
+    double *NN;        /*!< Estimates on north component.  The estimate
+                            for the i'th site at the j'th depth is accessed by 
+                            j*nsites+i [ndeps*nsites] */
+    double *UN;        /*!< Estimates on vertical component.  The estimate
+                            for the i'th site at the j'th depth is accessed by
+                            j*nsites+i [ndeps*nsites] */
     int opt_indx;      /*!< Optimal index in depth grid search [0, ndeps) */
     int ndeps;         /*!< Number of depths in grid search */
+    int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
 };
 
 struct GFAST_pgdResults_struct

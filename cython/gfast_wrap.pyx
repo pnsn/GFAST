@@ -45,9 +45,9 @@ cdef extern from "gfast.h":
                                       double *dip1, double *dip2,
                                       double *rake1, double *rake2)
  int GFAST_CMT__setRHS(int n, int verbose,
-                       const double *nAvg,
-                       const double *eAvg,
-                       const double *uAvg,
+                       const double *nOffset,
+                       const double *eOffset,
+                       const double *uOffset,
                        double *U)
  int GFAST_CMT__setForwardModel__deviatoric(int l1, 
                                             const double *x1, 
@@ -63,9 +63,12 @@ cdef extern from "gfast.h":
                                 const double *utmRecvEasting,
                                 const double *utmRecvNorthing,
                                 const double *staAlt,
-                                const double *nAvgDisp,
-                                const double *eAvgDisp,
-                                const double *uAvgDisp,
+                                const double *nObsOffset,
+                                const double *eObsOffset,
+                                const double *uObsOffset,
+                                const double *nWts,
+                                const double *eWts,
+                                const double *uWts,
                                 double *nEst,
                                 double *eEst,
                                 double *uEst,
@@ -251,24 +254,24 @@ class CMT:
  # end decompose
 
  def setRHS(self,
-            np.ndarray[double, ndim=1, mode="c"] nAvg not None,
-            np.ndarray[double, ndim=1, mode="c"] eAvg not None,
-            np.ndarray[double, ndim=1, mode="c"] uAvg not None,
+            np.ndarray[double, ndim=1, mode="c"] nOffset not None,
+            np.ndarray[double, ndim=1, mode="c"] eOffset not None,
+            np.ndarray[double, ndim=1, mode="c"] uOffset not None,
             verbose = 0):
     """
     Sets the right hand side in the CMT inversion such that Gm = U
 
     Parameters
     ----------
-    nAvg : array_like
-           observed average displacement (meters) on the north channel
-           for all sites
-    eAvg : array_like
-           observed average displacement (meters) on the east channel
-           for all sites
-    uAvg : array_like
-           observed average displacement (meters) on vertical channel
-           for all sites
+    nOffset : array_like
+              observed offset (meters) on the north channel
+              for all sites
+    eOffset : array_like
+              observed offset (meters) on the east channel
+              for all sites
+    uOffset : array_like
+              observed offset (meters) on vertical channel
+              for all sites
     verbose : int
               0 will only report on errors 
     Returns
@@ -280,18 +283,18 @@ class CMT:
            0 indicates success 
     """
     ierr = 0
-    n = nAvg.shape[0]
+    n = nOffset.shape[0]
     if (n < 1):
         print "setRHS: No observations"
         return None, -1
-    if (n != eAvg.shape[0] or n != uAvg.shape[0]):
+    if (n != eOffset.shape[0] or n != uOffset.shape[0]):
         print "setRHS: Inconsistent model sizes"
         return None, -1
     U = np.zeros(n, dtype='float64')
     ierr = GFAST_CMT__setRHS(n, verbose,
-                             <double *> np.PyArray_DATA(nAvg),
-                             <double *> np.PyArray_DATA(eAvg),
-                             <double *> np.PyArray_DATA(uAvg),
+                             <double *> np.PyArray_DATA(nOffset),
+                             <double *> np.PyArray_DATA(eOffset),
+                             <double *> np.PyArray_DATA(uOffset),
                              <double *> np.PyArray_DATA(U))
     if (ierr != 0):
         print "setRHS: Error setting RHS!"
@@ -362,9 +365,12 @@ class CMT:
                      np.ndarray[double, ndim=1, mode="c"] utmRecvEasting not None,
                      np.ndarray[double, ndim=1, mode="c"] utmRecvNorthing not None,
                      np.ndarray[double, ndim=1, mode="c"] staAlt not None,
-                     np.ndarray[double, ndim=1, mode="c"] nAvgDisp not None,
-                     np.ndarray[double, ndim=1, mode="c"] eAvgDisp not None,
-                     np.ndarray[double, ndim=1, mode="c"] uAvgDisp,
+                     np.ndarray[double, ndim=1, mode="c"] nObsOffset not None,
+                     np.ndarray[double, ndim=1, mode="c"] eObsOffset not None,
+                     np.ndarray[double, ndim=1, mode="c"] uObsOffset not None,
+                     np.ndarray[double, ndim=1, mode="c"] nWts,
+                     np.ndarray[double, ndim=1, mode="c"] eWts,
+                     np.ndarray[double, ndim=1, mode="c"] uWts,
                      deviatoric = True,
                      verbose = 0):
     """
@@ -382,15 +388,21 @@ class CMT:
                       UTM receiver position in y or north (m)
     staAlt : array_like
              station altitude - positive above sea-level (m)
-    nAvgDisp : array_like
-               observed average displacement in the north component
-               (m) at each station
-    eAvgDisp : array_like
-               observed average displacement in the east component
-               (m) at each station
-    uAvgDisp : array_like
-               observed average displacement in the north component
-               (m) at each station
+    nObsOffset : array_like
+              observed offset in the north component (m) at each station
+    eObsOffset : array_like
+              observed offset in the east component (m) at each station
+    uObsOffset : array_like
+              observed offset in the north component (m) at each station
+    nWts: array_like
+          if specified these are the weights on the north observations.
+          othwerise this will be set to numpy.ones(l1)
+    eWts: array_like
+          if specified these are the weights on the east observations
+          othwerise this will be set to numpy.ones(l1)
+    uWts: array_like
+          if specified these are the weights on the vertical observations
+          othwerise this will be set to numpy.ones(l1)
     deviatoric : bool
                  if True then the moment tensor inversion constrains
                  the solution s.t. the result must be purely deviatoric.
@@ -409,6 +421,12 @@ class CMT:
     ierr = 0
     ndeps = srcDepths.shape[0]
     l1 = utmRecvEasting.shape[0]
+    if (nWts == None):
+        nWts = np.zeros(l1, dtype='float64')
+    if (eWts == None):
+        eWts = np.zeros(l1, dtype='float64')
+    if (uWts == None):
+        uWts = np.zeros(l1, dtype='float64')
     nEst = None
     eEst = None
     uEst = None
@@ -420,10 +438,13 @@ class CMT:
         ierr = 1
         print "depthGridSearch: No depths in grid search"
     if (l1 != utmRecvNorthing.shape[0] or l1 != staAlt.shape[0] or
-        l1 != nAvgDisp.shape[0] or l1 != eAvgDisp.shape[0] or
-        l1 != uAvgDisp.shape[0]):
+        l1 != nObsOffset.shape[0] or l1 != eObsOffset.shape[0] or
+        l1 != uObsOffset.shape[0]):
         ierr = 1
         print "depthGridSearch: Inconsistent size"
+    if (l1 != uWts.shape[0] or nWts.shape[0] or eWts.shape[0]):
+        ierr = 1
+        print "depthGridSearch: Data weight size inconsistent"
     if (ierr != 0):
         nEst = np.zeros(l1*ndeps, dtype='float64')
         eEst = np.zeros(l1*ndeps, dtype='float64')
@@ -438,9 +459,12 @@ class CMT:
                                       <double *> np.PyArray_DATA(utmRecvEasting),
                                       <double *> np.PyArray_DATA(utmRecvNorthing),
                                       <double *> np.PyArray_DATA(staAlt),
-                                      <double *> np.PyArray_DATA(nAvgDisp),
-                                      <double *> np.PyArray_DATA(eAvgDisp),
-                                      <double *> np.PyArray_DATA(uAvgDisp),
+                                      <double *> np.PyArray_DATA(nObsOffset),
+                                      <double *> np.PyArray_DATA(eObsOffset),
+                                      <double *> np.PyArray_DATA(uObsOffset),
+                                      <double *> np.PyArray_DATA(nWts),
+                                      <double *> np.PyArray_DATA(eWts),
+                                      <double *> np.PyArray_DATA(uWts),
                                       <double *> np.PyArray_DATA(nEst),
                                       <double *> np.PyArray_DATA(eEst),
                                       <double *> np.PyArray_DATA(uEst),

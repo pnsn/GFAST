@@ -8,12 +8,13 @@ libdirs = ['/usr/lib/',
            '/home/bakerb3/C/iniparser',
            '/home/bakerb3/C/GFAST/src',
            '/home/bakerb3/TIM/utils/sacio']
-libraries = ['gfast', 'lapacke', 'lapack', 'cblas', 'blas', 'iniparser', 'sacio', 'xml2']
+libraries = ['gfast', 'lapacke', 'lapack', 'cblas',
+             'blas', 'iniparser', 'sacio', 'xml2']
 
 setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules = [Extension("gfast_wrap",
-                   sources = ["gfast_wrap.pyx"],
+                   sources = ["gfast_wrap.pyx", ],
                    library_dirs = libdirs,
                    libraries = libraries,
                    include_dirs = [numpy.get_include(),

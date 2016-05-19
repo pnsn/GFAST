@@ -30,13 +30,15 @@ int GFAST_FF__setRHS(int n, int verbose,
 {
     const char *fcnm = "GFAST_FF__setRHS\0";
     int i, i3; 
-    if (n < 1){ 
+    if (n < 1)
+    {
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n); 
         return -1; 
     }   
     i3 = 0;
     #pragma omp simd
-    for (i=0; i<n; i++){
+    for (i=0; i<n; i++)
+    {
         i3 = 3*i;
         U[i3+0] = eOffset[i];
         U[i3+1] = nOffset[i];

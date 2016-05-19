@@ -196,6 +196,11 @@ int GFAST_CMT__depthGridSearch(int l1, int ndeps,
                                double *__restrict__ eEst,
                                double *__restrict__ uEst,
                                double *__restrict__ mts);
+int GFAST_scaling_CMT__driver(
+   struct GFAST_props_struct cmt_props,
+   double SA_lat, double SA_lon, double SA_dep,
+   struct GFAST_offsetData_struct cmt_data,
+   struct GFAST_cmtResults_struct *cmt);
 int GFAST_CMT__driver2(struct GFAST_props_struct props,
                        struct GFAST_shakeAlert_struct SA, 
                        struct GFAST_data_struct gps_data,

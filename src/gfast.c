@@ -284,7 +284,7 @@ printf("%f\n", props.synthetic_runtime);
                                                   events.SA[iev],
                                                   gps_acquisition,
                                                   &pgd);
-                if (nsites_ff > props.pgd_props.min_sites)
+                if (nsites_pgd > props.pgd_props.min_sites)
                 {
                     ierr = GFAST_scaling_PGD__driver(props.pgd_props,
                                                      SA.lat, SA.lon, SA.dep,
@@ -292,10 +292,17 @@ printf("%f\n", props.synthetic_runtime);
                                                      &pgd);
                 }
 //props.verbose = verbose0;
-                ierr = GFAST_CMT__driver(props,
-                                         events.SA[iev],
-                                         gps_acquisition,
-                                         &cmt);
+                ierr = GFAST_CMT__driver2(props,
+                                          events.SA[iev],
+                                          gps_acquisition,
+                                          &cmt);
+                if (nsites_cmt > props.cmt_min_sites)
+                {
+                    ierr = GFAST_scaling_CMT__driver(props,
+                                                     SA.lat, SA.lon, SA.dep,
+                                                     cmt_data,
+                                                     &cmt);
+                }
                 // If we got a CMT see if we can run an MT inversion  
                 if (ierr == 0)
                 {

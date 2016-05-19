@@ -17,6 +17,7 @@ double __GFAST_getMaxDistance(int npts, bool lremove_disp0,
  * @brief Driver for estimating earthquake magnitude from peak
  *        ground displacement
  *
+ * @param[in] pgd_props  PGD inversion parameters
  * @param[in] SA_lat     event latitude (degrees) [-90,90]
  * @param[in] SA_lon     event longitude (degrees) [0,360]
  * @param[in] SA_dep     event depth (km)
@@ -54,7 +55,7 @@ int GFAST_scaling_PGD__driver(
         PGD_STRUCT_ERROR = 1,      /*!< PGD structure is invalid */
         PGD_PD_DATA_ERROR = 2,     /*!< PGD data structure invalid */
         PGD_INSUFFICIENT_DATA = 3, /*!< Insufficient data to invert */
-        PGD_COMPUTE_ERROR = 4      /*!< A numerical error was encountered */
+        PGD_COMPUTE_ERROR = 4      /*!< An internal error was encountered */
     };
     double *d, *repi, *staAlt, *utmRecvEasting, *utmRecvNorthing, *wts,
            epiDist, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
@@ -161,7 +162,7 @@ int GFAST_scaling_PGD__driver(
     l1 = 0;
     for (k=0; k<pgd_data.nsites; k++)
     {
-        if (!pgd_data.lactive[k] || pgd_data.wt[k] == 0.0){continue;}
+        if (!pgd_data.lactive[k] || pgd_data.wt[k] <= 0.0){continue;}
         l1 = l1 + 1;
     }
     if (l1 < pgd_props.min_sites)
@@ -193,7 +194,7 @@ int GFAST_scaling_PGD__driver(
     l1 = 0;
     for (k=0; k<pgd_data.nsites; k++)
     {   
-        if (!pgd_data.lactive[k] || pgd_data.wt[k] == 0.0){continue;}
+        if (!pgd_data.lactive[k] || pgd_data.wt[k] <= 0.0){continue;}
         // Get the recevier UTM
         GFAST_coordtools__ll2utm(pgd_data.sta_lat[k],
                                  pgd_data.sta_lon[k],

@@ -186,7 +186,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
         if (dslip == NULL){log_errorF("%s: Error dslip is NULL\n", fcnm);}
         return -1;
     }
-    if (sslip_unc != NULL || dslip_unc != NULL){
+    if (sslip_unc != NULL || dslip_unc != NULL)
+    {
         if (sslip_unc != NULL){lsslip_unc = true;}
         if (dslip_unc != NULL){ldslip_unc = true;}
         lrmtx = true;
@@ -213,7 +214,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     if (lrmtx){R = GFAST_memory_calloc__double(ncolsG2*ncolsG2);}
     if (xrs == NULL || yrs == NULL || zrs == NULL ||
         G2 == NULL || UD == NULL || UP == NULL || T == NULL || S == NULL ||
-        (lrmtx && R == NULL) ){
+        (lrmtx && R == NULL) )
+    {
         if (xrs == NULL){log_errorF("%s: Error setting space for xrs\n", fcnm);}
         if (yrs == NULL){log_errorF("%s: Error setting space for yrs\n", fcnm);}
         if (zrs == NULL){log_errorF("%s: Error setting space for zrs\n", fcnm);}
@@ -247,7 +249,7 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
     {
         log_debugF("%s: Beginning search on fault planes...\n", fcnm);
     }
-#ifdef __PARALLEL_FF
+#ifdef PARALLEL_FF
     #pragma omp parallel for \
      firstprivate(G2, R, S, T, UP, xrs, yrs, zrs) \
      private(ds_unc, i, ierr1, ifp, if_off, ij, io_off, j, \
@@ -302,7 +304,8 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                          &width[if_off],
                                          &length[if_off],
                                          T);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error setting regulizer\n", fcnm);
             ierr = ierr + 1;
             continue;
