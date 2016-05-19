@@ -29,5 +29,33 @@ enum opmode_type
                           and configuration purely from files */
 };
 
+enum pgd_return_enum
+{
+    PGD_SUCCESS = 0,           /*!< PGD computation was successful */
+    PGD_STRUCT_ERROR = 1,      /*!< PGD structure is invalid */
+    PGD_PD_DATA_ERROR = 2,     /*!< PGD data structure invalid */
+    PGD_INSUFFICIENT_DATA = 3, /*!< Insufficient data to invert */
+    PGD_COMPUTE_ERROR = 4      /*!< An internal error was encountered */
+};
+
+enum cmt_return_enum
+{
+    CMT_SUCCESS = 0,            /*<! CMT computation was successful */
+    CMT_STRUCT_ERROR = 1,       /*!< CMT structure is invalid */
+    CMT_OS_DATA_ERROR = 2,      /*!< CMT offset data structure invalid */
+    CMT_INSUFFICIENT_DATA = 3,  /*!< Insufficient data to invert */
+    CMT_COMPUTE_ERROR = 4       /*!< An internal error was encountered */
+};
+
+enum ff_return_enum
+{
+    FF_SUCCESS = 0,            /*!< FF computation was successful */
+    FF_STRUCT_ERROR = 1,       /*!< FF structure is invalid */
+    FF_OS_DATA_ERROR = 2,      /*!< FF offset data structure is invalid */
+    FF_INSUFFICIENT_DATA = 3,  /*!< Insufficient data to invert */
+    FF_COMPUTE_ERROR = 4,      /*!< An internal error was encountered */
+    FF_MEMORY_ERROR = 5        /*!< Error during memory allocation */
+};
+
 #endif /* __GFAST_ENUM__ */
 

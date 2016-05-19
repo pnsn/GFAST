@@ -1,20 +1,49 @@
 CXX = g++
-CC = gcc
+CC = gcc-5
+#PROFILE = -pg
+PROFILE =
 CSHARED = -fPIC
 MAKE_SHARED = -shared
-CXXFLAGS = -O2 -Wall
-CFLAGS =-O2 -Wall
-INC_DIR = ./include
+CXXFLAGS = -O2 -Wall -g3 -fopenmp $(PROFILE)
+CFLAGS =-O2 -std=gnu11 -Wall -fopenmp -g3 $(PROFILE)
 OBJ = ./Obj
 
+
+GFAST_DIR = /home/bakerb3/C/GFAST
+
+INC_GFAST =-I$(GFAST_DIR)/include
+
 # library and executable names 
-GFAST_SHARED = libgfast.so
-GFAST_STATIC = libgfast.a
+GFAST_SHARED = $(GFAST_DIR)/src/libgfast.so
+GFAST_STATIC = $(GFAST_DIR)/src/libgfast.a
 GFAST = xgfast
 
+# XML2 directory
+INC_XML2 = -I/usr/include/libxml2
+LIB_XML2 = /usr/lib/x86_64-linux-gnu/libxml2.so
 # Lapack and BLAS
-LLAPACK = /usr/lib/liblapacke.so /usr/lib/liblapack.so /usr/lib/libblas.so /usr/lib/libcblas.so
+INC_LAPACK = -I/usr/include
+LIB_LAPACK = /usr/lib/liblapacke.so /usr/lib/liblapack.so \
+	     /usr/lib/libcblas.so /usr/lib/libblas.so
+MKLROOT = /opt/intel/mkl
+LMKL = -Wl,--start-group \
+	${MKLROOT}/lib/intel64/libmkl_intel_lp64.a \
+	${MKLROOT}/lib/intel64/libmkl_core.a \
+	${MKLROOT}/lib/intel64/libmkl_sequential.a \
+	-Wl,--end-group -lpthread -lm -ldl
+#LIB_LAPACK = $(LMKL)
+
 INC_LAPACK = -I/usr/include
 # Iniparser
-LIB_INI = /usr/lib/libiniparser.a
-INC_INI = -I/usr/include
+LIB_INI = /home/bakerb3/C/iniparser/libiniparser.a
+INC_INI = -I/home/bakerb3/C/iniparser/src
+# libgeographic - this must be set if the WITH_LIBGEO pre-processor flag is set
+#INC_GEO = -I/home/bakerb3/Fortran/GeographicLib-1.46/include
+#LIB_GEO = /home/bakerb3/Fortran/GeographicLib-1.46/src/libGeographic.a
+# SAC/IO for offline mode
+LIB_SACIO = /home/bakerb3/TIM/utils/sacio/libsacio.so
+
+INC_ALL = $(INC_GFAST) $(INC_INI) $(INC_LAPACK)
+LIB_ALL = $(LIB_LAPACK) $(LIB_INI) $(LIB_XML2) $(LIB_SACIO) -lm -ldl
+
+
