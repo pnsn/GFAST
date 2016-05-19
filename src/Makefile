@@ -1,9 +1,11 @@
 include ../Makefile.inc
 
+OBJ_ACQ_DIR = acquisition/$(OBJ)
 #OBJ_ALERT_DIR = alert/$(OBJ)
 OBJ_BUFFER_DIR = buffer/$(OBJ)
 OBJ_CMT_DIR = cmt/$(OBJ)
 OBJ_EVENTS_DIR = events/$(OBJ)
+OBJ_ISCL_DIR = iscl/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
@@ -11,6 +13,9 @@ OBJ_WP_DIR = waveformProcessor/$(OBJ)
 OBJ_XML_DIR = xml/$(OBJ)
 ifeq "$(wildcard $(OBJ) )" ""
 -include $(shell mkdir $(OBJ)) $(wildcard $(OBJ)/*)
+endif
+ifeq "$(wildcard $(OBJ_ACQ_DIR) )" ""
+-include $(shell mkdir $(OBJ_ACQ_DIR)) $(wildcard $(OBJ_ACQ_DIR)/*)
 endif
 #ifeq "$(wildcard $(OBJ_ALERT_DIR) )" ""
 #-include $(shell mkdir $(OBJ_ALERT_DIR)) $(wildcard $(OBJ_ALERT_DIR)/*)
@@ -30,6 +35,9 @@ endif
 ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
 -include $(shell mkdir $(OBJ_FF_DIR)) $(wildcard $(OBJ_FF_DIR)/*)
 endif
+ifeq "$(wildcard $(OBJ_ISCL_DIR) )" ""
+-include $(shell mkdir $(OBJ_ISCL_DIR)) $(wildcard $(OBJ_ISCL_DIR)/*)
+endif
 ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
 -include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
 endif
@@ -40,6 +48,7 @@ ifeq "$(wildcard $(OBJ_XML_DIR) )" ""
 -include $(shell mkdir $(OBJ_XML_DIR)) $(wildcard $(OBJ_XML_DIR)/*)
 endif
 
+OBJ_ACQ = $(OBJ_ACQ_DIR)/acquisition.o 
 OBJ_UTILS = $(OBJ)/sacio.o
 OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
 	      $(OBJ_SCALING_DIR)/pgd_init.o \
@@ -87,10 +96,10 @@ OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
 	  $(OBJ_XML_DIR)/units.o
 OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
 	         $(OBJ_COORDTOOLS_DIR)/utm2ll.o
-OBJ_ISCL = $(OBJ)/log.o \
-	   $(OBJ)/os.o \
-	   $(OBJ)/time.o \
-	   $(OBJ)/utils.o
+OBJ_ISCL = $(OBJ_ISCL_DIR)/log.o \
+	   $(OBJ_ISCL_DIR)/os.o \
+	   $(OBJ_ISCL_DIR)/time.o \
+	   $(OBJ_ISCL_DIR)/utils.o
 OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/cmt_driver.o \
 	  $(OBJ)/cmopad.o \
@@ -109,7 +118,7 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_SCALING_PGD) \
 	  $(OBJ_WP) \
 	  $(OBJ_XML)
-OBJ_GFAST = $(OBJ)/gfast.o $(OBJ)/acquisition.o $(OBJ_LIB)
+OBJ_GFAST = $(OBJ)/gfast.o $(OBJ_ACQ) $(OBJ_LIB)
 
 all: $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
 
@@ -127,9 +136,6 @@ $(GFAST): $(OBJ_GFAST)
 
 $(OBJ)/gfast.o: gfast.c
 	$(CC) $(CFLAGS) $(INC_GFAST) -c gfast.c -o $(OBJ)/gfast.o
-
-$(OBJ)/acquisition.o: acquisition.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c acquisition.c -o $(OBJ)/acquisition.o
 
 $(OBJ)/buffer.o: buffer.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c buffer.c -o $(OBJ)/buffer.o
@@ -157,6 +163,11 @@ $(OBJ)/properties.o: properties.c
 
 $(OBJ)/readElarmS.o: readElarmS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c readElarmS.c -o $(OBJ)/readElarmS.o
+
+##################################### Acquisition #####################################
+
+$(OBJ_ACQ_DIR)/acquisition.o: acquisition/acquisition.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c acquisition/acquisition.c -o $(OBJ_ACQ_DIR)/acquisition.o
 
 ######################################## Alert ########################################
 
@@ -242,6 +253,9 @@ $(OBJ_FF_DIR)/faultPlaneGridSearch.o: ff/faultPlaneGridSearch.c
 $(OBJ_FF_DIR)/meshFaultPlane.o: ff/meshFaultPlane.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/meshFaultPlane.c -o $(OBJ_FF_DIR)/meshFaultPlane.o
 
+$(OBJ_FF_DIR)/setDiagonalWeightMatrix.o: ff/setDiagonalWeightMatrix.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/setDiagonalWeightMatrix.c -o $(OBJ_FF_DIR)/setDiagonalWeightMatrix.o
+
 $(OBJ_FF_DIR)/setForwardModel.o: ff/setForwardModel.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c ff/setForwardModel.c -o $(OBJ_FF_DIR)/setForwardModel.o
 
@@ -314,22 +328,22 @@ $(OBJ_XML_DIR)/vertex.o: xml/vertex.c
 $(OBJ_XML_DIR)/units.o: xml/units.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_XML2) $(CSHARED) -c xml/units.c -o $(OBJ_XML_DIR)/units.o
 
-####################################### Generic #######################################
+########################## ISTI Scientific Computing Library ##########################
 
-$(OBJ)/log.o: log.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c log.c -o $(OBJ)/log.o
+$(OBJ_ISCL_DIR)/log.o: iscl/log.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c iscl/log.c -o $(OBJ_ISCL_DIR)/log.o
 
-$(OBJ)/os.o: os.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c os.c -o $(OBJ)/os.o
+$(OBJ_ISCL_DIR)/os.o: iscl/os.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c iscl/os.c -o $(OBJ_ISCL_DIR)/os.o
+
+$(OBJ_ISCL_DIR)/time.o: iscl/time.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c iscl/time.c -o $(OBJ_ISCL_DIR)/time.o
+
+$(OBJ_ISCL_DIR)/utils.o: iscl/utils.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_LAPACK) $(CSHARED) -c iscl/utils.c -o $(OBJ_ISCL_DIR)/utils.o
 
 $(OBJ)/sacio.o: sacio.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c sacio.c -o $(OBJ)/sacio.o
-
-$(OBJ)/time.o: time.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c time.c -o $(OBJ)/time.o
-
-$(OBJ)/utils.o: utils.c
-	$(CC) $(CFLAGS) $(INC_GFAST) $(INC_LAPACK) $(CSHARED) -c utils.c -o $(OBJ)/utils.o
 
 #install_exe:
 #	$(MV) $(GFAST) $(BIN_DIR)
