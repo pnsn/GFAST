@@ -53,12 +53,6 @@ extern "C"
 {
 #endif
 
-double numpy_mod(double a, double b);
-int __cmopad_argsort3(double *a, int *perm);
-int __cmopad_inv3(double Amat[3][3]);
-double __cmopad_determinant3x3(double A[3][3]);
-double __cmopad_trace3(double M[3][3]);
-int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3]);
 void cmopad_findStrikeDipRake(double rot_mat[3][3],
                               double *alpha, double *beta, double *gamma);
 void cmopad_eulerToMatrix(double alpha, double beta, double gamma,

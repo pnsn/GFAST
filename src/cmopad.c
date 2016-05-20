@@ -45,6 +45,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 
 #define rad2deg 180.0/M_PI
 #define epsilon 1.e-13
+static double numpy_mod(double a, double b);
+static int __cmopad_argsort3(double *a, int *perm);
+static int __cmopad_inv3(double Amat[3][3]);
+static double __cmopad_determinant3x3(double A[3][3]);
+static double __cmopad_trace3(double M[3][3]);
+static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3]);
 
 //============================================================================//
 /*!
@@ -596,7 +602,7 @@ void cmopad_MatrixToEuler(double rotmat[3][3],
  * @result numpy.mod(a, b)
  *
  */
-double numpy_mod(double a, double b)
+static double numpy_mod(double a, double b)
 {
     if (b == 0.0){return a;}
     if (a >= 0.0){
@@ -1364,7 +1370,7 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
  * @reference http://stackoverflow.com/questions/4367745/simpler-way-of-sorting-three-numbers
  *
  */
-int __cmopad_argsort3(double x[3], int iperm[3])
+static int __cmopad_argsort3(double x[3], int iperm[3])
 {
     const char *fcnm = "__cmopad_argsort3\0";
     int i, temp;
@@ -1407,7 +1413,7 @@ int __cmopad_argsort3(double x[3], int iperm[3])
  * @result determinant of a 3 x 3 matrix
  *
  */
-double __cmopad_determinant3x3(double A[3][3])
+static double __cmopad_determinant3x3(double A[3][3])
 {
     double determinant;
     determinant = A[0][0]*( A[1][1]*A[2][2] - A[1][2]*A[2][1]) 
@@ -1425,7 +1431,7 @@ double __cmopad_determinant3x3(double A[3][3])
  * @result 0 indicates success
  *
  */
-int __cmopad_inv3(double Amat[3][3])
+static int __cmopad_inv3(double Amat[3][3])
 {
     const char *fcnm = "__cmopad_inv3\0";
     double a11, a12, a13, a21, a22, a23, a31, a32, a33, detA, detAi;
@@ -1462,7 +1468,7 @@ int __cmopad_inv3(double Amat[3][3])
  * @result trace of matrix
  *
  */
-double __cmopad_trace3(double M[3][3])
+static double __cmopad_trace3(double M[3][3])
 {
     double trace;
     trace = M[0][0] + M[1][1] + M[2][2]; 
@@ -1487,7 +1493,7 @@ double __cmopad_trace3(double M[3][3])
  * @author B. Baker (ISTI)
  * @date April 2016
  */
-int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
+static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
 {
     const char *fcnm = "__cmopad_Eigs3x3\0";
     double avec[9];

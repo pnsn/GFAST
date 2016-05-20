@@ -57,13 +57,41 @@ int GFAST_CMT__weightForwardModel(int mrows, int ncols,
         cblas_dcopy(mrows*ncols, G, 1, diagWtG, 1);
         return 1;
     }
-    // Compute \tilde{G} = diag\{W\}*G
-    #pragma omp simd collapse(2)
-    for (i=0; i<mrows; i++)
+    // Compute \tilde{G} = diag\{W\}*G - most likely a deviatoric source
+    if (ncols == 5)
     {
-        for (j=0; j<ncols; j++)
+        #pragma omp simd collapse(2)
+        for (i=0; i<mrows; i++)
         {
-            diagWtG[i*ncols+j] = G[i*ncols+j]*diagWt[i];
+            for (j=0; j<5; j++)
+            {
+                diagWtG[i*ncols+j] = G[i*ncols+j]*diagWt[i];
+            }
+        }
+    }
+    // Full blown moment tensor
+    else if (ncols == 6)
+    {
+        #pragma omp simd collapse(2)
+        for (i=0; i<mrows; i++)
+        {   
+            for (j=0; j<6; j++)
+            {   
+                diagWtG[i*ncols+j] = G[i*ncols+j]*diagWt[i];
+            }   
+        }
+    }
+    // Really shouldn't be here
+    else
+    {
+        log_warnF("%s: Strange number of columns\n", fcnm); 
+        #pragma omp simd collapse(2)
+        for (i=0; i<mrows; i++)
+        {   
+            for (j=0; j<ncols; j++)
+            {   
+                diagWtG[i*ncols+j] = G[i*ncols+j]*diagWt[i];
+            }   
         }
     }
     return 0;
