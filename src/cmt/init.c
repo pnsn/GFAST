@@ -8,6 +8,7 @@
  *
  * @param[in] props      holds the CMT parameters
  * @param[in] gps_data   holds the site stream length
+ *
  * @param[out] cmt       has space allocated for the CMT depth gridsearch
  * @param[out] cmt_data  has space sufficient to carry the offset data
  *                       and weights.  also, contains an initial data

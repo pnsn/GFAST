@@ -21,17 +21,17 @@ static bool __getAverageOffset(int npts,
  *        data stream with the additional requirement that the shear wave
  *        has passed through through the site.
  *
- * @notes To perform the averaging it is presumed the shear wave has passed
- *        through the station then the average offset is estimated from
- *        data beginning at the shear wave arrival and ending at the last
- *        sample seen at the station.  The approximate shear wave arrival
- *        time is estimated by presuming a shear wave velocity (svel_window,
- *        \f$ v_{s} \f$) and an origin time \f$ t_{0} \f$ then computing the
- *        source receiver distance \f$ d_{s,r} \f$ and applying
- *        \f$ t_{s} = t_0 + \frac{ d_{s,r} }{ v_{s} } \f$. 
- *        Because the inversion is for static offsets a conservative
- *        strategy to avoid modeling the dynamic response is to lower
- *        the shear velocity.
+ * @note To perform the averaging it is presumed the shear wave has passed
+ *       through the station then the average offset is estimated from
+ *       data beginning at the shear wave arrival and ending at the last
+ *       sample seen at the station.  The approximate shear wave arrival
+ *       time is estimated by presuming a shear wave velocity (svel_window,
+ *       \f$ v_{s} \f$) and an origin time \f$ t_{0} \f$ then computing the
+ *       source receiver distance \f$ d_{s,r} \f$ and applying
+ *       \f$ t_{s} = t_0 + \frac{ d_{s,r} }{ v_{s} } \f$. 
+ *       Because the inversion is for static offsets a conservative
+ *       strategy to avoid modeling the dynamic response is to lower
+ *       the shear velocity.
  *         
  *
  * @param[in] utm_zone        if not -12345 then this is the desired UTM zone

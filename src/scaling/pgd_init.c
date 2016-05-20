@@ -4,12 +4,14 @@
 #include <string.h>
 #include "gfast.h"
 /*!
- * @brief Allocates space for the PGD grid search
+ * @brief Allocates space for the PGD grid search and its data structure
  *
  * @param[in] pgd_props  holds the PGD parameters
  * @param[in] gps_data   holds the site stream length
  *
  * @param[out] pgd       has space allocated for the PGD depth gridsearch
+ * @param[out] pgd_data  holds space for peak ground dispaclement data
+ *                       as well as requisite site information
  *
  * @result 0 indicates success
  *

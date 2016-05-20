@@ -11,6 +11,9 @@
  * @param[in] gps_data   holds the site stream length
  *
  * @param[out] ff        has space allocated for the FF inversion
+ * @param[out] ff_data   holds space for the offset data to be used
+ *                       in the FF inversion as well as requisite
+ *                       site information
  *
  * @result 0 indicates success
  *

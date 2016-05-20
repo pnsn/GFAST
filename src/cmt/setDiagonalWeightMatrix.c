@@ -12,7 +12,7 @@
  * @param[in] uWts      data weights on vertical observations [n]
  *
  * @param[out] diagWt   diagonal matrix of data weights to apply to
- *                      $\f diag{W} G m = diag{W} U $\f [3*n]
+ *                      \f$ diag{W} G m = diag{W} U \f$ [3*n]
  *
  * @result 0 indicates success
  *
