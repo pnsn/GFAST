@@ -165,8 +165,11 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
                 props->dt_init = INIT_DT_FROM_DEFAULT;
             }
         }
-    }else{
-        if (props->dt_init != INIT_DT_FROM_TRACEBUF){
+    }
+    else
+    {
+        if (props->dt_init != INIT_DT_FROM_TRACEBUF)
+        {
             log_warnF("%s: Will get GPS sampling period from trace buffer!\n",
                       fcnm);
             props->dt_init = INIT_DT_FROM_TRACEBUF;
@@ -186,13 +189,17 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     if (props->loc_init == INIT_LOCS_FROM_FILE)
     {
         s = iniparser_getstring(ini, "general:siteposfile\0", NULL);
-        if (s == NULL){
+        if (s == NULL)
+        {
             log_errorF("%s: Site position file must be defined\n");
             return -1;
-        }else{
+        }
+        else
+        {
             strcpy(props->siteposfile, s);
         }
-        if (!os_path_isfile(props->siteposfile)){
+        if (!os_path_isfile(props->siteposfile))
+        {
             log_errorF("%s: Position file %s does not exist!\n",
                        fcnm, props->siteposfile);
             goto ERROR;
@@ -227,7 +234,6 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     }
     //------------------------------PGD Parameters----------------------------//
     props->pgd_props.verbose = props->verbose;
-    props->pgd_props.lremove_disp0 = props->lremove_disp0;
     props->pgd_props.utm_zone = props->utm_zone;
     props->pgd_props.dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0",
                                                     6.0);

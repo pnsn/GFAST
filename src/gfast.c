@@ -172,6 +172,7 @@ printf("%f\n", props.synthetic_runtime);
         // Loop on time-steps in simulation
 //ntsim = 59;
         for (kt=0; kt<ntsim; kt++){
+kt = 299;
 //for (kt=58; kt<59; kt++){
             // Update the time
             currentTime = t0sim + (double) kt;
@@ -280,16 +281,21 @@ printf("%f\n", props.synthetic_runtime);
                                     &ff_data,
                                     &ierr);
                 // Run the PGD scaling
-                ierr = GFAST_scaling_PGD__driver2(props.pgd_props,
-                                                  events.SA[iev],
-                                                  gps_acquisition,
-                                                  &pgd);
                 if (nsites_pgd > props.pgd_props.min_sites)
                 {
+                    if (props.verbose > 2)
+                    {
+                        log_infoF("%s: Estimating PGD scaling...\n", fcnm);
+                    } 
                     ierr = GFAST_scaling_PGD__driver(props.pgd_props,
                                                      SA.lat, SA.lon, SA.dep,
                                                      pgd_data,
                                                      &pgd);
+int i;
+for (i=0; i<pgd.ndeps; i++){
+printf("%f %f\n",pgd.mpgd_vr[i], pgd.mpgd[i]);
+}
+getchar();
                 }
 //props.verbose = verbose0;
                 lcmt_success = false;

@@ -219,9 +219,11 @@ int GFAST_scaling_CMT__driver(
 #endif
     for (idep=0; idep<cmt->ndeps; idep++)
     {
+        // Compute the L2 norm
         sum_res2 = 0.0;
         #pragma omp simd reduction(+:sum_res2)
-        for (i=0; i<l1; i++){
+        for (i=0; i<l1; i++)
+        {
             nres = nOffset[i] - nEst[idep*l1+i];
             eres = eOffset[i] - eEst[idep*l1+i];
             ures = uOffset[i] - uEst[idep*l1+i];

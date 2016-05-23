@@ -28,9 +28,6 @@ struct GFAST_pgd_props_struct
                                extract the UTM zone from the event
                                origin. */
     int ngridSearch_deps; /*!< Number of depths in PGD grid-search */
-    bool lremove_disp0;   /*!< Remove the (u,n,e) component at the 
-                               origin time from the displacement
-                               streams */
 };
 
 struct GFAST_cmt_props_struct

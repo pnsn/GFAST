@@ -40,7 +40,7 @@ enum pgd_return_enum
 
 enum cmt_return_enum
 {
-    CMT_SUCCESS = 0,            /*<! CMT computation was successful */
+    CMT_SUCCESS = 0,            /*!< CMT computation was successful */
     CMT_STRUCT_ERROR = 1,       /*!< CMT structure is invalid */
     CMT_OS_DATA_ERROR = 2,      /*!< CMT offset data structure invalid */
     CMT_INSUFFICIENT_DATA = 3,  /*!< Insufficient data to invert */
