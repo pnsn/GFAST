@@ -42,10 +42,12 @@ void GFAST_coordtools__ll2utm(double lat_deg, double lon_deg,
     lon = lon_deg_use*pi180;
     lat = lat_deg*pi180;
     zone_loc = *zone;
-    if (zone_loc ==-1){
-        zone_loc = fmod( floor((lon_deg_use + 180.0)/6.0) , 60.0) + 1;
+    if (zone_loc ==-1)
+    {
+        zone_loc = (int) (fmod(floor((lon_deg_use + 180.0)/6.0), 60.0) + 0.5)
+                 + 1;
     }
-    lon0_deg = fabs(zone_loc)*6.0 - 183.0;
+    lon0_deg = (double) (fabs(zone_loc)*6) - 183.0;
     lon0 = lon0_deg*pi180;   //central meridian (-123 for zone 10)
 
     A = (lon - lon0)*cos(lat);
@@ -71,6 +73,9 @@ void GFAST_coordtools__ll2utm(double lat_deg, double lon_deg,
     *lnorthp = true;
     if (lat_deg < 0.0){*UTMNorthing = *UTMNorthing + 10000000.0;}
     if (lat_deg < 0.0){*lnorthp = false;}
-    if (*zone ==-1){*zone = fmod( floor((lon0_deg + 180.0)/6.0) , 60.0) + 1;}
+    if (*zone ==-1)
+    {
+        *zone = (int) (fmod(floor((lon0_deg + 180.0)/6.0), 60.0) + 0.5) + 1;
+    }
     return;
 }

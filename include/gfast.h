@@ -149,7 +149,6 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                 const double *__restrict__ utmRecvNorthing,
                                 const double *__restrict__ staAlt,
                                 const double *__restrict__ d,
-                                const double *__restrict__ repi,
                                 const double *__restrict__ wts,
                                 double *__restrict__ M,
                                 double *__restrict__ VR);

@@ -34,9 +34,8 @@
  * @param[in] utmRecvNorthing  receiver UTM northing position (m) [l1]
  * @param[in] utmRecvEasting   receiver UTM easting position (m) [l1]
  * @param[in] staAlt           station elevation (m) [l1]
- * @param[in] d                distance (cm) [n]
- * @param[in] repi             epicentral distance (km) [n]
- * @param[in] wts              data weights on each observation [n].
+ * @param[in] d                distance (cm) [l1]
+ * @param[in] wts              data weights on each observation [l1].
  *                             if NULL or if each weight is the same then
  *                             this array will be ignored.
  *
@@ -60,13 +59,12 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                 const double *__restrict__ utmRecvNorthing,
                                 const double *__restrict__ staAlt,
                                 const double *__restrict__ d,
-                                const double *__restrict__ repi,
                                 const double *__restrict__ wts,
                                 double *__restrict__ M,
                                 double *__restrict__ VR)
 {
     const char *fcnm = "GFAST_scaling_PGD__depthGridSearch\0";
-    double *b, *G, *r, *UP, *W, *Wb, *WG, M1[1],
+    double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, M1[1],
            repi_min, repi_min2, res, srcDepth, xden, xnum, wt0;
     int i, idep, ierr, ierr1;
     bool ldata_weight;
@@ -80,6 +78,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     //
     // Initialize
     ierr = 0;
+    repi = NULL;
     r = NULL;
     b = NULL;
     G = NULL;
@@ -104,7 +103,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     }
     if (srcDepths == NULL || utmRecvEasting == NULL || 
         utmRecvNorthing == NULL || staAlt == NULL || 
-        d == NULL || repi == NULL || M == NULL || VR == NULL)
+        d == NULL || M == NULL || VR == NULL)
     {
         if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
         if (utmRecvEasting == NULL)
@@ -117,7 +116,6 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         }
         if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
         if (d == NULL){log_errorF("%s: d is NULL\n", fcnm);}
-        if (repi == NULL){log_errorF("%s: repi is NULL\n", fcnm);}
         if (M == NULL){log_errorF("%s: M is NULL\n", fcnm);}
         if (VR == NULL){log_errorF("%s: VR is NULL\n", fcnm);}
         ierr = 1;
@@ -151,6 +149,15 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     WG = GFAST_memory_calloc__double(l1*1);
     Wb = GFAST_memory_calloc__double(l1);
     UP = GFAST_memory_calloc__double(l1);
+    repi = GFAST_memory_calloc__double(l1);
+    // Compute the epicentral distances (km)
+    #pragma omp simd
+    for (i=0; i<l1; i++)
+    {
+        repi[i] = sqrt( pow(utmSrcEasting  - utmRecvEasting[i], 2)
+                      + pow(utmSrcNorthing - utmRecvNorthing[i], 2) );
+        repi[i] = repi[i]*1.e-3; // m -> km
+    }
     // Get the min epicentral distance 
     repi_min = numpy_min(l1, repi);
     repi_min2 = pow(repi_min, 2);
@@ -252,6 +259,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     }
 ERROR:; // An error was encountered
     // Free space
+    GFAST_memory_free__double(&repi);
     GFAST_memory_free__double(&r);
     GFAST_memory_free__double(&b);
     GFAST_memory_free__double(&G);

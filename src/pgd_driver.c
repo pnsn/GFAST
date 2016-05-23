@@ -47,8 +47,8 @@ int GFAST_scaling_PGD__driver(
    struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__driver\0";
-    double *d, *repi, *staAlt, *utmRecvEasting, *utmRecvNorthing, *wts,
-           epiDist, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
+    double *d, *staAlt, *utmRecvEasting, *utmRecvNorthing, *wts,
+           utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
     int i, ierr, k, l1, zone_loc;
     bool lnorthp;
     //------------------------------------------------------------------------//
@@ -60,7 +60,6 @@ int GFAST_scaling_PGD__driver(
     utmRecvNorthing = NULL;
     utmRecvEasting = NULL;
     staAlt = NULL;
-    repi = NULL;
     // Verify the input data structure makes sense
     if (pgd_data.nsites < 1)
     {
@@ -170,7 +169,6 @@ int GFAST_scaling_PGD__driver(
     utmRecvNorthing = GFAST_memory_calloc__double(l1);
     utmRecvEasting  = GFAST_memory_calloc__double(l1);
     staAlt          = GFAST_memory_calloc__double(l1);
-    repi            = GFAST_memory_calloc__double(l1);
     wts             = GFAST_memory_calloc__double(l1);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
@@ -195,9 +193,7 @@ int GFAST_scaling_PGD__driver(
         wts[l1] = pgd_data.wt[k];
         utmRecvNorthing[l1] = y2;
         utmRecvEasting[l1] = x2;
-        epiDist = sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
         staAlt[l1] = pgd_data.sta_alt[k];
-        repi[l1] = epiDist*1.e-3; // convert to kilometers 
         l1 = l1 + 1;
     } // Loop on data
     // Invert!
@@ -216,7 +212,6 @@ int GFAST_scaling_PGD__driver(
                                               utmRecvNorthing,
                                               staAlt,
                                               d,
-                                              repi,
                                               wts,
                                               pgd->mpgd,
                                               pgd->mpgd_vr);
@@ -233,7 +228,6 @@ ERROR:;
     GFAST_memory_free__double(&utmRecvNorthing);
     GFAST_memory_free__double(&utmRecvEasting);
     GFAST_memory_free__double(&staAlt);
-    GFAST_memory_free__double(&repi);
     GFAST_memory_free__double(&wts);
     return ierr;
 }
@@ -432,7 +426,6 @@ int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
                                               utmRecvNorthing,
                                               staAlt,
                                               d,
-                                              repi,
                                               wts,
                                               pgd->mpgd,
                                               pgd->mpgd_vr);

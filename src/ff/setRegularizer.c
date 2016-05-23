@@ -6,8 +6,8 @@
  * @brief Computes the second order Tikhonov regularizer along
  *        strike and down dip for estimation of the slip 
  *        along strike and slip down dip.  There is an additional
- *        penalty on the model boundaries excluding the most nstr - 2
- *        updip elements 
+ *        penalty on slip occurring on the the model boundaries
+ *        excluding the most nstr - 2 updip elements 
  *
  * @param[in] l2       total number of faults in plane (nstr*ndip)
  * @param[in] nstr     number of faults along strike
@@ -16,8 +16,8 @@
  * @param[in] width    width of fault patches (km) [l2]
  * @param[in] length   length of fault patches (km) [l2]
  *
- * @param[out] T       second order Tikonov regularizer.  T is dimension
- *                     [2*l2 + 2*(2*ndip + nstr - 2) x 2*l2] with
+ * @param[out] T       second order Tikonov regularizer.  T is size
+ *                     [(2*l2 + 2*(2*ndip + nstr - 2))*2*l2] with
  *                     leading dimension 2*l2 stored in row major
  *                     order.
  *
