@@ -47,10 +47,10 @@ int GFAST_scaling_PGD__driver(
    struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__driver\0";
-    double *d, *staAlt, *utmRecvEasting, *utmRecvNorthing, *wts,
+    double *d, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
            utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
-    int i, ierr, k, l1, zone_loc;
-    bool lnorthp;
+    int i, idep, ierr, j, k, l1, zone_loc;
+    bool *luse, lnorthp;
     //------------------------------------------------------------------------//
     //
     // Initialize
@@ -60,6 +60,8 @@ int GFAST_scaling_PGD__driver(
     utmRecvNorthing = NULL;
     utmRecvEasting = NULL;
     staAlt = NULL;
+    Uest = NULL;
+    luse = NULL;
     // Verify the input data structure makes sense
     if (pgd_data.nsites < 1)
     {
@@ -147,11 +149,18 @@ int GFAST_scaling_PGD__driver(
         pgd->mpgd[i] = 0.0;
         pgd->mpgd_vr[i] = 0.0;
     }
+    #pragma omp simd
+    for (i=0; i<pgd->ndeps*pgd->nsites; i++)
+    {
+        pgd->UP[i] = 0.0;
+    }
     // Require there is a sufficient amount of data to invert
+    luse = GFAST_memory_calloc__bool(pgd_data.nsites);
     l1 = 0;
     for (k=0; k<pgd_data.nsites; k++)
     {
         if (!pgd_data.lactive[k] || pgd_data.wt[k] <= 0.0){continue;}
+        luse[k] = true;
         l1 = l1 + 1;
     }
     if (l1 < pgd_props.min_sites)
@@ -170,6 +179,7 @@ int GFAST_scaling_PGD__driver(
     utmRecvEasting  = GFAST_memory_calloc__double(l1);
     staAlt          = GFAST_memory_calloc__double(l1);
     wts             = GFAST_memory_calloc__double(l1);
+    Uest            = GFAST_memory_calloc__double(l1*pgd->ndeps);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Estimate UTM zone from source lon
@@ -214,7 +224,8 @@ int GFAST_scaling_PGD__driver(
                                               d,
                                               wts,
                                               pgd->mpgd,
-                                              pgd->mpgd_vr);
+                                              pgd->mpgd_vr,
+                                              Uest);
     if (ierr != 0)
     {   
         if (pgd_props.verbose > 0)
@@ -223,12 +234,28 @@ int GFAST_scaling_PGD__driver(
         }
         ierr = PGD_COMPUTE_ERROR;
     }
+    // Extract the estimates
+    for (idep=0; idep<pgd->ndeps; idep++)
+    {
+        j = 0;
+        for (i=0; i<pgd->nsites; i++)
+        {
+            pgd->UP[idep*pgd->nsites+i] = 0.0;
+            if (luse[i])
+            {
+                pgd->UP[idep*pgd->nsites+i] = Uest[idep*l1+j];
+                j = j + 1;
+            }
+        }
+    }
 ERROR:;
     GFAST_memory_free__double(&d);
     GFAST_memory_free__double(&utmRecvNorthing);
     GFAST_memory_free__double(&utmRecvEasting);
     GFAST_memory_free__double(&staAlt);
     GFAST_memory_free__double(&wts);
+    GFAST_memory_free__double(&Uest);
+    GFAST_memory_free__bool(&luse);
     return ierr;
 }
 //============================================================================//
@@ -270,7 +297,7 @@ int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
         PGD_COMPUTE_ERROR = 4
     };
     double *d, *repi, *staAlt, *utmRecvEasting, *utmRecvNorthing,
-           *wts, *x2, *y2, currentTime, distMax, distance,
+           *wts, *x2, *y2, *Uest, currentTime, distMax, distance,
            effectiveHypoDist, epiDist,
            utmSrcEasting, utmSrcNorthing, x1, y1;
     int ierr, k, l1, nwork, zone_loc;
@@ -287,6 +314,7 @@ int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
     utmRecvEasting = NULL;
     staAlt = NULL;
     repi = NULL;
+    Uest = NULL;
     // Reality check
     if (gps_data.stream_length < 1)
     {
@@ -343,6 +371,7 @@ int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
     staAlt          = GFAST_memory_calloc__double(gps_data.stream_length);
     repi            = GFAST_memory_calloc__double(gps_data.stream_length);
     wts             = GFAST_memory_calloc__double(gps_data.stream_length);
+    Uest = GFAST_memory_calloc__double(gps_data.stream_length*pgd->ndeps);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;}
@@ -428,7 +457,8 @@ int GFAST_scaling_PGD__driver2(struct GFAST_pgd_props_struct pgd_props,
                                               d,
                                               wts,
                                               pgd->mpgd,
-                                              pgd->mpgd_vr);
+                                              pgd->mpgd_vr,
+                                              Uest);
     if (ierr != 0)
     {
         if (pgd_props.verbose > 0)
@@ -446,6 +476,7 @@ ERROR:;
     GFAST_memory_free__double(&staAlt);
     GFAST_memory_free__double(&repi);
     GFAST_memory_free__double(&wts);
+    GFAST_memory_free__double(&Uest);
     return 0;
 }
 //============================================================================//

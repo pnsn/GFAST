@@ -151,7 +151,8 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                 const double *__restrict__ d,
                                 const double *__restrict__ wts,
                                 double *__restrict__ M,
-                                double *__restrict__ VR);
+                                double *__restrict__ VR,
+                                double *__restrict__ Uest);
 int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
                             struct GFAST_data_struct gps_data,
                             struct GFAST_pgdResults_struct *pgd,

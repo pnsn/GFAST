@@ -58,6 +58,7 @@ int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
     pgd->mpgd = GFAST_memory_calloc__double(pgd->ndeps);
     pgd->mpgd_vr = GFAST_memory_calloc__double(pgd->ndeps);
     pgd->srcDepths = GFAST_memory_calloc__double(pgd->ndeps);
+    pgd->UP = GFAST_memory_calloc__double(pgd->nsites*pgd->ndeps);
     pgd->lsiteUsed = GFAST_memory_calloc__bool(pgd->nsites);
     // TODO: fix me and make customizable!
     for (i=0; i<pgd->ndeps; i++)

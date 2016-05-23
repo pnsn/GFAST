@@ -34,7 +34,7 @@
  * @param[in] utmRecvNorthing  receiver UTM northing position (m) [l1]
  * @param[in] utmRecvEasting   receiver UTM easting position (m) [l1]
  * @param[in] staAlt           station elevation (m) [l1]
- * @param[in] d                distance (cm) [l1]
+ * @param[in] d                site peak ground displacements (cm) [l1]
  * @param[in] wts              data weights on each observation [l1].
  *                             if NULL or if each weight is the same then
  *                             this array will be ignored.
@@ -42,6 +42,9 @@
  * @param[out] M               magnitude at each depth [ndeps]
  * @param[out] VR              variance reduction (percentage) at each
  *                             depth [ndeps]
+ * @param[out] Uest            the PGD estimate peak ground displacements.
+ *                             the estimate for the i'th site at the
+ *                             idep'th depth is access by idep*l1 + i [l1*ndeps]
  *
  * @result 0 indicates success
  *
@@ -61,11 +64,12 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                 const double *__restrict__ d,
                                 const double *__restrict__ wts,
                                 double *__restrict__ M,
-                                double *__restrict__ VR)
+                                double *__restrict__ VR,
+                                double *__restrict__ Uest)
 {
     const char *fcnm = "GFAST_scaling_PGD__depthGridSearch\0";
     double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, M1[1],
-           res, srcDepth, xden, xnum;
+           est, res, srcDepth, xden, xnum;
     int i, idep, ierr, ierr1;
     const double A = -6.687;
     const double B = 1.500;
@@ -102,7 +106,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     }
     if (srcDepths == NULL || utmRecvEasting == NULL || 
         utmRecvNorthing == NULL || staAlt == NULL || 
-        d == NULL || M == NULL || VR == NULL)
+        d == NULL || M == NULL || VR == NULL || Uest == NULL)
     {
         if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
         if (utmRecvEasting == NULL)
@@ -117,6 +121,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         if (d == NULL){log_errorF("%s: d is NULL\n", fcnm);}
         if (M == NULL){log_errorF("%s: M is NULL\n", fcnm);}
         if (VR == NULL){log_errorF("%s: VR is NULL\n", fcnm);}
+        if (Uest == NULL){log_errorF("%s: Uest is NULL\n", fcnm);}
         ierr = 1;
         goto ERROR;
     }
@@ -126,6 +131,11 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     {
         M[idep] = 0.0;
         VR[idep] = 0.0;
+    }
+    #pragma omp simd
+    for (i=0; i<l1*ndeps; i++)
+    {
+        Uest[i] = 0.0;
     }
     // Set space
     G  = GFAST_memory_calloc__double(l1*1);
@@ -178,10 +188,10 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
 #ifdef PARALLEL_PGD
     #pragma omp parallel for \
      firstprivate(A, B, C, G, r, UP, verbose, WG) \
-     private(i, idep, ierr1, M1, res, srcDepth, xden, xnum) \
+     private(i, idep, ierr1, est, M1, res, srcDepth, xden, xnum) \
      shared(b, d, dist_def, dist_tol, fcnm, l1, M, ndeps, repi, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
-            utmSrcNorthing, utmSrcEasting, VR, W, Wb) \
+            utmSrcNorthing, utmSrcEasting, Uest, VR, W, Wb) \
      reduction(+:ierr) default(none)
 #endif
     for (idep=0; idep<ndeps; idep++)
@@ -231,10 +241,12 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         // Compute the variance reduction
         xnum = 0.0;
         xden = 0.0;
-        #pragma omp simd reduction(+:xnum, xden) aligned(UP,W:CACHE_LINE_SIZE)
+        #pragma omp simd reduction(+:xnum, xden)
         for (i=0; i<l1; i++)
         {
-            res = W[i]*(d[i] - pow(10.0, UP[i] + A));
+            est = pow(10.0, UP[i] + A);
+            Uest[idep*l1+i] = est;
+            res = W[i]*(d[i] - est);
             xnum = xnum + sqrt(res*res);
             xden = xden + sqrt(pow(W[i]*d[i], 2));
         }

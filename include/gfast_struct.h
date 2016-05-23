@@ -264,6 +264,8 @@ struct GFAST_pgdResults_struct
 {
     double *mpgd;      /*!< PGD magnitude at id'th depth [ndeps] */
     double *mpgd_vr;   /*!< PGD variance reduction at id'th depth [ndeps] */
+    double *UP;        /*!< PGD estimates for each source depth
+                            [nsites*ndeps] */
     double *srcDepths; /*!< PGD source depths in grid search (km) [ndeps] */
     bool *lsiteUsed;   /*!< If true then then the isite'th from the 
                             site list was used in the PGD estimation [nsites] */

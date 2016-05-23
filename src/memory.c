@@ -125,6 +125,7 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
     if (pgd == NULL){return;}
     GFAST_memory_free__double(&pgd->mpgd);
     GFAST_memory_free__double(&pgd->mpgd_vr);
+    GFAST_memory_free__double(&pgd->UP);
     GFAST_memory_free__double(&pgd->srcDepths);
     GFAST_memory_free(pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
