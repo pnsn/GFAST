@@ -156,6 +156,10 @@ int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
                             struct GFAST_data_struct gps_data,
                             struct GFAST_pgdResults_struct *pgd,
                             struct GFAST_peakDisplacementData_struct *pgd_data);
+int GFAST_scaling_PGD__setDiagonalWeightMatrix(int l1,
+                                               const double *__restrict__ repi,
+                                               const double *__restrict__ wts,
+                                               double *__restrict__ W);
 int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
                                        double B, double C,
                                        const double *__restrict__ r,
@@ -165,6 +169,14 @@ int GFAST_scaling_PGD__setRHS(int n, int verbose,
                               double A,
                               const double *__restrict__ d,
                               double *__restrict__ b);
+int GFAST_scaling_PGD__weightForwardModel(int l1, 
+                                          const double *__restrict__ W,
+                                          const double *__restrict__ G,
+                                          double *__restrict__ WG);
+int GFAST_scaling_PGD__weightObservations(int l1, 
+                                          const double *__restrict__ W,
+                                          const double *__restrict__ b,
+                                          double *__restrict__ Wb);
 /* Centroid moment tensor inversion */
 int GFAST_CMT__decomposeMomentTensor(int nmt,
                                      const double *__restrict__ M,

@@ -53,7 +53,10 @@ OBJ_UTILS = $(OBJ)/sacio.o
 OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
 	      $(OBJ_SCALING_DIR)/pgd_init.o \
 	      $(OBJ_SCALING_DIR)/pgd_setForwardModel.o \
-	      $(OBJ_SCALING_DIR)/pgd_setRHS.o
+	      $(OBJ_SCALING_DIR)/pgd_setRHS.o \
+	      $(OBJ_SCALING_DIR)/pgd_setDiagonalWeightMatrix.o \
+	      $(OBJ_SCALING_DIR)/pgd_weightForwardModel.o \
+	      $(OBJ_SCALING_DIR)/pgd_weightObservations.o
 OBJ_ALERT = $(OBJ_ALERT_DIR)/readShakeAlert.o
 OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
 	     $(OBJ_BUFFER_DIR)/setBufferSpace.o \
@@ -288,8 +291,17 @@ $(OBJ_SCALING_DIR)/pgd_init.o: scaling/pgd_init.c
 $(OBJ_SCALING_DIR)/pgd_setForwardModel.o: scaling/pgd_setForwardModel.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setForwardModel.c -o $(OBJ_SCALING_DIR)/pgd_setForwardModel.o
 
+$(OBJ_SCALING_DIR)/pgd_setDiagonalWeightMatrix.o: scaling/pgd_setDiagonalWeightMatrix.c 
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setDiagonalWeightMatrix.c -o $(OBJ_SCALING_DIR)/pgd_setDiagonalWeightMatrix.o
+
 $(OBJ_SCALING_DIR)/pgd_setRHS.o: scaling/pgd_setRHS.c
 	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_setRHS.c -o $(OBJ_SCALING_DIR)/pgd_setRHS.o
+
+$(OBJ_SCALING_DIR)/pgd_weightForwardModel.o: scaling/pgd_weightForwardModel.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_weightForwardModel.c -o $(OBJ_SCALING_DIR)/pgd_weightForwardModel.o
+
+$(OBJ_SCALING_DIR)/pgd_weightObservations.o: scaling/pgd_weightObservations.c
+	$(CC) $(CFLAGS) $(INC_GFAST) $(CSHARED) -c scaling/pgd_weightObservations.c -o $(OBJ_SCALING_DIR)/pgd_weightObservations.o
 
 ################################## Waveform processor #################################
 

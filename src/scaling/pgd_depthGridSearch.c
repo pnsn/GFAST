@@ -65,9 +65,8 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
 {
     const char *fcnm = "GFAST_scaling_PGD__depthGridSearch\0";
     double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, M1[1],
-           repi_min, repi_min2, res, srcDepth, xden, xnum, wt0;
+           res, srcDepth, xden, xnum;
     int i, idep, ierr, ierr1;
-    bool ldata_weight;
     const double A = -6.687;
     const double B = 1.500;
     const double C = -0.214;
@@ -122,19 +121,6 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         goto ERROR;
     }
     // Initialize result to nothing
-    ldata_weight = false;
-    if (wts != NULL)
-    {
-        wt0 = wts[0];
-        for (i=1; i<l1; i++)
-        {
-            if (wts[i] != wt0)
-            {
-                ldata_weight = true;
-                break;
-            }
-        } 
-    }
     #pragma omp simd
     for (idep=0; idep<ndeps; idep++)
     {
@@ -158,9 +144,6 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                       + pow(utmSrcNorthing - utmRecvNorthing[i], 2) );
         repi[i] = repi[i]*1.e-3; // m -> km
     }
-    // Get the min epicentral distance 
-    repi_min = numpy_min(l1, repi);
-    repi_min2 = pow(repi_min, 2);
     // Set the RHS log10(d) - A
     ierr = GFAST_scaling_PGD__setRHS(l1, verbose,
                                      dist_tol, dist_def,
@@ -171,14 +154,34 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
         log_errorF("%s: Error creating RHS\n", fcnm);
         goto ERROR;
     }
+    // Compute the diagonal data weights
+    ierr = GFAST_scaling_PGD__setDiagonalWeightMatrix(l1,
+                                                      repi,
+                                                      wts,
+                                                      W);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error setting diagonal weight matrix\n", fcnm);
+        goto ERROR;
+    }
+    // Weight the observations
+    ierr = GFAST_scaling_PGD__weightObservations(l1,
+                                                 W,
+                                                 b,
+                                                 Wb);
+    if (ierr < 0)
+    {
+        log_errorF("%s: Error weighting observations\n", fcnm);
+        goto ERROR;
+    }
     // Loop on depths
 #ifdef PARALLEL_PGD
     #pragma omp parallel for \
-     firstprivate(A, B, C, G, r, repi_min2, UP, verbose, W, WG, Wb) \
+     firstprivate(A, B, C, G, r, UP, verbose, WG) \
      private(i, idep, ierr1, M1, res, srcDepth, xden, xnum) \
      shared(b, d, dist_def, dist_tol, fcnm, l1, M, ndeps, repi, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
-            utmSrcNorthing, utmSrcEasting, VR, wts) \
+            utmSrcNorthing, utmSrcEasting, VR, W, Wb) \
      reduction(+:ierr) default(none)
 #endif
     for (idep=0; idep<ndeps; idep++)
@@ -202,28 +205,15 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
             ierr = ierr + 1;
             continue;
         }
-        // Apply standard weights 
-        if (!ldata_weight)
+        // Weight the forward modeling matrix
+        ierr1 = GFAST_scaling_PGD__weightForwardModel(l1, 
+                                                      W,
+                                                      G,
+                                                      WG);
+        if (ierr1 < 0)
         {
-            #pragma omp simd aligned(WG,Wb:CACHE_LINE_SIZE)
-            for (i=0; i<l1; i++)
-            {
-                 W[i] = exp(-pow(repi[i], 2)/8.0/repi_min2); // Compute weights
-                 WG[i] = W[i]*G[i];
-                 Wb[i] = W[i]*b[i];
-            }
-        }
-        // Apply standard and additional data quality weights
-        else
-        {
-            #pragma omp simd aligned(WG,Wb:CACHE_LINE_SIZE)
-            for (i=0; i<l1; i++)
-            {
-                 W[i] = exp(-pow(repi[i], 2)/8.0/repi_min2); // Compute weights
-                 W[i] = W[i]*wts[i]; // add in data weight
-                 WG[i] = W[i]*G[i];
-                 Wb[i] = W[i]*b[i];
-            }
+            log_errorF("%s: Error weighting forward modeling matrix\n", fcnm);
+            ierr = ierr + 1;
         }
         // Solve the weighted least squares problem (M = lstsq(W*G,W*b)[0])
         ierr1 = numpy_lstsq__qr(LAPACK_COL_MAJOR,
