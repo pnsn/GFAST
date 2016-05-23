@@ -378,4 +378,32 @@ struct GFAST_activeEvents_struct
     int nev;                            /*!< Number of events */ 
 };
 
+struct coreInfo_struct
+{
+    int version;                             /*!< Version number */
+    char id[128];                            /*!< Event ID */
+    double mag;                              /*!< Magnitude */
+    enum alert_units_enum mag_units;         /*!< Magnitude units */
+    double mag_uncer;                        /*!< Magnitude uncertainty */
+    enum alert_units_enum mag_uncer_units;   /*!< Magnitude uncertainty units */    double lat;                              /*!< Event latitude */
+    enum alert_units_enum lat_units;         /*!< Latitude units */
+    double lat_uncer;                        /*!< Latitude uncertainty */
+    enum alert_units_enum lat_uncer_units;   /*!< Latitude uncertainty units */
+    double lon;                              /*!< Event longitude */
+    enum alert_units_enum lon_units;         /*!< Longitude units */
+    double lon_uncer;                        /*!< Longitude uncertainty */
+    enum alert_units_enum lon_uncer_units;   /*!< Longitude uncertainty units */
+    double depth;                            /*!< Event depth */
+    enum alert_units_enum depth_units;       /*!< Event depth units */
+    double depth_uncer;                      /*!< Depth uncertainty */
+    enum alert_units_enum depth_uncer_units; /*!< Depth uncertainty units */
+    double orig_time;                        /*!< UTC origin time */
+    enum alert_units_enum orig_time_units;   /*!< Origin time units */
+    double orig_time_uncer;                  /*!< Origin time uncertainty */
+    enum alert_units_enum
+         orig_time_uncer_units;              /*!< Origin time uncertainty
+                                                  units */
+    double likelihood;  /*!< TODO: I have no idea what likelihood means */
+};
+
 #endif /* __GFAST_STRUCT_H__ */

@@ -57,5 +57,17 @@ enum ff_return_enum
     FF_MEMORY_ERROR = 5        /*!< Error during memory allocation */
 };
 
-#endif /* __GFAST_ENUM__ */
+enum alert_units_enum
+{
+    UNKNOWN_UNITS = 0,    /*!< No units defined */
+    DEGREES = 1,          /*!< Distance/location - degrees */
+    KILOMETERS = 2,       /*!< Distance - kilometers */
+    METERS = 3,           /*!< Distance - meters */
+    SECONDS = 4,          /*!< Time - seconds */
+    UTC = 5,              /*!< Time - UTC */
+    MOMENT_MAGNITUDE = 6, /*!< Moment magnitude Mw */
+    DYNE_CENTIMETERS = 7, /*!< Torque - dyne centimeters */
+    NEWTON_METERS= 8,     /*!< Torque - Newton meters */
+};
 
+#endif /* __GFAST_ENUM__ */
