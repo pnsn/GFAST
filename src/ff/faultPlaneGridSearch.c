@@ -91,7 +91,7 @@
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
- * @bug The units are unknown on the observations and slips are unknown 
+ * @date May 2016
  *
  */
 int GFAST_FF__faultPlaneGridSearch(int l1, int l2, 
