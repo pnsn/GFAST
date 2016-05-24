@@ -351,13 +351,13 @@ class CMT:
             print "setForwardModel: Error setting G"
             return None, -1
         G = G.reshape([l1, 5])
-        return G, ierr
     # Compute general moment tensor
     else:
         print "setForwardModel: Full MT not yet programmed!"
-        return None, -1
+        G = None
+        ierr =-1
 
-    return None, -1 
+    return G, ierr 
 
  def depthGridSearch(self,
                      utmSrcEasting, utmSrcNorthing,

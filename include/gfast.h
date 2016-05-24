@@ -208,10 +208,6 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
                       double SA_lat, double SA_lon, double SA_dep,
                       struct GFAST_offsetData_struct cmt_data,
                       struct GFAST_cmtResults_struct *cmt);
-int GFAST_CMT__driver2(struct GFAST_cmt_props_struct props,
-                       struct GFAST_shakeAlert_struct SA, 
-                       struct GFAST_data_struct gps_data,
-                       struct GFAST_cmtResults_struct *cmt);
 int GFAST_CMT__init(struct GFAST_cmt_props_struct props,
                     struct GFAST_data_struct gps_data,
                     struct GFAST_cmtResults_struct *cmt,
@@ -244,10 +240,6 @@ int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
                      double SA_lat, double SA_lon, double SA_dep,
                      struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff);
-int GFAST_FF__driver2(struct GFAST_ff_props_struct props,
-                      struct GFAST_shakeAlert_struct SA, 
-                      struct GFAST_data_struct gps_data,
-                      struct GFAST_ffResults_struct *ff);
 int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                                    int nstr, int ndip, int nfp,
                                    int verbose,

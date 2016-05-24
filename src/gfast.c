@@ -298,11 +298,6 @@ kt = 299;
                 }
 //props.verbose = verbose0;
                 lcmt_success = false;
-                ierr = GFAST_CMT__driver2(props.cmt_props,
-                                          events.SA[iev],
-                                          gps_acquisition,
-                                          &cmt);
-if (ierr == 0){lcmt_success = true;}
                 if (nsites_cmt >= props.cmt_props.min_sites)
                 {
                     lcmt_success = true;
@@ -328,19 +323,13 @@ if (ierr == 0){lcmt_success = true;}
                     ff.str[1] = cmt.str2[cmt.opt_indx];
                     ff.dip[0] = cmt.dip1[cmt.opt_indx];
                     ff.dip[1] = cmt.dip2[cmt.opt_indx];
-ff.SA_mag = 9.07945726;
-ff.str[1] = 219.96796844;
-ff.dip[1] = 69.27746075;
-ff.str[0] = 116.78477424;
-ff.dip[0] = 58.91674731;
-                    ierr = GFAST_FF__driver2(props.ff_props, events.SA[iev],
-                                             gps_acquisition, &ff);
-                    if (nsites_ff > 0)
+                    ierr = GFAST_FF__driver(props.ff_props,
+                                            SA.lat, SA.lon, SA.dep,
+                                            ff_data,
+                                            &ff);
+                    if (ierr != FF_SUCCESS)
                     {
-                        ierr = GFAST_FF__driver(props.ff_props,
-                                                SA.lat, SA.lon, SA.dep,
-                                                ff_data,
-                                                &ff);
+                        log_errorF("%s: Error computing finite fault\n", fcnm);
                     }
 /*
 int iopt = ff.preferred_fault_plane;

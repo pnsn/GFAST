@@ -131,10 +131,6 @@ struct GFAST_props_struct
                                      positions (nev-cor) */
     double dt_default;          /*!< Default sampling period (s) for GPS
                                      stations */
-    //double pgd_dist_tol;        /*!< PGD source station distance
-    //                                 tolerance (km) */
-    //double pgd_dist_def;        /*!< PGD default station distance (km) if
-    //                                 d < pgd_dist_tol */
     double bufflen;             /*!< The number of seconds to keep in the data
                                      buffers */
     double processingTime;      /*!< Max processing time (s) after origin time
@@ -145,21 +141,6 @@ struct GFAST_props_struct
     double eqDefaultDepth;      /*!< Default earthquake depth (km) to be applied
                                      to shakeAlert structure */
     double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode */
-    //double pgd_window_vel;      /*!< Velocity used in determining if enough
-    //                                 data has arrived at a station in PGD
-    //                                 inversion */
-    //double cmt_window_vel;      /*!< Velocity used in determining if enough
-    //                                 data has arrived at a station in CMT
-    //                                 inversion */
-    //double cmt_window_avg;      /*!< Window length (s) over which data positions
-    //                                 are averaged in CMT inversion */
-    //double ff_window_avg;       /*!< Window length (s) over which data positions
-    //                                 are averaged in FF inversion */
-    //double ff_window_vel;       /*!< Velocity used in determining if enough
-    //                                 data has arrived at a station in CMT
-    //                                 inversion */
-    //double ff_flen_pct;         /*!< Fault length safety factor */
-    //double ff_fwid_pct;         /*!< Fault width safety factor */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
@@ -167,16 +148,6 @@ struct GFAST_props_struct
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
-    //int cmt_min_sites;          /*!< Minimum number of sites to proceed with
-    //                                 CMT estimation */
-    //int ff_min_sites;           /*!< Minimum number of sites to proceed with
-    //                                 FF estimation */
-    //int ff_nstr;                /*!< Number of fault patches along strike */
-    //int ff_ndip;                /*!< Number of fault patches down dip */
-    //int ff_nfp;                 /*!< Number of fault planes considered in
-    //                                 inversion */
-    //int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
-    //int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
     int verbose;                /*!< Controls verbosity - errors will always
                                      be output.
                                       = 1 -> Output generic information.
@@ -185,13 +156,6 @@ struct GFAST_props_struct
                                       = 3 -> Output generic information,
                                              warnings, and debug information
                                              and debug information. */
-    //bool lremove_disp0;         /*!< Remove the (u,n,e) component at the 
-    //                                 origin time from the displacement
-    //                                 streams */
-    //bool ldeviatoric_cmt;       /*!< If true then the CMT inversion is 
-    //                                 constrained to purely deviatoric sources.
-    //                                 Otherwise, all 6 moment tensor terms
-    //                                 are inverted for. */
     enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
                                      playback, offline) */
     enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
@@ -279,14 +243,20 @@ struct GFAST_cmtResults_struct
     double *mts;       /*!< Holds the NED moment tensor terms packed
                             \f$ \{m_{xx}, m_{yy}, m_{zz},
                                   m_{xy}, m_{xz}, m_{yz} \} \f$.  [6*ndeps] */
-    double *str1;      /*!< Strike on first nodal plane for
-                            all depths [ndeps] */
-    double *str2;      /*!< Strike on second nodal plane for
-                            all depths [ndeps] */
-    double *dip1;      /*!< Dip on first nodal plane for all depths [ndeps] */
-    double *dip2;      /*!< Dip on second nodal plane for all depths [ndeps] */
-    double *rak1;      /*!< Rake on first nodal plane for all depths [ndeps] */
-    double *rak2;      /*!< Rake on second nodal plane for all depths [ndeps] */
+    double *str1;      /*!< Strike (degrees) on first nodal plane for
+                            all depths [ndeps]. \f$ \phi \in [0,360] \f$ */
+    double *str2;      /*!< Strike (degrees) on second nodal plane for
+                            all depths [ndeps]. \f$ \phi \in [0,360] \f$ */
+    double *dip1;      /*!< Dip (degrees) on first nodal plane for
+                            all depths [ndeps]. \f$ \delta \in [0,90] \f$ */
+    double *dip2;      /*!< Dip (degrees) on second nodal plane for
+                            all depths [ndeps]. \f$ \delta \in [0,90] \f$ */
+    double *rak1;      /*!< Rake (degrees) on first nodal plane for
+                            all depths [ndeps].
+                            \f$ \lambda \in [-180,180] \f$ */
+    double *rak2;      /*!< Rake (degrees) on second nodal plane for 
+                            all depths [ndeps].
+                            \f$ \lambda \in [-180,180] \f$ */
     double *Mw;        /*!< Moment magnitude for all depths [ndeps] */
     double *srcDepths; /*!< Source depths in moment tensor inversion grid
                             search (km) [ndeps] */

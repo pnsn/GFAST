@@ -390,15 +390,38 @@ int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
                 log_errorF("%s: Error inverting triangular matrix!\n", fcnm);
                 ierr = ierr + 1;
                 continue;
-            }            
-            for (i=0; i<l2; i++)
+            }
+            // Unpack the uncertainties
+            if (lsslip_unc && ldslip_unc)
             {
-                ss_unc = cblas_ddot(ncolsG2, &R[(2*i+0)*ncolsG2], 1,
-                                             &R[(2*i+0)*ncolsG2], 1);
-                ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
-                                             &R[(2*i+1)*ncolsG2], 1);
-                if (lsslip_unc){sslip_unc[if_off+i] = sqrt(ss_unc);} 
-                if (ldslip_unc){dslip_unc[if_off+i] = sqrt(ds_unc);}
+                for (i=0; i<l2; i++)
+                {
+                    ss_unc = cblas_ddot(ncolsG2, &R[(2*i+0)*ncolsG2], 1,
+                                                 &R[(2*i+0)*ncolsG2], 1); 
+                    ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
+                                                 &R[(2*i+1)*ncolsG2], 1); 
+                    sslip_unc[if_off+i] = sqrt(ss_unc);
+                    dslip_unc[if_off+i] = sqrt(ds_unc);
+                }
+            }
+            else // Be a little more careful unpacking uncertainties
+            {
+                for (i=0; i<l2; i++)
+                {
+                    if (ldslip_unc)
+                    {
+                        ss_unc = cblas_ddot(ncolsG2, &R[(2*i+0)*ncolsG2], 1,
+                                                     &R[(2*i+0)*ncolsG2], 1);
+                        sslip_unc[if_off+i] = sqrt(ss_unc);
+                    }
+                    if (ldslip_unc)
+                    {
+                        ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
+                                                     &R[(2*i+1)*ncolsG2], 1);
+                        sslip_unc[if_off+i] = sqrt(ss_unc);
+                        dslip_unc[if_off+i] = sqrt(ds_unc);
+                    }
+                }
             }
         }
         // Compute the forward problem UP = G*S (ignoring regularizer)
