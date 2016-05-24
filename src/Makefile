@@ -373,5 +373,5 @@ $(OBJ)/sacio.o: sacio.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o $(OBJ_ACQ) $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
 

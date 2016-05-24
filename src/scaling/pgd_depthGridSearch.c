@@ -27,7 +27,7 @@
  * @param[in] verbose          controls verbosity (< 2 is quiet)
  * @param[in] dist_tol         displacement tolerance (cm).  if the displacment
  *                             is less than dist_tol it would be set to dist_tol
- * @param[in] dist_def         displacement default (cm) if d < dist_tol
+ * @param[in] disp_def         displacement default (cm) if d < dist_tol
  * @param[in] utmSrcNorthing   source UTM northing position (m)
  * @param[in] utmSrcEasting    source UTM easting position (m)
  * @param[in] srcDepths        source depth in grid search (km) [ndeps]
@@ -54,7 +54,7 @@
 int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
                                 int verbose,
                                 double dist_tol,
-                                double dist_def,
+                                double disp_def,
                                 double utmSrcEasting,
                                 double utmSrcNorthing,
                                 const double *__restrict__ srcDepths,
@@ -156,7 +156,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     }
     // Set the RHS log10(d) - A
     ierr = GFAST_scaling_PGD__setRHS(l1, verbose,
-                                     dist_tol, dist_def,
+                                     dist_tol, disp_def,
                                      A, d,
                                      b);
     if (ierr != 0)
@@ -189,7 +189,7 @@ int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
     #pragma omp parallel for \
      firstprivate(A, B, C, G, r, UP, verbose, WG) \
      private(i, idep, ierr1, est, M1, res, srcDepth, xden, xnum) \
-     shared(b, d, dist_def, dist_tol, fcnm, l1, M, ndeps, repi, \
+     shared(b, d, disp_def, dist_tol, fcnm, l1, M, ndeps, repi, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
             utmSrcNorthing, utmSrcEasting, Uest, VR, W, Wb) \
      reduction(+:ierr) default(none)

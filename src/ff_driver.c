@@ -21,7 +21,7 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
 /*!
  * @brief Drives the finite fault fault plane grid search inversion 
  */
-int GFAST_FF__driver(struct GFAST_props_struct ff_props,
+int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
                      double SA_lat, double SA_lon, double SA_dep,
                      struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff)
@@ -135,12 +135,12 @@ int GFAST_FF__driver(struct GFAST_props_struct ff_props,
         luse[k] = true;
         l1 = l1 + 1;
     }
-    if (l1 < ff_props.ff_min_sites)
+    if (l1 < ff_props.min_sites)
     {
         if (ff_props.verbose > 1)
         {
             log_warnF("%s: Insufficient data to invert %d < %d\n",
-                      fcnm, l1, ff_props.ff_min_sites);
+                      fcnm, l1, ff_props.min_sites);
         }
         ierr = FF_INSUFFICIENT_DATA;
         goto ERROR;
@@ -216,8 +216,8 @@ int GFAST_FF__driver(struct GFAST_props_struct ff_props,
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
         ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
-                                         ff_props.ff_flen_pct,
-                                         ff_props.ff_fwid_pct,
+                                         ff_props.flen_pct,
+                                         ff_props.fwid_pct,
                                          ff->SA_mag, ff->str[ifp], ff->dip[ifp],
                                          ff->fp[ifp].nstr, ff->fp[ifp].ndip,
                                          zone_loc, ff_props.verbose,
@@ -534,7 +534,7 @@ ERROR:;
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-int GFAST_FF__driver2(struct GFAST_props_struct props,
+int GFAST_FF__driver2(struct GFAST_ff_props_struct props,
                       struct GFAST_shakeAlert_struct SA,
                       struct GFAST_data_struct gps_data,
                       struct GFAST_ffResults_struct *ff)
@@ -612,7 +612,7 @@ int GFAST_FF__driver2(struct GFAST_props_struct props,
         nwork = fmax(gps_data.data[k].npts, nwork);
         l1 = l1 + 1;
     }
-    if (l1 < props.ff_min_sites)
+    if (l1 < props.min_sites)
     {
         if (props.verbose > 1)
         {
@@ -671,14 +671,14 @@ int GFAST_FF__driver2(struct GFAST_props_struct props,
         // In a perfect world is there any chance of having data?
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
-        effectiveHypoDist = (currentTime - SA.time)*props.ff_window_vel;
+        effectiveHypoDist = (currentTime - SA.time)*props.window_vel;
         if (distance < effectiveHypoDist)
         {
             luse = __GFAST_FF__getAvgDisplacement(gps_data.data[k].npts,
-                                                  props.lremove_disp0,
+                                                  true,
                                                   gps_data.data[k].dt,
                                                   SA.time,
-                                                  props.ff_window_avg,
+                                                  props.window_avg,
                                                   gps_data.data[k].epoch,
                                                   gps_data.data[k].ubuff,
                                                   gps_data.data[k].nbuff,
@@ -699,7 +699,7 @@ int GFAST_FF__driver2(struct GFAST_props_struct props,
             }
         }
     } // Loop on data streams
-    if (l1 < props.ff_min_sites){
+    if (l1 < props.min_sites){
         if (props.verbose > 1){
             log_warnF("%s: Insufficient data to invert\n", fcnm);
         }
@@ -713,8 +713,8 @@ int GFAST_FF__driver2(struct GFAST_props_struct props,
                    fcnm, l1);
     }
     nfp = ff->nfp;
-    nstr = props.ff_nstr;
-    ndip = props.ff_ndip;
+    nstr = props.nstr;
+    ndip = props.ndip;
     l2 = nstr*ndip;
     // Mesh the fault planes remembering the event hypocenter and strike/dip
     // information were defined in the calling routine
@@ -732,8 +732,8 @@ int GFAST_FF__driver2(struct GFAST_props_struct props,
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
         ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
-                                         props.ff_flen_pct,
-                                         props.ff_fwid_pct,
+                                         props.flen_pct,
+                                         props.fwid_pct,
                                          ff->SA_mag, ff->str[ifp], ff->dip[ifp],
                                          ff->fp[ifp].nstr, ff->fp[ifp].ndip,
                                          props.utm_zone, props.verbose,

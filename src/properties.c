@@ -211,9 +211,6 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         props->synthetic_runtime
            = iniparser_getdouble(ini, "general:synthetic_runtime\0", 0.0); 
     } 
-    // Remove the displacement at origin time?
-    props->lremove_disp0
-       = iniparser_getboolean(ini, "general:remove_displacement_t0\0", true);
     // Processing time
     props->processingTime
        = iniparser_getdouble(ini, "general:processing_time\0", 300.0);
@@ -237,16 +234,18 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     props->pgd_props.utm_zone = props->utm_zone;
     props->pgd_props.dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0",
                                                     6.0);
-    if (props->pgd_props.dist_tol < 0.0){
+    if (props->pgd_props.dist_tol < 0.0)
+    {
         log_errorF("%s: Error ndistance tolerance %f cannot be negative\n",
                    fcnm, props->pgd_props.dist_tol);
         goto ERROR;
     }
-    props->pgd_props.dist_def = iniparser_getdouble(ini, "PGD:dist_default\0",
+    props->pgd_props.disp_def = iniparser_getdouble(ini, "PGD:disp_default\0",
                                                     0.01);
-    if (props->pgd_props.dist_def <= 0.0){
+    if (props->pgd_props.disp_def <= 0.0)
+    {
         log_errorF("%s: Error PGD distance default %f must be positive\n",
-                   fcnm, props->pgd_props.dist_def);
+                   fcnm, props->pgd_props.disp_def);
         goto ERROR;
     }
     props->pgd_props.ngridSearch_deps
@@ -270,78 +269,99 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         goto ERROR;
     }
     //----------------------------CMT Parameters------------------------------//
-    props->cmt_ngridSearch_deps
+    props->cmt_props.verbose = props->verbose;
+    props->cmt_props.utm_zone = props->utm_zone;
+    props->cmt_props.ngridSearch_deps
          = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);
-    if (props->pgd_props.ngridSearch_deps < 1){
+    if (props->cmt_props.ngridSearch_deps < 1)
+    {
         log_errorF("%s: Error CMT grid search depths %d must be positive\n",
-                   fcnm, props->cmt_ngridSearch_deps);
+                   fcnm, props->cmt_props.ngridSearch_deps);
         goto ERROR;
     }
-    props->cmt_min_sites = iniparser_getint(ini, "CMT:cmt_min_sites\0", 4);
-    if (props->cmt_min_sites < 3){
+    props->cmt_props.min_sites
+        = iniparser_getint(ini, "CMT:cmt_min_sites\0", 4);
+    if (props->cmt_props.min_sites < 3)
+    {
         log_errorF("%s: Error at least two sites needed to estimate CMT!\n",
                    fcnm);
         goto ERROR;
     }
-    props->cmt_window_vel = iniparser_getdouble(ini,
-                                                "CMT:cmt_window_vel\0", 3.0);
-    if (props->cmt_window_vel <= 0.0){
+    props->cmt_props.window_vel
+        = iniparser_getdouble(ini, "CMT:cmt_window_vel\0", 2.0);
+    if (props->cmt_props.window_vel <= 0.0)
+    {
         log_errorF("%s: Error window velocity must be positive!\n", fcnm);
         goto ERROR;
     }
-    props->cmt_window_avg = iniparser_getdouble(ini,
-                                                "CMT:cmt_window_avg\0", 10.0);
-    if (props->cmt_window_avg <= 0.0){
+    props->cmt_props.window_avg
+        = iniparser_getdouble(ini, "CMT:cmt_window_avg\0", 0.0);
+    if (props->cmt_props.window_avg < 0.0)
+    {   
         log_errorF("%s: Error window average time must be positive!\n", fcnm);
         goto ERROR;
     }
-    props->ldeviatoric_cmt
+    props->cmt_props.ldeviatoric
         = iniparser_getboolean(ini, "CMT:ldeviatoric_cmt\0", true);
-    if (!props->ldeviatoric_cmt){
+    if (!props->cmt_props.ldeviatoric)
+    {
         log_errorF("%s: Error general CMT inversions not yet programmed\n",
                    fcnm);
         goto ERROR;
     }
     //------------------------------FF Parameters-----------------------------//
-    props->ff_nfp = iniparser_getint(ini, "FF:ff_number_of_faultplanes\0", 2);
-    if (props->ff_nfp != 2){
+    props->ff_props.verbose = props->verbose;
+    props->ff_props.utm_zone = props->utm_zone;
+    props->ff_props.nfp
+        = iniparser_getint(ini, "FF:ff_number_of_faultplanes\0", 2);
+    if (props->ff_props.nfp != 2)
+    {
         log_errorF("%s: Error only 2 fault planes considered in ff\n", fcnm);
         goto ERROR;
     }
-    props->ff_nstr = iniparser_getint(ini, "FF:ff_nstr\0", 10);
-    if (props->ff_nstr < 1){
+    props->ff_props.nstr = iniparser_getint(ini, "FF:ff_nstr\0", 10);
+    if (props->ff_props.nstr < 1)
+    {
         log_errorF("%s: Error no fault patches along strike!\n", fcnm);
         goto ERROR;
     }
-    props->ff_ndip = iniparser_getint(ini, "FF:ff_ndip\0", 5);
-    if (props->ff_ndip < 1){
+    props->ff_props.ndip = iniparser_getint(ini, "FF:ff_ndip\0", 5);
+    if (props->ff_props.ndip < 1)
+    {
         log_errorF("%s: Error no fault patches down dip!\n", fcnm);
         goto ERROR;
     }
-    props->ff_min_sites = iniparser_getint(ini, "FF:ff_min_sites\0", 4);
-    if (props->ff_min_sites < props->cmt_min_sites){
+    props->ff_props.min_sites = iniparser_getint(ini, "FF:ff_min_sites\0", 4);
+    if (props->ff_props.min_sites < props->cmt_props.min_sites)
+    {
         log_errorF("%s: Error FF needs at least as many sites as CMT\n", fcnm);
         goto ERROR;
     }
-    props->ff_window_vel = iniparser_getdouble(ini,
-                                               "FF:ff_window_vel\0", 3.0);
-    if (props->ff_window_vel <= 0.0){
+    props->ff_props.window_vel
+        = iniparser_getdouble(ini, "FF:ff_window_vel\0", 3.0);
+    if (props->ff_props.window_vel <= 0.0)
+    {
         log_errorF("%s: Error window velocity must be positive!\n", fcnm);
         goto ERROR;
     }
-    props->ff_window_avg = iniparser_getdouble(ini,
-                                               "FF:ff_window_avg\0", 10.0);
-    if (props->ff_window_avg <= 0.0){
+    props->ff_props.window_avg
+        = iniparser_getdouble(ini, "FF:ff_window_avg\0", 10.0);
+    if (props->ff_props.window_avg <= 0.0)
+    {
         log_errorF("%s: Error window average time must be positive!\n", fcnm);
         goto ERROR;
     }
-    props->ff_flen_pct = iniparser_getdouble(ini, "FF:ff_flen_pct\0", 10.0);
-    if (props->ff_flen_pct < 0.0){
+    props->ff_props.flen_pct
+        = iniparser_getdouble(ini, "FF:ff_flen_pct\0", 10.0);
+    if (props->ff_props.flen_pct < 0.0)
+    {
         log_errorF("%s: Error cannot shrink fault length\n", fcnm);
         goto ERROR;
     }
-    props->ff_fwid_pct = iniparser_getdouble(ini, "FF:ff_fwid_pct\0", 10.0);
-    if (props->ff_fwid_pct < 0.0){
+    props->ff_props.fwid_pct
+        = iniparser_getdouble(ini, "FF:ff_fwid_pct\0", 10.0);
+    if (props->ff_props.fwid_pct < 0.0)
+    {
         log_errorF("%s: Error cannot shrink fault width\n", fcnm);
         goto ERROR;
     }
@@ -508,16 +528,6 @@ void GFAST_properties__print(struct GFAST_props_struct props)
         log_debugF("%s GFAST will set UTM zone to %d\n", lspace,
                    props.utm_zone);
     }
-    if (props.lremove_disp0)
-    {
-        log_debugF("%s GFAST will remove displacement at origin time\n",
-                   lspace);
-    }
-    else
-    {
-        log_debugF("%s GFAST will not remove displacement at origin time\n",
-                   lspace);
-    }
     log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
     log_debugF("%s GFAST stream file: %s\n", lspace, props.streamfile);
     log_debugF("%s GFAST will finish processing an event after %f (s)\n",
@@ -528,7 +538,7 @@ void GFAST_properties__print(struct GFAST_props_struct props)
     log_debugF("%s GFAST PGD source receiver distance tolerance %f (km)\n",
                lspace, props.pgd_props.dist_tol);
     log_debugF("%s GFAST PGD default distance %f (cm)\n",
-               lspace, props.pgd_props.dist_def);
+               lspace, props.pgd_props.disp_def);
     log_debugF("%s GFAST Number of PGD grid search depths is %d\n",
                lspace, props.pgd_props.ngridSearch_deps);
     log_debugF("%s GFAST PGD data selection velocity is %f (km/s)\n",
@@ -537,14 +547,14 @@ void GFAST_properties__print(struct GFAST_props_struct props)
                lspace, props.pgd_props.min_sites);
     //--------------------------------cmt-------------------------------------//
     log_debugF("%s GFAST Number of CMT grid search depths is %d\n",
-               lspace, props.cmt_ngridSearch_deps);
+               lspace, props.cmt_props.ngridSearch_deps);
     log_debugF("%s GFAST CMT data selection velocity is %f (km/s)\n",
-               lspace, props.cmt_window_vel);
+               lspace, props.cmt_props.window_vel);
     log_debugF("%s GFAST CMT data averaging window length %f (s)\n",
-               lspace, props.cmt_window_avg);
+               lspace, props.cmt_props.window_avg);
     log_debugF("%s GFAST Number of sites required to compute CMT is %d\n",
-               lspace, props.cmt_min_sites); 
-    if (props.ldeviatoric_cmt)
+               lspace, props.cmt_props.min_sites); 
+    if (props.cmt_props.ldeviatoric)
     {
         log_debugF("%s GFAST will apply deviatoric constraint to CMT\n",
                    lspace);
@@ -555,19 +565,19 @@ void GFAST_properties__print(struct GFAST_props_struct props)
     }
     //--------------------------------ff--------------------------------------//
     log_debugF("%s GFAST will use %d fault patches along strike\n",
-               lspace, props.ff_nstr);
+               lspace, props.ff_props.nstr);
     log_debugF("%s GFAST will use %d fault patches down-dip\n",
-               lspace, props.ff_ndip);
+               lspace, props.ff_props.ndip);
     log_debugF("%s GFAST Number of sites required to compute FF is %d\n",
-               lspace, props.ff_min_sites);
+               lspace, props.ff_props.min_sites);
     log_debugF("%s GFAST finite fault data selection velocity is %f (km/s)\n",
-               lspace, props.ff_window_vel);
+               lspace, props.ff_props.window_vel);
     log_debugF("%s GFAST finite fault data averaging window length %f (s)\n",
-               lspace, props.ff_window_avg);
+               lspace, props.ff_props.window_avg);
     log_debugF("%s GFAST fault length safety factor %.2f %\n",
-               lspace, props.ff_flen_pct);
+               lspace, props.ff_props.flen_pct);
     log_debugF("%s GFAST fault width safety factor %.2f %\n",
-               lspace, props.ff_fwid_pct); 
+               lspace, props.ff_props.fwid_pct); 
     log_debugF("\n");
     return;
 }

@@ -43,13 +43,12 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-int GFAST_scaling_CMT__driver(
-   struct GFAST_props_struct cmt_props,
-   double SA_lat, double SA_lon, double SA_dep,
-   struct GFAST_offsetData_struct cmt_data,
-   struct GFAST_cmtResults_struct *cmt)
+int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
+                      double SA_lat, double SA_lon, double SA_dep,
+                      struct GFAST_offsetData_struct cmt_data,
+                      struct GFAST_cmtResults_struct *cmt)
 {
-    const char *fcnm = "GFAST_scaling_CMT__driver\0";
+    const char *fcnm = "GFAST_CMT__driver\0";
     double *utmRecvEasting, *utmRecvNorthing, *staAlt,
            *eOffset, *eEst, *eWts, *nOffset, *nEst, *nWts,
            *uOffset, *uEst, *uWts,
@@ -127,12 +126,12 @@ int GFAST_scaling_CMT__driver(
         luse[k] = true;
         l1 = l1 + 1;
     }
-    if (l1 < cmt_props.cmt_min_sites)
+    if (l1 < cmt_props.min_sites)
     {
         if (cmt_props.verbose > 1)
         {
             log_warnF("%s: Insufficient data to invert %d < %d\n",
-                      fcnm, l1, cmt_props.cmt_min_sites);
+                      fcnm, l1, cmt_props.min_sites);
         }
         ierr = CMT_INSUFFICIENT_DATA;
         goto ERROR;
@@ -187,7 +186,7 @@ int GFAST_scaling_CMT__driver(
     }
     ierr = GFAST_CMT__depthGridSearch(l1, cmt->ndeps,
                                       cmt_props.verbose,
-                                      cmt_props.ldeviatoric_cmt,
+                                      cmt_props.ldeviatoric,
                                       utmSrcEasting,
                                       utmSrcNorthing,
                                       cmt->srcDepths,
@@ -416,7 +415,7 @@ ERROR:;
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-int GFAST_CMT__driver2(struct GFAST_props_struct props,
+int GFAST_CMT__driver2(struct GFAST_cmt_props_struct props,
                        struct GFAST_shakeAlert_struct SA,
                        struct GFAST_data_struct gps_data,
                        struct GFAST_cmtResults_struct *cmt)
@@ -481,7 +480,7 @@ int GFAST_CMT__driver2(struct GFAST_props_struct props,
         nwork = fmax(gps_data.data[k].npts, nwork);
         l1 = l1 + 1;
     }
-    if (l1 < props.cmt_min_sites)
+    if (l1 < props.min_sites)
     {
         if (props.verbose > 1)
         {
@@ -543,13 +542,13 @@ int GFAST_CMT__driver2(struct GFAST_props_struct props,
         // In a perfect world is there any chance of having data?
         currentTime = gps_data.data[k].epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
-        effectiveHypoDist = (currentTime - SA.time)*props.cmt_window_vel;
+        effectiveHypoDist = (currentTime - SA.time)*props.window_vel;
         if (distance < effectiveHypoDist){
             luse = __GFAST_CMT__getAvgDisplacement(gps_data.data[k].npts,
-                                                   props.lremove_disp0,
+                                                   true,
                                                    gps_data.data[k].dt,
                                                    SA.time,
-                                                   props.cmt_window_avg,
+                                                   props.window_avg,
                                                    gps_data.data[k].epoch,
                                                    gps_data.data[k].ubuff,
                                                    gps_data.data[k].nbuff,
@@ -569,7 +568,7 @@ int GFAST_CMT__driver2(struct GFAST_props_struct props,
             }
         }
     } // Loop on data streams
-    if (l1 < props.cmt_min_sites){
+    if (l1 < props.min_sites){
         if (props.verbose > 1){
             log_warnF("%s: Insufficient data to invert\n", fcnm);
         }
@@ -589,7 +588,7 @@ int GFAST_CMT__driver2(struct GFAST_props_struct props,
     }
     ierr = GFAST_CMT__depthGridSearch(l1, cmt->ndeps,
                                       props.verbose,
-                                      props.ldeviatoric_cmt,
+                                      props.ldeviatoric,
                                       utmSrcEasting,
                                       utmSrcNorthing,
                                       cmt->srcDepths,

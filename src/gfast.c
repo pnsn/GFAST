@@ -96,7 +96,7 @@ printf("%f\n", props.synthetic_runtime);
         goto ERROR;
     }
     // Initialize CMT
-    ierr = GFAST_CMT__init(props, gps_acquisition,
+    ierr = GFAST_CMT__init(props.cmt_props, gps_acquisition,
                            &cmt, &cmt_data);
     if (ierr != 0)
     {
@@ -104,7 +104,7 @@ printf("%f\n", props.synthetic_runtime);
         goto ERROR;
     }
     // Initialize finite fault
-    ierr = GFAST_FF__init(props, gps_acquisition,
+    ierr = GFAST_FF__init(props.ff_props, gps_acquisition,
                           &ff, &ff_data);
     if (ierr != 0)
     {
@@ -260,8 +260,8 @@ kt = 299;
                                     &ierr);
                 // Extract the offset for the CMT inversion from the buffer 
                 nsites_cmt = GFAST_waveformProcessor__offset(
-                                    props.utm_zone,
-                                    props.cmt_window_vel,
+                                    props.cmt_props.utm_zone,
+                                    props.cmt_props.window_vel,
                                     SA.lat,
                                     SA.lon,
                                     SA.dep,
@@ -271,8 +271,8 @@ kt = 299;
                                     &ierr);
                 // Extract the offset for the FF inversion from the buffer 
                 nsites_ff = GFAST_waveformProcessor__offset(
-                                    props.utm_zone,
-                                    props.ff_window_vel,
+                                    props.ff_props.utm_zone,
+                                    props.ff_props.window_vel,
                                     SA.lat,
                                     SA.lon,
                                     SA.dep,
@@ -281,7 +281,7 @@ kt = 299;
                                     &ff_data,
                                     &ierr);
                 // Run the PGD scaling
-                if (nsites_pgd > props.pgd_props.min_sites)
+                if (nsites_pgd >= props.pgd_props.min_sites)
                 {
                     if (props.verbose > 2)
                     {
@@ -291,29 +291,33 @@ kt = 299;
                                                      SA.lat, SA.lon, SA.dep,
                                                      pgd_data,
                                                      &pgd);
-int i;
-for (i=0; i<pgd.ndeps; i++){
-printf("%f %f\n",pgd.mpgd_vr[i], pgd.mpgd[i]);
-}
-getchar();
+                    if (ierr != PGD_SUCCESS)
+                    {
+                        log_errorF("%s: Error computing PGD\n", fcnm);
+                    }
                 }
 //props.verbose = verbose0;
                 lcmt_success = false;
-                ierr = GFAST_CMT__driver2(props,
+                ierr = GFAST_CMT__driver2(props.cmt_props,
                                           events.SA[iev],
                                           gps_acquisition,
                                           &cmt);
 if (ierr == 0){lcmt_success = true;}
-                if (nsites_cmt > props.cmt_min_sites)
+                if (nsites_cmt >= props.cmt_props.min_sites)
                 {
-                    ierr = GFAST_scaling_CMT__driver(props,
-                                                     SA.lat, SA.lon, SA.dep,
-                                                     cmt_data,
-                                                     &cmt);
-                    if (ierr == 0){lcmt_success = true;}
+                    lcmt_success = true;
+                    ierr = GFAST_CMT__driver(props.cmt_props,
+                                             SA.lat, SA.lon, SA.dep,
+                                             cmt_data,
+                                             &cmt);
+                    if (ierr != CMT_SUCCESS)
+                    {
+                        log_errorF("%s: Error computing CMT\n", fcnm);
+                        lcmt_success = false;
+                    }
                 }
                 // If we got a CMT see if we can run an MT inversion  
-                if (lcmt_success)
+                if (lcmt_success && nsites_ff >= props.ff_props.min_sites)
                 {
                     ff.nfp = 2;
                     ff.SA_lat = events.SA[iev].lat;
@@ -329,11 +333,11 @@ ff.str[1] = 219.96796844;
 ff.dip[1] = 69.27746075;
 ff.str[0] = 116.78477424;
 ff.dip[0] = 58.91674731;
-                    ierr = GFAST_FF__driver2(props, events.SA[iev],
+                    ierr = GFAST_FF__driver2(props.ff_props, events.SA[iev],
                                              gps_acquisition, &ff);
                     if (nsites_ff > 0)
                     {
-                        ierr = GFAST_FF__driver(props,
+                        ierr = GFAST_FF__driver(props.ff_props,
                                                 SA.lat, SA.lon, SA.dep,
                                                 ff_data,
                                                 &ff);

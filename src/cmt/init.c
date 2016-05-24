@@ -19,18 +19,18 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_CMT__init(struct GFAST_props_struct props,
+int GFAST_CMT__init(struct GFAST_cmt_props_struct props,
                     struct GFAST_data_struct gps_data,
                     struct GFAST_cmtResults_struct *cmt,
                     struct GFAST_offsetData_struct *cmt_data)
 {
     const char *fcnm = "GFAST_CMT__init\0";
     int i;
-    cmt->ndeps = props.cmt_ngridSearch_deps;
+    cmt->ndeps = props.ngridSearch_deps;
     if (cmt->ndeps < 1)
     {
         log_errorF("%s: No depths in CMT grid search %d\n",
-                   fcnm, props.cmt_ngridSearch_deps);
+                   fcnm, props.ngridSearch_deps);
         return -1;
     }
     cmt->nsites = gps_data.stream_length;

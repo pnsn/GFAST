@@ -7,15 +7,15 @@
 
 struct GFAST_pgd_props_struct
 {
-    double window_vel;    /*!< Velocity used in determining if enough
+    double window_vel;    /*!< Velocity (km/s) used in determining if enough
                                data has arrived at a station in PGD
                                inversion */
-    double dist_tol;      /*!< PGD source station distance
-                               tolerance (km) */
-    double dist_def;      /*!< PGD default station distance (km) if
-                               d < pgd_dist_tol */
-    int min_sites;        /*!< Minimum number of sites to proceed with
-                               PGD estimation */
+    double dist_tol;      /*!< Source-receiver distance tolerance (km) */
+    double disp_def;      /*!< If the source receiver epicentral distance
+                               is less than dist_tol this is the value assigned
+                               to the PGD observation (cm) */
+    int min_sites;        /*!< Minimum number of sites required to
+                               proceed with PGD inversion */
     int verbose;          /*!< Controls verbosity - errors will always
                                 be output.
                                = 1 -> Output generic information.
@@ -32,12 +32,59 @@ struct GFAST_pgd_props_struct
 
 struct GFAST_cmt_props_struct
 {
-
+    double window_vel;   /*!< Velocity (km/s) used in determining if S wave
+                              has passed through the station in CMT
+                              inversion */
+    double window_avg;   /*!< Amount of time (s) required after S wave
+                              has passed through for averaging
+                              the offset */
+    int min_sites;       /*!< Minimum number of sites required to
+                              proceed with CMT inversion */
+    int verbose;          /*!< Controls verbosity - errors will always
+                                be output.
+                               = 1 -> Output generic information.
+                               = 2 -> Output generic information and
+                                      warnings.
+                               = 3 -> Output generic information,
+                                      warnings, and debug information
+                                      and debug information. */
+    int utm_zone;         /*!< UTM zone.  If this is -12345 then will 
+                               extract the UTM zone from the event
+                               origin. */
+    int ngridSearch_deps; /*!< Number of depths in CMT grid-search */
+    bool ldeviatoric;     /*!< If true then the CMT inversion is 
+                               constrained to purely deviatoric sources.
+                               Otherwise, all 6 moment tensor terms
+                               are inverted for. */
 };
 
 struct GFAST_ff_props_struct
 {
-
+    double window_vel;   /*!< Velocity (km/s) used in determining if S wave
+                              has passed through the station in FF 
+                              inversion */
+    double window_avg;   /*!< Amount of time (s) required after S wave
+                              has passed through for averaging
+                              the offset */
+    double flen_pct;     /*!< Fault length safety factor */
+    double fwid_pct;     /*!< Fault width safety factor */
+    int verbose;         /*!< Controls verbosity - errors will always
+                              be output.
+                              = 1 -> Output generic information.
+                              = 2 -> Output generic information and
+                                     warnings.
+                              = 3 -> Output generic information,
+                                     warnings, and debug information
+                                     and debug information. */
+    int utm_zone;        /*!< UTM zone.  If this is -12345 then will 
+                              extract the UTM zone from the event
+                              origin. */
+    int min_sites;       /*!< Minimum number of sites to proceed with
+                              FF estimation */
+    int nstr;            /*!< Number of fault patches along strike */
+    int ndip;            /*!< Number of fault patches down dip */
+    int nfp;             /*!< Number of fault planes considered in
+                              inversion (should be 2) */
 };
 
 struct GFAST_props_struct
@@ -101,18 +148,18 @@ struct GFAST_props_struct
     //double pgd_window_vel;      /*!< Velocity used in determining if enough
     //                                 data has arrived at a station in PGD
     //                                 inversion */
-    double cmt_window_vel;      /*!< Velocity used in determining if enough
-                                     data has arrived at a station in CMT
-                                     inversion */
-    double cmt_window_avg;      /*!< Window length (s) over which data positions
-                                     are averaged in CMT inversion */
-    double ff_window_avg;       /*!< Window length (s) over which data positions
-                                     are averaged in FF inversion */
-    double ff_window_vel;       /*!< Velocity used in determining if enough
-                                     data has arrived at a station in CMT
-                                     inversion */
-    double ff_flen_pct;         /*!< Fault length safety factor */
-    double ff_fwid_pct;         /*!< Fault width safety factor */
+    //double cmt_window_vel;      /*!< Velocity used in determining if enough
+    //                                 data has arrived at a station in CMT
+    //                                 inversion */
+    //double cmt_window_avg;      /*!< Window length (s) over which data positions
+    //                                 are averaged in CMT inversion */
+    //double ff_window_avg;       /*!< Window length (s) over which data positions
+    //                                 are averaged in FF inversion */
+    //double ff_window_vel;       /*!< Velocity used in determining if enough
+    //                                 data has arrived at a station in CMT
+    //                                 inversion */
+    //double ff_flen_pct;         /*!< Fault length safety factor */
+    //double ff_fwid_pct;         /*!< Fault width safety factor */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
@@ -120,16 +167,16 @@ struct GFAST_props_struct
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
-    int cmt_min_sites;          /*!< Minimum number of sites to proceed with
-                                     CMT estimation */
-    int ff_min_sites;           /*!< Minimum number of sites to proceed with
-                                     FF estimation */
-    int ff_nstr;                /*!< Number of fault patches along strike */
-    int ff_ndip;                /*!< Number of fault patches down dip */
-    int ff_nfp;                 /*!< Number of fault planes considered in
-                                     inversion */
+    //int cmt_min_sites;          /*!< Minimum number of sites to proceed with
+    //                                 CMT estimation */
+    //int ff_min_sites;           /*!< Minimum number of sites to proceed with
+    //                                 FF estimation */
+    //int ff_nstr;                /*!< Number of fault patches along strike */
+    //int ff_ndip;                /*!< Number of fault patches down dip */
+    //int ff_nfp;                 /*!< Number of fault planes considered in
+    //                                 inversion */
     //int pgd_ngridSearch_deps;   /*!< Number of depths in PGD grid-search */
-    int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
+    //int cmt_ngridSearch_deps;   /*!< Number of depths in CMT grid-search */
     int verbose;                /*!< Controls verbosity - errors will always
                                      be output.
                                       = 1 -> Output generic information.
@@ -138,13 +185,13 @@ struct GFAST_props_struct
                                       = 3 -> Output generic information,
                                              warnings, and debug information
                                              and debug information. */
-    bool lremove_disp0;         /*!< Remove the (u,n,e) component at the 
-                                     origin time from the displacement
-                                     streams */
-    bool ldeviatoric_cmt;       /*!< If true then the CMT inversion is 
-                                     constrained to purely deviatoric sources.
-                                     Otherwise, all 6 moment tensor terms
-                                     are inverted for. */
+    //bool lremove_disp0;         /*!< Remove the (u,n,e) component at the 
+    //                                 origin time from the displacement
+    //                                 streams */
+    //bool ldeviatoric_cmt;       /*!< If true then the CMT inversion is 
+    //                                 constrained to purely deviatoric sources.
+    //                                 Otherwise, all 6 moment tensor terms
+    //                                 are inverted for. */
     enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
                                      playback, offline) */
     enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling

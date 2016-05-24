@@ -20,7 +20,7 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_FF__init(struct GFAST_props_struct props,
+int GFAST_FF__init(struct GFAST_ff_props_struct props,
                    struct GFAST_data_struct gps_data,
                    struct GFAST_ffResults_struct *ff,
                    struct GFAST_offsetData_struct *ff_data)
@@ -33,7 +33,7 @@ int GFAST_FF__init(struct GFAST_props_struct props,
         log_errorF("%s: There will be no data in FF inversion!\n", fcnm);
         return -1;
     }
-    nstr_ndip = props.ff_ndip*props.ff_nstr;
+    nstr_ndip = props.ndip*props.nstr;
     if (nstr_ndip < 1)
     {
         log_errorF("%s: Error not fault patches!\n", fcnm);
@@ -64,7 +64,7 @@ int GFAST_FF__init(struct GFAST_props_struct props,
     }
     // ff inversion structure
     ff->preferred_fault_plane = 0;
-    ff->nfp = props.ff_nfp;
+    ff->nfp = props.nfp;
     ff->vr = GFAST_memory_calloc__double(ff->nfp);
     ff->Mw = GFAST_memory_calloc__double(ff->nfp);
     ff->str = GFAST_memory_calloc__double(ff->nfp);
@@ -75,8 +75,8 @@ int GFAST_FF__init(struct GFAST_props_struct props,
     {
         ff->fp[ifp].maxobs = maxobs;
         ff->fp[ifp].nsites_used = 0;
-        ff->fp[ifp].nstr = props.ff_nstr;
-        ff->fp[ifp].ndip = props.ff_ndip;
+        ff->fp[ifp].nstr = props.nstr;
+        ff->fp[ifp].ndip = props.ndip;
         ff->fp[ifp].lon_vtx = GFAST_memory_calloc__double(4*nstr_ndip);
         ff->fp[ifp].lat_vtx = GFAST_memory_calloc__double(4*nstr_ndip);
         ff->fp[ifp].dep_vtx = GFAST_memory_calloc__double(4*nstr_ndip);

@@ -205,7 +205,7 @@ int GFAST_scaling_PGD__driver(
     ierr = GFAST_scaling_PGD__depthGridSearch(l1, pgd->ndeps,
                                               pgd_props.verbose,
                                               pgd_props.dist_tol,
-                                              pgd_props.dist_def,
+                                              pgd_props.disp_def,
                                               utmSrcEasting,
                                               utmSrcNorthing,
                                               pgd->srcDepths,
