@@ -25,9 +25,6 @@
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
- * @bug the counting is incorrect the model is supposed to not have a 
- *      boundary condition on one edge
- *
  * @date April 2016
  *
  */
