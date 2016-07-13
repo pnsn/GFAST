@@ -67,13 +67,15 @@ int GFAST_xml_segment__write(enum xml_segmentShape_enum shape,
     //------------------------------------------------------------------------//
     rc = 0;
     writer = (xmlTextWriterPtr) xml_writer;
-    if (shape != LINE && shape != TRIANGLE && shape != RECTANGLE){
+    if (shape != LINE && shape != TRIANGLE && shape != RECTANGLE)
+    {
         log_errorF("%s: Invalid shape %d\n", fcnm, shape);
         return -1;
     } 
     // Begin <segment>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "segment\0");
-    if (rc < 0){
+    if (rc < 0)
+    {
         log_errorF("%s: Error starting element\n", fcnm);
         return -1;
     }
@@ -83,7 +85,8 @@ int GFAST_xml_segment__write(enum xml_segmentShape_enum shape,
                                    lons, lon_units,
                                    depths, depth_units,
                                    (void *)writer);
-    if (rc < 0){
+    if (rc < 0)
+    {
         log_errorF("%s: Error writing vertices %d\n", fcnm, rc);
         return -1;
     }
@@ -93,13 +96,15 @@ int GFAST_xml_segment__write(enum xml_segmentShape_enum shape,
                                ss_uncer, ss_uncer_units,
                                ds_uncer, ds_uncer_units,
                                (void *)writer);
-    if (rc < 0){
+    if (rc < 0)
+    {
         log_errorF("%s: Error writing slip\n", fcnm);
         return -1;
     }
     // </segment>
     rc += xmlTextWriterEndElement(writer); // </segment>
-    if (rc < 0){
+    if (rc < 0)
+    {
         log_errorF("%s: Error writing segment\n", fcnm);
         return -1;
     }

@@ -72,12 +72,14 @@ int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
     }   
     // Try to get the lat, lon, depth
     item0 =-1;
-    while (vertex_xml != NULL){
+    while (vertex_xml != NULL)
+    {
         // Require we are working on an element node
         if (vertex_xml->type != XML_ELEMENT_NODE){goto NEXT_VERTEX_XML;}
         lunpack = false;
         // Try taking the next item in the citems
-        if (item0 < nitems){
+        if (item0 < nitems)
+        {
             if (!xmlStrcmp(vertex_xml->name, citems[item0+1]))
             {
                 lunpack = true;

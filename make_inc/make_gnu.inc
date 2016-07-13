@@ -1,11 +1,13 @@
 CXX = g++
 CC = gcc-5
+#CXX = icpc
+#CC = icc
 #PROFILE = -pg
-PROFILE =
 CSHARED = -fPIC
 MAKE_SHARED = -shared
 CXXFLAGS = -O2 -Wall -g3 -fopenmp $(PROFILE)
 CFLAGS =-O2 -std=gnu11 -Wall -fopenmp -g3 $(PROFILE)
+#CFLAGS =-O2 -std=gnu11 -Wall -openmp -vec-report=2 -g3
 OBJ = ./Obj
 
 
@@ -33,17 +35,22 @@ LMKL = -Wl,--start-group \
 	-Wl,--end-group -lpthread -lm -ldl
 #LIB_LAPACK = $(LMKL)
 
+# HDF5
+LIB_Z = /home/bakerb3/C/zlib-1.2.8/libz.a
+INC_HDF5 = -I/home/bakerb3/Fortran/hdf5-1.8.16/include
+LIB_HDF5 = /home/bakerb3/Fortran/hdf5-1.8.16/lib/libhdf5.a $(LIB_Z)
+
 INC_LAPACK = -I/usr/include
 # Iniparser
 LIB_INI = /home/bakerb3/C/iniparser/libiniparser.a
 INC_INI = -I/home/bakerb3/C/iniparser/src
 # libgeographic - this must be set if the WITH_LIBGEO pre-processor flag is set
-#INC_GEO = -I/home/bakerb3/Fortran/GeographicLib-1.46/include
-#LIB_GEO = /home/bakerb3/Fortran/GeographicLib-1.46/src/libGeographic.a
+INC_GEO = -I/home/bakerb3/Fortran/GeographicLib-1.46/include
+LIB_GEO = /home/bakerb3/Fortran/GeographicLib-1.46/src/libGeographic.a
 # SAC/IO for offline mode
 LIB_SACIO = /home/bakerb3/TIM/utils/sacio/libsacio.so
 
-INC_ALL = $(INC_GFAST) $(INC_INI) $(INC_LAPACK)
-LIB_ALL = $(LIB_LAPACK) $(LIB_INI) $(LIB_XML2) $(LIB_SACIO) -lm -ldl
+INC_ALL = $(INC_GFAST) $(INC_GEO) $(INC_INI) $(INC_HDF5) $(INC_XML2) $(INC_LAPACK)
+LIB_ALL = $(LIB_LAPACK) $(LIB_INI) $(LIB_XML2) $(LIB_HDF5) $(LIB_SACIO) -lm -ldl
 
 

@@ -35,9 +35,9 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_momentTensor__write(char *publicIDroot,
-                                  char *evid,
-                                  char *method,
+int GFAST_xml_momentTensor__write(const char *publicIDroot,
+                                  const char *evid,
+                                  const char *method,
                                   double M_use[6],
                                   double M0,
                                   double dc_pct,

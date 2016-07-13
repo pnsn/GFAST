@@ -61,7 +61,8 @@ int GFAST_xml_vertices__read(void *xml_reader,
         return -1;
     }
     // Initialize result
-    for (nv=0; nv<nvref; nv++){
+    for (nv=0; nv<nvref; nv++)
+    {
         lat[nv] = VTX_NAN;
         lon[nv] = VTX_NAN;
         depth[nv] = VTX_NAN;

@@ -18,9 +18,18 @@ Dependencies:
 
 (c)  For testing the lat/lon to UTM conversions you must install geographiclib:
        http://geographiclib.sourceforge.net/
+
 (d)  To use the Python interfaces you must have cython
        http://cython.org/
      which likely will be available through a package manager.
+
+(e)  For archival purposes you must have HDF5.  HDF5 has a subdependency
+     zlib.  
+       http://www.zlib.net
+       https://www.hdfgroup.org/HDF5/
+     I strongly recommend building HDF5 from source because stale header
+     files left over by sloppy package managers have been positively
+     correlated with increased frustration levels in most test subjects.
 
 Install:
 

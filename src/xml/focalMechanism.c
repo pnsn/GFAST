@@ -27,9 +27,9 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_focalMechanism__write(char *publicIDroot,
-                                    char *evid,
-                                    char *method,
+int GFAST_xml_focalMechanism__write(const char *publicIDroot,
+                                    const char *evid,
+                                    const char *method,
                                     const double mt[6],
                                     void *xml_writer)
 {

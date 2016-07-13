@@ -19,24 +19,42 @@ void __xml_units__enum2string(enum alert_units_enum enum_units,
 {
     const char *fcnm = "__alert_units__units2string\0";
     memset(char_units, 0, 128);
-    if (enum_units == DEGREES){
+    if (enum_units == DEGREES)
+    {
         strcpy(char_units, "deg\0");
-    }else if (enum_units == KILOMETERS){
+    }
+    else if (enum_units == KILOMETERS)
+    {
         strcpy(char_units, "km\0");
-    }else if (enum_units == METERS){
+    }
+    else if (enum_units == METERS)
+    {
         strcpy(char_units, "meters\0");
-    }else if (enum_units == SECONDS){
+    }
+    else if (enum_units == SECONDS)
+    {
         strcpy(char_units, "sec\0");
-    }else if (enum_units == UTC){
+    }
+    else if (enum_units == UTC)
+    {
         strcpy(char_units, "UTC\0");
-    }else if (enum_units == MOMENT_MAGNITUDE){
+    }
+    else if (enum_units == MOMENT_MAGNITUDE)
+    {
         strcpy(char_units, "Mw\0");
-    }else if (enum_units == DYNE_CENTIMETERS){
+    }
+    else if (enum_units == DYNE_CENTIMETERS)
+    {
         strcpy(char_units, "dyne_cm\0");
-    }else if (enum_units == NEWTON_METERS){
+    }
+    else if (enum_units == NEWTON_METERS)
+    {
         strcpy(char_units, "newton_meters\0");
-    }else{
-        if (enum_units != UNKNOWN_UNITS){
+    }
+    else
+    {
+        if (enum_units != UNKNOWN_UNITS)
+        {
             printf("%s: Warning unknown unit %d\n", fcnm, enum_units);
         }
     }

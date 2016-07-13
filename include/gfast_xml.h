@@ -39,6 +39,82 @@ struct qmlMT_struct
                              this is 6 and not 3. */
 };
 
+struct qmlConfidenceEllipse_struct
+{
+    
+};
+
+struct qmlOriginUncertainty_struct
+{
+
+};
+
+struct qmlTime_struct
+{
+    double time;                           /*!< Time */
+    double timeUncer;                      /*!< Time uncertainty */
+    double confidenceLevel;                /*!< Confidence level */
+    enum alert_units_enum time_units;      /*!< Time units */
+    enum alert_units_enum timeUncer_units; /*!< Time uncertainty units */
+    bool lhaveTime;                        /*!< If true then time is defined */
+    bool lhaveTimeUncer;                   /*!< If true timeUncer is defined */
+    bool lhaveConfidence;                  /*!< If true confidenceLevel
+                                                is defined */
+};
+
+struct qmlLatitude_struct
+{
+    double latitude;                       /*!< Event latitude */
+    double latUncer;                       /*!< Latitude uncertainty */
+    double confidenceLevel;                /*!< Confidence level */
+    enum alert_units_enum latitude_units;  /*!< Latitude units */
+    enum alert_units_enum latUncer_units;  /*!< Latitude uncertainty units */
+    bool lhaveLat;                         /*!< If true then latitude is
+                                                defined */
+    bool lhaveLatUncer;                    /*!< If true latUncer is defined */
+    bool lhaveConfidence;                  /*!< If true confidenceLevel
+                                                is defined */
+};
+
+struct qmlLongitude_struct
+{
+    double longitude;                      /*!< Event longitude */
+    double lonUncer;                       /*!< Longitude uncertainty */
+    double confidenceLevel;                /*!< Confidence level */
+    enum alert_units_enum longitude_units; /*!< Latitude units */
+    enum alert_units_enum lonUncer_units;  /*!< Longitude uncertainty units */
+    bool lhaveLon;                         /*!< If true then longitude is
+                                                defined */
+    bool lhaveLatUncer;                    /*!< If true lonUncer is defined */
+    bool lhaveConfidence;                   /*!< If true confidenceLevel
+                                                 is defined */
+};
+
+struct qmlDepth_struct
+{
+    double depth;                           /*!< Event depth */
+    double depthUncer;                      /*!< Depth uncertainty */
+    double confidenceLevel;                 /*!< Confidence level */
+    enum alert_units_enum depth_units;      /*!< Depth units */
+    enum alert_units_enum depthUncer_units; /*!< Depth uncertainty units */
+    bool lhaveDepth;                        /*!< If true then depth is
+                                                defined */
+    bool lhaveDepthUncer;                   /*!< If true depthUncer is
+                                                 defined */
+    bool lhaveConfidence;                   /*!< If true confidenceLevel
+                                                 is defined */
+};
+
+struct qmlOrigin_struct
+{
+    struct qmlConfidenceEllipse_struct *ellipse; /*!< Error ellipsoid */
+    struct qmlOriginUncertainty_struct *oriUnc;  /*!< Origin uncertainty */
+    struct qmlLatitude_struct latitude;          /*!< Event latitude */
+    struct qmlLongitude_struct longitude;        /*!< Event longitude */
+    struct qmlDepth_struct depth;                /*!< Event depth */
+    struct qmlTime_struct originTime;            /*!< Event origin time */
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,15 +133,15 @@ int GFAST_xml_coreInfo__read(void *xml_reader, double SA_NAN,
 int GFAST_xml_coreInfo__write(struct coreInfo_struct core,
                               void *xml_writer);
 /* Write the focal mechanism */
-int GFAST_xml_focalMechanism__write(char *publicIDroot,
-                                    char *evid,
-                                    char *method,
+int GFAST_xml_focalMechanism__write(const char *publicIDroot,
+                                    const char *evid,
+                                    const char *method,
                                     const double mt[6],
                                     void *xml_writer);
 /* Write the moment tensor to XML message */
-int GFAST_xml_momentTensor__write(char *publicIDroot,
-                                  char *evid,
-                                  char *method,
+int GFAST_xml_momentTensor__write(const char *publicIDroot,
+                                  const char *evid,
+                                  const char *method,
                                   double M_use[6],
                                   double M0, 
                                   double dc_pct,
