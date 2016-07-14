@@ -7,6 +7,7 @@ OBJ_CMT_DIR = cmt/$(OBJ)
 OBJ_EVENTS_DIR = events/$(OBJ)
 OBJ_ISCL_DIR = iscl/$(OBJ)
 OBJ_FF_DIR = ff/$(OBJ)
+OBJ_H5_DIR = hdf5/$(OBJ)
 OBJ_SCALING_DIR = scaling/$(OBJ)
 OBJ_COORDTOOLS_DIR = coordtools/$(OBJ)
 OBJ_WP_DIR = waveformProcessor/$(OBJ)
@@ -34,6 +35,9 @@ ifeq "$(wildcard $(OBJ_EVENTS_DIR) )" ""
 endif
 ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
 -include $(shell mkdir $(OBJ_FF_DIR)) $(wildcard $(OBJ_FF_DIR)/*)
+endif
+ifeq "$(wildcard $(OBJ_H5_DIR) )" ""
+-include $(shell mkdir $(OBJ_H5_DIR)) $(wildcard $(OBJ_H5_DIR)/*)
 endif
 ifeq "$(wildcard $(OBJ_ISCL_DIR) )" ""
 -include $(shell mkdir $(OBJ_ISCL_DIR)) $(wildcard $(OBJ_ISCL_DIR)/*)
@@ -86,6 +90,7 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/weightForwardModel.o \
 	 $(OBJ_FF_DIR)/weightObservations.o \
 	 $(OBJ_FF_DIR)/xml.o
+OBJ_H5 = $(OBJ_H5_DIR)/createType.o
 OBJ_WP = $(OBJ_WP_DIR)/offset.o \
 	 $(OBJ_WP_DIR)/peakDisplacement.o
 OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
@@ -125,6 +130,7 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_CMT) \
 	  $(OBJ_EVENTS) \
 	  $(OBJ_FF) \
+	  $(OBJ_H5) \
 	  $(OBJ_SCALING_PGD) \
 	  $(OBJ_WP) \
 	  $(OBJ_XML)
@@ -283,6 +289,11 @@ $(OBJ_FF_DIR)/weightObservations.o: ff/weightObservations.c
 
 $(OBJ_FF_DIR)/xml.o: ff/xml.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/xml.c -o $(OBJ_FF_DIR)/xml.o
+
+###################################### HDF5 ###########################################
+
+$(OBJ_H5_DIR)/createType.o: hdf5/createType.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/createType.c -o $(OBJ_H5_DIR)/createType.o
 
 ####################################### Scaling #######################################
 
