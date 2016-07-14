@@ -4,31 +4,6 @@
 #include <math.h>
 #include "gfast.h"
 
-//extern "C"
-int GFAST_FF__xml__write(int mode,
-                         char *orig_sys,
-                         char *alg_vers,
-                         char *instance,
-                         char *message_type,
-                         char *version,
-                         char *evid,
-                         double Mw, 
-                         double SA_lat,
-                         double SA_lon,
-                         double SA_depth,
-                         double SA_mag,
-                         double SA_time,
-                         int nseg,
-                         int *fptr,
-                         double *lat_vtx,
-                         double *lon_vtx,
-                         double *dep_vtx,
-                         double *ss,
-                         double *ds,
-                         double *ss_unc,
-                         double *ds_unc);
-
-
 /*!
  * This is a mock GFAST driver module
  */
@@ -172,7 +147,7 @@ printf("%f\n", props.synthetic_runtime);
         // Loop on time-steps in simulation
 //ntsim = 59;
         for (kt=0; kt<ntsim; kt++){
-kt = 299;
+//kt = 299;
 //for (kt=58; kt<59; kt++){
             // Update the time
             currentTime = t0sim + (double) kt;
@@ -333,28 +308,30 @@ kt = 299;
                     }
 /*
 int iopt = ff.preferred_fault_plane;
-ierr = GFAST_FF__xml__write(props.opmode,
-                            "GFAST\0",
-                            GFAST_ALGORITHM_VERSION,
-                            GFAST_INSTANCE,
-                            "new\0",
-                            GFAST_VERSION,
-                            events.SA[iev].eventid,
-                            events.SA[iev].mag,
-                            events.SA[iev].lat,
-                            events.SA[iev].lon,
-                            events.SA[iev].dep,
-                            events.SA[iev].mag,
-                            events.SA[iev].time,
-                            ff.fp[iopt].nstr*ff.fp[iopt].ndip,
-                            ff.fp[iopt].fault_ptr,
-                            ff.fp[iopt].lat_vtx,
-                            ff.fp[iopt].lon_vtx,
-                            ff.fp[iopt].dep_vtx,
-                            ff.fp[iopt].sslip,
-                            ff.fp[iopt].dslip,
-                            ff.fp[iopt].sslip_unc,
-                            ff.fp[iopt].dslip_unc);
+int nstrdip = ff.fp[iopt].nstr*ff.fp[iopt].ndip;
+                    ffXML = GFAST_FF__xml__write(props.opmode,
+                                                 "GFAST\0",
+                                                 GFAST_ALGORITHM_VERSION,
+                                                 GFAST_INSTANCE,
+                                                 "new\0",
+                                                 GFAST_VERSION,
+                                                 events.SA[iev].eventid,
+                                                 events.SA[iev].mag,
+                                                 events.SA[iev].lat,
+                                                 events.SA[iev].lon,
+                                                 events.SA[iev].dep,
+                                                 events.SA[iev].mag,
+                                                 events.SA[iev].time,
+                                                 nstrdip,
+                                                 ff.fp[iopt].fault_ptr,
+                                                 ff.fp[iopt].lat_vtx,
+                                                 ff.fp[iopt].lon_vtx,
+                                                 ff.fp[iopt].dep_vtx,
+                                                 ff.fp[iopt].sslip,
+                                                 ff.fp[iopt].dslip,
+                                                 ff.fp[iopt].sslip_unc,
+                                                 ff.fp[iopt].dslip_unc,
+                                                 &ierr);
 goto ERROR;
 */
                 }

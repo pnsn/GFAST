@@ -27,7 +27,7 @@
  *
  * @author Ben Baker 
  */
-int GFAST_xml_coreInfo__read(void *xml_reader, double SA_NAN,
+int GFAST_xml_coreInfo__read(const void *xml_reader, const double SA_NAN,
                              struct coreInfo_struct *core)
 {
     const char *fcnm = "GFAST_xml_coreInfo__read\0";
@@ -235,7 +235,7 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_xml_coreInfo__write(struct coreInfo_struct core,
+int GFAST_xml_coreInfo__write(const struct coreInfo_struct core,
                               void *xml_writer)
 {
     const char *fcnm = "GFAST_xml_coreInfo__write\0";

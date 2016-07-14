@@ -49,16 +49,21 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_segment__write(enum xml_segmentShape_enum shape,
-                             double *lats, enum alert_units_enum lat_units,
-                             double *lons, enum alert_units_enum lon_units,
-                             double *depths, enum alert_units_enum depth_units,
-                             double ss, enum alert_units_enum ss_units,
-                             double ds, enum alert_units_enum ds_units,
-                             double ss_uncer,
-                             enum alert_units_enum ss_uncer_units,
-                             double ds_uncer,
-                             enum alert_units_enum ds_uncer_units,
+int GFAST_xml_segment__write(const enum xml_segmentShape_enum shape,
+                             const double *lats,
+                             const enum alert_units_enum lat_units,
+                             const double *lons,
+                             const enum alert_units_enum lon_units,
+                             const double *depths,
+                             const enum alert_units_enum depth_units,
+                             const double ss,
+                             const enum alert_units_enum ss_units,
+                             const double ds,
+                             const enum alert_units_enum ds_units,
+                             const double ss_uncer,
+                             const enum alert_units_enum ss_uncer_units,
+                             const double ds_uncer,
+                             const enum alert_units_enum ds_uncer_units,
                              void *xml_writer)
 {
     const char *fcnm = "GFAST_xml_segment__write\0";

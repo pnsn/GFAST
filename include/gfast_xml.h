@@ -127,10 +127,10 @@ void __xml_units__enum2string(enum alert_units_enum enum_units,
 enum alert_units_enum
     __xml_units__string2enum(const char *char_units);
 /* Extract core info from shake Alert XML message */
-int GFAST_xml_coreInfo__read(void *xml_reader, double SA_NAN,
+int GFAST_xml_coreInfo__read(const void *xml_reader, const double SA_NAN,
                              struct coreInfo_struct *core);
 /* Write core info to shake Alert XML message */
-int GFAST_xml_coreInfo__write(struct coreInfo_struct core,
+int GFAST_xml_coreInfo__write(const struct coreInfo_struct core,
                               void *xml_writer);
 /* Write the focal mechanism */
 int GFAST_xml_focalMechanism__write(const char *publicIDroot,
@@ -142,10 +142,10 @@ int GFAST_xml_focalMechanism__write(const char *publicIDroot,
 int GFAST_xml_momentTensor__write(const char *publicIDroot,
                                   const char *evid,
                                   const char *method,
-                                  double M_use[6],
-                                  double M0, 
-                                  double dc_pct,
-                                  double clvd_pct,
+                                  const double M_use[6],
+                                  const double M0, 
+                                  const double dc_pct,
+                                  const double clvd_pct,
                                   void *xml_writer);
 /* Write the nodal planes */
 int GFAST_xml_nodalPlanes__write(const double np1[3],
@@ -157,41 +157,56 @@ int GFAST_xml_principalAxes__write(const double taxis[3],
                                    const double naxis[3],
                                    void *xml_writer);
 /* Write a segment */
-int GFAST_xml_segment__write(enum xml_segmentShape_enum shape,
-                             double *lats, enum alert_units_enum lat_units,
-                             double *lons, enum alert_units_enum lon_units,
-                             double *depths, enum alert_units_enum depth_units,
-                             double ss, enum alert_units_enum ss_units,
-                             double ds, enum alert_units_enum ds_units,
-                             double ss_unc, enum alert_units_enum ss_unc_units,
-                             double ds_unc, enum alert_units_enum ds_unc_units,
+int GFAST_xml_segment__write(const enum xml_segmentShape_enum shape,
+                             const double *lats,
+                             const enum alert_units_enum lat_units,
+                             const double *lons,
+                             const enum alert_units_enum lon_units,
+                             const double *depths,
+                             const enum alert_units_enum depth_units,
+                             const double ss,
+                             const enum alert_units_enum ss_units,
+                             const double ds,
+                             const enum alert_units_enum ds_units,
+                             const double ss_unc,
+                             const enum alert_units_enum ss_unc_units,
+                             const double ds_unc,
+                             const enum alert_units_enum ds_unc_units,
                              void *xml_writer);
 /* Read slip */
-int GFAST_xml_slip__read(void *xml_reader, double VTX_NAN,
+int GFAST_xml_slip__read(const void *xml_reader, const double VTX_NAN,
                          double *ss, double *ss_uncer,
                          double *ds, double *ds_uncer);
 /* Write slip */
-int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
-                          double ds, enum alert_units_enum ds_units,
-                          double ss_uncer, enum alert_units_enum ss_uncer_units,
-                          double ds_uncer, enum alert_units_enum ds_uncer_units,
+int GFAST_xml_slip__write(const double ss,
+                          const enum alert_units_enum ss_units,
+                          const double ds,
+                          const enum alert_units_enum ds_units,
+                          const double ss_uncer,
+                          const enum alert_units_enum ss_uncer_units,
+                          const double ds_uncer,
+                          const enum alert_units_enum ds_uncer_units,
                           void *xml_writer);
 /* Write a (moment) tensor */
-int GFAST_xml_tensor__write(double Mrr, double Mtt, double Mpp,
-                            double Mrt, double Mrp, double Mtp,
+int GFAST_xml_tensor__write(const double Mrr, const double Mtt,
+                            const double Mpp, const double Mrt,
+                            const double Mrp, const double Mtp,
                             void *xml_writer);
 /* Read vertices */
-int GFAST_xml_vertices__read(void *xml_reader,
-                             enum xml_segmentShape_enum shape,
-                             double VTX_NAN,
+int GFAST_xml_vertices__read(const void *xml_reader,
+                             const enum xml_segmentShape_enum shape,
+                             const double VTX_NAN,
                              double *__restrict__ lat,
                              double *__restrict__ lon,
                              double *__restrict__ depth);
 /* Write vertices */
-int GFAST_xml_vertices__write(enum xml_segmentShape_enum shape,
-                              double *lats, enum alert_units_enum lat_units,
-                              double *lons, enum alert_units_enum lon_units,
-                              double *depths, enum alert_units_enum depth_units,
+int GFAST_xml_vertices__write(const enum xml_segmentShape_enum shape,
+                              const double *lats,
+                              const enum alert_units_enum lat_units,
+                              const double *lons,
+                              const enum alert_units_enum lon_units,
+                              const double *depths,
+                              const enum alert_units_enum depth_units,
                               void *xml_writer);
 /* Read vertex */
 int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,

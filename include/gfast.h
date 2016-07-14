@@ -5,6 +5,7 @@
 #include "gfast_numpy.h"
 #include "gfast_obspy.h"
 #include "gfast_os.h"
+#include "gfast_hdf5.h"
 #include "gfast_struct.h"
 #include "gfast_time.h"
 #include "gfast_xml.h"
@@ -321,6 +322,29 @@ int GFAST_FF__weightObservations(int mrows,
                                  const double *__restrict__ diagWt,
                                  const double *__restrict__ b,
                                  double *__restrict__ diagWb);
+char *GFAST_FF__xml__write(const int mode,
+                           const char *orig_sys,
+                           const char *alg_vers,
+                           const char *instance,
+                           const char *message_type,
+                           const char *version,
+                           const double Mw,
+                           const char *evid,
+                           const double SA_lat,
+                           const double SA_lon,
+                           const double SA_depth,
+                           const double SA_mag,
+                           const double SA_time,
+                           const int nseg,
+                           const int *fault_ptr,
+                           const double *lat_vtx,
+                           const double *lon_vtx,
+                           const double *dep_vtx,
+                           const double *ss,
+                           const double *ds,
+                           const double *ss_unc,
+                           const double *ds_unc,
+                           int *ierr);
 /* Waveform processor */
 int GFAST_waveformProcessor__peakDisplacement(
     int utm_zone,

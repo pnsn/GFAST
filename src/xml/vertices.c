@@ -31,9 +31,9 @@
  * @date May 2016
  *
  */
-int GFAST_xml_vertices__read(void *xml_reader,
-                             enum xml_segmentShape_enum shape,
-                             double VTX_NAN,
+int GFAST_xml_vertices__read(const void *xml_reader,
+                             const enum xml_segmentShape_enum shape,
+                             const double VTX_NAN,
                              double *__restrict__ lat,
                              double *__restrict__ lon,
                              double *__restrict__ depth)
@@ -160,10 +160,13 @@ NEXT_VERTICES_XML:;
  * @date April 2016 
  *
  */
-int GFAST_xml_vertices__write(enum xml_segmentShape_enum shape,
-                              double *lats, enum alert_units_enum lat_units,
-                              double *lons, enum alert_units_enum lon_units,
-                              double *depths, enum alert_units_enum depth_units,
+int GFAST_xml_vertices__write(const enum xml_segmentShape_enum shape,
+                              const double *lats,
+                              const enum alert_units_enum lat_units,
+                              const double *lons,
+                              const enum alert_units_enum lon_units,
+                              const double *depths,
+                              const enum alert_units_enum depth_units,
                               void *xml_writer)
 {
     const char *fcnm = "GFAST_xml_vertices__write\0";

@@ -90,7 +90,8 @@ OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/weightForwardModel.o \
 	 $(OBJ_FF_DIR)/weightObservations.o \
 	 $(OBJ_FF_DIR)/xml.o
-OBJ_H5 = $(OBJ_H5_DIR)/createType.o
+OBJ_H5 = $(OBJ_H5_DIR)/copy.o \
+	 $(OBJ_H5_DIR)/createType.o
 OBJ_WP = $(OBJ_WP_DIR)/offset.o \
 	 $(OBJ_WP_DIR)/peakDisplacement.o
 OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
@@ -291,6 +292,9 @@ $(OBJ_FF_DIR)/xml.o: ff/xml.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/xml.c -o $(OBJ_FF_DIR)/xml.o
 
 ###################################### HDF5 ###########################################
+
+$(OBJ_H5_DIR)/copy.o: hdf5/copy.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/copy.c -o $(OBJ_H5_DIR)/copy.o
 
 $(OBJ_H5_DIR)/createType.o: hdf5/createType.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/createType.c -o $(OBJ_H5_DIR)/createType.o

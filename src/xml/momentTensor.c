@@ -38,10 +38,10 @@
 int GFAST_xml_momentTensor__write(const char *publicIDroot,
                                   const char *evid,
                                   const char *method,
-                                  double M_use[6],
-                                  double M0,
-                                  double dc_pct,
-                                  double clvd_pct,
+                                  const double M_use[6],
+                                  const double M0,
+                                  const double dc_pct,
+                                  const double clvd_pct,
                                   void *xml_writer)
 {
     const char *fcnm = "GFAST_xml_momentTensor__write\0";

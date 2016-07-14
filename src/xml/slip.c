@@ -31,7 +31,7 @@
  *      have units meters for all variables 
  *
  */
-int GFAST_xml_slip__read(void *xml_reader, double VTX_NAN,
+int GFAST_xml_slip__read(const void *xml_reader, const double VTX_NAN,
                          double *ss, double *ss_uncer,
                          double *ds, double *ds_uncer)
 {
@@ -190,10 +190,14 @@ ERROR:;
  * @date May 2016
  *
  */
-int GFAST_xml_slip__write(double ss, enum alert_units_enum ss_units,
-                          double ds, enum alert_units_enum ds_units,
-                          double ss_uncer, enum alert_units_enum ss_uncer_units,
-                          double ds_uncer, enum alert_units_enum ds_uncer_units,
+int GFAST_xml_slip__write(const double ss,
+                          const enum alert_units_enum ss_units,
+                          const double ds,
+                          const enum alert_units_enum ds_units,
+                          const double ss_uncer,
+                          const enum alert_units_enum ss_uncer_units,
+                          const double ds_uncer,
+                          const enum alert_units_enum ds_uncer_units,
                           void *xml_writer)
 {
     const char *fcnm = "__GFAST_xml_slip__write\0";

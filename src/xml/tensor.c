@@ -34,8 +34,9 @@
  * @date May 2016
  *
  */
-int GFAST_xml_tensor__write(double Mrr, double Mtt, double Mpp,
-                            double Mrt, double Mrp, double Mtp,
+int GFAST_xml_tensor__write(const double Mrr, const double Mtt,
+                            const double Mpp, const double Mrt,
+                            const double Mrp, const double Mtp,
                             void *xml_writer)
 {
     const char *fcnm = "GFAST_xml_tensor__write\0";
