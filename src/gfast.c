@@ -11,7 +11,8 @@ int main()
 {
     char fcnm[] = "GFAST\0";
     char propfilename[] = "gfast.props\0"; /* TODO take from EW config file */
-    FILE *elarms_xml_file;
+    char *ffXML, ffXMLflnm[PATH_MAX];
+    FILE *elarms_xml_file, *ffXMLfl;
     struct GFAST_props_struct props;
     struct GFAST_data_struct gps_acquisition;
     struct GFAST_shakeAlert_struct SA;
@@ -24,9 +25,10 @@ int main()
     char *elarms_xml_message;
     double *latency, currentTime, dtmax, eventTime, t0sim;
     long message_length;
-    int iev, k, kt, nsites_cmt, nsites_ff, nsites_pgd, ntsim, verbose0;
+    int iev, iopt, k, kt, nsites_cmt, nsites_ff,
+        nsites_pgd, nstrdip, ntsim, verbose0;
     int ierr = 0;
-    bool lcmt_success, ldel_event, lnew_event, lupd_event;
+    bool lcmt_success, lff_success, ldel_event, lnew_event, lupd_event;
     //------------------------------------------------------------------------//
     // 
     // Initializations
@@ -287,6 +289,7 @@ printf("%f\n", props.synthetic_runtime);
                     }
                 }
                 // If we got a CMT see if we can run an MT inversion  
+                lff_success = false;
                 if (lcmt_success && nsites_ff >= props.ff_props.min_sites)
                 {
                     ff.nfp = 2;
@@ -306,46 +309,80 @@ printf("%f\n", props.synthetic_runtime);
                     {
                         log_errorF("%s: Error computing finite fault\n", fcnm);
                     }
-/*
-int iopt = ff.preferred_fault_plane;
-int nstrdip = ff.fp[iopt].nstr*ff.fp[iopt].ndip;
-                    ffXML = GFAST_FF__xml__write(props.opmode,
-                                                 "GFAST\0",
-                                                 GFAST_ALGORITHM_VERSION,
-                                                 GFAST_INSTANCE,
-                                                 "new\0",
-                                                 GFAST_VERSION,
-                                                 events.SA[iev].eventid,
-                                                 events.SA[iev].mag,
-                                                 events.SA[iev].lat,
-                                                 events.SA[iev].lon,
-                                                 events.SA[iev].dep,
-                                                 events.SA[iev].mag,
-                                                 events.SA[iev].time,
-                                                 nstrdip,
-                                                 ff.fp[iopt].fault_ptr,
-                                                 ff.fp[iopt].lat_vtx,
-                                                 ff.fp[iopt].lon_vtx,
-                                                 ff.fp[iopt].dep_vtx,
-                                                 ff.fp[iopt].sslip,
-                                                 ff.fp[iopt].dslip,
-                                                 ff.fp[iopt].sslip_unc,
-                                                 ff.fp[iopt].dslip_unc,
-                                                 &ierr);
-goto ERROR;
-*/
+                    else
+                    {
+                        lff_success = true;
+                    }
                 }
                 // Am I ready to publish this event?
-                if (currentTime - SA.time >= props.processingTime){
-                    if (props.verbose > 0){
-                        log_infoF("%s: Publishing event: %s\n", fcnm, SA.eventid);
+                if (currentTime - SA.time >= props.processingTime)
+                {
+                    if (props.verbose > 0)
+                    {
+                        log_infoF("%s: Publishing event: %s\n",
+                                  fcnm, SA.eventid);
+                    }
+                    // Generate the CMT XML message
+                    if (lcmt_success)
+                    {
+                        if (props.verbose > 0)
+                        {
+                            log_infoF("%s: Making CMT quakeML...\n", fcnm);
+                        }
+                    }
+                    // Generate the finite-fault XML for shakeAlert
+                    if (lff_success)
+                    {
+                        if (props.verbose > 0)
+                        {
+                            log_infoF("%s: Making FF XML...\n", fcnm);
+                        }
+                        iopt = ff.preferred_fault_plane;
+                        nstrdip = ff.fp[iopt].nstr*ff.fp[iopt].ndip;
+                        ffXML = GFAST_FF__xml__write(props.opmode,
+                                                     "GFAST\0",
+                                                      GFAST_ALGORITHM_VERSION,
+                                                      GFAST_INSTANCE,
+                                                      "new\0",
+                                                      GFAST_VERSION,
+                                                      events.SA[iev].eventid,
+                                                      events.SA[iev].lat,
+                                                      events.SA[iev].lon,
+                                                      events.SA[iev].dep,
+                                                      events.SA[iev].mag,
+                                                      events.SA[iev].time,
+                                                      nstrdip,
+                                                      ff.fp[iopt].fault_ptr,
+                                                      ff.fp[iopt].lat_vtx,
+                                                      ff.fp[iopt].lon_vtx,
+                                                      ff.fp[iopt].dep_vtx,
+                                                      ff.fp[iopt].sslip,
+                                                      ff.fp[iopt].dslip,
+                                                      ff.fp[iopt].sslip_unc,
+                                                      ff.fp[iopt].dslip_unc,
+                                                      &ierr);
+                         if (ierr == 0)
+                         {
+                             memset(&ffXMLflnm, 0, sizeof(ffXMLflnm));
+                             strcpy(ffXMLflnm, events.SA[iev].eventid);
+                             strcat(ffXMLflnm, ".xml\0");
+                             ffXMLfl = fopen(ffXMLflnm, "w");
+                             fprintf(ffXMLfl, "%s", ffXML);
+                             fclose(ffXMLfl);
+                         }
+                         else
+                         {
+                              log_errorF("%s: Error making FF XML\n", fcnm);
+                         }
+                         if (ffXML != NULL){free(ffXML);}
                     }
                     ldel_event = GFAST_events__removeEvent(props.processingTime,
                                                            currentTime,
                                                            props.verbose,
                                                            SA,
                                                            &events);
-                    if (ldel_event && props.verbose > 0){
+                    if (ldel_event && props.verbose > 0)
+                    {
                         log_infoF("%s: Deleted event %s\n", fcnm, SA.eventid);
                     }
                 }
