@@ -17,7 +17,7 @@
  * @author Ben Baker, ISTI
  *
  */
-bool os_path_exists(char *pathnm)
+bool os_path_exists(const char *pathnm)
 {
     struct stat s;
     int err;
@@ -40,7 +40,7 @@ bool os_path_exists(char *pathnm)
  *         false -> dirnm is not a directory
  * 
  */
-bool os_path_isdir(char *dirnm)
+bool os_path_isdir(const char *dirnm)
 {
     struct stat s;
     int err;
@@ -73,7 +73,7 @@ bool os_path_isdir(char *dirnm)
  * @author Ben Baker, ISTI
  *
  */
-bool os_path_isfile(char *filenm)
+bool os_path_isfile(const char *filenm)
 {
     struct stat info;
     if (filenm == NULL){return false;}
@@ -99,7 +99,7 @@ bool os_path_isfile(char *filenm)
  * @author Ben Baker, ISTI
  *
  */
-int os_makedirs(char *path)
+int os_makedirs(const char *path)
 {
     const char *fcnm = "os_makedirs\0";
     char *temp, dir[PATH_MAX];
@@ -155,7 +155,7 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-int os_mkdir(char *dirnm)
+int os_mkdir(const char *dirnm)
 {
     const char *fcnm = "os_mkdir\0";
     int ierr;

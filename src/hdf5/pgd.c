@@ -35,18 +35,18 @@ int GFAST_HDF5_PGD__write(hid_t pgd_group,
     memset(&h5_pgdData, 0, sizeof(struct h5_peakDisplacementData_struct));
     memset(&h5_pgd, 0, sizeof(struct h5_pgdResults_struct));
     // Copy the data
-    ierr = GFAST_HDF5_copyType__peakDisplacementData(COPY_DATA_TO_H5,
-                                                     &pgd_data,
-                                                     &h5_pgdData);
+    ierr = GFAST_HDF5__copyType__peakDisplacementData(COPY_DATA_TO_H5,
+                                                      &pgd_data,
+                                                      &h5_pgdData);
     if (ierr != 0)
     {
         log_errorF("%s: Error copying data\n", fcnm);
         return ierr;
     }
     // Copy the results 
-    ierr = GFAST_HDF5_copyType__pgdResults(COPY_DATA_TO_H5,
-                                           &pgd,
-                                           &h5_pgd);
+    ierr = GFAST_HDF5__copyType__pgdResults(COPY_DATA_TO_H5,
+                                            &pgd,
+                                            &h5_pgd);
     if (ierr != 0)
     {
         log_errorF("%s: Error copying results\n", fcnm);

@@ -109,6 +109,7 @@ struct GFAST_props_struct
     char synoutput[PATH_MAX];   /*!< The synthetic mode output file. */
     char syndata_dir[PATH_MAX]; /*!< Synthetic data directory */
     char syndata_pre[PATH_MAX]; /*!< Synthetic data prefix (LX) */
+    char h5ArchiveDir[PATH_MAX];/*!< HDF5 archive directory */ 
     char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
                                      (siren). */
     char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages

@@ -28,7 +28,8 @@ int main()
     int iev, iopt, k, kt, nsites_cmt, nsites_ff,
         nsites_pgd, nstrdip, ntsim, verbose0;
     int ierr = 0;
-    bool lcmt_success, lff_success, ldel_event, lnew_event, lupd_event;
+    bool lcmt_success, lff_success, lpgd_success,
+         ldel_event, lnew_event, lupd_event;
     //------------------------------------------------------------------------//
     // 
     // Initializations
@@ -46,11 +47,13 @@ int main()
     log_infoF("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_properties__init(propfilename, &props);
 printf("%f\n", props.synthetic_runtime);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error reading the GFAST properties file\n", fcnm);
         goto ERROR;
     }
-    if (props.verbose > 2){
+    if (props.verbose > 2)
+    {
         GFAST_properties__print(props);
     }
     // Initialize the stations locations/names for the module
@@ -89,14 +92,17 @@ printf("%f\n", props.synthetic_runtime);
         goto ERROR;
     }
     // Connect to EW trace buffer and ring with ElarmS messages 
-    //if (props.opmode != OFFLINE){
+    //if (props.opmode != OFFLINE)
+    //{
     //    log_infoF("%s: Connecting to Earthworm rings...\n", fcnm);
     //}
-    if (props.verbose > 2){
+    if (props.verbose > 2)
+    {
         GFAST_buffer_print__samplingPeriod(gps_acquisition);
     }
     // Connect ActiveMQ for ElarmS messages
-    if (props.verbose >= 2){
+    if (props.verbose >= 2)
+    {
         log_infoF("%s: Subscribing to ElarmS messages...\n", fcnm);
     }
     //GFAST::Buffer init();
@@ -115,18 +121,21 @@ printf("%f\n", props.synthetic_runtime);
     //------------------------------------------------------------------------//
     //                            GFAST OFFLINE MODE                          //
     //------------------------------------------------------------------------//
-    if (props.opmode == OFFLINE){
+    if (props.opmode == OFFLINE)
+    {
         if (props.verbose >= 2)
         {
             log_infoF("%s: Beginning simulation...\n", fcnm);
         }
         // Compute the runtime - goal is to keep up with `slowest' data
         dtmax = 0.0;
-        for (k=0; k<gps_acquisition.stream_length; k++){
+        for (k=0; k<gps_acquisition.stream_length; k++)
+        {
             dtmax = fmax(dtmax, gps_acquisition.data[k].dt);
         }
         ntsim = (int) (props.synthetic_runtime/dtmax + 0.5); // ignore + 1;
-        if (props.verbose > 0){
+        if (props.verbose > 0)
+        {
             log_infoF("%s: Number of time steps in simulation: %d\n",
                       fcnm, ntsim); 
         }
@@ -134,21 +143,24 @@ printf("%f\n", props.synthetic_runtime);
         t0sim = GFAST_acquisition__getT0FromSAC(props,
                                                 gps_acquisition,
                                                 &ierr);
-        if (ierr != 0){
+        if (ierr != 0)
+        {
             log_errorF("%s: Error setting t0 for simulation!\n", fcnm);
             goto ERROR;
         }
         // Make sure we can finish this event
         props.processingTime 
              = fmin(props.processingTime, (double) (ntsim - 2));
-        if (props.verbose > 1){
+        if (props.verbose > 1)
+        {
             log_infoF("%s: Simulation start time is: %lf\n", fcnm, t0sim);
         }
         // Save verbose because it may be toggled on and off in the loop
         verbose0 = props.verbose;
         // Loop on time-steps in simulation
 //ntsim = 59;
-        for (kt=0; kt<ntsim; kt++){
+        for (kt=0; kt<ntsim; kt++)
+        {
 //kt = 299;
 //for (kt=58; kt<59; kt++){
             // Update the time
@@ -200,7 +212,7 @@ printf("%f\n", props.synthetic_runtime);
                 {
                     log_errorF("%s: There was an error updating event %s\n",
                                fcnm, SA.eventid);
-                } 
+                }
                 if (props.verbose > 0 && lupd_event)
                 {
                     log_infoF("%s: Event %s has been modified\n",
@@ -216,7 +228,8 @@ printf("%f\n", props.synthetic_runtime);
                                                     currentTime,
                                                     latency,
                                                     &gps_acquisition);
-            if (ierr != 0){
+            if (ierr != 0)
+            {
                 log_errorF("%s: An error was encountered reading the data \n",
                            fcnm);
             }
@@ -258,12 +271,14 @@ printf("%f\n", props.synthetic_runtime);
                                     &ff_data,
                                     &ierr);
                 // Run the PGD scaling
+                lpgd_success = false;
                 if (nsites_pgd >= props.pgd_props.min_sites)
                 {
                     if (props.verbose > 2)
                     {
                         log_infoF("%s: Estimating PGD scaling...\n", fcnm);
                     } 
+                    lpgd_success = true;
                     ierr = GFAST_scaling_PGD__driver(props.pgd_props,
                                                      SA.lat, SA.lon, SA.dep,
                                                      pgd_data,
@@ -271,6 +286,7 @@ printf("%f\n", props.synthetic_runtime);
                     if (ierr != PGD_SUCCESS)
                     {
                         log_errorF("%s: Error computing PGD\n", fcnm);
+                        lpgd_success = false;
                     }
                 }
 //props.verbose = verbose0;
@@ -288,7 +304,7 @@ printf("%f\n", props.synthetic_runtime);
                         lcmt_success = false;
                     }
                 }
-                // If we got a CMT see if we can run an MT inversion  
+                // If we got a CMT see if we can run an FF inversion  
                 lff_success = false;
                 if (lcmt_success && nsites_ff >= props.ff_props.min_sites)
                 {
@@ -301,6 +317,7 @@ printf("%f\n", props.synthetic_runtime);
                     ff.str[1] = cmt.str2[cmt.opt_indx];
                     ff.dip[0] = cmt.dip1[cmt.opt_indx];
                     ff.dip[1] = cmt.dip2[cmt.opt_indx];
+                    lff_success = true;
                     ierr = GFAST_FF__driver(props.ff_props,
                                             SA.lat, SA.lon, SA.dep,
                                             ff_data,
@@ -308,10 +325,7 @@ printf("%f\n", props.synthetic_runtime);
                     if (ierr != FF_SUCCESS)
                     {
                         log_errorF("%s: Error computing finite fault\n", fcnm);
-                    }
-                    else
-                    {
-                        lff_success = true;
+                        lff_success = false;
                     }
                 }
                 // Am I ready to publish this event?
@@ -361,20 +375,20 @@ printf("%f\n", props.synthetic_runtime);
                                                       ff.fp[iopt].sslip_unc,
                                                       ff.fp[iopt].dslip_unc,
                                                       &ierr);
-                         if (ierr == 0)
-                         {
-                             memset(&ffXMLflnm, 0, sizeof(ffXMLflnm));
-                             strcpy(ffXMLflnm, events.SA[iev].eventid);
-                             strcat(ffXMLflnm, ".xml\0");
-                             ffXMLfl = fopen(ffXMLflnm, "w");
-                             fprintf(ffXMLfl, "%s", ffXML);
-                             fclose(ffXMLfl);
-                         }
-                         else
-                         {
-                              log_errorF("%s: Error making FF XML\n", fcnm);
-                         }
-                         if (ffXML != NULL){free(ffXML);}
+                        if (ierr == 0)
+                        {
+                            memset(&ffXMLflnm, 0, sizeof(ffXMLflnm));
+                            strcpy(ffXMLflnm, events.SA[iev].eventid);
+                            strcat(ffXMLflnm, ".xml\0");
+                            ffXMLfl = fopen(ffXMLflnm, "w");
+                            fprintf(ffXMLfl, "%s", ffXML);
+                            fclose(ffXMLfl);
+                        }
+                        else
+                        {
+                            log_errorF("%s: Error making FF XML\n", fcnm);
+                        }
+                        if (ffXML != NULL){free(ffXML);}
                     }
                     ldel_event = GFAST_events__removeEvent(props.processingTime,
                                                            currentTime,
@@ -385,6 +399,19 @@ printf("%f\n", props.synthetic_runtime);
                     {
                         log_infoF("%s: Deleted event %s\n", fcnm, SA.eventid);
                     }
+                } // End check on publishing event
+                // Update the archive
+                if (lpgd_success)
+                {
+
+                }
+                if (lcmt_success)
+                {
+
+                }
+                if (lff_success)
+                {
+
                 }
             } // Loop on active events
         }

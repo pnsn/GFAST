@@ -15,9 +15,9 @@
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5_createType__peakDisplacementData(hid_t group_id)
+herr_t GFAST_HDF5__createType__peakDisplacementData(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5_createType__peakDisplacementData\0";
+    const char *fcnm = "GFAST_HDF5__createType__peakDisplacementData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -95,9 +95,9 @@ herr_t GFAST_HDF5_createType__peakDisplacementData(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5_createType__pgdResults(hid_t group_id)
+herr_t GFAST_HDF5__createType__pgdResults(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5_createType__pgdResults\0";
+    const char *fcnm = "GFAST_HDF5__createType__pgdResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -161,9 +161,9 @@ herr_t GFAST_HDF5_createType__pgdResults(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5_createType__offsetData(hid_t group_id)
+herr_t GFAST_HDF5__createType__offsetData(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5_createType__offsetData\0";
+    const char *fcnm = "GFAST_HDF5__createType__offsetData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//

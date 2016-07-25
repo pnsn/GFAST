@@ -9,6 +9,37 @@
 #include "gfast_numpy.h"
 #include "gfast_log.h"
 
+/*
+int numpy_percentile(const int na, const double *__restrict__ a,
+                     const int nq, const double *__restrict__ q,
+                     const int interp)
+{
+    const char *fcnm = "numpy_percentile\0";
+    enum percentile_enum
+    {
+       PERCENTILE_LINEAR = 1,
+       PERCENTILE_LOWER = 2,
+       PERCENTILE_HIGHER = 3,
+       PERCENTILE_MIDPOINT = 4,
+       PERCENTILE_NEAREST = 5,
+    };
+    double *v = NULL;
+    int ierr;
+    ierr = 0;
+    if (na < 1 || a == NULL || nq < 1 || q == NULL)
+    {
+        ierr = 1;
+        if (na < 1){log_errorF("%s: Error no points in a\n", fcnm);}
+        if (nq < 1){log_errorF("%s: Error no points in q\n", fcnm);}
+        if (a == NULL){log_errorF("%s: Error a is NULL\n", fcnm);}
+        if (q == NULL){log_errorF("%s: Error b is NULL\n", fcnm);}
+    }
+    v = GFAST_memory_calloc__double(na);
+    
+    GFAST_memory_free__double(&v);
+    return ierr;
+}
+*/
 /*! 
  * @brief Returns index corresponding to largest value in an array
  *

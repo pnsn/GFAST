@@ -229,6 +229,24 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
                    fcnm, props->eqDefaultDepth);
         goto ERROR;
     }
+    // H5 archive directory
+    s = iniparser_getstring(ini, "general:h5ArchiveDirectory\0", NULL);
+    if (s == NULL)
+    {
+        strcpy(props->h5ArchiveDir, "./\0");
+    }
+    else
+    {
+        strcpy(props->h5ArchiveDir, s);
+        if (!os_path_isdir(props->h5ArchiveDir))
+        {
+            log_warnF("%s: Archive directory %s doesn't exist\n",
+                       fcnm, props->h5ArchiveDir);
+            log_warnF("%s: Will use current working directory\n", fcnm);
+            memset(props->h5ArchiveDir, 0, sizeof(props->h5ArchiveDir));
+            strcpy(props->h5ArchiveDir, "./\0");
+        }
+    }
     //------------------------------PGD Parameters----------------------------//
     props->pgd_props.verbose = props->verbose;
     props->pgd_props.utm_zone = props->utm_zone;
@@ -530,6 +548,7 @@ void GFAST_properties__print(struct GFAST_props_struct props)
     }
     log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
     log_debugF("%s GFAST stream file: %s\n", lspace, props.streamfile);
+    log_debugF("%s GFAST HDF5 archive dir: %s\n", lspace, props.h5ArchiveDir);
     log_debugF("%s GFAST will finish processing an event after %f (s)\n",
                lspace, props.processingTime);
     log_debugF("%s GFAST will use a default earthquake depth of %f\n",

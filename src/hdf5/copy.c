@@ -6,11 +6,11 @@
 #include "gfast.h"
 
 //============================================================================//
-int GFAST_HDF5_copyType__peakDisplacementData(enum data2h5_enum job,
-                          struct GFAST_peakDisplacementData_struct *pgd_data,
-                          struct h5_peakDisplacementData_struct *h5_pgd_data)
+int GFAST_HDF5__copyType__peakDisplacementData(enum data2h5_enum job,
+                           struct GFAST_peakDisplacementData_struct *pgd_data,
+                           struct h5_peakDisplacementData_struct *h5_pgd_data)
 {
-    const char *fcnm = "GFAST_HDF5_copyType__peakDisplacementData\0";
+    const char *fcnm = "GFAST_HDF5__copyType__peakDisplacementData\0";
     int *lactiveTemp, *lmaskTemp, i, ierr, nsites;
     char *ctemp;
     //------------------------------------------------------------------------//
@@ -97,9 +97,9 @@ int GFAST_HDF5_copyType__peakDisplacementData(enum data2h5_enum job,
  * @bug COPY_H5_TO_DATA not yet done
  *
  */
-int GFAST_HDF5_copyType__pgdResults(enum data2h5_enum job,
-                                    struct GFAST_pgdResults_struct *pgd,
-                                    struct h5_pgdResults_struct *h5_pgd)
+int GFAST_HDF5__copyType__pgdResults(enum data2h5_enum job,
+                                     struct GFAST_pgdResults_struct *pgd,
+                                     struct h5_pgdResults_struct *h5_pgd)
 {
     const char *fcnm = "GFAST_HDF5_copyType__pgdResults\0";
     int *lsiteUsedTemp, i, ierr, ndeps, nsites;
