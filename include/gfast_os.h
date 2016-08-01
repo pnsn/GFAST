@@ -6,15 +6,15 @@ extern "C"
 {
 #endif
 /* Determines if pathnm exists */
-bool os_path_exists(char *pathnm);
+bool os_path_exists(const char *pathnm);
 /* Determines if dirnm is an existing directory */
-bool os_path_isdir(char *dirnm);
+bool os_path_isdir(const char *dirnm);
 /* Determines if filenm is an existing file */
-bool os_path_isfile(char *filenm);
+bool os_path_isfile(const char *filenm);
 /* Recursively make directories */
-int os_makedirs(char *path);
+int os_makedirs(const char *path);
 /* Makes a directory */
-int os_mkdir(char *dirnm);
+int os_mkdir(const char *dirnm);
 #ifdef __cplusplus
 }
 #endif

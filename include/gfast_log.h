@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <limits.h>
 
 #ifndef __LOG_H__
 #define __LOG_H__
@@ -7,6 +8,15 @@
 extern "C"
 {
 #endif
+
+char errorLogFileName[PATH_MAX];
+char infoLogFileName[PATH_MAX]; 
+char debugLogFileName[PATH_MAX];
+char warnLogFileName[PATH_MAX];
+int __errorToLog(const char fmt[], va_list args);
+int __infoToLog(const char fmt[], va_list args);
+int __debugToLog(const char fmt[], va_list args);
+int __warnToLog(const char fmt[], va_list args);
 
 /* call this before calling any seismic library function to initialize both warning and error to be handled by same function */
 int log_initLogs(int (*)(const char s[], va_list));

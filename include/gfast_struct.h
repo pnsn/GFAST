@@ -32,14 +32,14 @@ struct GFAST_pgd_props_struct
 
 struct GFAST_cmt_props_struct
 {
-    double window_vel;   /*!< Velocity (km/s) used in determining if S wave
-                              has passed through the station in CMT
-                              inversion */
-    double window_avg;   /*!< Amount of time (s) required after S wave
-                              has passed through for averaging
-                              the offset */
-    int min_sites;       /*!< Minimum number of sites required to
-                              proceed with CMT inversion */
+    double window_vel;    /*!< Velocity (km/s) used in determining if S wave
+                               has passed through the station in CMT
+                               inversion */
+    double window_avg;    /*!< Amount of time (s) required after S wave
+                               has passed through for averaging
+                               the offset */
+    int min_sites;        /*!< Minimum number of sites required to
+                               proceed with CMT inversion */
     int verbose;          /*!< Controls verbosity - errors will always
                                 be output.
                                = 1 -> Output generic information.
@@ -270,6 +270,11 @@ struct GFAST_cmtResults_struct
     double *UN;        /*!< Estimates on vertical component.  The estimate
                             for the i'th site at the j'th depth is accessed by
                             j*nsites+i [ndeps*nsites] */
+    double *Einp;      /*!< Observed input east displacements [nsites] */
+    double *Ninp;      /*!< Observed input north displacements [nsites] */
+    double *Uinp;      /*!< Observed input vertical displacements [nsites] */
+    bool *lsiteUsed;   /*!< If true then the isite'th site from the
+                            site list was used in the CMT estimation [nsite] */ 
     int opt_indx;      /*!< Optimal index in depth grid search [0, ndeps) */
     int ndeps;         /*!< Number of depths in grid search */
     int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
@@ -281,8 +286,9 @@ struct GFAST_pgdResults_struct
     double *mpgd_vr;   /*!< PGD variance reduction at id'th depth [ndeps] */
     double *UP;        /*!< PGD estimates for each source depth
                             [nsites*ndeps] */
+    double *UPinp;     /*!< PGD observations for each site [nsites] */
     double *srcDepths; /*!< PGD source depths in grid search (km) [ndeps] */
-    bool *lsiteUsed;   /*!< If true then then the isite'th from the 
+    bool *lsiteUsed;   /*!< If true then the isite'th site from the 
                             site list was used in the PGD estimation [nsites] */
     int ndeps;         /*!< Number of depths in PGD estimation */ 
     int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
