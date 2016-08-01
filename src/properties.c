@@ -418,6 +418,7 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         strcpy(props->AMQpassword, s); 
     }
     //----------------------------RabbitMQ Parameters-------------------------//
+/*
     s = iniparser_getstring(ini, "RabbitMQ:RMQhost\0", NULL);
     if (s == NULL){
         log_errorF("%s: Could not find RMQhost!\n", fcnm);
@@ -458,6 +459,7 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     }else{
         strcpy(props->RMQexchange, s);
     }
+*/
     // Success!
     ierr = 0;
 ERROR:;

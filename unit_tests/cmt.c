@@ -141,6 +141,9 @@ static int read_results(const char *filenm,
     cmt->EN = GFAST_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
     cmt->NN = GFAST_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
     cmt->UN = GFAST_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
+    cmt->Einp = GFAST_memory_calloc__double(cmt_data->nsites);
+    cmt->Ninp = GFAST_memory_calloc__double(cmt_data->nsites);
+    cmt->Uinp = GFAST_memory_calloc__double(cmt_data->nsites);
     for (idep=0; idep<cmt->ndeps; idep++)
     {
         // depth
@@ -213,6 +216,10 @@ int cmt_inversion_test()
     cmt.EN = GFAST_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
     cmt.NN = GFAST_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
     cmt.UN = GFAST_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
+    cmt.Einp = GFAST_memory_calloc__double(cmt_data.nsites);
+    cmt.Ninp = GFAST_memory_calloc__double(cmt_data.nsites);
+    cmt.Uinp = GFAST_memory_calloc__double(cmt_data.nsites);
+    cmt.lsiteUsed = GFAST_memory_calloc__bool(cmt_data.nsites);
     for (i=0; i<cmt.ndeps; i++)
     {
         cmt.srcDepths[i] = cmt_ref.srcDepths[i];

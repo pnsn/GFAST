@@ -12,30 +12,30 @@
  *        fault inversion
  *
  */
-char *GFAST_FF__xml__write(const int mode,
-                           const char *orig_sys,
-                           const char *alg_vers,
-                           const char *instance,
-                           const char *message_type,
-                           const char *version,
-                           const char *evid,
-                           const double SA_lat,
-                           const double SA_lon,
-                           const double SA_depth,
-                           const double SA_mag,
-                           const double SA_time,
-                           const int nseg,
-                           const int *fault_ptr,
-                           const double *lat_vtx,
-                           const double *lon_vtx,
-                           const double *dep_vtx,
-                           const double *ss,
-                           const double *ds,
-                           const double *ss_unc,
-                           const double *ds_unc,
-                           int *ierr)
+char *GFAST_FF__makeXML(const int mode,
+                        const char *orig_sys,
+                        const char *alg_vers,
+                        const char *instance,
+                        const char *message_type,
+                        const char *version,
+                        const char *evid,
+                        const double SA_lat,
+                        const double SA_lon,
+                        const double SA_depth,
+                        const double SA_mag,
+                        const double SA_time,
+                        const int nseg,
+                        const int *fault_ptr,
+                        const double *lat_vtx,
+                        const double *lon_vtx,
+                        const double *dep_vtx,
+                        const double *ss,
+                        const double *ds,
+                        const double *ss_unc,
+                        const double *ds_unc,
+                        int *ierr)
 {
-    const char *fcnm = "GFAST_FF__xml__write\0";
+    const char *fcnm = "GFAST_FF__makeXML\0";
     struct coreInfo_struct core;
     char *xmlmsg, cnow[128], cmode[64], cseg[64];
     enum xml_segmentShape_enum shape;

@@ -54,7 +54,8 @@ int GFAST_xml_focalMechanism__write(const char *publicIDroot,
         if (publicID[lenos] != '/'){strcat(publicID, "/\0");}
     }   
     strcat(publicID, "focalmechanism/\0");
-    if (evid != NULL){
+    if (evid != NULL)
+    {
         strcat(publicID, evid);
         strcat(publicID, "/\0");
     }   
@@ -71,6 +72,12 @@ int GFAST_xml_focalMechanism__write(const char *publicIDroot,
     if (ierr != 0)
     {
         log_errorF("%s: Error computing standard decomposition\n", fcnm);
+        return -1;
+    }
+    ierr = cmopad_MT2PrincipalAxisSystem(0, &src);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error computing principal axes\n", fcnm);
         return -1;
     }
     // Convert pressure, null, and tension principal axes to az, plunge, length

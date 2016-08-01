@@ -31,11 +31,10 @@
  * @date May 2016
  *
  */ 
-int GFAST_scaling_PGD__driver(
-   struct GFAST_pgd_props_struct pgd_props,
-   double SA_lat, double SA_lon, double SA_dep,
-   struct GFAST_peakDisplacementData_struct pgd_data,
-   struct GFAST_pgdResults_struct *pgd)
+int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
+                              double SA_lat, double SA_lon, double SA_dep,
+                              struct GFAST_peakDisplacementData_struct pgd_data,
+                              struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__driver\0";
     double *d, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
@@ -93,7 +92,8 @@ int GFAST_scaling_PGD__driver(
         goto ERROR;
     }
     if (pgd->mpgd == NULL || pgd->mpgd_vr == NULL ||
-        pgd->srcDepths == NULL || pgd->lsiteUsed == NULL)
+        pgd->srcDepths == NULL || pgd->UP == NULL ||
+        pgd->UPinp == NULL || pgd->lsiteUsed == NULL)
     {
         if (pgd->mpgd == NULL)
         {
@@ -106,6 +106,14 @@ int GFAST_scaling_PGD__driver(
         if (pgd->srcDepths == NULL)
         {
             log_errorF("%s: pgd->srcDepths is NULL\n", fcnm);
+        }
+        if (pgd->UP == NULL)
+        {
+            log_errorF("%s: pgd->UP is NULL\n", fcnm);
+        }
+        if (pgd->UPinp == NULL)
+        {
+            log_errorF("%s: pgd->UPinp is NULL\n", fcnm);
         }
         if (pgd->lsiteUsed == NULL)
         {
@@ -132,6 +140,7 @@ int GFAST_scaling_PGD__driver(
     #pragma omp simd
     for (k=0; k<pgd->nsites; k++)
     {
+        pgd->UPinp[k] = 0.0;
         pgd->lsiteUsed[k] = true;
     }
     #pragma omp simd
@@ -224,6 +233,15 @@ int GFAST_scaling_PGD__driver(
             log_errorF("%s: Error in PGD grid search!\n", fcnm);
         }
         ierr = PGD_COMPUTE_ERROR;
+    }
+    // Extract observations
+    k = 0;
+    for (i=0; i<pgd->nsites; i++)
+    {
+        pgd->lsiteUsed[i] = luse[i];
+        if (!luse[i]){continue;}
+        pgd->UPinp[i] = d[k];
+        k = k + 1;
     }
     // Extract the estimates
     for (idep=0; idep<pgd->ndeps; idep++)

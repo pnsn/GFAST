@@ -87,6 +87,13 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
         cmt->UN[i] = 0.0;
     }
     #pragma omp simd
+    for (i=0; i<cmt->nsites; i++)
+    {
+        cmt->Einp[i] = 0.0;
+        cmt->Ninp[i] = 0.0;
+        cmt->Uinp[i] = 0.0;
+    }
+    #pragma omp simd
     for (i=0; i<cmt->ndeps; i++)
     {
         cmt->objfn[i] = 0.0;
@@ -201,6 +208,19 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
         ierr = CMT_COMPUTE_ERROR;
         goto ERROR;
     }
+    // Get the estimates and observations
+    i = 0;
+    for (k=0; k<cmt->nsites; k++)
+    {
+        cmt->lsiteUsed[k] = luse[k];
+        if (!luse[k]){continue;}
+        cmt->Ninp[k] = nOffset[i];
+        cmt->Einp[k] = eOffset[i];
+        cmt->Uinp[k] = uOffset[i];
+        cmt->lsiteUsed[k] = true;
+        i = i + 1;
+    }
+    // Extract results and weight objective fn by percent double couple
     ierr = 0;
 #ifdef PARALLEL_CMT
     #pragma omp parallel for \
@@ -321,7 +341,9 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
         cmt->dip1 == NULL || cmt->dip2 == NULL ||
         cmt->rak1 == NULL || cmt->rak2 == NULL ||
         cmt->Mw == NULL || cmt->srcDepths == NULL ||
-        cmt->EN == NULL || cmt->NN == NULL || cmt->UN == NULL)
+        cmt->EN == NULL || cmt->NN == NULL || cmt->UN == NULL ||
+        cmt->Einp == NULL || cmt->Ninp == NULL || cmt->Uinp == NULL ||
+        cmt->lsiteUsed == NULL)
     {
         if (cmt->objfn == NULL)
         {
@@ -374,6 +396,22 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
         if (cmt->UN == NULL)
         {
             log_errorF("%s: Error UN is NULL\n", fcnm);
+        }
+        if (cmt->Einp == NULL)
+        {
+            log_errorF("%s: Error Einp is NULL\n", fcnm);
+        }
+        if (cmt->Ninp == NULL)
+        {
+            log_errorF("%s: Error Ninp is NULL\n", fcnm);
+        }
+        if (cmt->Uinp == NULL)
+        {
+            log_errorF("%s: Error Uinp is NULL\n", fcnm);
+        }
+        if (cmt->lsiteUsed == NULL)
+        {
+            log_errorF("%s: Error lsiteUsed is NULL\n", fcnm);
         }
         ierr = CMT_STRUCT_ERROR;
         goto ERROR;

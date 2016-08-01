@@ -11,7 +11,7 @@
 void GFAST_events__print(struct GFAST_shakeAlert_struct SA) 
 {
     const char *fcnm   = "GFAST_events__print\0";
-    const char *lspace = "                          \0";
+    const char *lspace = "                   \0";
     log_debugF("%s: Event %s statistics:\n", fcnm, SA.eventid);
     log_debugF("%s  Event latitude %f (degrees)\n", lspace, SA.lat);
     log_debugF("%s  Event longitude %f (degrees)\n", lspace, SA.lon);

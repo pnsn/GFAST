@@ -126,6 +126,7 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
     GFAST_memory_free__double(&pgd->mpgd);
     GFAST_memory_free__double(&pgd->mpgd_vr);
     GFAST_memory_free__double(&pgd->UP);
+    GFAST_memory_free__double(&pgd->UPinp);
     GFAST_memory_free__double(&pgd->srcDepths);
     GFAST_memory_free(pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
@@ -156,6 +157,10 @@ void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
     GFAST_memory_free__double(&cmt->EN);
     GFAST_memory_free__double(&cmt->NN);
     GFAST_memory_free__double(&cmt->UN);
+    GFAST_memory_free__double(&cmt->Einp);
+    GFAST_memory_free__double(&cmt->Ninp);
+    GFAST_memory_free__double(&cmt->Uinp);
+    GFAST_memory_free__bool(&cmt->lsiteUsed);
     memset(cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     return;
 }
@@ -268,12 +273,14 @@ double *GFAST_memory_alloc__double(int n)
     const char *fcnm = "GFAST_memory_alloc__double\0";
     double *x = NULL;
     int ierr;
-    if (n < 1){ 
+    if (n < 1)
+    {
         log_errorF("%s: Error invalid size %d\n", fcnm, n); 
         return x;
     }   
     ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(double));
-    if (ierr != 0){ 
+    if (ierr != 0)
+    {
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }   
@@ -296,12 +303,14 @@ int *GFAST_memory_alloc__int(int n)
     const char *fcnm = "GFAST_memory_alloc__int\0";
     int *x = NULL;
     int ierr;
-    if (n < 1){
+    if (n < 1)
+    {
         log_errorF("%s: Error invalid size %d\n", fcnm, n);
         return x;
     }
     ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(int));
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }
@@ -324,12 +333,14 @@ bool *GFAST_memory_alloc__bool(int n)
     const char *fcnm = "GFAST_memory_alloc__bool\0";
     bool *x = NULL;
     int ierr;
-    if (n < 1){
+    if (n < 1)
+    {
         log_errorF("%s: Error invalid size %d\n", fcnm, n);
         return x;
     }
     ierr = posix_memalign( (void **)&x, CACHE_LINE_SIZE, n*sizeof(bool));
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }
@@ -352,12 +363,14 @@ double *GFAST_memory_calloc__double(int n)
 {
     const char *fcnm = "GFAST_memory_calloc__double\0";
     double *x = NULL;
-    if (n < 1){
+    if (n < 1)
+    {
         log_errorF("%s: Error invalid size %d\n", fcnm, n);
         return x;
     }
     x = GFAST_memory_alloc__double(n);
-    if (x == NULL){
+    if (x == NULL)
+    {
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }
@@ -383,16 +396,19 @@ int *GFAST_memory_calloc__int(int n)
     int *x = NULL; 
     int i;
     const int zero = 0;
-    if (n < 1){
+    if (n < 1)
+    {
         log_errorF("%s: Error invalid size %d\n", fcnm, n);
         return x;
     }
     x = GFAST_memory_alloc__int(n);
-    if (x == NULL){
+    if (x == NULL)
+    {
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }
-    for (i=0; i<n; i++){
+    for (i=0; i<n; i++)
+    {
         x[i] = zero;
     }
     return x;
@@ -416,7 +432,8 @@ bool *GFAST_memory_calloc__bool(int n)
     bool *x = NULL; 
     int i;
     const bool zero = false;
-    if (n < 1){
+    if (n < 1)
+    {
         log_errorF("%s: Error invalid size %d\n", fcnm, n);
         return x;
     }
@@ -425,7 +442,8 @@ bool *GFAST_memory_calloc__bool(int n)
         log_errorF("%s: Error allocating array\n", fcnm);
         return NULL;
     }
-    for (i=0; i<n; i++){
+    for (i=0; i<n; i++)
+    {
         x[i] = zero;
     }
     return x;
@@ -440,7 +458,8 @@ bool *GFAST_memory_calloc__bool(int n)
  */
 void GFAST_memory_free(void *p) 
 {
-    if (p != NULL){
+    if (p != NULL)
+    {
         free(p);
         p = NULL;
     }   
@@ -472,7 +491,8 @@ void GFAST_memory_free__double(double **p)
  */
 void GFAST_memory_free__int(int **p)
 {
-    if (*p != NULL){
+    if (*p != NULL)
+    {
         free(*p);
         *p = NULL;
     }
@@ -488,7 +508,8 @@ void GFAST_memory_free__int(int **p)
  */
 void GFAST_memory_free__bool(bool **p)
 {
-    if (*p != NULL){
+    if (*p != NULL)
+    {
         free(*p);
         *p = NULL;
     }

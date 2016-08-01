@@ -67,9 +67,10 @@ OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
 	     $(OBJ_BUFFER_DIR)/setInitialTime.o \
 	     $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o \
 	     $(OBJ_BUFFER_DIR)/updateBuffer.o
-OBJ_CMT = $(OBJ_CMT_DIR)/decompose.o \
+OBJ_CMT = $(OBJ_CMT_DIR)/decomposeMomentTensor.o \
 	  $(OBJ_CMT_DIR)/depthGridSearch.o \
 	  $(OBJ_CMT_DIR)/init.o \
+	  $(OBJ_CMT_DIR)/makeQuakeML.o \
 	  $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o \
 	  $(OBJ_CMT_DIR)/setForwardModel.o \
 	  $(OBJ_CMT_DIR)/setRHS.o \
@@ -82,19 +83,22 @@ OBJ_EVENTS = $(OBJ_EVENTS_DIR)/getMinOriginTime.o \
 	     $(OBJ_EVENTS_DIR)/updateEvent.o
 OBJ_FF = $(OBJ_FF_DIR)/init.o \
 	 $(OBJ_FF_DIR)/faultPlaneGridSearch.o \
+	 $(OBJ_FF_DIR)/makeXML.o \
 	 $(OBJ_FF_DIR)/meshFaultPlane.o \
 	 $(OBJ_FF_DIR)/setDiagonalWeightMatrix.o \
 	 $(OBJ_FF_DIR)/setForwardModel.o \
 	 $(OBJ_FF_DIR)/setRegularizer.o \
 	 $(OBJ_FF_DIR)/setRHS.o \
 	 $(OBJ_FF_DIR)/weightForwardModel.o \
-	 $(OBJ_FF_DIR)/weightObservations.o \
-	 $(OBJ_FF_DIR)/xml.o
+	 $(OBJ_FF_DIR)/weightObservations.o
 OBJ_H5 = $(OBJ_H5_DIR)/copy.o \
 	 $(OBJ_H5_DIR)/createType.o \
 	 $(OBJ_H5_DIR)/initialize.o \
+	 $(OBJ_H5_DIR)/h5_cinter.o \
+	 $(OBJ_H5_DIR)/memory.o \
 	 $(OBJ_H5_DIR)/pgd.o \
-	 $(OBJ_H5_DIR)/setFileName.o
+	 $(OBJ_H5_DIR)/setFileName.o \
+	 $(OBJ_H5_DIR)/update.o
 OBJ_WP = $(OBJ_WP_DIR)/offset.o \
 	 $(OBJ_WP_DIR)/peakDisplacement.o
 OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
@@ -213,14 +217,17 @@ $(OBJ_BUFFER_DIR)/updateBuffer.o: buffer/updateBuffer.c
 
 ######################################## CMT ##########################################
 
-$(OBJ_CMT_DIR)/decompose.o: cmt/decompose.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/decompose.c -o $(OBJ_CMT_DIR)/decompose.o
+$(OBJ_CMT_DIR)/decomposeMomentTensor.o: cmt/decomposeMomentTensor.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/decomposeMomentTensor.c -o $(OBJ_CMT_DIR)/decomposeMomentTensor.o
 
 $(OBJ_CMT_DIR)/depthGridSearch.o: cmt/depthGridSearch.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/depthGridSearch.c -o $(OBJ_CMT_DIR)/depthGridSearch.o
 
 $(OBJ_CMT_DIR)/init.o: cmt/init.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/init.c -o $(OBJ_CMT_DIR)/init.o
+
+$(OBJ_CMT_DIR)/makeQuakeML.o: cmt/makeQuakeML.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/makeQuakeML.c -o $(OBJ_CMT_DIR)/makeQuakeML.o
 
 $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o: cmt/setDiagonalWeightMatrix.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/setDiagonalWeightMatrix.c -o $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o
@@ -270,6 +277,9 @@ $(OBJ_FF_DIR)/init.o: ff/init.c
 $(OBJ_FF_DIR)/faultPlaneGridSearch.o: ff/faultPlaneGridSearch.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/faultPlaneGridSearch.c -o $(OBJ_FF_DIR)/faultPlaneGridSearch.o
 
+$(OBJ_FF_DIR)/makeXML.o: ff/makeXML.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/makeXML.c -o $(OBJ_FF_DIR)/makeXML.o
+
 $(OBJ_FF_DIR)/meshFaultPlane.o: ff/meshFaultPlane.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/meshFaultPlane.c -o $(OBJ_FF_DIR)/meshFaultPlane.o
 
@@ -291,9 +301,6 @@ $(OBJ_FF_DIR)/weightForwardModel.o: ff/weightForwardModel.c
 $(OBJ_FF_DIR)/weightObservations.o: ff/weightObservations.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/weightObservations.c -o $(OBJ_FF_DIR)/weightObservations.o
 
-$(OBJ_FF_DIR)/xml.o: ff/xml.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/xml.c -o $(OBJ_FF_DIR)/xml.o
-
 ###################################### HDF5 ###########################################
 
 $(OBJ_H5_DIR)/copy.o: hdf5/copy.c
@@ -305,11 +312,20 @@ $(OBJ_H5_DIR)/createType.o: hdf5/createType.c
 $(OBJ_H5_DIR)/initialize.o: hdf5/initialize.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/initialize.c -o $(OBJ_H5_DIR)/initialize.o
 
+$(OBJ_H5_DIR)/h5_cinter.o: hdf5/h5_cinter.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/h5_cinter.c -o $(OBJ_H5_DIR)/h5_cinter.o
+
+$(OBJ_H5_DIR)/memory.o: hdf5/memory.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/memory.c -o $(OBJ_H5_DIR)/memory.o
+
 $(OBJ_H5_DIR)/pgd.o: hdf5/pgd.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/pgd.c -o $(OBJ_H5_DIR)/pgd.o
 
 $(OBJ_H5_DIR)/setFileName.o: hdf5/setFileName.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/setFileName.c -o $(OBJ_H5_DIR)/setFileName.o
+
+$(OBJ_H5_DIR)/update.o: hdf5/update.c
+	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/update.c -o $(OBJ_H5_DIR)/update.o
 
 ####################################### Scaling #######################################
 

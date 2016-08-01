@@ -18,6 +18,8 @@
  *
  * @author Ben Baker (ISTI)
  *
+ * @bug Can't accept arbitrary source depths from input file
+ *
  */
 int GFAST_CMT__init(struct GFAST_cmt_props_struct props,
                     struct GFAST_data_struct gps_data,
@@ -76,6 +78,10 @@ int GFAST_CMT__init(struct GFAST_cmt_props_struct props,
     cmt->EN        = GFAST_memory_calloc__double(cmt->ndeps*cmt->nsites);
     cmt->NN        = GFAST_memory_calloc__double(cmt->ndeps*cmt->nsites);
     cmt->UN        = GFAST_memory_calloc__double(cmt->ndeps*cmt->nsites);
+    cmt->Einp      = GFAST_memory_calloc__double(cmt->nsites);
+    cmt->Ninp      = GFAST_memory_calloc__double(cmt->nsites);
+    cmt->Uinp      = GFAST_memory_calloc__double(cmt->nsites);
+    cmt->lsiteUsed = GFAST_memory_calloc__bool(cmt->nsites);
     /* TODO fix me */
     for (i=0; i<cmt->ndeps; i++)
     {

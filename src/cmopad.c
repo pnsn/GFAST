@@ -76,37 +76,56 @@ int cmopad_basis__switcher(enum cmopad_basis_enum in_system,
     //------------------------------------------------------------------------//
     //
     // null out to and from
-    for (i=0; i<9; i++){
+    for (i=0; i<9; i++)
+    {
         To[i]   = 0.0;
         From[i] = 0.0;
     }
     // Classify in
-    if (in_system == NED){
+    if (in_system == NED)
+    {
         // Inverse of identity: From[0] = 1.0; From[4] = 1.0; From[8] = 1.0 is:
         From[0] = 1.0; From[4] = 1.0; From[8] = 1.0;
-    }else if (in_system == USE){
+    }
+    else if (in_system == USE)
+    {
         From[3] =-1.0; From[7] = 1.0; From[2] =-1.0;  
-    }else if (in_system == XYZ){
+    }
+    else if (in_system == XYZ)
+    {
         From[3] = 1.0; From[1] = 1.0; From[8] =-1.0; 
-    }else if (in_system == NWU){
+    }
+    else if (in_system == NWU)
+    {
         From[0] = 1.0; From[4] =-1.0; From[8] =-1.0;
-    }else {
+    }
+    else
+    {
         log_errorF("%s: Invalid in coordinate system %d\n", fcnm, in_system);
         return -1;
     }
     // Classify out
-    if (out_system == NED){
+    if (out_system == NED)
+    {
         To[0] = 1.0; To[4] = 1.0; To[8] = 1.0;
-    }else if (out_system == USE){
+    }
+    else if (out_system == USE)
+    {
         // Inverse of: To[3] =-1.0; To[7] = 1.0; To[2] =-1.0; is
         To[1] =-1.0; To[5] = 1.0; To[6] =-1.0;
-    }else if (out_system == XYZ){ 
+    }
+    else if (out_system == XYZ)
+    {
         // Inverse of To[3] = 1.0; To[1] = 1.0; To[8] =-1.0; is:
         To[1] = 1.0; To[3] = 1.0; To[8] =-1.0;
-    }else if (out_system == NWU){ 
+    }
+    else if (out_system == NWU)
+    {
         //Inverse of: To[0] = 1.0; To[4] =-1.0; To[8] =-1.0; is
         To[0] = 1.0; To[4] =-1.0; To[8] =-1.0;
-    }else{
+    }
+    else
+    {
         log_errorF("%s: Invalid out coordinate system %d\n", fcnm, out_system);
         return -1;
     }  
@@ -114,8 +133,10 @@ int cmopad_basis__switcher(enum cmopad_basis_enum in_system,
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
                 n3, n3, n3, alpha, From, n3, To, n3, beta,
                 r9, n3);
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             r[i][j] = r9[3*j + i];
         }
     }
@@ -156,7 +177,8 @@ int cmopad_basis__transformMatrixM6(double *m,
     M33[1][2] = M33[2][1] = m[5]; //myz; mtp
     // Switch basis 
     ierr = cmopad_basis__transformMatrixM33(M33, in_sys, out_sys);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error changing basis\n", fcnm);
         return -1;
     }
@@ -196,12 +218,15 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
     //
     // Compute change of basis matrix 
     ierr = cmopad_basis__switcher(in_sys, out_sys, r);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error generating basis switching matrix\n",fcnm);
         return -1;
     }
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             r9[3*j + i] = r[i][j];
             m9[3*j + i] = m[i][j];
             //invR9[3*j + i] = r[i][j];
@@ -210,12 +235,15 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
     }
     // compute inv(R)
     ierr = __cmopad_inv3(invR); //double Amat[3][3])
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Unlikely error!\n", fcnm);
         return -1;
     }
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             invR9[3*j + i] = invR[i][j];
         }
     }
@@ -227,8 +255,10 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
                 n3, n3, n3, alpha, r9, n3, t9, n3, beta,
                 m9, n3);
     // Copy back
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             m[i][j] = m9[3*j + i];
         }
     }
@@ -263,13 +293,16 @@ int cmopad_basis__transformVector(double v[3],
     //
     // Compute change of basis matrix
     ierr = cmopad_basis__switcher(in_sys, out_sys, r);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error making basis switcher matrix\n", fcnm);
         return -1;
     }
-    for (i=0; i<3; i++){ 
+    for (i=0; i<3; i++)
+    {
         x[i] = v[i];
-        for (j=0; j<3; j++){
+        for (j=0; j<3; j++)
+        {
             r9[3*j + i] = r[i][j];
         }
     }
@@ -324,14 +357,16 @@ int cmopad_Eigenvector2PrincipalAxis(enum cmopad_basis_enum coord, double eig,
     // Convert eigenvector ev to USE convention 
     cblas_dcopy(3, ev, 1, v, 1);
     ierr = cmopad_basis__transformVector(v, coord, USE);
-    if (ierr != 0){ 
+    if (ierr != 0)
+    {
         log_errorF("%s: Error switching basis\n", fcnm);
         return -1; 
     }   
     // Compute azimuth and plunge angles  
     plunge = asin(-v[0]);       //arcsin(-z/r)
     az     = atan2(v[2],-v[1]); //atan(x/y)
-    if (plunge <= 0.0){
+    if (plunge <= 0.0)
+    {
         plunge =-plunge;
         az = az + M_PI;
     }   
@@ -435,14 +470,18 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
     flip_dc[1] = 0.0; flip_dc[4] =-1.0; flip_dc[7] = 0.0;
     flip_dc[2] =-1.0; flip_dc[5] = 0.0; flip_dc[8] = 0.0;
     // Euler-tools need matrices of EV sorted in PNT (pressure,null,tension):
-    for (i=0; i<3; i++){
-       for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+       for (j=0; j<3; j++)
+       {
           pnt_sorted_EV_matrix[i][j] = src->rotation_matrix[i][j];
        }
     } 
     // Re-sort only necessary if abs(p) <= abs(t)
-    if (src->plot_clr_order < 0){
-        for (i=0; i<3; i++){
+    if (src->plot_clr_order < 0)
+    {
+        for (i=0; i<3; i++)
+        {
             pnt_sorted_EV_matrix[i][0] = src->rotation_matrix[i][2];
             pnt_sorted_EV_matrix[i][2] = src->rotation_matrix[i][0];
         }
@@ -450,23 +489,29 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
     // Rotation matrix, describing the rotation of the eigenvector
     // system of the input moment tensor into the eigenvector
     // system of the reference Double Couple
-    if (iverb > 1){
-         log_debugF("%s: Pressure, null, tension eigenvectors:\n",fcnm);
+    if (iverb > 1)
+    {
+        log_debugF("%s: Pressure, null, tension eigenvectors:\n",fcnm);
     }
-    for (j=0; j<3; j++){
-       for (i=0; i<3; i++){
+    for (j=0; j<3; j++)
+    {
+       for (i=0; i<3; i++)
+       {
           work1[j*n3 + i] = pnt_sorted_EV_matrix[i][j];
        }
-       if (iverb > 1){
+       if (iverb > 1)
+       {
            log_debugF(
            "%8.5f %8.5f %8.5f\n",pnt_sorted_EV_matrix[j][0],
                                  pnt_sorted_EV_matrix[j][1],
                                  pnt_sorted_EV_matrix[j][2]);
        }
     }
-    if (iverb > 1){
+    if (iverb > 1)
+    {
         log_debugF("%s: Reference double couple eigenvectors:\n",fcnm);
-        for (i=0; i<3; i++){
+        for (i=0; i<3; i++)
+        {
             log_debugF(
            "%8.5f %8.5f %8.5f\n",refDC_evecs[i],
                                  refDC_evecs[3+i],refDC_evecs[6+i]);
@@ -475,22 +520,29 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, n3, n3, n3, 
                 alpha, work1, n3, refDC_evecs, n3, beta,
                 work2, n3);
-    for (j=0; j<3; j++){
-        for (i=0; i<3; i++){
+    for (j=0; j<3; j++)
+    {
+        for (i=0; i<3; i++)
+        {
             rot_matrix_fp1[j][i] = work2[j*n3 + i]; //Copy transpose
         }
     }
     // check if rotation has correct orientation
     det = __cmopad_determinant3x3(rot_matrix_fp1);
-    if (det < 0.0){
-       for (i=0; i<3; i++){
-          for (j=0; j<3; j++){
-             rot_matrix_fp1[i][j] =-1.0*rot_matrix_fp1[i][j];
+    if (det < 0.0)
+    {
+       for (i=0; i<3; i++)
+          {
+          for (j=0; j<3; j++)
+          {
+              rot_matrix_fp1[i][j] =-1.0*rot_matrix_fp1[i][j];
           }
        }
     } 
-    for (j=0; j<3; j++){
-        for (i=0; i<3; i++){
+    for (j=0; j<3; j++)
+    {
+        for (i=0; i<3; i++)
+        {
             work1[j*3 + i] = rot_matrix_fp1[i][j];
         }
     }
@@ -498,8 +550,10 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, n3, n3, n3,
                 alpha, flip_dc, n3, work1, n3, beta, 
                 work2, n3);
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             rot_matrix_fp2[i][j] = work2[j*3 + i];
         }
     }
@@ -558,9 +612,11 @@ void cmopad_MatrixToEuler(double rotmat[3][3],
     // transpose matrix vector multiply
     ex[0] = 1.0; ex[1] = 0.0; ex[2] = 0.0;
     ez[0] = 0.0; ez[1] = 0.0; ez[2] = 1.0;
-    for (i=0; i<3; i++){
+    for (i=0; i<3; i++)
+    {
         exs[i] = 0.0; ezs[i] = 0.0;
-        for (j=0; j<3; j++){
+        for (j=0; j<3; j++)
+        {
             exs[i] = exs[i] + rotmat[j][i]*ex[j];
             ezs[i] = ezs[i] + rotmat[j][i]*ez[j];
         }
@@ -568,14 +624,18 @@ void cmopad_MatrixToEuler(double rotmat[3][3],
     // Cross product
     array_cross3(ez, ezs, enodes);
     xnorm = sqrt(pow(enodes[0],2) + pow(enodes[1],2) + pow(enodes[2],2));
-    if (xnorm < 1.e-10){
-        for (i=0; i<3; i++){
+    if (xnorm < 1.e-10)
+    {
+        for (i=0; i<3; i++)
+        {
             enodes[i] = exs[i];
         }
     }
-    for (i=0; i<3; i++){
+    for (i=0; i<3; i++)
+    {
         enodess[i] = 0.0;
-        for (j=0; j<3; j++){
+        for (j=0; j<3; j++)
+        {
             enodess[i] = enodess[i] + rotmat[i][j]*enodes[j];
         }
     }
@@ -605,16 +665,25 @@ void cmopad_MatrixToEuler(double rotmat[3][3],
 static double numpy_mod(double a, double b)
 {
     if (b == 0.0){return a;}
-    if (a >= 0.0){
-        if (b > 0.0){
+    if (a >= 0.0)
+    {
+        if (b > 0.0)
+        {
             return a - floor(a/b)*b;
-        }else {
+        }
+        else
+        {
             return a - fabs(floor(a/b))*fabs(b);
         } 
-    }else{
-        if (b > 0.0){
+    }
+    else
+    {
+        if (b > 0.0)
+        {
             return a + fabs(floor(a/b))*fabs(b);
-        }else{
+        }
+        else
+        {
             return a + floor(a/b)*fabs(b);
         }
     }
@@ -657,8 +726,10 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
            trace_M, xsum;
     int EW_order[3], symmetry_around_tension, clr, i, j, ierr;
     //------------------------------------------------------------------------//
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             M[i][j]      = src->M[i][j];
             M_devi[i][j] = src->M_devi[i][j];
             EV[i][j] = M[i][j];
@@ -666,7 +737,8 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
         }
     }
     ierr = __cmopad_Eigs3x3(EV_devi, ival, EW_devi);
-    if (ierr != 0){ 
+    if (ierr != 0)
+    {
         log_errorF("%s: Error computing eigenvalues (a)!",fcnm);
         return -1; 
     } 
@@ -675,7 +747,8 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     trace_M = __cmopad_trace3(M);
     if (trace_M < epsilon){trace_M = 0.0;}
     ierr = __cmopad_Eigs3x3(EV, ival, EW);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error computing eigenvalues (b)!", fcnm);
         return -1;
     }
@@ -706,119 +779,158 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     symmetry_around_tension = 1;
     clr = 1;
     xsum = EW1 + EW2 + EW3;
-    if (EW1 < 0.0 && EW2 < 0.0 && EW3 < 0.0){ //implosion
-        if (iverb > 2){
-            log_infoF("%s: Implosion\n", fcnm);
-        }
+    // implosion
+    if (EW1 < 0.0 && EW2 < 0.0 && EW3 < 0.0)
+    {
+        if (iverb > 2){log_infoF("%s: Implosion\n", fcnm);}
         symmetry_around_tension = 0;
         clr = 1;
-    }else if (EW1 > 0.0 && EW2 > 0.0 && EW3 > 0.0){ //explosion
-        if (iverb > 2){
-            log_infoF("%s: Explosion\n", fcnm);
-        }
+    }
+    // explosion
+    else if (EW1 > 0.0 && EW2 > 0.0 && EW3 > 0.0)
+    {
+        if (iverb > 2){log_infoF("%s: Explosion\n", fcnm);}
         symmetry_around_tension = 1;
-        if (fabs(EW1_devi) > fabs(EW3_devi)){
+        if (fabs(EW1_devi) > fabs(EW3_devi))
+        {
             symmetry_around_tension = 0;
         }
         clr = -1;
-    }else if (EW2 < 0.0 && xsum < 0.0){ //net-implosion
-        if (iverb > 2){
-            log_infoF("%s: Net-implosion (1)\n");
-        }
-        if (fabs(EW1_devi) < fabs(EW3_devi)){
+    }
+    // net-implosion
+    else if (EW2 < 0.0 && xsum < 0.0)
+    {
+        if (iverb > 2){log_infoF("%s: Net-implosion (1)\n");}
+        if (fabs(EW1_devi) < fabs(EW3_devi))
+        {
             symmetry_around_tension = 1;
             clr = 1; 
-        }else{
+        }
+        else
+        {
             symmetry_around_tension = 1;
             clr = 1;
         }
-    }else if (EW2_devi >= 0.0 && xsum < 0.0){ //net-implosion
-        if (iverb > 2){
-            log_infoF("%s: Net-impolosion (2)\n", fcnm);
-        }
+    }
+    // net-implosion
+    else if (EW2_devi >= 0.0 && xsum < 0.0)
+    {
+        if (iverb > 2){log_infoF("%s: Net-impolosion (2)\n", fcnm);}
         symmetry_around_tension = 0;
         clr = -1;
-        if (fabs(EW1_devi) < fabs(EW3_devi)){
+        if (fabs(EW1_devi) < fabs(EW3_devi))
+        {
             symmetry_around_tension = 1;
             clr = 1;
         }
-    }else if (EW2_devi < 0.0 && xsum > 0.0){ //net-explosion
-        if (iverb > 2){
-            log_infoF("%s: Net-explosion (1)\n", fcnm);
-        }
+    }
+    // net-explosion
+    else if (EW2_devi < 0.0 && xsum > 0.0)
+    {
+        if (iverb > 2){log_infoF("%s: Net-explosion (1)\n", fcnm);}
         symmetry_around_tension = 1;
         clr = 1;
-        if (fabs(EW1_devi) > fabs(EW3_devi)){
+        if (fabs(EW1_devi) > fabs(EW3_devi))
+        {
             symmetry_around_tension = 0;
             clr = -1;
         }
-    }else if ( EW2_devi >= 0.0 && xsum > 0.0){ //net-explosion
-        if (iverb > 2){
-            log_infoF("%s: Net-explosion (2)\n", fcnm);
-        }
+    }
+    // net-explosion
+    else if ( EW2_devi >= 0.0 && xsum > 0.0)
+    {
+        if (iverb > 2){log_infoF("%s: Net-explosion (2)\n", fcnm);}
         symmetry_around_tension = 0;
         clr = -1;
-    }else{
+    }
+    else
+    {
         // If the trace is 0 to machine epsilon then purely deviatoric
         if (trace_M/fmax(fabs(EW1_devi),fabs(EW3_devi)) > 1.e-10){ //!= 0.0){
             log_warnF("%s: Warning should not be here %f %f %f\n",
                       fcnm, EW2_devi, trace_M, xsum);
         }
     }
-    if (iverb > 1){
+    if (iverb > 1)
+    {
         log_infoF("%s: sym/clr %d %d\n",
                   fcnm, symmetry_around_tension, clr);
     }
     // Deviatoric classification
-    if (fabs(EW1_devi) < fabs(EW3_devi)){
+    if (fabs(EW1_devi) < fabs(EW3_devi))
+    {
         symmetry_around_tension = 1;
         clr = 1;
     }
-    if (fabs(EW1_devi) >= fabs(EW3_devi)){
+    if (fabs(EW1_devi) >= fabs(EW3_devi))
+    {
         symmetry_around_tension = 0;
         clr = -1;
     }
-    if (EW3 < 0.0 && trace_M >= 0.){//explosive src with all neg evals?
+    //explosive src with all neg evals?
+    if (EW3 < 0.0 && trace_M >= 0.0)
+    {
         log_errorF("%s: Critical error!\n", fcnm);
         return -1;
     }
 
-    // Classify pure deviatoric
-    if (trace_M == 0.0){ //pure deviatoric
+    // Classify pure deviatoric - pure deviatoric
+    if (trace_M == 0.0)
+    {
         if (iverb > 1){log_infoF("%s: Pure-deviatoric\n", fcnm);}
-        if (EW2 == 0.0){ //pure shear
+        // pure shear
+        if (EW2 == 0.0)
+        {
             if (iverb > 1){log_infoF("%s: Pure-shear\n", fcnm);}
             symmetry_around_tension = 1;
             clr = 1;
-        }else if (2.0*fabs(EW2) == fabs(EW1) || 2.0*fabs(EW2) == fabs(EW3)){
-            if (iverb > 1){
-                log_infoF("%s: Pure CLVD\n", fcnm);
-            }
-            if (fabs(EW1) < EW3){ //CLVD symmetry around tension
-                if (iverb > 2){
+        }
+        else if (2.0*fabs(EW2) == fabs(EW1) || 2.0*fabs(EW2) == fabs(EW3))
+        {
+            if (iverb > 1){log_infoF("%s: Pure CLVD\n", fcnm);}
+            // CLVD symmetry around tension
+            if (fabs(EW1) < EW3)
+            {
+                if (iverb > 2)
+                {
                     log_infoF("%s: CLVD symmetry around tension\n", fcnm);
                 }
                 symmetry_around_tension = 1;
                 clr = 1;
-            }else{ //CLVD symmetry around pressure
-                if (iverb > 2){
+            }
+            // CLVD symmetry around pressure
+            else
+            {
+                if (iverb > 2)
+                {
                     log_infoF("%s: CLVD symmetry around pressure\n", fcnm);
                 }
                 symmetry_around_tension = 0;
                 clr = -1;
             }
-        }else{ //mix of DC and CLVD
-            if (iverb > 1){
+        }
+        // mix of DC and CLVD
+        else
+        {
+            if (iverb > 1)
+            {
                 log_infoF("%s: Mix of DC and CLVD\n", fcnm);
             }
-            if (fabs(EW1) < EW3){ //symmetry around tension
-                if (iverb > 2){
+            // symmetry around tension
+            if (fabs(EW1) < EW3)
+            {
+                if (iverb > 2)
+                {
                     log_infoF("%s: Symmetry around tension\n", fcnm);
                 }
                 symmetry_around_tension = 1;
                 clr = 1;
-            }else{ //symmetry around pressure
-                if (iverb > 2){
+            }
+            // symmetry around pressure
+            else
+            {
+                if (iverb > 2)
+                {
                     log_infoF("%s: Symmetry around pressure\n", fcnm);
                 }
                 symmetry_around_tension = 0;
@@ -826,32 +938,39 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
             }
         }
     }
-    if (iverb > 0){
+    if (iverb > 0)
+    {
         log_infoF("%s: Final symmetry %d %d\n",
                   fcnm, symmetry_around_tension, clr);
     }
     // Define order of eigenvectors and values according to symmetry axis
-    if (symmetry_around_tension == 1){
+    if (symmetry_around_tension == 1)
+    {
         EWs = EW3;
         EWh = EW1; 
         EWn = EW2;
-        for (i=0; i<3; i++){
+        for (i=0; i<3; i++)
+        {
             EVs[i] = EV3[i];
             EVh[i] = EV1[i];
             EVn[i] = EV2[i];
         }
-    }else {
+    }
+    else
+    {
         EWs = EW1;
         EWh = EW3;
         EWn = EW2;
-        for (i=0; i<3; i++){
-            EVs[i] = EV1[i]; 
+        for (i=0; i<3; i++)
+        {
+            EVs[i] = EV1[i];
             EVh[i] = EV3[i];
             EVn[i] = EV2[i]; 
         }
     }
     // Order of eigenvector's basis: (H,N,S)
-    for (i=0; i<3; i++){
+    for (i=0; i<3; i++)
+    {
         // Matrix for basis transform
         src->rotation_matrix[i][0] = EVh[i]; 
         src->rotation_matrix[i][1] = EVn[i];
@@ -881,7 +1000,8 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     src->plot_clr_order = clr;
 
     ierr = cmopad_findFaultPlanes(iverb, src);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error computing fault planes!\n", fcnm);
     }
     return ierr;
@@ -901,16 +1021,20 @@ void cmopad_printMatrix3x3(bool lfact, double m[3][3])
     int i,j;
     //------------------------------------------------------------------------//
     norm_fact = 1.0;
-    if (lfact){ 
+    if (lfact)
+    {
         norm_fact = 0.0;
-        for (i=0; i<3; i++){
-            for (j=0; j<3; j++){
+        for (i=0; i<3; i++)
+        {
+            for (j=0; j<3; j++)
+            {
                 //norm_fact = fmax(norm_fact,fabs(mathRound(m[i][j],5)));
                 norm_fact = fabs(m[i][j]);
             }
         }
-        if (norm_fact == 0.0){
-            log_warnF("%s: Warning norm_fact = 0.0!\n",fcnm);
+        if (norm_fact == 0.0)
+        {
+            log_warnF("%s: Warning norm_fact = 0.0!\n", fcnm);
             return;
         }
     }
@@ -920,12 +1044,15 @@ void cmopad_printMatrix3x3(bool lfact, double m[3][3])
     m12 = m[0][1]/norm_fact; 
     m13 = m[0][2]/norm_fact;
     m23 = m[1][2]/norm_fact; 
-    if (lfact){
+    if (lfact)
+    {
         log_infoF(" [ %5.2f %5.2f %5.2f ] \n",m11,m12,m13);
         log_infoF(" [ %5.2f %5.2f %5.2f ] x %f\n",
                           m12,m22,m23,norm_fact);
         log_infoF(" [ %5.2f %5.2f %5.2f ] \n",m13,m23,m33);
-    }else{
+    }
+    else
+    {
         log_infoF(" [ %5.2f %5.2f %5.2f ]\n",m11,m12,m13);
         log_infoF(" [ %5.2f %5.2f %5.2f ]\n",m12,m22,m23);
         log_infoF(" [ %5.2f %5.2f %5.2f ]\n",m13,m23,m33);
@@ -971,14 +1098,19 @@ int cmopad_SetupMT(int nmech, double *mech,
     //
     // All 9 elements are specified
     input_basis = input_basisIn;
-    if (nmech == 9){
-        for (i=0; i<3; i++){
-            for (j=0; j<3; j++){
+    if (nmech == 9)
+    {
+        for (i=0; i<3; i++)
+        {
+            for (j=0; j<3; j++)
+            {
                 Mech_out[i][j] = mech[3*j + i];
             }
         }
+    }
     // Mechanism given as 6 or 7 element array
-    }else if (nmech == 6 || nmech == 7){
+    else if (nmech == 6 || nmech == 7)
+    {
         scalar_moment = 1.0;
         if (nmech == 7){scalar_moment = mech[6];}
         Mech_out[0][0] = scalar_moment*mech[0];
@@ -987,8 +1119,10 @@ int cmopad_SetupMT(int nmech, double *mech,
         Mech_out[0][1] = Mech_out[1][0] = scalar_moment*mech[3];
         Mech_out[0][2] = Mech_out[2][0] = scalar_moment*mech[4];
         Mech_out[1][2] = Mech_out[2][1] = scalar_moment*mech[5];
+    }
     // Strike dip rake; conventions from Jost and Herrmann; NED-basis
-    }else if (nmech == 3 || nmech == 4){ 
+    else if (nmech == 3 || nmech == 4)
+    {
         scalar_moment = 1.0;
         if (nmech == 4){scalar_moment = mech[3];}
         // Set matrix as function of Euler angles
@@ -996,8 +1130,10 @@ int cmopad_SetupMT(int nmech, double *mech,
         dip    = mech[1]*pi180;
         rake   = mech[2]*pi180;
         cmopad_eulerToMatrix(dip, strike, -rake, Mech_out);
-        for (i=0; i<3; i++){
-            for (j=0; j<3; j++){
+        for (i=0; i<3; i++)
+        {
+            for (j=0; j<3; j++)
+            {
                 m_unrot[3*j + i] = 0.0;
                 rotmat[3*j + i] = Mech_out[i][j];
                 mtemp1[3*j + i] = 0.0;
@@ -1014,20 +1150,26 @@ int cmopad_SetupMT(int nmech, double *mech,
                     alpha, rotmat, n3, mtemp1, n3, beta,
                     mtemp2, n3);
         // Copy back and include scalar moment
-        for (i=0; i<3; i++){
-            for (j=0; j<3; j++){
+        for (i=0; i<3; i++)
+        {
+            for (j=0; j<3; j++)
+            {
                 Mech_out[i][j] = scalar_moment*mtemp2[3*j + i]; 
             }
         }
         // Assure right basis system
         input_basis = NED;
-    }else{
+    }
+    // Unknown mechanism
+    else
+    {
         log_errorF("%s: Invalid mechanism!\n", fcnm);
         return -1;
     }
     // Rotate into NED basis for local processing
     ierr = cmopad_basis__transformMatrixM33(Mech_out, input_basis, NED);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error transforming matrix\n", fcnm);
         return -1;
     }
@@ -1054,27 +1196,35 @@ int cmopad_sortEigenvAscending(bool isabs, double e[3], double ev[3][3])
     double evwork[3][3], ework[3], esave[3];
     int iperm[3], i, ierr, j;
     ierr = 0;
-    for (i=0; i<n; i++){
+    for (i=0; i<n; i++)
+    {
         esave[i] = e[i];
-        if (isabs){
+        if (isabs)
+        {
             ework[i] = fabs(e[i]);
-        }else{
+        }
+        else
+        {
             ework[i] = e[i]; 
         }
-        for (j=0; j<n; j++){
+        for (j=0; j<n; j++)
+        {
             evwork[i][j] = ev[i][j];
         }
     }
     // Sort
     ierr = __cmopad_argsort3(ework, iperm);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error in permutation sort\n", fcnm);
         return -1;
     }
     // Copy back into ascending order
-    for (i=0; i<n; i++){
-        e[i] = esave[iperm[i]]; 
-        for (j=0; j<n; j++){
+    for (i=0; i<n; i++)
+    {
+        e[i] = esave[iperm[i]];
+        for (j=0; j<n; j++)
+        {
             ev[i][j] = evwork[i][iperm[j]];
         }
     }
@@ -1117,8 +1267,10 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     int lsub, i,j, ierr;
     int ival = 0; //Calculate eigenvalues only (1)   
     // Copy 
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             M[i][j] = Min[i][j];
         }
     }
@@ -1131,14 +1283,18 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     M0_iso = fabs(1.0/3.0*tracem);
 
     // Deviatoric part
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             M_devi[i][j] = M[i][j] - M_iso[i][j]; 
         }
     }
     // Copy to structure
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             src->M[i][j] = M[i][j];
             src->M_iso[i][j]  = M_iso[i][j];
             src->M_devi[i][j] = M_devi[i][j];
@@ -1146,19 +1302,23 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     }
  
     // Eigenvalues and eigenvectors
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             eigenvtot[i][j] = M_devi[i][j]; //I dont understand this
             eigenvdevi[i][j]= M_devi[i][j];
         }
     }
     ierr = __cmopad_Eigs3x3(eigenvtot, ival, eigenwtot);
-    if (ierr != 0){ 
+    if (ierr != 0)
+    {
         log_errorF("%s: Error computing eigs (a)!\n",fcnm);
         return -1;
     } 
     ierr = __cmopad_Eigs3x3(eigenvdevi, ival, eigenwdevi);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error computing eigs (b)!\n",fcnm);
         return -1;
     }
@@ -1166,7 +1326,8 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     // Eigenvalues in ascending order
     ierr = ierr + cmopad_sortEigenvAscending(true, eigenwtot , eigenvtot);
     ierr = ierr + cmopad_sortEigenvAscending(true, eigenwdevi, eigenvdevi);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error sorting eigenvalues/eigenvectors\n", fcnm);
         return -1;
     }
@@ -1183,21 +1344,27 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     M0_devi = 0.5*(fabs(eigenwdevi[1]) + fabs(eigenwdevi[2])); 
 
     // Named according to Jost and Herrmann
-    for (i=0; i<3; i++){
+    for (i=0; i<3; i++)
+    {
         a1[i] = eigenvtot[i][0];
         a2[i] = eigenvtot[i][1];
         a3[i] = eigenvtot[i][2];
     }
 
     // If only isotropic part exists
-    if (M0_devi < epsilon){
+    if (M0_devi < epsilon)
+    {
         F = 0.5;
-    }else{
+    }
+    else
+    {
         F =-eigenwdevi[0]/eigenwdevi[2]; 
     }
 
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             a3out = a3[i]*a3[j];
             a2out = a2[i]*a2[j];
             a1out = a1[i]*a1[j];
@@ -1205,9 +1372,12 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
             M_DC[i][j] = eigenwdevi[2]*(1.0 - 2.0*F)*(a3out - a2out);
             // Remainder of deviatoric is CLVD (could do 3rd term of eqn 37) 
             lsub = 1;
-            if (lsub == 1){
+            if (lsub == 1)
+            {
                 M_CLVD[i][j] = M_devi[i][j] - M_DC[i][j];
-            }else{
+            }
+            else
+            {
                 M_CLVD[i][j] = eigenwdevi[2]*F
                               *(2.0*a3out - a2out - a1out);
             }
@@ -1226,8 +1396,10 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     */
     M_iso_percentage = M0_iso/M0*100.0;
     M_DC_percentage = (1.0 - 2.0*fabs(F))*(1.0 - M_iso_percentage/100.0)*100.0;
-    for (i=0; i<3; i++){
-        for (j=0; j<3; j++){
+    for (i=0; i<3; i++)
+    {
+        for (j=0; j<3; j++)
+        {
             src->DC[i][j]   =  M_DC[i][j];
             src->CLVD[i][j] =  M_CLVD[i][j];
         }
@@ -1313,14 +1485,19 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
 
     *alpha = numpy_mod(*alpha, 2.0*M_PI);
 
-    if (0.5*M_PI < *alpha && *alpha <= M_PI){
+    if (0.5*M_PI < *alpha && *alpha <= M_PI)
+    {
         *alpha = M_PI - *alpha;
         *beta  = *beta + M_PI;
         *gamma = 2.0*M_PI - *gamma;
-    }else if(M_PI < *alpha && *alpha <= 1.5*M_PI){
+    }
+    else if(M_PI < *alpha && *alpha <= 1.5*M_PI)
+    {
         *alpha = *alpha - M_PI;
         *gamma = M_PI - *gamma;
-    }else if(1.5*M_PI < *alpha && *alpha <= 2.0*M_PI){
+    }
+    else if(1.5*M_PI < *alpha && *alpha <= 2.0*M_PI)
+    {
         *alpha = 2.0*M_PI - *alpha;
         *beta  = *beta + M_PI;
         *gamma = M_PI + *gamma;
@@ -1340,19 +1517,23 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
     if (fabs(*beta - 2.*M_PI) < 1e-10){*beta = 0.;}
     if (fabs(*beta) < 1e-10){*beta = 0.;}
 
-    if (*alpha == 0.5*M_PI && *beta >= M_PI){
+    if (*alpha == 0.5*M_PI && *beta >= M_PI)
+    {
         *gamma =-*gamma;
         *beta  = numpy_mod(*beta-M_PI, 2.0*M_PI);
         *gamma = numpy_mod(*gamma+M_PI, 2.0*M_PI) - M_PI;
-        if (!(0. <= *beta && *beta < M_PI)){
+        if (!(0. <= *beta && *beta < M_PI))
+        {
             log_warnF("%s: Warning on bounds on beta!", fcnm);
         }
-        if (!(-M_PI <= *gamma && *gamma < M_PI)){
+        if (!(-M_PI <= *gamma && *gamma < M_PI))
+        {
             log_warnF("%s: Warning on bounds on gamma!", fcnm);
         }
     }
 
-    if (*alpha < 1e-7){
+    if (*alpha < 1e-7)
+    {
         *beta = numpy_mod(*beta + *gamma, 2.0*M_PI);
         *gamma = 0.;
     }
@@ -1381,29 +1562,34 @@ static int __cmopad_argsort3(double x[3], int iperm[3])
     iperm[a] = a;
     iperm[b] = b;
     iperm[c] = c;
-    if (x[iperm[a]] > x[iperm[c]]){
+    if (x[iperm[a]] > x[iperm[c]])
+    {
         temp = iperm[c];
         iperm[c] = iperm[a];
         iperm[a] = temp;
     }
-    if (x[iperm[a]] > x[iperm[b]]){
+    if (x[iperm[a]] > x[iperm[b]])
+    {
         temp = iperm[b];
         iperm[b] = iperm[a];
         iperm[a] = temp;
     }
     //Now the smallest element is the first one. Just check the 2-nd and 3-rd
-    if (x[iperm[b]] > x[iperm[c]]){
+    if (x[iperm[b]] > x[iperm[c]])
+    {
         temp = iperm[c];
         iperm[c] = iperm[b];
         iperm[b] = temp;
     }
     // Verify
-    for (i=1; i<3; i++){
-        if (x[iperm[i-1]] > x[iperm[i]]){
+    for (i=1; i<3; i++)
+    {
+        if (x[iperm[i-1]] > x[iperm[i]])
+        {
             log_errorF("%s: Failed to sort numbers in ascending order\n", fcnm);
             return -1;
         }
-   }
+    }
     return 0;
 }
 //============================================================================//
@@ -1437,7 +1623,8 @@ static int __cmopad_inv3(double Amat[3][3])
     double a11, a12, a13, a21, a22, a23, a31, a32, a33, detA, detAi;
     // Determinant of a
     detA = __cmopad_determinant3x3(Amat);
-    if (detA == 0.0){
+    if (detA == 0.0)
+    {
         log_errorF("%s: Error matrix is singular!\n", fcnm);
         return -1;
     }
@@ -1500,9 +1687,13 @@ static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
     int n = 3;
     int i, j, indx, ierr;
     int lda = n;
-    for (i = 0; i < n; i++) {
-        for (j = i; j < n; j++) {
-            if (i != j) {       // fill lower half
+    for (i = 0; i < n; i++)
+    {
+        for (j = i; j < n; j++)
+        {
+            // fill lower half
+            if (i != j)
+            {
                 indx = i * lda + j;
                 avec[indx] = a[j][i];
             }
@@ -1511,20 +1702,27 @@ static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
         }
     }
     // Calculate eigenvalues/eigenvectors
-    if (job != 0){
+    if (job != 0)
+    {
         ierr = LAPACKE_dsyev(LAPACK_COL_MAJOR, 'N', 'L', n, avec, lda, eigs);
-    }else {
+    }
+    else
+    {
         ierr = LAPACKE_dsyev(LAPACK_COL_MAJOR, 'V', 'L', n, avec, lda, eigs);
     }
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error computing eigenvalues\n", fcnm);
         ierr = 1;
     }
     // Copy eigenvectors back onto A
-    if (job == 0 && ierr == 0) {
+    if (job == 0 && ierr == 0)
+    {
         indx = 0;
-        for (j = 0; j < n; j++) {
-            for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++)
+        {
+            for (i = 0; i < n; i++)
+            {
                 indx = j * lda + i;
                 a[i][j] = avec[indx];
             }

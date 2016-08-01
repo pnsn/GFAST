@@ -11,8 +11,9 @@ int main()
 {
     char fcnm[] = "GFAST\0";
     char propfilename[] = "gfast.props\0"; /* TODO take from EW config file */
-    char *ffXML, ffXMLflnm[PATH_MAX];
-    FILE *elarms_xml_file, *ffXMLfl;
+    char *cmtQML, *ffXML, ffXMLflnm[PATH_MAX], cmtQMLflnm[PATH_MAX],
+         logFileName[PATH_MAX];
+    FILE *elarms_xml_file, *ffXMLfl, *cmtQMLfl;
     struct GFAST_props_struct props;
     struct GFAST_data_struct gps_acquisition;
     struct GFAST_shakeAlert_struct SA;
@@ -23,9 +24,9 @@ int main()
     struct GFAST_peakDisplacementData_struct pgd_data;
     struct GFAST_offsetData_struct cmt_data, ff_data;
     char *elarms_xml_message;
-    double *latency, currentTime, dtmax, eventTime, t0sim;
+    double *latency, mtopt[6], currentTime, dtmax, eventTime, t0sim;
     long message_length;
-    int iev, iopt, k, kt, nsites_cmt, nsites_ff,
+    int iev, iopt, h5k, k, kt, nsites_cmt, nsites_ff,
         nsites_pgd, nstrdip, ntsim, verbose0;
     int ierr = 0;
     bool lcmt_success, lff_success, lpgd_success,
@@ -203,8 +204,39 @@ printf("%f\n", props.synthetic_runtime);
                     log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_events__print(SA);}
                 }
+                memset(errorLogFileName, 0, sizeof(errorLogFileName));
+                strcpy(errorLogFileName, SA.eventid);
+                strcat(errorLogFileName, "_error.log\0");
+                memset(infoLogFileName, 0, sizeof(infoLogFileName));
+                strcpy(infoLogFileName, SA.eventid);
+                strcat(infoLogFileName, "_info.log\0");
+                memset(debugLogFileName, 0, sizeof(debugLogFileName));
+                strcpy(debugLogFileName, SA.eventid);
+                strcat(debugLogFileName, "_debug.log\0");
+                memset(warnLogFileName, 0, sizeof(warnLogFileName));
+                strcpy(warnLogFileName, SA.eventid);
+                strcat(warnLogFileName, "_debug.log\0");
+                if (os_path_isfile(errorLogFileName)){remove(errorLogFileName);}
+                if (os_path_isfile(infoLogFileName)){remove(infoLogFileName);}
+                if (os_path_isfile(debugLogFileName)){remove(debugLogFileName);}
+                if (os_path_isfile(warnLogFileName)){remove(warnLogFileName);}
+                log_initErrorLog(&__errorToLog);
+                log_initInfoLog(&__infoToLog);
+                log_initDebugLog(&__debugToLog);
+                log_initWarnLog(&__warnToLog);
+                // Initialize the archive
+                if (props.verbose > 0)
+                {
+                    log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
+                    if (props.verbose > 2){GFAST_events__print(SA);}
+                    log_infoF("%s: Initializing archive\n", fcnm);
+                }
+                ierr = GFAST_HDF5__initialize(props.h5ArchiveDir,
+                                              SA.eventid,
+                                              propfilename);
             }
-            else // Not a new event
+            // Not a new event
+            else
             {
                 // Has the event been updated?
                 lupd_event = GFAST_events__updateEvent(SA, &events, &ierr);
@@ -219,6 +251,14 @@ printf("%f\n", props.synthetic_runtime);
                               fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_events__print(SA);}
                 }
+                memset(logFileName, 0, sizeof(logFileName));
+                strcpy(logFileName, SA.eventid);
+                strcat(logFileName, "_error.log\0");
+                //eventErrorFile = fopen(logFileName, "a");
+                //memset(logFileName, 0, sizeof(logFileName));
+                //strcat(logFileName, "_info.log\0");
+                //eventInfoFile = fopen(logFileName, "a");
+                //log_initInfoLog(eventInfoFile); //eventInfoFile);
             }
             // Acquire the data
             eventTime = SA.time;
@@ -343,6 +383,33 @@ printf("%f\n", props.synthetic_runtime);
                         {
                             log_infoF("%s: Making CMT quakeML...\n", fcnm);
                         }
+                        memcpy(mtopt, &cmt.mts[cmt.opt_indx], 6*sizeof(double));
+                        cmtQML = GFAST_CMT__makeQuakeML("UW\0",
+                                                  "anss.org\0",
+                                                  events.SA[iev].eventid,
+                                                  events.SA[iev].lat,
+                                                  events.SA[iev].lon,
+                                                  cmt.srcDepths[cmt.opt_indx],
+                                                  events.SA[iev].time,
+                                                  mtopt,
+                                                  &ierr);
+                        if (ierr == 0)
+                        {
+
+                            memset(&cmtQMLflnm, 0, sizeof(cmtQMLflnm));
+                            strcpy(cmtQMLflnm, events.SA[iev].eventid);
+                            strcat(cmtQMLflnm, "_quake.xml\0");
+                            cmtQMLfl = fopen(cmtQMLflnm, "w");
+                            fprintf(cmtQMLfl, "%s", cmtQML);
+                            fclose(cmtQMLfl);
+                        }
+                        else
+                        {
+                            log_errorF("%s: Error making CMT QML\n", fcnm);
+                            
+                        }
+                        if (cmtQML != NULL){free(cmtQML);}
+                        cmtQML = NULL;
                     }
                     // Generate the finite-fault XML for shakeAlert
                     if (lff_success)
@@ -353,28 +420,28 @@ printf("%f\n", props.synthetic_runtime);
                         }
                         iopt = ff.preferred_fault_plane;
                         nstrdip = ff.fp[iopt].nstr*ff.fp[iopt].ndip;
-                        ffXML = GFAST_FF__xml__write(props.opmode,
-                                                     "GFAST\0",
-                                                      GFAST_ALGORITHM_VERSION,
-                                                      GFAST_INSTANCE,
-                                                      "new\0",
-                                                      GFAST_VERSION,
-                                                      events.SA[iev].eventid,
-                                                      events.SA[iev].lat,
-                                                      events.SA[iev].lon,
-                                                      events.SA[iev].dep,
-                                                      events.SA[iev].mag,
-                                                      events.SA[iev].time,
-                                                      nstrdip,
-                                                      ff.fp[iopt].fault_ptr,
-                                                      ff.fp[iopt].lat_vtx,
-                                                      ff.fp[iopt].lon_vtx,
-                                                      ff.fp[iopt].dep_vtx,
-                                                      ff.fp[iopt].sslip,
-                                                      ff.fp[iopt].dslip,
-                                                      ff.fp[iopt].sslip_unc,
-                                                      ff.fp[iopt].dslip_unc,
-                                                      &ierr);
+                        ffXML = GFAST_FF__makeXML(props.opmode,
+                                                  "GFAST\0",
+                                                   GFAST_ALGORITHM_VERSION,
+                                                   GFAST_INSTANCE,
+                                                   "new\0",
+                                                   GFAST_VERSION,
+                                                   events.SA[iev].eventid,
+                                                   events.SA[iev].lat,
+                                                   events.SA[iev].lon,
+                                                   events.SA[iev].dep,
+                                                   events.SA[iev].mag,
+                                                   events.SA[iev].time,
+                                                   nstrdip,
+                                                   ff.fp[iopt].fault_ptr,
+                                                   ff.fp[iopt].lat_vtx,
+                                                   ff.fp[iopt].lon_vtx,
+                                                   ff.fp[iopt].dep_vtx,
+                                                   ff.fp[iopt].sslip,
+                                                   ff.fp[iopt].dslip,
+                                                   ff.fp[iopt].sslip_unc,
+                                                   ff.fp[iopt].dslip_unc,
+                                                   &ierr);
                         if (ierr == 0)
                         {
                             memset(&ffXMLflnm, 0, sizeof(ffXMLflnm));
@@ -389,6 +456,7 @@ printf("%f\n", props.synthetic_runtime);
                             log_errorF("%s: Error making FF XML\n", fcnm);
                         }
                         if (ffXML != NULL){free(ffXML);}
+                        ffXML = NULL;
                     }
                     ldel_event = GFAST_events__removeEvent(props.processingTime,
                                                            currentTime,
@@ -400,20 +468,42 @@ printf("%f\n", props.synthetic_runtime);
                         log_infoF("%s: Deleted event %s\n", fcnm, SA.eventid);
                     }
                 } // End check on publishing event
+                // Get the iteration number in the H5 file
+                h5k = 0;
+                if (lpgd_success || lcmt_success || lff_success)
+                {
+                    h5k = GFAST_HDF5__update__getIteration(props.h5ArchiveDir,
+                                                           SA.eventid,
+                                                           currentTime);
+                }
                 // Update the archive
                 if (lpgd_success)
                 {
-
+                    ierr = GFAST_HDF5__update__pgd(props.h5ArchiveDir,
+                                                   SA.eventid,
+                                                   h5k,
+                                                   pgd_data,
+                                                   pgd);
                 }
                 if (lcmt_success)
                 {
-
+                    ierr = GFAST_HDF5__update__cmt(props.h5ArchiveDir,
+                                                   SA.eventid,
+                                                   h5k,
+                                                   cmt_data,
+                                                   cmt);
                 }
                 if (lff_success)
                 {
-
+                    ierr = GFAST_HDF5__update__ff(props.h5ArchiveDir,
+                                                  SA.eventid,
+                                                  h5k,
+                                                  ff_data,
+                                                  ff);
                 }
             } // Loop on active events
+            //if (eventErrorFile != NULL){fclose(eventErrorFile);}
+            //if (eventInfoFile != NULL){fclose(eventInfoFile);}
         }
 /*
         while (true)

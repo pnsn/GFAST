@@ -139,6 +139,7 @@ static int read_results(const char *filenm,
     pgd->mpgd    = GFAST_memory_calloc__double(pgd->ndeps);
     pgd->mpgd_vr = GFAST_memory_calloc__double(pgd->ndeps);
     pgd->UP = GFAST_memory_calloc__double(pgd->ndeps*pgd->nsites);
+    pgd->UPinp = GFAST_memory_calloc__double(pgd->nsites);
     pgd->srcDepths = GFAST_memory_calloc__double(pgd->ndeps);
     pgd->lsiteUsed = GFAST_memory_calloc__bool(pgd->nsites);
     // (a) depths
@@ -195,6 +196,7 @@ int pgd_inversion_test2()
     pgd.mpgd    = GFAST_memory_calloc__double(pgd.ndeps);
     pgd.mpgd_vr = GFAST_memory_calloc__double(pgd.ndeps);
     pgd.UP = GFAST_memory_calloc__double(pgd.ndeps*pgd.nsites);
+    pgd.UPinp = GFAST_memory_calloc__double(pgd.nsites);
     pgd.srcDepths = GFAST_memory_calloc__double(pgd.ndeps);
     pgd.lsiteUsed = GFAST_memory_calloc__bool(pgd.nsites);
     for (i=0; i<pgd.ndeps; i++)

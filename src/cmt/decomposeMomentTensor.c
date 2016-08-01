@@ -52,7 +52,8 @@ int GFAST_CMT__decomposeMomentTensor(int nmt,
     int verbose = 0;
     // Initialize output
     ierr = 0;
-    for (i=0; i<nmt; i++){
+    for (i=0; i<nmt; i++)
+    {
         Mw[i] = 0.0;
         DC_pct[i] = 100.0; //Avoid a division by zero if an error is encountered
         strike1[i] = 0.0;
@@ -70,32 +71,35 @@ int GFAST_CMT__decomposeMomentTensor(int nmt,
         M33[1][2] = M33[2][1] = M[i*6+5]; //Myz
         // Compute the isotropic, CLVD, and DC decomposition
         ierr1 = cmopad_standardDecomposition(M33, &cmt);
-        if (ierr1 != 0){
+        if (ierr1 != 0)
+        {
             log_errorF("%s: Error decomposing moment tensor\n", fcnm);
             ierr = ierr + 1;
             continue;
         }
-         // Get the corresponding strikes, dips, and rakes
-         ierr1 = cmopad_MT2PrincipalAxisSystem(verbose, &cmt);
-         if (ierr1 != 0){
-             log_errorF("%s: Error computing strike, dips, and rakes!\n", fcnm);
-             ierr = ierr + 1;
-             continue;
-         }
-         // Double couple percentage
-         DC_pct[i] = cmt.DC_percentage;
-         // Moment magnitude
-         Mw[i] = cmt.moment_magnitude;
-         // Nodal plane 1
-         strike1[i] = cmt.fp1[0];
-         dip1[i]    = cmt.fp1[1];
-         rake1[i]   = cmt.fp1[2];
-         // Nodal plane 2
-         strike2[i] = cmt.fp2[0];
-         dip2[i]    = cmt.fp2[1];
-         rake2[i]   = cmt.fp2[2];
+        // Get the corresponding strikes, dips, and rakes
+        ierr1 = cmopad_MT2PrincipalAxisSystem(verbose, &cmt);
+        if (ierr1 != 0)
+        {
+            log_errorF("%s: Error computing strike, dips, and rakes!\n", fcnm);
+            ierr = ierr + 1;
+            continue;
+        }
+        // Double couple percentage
+        DC_pct[i] = cmt.DC_percentage;
+        // Moment magnitude
+        Mw[i] = cmt.moment_magnitude;
+        // Nodal plane 1
+        strike1[i] = cmt.fp1[0];
+        dip1[i]    = cmt.fp1[1];
+        rake1[i]   = cmt.fp1[2];
+        // Nodal plane 2
+        strike2[i] = cmt.fp2[0];
+        dip2[i]    = cmt.fp2[1];
+        rake2[i]   = cmt.fp2[2];
     }
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Errors during moment tensor decomposition\n", fcnm);
     }
     return ierr;

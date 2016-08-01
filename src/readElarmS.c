@@ -132,7 +132,8 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
     //
     // Zero out output and ensure message isn't NULL
     memset(SA, 0, sizeof(struct GFAST_shakeAlert_struct));
-    if (buff == NULL){
+    if (buff == NULL)
+    {
         log_errorF("%s: Error the buffer is NULL\n", fcnm);
         return -1;
     }
@@ -144,8 +145,10 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
            &ev_hour, &ev_min, &ev_sec,
            &SA->mag, &SA->lon, &SA->lat);
     // Warn on latitude
-    if (SA->lat <-90.0 || SA->lat > 90.0){
-        if (verbose > 1){
+    if (SA->lat <-90.0 || SA->lat > 90.0)
+    {
+        if (verbose > 1)
+        {
             log_warnF("%s: eLarms latitude %f is invalid\n",
                       fcnm, SA->lat);
         }
@@ -153,7 +156,8 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
     // Put longitude in [0,360]
     if (SA->lon < 0.0){SA->lon = SA->lon + 360.0;}
     // Warn on screwy longitudes
-    if ((SA->lon < 0.0 || SA->lon > 360.0) && verbose > 1){
+    if ((SA->lon < 0.0 || SA->lon > 360.0) && verbose > 1)
+    {
         log_warnF("%s: eLarms longitude %f is strange\n", fcnm, SA->lon);
     }
     // Create the time
@@ -161,7 +165,8 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
     ev_musec = (int) ((ev_sec - (double) ev_isec)*1.e6);
     SA->time = time_calendar2epoch2(ev_year, ev_month, ev_dom, ev_hour,
                                     ev_min, ev_isec, ev_musec);
-    if (verbose > 2){
+    if (verbose > 2)
+    {
         lon_print = SA->lon;
         if (lon_print > 180.0){lon_print = lon_print - 360.0;}
         log_debugF("%s: eLarms location (time,lat,lon)=(%lf %f %f)\n",
@@ -202,18 +207,21 @@ int GFAST_readElarmS(struct GFAST_props_struct props,
     memset(buffer, 0, sizeof(buffer));
     memset(line, 0, sizeof(line));
     lempty = true;
-    while (fgets(buffer, 128, ew) != NULL){
+    while (fgets(buffer, 128, ew) != NULL)
+    {
         lempty = false;
         // Replace carriage return with NULL terminator
         lenb = strlen(buffer);
-        if (lenb > 0){
+        if (lenb > 0)
+        {
             if (buffer[lenb-1] == '\n'){buffer[lenb-1] = '\0';}
         }
         memset(line, 0, sizeof(line));
         strcpy(line, buffer); 
         memset(buffer, 0, sizeof(buffer));
     }
-    if (!lempty){
+    if (!lempty)
+    {
         sscanf(buffer, "%s\n", line);
         GFAST_readElarmS_ElarmSMessage2SAStruct(props.verbose, line, SA);
         if (props.eqDefaultDepth >= 0.0){SA->dep = props.eqDefaultDepth;}
