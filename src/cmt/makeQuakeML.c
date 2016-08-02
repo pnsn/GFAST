@@ -32,6 +32,8 @@
  *
  * @author Ben Baker (ISTI)
  *
+ * @bug memory leak --show-leak-kinds=all: xmlNewRMutex
+ *
  */
 char *GFAST_CMT__makeQuakeML(const char *network,
                              const char *domain,
@@ -184,9 +186,11 @@ char *GFAST_CMT__makeQuakeML(const char *network,
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
     qml = (char *)calloc(msglen+1, sizeof(char));
-    strcpy(qml, (const char *)buf->content);
+    strncpy(qml, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);
+    xmlDictCleanup();
+    xmlCleanupThreads();
     return qml;
 }
 

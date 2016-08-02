@@ -240,8 +240,10 @@ char *GFAST_FF__makeXML(const int mode,
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
     xmlmsg = (char *)calloc(msglen+1, sizeof(char));
-    strcpy(xmlmsg, (const char *)buf->content);
+    strncpy(xmlmsg, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);
+    xmlDictCleanup();
+    xmlCleanupThreads();
     return xmlmsg;
 }

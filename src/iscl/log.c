@@ -3,6 +3,10 @@
 #include <limits.h>
 #include "gfast_log.h"
 
+static FILE *errorFile = NULL;
+static FILE *infoFile = NULL;
+static FILE *warnFile = NULL;
+static FILE *debugFile = NULL;
 static int (*_warnLogF)(const char *, va_list) = NULL;
 static int (*_errorLogF)(const char *, va_list) = NULL;
 static int (*_debugLogF)(const char *, va_list) = NULL;
@@ -21,6 +25,7 @@ static int (*_infoLogF)(const char *, va_list) = NULL;
  */
 int __errorToLog(const char fmt[], va_list args)
 {
+    /*
     static FILE *fd = NULL;
     if (!fd)
     {   
@@ -32,6 +37,18 @@ int __errorToLog(const char fmt[], va_list args)
         }
     }
     vfprintf(fd, fmt, args);
+    */
+    if (!errorFile)
+    {
+        errorFile = fopen(errorLogFileName, "a");
+        if (!errorFile)
+        {
+            perror("__errorToLog: Error opening file\n");
+            return 0;
+        }
+    }
+    vfprintf(errorFile, fmt, args);
+    //errorFile = fd;
     return 1;
 }
 
@@ -48,6 +65,7 @@ int __errorToLog(const char fmt[], va_list args)
  */
 int __infoToLog(const char fmt[], va_list args)
 {
+/*
     static FILE *fd = NULL;
     if (!fd)
     {   
@@ -59,6 +77,19 @@ int __infoToLog(const char fmt[], va_list args)
         }
     }
     vfprintf(fd, fmt, args);
+    static FILE *infoFile = NULL;
+*/
+    if (!infoFile)
+    {   
+        infoFile = fopen(infoLogFileName, "a");
+        if (!infoFile)
+        {
+            perror("__infoToLog: Error opening file\n");
+            return 0;
+        }
+    }
+    vfprintf(infoFile, fmt, args);
+    //infoFile = fd;
     return 1;
 }
 
@@ -73,6 +104,7 @@ int __infoToLog(const char fmt[], va_list args)
  */
 int __debugToLog(const char fmt[], va_list args)
 {
+/*
     static FILE *fd = NULL;
     if (!fd)
     {   
@@ -83,7 +115,17 @@ int __debugToLog(const char fmt[], va_list args)
             return 0;
         }
     }
-    vfprintf(fd, fmt, args);
+*/
+    if (!debugFile)
+    {   
+        debugFile = fopen(debugLogFileName, "a");
+        if (!debugFile)
+        {
+            perror("__debugToLog: Error opening file\n");
+            return 0;
+        }
+    }
+    vfprintf(debugFile, fmt, args);
     return 1;
 }
 
@@ -100,6 +142,7 @@ int __debugToLog(const char fmt[], va_list args)
  */
 int __warnToLog(const char fmt[], va_list args)
 {
+/*
     static FILE *fd = NULL;
     if (!fd)
     {   
@@ -109,8 +152,19 @@ int __warnToLog(const char fmt[], va_list args)
             perror("__warnToLog: Error opening file\n");
             return 0;
         }
-    }   
-    vfprintf(fd, fmt, args);
+    }
+*/
+    if (!warnFile)
+    {   
+        warnFile = fopen(warnLogFileName, "a");
+        if (!warnFile)
+        {
+            perror("__warnToLog: Error opening file\n");
+            return 0;
+        }
+    }
+    vfprintf(warnFile, fmt, args);
+    //warnFile = fd;
     return 1;
 }
 
@@ -283,4 +337,36 @@ int log_warnF(const char fmt[], ...)
     ret = _warnLogF(fmt, args);
     va_end(args);
     return ret;
+}
+
+void log_closeWarnF(void)
+{
+    if (!warnFile){return;}
+    fclose(warnFile);
+    warnFile = NULL;
+    return;
+}
+
+void log_closeInfoF(void)
+{
+    if (!infoFile){return;}
+    fclose(infoFile);
+    infoFile = NULL;
+    return;
+}
+
+void log_closeDebugF(void)
+{
+    if (!debugFile){return;}
+    fclose(debugFile);
+    debugFile = NULL;
+    return;
+}
+
+void log_closeErrorF(void)
+{
+    if (!errorFile){return;}
+    fclose(errorFile);
+    errorFile = NULL;
+    return;
 }
