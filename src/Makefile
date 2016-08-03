@@ -24,73 +24,49 @@ endif
 ifeq "$(wildcard $(OBJ_BUFFER_DIR) )" ""
 -include $(shell mkdir $(OBJ_BUFFER_DIR)) $(wildcard $(OBJ_BUFFER_DIR)/*)
 endif
-ifeq "$(wildcard $(OBJ_CMT_DIR) )" ""
--include $(shell mkdir $(OBJ_CMT_DIR)) $(wildcard $(OBJ_CMT_DIR)/*)
-endif
-ifeq "$(wildcard $(OBJ_COORDTOOLS_DIR) )" ""
--include $(shell mkdir $(OBJ_COORDTOOLS_DIR)) $(wildcard $(OBJ_COORDTOOLS_DIR)/*)
-endif
+#ifeq "$(wildcard $(OBJ_CMT_DIR) )" ""
+#-include $(shell mkdir $(OBJ_CMT_DIR)) $(wildcard $(OBJ_CMT_DIR)/*)
+#endif
+#ifeq "$(wildcard $(OBJ_COORDTOOLS_DIR) )" ""
+#-include $(shell mkdir $(OBJ_COORDTOOLS_DIR)) $(wildcard $(OBJ_COORDTOOLS_DIR)/*)
+#endif
 ifeq "$(wildcard $(OBJ_EVENTS_DIR) )" ""
 -include $(shell mkdir $(OBJ_EVENTS_DIR)) $(wildcard $(OBJ_EVENTS_DIR)/*)
 endif
-ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
--include $(shell mkdir $(OBJ_FF_DIR)) $(wildcard $(OBJ_FF_DIR)/*)
-endif
+#ifeq "$(wildcard $(OBJ_FF_DIR) )" ""
+#-include $(shell mkdir $(OBJ_FF_DIR)) $(wildcard $(OBJ_FF_DIR)/*)
+#endif
 ifeq "$(wildcard $(OBJ_H5_DIR) )" ""
 -include $(shell mkdir $(OBJ_H5_DIR)) $(wildcard $(OBJ_H5_DIR)/*)
 endif
 ifeq "$(wildcard $(OBJ_ISCL_DIR) )" ""
 -include $(shell mkdir $(OBJ_ISCL_DIR)) $(wildcard $(OBJ_ISCL_DIR)/*)
 endif
-ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
--include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
-endif
-ifeq "$(wildcard $(OBJ_WP_DIR) )" ""
--include $(shell mkdir $(OBJ_WP_DIR)) $(wildcard $(OBJ_WP_DIR)/*)
-endif
+#ifeq "$(wildcard $(OBJ_SCALING_DIR) )" ""
+#-include $(shell mkdir $(OBJ_SCALING_DIR)) $(wildcard $(OBJ_SCALING_DIR)/*)
+#endif
+#ifeq "$(wildcard $(OBJ_WP_DIR) )" ""
+#-include $(shell mkdir $(OBJ_WP_DIR)) $(wildcard $(OBJ_WP_DIR)/*)
+#endif
 ifeq "$(wildcard $(OBJ_XML_DIR) )" ""
 -include $(shell mkdir $(OBJ_XML_DIR)) $(wildcard $(OBJ_XML_DIR)/*)
 endif
 
 OBJ_ACQ = $(OBJ_ACQ_DIR)/acquisition.o 
 OBJ_UTILS = $(OBJ)/sacio.o
-OBJ_SCALING_PGD = $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o \
-	      $(OBJ_SCALING_DIR)/pgd_init.o \
-	      $(OBJ_SCALING_DIR)/pgd_setForwardModel.o \
-	      $(OBJ_SCALING_DIR)/pgd_setRHS.o \
-	      $(OBJ_SCALING_DIR)/pgd_setDiagonalWeightMatrix.o \
-	      $(OBJ_SCALING_DIR)/pgd_weightForwardModel.o \
-	      $(OBJ_SCALING_DIR)/pgd_weightObservations.o
 OBJ_ALERT = $(OBJ_ALERT_DIR)/readShakeAlert.o
 OBJ_BUFFER = $(OBJ_BUFFER_DIR)/getNumberOfStreams.o \
 	     $(OBJ_BUFFER_DIR)/setBufferSpace.o \
 	     $(OBJ_BUFFER_DIR)/setInitialTime.o \
 	     $(OBJ_BUFFER_DIR)/setSiteSamplingPeriod.o \
 	     $(OBJ_BUFFER_DIR)/updateBuffer.o
-OBJ_CMT = $(OBJ_CMT_DIR)/decomposeMomentTensor.o \
-	  $(OBJ_CMT_DIR)/depthGridSearch.o \
-	  $(OBJ_CMT_DIR)/init.o \
-	  $(OBJ_CMT_DIR)/makeQuakeML.o \
-	  $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o \
-	  $(OBJ_CMT_DIR)/setForwardModel.o \
-	  $(OBJ_CMT_DIR)/setRHS.o \
-	  $(OBJ_CMT_DIR)/weightForwardModel.o \
-	  $(OBJ_CMT_DIR)/weightObservations.o
+#OBJ_CMT = $(OBJ_CMT_DIR)/makeQuakeML.o
 OBJ_EVENTS = $(OBJ_EVENTS_DIR)/getMinOriginTime.o \
 	     $(OBJ_EVENTS_DIR)/newEvent.o \
 	     $(OBJ_EVENTS_DIR)/print.o \
 	     $(OBJ_EVENTS_DIR)/removeEvent.o \
 	     $(OBJ_EVENTS_DIR)/updateEvent.o
-OBJ_FF = $(OBJ_FF_DIR)/init.o \
-	 $(OBJ_FF_DIR)/faultPlaneGridSearch.o \
-	 $(OBJ_FF_DIR)/makeXML.o \
-	 $(OBJ_FF_DIR)/meshFaultPlane.o \
-	 $(OBJ_FF_DIR)/setDiagonalWeightMatrix.o \
-	 $(OBJ_FF_DIR)/setForwardModel.o \
-	 $(OBJ_FF_DIR)/setRegularizer.o \
-	 $(OBJ_FF_DIR)/setRHS.o \
-	 $(OBJ_FF_DIR)/weightForwardModel.o \
-	 $(OBJ_FF_DIR)/weightObservations.o
+#OBJ_FF = $(OBJ_FF_DIR)/makeXML.o
 OBJ_H5 = $(OBJ_H5_DIR)/copy.o \
 	 $(OBJ_H5_DIR)/createType.o \
 	 $(OBJ_H5_DIR)/initialize.o \
@@ -99,8 +75,6 @@ OBJ_H5 = $(OBJ_H5_DIR)/copy.o \
 	 $(OBJ_H5_DIR)/pgd.o \
 	 $(OBJ_H5_DIR)/setFileName.o \
 	 $(OBJ_H5_DIR)/update.o
-OBJ_WP = $(OBJ_WP_DIR)/offset.o \
-	 $(OBJ_WP_DIR)/peakDisplacement.o
 OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
 	  $(OBJ_XML_DIR)/depth.o \
 	  $(OBJ_XML_DIR)/epoch2string.o \
@@ -117,38 +91,26 @@ OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
 	  $(OBJ_XML_DIR)/vertices.o \
 	  $(OBJ_XML_DIR)/vertex.o \
 	  $(OBJ_XML_DIR)/units.o
-OBJ_COORDTOOLS = $(OBJ_COORDTOOLS_DIR)/ll2utm.o \
-	         $(OBJ_COORDTOOLS_DIR)/utm2ll.o
-OBJ_ISCL = $(OBJ_ISCL_DIR)/log.o \
-	   $(OBJ_ISCL_DIR)/os.o \
-	   $(OBJ_ISCL_DIR)/time.o \
-	   $(OBJ_ISCL_DIR)/utils.o
 OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/cmt_driver.o \
-	  $(OBJ)/cmopad.o \
 	  $(OBJ)/ff_driver.o \
 	  $(OBJ)/memory.o \
 	  $(OBJ)/pgd_driver.o \
 	  $(OBJ)/properties.o \
 	  $(OBJ)/readElarmS.o \
 	  $(OBJ_BUFFER) \
-	  $(OBJ_COORDTOOLS) \
-	  $(OBJ_UTILS) \
-	  $(OBJ_ISCL) \
-	  $(OBJ_CMT) \
 	  $(OBJ_EVENTS) \
 	  $(OBJ_FF) \
 	  $(OBJ_H5) \
-	  $(OBJ_SCALING_PGD) \
-	  $(OBJ_WP) \
+	  $(OBJ_UTILS) \
 	  $(OBJ_XML)
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ_ACQ) $(OBJ_LIB)
 
 all: $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
 
 $(GFAST_STATIC): $(OBJ_LIB)
-	ar ruf $(GFAST_STATIC) $(OBJ_LIB)
-	ranlib $(GFAST_STATIC)
+	$(ARCH) $(ARCHFLAGS) $(GFAST_STATIC) $(OBJ_LIB)
+	$(RANLIB) $(GFAST_STATIC)
 
 $(GFAST_SHARED): $(OBJ_LIB)
 	$(CC) $(MAKE_SHARED) -o $(GFAST_SHARED) $(OBJ_LIB)
@@ -164,14 +126,8 @@ $(OBJ)/gfast.o: gfast.c
 $(OBJ)/buffer.o: buffer.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c buffer.c -o $(OBJ)/buffer.o
 
-$(OBJ)/cmopad.o: cmopad.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmopad.c -o $(OBJ)/cmopad.o
-
 $(OBJ)/cmt_driver.o: cmt_driver.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(INC_LAPACK) $(CSHARED) -c cmt_driver.c -o $(OBJ)/cmt_driver.o
-
-$(OBJ)/cmtgreen.o: cmtgreen.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmtgreen.c -o $(OBJ)/cmtgreen.o
 
 $(OBJ)/ff_driver.o: ff_driver.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff_driver.c -o $(OBJ)/ff_driver.o
@@ -217,40 +173,8 @@ $(OBJ_BUFFER_DIR)/updateBuffer.o: buffer/updateBuffer.c
 
 ######################################## CMT ##########################################
 
-$(OBJ_CMT_DIR)/decomposeMomentTensor.o: cmt/decomposeMomentTensor.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/decomposeMomentTensor.c -o $(OBJ_CMT_DIR)/decomposeMomentTensor.o
-
-$(OBJ_CMT_DIR)/depthGridSearch.o: cmt/depthGridSearch.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/depthGridSearch.c -o $(OBJ_CMT_DIR)/depthGridSearch.o
-
-$(OBJ_CMT_DIR)/init.o: cmt/init.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/init.c -o $(OBJ_CMT_DIR)/init.o
-
 $(OBJ_CMT_DIR)/makeQuakeML.o: cmt/makeQuakeML.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/makeQuakeML.c -o $(OBJ_CMT_DIR)/makeQuakeML.o
-
-$(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o: cmt/setDiagonalWeightMatrix.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/setDiagonalWeightMatrix.c -o $(OBJ_CMT_DIR)/setDiagonalWeightMatrix.o
-
-$(OBJ_CMT_DIR)/setForwardModel.o: cmt/setForwardModel.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/setForwardModel.c -o $(OBJ_CMT_DIR)/setForwardModel.o
-
-$(OBJ_CMT_DIR)/setRHS.o: cmt/setRHS.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/setRHS.c -o $(OBJ_CMT_DIR)/setRHS.o
-
-$(OBJ_CMT_DIR)/weightForwardModel.o: cmt/weightForwardModel.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/weightForwardModel.c -o $(OBJ_CMT_DIR)/weightForwardModel.o
-
-$(OBJ_CMT_DIR)/weightObservations.o: cmt/weightObservations.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c cmt/weightObservations.c -o $(OBJ_CMT_DIR)/weightObservations.o
-
-###################################### Coordtools #####################################
-
-$(OBJ_COORDTOOLS_DIR)/ll2utm.o: coordtools/ll2utm.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c coordtools/ll2utm.c -o $(OBJ_COORDTOOLS_DIR)/ll2utm.o
-
-$(OBJ_COORDTOOLS_DIR)/utm2ll.o: coordtools/utm2ll.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c coordtools/utm2ll.c -o $(OBJ_COORDTOOLS_DIR)/utm2ll.o
 
 ######################################## Events #######################################
 
@@ -271,35 +195,8 @@ $(OBJ_EVENTS_DIR)/updateEvent.o: events/updateEvent.c
 
 ##################################### Finite Fault ####################################
 
-$(OBJ_FF_DIR)/init.o: ff/init.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/init.c -o $(OBJ_FF_DIR)/init.o
-
-$(OBJ_FF_DIR)/faultPlaneGridSearch.o: ff/faultPlaneGridSearch.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/faultPlaneGridSearch.c -o $(OBJ_FF_DIR)/faultPlaneGridSearch.o
-
 $(OBJ_FF_DIR)/makeXML.o: ff/makeXML.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/makeXML.c -o $(OBJ_FF_DIR)/makeXML.o
-
-$(OBJ_FF_DIR)/meshFaultPlane.o: ff/meshFaultPlane.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/meshFaultPlane.c -o $(OBJ_FF_DIR)/meshFaultPlane.o
-
-$(OBJ_FF_DIR)/setDiagonalWeightMatrix.o: ff/setDiagonalWeightMatrix.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/setDiagonalWeightMatrix.c -o $(OBJ_FF_DIR)/setDiagonalWeightMatrix.o
-
-$(OBJ_FF_DIR)/setForwardModel.o: ff/setForwardModel.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/setForwardModel.c -o $(OBJ_FF_DIR)/setForwardModel.o
-
-$(OBJ_FF_DIR)/setRegularizer.o: ff/setRegularizer.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/setRegularizer.c -o $(OBJ_FF_DIR)/setRegularizer.o
-
-$(OBJ_FF_DIR)/setRHS.o: ff/setRHS.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/setRHS.c -o $(OBJ_FF_DIR)/setRHS.o
-
-$(OBJ_FF_DIR)/weightForwardModel.o: ff/weightForwardModel.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/weightForwardModel.c -o $(OBJ_FF_DIR)/weightForwardModel.o
-
-$(OBJ_FF_DIR)/weightObservations.o: ff/weightObservations.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c ff/weightObservations.c -o $(OBJ_FF_DIR)/weightObservations.o
 
 ###################################### HDF5 ###########################################
 
@@ -328,35 +225,6 @@ $(OBJ_H5_DIR)/update.o: hdf5/update.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/update.c -o $(OBJ_H5_DIR)/update.o
 
 ####################################### Scaling #######################################
-
-$(OBJ_SCALING_DIR)/pgd_depthGridSearch.o: scaling/pgd_depthGridSearch.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_depthGridSearch.c -o $(OBJ_SCALING_DIR)/pgd_depthGridSearch.o
-
-$(OBJ_SCALING_DIR)/pgd_init.o: scaling/pgd_init.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_init.c -o $(OBJ_SCALING_DIR)/pgd_init.o
-
-$(OBJ_SCALING_DIR)/pgd_setForwardModel.o: scaling/pgd_setForwardModel.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_setForwardModel.c -o $(OBJ_SCALING_DIR)/pgd_setForwardModel.o
-
-$(OBJ_SCALING_DIR)/pgd_setDiagonalWeightMatrix.o: scaling/pgd_setDiagonalWeightMatrix.c 
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_setDiagonalWeightMatrix.c -o $(OBJ_SCALING_DIR)/pgd_setDiagonalWeightMatrix.o
-
-$(OBJ_SCALING_DIR)/pgd_setRHS.o: scaling/pgd_setRHS.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_setRHS.c -o $(OBJ_SCALING_DIR)/pgd_setRHS.o
-
-$(OBJ_SCALING_DIR)/pgd_weightForwardModel.o: scaling/pgd_weightForwardModel.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_weightForwardModel.c -o $(OBJ_SCALING_DIR)/pgd_weightForwardModel.o
-
-$(OBJ_SCALING_DIR)/pgd_weightObservations.o: scaling/pgd_weightObservations.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c scaling/pgd_weightObservations.c -o $(OBJ_SCALING_DIR)/pgd_weightObservations.o
-
-################################## Waveform processor #################################
-
-$(OBJ_WP_DIR)/peakDisplacement.o: waveformProcessor/peakDisplacement.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c waveformProcessor/peakDisplacement.c -o $(OBJ_WP_DIR)/peakDisplacement.o
-
-$(OBJ_WP_DIR)/offset.o: waveformProcessor/offset.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c waveformProcessor/offset.c -o $(OBJ_WP_DIR)/offset.o
 
 ######################################### XML #########################################
 
@@ -410,18 +278,6 @@ $(OBJ_XML_DIR)/units.o: xml/units.c
 
 ########################## ISTI Scientific Computing Library ##########################
 
-$(OBJ_ISCL_DIR)/log.o: iscl/log.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c iscl/log.c -o $(OBJ_ISCL_DIR)/log.o
-
-$(OBJ_ISCL_DIR)/os.o: iscl/os.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c iscl/os.c -o $(OBJ_ISCL_DIR)/os.o
-
-$(OBJ_ISCL_DIR)/time.o: iscl/time.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c iscl/time.c -o $(OBJ_ISCL_DIR)/time.o
-
-$(OBJ_ISCL_DIR)/utils.o: iscl/utils.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c iscl/utils.c -o $(OBJ_ISCL_DIR)/utils.o
-
 $(OBJ)/sacio.o: sacio.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c sacio.c -o $(OBJ)/sacio.o
 
@@ -432,5 +288,5 @@ $(OBJ)/sacio.o: sacio.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(OBJ_ACQ) $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o $(OBJ_ACQ) $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST_SHARED_CORE) $(GFAST_STATIC_CORE) $(GFAST)
 

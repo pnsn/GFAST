@@ -7,6 +7,9 @@
 #include <omp.h>
 #include <lapacke.h>
 #include "gfast.h"
+#include "iscl/array/array.h"
+#include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
                                 struct GFAST_cmtResults_struct *cmt);
@@ -111,7 +114,7 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
         cmt->mts[i] = 0.0;
     }
     // Require there is a sufficient amount of data to invert
-    luse = GFAST_memory_calloc__bool(cmt_data.nsites);
+    luse = ISCL_memory_calloc__bool(cmt_data.nsites);
     l1 = 0;
     for (k=0; k<cmt_data.nsites; k++)
     {
@@ -136,24 +139,24 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
         goto ERROR;
     }
     // Set space
-    utmRecvNorthing = GFAST_memory_calloc__double(l1);
-    utmRecvEasting  = GFAST_memory_calloc__double(l1);
-    staAlt  = GFAST_memory_calloc__double(l1);
-    uOffset = GFAST_memory_calloc__double(l1);
-    nOffset = GFAST_memory_calloc__double(l1);
-    eOffset = GFAST_memory_calloc__double(l1);
-    uWts    = GFAST_memory_calloc__double(l1);
-    nWts    = GFAST_memory_calloc__double(l1);
-    eWts    = GFAST_memory_calloc__double(l1);
-    nEst    = GFAST_memory_calloc__double(l1*cmt->ndeps);
-    eEst    = GFAST_memory_calloc__double(l1*cmt->ndeps);
-    uEst    = GFAST_memory_calloc__double(l1*cmt->ndeps);
+    utmRecvNorthing = ISCL_memory_calloc__double(l1);
+    utmRecvEasting  = ISCL_memory_calloc__double(l1);
+    staAlt  = ISCL_memory_calloc__double(l1);
+    uOffset = ISCL_memory_calloc__double(l1);
+    nOffset = ISCL_memory_calloc__double(l1);
+    eOffset = ISCL_memory_calloc__double(l1);
+    uWts    = ISCL_memory_calloc__double(l1);
+    nWts    = ISCL_memory_calloc__double(l1);
+    eWts    = ISCL_memory_calloc__double(l1);
+    nEst    = ISCL_memory_calloc__double(l1*cmt->ndeps);
+    eEst    = ISCL_memory_calloc__double(l1*cmt->ndeps);
+    uEst    = ISCL_memory_calloc__double(l1*cmt->ndeps);
     // Get the source location
     zone_loc = cmt_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
-    GFAST_coordtools__ll2utm(SA_lat, SA_lon,
-                             &y1, &x1,
-                             &lnorthp, &zone_loc);
+    GFAST_core_coordtools_ll2utm(SA_lat, SA_lon,
+                                 &y1, &x1,
+                                 &lnorthp, &zone_loc);
     utmSrcNorthing = y1;
     utmSrcEasting = x1;
     // Get cartesian positions and observations onto local arrays
@@ -162,10 +165,10 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
     {
         if (!luse[k]){continue;}
         // Get the recevier UTM
-        GFAST_coordtools__ll2utm(cmt_data.sta_lat[k],
-                                 cmt_data.sta_lon[k],
-                                 &y2, &x2,
-                                 &lnorthp, &zone_loc);
+        GFAST_core_coordtools_ll2utm(cmt_data.sta_lat[k],
+                                     cmt_data.sta_lon[k],
+                                     &y2, &x2,
+                                     &lnorthp, &zone_loc);
         // Copy the pertinent data
         uOffset[l1] = cmt_data.ubuff[k];
         nOffset[l1] = cmt_data.nbuff[k];
@@ -183,25 +186,25 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
     { 
         log_debugF("%s: Inverting for CMT with %d sites\n", fcnm, l1);
     }
-    ierr = GFAST_CMT__depthGridSearch(l1, cmt->ndeps,
-                                      cmt_props.verbose,
-                                      cmt_props.ldeviatoric,
-                                      utmSrcEasting,
-                                      utmSrcNorthing,
-                                      cmt->srcDepths,
-                                      utmRecvEasting,
-                                      utmRecvNorthing,
-                                      staAlt,
-                                      nOffset,
-                                      eOffset,
-                                      uOffset,
-                                      nWts,
-                                      eWts,
-                                      uWts,
-                                      nEst,
-                                      eEst,
-                                      uEst,
-                                      cmt->mts);
+    ierr = GFAST_core_cmt_depthGridSearch(l1, cmt->ndeps,
+                                          cmt_props.verbose,
+                                          cmt_props.ldeviatoric,
+                                          utmSrcEasting,
+                                          utmSrcNorthing,
+                                          cmt->srcDepths,
+                                          utmRecvEasting,
+                                          utmRecvNorthing,
+                                          staAlt,
+                                          nOffset,
+                                          eOffset,
+                                          uOffset,
+                                          nWts,
+                                          eWts,
+                                          uWts,
+                                          nEst,
+                                          eEst,
+                                          uEst,
+                                          cmt->mts);
     if (ierr != 0)
     {   
         log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
@@ -242,15 +245,15 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
         }
         sum_res2 = sqrt(sum_res2);
         // Decompose the moment tensor
-        ierr1 = GFAST_CMT__decomposeMomentTensor(1, &cmt->mts[6*idep],
-                                                 &DC_pct,
-                                                 &cmt->Mw[idep],
-                                                 &cmt->str1[idep],
-                                                 &cmt->str2[idep],
-                                                 &cmt->dip1[idep],
-                                                 &cmt->dip2[idep],
-                                                 &cmt->rak1[idep],
-                                                 &cmt->rak2[idep]);
+        ierr1 = GFAST_core_cmt_decomposeMomentTensor(1, &cmt->mts[6*idep],
+                                                     &DC_pct,
+                                                     &cmt->Mw[idep],
+                                                     &cmt->str1[idep],
+                                                     &cmt->str2[idep],
+                                                     &cmt->dip1[idep],
+                                                     &cmt->dip2[idep],
+                                                     &cmt->rak1[idep],
+                                                     &cmt->rak2[idep]);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error decomposing mt\n", fcnm);
@@ -281,21 +284,21 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
         ierr = CMT_COMPUTE_ERROR;
     }
     // Get the optimimum index
-    cmt->opt_indx = numpy_argmin(cmt->ndeps, cmt->objfn);
+    cmt->opt_indx = array_argmin__double(cmt->ndeps, cmt->objfn);
 ERROR:;
-    GFAST_memory_free__bool(&luse);
-    GFAST_memory_free__double(&utmRecvNorthing);
-    GFAST_memory_free__double(&utmRecvEasting);
-    GFAST_memory_free__double(&staAlt);
-    GFAST_memory_free__double(&uOffset);
-    GFAST_memory_free__double(&nOffset);
-    GFAST_memory_free__double(&eOffset);
-    GFAST_memory_free__double(&nEst);
-    GFAST_memory_free__double(&eEst);
-    GFAST_memory_free__double(&uEst);
-    GFAST_memory_free__double(&nWts);
-    GFAST_memory_free__double(&eWts);
-    GFAST_memory_free__double(&uWts);
+    ISCL_memory_free__bool(&luse);
+    ISCL_memory_free__double(&utmRecvNorthing);
+    ISCL_memory_free__double(&utmRecvEasting);
+    ISCL_memory_free__double(&staAlt);
+    ISCL_memory_free__double(&uOffset);
+    ISCL_memory_free__double(&nOffset);
+    ISCL_memory_free__double(&eOffset);
+    ISCL_memory_free__double(&nEst);
+    ISCL_memory_free__double(&eEst);
+    ISCL_memory_free__double(&uEst);
+    ISCL_memory_free__double(&nWts);
+    ISCL_memory_free__double(&eWts);
+    ISCL_memory_free__double(&uWts);
     return ierr;
 }
 //============================================================================//

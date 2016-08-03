@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 
 /*!
  * This is a mock GFAST driver module
@@ -11,8 +12,7 @@ int main()
 {
     char fcnm[] = "GFAST\0";
     char propfilename[] = "gfast.props\0"; /* TODO take from EW config file */
-    char *cmtQML, *ffXML, ffXMLflnm[PATH_MAX], cmtQMLflnm[PATH_MAX],
-         logFileName[PATH_MAX];
+    char *cmtQML, *ffXML, ffXMLflnm[PATH_MAX], cmtQMLflnm[PATH_MAX];
     FILE *elarms_xml_file, *ffXMLfl, *cmtQMLfl;
     struct GFAST_props_struct props;
     struct GFAST_data_struct gps_acquisition;
@@ -69,24 +69,24 @@ printf("%f\n", props.synthetic_runtime);
         goto ERROR;
     }
     // Initialize PGD
-    ierr = GFAST_scaling_PGD__init(props.pgd_props, gps_acquisition,
-                                   &pgd, &pgd_data);
+    ierr = GFAST_core_scaling_pgd_initialize(props.pgd_props, gps_acquisition,
+                                             &pgd, &pgd_data);
     if (ierr != 0)
     {
         log_errorF("%s: Error initializing PGD\n", fcnm);
         goto ERROR;
     }
     // Initialize CMT
-    ierr = GFAST_CMT__init(props.cmt_props, gps_acquisition,
-                           &cmt, &cmt_data);
+    ierr = GFAST_core_cmt_initialize(props.cmt_props, gps_acquisition,
+                                     &cmt, &cmt_data);
     if (ierr != 0)
     {
         log_errorF("%s: Error initializing CMT\n", fcnm);
         goto ERROR;
     }
     // Initialize finite fault
-    ierr = GFAST_FF__init(props.ff_props, gps_acquisition,
-                          &ff, &ff_data);
+    ierr = GFAST_core_ff_initialize(props.ff_props, gps_acquisition,
+                                    &ff, &ff_data);
     if (ierr != 0)
     {
         log_errorF("%s: Error initializing FF\n", fcnm);
@@ -197,6 +197,19 @@ printf("%f\n", props.synthetic_runtime);
             }
             // Is this a new event?  If so then add it to events
             lnew_event = GFAST_events__newEvent(SA, &events);
+            // Set the log file names
+            memset(errorLogFileName, 0, sizeof(errorLogFileName));
+            strcpy(errorLogFileName, SA.eventid);
+            strcat(errorLogFileName, "_error.log\0");
+            memset(infoLogFileName, 0, sizeof(infoLogFileName));
+            strcpy(infoLogFileName, SA.eventid);
+            strcat(infoLogFileName, "_info.log\0");
+            memset(debugLogFileName, 0, sizeof(debugLogFileName));
+            strcpy(debugLogFileName, SA.eventid);
+            strcat(debugLogFileName, "_debug.log\0");
+            memset(warnLogFileName, 0, sizeof(warnLogFileName));
+            strcpy(warnLogFileName, SA.eventid);
+            strcat(warnLogFileName, "_debug.log\0");
             if (lnew_event)
             {
                 if (props.verbose > 0)
@@ -204,18 +217,6 @@ printf("%f\n", props.synthetic_runtime);
                     log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_events__print(SA);}
                 }
-                memset(errorLogFileName, 0, sizeof(errorLogFileName));
-                strcpy(errorLogFileName, SA.eventid);
-                strcat(errorLogFileName, "_error.log\0");
-                memset(infoLogFileName, 0, sizeof(infoLogFileName));
-                strcpy(infoLogFileName, SA.eventid);
-                strcat(infoLogFileName, "_info.log\0");
-                memset(debugLogFileName, 0, sizeof(debugLogFileName));
-                strcpy(debugLogFileName, SA.eventid);
-                strcat(debugLogFileName, "_debug.log\0");
-                memset(warnLogFileName, 0, sizeof(warnLogFileName));
-                strcpy(warnLogFileName, SA.eventid);
-                strcat(warnLogFileName, "_debug.log\0");
                 if (os_path_isfile(errorLogFileName)){remove(errorLogFileName);}
                 if (os_path_isfile(infoLogFileName)){remove(infoLogFileName);}
                 if (os_path_isfile(debugLogFileName)){remove(debugLogFileName);}
@@ -251,15 +252,11 @@ printf("%f\n", props.synthetic_runtime);
                               fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_events__print(SA);}
                 }
-                memset(logFileName, 0, sizeof(logFileName));
-                strcpy(logFileName, SA.eventid);
-                strcat(logFileName, "_error.log\0");
-                //eventErrorFile = fopen(logFileName, "a");
-                //memset(logFileName, 0, sizeof(logFileName));
-                //strcat(logFileName, "_info.log\0");
-                //eventInfoFile = fopen(logFileName, "a");
-                //log_initInfoLog(eventInfoFile); //eventInfoFile);
             }
+            log_initErrorLog(&__errorToLog);
+            log_initInfoLog(&__infoToLog);
+            log_initDebugLog(&__debugToLog);
+            log_initWarnLog(&__warnToLog);
             // Acquire the data
             eventTime = SA.time;
             ierr = GFAST_acquisition__updateFromSAC(props,
@@ -278,7 +275,7 @@ printf("%f\n", props.synthetic_runtime);
             for (iev=0; iev<events.nev; iev++)
             {
                 // Extract the peak displacement from the waveform buffer
-                nsites_pgd = GFAST_waveformProcessor__peakDisplacement(
+                nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
                                     props.pgd_props.utm_zone,
                                     props.pgd_props.window_vel,
                                     SA.lat,
@@ -289,7 +286,7 @@ printf("%f\n", props.synthetic_runtime);
                                     &pgd_data,
                                     &ierr);
                 // Extract the offset for the CMT inversion from the buffer 
-                nsites_cmt = GFAST_waveformProcessor__offset(
+                nsites_cmt = GFAST_core_waveformProcessor_offset(
                                     props.cmt_props.utm_zone,
                                     props.cmt_props.window_vel,
                                     SA.lat,
@@ -300,7 +297,7 @@ printf("%f\n", props.synthetic_runtime);
                                     &cmt_data,
                                     &ierr);
                 // Extract the offset for the FF inversion from the buffer 
-                nsites_ff = GFAST_waveformProcessor__offset(
+                nsites_ff = GFAST_core_waveformProcessor_offset(
                                     props.ff_props.utm_zone,
                                     props.ff_props.window_vel,
                                     SA.lat,
@@ -384,6 +381,8 @@ printf("%f\n", props.synthetic_runtime);
                             log_infoF("%s: Making CMT quakeML...\n", fcnm);
                         }
                         memcpy(mtopt, &cmt.mts[cmt.opt_indx], 6*sizeof(double));
+                        cmtQML = NULL;
+/*
                         cmtQML = GFAST_CMT__makeQuakeML("UW\0",
                                                   "anss.org\0",
                                                   events.SA[iev].eventid,
@@ -408,6 +407,7 @@ printf("%f\n", props.synthetic_runtime);
                             log_errorF("%s: Error making CMT QML\n", fcnm);
                             
                         }
+*/
                         if (cmtQML != NULL){free(cmtQML);}
                         cmtQML = NULL;
                     }
@@ -420,6 +420,7 @@ printf("%f\n", props.synthetic_runtime);
                         }
                         iopt = ff.preferred_fault_plane;
                         nstrdip = ff.fp[iopt].nstr*ff.fp[iopt].ndip;
+/*
                         ffXML = GFAST_FF__makeXML(props.opmode,
                                                   "GFAST\0",
                                                    GFAST_ALGORITHM_VERSION,
@@ -455,6 +456,7 @@ printf("%f\n", props.synthetic_runtime);
                         {
                             log_errorF("%s: Error making FF XML\n", fcnm);
                         }
+*/
                         if (ffXML != NULL){free(ffXML);}
                         ffXML = NULL;
                     }
@@ -502,8 +504,7 @@ printf("%f\n", props.synthetic_runtime);
                                                   ff);
                 }
             } // Loop on active events
-            //if (eventErrorFile != NULL){fclose(eventErrorFile);}
-            //if (eventInfoFile != NULL){fclose(eventInfoFile);}
+            log_closeLogs();
         }
 /*
         while (true)
@@ -513,10 +514,12 @@ printf("%f\n", props.synthetic_runtime);
 */
     }
 ERROR:;
-    if (ierr != 0 && props.verbose > 0){
+    if (ierr != 0 && props.verbose > 0)
+    {
         log_errorF("%s: Errors were encountered\n", fcnm);
     }
-    if (props.verbose >= 2){
+    if (props.verbose >= 2)
+    {
         log_infoF("%s: Freeing memory...\n", fcnm);
     }
     GFAST_memory_free__double(&latency);

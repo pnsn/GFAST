@@ -7,6 +7,7 @@
 #include <lapacke.h>
 #include <cblas.h>
 #include "gfast.h"
+#include "iscl/memory/memory.h"
 
 static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
                                struct GFAST_ffResults_struct *ff);
@@ -135,7 +136,7 @@ int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
         ff->vr[ifp] = 0.0;
     } // Loop on fault planes 
     // Require there is a sufficient amount of data to invert
-    luse = GFAST_memory_calloc__bool(ff_data.nsites);
+    luse = ISCL_memory_calloc__bool(ff_data.nsites);
     l1 = 0;
     for (k=0; k<ff_data.nsites; k++)
     {
@@ -160,47 +161,47 @@ int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
         goto ERROR;
     }
     // Set space
-    uOffset = GFAST_memory_calloc__double(l1);
-    nOffset = GFAST_memory_calloc__double(l1);
-    eOffset = GFAST_memory_calloc__double(l1);
-    utmRecvEasting  = GFAST_memory_calloc__double(l1);
-    utmRecvNorthing = GFAST_memory_calloc__double(l1);
-    staAlt = GFAST_memory_calloc__double(l1);
-    uWts = GFAST_memory_calloc__double(l1);
-    nWts = GFAST_memory_calloc__double(l1);
-    eWts = GFAST_memory_calloc__double(l1);
-    fault_xutm = GFAST_memory_calloc__double(l2*nfp);
-    fault_yutm = GFAST_memory_calloc__double(l2*nfp);
-    fault_alt  = GFAST_memory_calloc__double(l2*nfp);
-    length     = GFAST_memory_calloc__double(l2*nfp);
-    width      = GFAST_memory_calloc__double(l2*nfp);
-    strike     = GFAST_memory_calloc__double(l2*nfp);
-    dip        = GFAST_memory_calloc__double(l2*nfp);
-    sslip      = GFAST_memory_calloc__double(l2*nfp);
-    dslip      = GFAST_memory_calloc__double(l2*nfp);
-    Mw         = GFAST_memory_calloc__double(nfp);
-    vr         = GFAST_memory_calloc__double(nfp);
-    NN         = GFAST_memory_calloc__double(l1*nfp);
-    EN         = GFAST_memory_calloc__double(l1*nfp);
-    UN         = GFAST_memory_calloc__double(l1*nfp);
-    sslip_unc  = GFAST_memory_calloc__double(l2*nfp);
-    dslip_unc  = GFAST_memory_calloc__double(l2*nfp);
+    uOffset = ISCL_memory_calloc__double(l1);
+    nOffset = ISCL_memory_calloc__double(l1);
+    eOffset = ISCL_memory_calloc__double(l1);
+    utmRecvEasting  = ISCL_memory_calloc__double(l1);
+    utmRecvNorthing = ISCL_memory_calloc__double(l1);
+    staAlt = ISCL_memory_calloc__double(l1);
+    uWts = ISCL_memory_calloc__double(l1);
+    nWts = ISCL_memory_calloc__double(l1);
+    eWts = ISCL_memory_calloc__double(l1);
+    fault_xutm = ISCL_memory_calloc__double(l2*nfp);
+    fault_yutm = ISCL_memory_calloc__double(l2*nfp);
+    fault_alt  = ISCL_memory_calloc__double(l2*nfp);
+    length     = ISCL_memory_calloc__double(l2*nfp);
+    width      = ISCL_memory_calloc__double(l2*nfp);
+    strike     = ISCL_memory_calloc__double(l2*nfp);
+    dip        = ISCL_memory_calloc__double(l2*nfp);
+    sslip      = ISCL_memory_calloc__double(l2*nfp);
+    dslip      = ISCL_memory_calloc__double(l2*nfp);
+    Mw         = ISCL_memory_calloc__double(nfp);
+    vr         = ISCL_memory_calloc__double(nfp);
+    NN         = ISCL_memory_calloc__double(l1*nfp);
+    EN         = ISCL_memory_calloc__double(l1*nfp);
+    UN         = ISCL_memory_calloc__double(l1*nfp);
+    sslip_unc  = ISCL_memory_calloc__double(l2*nfp);
+    dslip_unc  = ISCL_memory_calloc__double(l2*nfp);
     // Get the source location
     zone_loc = ff_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
-    GFAST_coordtools__ll2utm(SA_lat, SA_lon,
-                             &y1, &x1,
-                             &lnorthp, &zone_loc);
+    GFAST_core_coordtools_ll2utm(SA_lat, SA_lon,
+                                 &y1, &x1,
+                                 &lnorthp, &zone_loc);
     // Get cartesian positions and observations onto local arrays
     l1 = 0;
     for (k=0; k<ff_data.nsites; k++)
     {
         if (!luse[k]){continue;}
         // Get the recevier UTM
-        GFAST_coordtools__ll2utm(ff_data.sta_lat[k],
-                                 ff_data.sta_lon[k],
-                                 &y2, &x2,
-                                 &lnorthp, &zone_loc);
+        GFAST_core_coordtools_ll2utm(ff_data.sta_lat[k],
+                                     ff_data.sta_lon[k],
+                                     &y2, &x2,
+                                     &lnorthp, &zone_loc);
         // Copy the pertinent data
         uOffset[l1] = ff_data.ubuff[k];
         nOffset[l1] = ff_data.nbuff[k];
@@ -229,23 +230,23 @@ int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
 #endif
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
-        ierr1 = GFAST_FF__meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
-                                         ff_props.flen_pct,
-                                         ff_props.fwid_pct,
-                                         ff->SA_mag, ff->str[ifp], ff->dip[ifp],
-                                         ff->fp[ifp].nstr, ff->fp[ifp].ndip,
-                                         zone_loc, ff_props.verbose,
-                                         ff->fp[ifp].fault_ptr,
-                                         ff->fp[ifp].lat_vtx,
-                                         ff->fp[ifp].lon_vtx,
-                                         ff->fp[ifp].dep_vtx,
-                                         ff->fp[ifp].fault_xutm,
-                                         ff->fp[ifp].fault_yutm,
-                                         ff->fp[ifp].fault_alt,
-                                         ff->fp[ifp].strike,
-                                         ff->fp[ifp].dip,
-                                         ff->fp[ifp].length,
-                                         ff->fp[ifp].width);
+        ierr1 = GFAST_core_ff_meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
+                                             ff_props.flen_pct,
+                                             ff_props.fwid_pct,
+                                             ff->SA_mag, ff->str[ifp], ff->dip[ifp],
+                                             ff->fp[ifp].nstr, ff->fp[ifp].ndip,
+                                             zone_loc, ff_props.verbose,
+                                             ff->fp[ifp].fault_ptr,
+                                             ff->fp[ifp].lat_vtx,
+                                             ff->fp[ifp].lon_vtx,
+                                             ff->fp[ifp].dep_vtx,
+                                             ff->fp[ifp].fault_xutm,
+                                             ff->fp[ifp].fault_yutm,
+                                             ff->fp[ifp].fault_alt,
+                                             ff->fp[ifp].strike,
+                                             ff->fp[ifp].dip,
+                                             ff->fp[ifp].length,
+                                             ff->fp[ifp].width);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error meshing fault plane\n", fcnm);
@@ -282,20 +283,20 @@ int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
                    fcnm, nfp, l1);
     }
     // Perform the finite fault inversion
-    ierr = GFAST_FF__faultPlaneGridSearch(l1, l2,
-                                          nstr, ndip, nfp,
-                                          ff_props.verbose,
-                                          nOffset, eOffset, uOffset,
-                                          nWts, eWts, uWts,
-                                          utmRecvEasting, utmRecvNorthing,
-                                          staAlt,
-                                          fault_xutm, fault_yutm, fault_alt,
-                                          length, width,
-                                          strike, dip,
-                                          sslip, dslip,
-                                          Mw, vr,
-                                          NN, EN, UN,
-                                          sslip_unc, dslip_unc);
+    ierr = GFAST_core_ff_faultPlaneGridSearch(l1, l2,
+                                              nstr, ndip, nfp,
+                                              ff_props.verbose,
+                                              nOffset, eOffset, uOffset,
+                                              nWts, eWts, uWts,
+                                              utmRecvEasting, utmRecvNorthing,
+                                              staAlt,
+                                              fault_xutm, fault_yutm, fault_alt,
+                                              length, width,
+                                              strike, dip,
+                                              sslip, dslip,
+                                              Mw, vr,
+                                              NN, EN, UN,
+                                              sslip_unc, dslip_unc);
     if (ierr != 0)
     {
         log_errorF("%s: Error performing finite fault grid search\n", fcnm);
@@ -341,32 +342,32 @@ int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
         }
     } // Loop on fault planes
 ERROR:;
-    GFAST_memory_free__bool(&luse);
-    GFAST_memory_free__double(&uOffset);
-    GFAST_memory_free__double(&nOffset);
-    GFAST_memory_free__double(&eOffset);
-    GFAST_memory_free__double(&utmRecvEasting);
-    GFAST_memory_free__double(&utmRecvNorthing);
-    GFAST_memory_free__double(&staAlt);
-    GFAST_memory_free__double(&nWts);
-    GFAST_memory_free__double(&eWts);
-    GFAST_memory_free__double(&uWts);
-    GFAST_memory_free__double(&fault_xutm);
-    GFAST_memory_free__double(&fault_yutm);
-    GFAST_memory_free__double(&fault_alt);
-    GFAST_memory_free__double(&length);
-    GFAST_memory_free__double(&width);
-    GFAST_memory_free__double(&strike);
-    GFAST_memory_free__double(&dip);
-    GFAST_memory_free__double(&sslip);
-    GFAST_memory_free__double(&dslip);
-    GFAST_memory_free__double(&Mw);
-    GFAST_memory_free__double(&vr);
-    GFAST_memory_free__double(&NN);
-    GFAST_memory_free__double(&EN);
-    GFAST_memory_free__double(&UN);
-    GFAST_memory_free__double(&sslip_unc);
-    GFAST_memory_free__double(&dslip_unc);
+    ISCL_memory_free__bool(&luse);
+    ISCL_memory_free__double(&uOffset);
+    ISCL_memory_free__double(&nOffset);
+    ISCL_memory_free__double(&eOffset);
+    ISCL_memory_free__double(&utmRecvEasting);
+    ISCL_memory_free__double(&utmRecvNorthing);
+    ISCL_memory_free__double(&staAlt);
+    ISCL_memory_free__double(&nWts);
+    ISCL_memory_free__double(&eWts);
+    ISCL_memory_free__double(&uWts);
+    ISCL_memory_free__double(&fault_xutm);
+    ISCL_memory_free__double(&fault_yutm);
+    ISCL_memory_free__double(&fault_alt);
+    ISCL_memory_free__double(&length);
+    ISCL_memory_free__double(&width);
+    ISCL_memory_free__double(&strike);
+    ISCL_memory_free__double(&dip);
+    ISCL_memory_free__double(&sslip);
+    ISCL_memory_free__double(&dslip);
+    ISCL_memory_free__double(&Mw);
+    ISCL_memory_free__double(&vr);
+    ISCL_memory_free__double(&NN);
+    ISCL_memory_free__double(&EN);
+    ISCL_memory_free__double(&UN);
+    ISCL_memory_free__double(&sslip_unc);
+    ISCL_memory_free__double(&dslip_unc);
     return ierr;
 }
 //============================================================================//
