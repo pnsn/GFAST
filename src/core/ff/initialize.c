@@ -72,7 +72,7 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
     ff->Mw = ISCL_memory_calloc__double(ff->nfp);
     ff->str = ISCL_memory_calloc__double(ff->nfp);
     ff->dip = ISCL_memory_calloc__double(ff->nfp);
-    ff->fp = (struct FAST_faultPlane_struct *)
+    ff->fp = (struct GFAST_faultPlane_struct *)
              calloc(ff->nfp, sizeof(struct GFAST_faultPlane_struct));
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
