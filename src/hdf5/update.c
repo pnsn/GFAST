@@ -3,8 +3,9 @@
 #include <string.h>
 #include <limits.h>
 #include <hdf5.h>
-#include "gfast.h"
-
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
+#include "iscl/os/os.h"
 /*!
  * @brief Initializes the current directory for this GFAST iteration.
  *
@@ -17,11 +18,11 @@
  *         history
  *
  */
-int GFAST_HDF5__update__getIteration(const char *adir,
-                                     const char *evid,
-                                     const double epoch)
+int hdf5_update__getIteration(const char *adir,
+                              const char *evid,
+                              const double epoch)
 {
-    const char *fcnm = "GFAST_HDF5__update__getIteration\0";
+    const char *fcnm = "hdf5_update__getIteration\0";
     const char *group_root = "/GFAST_History\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX], iterGroup[256];
@@ -30,7 +31,7 @@ int GFAST_HDF5__update__getIteration(const char *adir,
     //------------------------------------------------------------------------//
     //
     // Open the old HDF5 file 
-    ierr = GFAST_HDF5__setFileName(adir, evid, h5fl);
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
         log_errorF("%s: Error setting filename\n", fcnm);
@@ -65,13 +66,13 @@ int GFAST_HDF5__update__getIteration(const char *adir,
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_HDF5__update__pgd(const char *adir,
-                            const char *evid,
-                            const int h5k,
-                            struct GFAST_peakDisplacementData_struct pgd_data,
-                            struct GFAST_pgdResults_struct pgd)
+int hdf5_update__pgd(const char *adir,
+                     const char *evid,
+                     const int h5k,
+                     struct GFAST_peakDisplacementData_struct pgd_data,
+                     struct GFAST_pgdResults_struct pgd)
 {
-    const char *fcnm = "GFAST_HDF5__update__pgd\0";
+    const char *fcnm = "hdf5_update__pgd\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_peakDisplacementData_struct h5_pgd_data;
@@ -87,7 +88,7 @@ int GFAST_HDF5__update__pgd(const char *adir,
     memset(&h5_pgd_data, 0, sizeof(struct h5_peakDisplacementData_struct));
     memset(&h5_pgd, 0, sizeof(struct h5_pgdResults_struct));
     // Open the old HDF5 file 
-    ierr = GFAST_HDF5__setFileName(adir, evid, h5fl);
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
         log_errorF("%s: Error setting filename\n", fcnm);
@@ -116,7 +117,7 @@ int GFAST_HDF5__update__pgd(const char *adir,
     //ierr = ierr + GFAST_HDF5__copy__peakDisplacementData(COPY_DATA_TO_H5,
     //                                                  &pgd_data, &h5_pgd_data);
     // Copy and write the results
-    ierr = ierr +  GFAST_HDF5__copy__pgdResults(COPY_DATA_TO_H5,
+    ierr = ierr +  GFAST_hdf5_copy__pgdResults(COPY_DATA_TO_H5,
                                                 &pgd, &h5_pgd);
     dataType = H5Topen(groupID, "/DataStructures/pgdResultsStructure\0",
                        H5P_DEFAULT);
@@ -138,20 +139,20 @@ int GFAST_HDF5__update__pgd(const char *adir,
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     } 
     // Free the space
-    ierr = GFAST_HDF5__memory__freePGDResults(&h5_pgd);
+    ierr = GFAST_hdf5_memory__freePGDResults(&h5_pgd);
     // Close the group and file
     ierr = ierr + H5Gclose(groupID);
     ierr = h5_close(fileID);
     return ierr;
 }
 //============================================================================//
-int GFAST_HDF5__update__cmt(const char *adir,
-                            const char *evid,
-                            const int h5k,
-                            struct GFAST_offsetData_struct cmt_data,
-                            struct GFAST_cmtResults_struct cmt)
+int hdf5_update__cmt(const char *adir,
+                     const char *evid,
+                     const int h5k,
+                     struct GFAST_offsetData_struct cmt_data,
+                     struct GFAST_cmtResults_struct cmt)
 {
-    const char *fcnm = "GFAST_HDF5__update__cmt\0";
+    const char *fcnm = "hdf5_update__cmt\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_offsetData_struct h5_cmt_data;
@@ -167,7 +168,7 @@ int GFAST_HDF5__update__cmt(const char *adir,
     memset(&h5_cmt_data, 0, sizeof(struct h5_offsetData_struct));
     memset(&h5_cmt, 0, sizeof(struct h5_cmtResults_struct));
     // Open the old HDF5 file 
-    ierr = GFAST_HDF5__setFileName(adir, evid, h5fl);
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
         log_errorF("%s: Error setting filename\n", fcnm);
@@ -191,7 +192,7 @@ int GFAST_HDF5__update__cmt(const char *adir,
     // Open the group for writing 
     groupID = H5Gopen2(fileID, cmtGroup, H5P_DEFAULT);
     // Copy and write the results
-    ierr = ierr +  GFAST_HDF5__copy__cmtResults(COPY_DATA_TO_H5,
+    ierr = ierr +  GFAST_hdf5_copy__cmtResults(COPY_DATA_TO_H5,
                                                 &cmt, &h5_cmt);
     dataType = H5Topen(groupID, "/DataStructures/cmtResultsStructure\0",
                        H5P_DEFAULT);
@@ -213,20 +214,20 @@ int GFAST_HDF5__update__cmt(const char *adir,
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     }
     // Free the space
-    ierr = GFAST_HDF5__memory__freeCMTResults(&h5_cmt);
+    ierr = GFAST_hdf5_memory__freeCMTResults(&h5_cmt);
     // Close the group and file
     ierr = ierr + H5Gclose(groupID);
     ierr = h5_close(fileID);
     return ierr;
 }
 //============================================================================//
-int GFAST_HDF5__update__ff(const char *adir,
-                           const char *evid,
-                           const int h5k,
-                           struct GFAST_offsetData_struct ff_data,
-                           struct GFAST_ffResults_struct ff)
+int hdf5_update__ff(const char *adir,
+                    const char *evid,
+                    const int h5k,
+                    struct GFAST_offsetData_struct ff_data,
+                    struct GFAST_ffResults_struct ff)
 {
-    const char *fcnm = "GFAST_HDF5__update__ff\0";
+    const char *fcnm = "hdf5_update__ff\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_offsetData_struct h5_ff_data;
@@ -242,7 +243,7 @@ int GFAST_HDF5__update__ff(const char *adir,
     memset(&h5_ff_data, 0, sizeof(struct h5_offsetData_struct));
     memset(&h5_ff, 0, sizeof(struct h5_ffResults_struct));
     // Open the old HDF5 file 
-    ierr = GFAST_HDF5__setFileName(adir, evid, h5fl);
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {   
         log_errorF("%s: Error setting filename\n", fcnm);
@@ -266,7 +267,7 @@ int GFAST_HDF5__update__ff(const char *adir,
     // Open the group for writing 
     groupID = H5Gopen2(fileID, ffGroup, H5P_DEFAULT);
     // Copy and write the results
-    ierr = ierr + GFAST_HDF5__copy__ffResults(COPY_DATA_TO_H5,
+    ierr = ierr + GFAST_hdf5_copy__ffResults(COPY_DATA_TO_H5,
                                               &ff, &h5_ff);
     dataType = H5Topen(groupID, "/DataStructures/finiteFaultResultsStructure\0",
                        H5P_DEFAULT);
@@ -288,7 +289,7 @@ int GFAST_HDF5__update__ff(const char *adir,
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     }
     // Free the space
-    ierr = GFAST_HDF5__memory__freeFFResults(&h5_ff);
+    ierr = GFAST_hdf5_memory__freeFFResults(&h5_ff);
     // Close the group and file
     ierr = ierr + H5Gclose(groupID);
     ierr = h5_close(fileID);

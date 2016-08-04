@@ -7,6 +7,7 @@
 #include <lapacke.h>
 #include <cblas.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,

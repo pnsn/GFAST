@@ -3,7 +3,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <hdf5.h>
-#include "gfast.h"
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Opens an HDF5 file and returns handle for reading only

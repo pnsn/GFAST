@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Convenience function that prints the details of an event to debug
  *

@@ -4,6 +4,7 @@
 #include <float.h>
 #include <math.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Finds the minimum origin time (s) 
  *

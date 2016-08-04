@@ -3,6 +3,9 @@
 #include <math.h>
 #include <float.h>
 #include "gfast.h"
+#include "iscl/array/array.h"
+#include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * @brief Driver for estimating earthquake magnitude from peak
@@ -38,7 +41,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
 {
     const char *fcnm = "GFAST_scaling_PGD__driver\0";
     double *d, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
-           utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
+           iqrMin, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
     int i, idep, ierr, j, k, l1, zone_loc;
     bool *luse, lnorthp;
     //------------------------------------------------------------------------//
@@ -155,7 +158,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         pgd->UP[i] = 0.0;
     }
     // Require there is a sufficient amount of data to invert
-    luse = GFAST_memory_calloc__bool(pgd_data.nsites);
+    luse = ISCL_memory_calloc__bool(pgd_data.nsites);
     l1 = 0;
     for (k=0; k<pgd_data.nsites; k++)
     {
@@ -174,12 +177,12 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         goto ERROR;
     }
     // Allocate space
-    d               = GFAST_memory_calloc__double(l1);
-    utmRecvNorthing = GFAST_memory_calloc__double(l1);
-    utmRecvEasting  = GFAST_memory_calloc__double(l1);
-    staAlt          = GFAST_memory_calloc__double(l1);
-    wts             = GFAST_memory_calloc__double(l1);
-    Uest            = GFAST_memory_calloc__double(l1*pgd->ndeps);
+    d               = ISCL_memory_calloc__double(l1);
+    utmRecvNorthing = ISCL_memory_calloc__double(l1);
+    utmRecvEasting  = ISCL_memory_calloc__double(l1);
+    staAlt          = ISCL_memory_calloc__double(l1);
+    wts             = ISCL_memory_calloc__double(l1);
+    Uest            = ISCL_memory_calloc__double(l1*pgd->ndeps);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Estimate UTM zone from source lon
@@ -244,10 +247,12 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         pgd->UPinp[i] = d[k];
         k = k + 1;
     }
-    // Extract the estimates
+    iqrMin = array_min__double(pgd->ndeps, pgd->iqr75_25);
+    // Extract the estimates and compute weighted objective function
     for (idep=0; idep<pgd->ndeps; idep++)
     {
         j = 0;
+        pgd->dep_vr_pgd[i] = pgd->mpgd[i]*iqrMin/pgd->iqr75_25[i];
         for (i=0; i<pgd->nsites; i++)
         {
             pgd->UP[idep*pgd->nsites+i] = 0.0;
@@ -259,13 +264,13 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         }
     }
 ERROR:;
-    GFAST_memory_free__double(&d);
-    GFAST_memory_free__double(&utmRecvNorthing);
-    GFAST_memory_free__double(&utmRecvEasting);
-    GFAST_memory_free__double(&staAlt);
-    GFAST_memory_free__double(&wts);
-    GFAST_memory_free__double(&Uest);
-    GFAST_memory_free__bool(&luse);
+    ISCL_memory_free__double(&d);
+    ISCL_memory_free__double(&utmRecvNorthing);
+    ISCL_memory_free__double(&utmRecvEasting);
+    ISCL_memory_free__double(&staAlt);
+    ISCL_memory_free__double(&wts);
+    ISCL_memory_free__double(&Uest);
+    ISCL_memory_free__bool(&luse);
     return ierr;
 }
 

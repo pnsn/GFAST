@@ -8,7 +8,9 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
+#include "iscl/time/time.h"
 
 /*!
  * @brief Reads from the input shakeAlert XML message into the core structure
@@ -27,10 +29,11 @@
  *
  * @author Ben Baker 
  */
-int GFAST_xml_coreInfo__read(const void *xml_reader, const double SA_NAN,
-                             struct coreInfo_struct *core)
+int GFAST_xml_shakeAlert_readCoreInfo(const void *xml_reader,
+                                      const double SA_NAN,
+                                      struct coreInfo_struct *core)
 {
-    const char *fcnm = "GFAST_xml_coreInfo__read\0";
+    const char *fcnm = "GFAST_xml_shakeAlert_readCoreInfo\0";
     xmlNodePtr core_xml, core_xml_info;
     xmlAttrPtr attr;
     xmlChar *value;
@@ -235,10 +238,10 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_xml_coreInfo__write(const struct coreInfo_struct core,
-                              void *xml_writer)
+int GFAST_xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,
+                                       void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_coreInfo__write\0";
+    const char *fcnm = "GFAST_xml_shakeAlert_writeCoreInfo\0";
     xmlTextWriterPtr writer;
     char units[128], var[128], cevtime[128];
     int rc;
@@ -346,7 +349,8 @@ int GFAST_xml_coreInfo__write(const struct coreInfo_struct core,
     rc += xmlTextWriterEndElement(writer); 
     // </core_info>
     rc = xmlTextWriterEndElement(writer); // </core_info>
-    if (rc < 0){
+    if (rc < 0)
+    {
         log_errorF("%s: Error writing core info\n", fcnm);
     }
     return rc;

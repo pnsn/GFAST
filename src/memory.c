@@ -126,6 +126,7 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
     if (pgd == NULL){return;}
     ISCL_memory_free__double(&pgd->mpgd);
     ISCL_memory_free__double(&pgd->mpgd_vr);
+    ISCL_memory_free__double(&pgd->dep_vr_pgd);
     ISCL_memory_free__double(&pgd->iqr75_25);
     ISCL_memory_free__double(&pgd->UP);
     ISCL_memory_free__double(&pgd->UPinp);

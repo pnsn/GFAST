@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 
 /*!
  * @brief Writes a segment (fault patch) of the finite fault.  A segment
@@ -49,24 +50,24 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_segment__write(const enum xml_segmentShape_enum shape,
-                             const double *lats,
-                             const enum alert_units_enum lat_units,
-                             const double *lons,
-                             const enum alert_units_enum lon_units,
-                             const double *depths,
-                             const enum alert_units_enum depth_units,
-                             const double ss,
-                             const enum alert_units_enum ss_units,
-                             const double ds,
-                             const enum alert_units_enum ds_units,
-                             const double ss_uncer,
-                             const enum alert_units_enum ss_uncer_units,
-                             const double ds_uncer,
-                             const enum alert_units_enum ds_uncer_units,
-                             void *xml_writer)
+int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
+                                const double *lats,
+                                const enum alert_units_enum lat_units,
+                                const double *lons,
+                                const enum alert_units_enum lon_units,
+                                const double *depths,
+                                const enum alert_units_enum depth_units,
+                                const double ss,
+                                const enum alert_units_enum ss_units,
+                                const double ds,
+                                const enum alert_units_enum ds_units,
+                                const double ss_uncer,
+                                const enum alert_units_enum ss_uncer_units,
+                                const double ds_uncer,
+                                const enum alert_units_enum ds_uncer_units,
+                                void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_segment__write\0";
+    const char *fcnm = "xml_shakeAlert_writeSegment\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -85,22 +86,22 @@ int GFAST_xml_segment__write(const enum xml_segmentShape_enum shape,
         return -1;
     }
     // Write the vertices
-    rc = GFAST_xml_vertices__write(shape,
-                                   lats, lat_units,
-                                   lons, lon_units,
-                                   depths, depth_units,
-                                   (void *)writer);
+    rc = GFAST_xml_shakeAlert_writeVertices(shape,
+                                            lats, lat_units,
+                                            lons, lon_units,
+                                            depths, depth_units,
+                                            (void *)writer);
     if (rc < 0)
     {
         log_errorF("%s: Error writing vertices %d\n", fcnm, rc);
         return -1;
     }
     // Write the slip
-    rc = GFAST_xml_slip__write(ss, ss_units,
-                               ds, ds_units,
-                               ss_uncer, ss_uncer_units,
-                               ds_uncer, ds_uncer_units,
-                               (void *)writer);
+    rc = GFAST_xml_shakeAlert_wrteSlip(ss, ss_units,
+                                       ds, ds_units,
+                                       ss_uncer, ss_uncer_units,
+                                       ds_uncer, ds_uncer_units,
+                                       (void *)writer);
     if (rc < 0)
     {
         log_errorF("%s: Error writing slip\n", fcnm);

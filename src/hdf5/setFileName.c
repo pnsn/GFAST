@@ -4,7 +4,9 @@
 #include <hdf5.h>
 #include <limits.h>
 #include <math.h>
-#include "gfast.h"
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Sets the HDF5 archive filename
@@ -20,11 +22,11 @@
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_HDF5__setFileName(const char *adir,
-                            const char *evid, 
-                            char fname[PATH_MAX])
+int hdf5_setFileName(const char *adir,
+                     const char *evid, 
+                     char fname[PATH_MAX])
 {
-    const char *fcnm = "GFAST_HDF5__setFileName\0";
+    const char *fcnm = "hdf5_setFileName\0";
     int ierr, lenos;
     ierr = 0;
     memset(fname, 0, PATH_MAX*sizeof(char));

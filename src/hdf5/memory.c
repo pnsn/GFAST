@@ -1,21 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gfast.h"
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
 
-int GFAST_HDF5__memory__freePGDResults(struct h5_pgdResults_struct *pgd)
+int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd)
 {
-    if (pgd->mpgd.p      != NULL){free(pgd->mpgd.p);}
-    if (pgd->mpgd_vr.p   != NULL){free(pgd->mpgd_vr.p);}
-    if (pgd->UP.p        != NULL){free(pgd->UP.p);}
-    if (pgd->UPinp.p     != NULL){free(pgd->UPinp.p);}
-    if (pgd->srcDepths.p != NULL){free(pgd->srcDepths.p);}
-    if (pgd->lsiteUsed.p != NULL){free(pgd->lsiteUsed.p);}
+    if (pgd->mpgd.p       != NULL){free(pgd->mpgd.p);}
+    if (pgd->mpgd_vr.p    != NULL){free(pgd->mpgd_vr.p);}
+    if (pgd->dep_vr_pgd.p != NULL){free(pgd->dep_vr_pgd.p);}
+    if (pgd->UP.p         != NULL){free(pgd->UP.p);}
+    if (pgd->UPinp.p      != NULL){free(pgd->UPinp.p);}
+    if (pgd->srcDepths.p  != NULL){free(pgd->srcDepths.p);}
+    if (pgd->iqr75_25.p   != NULL){free(pgd->iqr75_25.p);}
+    if (pgd->lsiteUsed.p  != NULL){free(pgd->lsiteUsed.p);}
     memset(pgd, 0, sizeof(struct h5_pgdResults_struct));
     return 0;
 }
 
-int GFAST_HDF5__memory__freeCMTResults(struct h5_cmtResults_struct *cmt)
+int hdf5_memory__freeCMTResults(struct h5_cmtResults_struct *cmt)
 {
     if (cmt->objfn.p     != NULL){free(cmt->objfn.p);}
     if (cmt->mts.p       != NULL){free(cmt->mts.p);}
@@ -38,7 +41,7 @@ int GFAST_HDF5__memory__freeCMTResults(struct h5_cmtResults_struct *cmt)
     return 0;
 }
 
-int GFAST_HDF5__memory__freeFaultPlane(struct h5_faultPlane_struct *fp)
+int hdf5_memory__freeFaultPlane(struct h5_faultPlane_struct *fp)
 {
     if (fp->lon_vtx.p    != NULL){free(fp->lon_vtx.p);}
     if (fp->lat_vtx.p    != NULL){free(fp->lat_vtx.p);}
@@ -65,7 +68,7 @@ int GFAST_HDF5__memory__freeFaultPlane(struct h5_faultPlane_struct *fp)
     return 0;
 }
 
-int GFAST_HDF5__memory__freeFFResults(struct h5_ffResults_struct *ff)
+int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff)
 {
     struct h5_faultPlane_struct *fp = NULL;
     int i;
@@ -74,7 +77,7 @@ int GFAST_HDF5__memory__freeFFResults(struct h5_ffResults_struct *ff)
         fp = (struct h5_faultPlane_struct *) ff->fp.p;
         for (i=0; i<ff->fp.len; i++)
         {
-            GFAST_HDF5__memory__freeFaultPlane(&fp[i]);
+            GFAST_hdf5_memory__freeFaultPlane(&fp[i]);
         }
         free(ff->fp.p);
         fp = NULL;

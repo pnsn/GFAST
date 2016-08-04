@@ -7,7 +7,8 @@
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 
 /*!
  * @brief Reads the vertices in a segment
@@ -31,14 +32,14 @@
  * @date May 2016
  *
  */
-int GFAST_xml_vertices__read(const void *xml_reader,
-                             const enum xml_segmentShape_enum shape,
-                             const double VTX_NAN,
-                             double *__restrict__ lat,
-                             double *__restrict__ lon,
-                             double *__restrict__ depth)
+int xml_shakeAlert_readVertices(const void *xml_reader,
+                                const enum xml_segmentShape_enum shape,
+                                const double VTX_NAN,
+                                double *__restrict__ lat,
+                                double *__restrict__ lon,
+                                double *__restrict__ depth)
 {
-    const char *fcnm = "GFAST_xml_vertices__read\0";
+    const char *fcnm = "xml_shakeAlert_readVertices\0";
     xmlNodePtr vertices_xml, vertex_xml;
     int ierr, nv, nvref;
     //------------------------------------------------------------------------//
@@ -93,8 +94,9 @@ int GFAST_xml_vertices__read(const void *xml_reader,
         // Update the pointer and read the next vertex
         nv = nv + 1;
         vertex_xml = vertices_xml->xmlChildrenNode;
-        ierr = ierr + GFAST_xml_vertex__read((void *)vertex_xml, VTX_NAN,
-                                             &lat[nv], &lon[nv], &depth[nv]);
+        ierr = ierr
+             + GFAST_xml_shakeAlert_readVertex((void *)vertex_xml, VTX_NAN,
+                                               &lat[nv], &lon[nv], &depth[nv]);
         if (ierr != 0)
         {
             log_errorF("%s Error unpacking vertex %d\n", fcnm, nv + 1);
@@ -160,16 +162,16 @@ NEXT_VERTICES_XML:;
  * @date April 2016 
  *
  */
-int GFAST_xml_vertices__write(const enum xml_segmentShape_enum shape,
-                              const double *lats,
-                              const enum alert_units_enum lat_units,
-                              const double *lons,
-                              const enum alert_units_enum lon_units,
-                              const double *depths,
-                              const enum alert_units_enum depth_units,
-                              void *xml_writer)
+int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
+                                 const double *lats,
+                                 const enum alert_units_enum lat_units,
+                                 const double *lons,
+                                 const enum alert_units_enum lon_units,
+                                 const double *depths,
+                                 const enum alert_units_enum depth_units,
+                                 void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_vertices__write\0";
+    const char *fcnm = "xml_shakeAlert_writeVertices\0";
     xmlTextWriterPtr writer;
     int i, npts, rc; 
     //------------------------------------------------------------------------//
@@ -186,18 +188,20 @@ int GFAST_xml_vertices__write(const enum xml_segmentShape_enum shape,
     rc = xmlTextWriterStartElement(writer, BAD_CAST "vertices\0");
     // Write each vertex 
     for (i=0; i<npts; i++){
-        rc = GFAST_xml_vertex__write(lats[i], lat_units,
-                                     lons[i], lon_units,
-                                     depths[i], depth_units,
-                                     (void *)writer);
-        if (rc < 0){ 
+        rc = GFAST_xml_shakeAlert_writeVertex(lats[i], lat_units,
+                                              lons[i], lon_units,
+                                              depths[i], depth_units,
+                                              (void *)writer);
+        if (rc < 0)
+        {
             log_errorF("%s: Error writing vertex\n", fcnm);
             return -1;
         }
     }
     // </vertices>
     rc = xmlTextWriterEndElement(writer); // </vertices>
-    if (rc < 0){
+    if (rc < 0)
+    {
         log_errorF("%s: Error closing vertices %d\n", fcnm, rc);
         return -1;
     } 

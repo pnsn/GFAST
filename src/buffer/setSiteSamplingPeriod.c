@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Sets the site sampling period at all stations
  * 

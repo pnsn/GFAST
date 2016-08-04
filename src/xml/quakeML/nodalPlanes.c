@@ -3,7 +3,8 @@
 #include <string.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Writes the nodal planes defined by their strike, dip, and rake.
  *        The strike is measured clockwise north [0,360].  The dip is 
@@ -26,11 +27,11 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_nodalPlanes__write(const double np1[3],
+int xml_quakeML_writeNodalPlanes(const double np1[3],
                                  const double np2[3],
                                  void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_nodalPlanes__write\0";
+    const char *fcnm = "xml_quakeML_writeNodalPlanes\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -94,12 +95,13 @@ int GFAST_xml_nodalPlanes__write(const double np1[3],
  * @bug This is not yet programmed
  *
  */
-int GFAST_xml_nodalPlanes__read(void *xml_reader, double NP_NAN,
+int xml_quakeML_readNodalPlanes(const void *xml_reader,
+                                const double NP_NAN,
                                 double strike[2],
                                 double rake[2],
                                 double dip[2])
 {
-    const char *fcnm = "GFAST_xml_nodalPlanes__read\0";
+    const char *fcnm = "xml_quakeML_readNodalPlanes\0";
     log_errorF("%s: Error this isn't programmed yet\n", fcnm);
     return -1;
 }

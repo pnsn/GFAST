@@ -8,7 +8,8 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Unpacks the vertex's latitude, longitude, and depth 
  *
@@ -31,11 +32,11 @@
  *      have units meters for all variables 
  *
  */
-int GFAST_xml_slip__read(const void *xml_reader, const double VTX_NAN,
-                         double *ss, double *ss_uncer,
-                         double *ds, double *ds_uncer)
+int xml_shakeAlert_readSlip(const void *xml_reader, const double VTX_NAN,
+                            double *ss, double *ss_uncer,
+                            double *ds, double *ds_uncer)
 {
-    const char *fcnm = "GFAST_xml_slip__read\0";
+    const char *fcnm = "xml_shakeAlert_readSlip\0";
     xmlNodePtr slip_xml;
     xmlChar *value;
     enum unpack_types_enum
@@ -190,17 +191,17 @@ ERROR:;
  * @date May 2016
  *
  */
-int GFAST_xml_slip__write(const double ss,
-                          const enum alert_units_enum ss_units,
-                          const double ds,
-                          const enum alert_units_enum ds_units,
-                          const double ss_uncer,
-                          const enum alert_units_enum ss_uncer_units,
-                          const double ds_uncer,
-                          const enum alert_units_enum ds_uncer_units,
-                          void *xml_writer)
+int xml_shakeAlert_writeSlip(const double ss,
+                             const enum alert_units_enum ss_units,
+                             const double ds,
+                             const enum alert_units_enum ds_units,
+                             const double ss_uncer,
+                             const enum alert_units_enum ss_uncer_units,
+                             const double ds_uncer,
+                             const enum alert_units_enum ds_uncer_units,
+                             void *xml_writer)
 {
-    const char *fcnm = "__GFAST_xml_slip__write\0";
+    const char *fcnm = "xml_shakeAlert_writeSlip\0";
     xmlTextWriterPtr writer;
     char units[128], var[128];
     int rc;

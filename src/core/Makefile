@@ -163,5 +163,5 @@ $(OBJ)/waveformProcessor_offset.o: waveformProcessor/offset.c
 ###################################### clean ##########################################
 
 clean:
-	$(RM) -rf $(OBJ) $(GFAST_STATIC_CORE) $(GFAST_SHARED_CORE)
+	$(RM) -rf $(OBJ)/*.o $(GFAST_STATIC_CORE) $(GFAST_SHARED_CORE)
 

@@ -3,14 +3,16 @@
 #include <string.h>
 #include <hdf5.h>
 #include <cblas.h>
-#include "gfast.h"
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
 
 //============================================================================//
-int GFAST_HDF5__copy__peakDisplacementData(enum data2h5_enum job,
-                           struct GFAST_peakDisplacementData_struct *pgd_data,
-                           struct h5_peakDisplacementData_struct *h5_pgd_data)
+int hdf5_copy__peakDisplacementData(
+    const enum data2h5_enum job,
+    struct GFAST_peakDisplacementData_struct *pgd_data,
+    struct h5_peakDisplacementData_struct *h5_pgd_data)
 {
-    const char *fcnm = "GFAST_HDF5__copy__peakDisplacementData\0";
+    const char *fcnm = "hdf5_copyPeakDisplacementData\0";
     int *lactiveTemp, *lmaskTemp, i, ierr, nsites;
     char *ctemp;
     //------------------------------------------------------------------------//
@@ -97,11 +99,11 @@ int GFAST_HDF5__copy__peakDisplacementData(enum data2h5_enum job,
  * @bug COPY_H5_TO_DATA not yet done
  *
  */
-int GFAST_HDF5__copy__pgdResults(enum data2h5_enum job,
-                                 struct GFAST_pgdResults_struct *pgd,
-                                 struct h5_pgdResults_struct *h5_pgd)
+int hdf5_copy__pgdResults(const enum data2h5_enum job,
+                          struct GFAST_pgdResults_struct *pgd,
+                          struct h5_pgdResults_struct *h5_pgd)
 {
-    const char *fcnm = "GFAST_HDF5_copy__pgdResults\0";
+    const char *fcnm = "hdf5_copyPGDResults\0";
     int *lsiteUsedTemp, i, ierr, ndeps, nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -127,6 +129,10 @@ int GFAST_HDF5__copy__pgdResults(enum data2h5_enum job,
         h5_pgd->mpgd_vr.p = (double *)calloc(ndeps, sizeof(double));
         cblas_dcopy(ndeps, pgd->mpgd_vr, 1, h5_pgd->mpgd_vr.p, 1);
 
+        h5_pgd->dep_vr_pgd.len = ndeps;
+        h5_pgd->dep_vr_pgd.p = (double *)calloc(ndeps, sizeof(double));
+        cblas_dcopy(ndeps, pgd->dep_vr_pgd, 1, h5_pgd->dep_vr_pgd.p, 1);
+
         h5_pgd->UP.len = nsites*ndeps;
         h5_pgd->UP.p = (double *)calloc(nsites*ndeps, sizeof(double));
         cblas_dcopy(nsites*ndeps, pgd->UP, 1, h5_pgd->UP.p, 1);
@@ -138,6 +144,10 @@ int GFAST_HDF5__copy__pgdResults(enum data2h5_enum job,
         h5_pgd->srcDepths.len = ndeps;
         h5_pgd->srcDepths.p = (double *)calloc(ndeps, sizeof(double)); 
         cblas_dcopy(ndeps, pgd->srcDepths, 1, h5_pgd->srcDepths.p, 1);
+
+        h5_pgd->iqr75_25.len = ndeps;
+        h5_pgd->iqr75_25.p = (double *)calloc(ndeps, sizeof(double));
+        cblas_dcopy(ndeps, pgd->iqr75_25, 1, h5_pgd->iqr75_25.p, 1);
 
         h5_pgd->lsiteUsed.len = nsites;
         lsiteUsedTemp = (int *)calloc(nsites, sizeof(int));
@@ -183,11 +193,11 @@ int GFAST_HDF5__copy__pgdResults(enum data2h5_enum job,
  * @bug COPY_H5_TO_DATA not yet done
  *
  */
-int GFAST_HDF5__copy__cmtResults(enum data2h5_enum job,
-                                 struct GFAST_cmtResults_struct *cmt,
-                                 struct h5_cmtResults_struct *h5_cmt)
+int hdf5_copy__cmtResults(const enum data2h5_enum job,
+                          struct GFAST_cmtResults_struct *cmt,
+                          struct h5_cmtResults_struct *h5_cmt)
 {
-    const char *fcnm = "GFAST_HDF5_copy__cmtResults\0";
+    const char *fcnm = "hdf5_copy__cmtResults\0";
     int *lsiteUsedTemp, i, ierr, ndeps, nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -295,11 +305,11 @@ int GFAST_HDF5__copy__cmtResults(enum data2h5_enum job,
 }
 //============================================================================//
 
-int GFAST_HDF5__copy__faultPlane(enum data2h5_enum job,
-                                 struct GFAST_faultPlane_struct *fp,
-                                 struct h5_faultPlane_struct *h5_fp)
+int hdf5_copy__faultPlane(const enum data2h5_enum job,
+                          struct GFAST_faultPlane_struct *fp,
+                          struct h5_faultPlane_struct *h5_fp)
 {
-    const char *fcnm = "GFAST_HDF5_copy__faultPlane\0";
+    const char *fcnm = "hdf5_copy__faultPlane\0";
     int *itemp, i, ierr, ndip, nfp, nsites, nstr;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -447,13 +457,12 @@ int GFAST_HDF5__copy__faultPlane(enum data2h5_enum job,
  * @bug COPY_H5_TO_DATA not yet done
  *
  */
-int GFAST_HDF5__copy__ffResults(enum data2h5_enum job,
-                                struct GFAST_ffResults_struct *ff,
-                                struct h5_ffResults_struct *h5_ff)
+int hdf5_copy__ffResults(const enum data2h5_enum job,
+                         struct GFAST_ffResults_struct *ff,
+                         struct h5_ffResults_struct *h5_ff)
 {
-    const char *fcnm = "GFAST_HDF5_copy__ffResults\0";
+    const char *fcnm = "hdf5_copyFFResults\0";
     struct h5_faultPlane_struct *h5_fp = NULL;
-    //struct GFAST_faultPlane_struct *fp = NULL;
     int i, ierr, nfp;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -471,7 +480,7 @@ int GFAST_HDF5__copy__ffResults(enum data2h5_enum job,
                 calloc(nfp, sizeof(struct h5_faultPlane_struct));
         for (i=0; i<nfp; i++)
         {
-            ierr = GFAST_HDF5__copy__faultPlane(job, &ff->fp[i], &h5_fp[i]);
+            ierr = GFAST_hdf5_copy__faultPlane(job, &ff->fp[i], &h5_fp[i]);
         }
         h5_ff->fp.p = h5_fp;
 

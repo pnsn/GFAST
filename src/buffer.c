@@ -5,6 +5,8 @@
 #include <math.h>
 #include "gfast.h"
 #include "sacio.h"
+#include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * @brief Copies data on the GPS data buffer to arrays for 
@@ -270,7 +272,7 @@ int GFAST_buffer__readDataFromSAC(int job,
                                                  &ierr1);
         // Update time
         gps_data->data[k].tbuff
-           = GFAST_memory_calloc__double(gps_data->data[k].npts);
+           = ISCL_memory_calloc__double(gps_data->data[k].npts);
         #pragma omp simd
         for (i=0; i<gps_data->data[k].npts; i++){
             gps_data->data[k].tbuff[i] = gps_data->data[k].epoch

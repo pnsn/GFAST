@@ -3,7 +3,8 @@
 #include <string.h>
 #include <hdf5.h>
 #include <math.h>
-#include "gfast.h"
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
 
 /*!
  * @brief Creates the peak displacement data type
@@ -15,9 +16,9 @@
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5__createType__peakDisplacementData(hid_t group_id)
+herr_t hdf5_createType__peakDisplacementData(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5__createType__peakDisplacementData\0";
+    const char *fcnm = "hdf5_createType__peakDisplacementData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -95,9 +96,9 @@ herr_t GFAST_HDF5__createType__peakDisplacementData(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5__createType__pgdResults(hid_t group_id)
+herr_t hdf5_createType__pgdResults(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5__createType__pgdResults\0";
+    const char *fcnm = "hdf5_createType__pgdResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -115,9 +116,12 @@ herr_t GFAST_HDF5__createType__pgdResults(hid_t group_id)
     ierr += H5Tinsert(dataType, "Magnitude\0",
                       HOFFSET(struct h5_pgdResults_struct, mpgd),
                       vlenDData);
-    ierr += H5Tinsert(dataType, "ObjectiveFunction\0",
+    ierr += H5Tinsert(dataType, "PGDVarianceReduction\0",
                       HOFFSET(struct h5_pgdResults_struct, mpgd_vr),
                       vlenDData);
+    ierr += H5Tinsert(dataType, "PGDVarianceReduction_ScaledByIQR\0",
+                      HOFFSET(struct h5_pgdResults_struct, dep_vr_pgd),
+                      vlenDData); 
     ierr += H5Tinsert(dataType, "PGDEstimates\0",
                       HOFFSET(struct h5_pgdResults_struct, UP),
                       vlenDData);
@@ -126,6 +130,9 @@ herr_t GFAST_HDF5__createType__pgdResults(hid_t group_id)
                       vlenDData);
     ierr += H5Tinsert(dataType, "sourceDepth\0",
                       HOFFSET(struct h5_pgdResults_struct, srcDepths),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "interQuartileRanges_75_25\0",
+                      HOFFSET(struct h5_pgdResults_struct, iqr75_25),
                       vlenDData);
     ierr += H5Tinsert(dataType, "siteUsed\0",
                       HOFFSET(struct h5_pgdResults_struct, lsiteUsed),
@@ -164,9 +171,9 @@ herr_t GFAST_HDF5__createType__pgdResults(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5__createType__offsetData(hid_t group_id)
+herr_t hdf5_createType__offsetData(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5__createType__offsetData\0";
+    const char *fcnm = "hdf5_createType__offsetData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -252,9 +259,9 @@ herr_t GFAST_HDF5__createType__offsetData(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5__createType__cmtResults(hid_t group_id)
+herr_t hdf5_createType__cmtResults(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5__createType__cmtResults\0";
+    const char *fcnm = "hdf5_createType__cmtResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -358,9 +365,9 @@ herr_t GFAST_HDF5__createType__cmtResults(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5__createType__faultPlane(hid_t group_id)
+herr_t hdf5_createType__faultPlane(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5__createType__faultPlane\0";
+    const char *fcnm = "hdf5_createType__faultPlane\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -473,9 +480,9 @@ herr_t GFAST_HDF5__createType__faultPlane(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t GFAST_HDF5__createType__ffResults(hid_t group_id)
+herr_t hdf5_createType__ffResults(hid_t group_id)
 {
-    const char *fcnm = "GFAST_HDF5__createType__ffResults\0";
+    const char *fcnm = "hdf5_createType__ffResults\0";
     hid_t dataType, faultType, vlenDData, vlenFault;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -488,7 +495,7 @@ herr_t GFAST_HDF5__createType__ffResults(hid_t group_id)
     if (H5Lexists(group_id, "faultPlaneStructure\0", H5P_DEFAULT) == 0)
     {
         log_warnF("%s: Making fault plane structure\n", fcnm);
-        ierr = GFAST_HDF5__createType__faultPlane(group_id);
+        ierr = GFAST_hdf5_createType__faultPlane(group_id);
         if (ierr != 0)
         {
             log_errorF("%s: ERror making fault plane structure\n", fcnm);

@@ -7,7 +7,8 @@
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Unpacks the vertex's latitude, longitude, and depth 
  *
@@ -29,10 +30,10 @@
  *      have units degrees for lat and lon, and km for depth
  *
  */
-int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
-                           double *lat, double *lon, double *depth)
+int xml_readVertex(const void *xml_reader, const double VTX_NAN,
+                   double *lat, double *lon, double *depth)
 {
-    const char *fcnm = "GFAST_xml_vertex__read\0";
+    const char *fcnm = "xml_readVertex\0";
     xmlNodePtr vertex_xml;
     xmlChar *value;
     enum unpack_types_enum
@@ -177,12 +178,15 @@ ERROR:;
  * @date April 2016
  *
  */
-int GFAST_xml_vertex__write(double lat, enum alert_units_enum lat_units,
-                            double lon, enum alert_units_enum lon_units,
-                            double depth, enum alert_units_enum depth_units,
-                            void *xml_writer)
+int xml_shakeAlert_writeVertex(const double lat,
+                               const enum alert_units_enum lat_units,
+                               const double lon,
+                               const enum alert_units_enum lon_units,
+                               const double depth,
+                               const enum alert_units_enum depth_units,
+                               void *xml_writer)
 {
-    const char *fcnm = "__GFAST_xml_vertex__write\0";
+    const char *fcnm = "xml_quakeML_writeVertex\0";
     xmlTextWriterPtr writer;
     char units[128], var[128];
     int rc;

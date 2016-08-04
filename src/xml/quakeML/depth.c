@@ -7,49 +7,50 @@
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 
-int GFAST_xml_time__write(const double time,
-                          enum alert_units_enum time_units,
-                          bool lhaveTime,
-                          const double timeUncer,
-                          enum alert_units_enum timeUncer_units,
-                          bool lhaveTimeUncer,
-                          const double confidence,
-                          bool lhaveConfidence,
-                          void *xml_writer)
+int xml_quakeML_writeDepth(const double depth,
+                           const enum alert_units_enum depth_units,
+                           const bool lhaveDepth,
+                           const double depthUncer,
+                           const enum alert_units_enum depthUncer_units,
+                           const bool lhaveDepthUncer,
+                           const double confidence,
+                           const bool lhaveConfidence,
+                           void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_time__write\0";
+    const char *fcnm = "xml_quakeML_writeDepth\0";
     xmlTextWriterPtr writer;
     char units[128];
     int rc; 
     //------------------------------------------------------------------------//
     //
     // nothing to do
-    if (!lhaveTime && !lhaveTimeUncer && !lhaveConfidence){return 0;}
+    if (!lhaveDepth && !lhaveDepthUncer && !lhaveConfidence){return 0;}
     // get writer
     rc = 0;
     writer = (xmlTextWriterPtr) xml_writer;
-    // Begin <time>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "time\0");
+    // Begin <depth>
+    rc += xmlTextWriterStartElement(writer, BAD_CAST "depth\0");
     if (rc < 0)
     {
         log_errorF("%s: Error starting element\n", fcnm);
         return -1;
     }
-    if (lhaveTime)
+    if (lhaveDepth)
     {
         rc += xmlTextWriterWriteFormatElement(writer, BAD_CAST "value\0",
-                                             "%f", time);
-        __xml_units__enum2string(time_units, units);
+                                             "%f", depth);
+        __xml_units__enum2string(depth_units, units);
         rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                           BAD_CAST units);
     }
-    if (lhaveTimeUncer)
+    if (lhaveDepthUncer)
     {
         rc += xmlTextWriterWriteFormatElement(writer, BAD_CAST "uncertainty\0",
-                                             "%f", timeUncer);
-        __xml_units__enum2string(timeUncer_units, units);
+                                             "%f", depthUncer);
+        __xml_units__enum2string(depthUncer_units, units);
         rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                           BAD_CAST units);
     }
@@ -59,11 +60,11 @@ int GFAST_xml_time__write(const double time,
                                               BAD_CAST "confidenceLevel\0",
                                              "%f", confidence);
     }
-    // </time>
-    rc += xmlTextWriterEndElement(writer); // </time>
+    // </depth>
+    rc += xmlTextWriterEndElement(writer); // </depth>
     if (rc < 0)
     {   
-        log_errorF("%s: Error writing time\n", fcnm);
+        log_errorF("%s: Error writing depth\n", fcnm);
         return -1; 
     }
     return 0;

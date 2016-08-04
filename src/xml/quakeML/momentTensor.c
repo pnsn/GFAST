@@ -7,7 +7,8 @@
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Writes the moment tensor, scalar moment, double couple percentage,
  *        and CLVD percentage.
@@ -35,7 +36,7 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_momentTensor__write(const char *publicIDroot,
+int xml_quakeML_writeMomentTensor(const char *publicIDroot,
                                   const char *evid,
                                   const char *method,
                                   const double M_use[6],
@@ -44,7 +45,7 @@ int GFAST_xml_momentTensor__write(const char *publicIDroot,
                                   const double clvd_pct,
                                   void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_momentTensor__write\0";
+    const char *fcnm = "xml_quakeML_writeMomentTensor\0";
     xmlTextWriterPtr writer;
     char publicID[512];
     double Mrr, Mtt, Mpp, Mrt, Mrp, Mtp;
@@ -83,9 +84,9 @@ int GFAST_xml_momentTensor__write(const char *publicIDroot,
     Mrt = M_use[3];
     Mrp = M_use[4];
     Mtp = M_use[5];
-    ierr = GFAST_xml_tensor__write(Mrr, Mtt, Mpp,
-                                   Mrt, Mrp, Mtp,
-                                   (void *) writer);
+    ierr = GFAST_xml_quakeML_writeTensor(Mrr, Mtt, Mpp,
+                                         Mrt, Mrp, Mtp,
+                                         (void *) writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing tensor\n", fcnm);

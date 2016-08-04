@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
+#include "iscl/time/time.h"
 /*!
  * @brief converts the epochal time (s) to YYYY-MM-DDThh:mm:ss.sssZ
  *        format
@@ -24,7 +26,8 @@ int xml_epoch2string(double epoch, char cepoch[128])
     ierr = time_epoch2calendar(epoch,
                                 &nzyear, &nzjday, &month, &mday,
                                 &nzhour, &nzmin, &nzsec, &nzmusec);
-    if (ierr != 0){
+    if (ierr != 0)
+    {
         log_errorF("%s: Error converting epochal time\n", fcnm);
         return -1;
     }

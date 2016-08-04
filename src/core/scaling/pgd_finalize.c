@@ -41,6 +41,7 @@ void core_scaling_pgd_finalize(
     // Free the results data structure
     ISCL_memory_free__double(&pgd->mpgd);
     ISCL_memory_free__double(&pgd->mpgd_vr);
+    ISCL_memory_free__double(&pgd->dep_vr_pgd);
     ISCL_memory_free__double(&pgd->iqr75_25);
     ISCL_memory_free__double(&pgd->UP);
     ISCL_memory_free__double(&pgd->UPinp);

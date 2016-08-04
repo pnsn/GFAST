@@ -3,7 +3,8 @@
 #include <string.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 
 /*!
  * @brief Writes the moment tensor terms in Up, South, East coordinates
@@ -34,12 +35,12 @@
  * @date May 2016
  *
  */
-int GFAST_xml_tensor__write(const double Mrr, const double Mtt,
+int xml_quakeML_writeTensor(const double Mrr, const double Mtt,
                             const double Mpp, const double Mrt,
                             const double Mrp, const double Mtp,
                             void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_tensor__write\0";
+    const char *fcnm = "xml_quakeML_writeTensor\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//

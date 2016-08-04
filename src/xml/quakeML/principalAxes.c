@@ -3,7 +3,8 @@
 #include <string.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Writes the tension, pressure, and null principal axes. 
  *
@@ -25,12 +26,12 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_principalAxes__write(const double taxis[3],
+int xml_quakeML_writePrincipalAxes(const double taxis[3],
                                    const double paxis[3],
                                    const double naxis[3],
                                    void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_principalAxes__write\0";
+    const char *fcnm = "xml_quakeML_writePrincipalAxes\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -114,12 +115,13 @@ int GFAST_xml_principalAxes__write(const double taxis[3],
  * @bug This is not yet programmed
  *
  */
-int GFAST_xml_principalAxes__read(void *xml_reader, double PA_NAN,
+int xml_quakeML_readPrincipalAxes(const void *xml_reader,
+                                  const double PA_NAN,
                                   double taxis[3],
                                   double paxis[3],
                                   double naxis[3])
 {
-    const char *fcnm = "GFAST_xml_principalAxes__read\0";
+    const char *fcnm = "xml_quakeML_readPrincipalAxes\0";
     log_errorF("%s: Error this isn't programmed yet\n", fcnm);
     return -1; 
 }

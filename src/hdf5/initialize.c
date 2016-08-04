@@ -4,7 +4,9 @@
 #include <hdf5.h>
 #include <limits.h>
 #include <math.h>
-#include "gfast.h"
+#include "gfast_hdf5.h"
+#include "iscl/log/log.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Initializes the archive for the given event
@@ -17,12 +19,12 @@
  * @result 0 indicates success
  *
  */
-int GFAST_HDF5__initialize(const char *adir,
-                           const char *evid,
-                           const char *propfilename)
+int hdf5_initialize(const char *adir,
+                    const char *evid,
+                    const char *propfilename)
 {
     FILE *ifl;
-    const char *fcnm = "GFAST_HDF5__initialize\0";
+    const char *fcnm = "hdf5_initialize\0";
     const char *bufout[1];
     char fname[PATH_MAX], *buffer;
     hid_t fileID, groupID;
@@ -31,7 +33,7 @@ int GFAST_HDF5__initialize(const char *adir,
     //
     // Set the filename
     ierr = 0;
-    ierr = GFAST_HDF5__setFileName(adir, evid, fname);
+    ierr = GFAST_hdf5_setFileName(adir, evid, fname);
     if (ierr != 0)
     {
         log_errorF("%s: Error setting filename\n", fcnm);
@@ -47,12 +49,12 @@ int GFAST_HDF5__initialize(const char *adir,
     // Create a directory for the types and write them 
     ierr = ierr + h5_create_group(fileID, "/DataStructures\0");
     groupID = H5Gopen2(fileID, "/DataStructures\0", H5P_DEFAULT);
-    ierr = ierr + GFAST_HDF5__createType__peakDisplacementData(groupID);
-    ierr = ierr + GFAST_HDF5__createType__pgdResults(groupID);
-    ierr = ierr + GFAST_HDF5__createType__cmtResults(groupID);
-    ierr = ierr + GFAST_HDF5__createType__faultPlane(groupID);
-    ierr = ierr + GFAST_HDF5__createType__ffResults(groupID);
-    ierr = ierr + GFAST_HDF5__createType__offsetData(groupID);
+    ierr = ierr + GFAST_hdf5_createType__peakDisplacementData(groupID);
+    ierr = ierr + GFAST_hdf5_createType__pgdResults(groupID);
+    ierr = ierr + GFAST_hdf5_createType__cmtResults(groupID);
+    ierr = ierr + GFAST_hdf5_createType__faultPlane(groupID);
+    ierr = ierr + GFAST_hdf5_createType__ffResults(groupID);
+    ierr = ierr + GFAST_hdf5_createType__offsetData(groupID);
     ierr = ierr + H5Gclose(groupID);
     // Save the ini file
     ierr = ierr + h5_create_group(fileID, "/InitializationFile\0");

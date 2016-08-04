@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Checks if the shakeAlert event differs from the version in the 
  *        current events list and if it does differ then this function 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gfast.h>
+#include "iscl/log/log.h"
 /*!
  * @brief Gets the number of streams to initialize
  *

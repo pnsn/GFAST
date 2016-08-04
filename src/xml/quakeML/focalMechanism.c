@@ -3,10 +3,12 @@
 #include <string.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
-#include "gfast.h"
+#include "gfast_xml.h"
+#include "cmopad.h"
+#include "iscl/log/log.h"
 
 /*!
- * @brief Writes the moment tensor and derived quantities such as the 
+ * @brief Writes the focal mechanism and derived quantities such as the 
  *        scalar moment, double couple and CLVD percentage, nodal planes,
  *        and principal axes to QuakeML
  *
@@ -27,13 +29,13 @@
  * @author Ben Baker (ISTI)
  *
  */
-int GFAST_xml_focalMechanism__write(const char *publicIDroot,
+int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                     const char *evid,
                                     const char *method,
                                     const double mt[6],
                                     void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_focalMechanism__write\0";
+    const char *fcnm = "xml_quakeML_writeFocalMechanism\0";
     xmlTextWriterPtr writer;
     char publicID[512];
     struct cmopad_struct src;
@@ -104,31 +106,32 @@ int GFAST_xml_focalMechanism__write(const char *publicIDroot,
     // <focalMechanism>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "momentTensor\0");
     // Write the moment tensor 
-    ierr = GFAST_xml_momentTensor__write(publicIDroot,
-                                         evid,
-                                         method,
-                                         M_use,
-                                         src.seismic_moment,
-                                         src.DC_percentage,
-                                         src.CLVD_percentage,
-                                         (void *) xml_writer);
+    ierr = GFAST_xml_quakeML_writeMomentTensor(publicIDroot,
+                                               evid,
+                                               method,
+                                               M_use,
+                                               src.seismic_moment,
+                                               src.DC_percentage,
+                                               src.CLVD_percentage,
+                                               (void *) xml_writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing momentTensor!\n", fcnm);
         return -1;
     }
     // Write the nodal planes
-    ierr = GFAST_xml_nodalPlanes__write(src.fp1, src.fp2, (void *) writer);
+    ierr = GFAST_xml_quakeML_writeNodalPlanes(src.fp1, src.fp2,
+                                              (void *) writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing nodal planes\n", fcnm);
         return -1;
     }
     // Write the principal axes
-    ierr = GFAST_xml_principalAxes__write(taxis,
-                                          paxis,
-                                          naxis,
-                                          (void *) writer);
+    ierr = GFAST_xml_quakeML_writePrincipalAxes(taxis,
+                                                paxis,
+                                                naxis,
+                                                (void *) writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing principal axes\n", fcnm);
@@ -150,9 +153,9 @@ int GFAST_xml_focalMechanism__write(const char *publicIDroot,
  * @bug This isn't yet programmed
  *
  */
-int GFAST_xml_focalMechanism__read()
+int xml_quakeML_readFocalMechanism()
 {
-    const char *fcnm = "GFAST_xml_focalMechanism__read\0";
+    const char *fcnm = "xml_quakeML_readFocalMechanism\0";
     log_errorF("%s: Error not yet programmed\n", fcnm);
     return -1;
 } 

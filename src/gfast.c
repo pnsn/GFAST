@@ -4,6 +4,7 @@
 #include <math.h>
 #include "gfast.h"
 #include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * This is a mock GFAST driver module
@@ -232,9 +233,9 @@ printf("%f\n", props.synthetic_runtime);
                     if (props.verbose > 2){GFAST_events__print(SA);}
                     log_infoF("%s: Initializing archive\n", fcnm);
                 }
-                ierr = GFAST_HDF5__initialize(props.h5ArchiveDir,
-                                              SA.eventid,
-                                              propfilename);
+                ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
+                                             SA.eventid,
+                                             propfilename);
             }
             // Not a new event
             else
@@ -474,34 +475,34 @@ printf("%f\n", props.synthetic_runtime);
                 h5k = 0;
                 if (lpgd_success || lcmt_success || lff_success)
                 {
-                    h5k = GFAST_HDF5__update__getIteration(props.h5ArchiveDir,
-                                                           SA.eventid,
-                                                           currentTime);
+                    h5k = GFAST_hdf5_update__getIteration(props.h5ArchiveDir,
+                                                          SA.eventid,
+                                                          currentTime);
                 }
                 // Update the archive
                 if (lpgd_success)
                 {
-                    ierr = GFAST_HDF5__update__pgd(props.h5ArchiveDir,
-                                                   SA.eventid,
-                                                   h5k,
-                                                   pgd_data,
-                                                   pgd);
+                    ierr = GFAST_hdf5_update__pgd(props.h5ArchiveDir,
+                                                  SA.eventid,
+                                                  h5k,
+                                                  pgd_data,
+                                                  pgd);
                 }
                 if (lcmt_success)
                 {
-                    ierr = GFAST_HDF5__update__cmt(props.h5ArchiveDir,
-                                                   SA.eventid,
-                                                   h5k,
-                                                   cmt_data,
-                                                   cmt);
+                    ierr = GFAST_hdf5_update__cmt(props.h5ArchiveDir,
+                                                  SA.eventid,
+                                                  h5k,
+                                                  cmt_data,
+                                                  cmt);
                 }
                 if (lff_success)
                 {
-                    ierr = GFAST_HDF5__update__ff(props.h5ArchiveDir,
-                                                  SA.eventid,
-                                                  h5k,
-                                                  ff_data,
-                                                  ff);
+                    ierr = GFAST_hdf5_update__ff(props.h5ArchiveDir,
+                                                 SA.eventid,
+                                                 h5k,
+                                                 ff_data,
+                                                 ff);
                 }
             } // Loop on active events
             log_closeLogs();
@@ -522,15 +523,17 @@ ERROR:;
     {
         log_infoF("%s: Freeing memory...\n", fcnm);
     }
-    GFAST_memory_free__double(&latency);
+    ISCL_memory_free__double(&latency);
     GFAST_memory_freeEvents(&events);
     GFAST_memory_freeData(&gps_acquisition);
-    GFAST_memory_freePGDResults(&pgd);
+    //GFAST_memory_freePGDResults(&pgd);
     GFAST_memory_freeCMTResults(&cmt);
     GFAST_memory_freeFFResults(&ff);
-    GFAST_memory_freePGDData(&pgd_data);
+    //GFAST_memory_freePGDData(&pgd_data);
     GFAST_memory_freeOffsetData(&cmt_data);
     GFAST_memory_freeOffsetData(&ff_data);
     GFAST_memory_freeProps(&props);
+    // Finalize PGD
+    GFAST_core_scaling_pgd_finalize(&props.pgd_props, &pgd_data, &pgd);
     return ierr;
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <iniparser.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
  *

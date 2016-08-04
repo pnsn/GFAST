@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 /*!
  * @brief Allocates space for the internal data buffers  
  *
@@ -62,10 +64,10 @@ int GFAST_buffer__setBufferSpace(struct GFAST_props_struct props,
         gps_data->data[k].maxpts = maxpts;
         gps_data->data[k].npts = 0; // No points yet acquired in acquisition
         // Set the space
-        gps_data->data[k].nbuff = GFAST_memory_calloc__double(maxpts);
-        gps_data->data[k].ebuff = GFAST_memory_calloc__double(maxpts);
-        gps_data->data[k].ubuff = GFAST_memory_calloc__double(maxpts);
-        gps_data->data[k].tbuff = GFAST_memory_calloc__double(maxpts);
+        gps_data->data[k].nbuff = ISCL_memory_calloc__double(maxpts);
+        gps_data->data[k].ebuff = ISCL_memory_calloc__double(maxpts);
+        gps_data->data[k].ubuff = ISCL_memory_calloc__double(maxpts);
+        gps_data->data[k].tbuff = ISCL_memory_calloc__double(maxpts);
         // Make sure the space was allocated
         if (gps_data->data[k].nbuff == NULL ||
             gps_data->data[k].ebuff == NULL ||

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 /*!
  * @brief Removes an event from the active event list if 
  *        (currentTime - SA.time) > maxtime.
