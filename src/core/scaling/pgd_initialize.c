@@ -60,6 +60,7 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     pgd->mpgd = ISCL_memory_calloc__double(pgd->ndeps);
     pgd->mpgd_vr = ISCL_memory_calloc__double(pgd->ndeps);
     pgd->srcDepths = ISCL_memory_calloc__double(pgd->ndeps);
+    pgd->iqr75_25 = ISCL_memory_calloc__double(pgd->ndeps);
     pgd->UP = ISCL_memory_calloc__double(pgd->nsites*pgd->ndeps);
     pgd->UPinp = ISCL_memory_calloc__double(pgd->nsites);
     pgd->lsiteUsed = ISCL_memory_calloc__bool(pgd->nsites);

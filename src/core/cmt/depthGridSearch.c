@@ -229,8 +229,8 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     #pragma omp parallel for \
      firstprivate(G, UP, WG, zrs_negative) \
      private (i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, S ) \
-     shared (diagWt, eEst, fcnm, ldg, l1, mts, mrows, \
-             ncols, ndeps, nEst, srcDepths, staAlt, \
+     shared (diagWt, eEst, fcnm, ldg, mts, mrows, \
+             ncols, nEst, srcDepths, staAlt, \
              uEst, U, WU, xrs, yrs) \
      reduction(+:ierr) default(none)
 #endif

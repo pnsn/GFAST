@@ -296,9 +296,9 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
      private(ds_unc, i, ierr1, ifp, if_off, ij, io_off, j, \
              lampred, len0, M0, res, ss_unc, st, wid0, xden, xnum) \
      shared(diagWt, dip, dslip, dslip_unc, EN, fault_alt, \
-            fault_xutm, fault_yutm, fcnm, l1, l2, ldslip_unc, length, \
-            lrmtx, lsslip_unc, Mw, mrowsG, mrowsG2, ncolsG, ncolsG2, ndip, \
-            nfp, ng, ng2, NN, nstr, nt, sslip, sslip_unc, staAlt, strike, \
+            fault_xutm, fault_yutm, fcnm, ldslip_unc, length, \
+            lrmtx, lsslip_unc, Mw, mrowsG, mrowsG2, ncolsG, ncolsG2, \
+            ng, ng2, NN, nt, sslip, sslip_unc, staAlt, strike, \
             vr, WUD, UD, UN, utmRecvEasting, utmRecvNorthing, width) \
      reduction(+:ierr) default(none)
 #endif

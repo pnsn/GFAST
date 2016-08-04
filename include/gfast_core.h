@@ -206,6 +206,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      const double *__restrict__ wts,
                                      double *__restrict__ M,
                                      double *__restrict__ VR,
+                                     double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
 /* Initialize PGD scaling data structures */
 int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,

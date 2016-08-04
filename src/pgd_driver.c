@@ -225,6 +225,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                                                   wts,
                                                   pgd->mpgd,
                                                   pgd->mpgd_vr,
+                                                  pgd->iqr75_25,
                                                   Uest);
     if (ierr != 0)
     {   

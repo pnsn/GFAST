@@ -8,6 +8,7 @@
 #include "iscl/linalg/linalg.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
+#include "iscl/statistics/statistics.h"
 
 /*!
  * @brief Computes the predicted mangitude using PGD and Pd from
@@ -45,6 +46,10 @@
  * @param[out] M               magnitude at each depth [ndeps]
  * @param[out] VR              variance reduction (percentage) at each
  *                             depth [ndeps]
+ * @param[out] iqr75_25        the interquartile range computed from the
+ *                             difference of the 75th percentile of the 
+ *                             weighted residuals and the 25th percentile
+ *                             of the weighted residuals at each depth [ndeps]
  * @param[out] Uest            the PGD estimate peak ground displacements.
  *                             the estimate for the i'th site at the
  *                             idep'th depth is access by idep*l1 + i [l1*ndeps]
@@ -68,15 +73,18 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      const double *__restrict__ wts,
                                      double *__restrict__ M,
                                      double *__restrict__ VR,
+                                     double *__restrict__ iqr75_25,
                                      double *__restrict__ Uest)
 {
     const char *fcnm = "core_scaling_pgd_depthGridSearch\0";
-    double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, M1[1],
-           est, res, srcDepth, xden, xnum;
+    double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, *wres, pct[2], M1[1],
+           est, srcDepth, xden, xnum;
     int i, idep, ierr, ierr1;
     const double A = -6.687;
     const double B = 1.500;
     const double C = -0.214;
+    const double q[2] = {25.0, 75.0}; 
+    const int nq = 2;
     //const double A = -4.434; /* TODO remove with approval */
     //const double B = 1.047;  /* TODO remove with approval */
     //const double C = -0.138; /* TODO remove with approval */
@@ -86,6 +94,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     ierr = 0;
     repi = NULL;
     r = NULL;
+    wres = NULL;
     b = NULL;
     G = NULL;
     UP = NULL;
@@ -149,6 +158,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     Wb   = ISCL_memory_calloc__double(l1);
     UP   = ISCL_memory_calloc__double(l1);
     repi = ISCL_memory_calloc__double(l1);
+    wres = ISCL_memory_calloc__double(l1);
     // Compute the epicentral distances (km)
     #pragma omp simd
     for (i=0; i<l1; i++)
@@ -190,11 +200,11 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     // Loop on depths
 #ifdef PARALLEL_PGD
     #pragma omp parallel for \
-     firstprivate(A, B, C, G, r, UP, verbose, WG) \
-     private(i, idep, ierr1, est, M1, res, srcDepth, xden, xnum) \
-     shared(b, d, disp_def, dist_tol, fcnm, l1, M, ndeps, repi, \
+     firstprivate(A, B, C, G, r, UP, verbose, WG, wres) \
+     private(i, idep, ierr1, est, M1, pct, srcDepth, xden, xnum) \
+     shared(b, d, iqr75_25, fcnm, M, repi, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
-            utmSrcNorthing, utmSrcEasting, Uest, VR, W, Wb) \
+            Uest, VR, W, Wb) \
      reduction(+:ierr) default(none)
 #endif
     for (idep=0; idep<ndeps; idep++)
@@ -249,9 +259,18 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         {
             est = pow(10.0, UP[i] + A);
             Uest[idep*l1+i] = est;
-            res = W[i]*(d[i] - est);
-            xnum = xnum + sqrt(res*res);
+            wres[i] = W[i]*(d[i] - est);
+            xnum = xnum + sqrt(wres[i]*wres[i]);
             xden = xden + sqrt(pow(W[i]*d[i], 2));
+        }
+        // Compute the interquartile range which will later be used as a penalty
+        ierr1 = __statistics_percentile__double(l1, wres, nq, q,
+                                                STATS_PERCENTILE_LINEAR, pct);
+        iqr75_25[idep] = pct[1] - pct[0];
+        if (ierr1 != 0)
+        {   
+            log_errorF("%s: Error computing interquartile range\n", fcnm);
+            iqr75_25[idep] = 1.0;
         }
         // Copy results
         M[idep] = M1[0];
@@ -266,6 +285,7 @@ ERROR:; // An error was encountered
     // Free space
     ISCL_memory_free__double(&repi);
     ISCL_memory_free__double(&r);
+    ISCL_memory_free__double(&wres);
     ISCL_memory_free__double(&b);
     ISCL_memory_free__double(&G);
     ISCL_memory_free__double(&UP);

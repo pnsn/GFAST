@@ -288,6 +288,8 @@ struct GFAST_pgdResults_struct
                             [nsites*ndeps] */
     double *UPinp;     /*!< PGD observations for each site [nsites] */
     double *srcDepths; /*!< PGD source depths in grid search (km) [ndeps] */
+    double *iqr75_25;  /*!< 75-25 interquartile range of the weighted
+                            residuals at each depth [ndeps] */
     bool *lsiteUsed;   /*!< If true then the isite'th site from the 
                             site list was used in the PGD estimation [nsites] */
     int ndeps;         /*!< Number of depths in PGD estimation */ 

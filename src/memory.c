@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * @brief Frees memory associated with peak ground displacement
@@ -24,13 +25,13 @@ void GFAST_memory_freePGDData(
         }
         free(pgd_data->stnm);
     }
-    GFAST_memory_free__double(&pgd_data->pd);
-    GFAST_memory_free__double(&pgd_data->wt);
-    GFAST_memory_free__double(&pgd_data->sta_lat);
-    GFAST_memory_free__double(&pgd_data->sta_lon);
-    GFAST_memory_free__double(&pgd_data->sta_alt);
-    GFAST_memory_free__bool(&pgd_data->lmask);
-    GFAST_memory_free__bool(&pgd_data->lactive);
+    ISCL_memory_free__double(&pgd_data->pd);
+    ISCL_memory_free__double(&pgd_data->wt);
+    ISCL_memory_free__double(&pgd_data->sta_lat);
+    ISCL_memory_free__double(&pgd_data->sta_lon);
+    ISCL_memory_free__double(&pgd_data->sta_alt);
+    ISCL_memory_free__bool(&pgd_data->lmask);
+    ISCL_memory_free__bool(&pgd_data->lactive);
     memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
     return;
 }
@@ -54,17 +55,17 @@ void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data)
         }
         free(offset_data->stnm);
     }
-    GFAST_memory_free__double(&offset_data->ubuff);
-    GFAST_memory_free__double(&offset_data->nbuff);
-    GFAST_memory_free__double(&offset_data->ebuff);
-    GFAST_memory_free__double(&offset_data->wtu);
-    GFAST_memory_free__double(&offset_data->wtn);
-    GFAST_memory_free__double(&offset_data->wte);
-    GFAST_memory_free__double(&offset_data->sta_lat);
-    GFAST_memory_free__double(&offset_data->sta_lon);
-    GFAST_memory_free__double(&offset_data->sta_alt);
-    GFAST_memory_free__bool(&offset_data->lmask);
-    GFAST_memory_free__bool(&offset_data->lactive);
+    ISCL_memory_free__double(&offset_data->ubuff);
+    ISCL_memory_free__double(&offset_data->nbuff);
+    ISCL_memory_free__double(&offset_data->ebuff);
+    ISCL_memory_free__double(&offset_data->wtu);
+    ISCL_memory_free__double(&offset_data->wtn);
+    ISCL_memory_free__double(&offset_data->wte);
+    ISCL_memory_free__double(&offset_data->sta_lat);
+    ISCL_memory_free__double(&offset_data->sta_lon);
+    ISCL_memory_free__double(&offset_data->sta_alt);
+    ISCL_memory_free__bool(&offset_data->lmask);
+    ISCL_memory_free__bool(&offset_data->lactive);
     memset(offset_data, 0, sizeof(struct GFAST_offsetData_struct));
     return;
 }
@@ -80,10 +81,10 @@ void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data)
 void GFAST_memory_freeWaveformData(struct GFAST_waveformData_struct *data)
 {
     if (data == NULL){return;}
-    GFAST_memory_free__double(&data->ubuff);
-    GFAST_memory_free__double(&data->nbuff);
-    GFAST_memory_free__double(&data->ebuff);
-    GFAST_memory_free__double(&data->tbuff);
+    ISCL_memory_free__double(&data->ubuff);
+    ISCL_memory_free__double(&data->nbuff);
+    ISCL_memory_free__double(&data->ebuff);
+    ISCL_memory_free__double(&data->tbuff);
     memset(data, 0, sizeof(struct GFAST_waveformData_struct));
     return;
 }
@@ -106,7 +107,7 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
         {
             GFAST_memory_freeWaveformData(&gps_data->data[k]);
         }
-        GFAST_memory_free(gps_data->data);
+        ISCL_memory_free(gps_data->data);
     }
     memset(gps_data, 0, sizeof(struct GFAST_data_struct));
     return;
@@ -123,12 +124,13 @@ void GFAST_memory_freeData(struct GFAST_data_struct *gps_data)
 void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
 {
     if (pgd == NULL){return;}
-    GFAST_memory_free__double(&pgd->mpgd);
-    GFAST_memory_free__double(&pgd->mpgd_vr);
-    GFAST_memory_free__double(&pgd->UP);
-    GFAST_memory_free__double(&pgd->UPinp);
-    GFAST_memory_free__double(&pgd->srcDepths);
-    GFAST_memory_free(pgd->lsiteUsed);
+    ISCL_memory_free__double(&pgd->mpgd);
+    ISCL_memory_free__double(&pgd->mpgd_vr);
+    ISCL_memory_free__double(&pgd->iqr75_25);
+    ISCL_memory_free__double(&pgd->UP);
+    ISCL_memory_free__double(&pgd->UPinp);
+    ISCL_memory_free__double(&pgd->srcDepths);
+    ISCL_memory_free(pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     return;
 }
@@ -144,23 +146,23 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
 void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
 {
     if (cmt == NULL){return;}
-    GFAST_memory_free__double(&cmt->objfn);
-    GFAST_memory_free__double(&cmt->mts);
-    GFAST_memory_free__double(&cmt->str1); 
-    GFAST_memory_free__double(&cmt->str2);
-    GFAST_memory_free__double(&cmt->dip1); 
-    GFAST_memory_free__double(&cmt->dip2);
-    GFAST_memory_free__double(&cmt->rak1); 
-    GFAST_memory_free__double(&cmt->rak2);
-    GFAST_memory_free__double(&cmt->Mw);
-    GFAST_memory_free__double(&cmt->srcDepths);
-    GFAST_memory_free__double(&cmt->EN);
-    GFAST_memory_free__double(&cmt->NN);
-    GFAST_memory_free__double(&cmt->UN);
-    GFAST_memory_free__double(&cmt->Einp);
-    GFAST_memory_free__double(&cmt->Ninp);
-    GFAST_memory_free__double(&cmt->Uinp);
-    GFAST_memory_free__bool(&cmt->lsiteUsed);
+    ISCL_memory_free__double(&cmt->objfn);
+    ISCL_memory_free__double(&cmt->mts);
+    ISCL_memory_free__double(&cmt->str1); 
+    ISCL_memory_free__double(&cmt->str2);
+    ISCL_memory_free__double(&cmt->dip1); 
+    ISCL_memory_free__double(&cmt->dip2);
+    ISCL_memory_free__double(&cmt->rak1); 
+    ISCL_memory_free__double(&cmt->rak2);
+    ISCL_memory_free__double(&cmt->Mw);
+    ISCL_memory_free__double(&cmt->srcDepths);
+    ISCL_memory_free__double(&cmt->EN);
+    ISCL_memory_free__double(&cmt->NN);
+    ISCL_memory_free__double(&cmt->UN);
+    ISCL_memory_free__double(&cmt->Einp);
+    ISCL_memory_free__double(&cmt->Ninp);
+    ISCL_memory_free__double(&cmt->Uinp);
+    ISCL_memory_free__bool(&cmt->lsiteUsed);
     memset(cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     return;
 }

@@ -1,5 +1,6 @@
 #include <stdbool.h>
-#include "gfast_cmopad.h"
+#include "cmopad.h"
+#include "gfast_core.h"
 #include "gfast_enum.h"
 #include "gfast_log.h"
 #include "gfast_numpy.h"
@@ -49,39 +50,6 @@ void GFAST_buffer_print__samplingPeriod(struct GFAST_data_struct gps_data);
 void GFAST_buffer_print__locations(struct GFAST_data_struct gps_data);
 void GFAST_buffer__setInitialTime(double epoch0,
                                   struct GFAST_data_struct *gps_data);
-/* Coordinate tools */
-void GFAST_coordtools_lla2ecef(double lat_in, double lon_in, double alt,
-                               double *x, double *y, double *z);
-void GFAST_coordtools_ecef2lla(double x, double y, double z,
-                               double *lat_deg, double *lon_deg, double *alt);
-void GFAST_coordtools_dxyz2dneu(double dx, double dy, double dz,
-                                double lat_deg, double lon_deg,
-                                double *dn, double *de, double *du);
-
-#if __GNUC__ >= 5
-#pragma omp declare simd
-#endif
-void GFAST_coordtools_ll2utm_ori(double lat_deg, double lon_deg,
-                                 double *UTMEasting, double *UTMNorthing,
-                                 bool *lnorthp, int *zone);
-#if __GNUC__ >= 5
-#pragma omp declare simd
-#endif
-void GFAST_coordtools_utm2ll_ori(int zone, bool lnorthp,
-                                 double UTMEasting, double UTMNorthing,
-                                 double *lat_deg, double *lon_deg);
-#if __GNUC__ >= 5
-#pragma omp declare simd
-#endif
-void GFAST_coordtools__ll2utm(double lat_deg, double lon_deg,
-                              double *UTMEasting, double *UTMNorthing,
-                              bool *lnorthp, int *zone);
-#if __GNUC__ >= 5
-#pragma omp declare simd
-#endif
-void GFAST_coordtools__utm2ll(int zone, bool lnorthp,
-                              double UTMEasting, double UTMNorthing,
-                              double *lat_deg, double *lon_deg);
 /* Handles events */
 double GFAST_events__getMinOriginTime(struct GFAST_props_struct props,
                                       struct GFAST_activeEvents_struct events,
@@ -135,90 +103,12 @@ int GFAST_scaling_PGD__driver(
    double SA_lat, double SA_lon, double SA_dep,
    struct GFAST_peakDisplacementData_struct pgd_data,
    struct GFAST_pgdResults_struct *pgd);
-int GFAST_scaling_PGD__depthGridSearch(int l1, int ndeps,
-                                int verbose,
-                                double dist_tol,
-                                double dist_def,
-                                double utmSrcEasting,
-                                double utmSrcNorthing,
-                                const double *__restrict__ srcDepths,
-                                const double *__restrict__ utmRecvEasting,
-                                const double *__restrict__ utmRecvNorthing,
-                                const double *__restrict__ staAlt,
-                                const double *__restrict__ d,
-                                const double *__restrict__ wts,
-                                double *__restrict__ M,
-                                double *__restrict__ VR,
-                                double *__restrict__ Uest);
-int GFAST_scaling_PGD__init(struct GFAST_pgd_props_struct pgd_props,
-                            struct GFAST_data_struct gps_data,
-                            struct GFAST_pgdResults_struct *pgd,
-                            struct GFAST_peakDisplacementData_struct *pgd_data);
-int GFAST_scaling_PGD__setDiagonalWeightMatrix(int l1,
-                                               const double *__restrict__ repi,
-                                               const double *__restrict__ wts,
-                                               double *__restrict__ W);
-int GFAST_scaling_PGD__setForwardModel(int n, int verbose,
-                                       double B, double C,
-                                       const double *__restrict__ r,
-                                       double *__restrict__ G);
-int GFAST_scaling_PGD__setRHS(int n, int verbose,
-                              double dist_tol, double dist_def,
-                              double A,
-                              const double *__restrict__ d,
-                              double *__restrict__ b);
-int GFAST_scaling_PGD__weightForwardModel(int l1, 
-                                          const double *__restrict__ W,
-                                          const double *__restrict__ G,
-                                          double *__restrict__ WG);
-int GFAST_scaling_PGD__weightObservations(int l1, 
-                                          const double *__restrict__ W,
-                                          const double *__restrict__ b,
-                                          double *__restrict__ Wb);
 /* Centroid moment tensor inversion */
-int GFAST_CMT__decomposeMomentTensor(int nmt,
-                                     const double *__restrict__ M,
-                                     double *__restrict__ DC_pct,
-                                     double *__restrict__ Mw,
-                                     double *__restrict__ strike1,
-                                     double *__restrict__ strike2,
-                                     double *__restrict__ dip1,
-                                     double *__restrict__ dip2,
-                                     double *__restrict__ rake1,
-                                     double *__restrict__ rake2);
-int GFAST_CMT__depthGridSearch(int l1, int ndeps,
-                               int verbose,
-                               bool deviatoric,
-                               double utmSrcEasting,
-                               double utmSrcNorthing,
-                               const double *__restrict__ srcDepths,
-                               const double *__restrict__ utmRecvEasting,
-                               const double *__restrict__ utmRecvNorthing,
-                               const double *__restrict__ staAlt,
-                               const double *__restrict__ nObsOffset,
-                               const double *__restrict__ eObsOffset,
-                               const double *__restrict__ uObsOffset,
-                               const double *__restrict__ nWts,
-                               const double *__restrict__ eWts,
-                               const double *__restrict__ uWts,
-                               double *__restrict__ nEst,
-                               double *__restrict__ eEst,
-                               double *__restrict__ uEst,
-                               double *__restrict__ mts);
 int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
                       double SA_lat, double SA_lon, double SA_dep,
                       struct GFAST_offsetData_struct cmt_data,
                       struct GFAST_cmtResults_struct *cmt);
-int GFAST_CMT__init(struct GFAST_cmt_props_struct props,
-                    struct GFAST_data_struct gps_data,
-                    struct GFAST_cmtResults_struct *cmt,
-                    struct GFAST_offsetData_struct *cmt_data);
 
-int GFAST_CMT__setDiagonalWeightMatrix(int n, int verbose,
-                                       const double *__restrict__ nWts,
-                                       const double *__restrict__ eWts,
-                                       const double *__restrict__ uWts,
-                                       double *__restrict__ diagWt);
 char *GFAST_CMT__makeQuakeML(const char *network,
                              const char *domain,
                              const char *evid,
@@ -228,110 +118,11 @@ char *GFAST_CMT__makeQuakeML(const char *network,
                              const double t0, 
                              const double mt[6],
                              int *ierr);
-int GFAST_CMT__setForwardModel__deviatoric(int l1, 
-                                           const double *__restrict__ x1, 
-                                           const double *__restrict__ y1, 
-                                           const double *__restrict__ z1, 
-                                           double *__restrict__ G);
-int GFAST_CMT__setRHS(int n, int verbose,
-                      const double *__restrict__ nOffset,
-                      const double *__restrict__ eOffset,
-                      const double *__restrict__ uOffset,
-                      double *__restrict__ U);
-int GFAST_CMT__weightForwardModel(int mrows, int ncols,
-                                  const double *__restrict__ diagWt,
-                                  const double *__restrict__ G,
-                                  double *__restrict__ diagWtG);
-int GFAST_CMT__weightObservations(int mrows,
-                                  const double *__restrict__ diagWt,
-                                  const double *__restrict__ b,
-                                  double *__restrict__ diagWb);
 /* Finite fault inversion */
 int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
                      double SA_lat, double SA_lon, double SA_dep,
                      struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff);
-int GFAST_FF__faultPlaneGridSearch(int l1, int l2,
-                                   int nstr, int ndip, int nfp,
-                                   int verbose,
-                                   const double *__restrict__ nOffset,
-                                   const double *__restrict__ eOffset,
-                                   const double *__restrict__ uOffset,
-                                   const double *__restrict__ nWts,
-                                   const double *__restrict__ eWts,
-                                   const double *__restrict__ uWts,
-                                   const double *__restrict__ utmRecvEasting,
-                                   const double *__restrict__ utmRecvNorthing,
-                                   const double *__restrict__ staAlt,
-                                   const double *__restrict__ fault_xutm,
-                                   const double *__restrict__ fault_yutm,
-                                   const double *__restrict__ fault_alt,
-                                   const double *__restrict__ length,
-                                   const double *__restrict__ width,
-                                   const double *__restrict__ strike,
-                                   const double *__restrict__ dip,
-                                   double *__restrict__ sslip,
-                                   double *__restrict__ dslip,
-                                   double *__restrict__ Mw,
-                                   double *__restrict__ vr,
-                                   double *__restrict__ NN,
-                                   double *__restrict__ EN,
-                                   double *__restrict__ UN,
-                                   double *__restrict__ sslip_unc,
-                                   double *__restrict__ dslip_unc
-                                   );
-int GFAST_FF__init(struct GFAST_ff_props_struct props,
-                   struct GFAST_data_struct gps_data,
-                   struct GFAST_ffResults_struct *ff,
-                   struct GFAST_offsetData_struct *ff_data);
-int GFAST_FF__meshFaultPlane(double SA_lat, double SA_lon, double SA_dep,
-                             double flen_pct,
-                             double fwid_pct,
-                             double M, double strikeF, double dipF,
-                             int nstr, int ndip,
-                             int utm_zone, int verbose,
-                             int *__restrict__ fault_ptr,
-                             double *__restrict__ lat_vtx,
-                             double *__restrict__ lon_vtx,
-                             double *__restrict__ dep_vtx,
-                             double *__restrict__ fault_xutm,
-                             double *__restrict__ fault_yutm,
-                             double *__restrict__ fault_alt,
-                             double *__restrict__ strike,
-                             double *__restrict__ dip,
-                             double *__restrict__ length,
-                             double *__restrict__ width);
-int GFAST_FF__setDiagonalWeightMatrix(int n, int verbose,
-                                      const double *__restrict__ nWts,
-                                      const double *__restrict__ eWts,
-                                      const double *__restrict__ uWts,
-                                      double *__restrict__ diagWt);
-int GFAST_FF__setForwardModel__okadagreenF(int l1, int l2,
-                                           const double *__restrict__ e,
-                                           const double *__restrict__ n,
-                                           const double *__restrict__ depth,
-                                           const double *__restrict__ strike,
-                                           const double *__restrict__ dip,
-                                           const double *__restrict__ W,
-                                           const double *__restrict__ L,
-                                           double *__restrict__ G);
-int GFAST_FF__setRegularizer(int l2, int nstr, int ndip, int nt,
-                             const double *__restrict__ width,
-                             const double *__restrict__ length,
-                             double *__restrict__ T);
-int GFAST_FF__setRHS(int n, int verbose,
-                     const double *__restrict__ nOffset,
-                     const double *__restrict__ eOffset,
-                     const double *__restrict__ uOffset,
-                     double *__restrict__ U);
-int GFAST_FF__weightForwardModel(int mrows, int ncols,
-                                 const double *__restrict__ diagWt,
-                                 const double *__restrict__ G,
-                                 double *__restrict__ diagWtG);
-int GFAST_FF__weightObservations(int mrows,
-                                 const double *__restrict__ diagWt,
-                                 const double *__restrict__ b,
-                                 double *__restrict__ diagWb);
 char *GFAST_FF__makeXML(const int mode,
                         const char *orig_sys,
                         const char *alg_vers,
@@ -354,28 +145,6 @@ char *GFAST_FF__makeXML(const int mode,
                         const double *ss_unc,
                         const double *ds_unc,
                         int *ierr);
-/* Waveform processor */
-int GFAST_waveformProcessor__peakDisplacement(
-    int utm_zone,
-    double svel_window,
-    double SA_lat,
-    double SA_lon,
-    double SA_dep,
-    double SA_time,
-    struct GFAST_data_struct gps_data,
-    struct GFAST_peakDisplacementData_struct *pgd_data,
-    int *ierr);
-int GFAST_waveformProcessor__offset(
-    int utm_zone,
-    double svel_window,
-    double SA_lat,
-    double SA_lon,
-    double SA_dep,
-    double SA_time,
-    struct GFAST_data_struct gps_data,
-    struct GFAST_offsetData_struct *offset_data,
-    int *ierr);
-
 #ifdef __cplusplus
 }
 #endif
