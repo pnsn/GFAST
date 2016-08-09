@@ -51,6 +51,7 @@ static int __cmopad_inv3(double Amat[3][3]);
 static double __cmopad_determinant3x3(double A[3][3]);
 static double __cmopad_trace3(double M[3][3]);
 static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3]);
+static void __cmopad_swap8(double *a, double *b);
 
 //============================================================================//
 /*!
@@ -562,6 +563,15 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
                              &src->fp1[1], &src->fp1[0], &src->fp1[2]);
     cmopad_findStrikeDipRake(rot_matrix_fp2,
                              &src->fp2[1], &src->fp2[0], &src->fp2[2]);
+    // For convenience if choose the first fault plane to be the one with
+    // the smaller strike
+    if (src->fp2[0] < src->fp1[0])
+    {
+        for (i=0; i<3; i++)
+        {
+            __cmopad_swap8(&src->fp1[i], &src->fp2[i]);
+        }
+    }
     return 0;
 }
 //============================================================================//
@@ -1729,4 +1739,19 @@ static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
         }
     }
     return 0;
+}
+/*!
+ * @brief Function for swapping to two numbers a, b
+ *
+ * @param[inout] a    on input a = a, on output a = b
+ * @param[inout] b    on input b = b, on output b = a
+ *
+ */
+static void __cmopad_swap8(double *a, double *b)
+{
+    double temp;
+    temp = *a;
+    *a = *b;
+    *b = temp;
+    return;
 }
