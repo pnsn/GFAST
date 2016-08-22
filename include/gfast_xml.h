@@ -119,27 +119,51 @@ struct qmlOrigin_struct
 extern "C" {
 #endif
 /* Convert epochal time to string */
-int xml_epoch2string(double epoch, char cepoch[128]);
+int xml_epoch2string(const double epoch, char cepoch[128]);
 /* Convert enumerated units to a string */
-void __xml_units__enum2string(enum alert_units_enum enum_units,
+void __xml_units__enum2string(const enum alert_units_enum enum_units,
                               char char_units[128]);
 /* Convert string to enumerated units */
 enum alert_units_enum
     __xml_units__string2enum(const char *char_units);
-/* Extract core info from shake Alert XML message */
-int GFAST_xml_coreInfo__read(const void *xml_reader, const double SA_NAN,
-                             struct coreInfo_struct *core);
-/* Write core info to shake Alert XML message */
-int GFAST_xml_coreInfo__write(const struct coreInfo_struct core,
+/* Write quakeML depth */
+int xml_quakeML_writeDepth(const double depth,
+                           const enum alert_units_enum depth_units,
+                           const bool lhaveDepth,
+                           const double depthUncer,
+                           const enum alert_units_enum depthUncer_units,
+                           const bool lhaveDepthUncer,
+                           const double confidence,
+                           const bool lhaveConfidence,
+                           void *xml_writer);
+/* Write quakeML latitude */
+int xml_quakeML_writeLatitude(const double latitude,
+                              const enum alert_units_enum lat_units,
+                              const bool lhaveLat,
+                              const double latUncer,
+                              const enum alert_units_enum latUncer_units,
+                              const bool lhaveLatUncer,
+                              const double confidence,
+                              const bool lhaveConfidence,
                               void *xml_writer);
+/* Write quakeML longitude */
+int xml_quakeML_writeLongitude(const double longitude,
+                               const enum alert_units_enum lon_units,
+                               const bool lhaveLon,
+                               const double lonUncer,
+                               const enum alert_units_enum lonUncer_units,
+                               const bool lhaveLonUncer,
+                               const double confidence,
+                               const bool lhaveConfidence,
+                               void *xml_writer);
 /* Write the focal mechanism */
-int GFAST_xml_focalMechanism__write(const char *publicIDroot,
+int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                     const char *evid,
                                     const char *method,
                                     const double mt[6],
                                     void *xml_writer);
 /* Write the moment tensor to XML message */
-int GFAST_xml_momentTensor__write(const char *publicIDroot,
+int xml_quakeML_writeMomentTensor(const char *publicIDroot,
                                   const char *evid,
                                   const char *method,
                                   const double M_use[6],
@@ -148,74 +172,132 @@ int GFAST_xml_momentTensor__write(const char *publicIDroot,
                                   const double clvd_pct,
                                   void *xml_writer);
 /* Write the nodal planes */
-int GFAST_xml_nodalPlanes__write(const double np1[3],
+int xml_quakeML_writeNodalPlanes(const double np1[3],
                                  const double np2[3],
                                  void *xml_writer);
 /* Write the principal axes */
-int GFAST_xml_principalAxes__write(const double taxis[3],
+int xml_quakeML_writePrincipalAxes(const double taxis[3],
                                    const double paxis[3],
                                    const double naxis[3],
                                    void *xml_writer);
-/* Write a segment */
-int GFAST_xml_segment__write(const enum xml_segmentShape_enum shape,
-                             const double *lats,
-                             const enum alert_units_enum lat_units,
-                             const double *lons,
-                             const enum alert_units_enum lon_units,
-                             const double *depths,
-                             const enum alert_units_enum depth_units,
-                             const double ss,
-                             const enum alert_units_enum ss_units,
-                             const double ds,
-                             const enum alert_units_enum ds_units,
-                             const double ss_unc,
-                             const enum alert_units_enum ss_unc_units,
-                             const double ds_unc,
-                             const enum alert_units_enum ds_unc_units,
-                             void *xml_writer);
-/* Read slip */
-int GFAST_xml_slip__read(const void *xml_reader, const double VTX_NAN,
-                         double *ss, double *ss_uncer,
-                         double *ds, double *ds_uncer);
-/* Write slip */
-int GFAST_xml_slip__write(const double ss,
-                          const enum alert_units_enum ss_units,
-                          const double ds,
-                          const enum alert_units_enum ds_units,
-                          const double ss_uncer,
-                          const enum alert_units_enum ss_uncer_units,
-                          const double ds_uncer,
-                          const enum alert_units_enum ds_uncer_units,
-                          void *xml_writer);
 /* Write a (moment) tensor */
-int GFAST_xml_tensor__write(const double Mrr, const double Mtt,
+int xml_quakeML_writeTensor(const double Mrr, const double Mtt,
                             const double Mpp, const double Mrt,
                             const double Mrp, const double Mtp,
                             void *xml_writer);
-/* Read vertices */
-int GFAST_xml_vertices__read(const void *xml_reader,
-                             const enum xml_segmentShape_enum shape,
-                             const double VTX_NAN,
-                             double *__restrict__ lat,
-                             double *__restrict__ lon,
-                             double *__restrict__ depth);
-/* Write vertices */
-int GFAST_xml_vertices__write(const enum xml_segmentShape_enum shape,
-                              const double *lats,
-                              const enum alert_units_enum lat_units,
-                              const double *lons,
-                              const enum alert_units_enum lon_units,
-                              const double *depths,
-                              const enum alert_units_enum depth_units,
-                              void *xml_writer);
+/* Write (origin) time */
+int xml_quakeML_writeTime(const double time,
+                          const enum alert_units_enum time_units,
+                          const bool lhaveTime,
+                          const double timeUncer,
+                          const enum alert_units_enum timeUncer_units,
+                          const bool lhaveTimeUncer,
+                          const const double confidence,
+                          const bool lhaveConfidence,
+                          void *xml_writer);
+//----------------------------------------------------------------------------//
+//                                shakeAlert                                  //
+//----------------------------------------------------------------------------//
+/* Read shakeAlert coreInfo */
+int xml_shakeAlert_readCoreInfo(const void *xml_reader,
+                                const double SA_NAN,
+                                struct coreInfo_struct *core);
+/* Write shakeAlert coreInfo */
+int xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,
+                                 void *xml_writer);
+/* Write a shakeAlert finite fault segment */
+int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
+                                const double *lats,
+                                const enum alert_units_enum lat_units,
+                                const double *lons,
+                                const enum alert_units_enum lon_units,
+                                const double *depths,
+                                const enum alert_units_enum depth_units,
+                                const double ss, 
+                                const enum alert_units_enum ss_units,
+                                const double ds, 
+                                const enum alert_units_enum ds_units,
+                                const double ss_uncer,
+                                const enum alert_units_enum ss_uncer_units,
+                                const double ds_uncer,
+                                const enum alert_units_enum ds_uncer_units,
+                                void *xml_writer);
+/* Read slip */
+int xml_shakeAlert_readSlip(const void *xml_reader, const double VTX_NAN,
+                            double *ss, double *ss_uncer,
+                            double *ds, double *ds_uncer);
+/* Write slip */
+int xml_shakeAlert_writeSlip(const double ss,
+                             const enum alert_units_enum ss_units,
+                             const double ds,
+                             const enum alert_units_enum ds_units,
+                             const double ss_uncer,
+                             const enum alert_units_enum ss_uncer_units,
+                             const double ds_uncer,
+                             const enum alert_units_enum ds_uncer_units,
+                             void *xml_writer);
+/* Read shakeAlert finite fault vertices */
+int xml_shakeAlert_readVertices(const void *xml_reader,
+                                const enum xml_segmentShape_enum shape,
+                                const double VTX_NAN,
+                                double *__restrict__ lat,
+                                double *__restrict__ lon,
+                                double *__restrict__ depth);
+/* Write shakeAlert finite fault vertices */
+int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
+                                 const double *lats,
+                                 const enum alert_units_enum lat_units,
+                                 const double *lons,
+                                 const enum alert_units_enum lon_units,
+                                 const double *depths,
+                                 const enum alert_units_enum depth_units,
+                                 void *xml_writer);
 /* Read vertex */
-int GFAST_xml_vertex__read(void *xml_reader, double VTX_NAN,
-                           double *lat, double *lon, double *depth);
+int xml_shakeAlert_readVertex(const void *xml_reader, const double VTX_NAN,
+                              double *lat, double *lon, double *depth);
 /* Write a vertex */
-int GFAST_xml_vertex__write(double lat, enum alert_units_enum lat_units,
-                            double lon, enum alert_units_enum lon_units,
-                            double depth, enum alert_units_enum depth_units,
-                            void *xml_writer);
+int xml_shakeAlert_writeVertex(const double lat,
+                               const enum alert_units_enum lat_units,
+                               const double lon,
+                               const enum alert_units_enum lon_units,
+                               const double depth,
+                               const enum alert_units_enum depth_units,
+                               void *xml_writer);
+#define GFAST_xml_quakeML_writeDepth(...)       \
+              xml_quakeML_writeDepth(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeLatitude(...)       \
+              xml_quakeML_writeLatitude(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeLongitude(...)       \
+              xml_quakeML_writeLongitude(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeFocalMechanism(...)       \
+              xml_quakeML_writeFocalMechanism(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeMomentTensor(...)       \
+              xml_quakeML_writeMomentTensor(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeNodalPlanes(...)       \
+              xml_quakeML_writeNodalPlanes(__VA_ARGS__) 
+#define GFAST_xml_quakeML_writePrincipalAxes(...)       \
+              xml_quakeML_writePrincipalAxes(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeTensor(...)       \
+              xml_quakeML_writeTensor(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeTime(...)       \
+              xml_quakeML_writeTime(__VA_ARGS__)
+
+
+#define GFAST_xml_shakeAlert_readCoreInfo(...)       \
+              xml_shakeAlert_readCoreInfo(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_writeSegment(...)       \
+              xml_shakeAlert_writeSegment(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_readSlip(...)       \
+              xml_shakeAlert_readSlip(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_writeSlip(...)       \
+              xml_shakeAlert_writeSlip(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_readVertex(...)       \
+	      xml_shakeAlert_readVertex(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_writeVertex(...)       \
+              xml_shakeAlert_writeVertex(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_readVertices(...)       \
+              xml_shakeAlert_readVertices(__VA_ARGS__)
+
 #ifdef __cplusplus
 }
 #endif

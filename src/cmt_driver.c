@@ -100,6 +100,8 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
     for (i=0; i<cmt->ndeps; i++)
     {
         cmt->objfn[i] = 0.0;
+        cmt->l2[i] = 0.0;
+        cmt->pct_dc[i] = 0.0;
         cmt->str1[i] = 0.0;
         cmt->str2[i] = 0.0;
         cmt->dip1[i] = 0.0;
@@ -261,6 +263,8 @@ int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
             continue;
         }
         // Prefer results with larger double couple percentages
+        cmt->l2[idep] = 0.5*sqrt(sum_res2);
+        cmt->pct_dc[idep] = DC_pct;
         cmt->objfn[idep] = sum_res2/DC_pct;
         // Save the data
         i = 0;
@@ -339,7 +343,8 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
         ierr = CMT_STRUCT_ERROR;
         goto ERROR;
     }
-    if (cmt->objfn == NULL || cmt->mts == NULL ||
+    if (cmt->l2 == NULL || cmt->pct_dc == NULL ||
+        cmt->objfn == NULL || cmt->mts == NULL ||
         cmt->str1 == NULL || cmt->str2 == NULL ||
         cmt->dip1 == NULL || cmt->dip2 == NULL ||
         cmt->rak1 == NULL || cmt->rak2 == NULL ||
@@ -348,6 +353,14 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
         cmt->Einp == NULL || cmt->Ninp == NULL || cmt->Uinp == NULL ||
         cmt->lsiteUsed == NULL)
     {
+        if (cmt->l2 == NULL)
+        {
+            log_errorF("%s: Error cmt->l2 is NULL\n", fcnm);
+        }
+        if (cmt->pct_dc == NULL)
+        {
+            log_errorF("%s: Error cmt->pct_dc is NULL\n", fcnm);
+        }
         if (cmt->objfn == NULL)
         {
             log_errorF("%s: Error cmt->objfn is NULL\n", fcnm);

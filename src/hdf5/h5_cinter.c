@@ -269,7 +269,8 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
                                 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     // Create output
     cout = (char **)calloc(n, sizeof(char *));
-    for (i=0; i<n; i++){
+    for (i=0; i<n; i++)
+    {
         lens = strlen(c[i]);
         cout[i] = (char *)calloc(lens+1, sizeof(char));
         memset(cout[i], 0, lens+1);

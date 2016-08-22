@@ -21,16 +21,19 @@ struct h5_peakDisplacementData_struct
     hvl_t sta_alt;
     hvl_t lmask;
     hvl_t lactive;
-    hvl_t  nsites;
+    int nsites;
 };
 
 struct h5_pgdResults_struct
 {
     hvl_t mpgd;
     hvl_t mpgd_vr;
+    hvl_t dep_vr_pgd;
     hvl_t UP;
     hvl_t UPinp;
     hvl_t srcDepths;
+    hvl_t srdist;
+    hvl_t iqr;
     hvl_t lsiteUsed;
     int ndeps;
     int nsites;
@@ -38,6 +41,8 @@ struct h5_pgdResults_struct
 
 struct h5_cmtResults_struct
 {
+    hvl_t l2;
+    hvl_t pct_dc;
     hvl_t objfn;
     hvl_t mts;
     hvl_t str1;
@@ -62,7 +67,7 @@ struct h5_cmtResults_struct
 
 struct h5_offsetData_struct
 {
-    hvl_t stnm[64];
+    hvl_t stnm;
     hvl_t ubuff;
     hvl_t nbuff;
     hvl_t ebuff;
@@ -121,59 +126,92 @@ struct h5_ffResults_struct
     int nfp;
 };
 
+struct h5_hypocenter_struct
+{
+    char eventid[128]; /*!< Event ID */
+    double lat;        /*!< Event latitude (degrees) */
+    double lon;        /*!< Event longitude (degrees) */
+    double dep;        /*!< Event depth (kilometers) */ 
+    double mag;        /*!< Event magnitude */
+    double time;       /*!< Event epochal time (s) */
+};
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-int GFAST_HDF5__copy__cmtResults(enum data2h5_enum job,
-                                 struct GFAST_cmtResults_struct *cmt,
-                                 struct h5_cmtResults_struct *h5_cmt);
-int GFAST_HDF5__copy__faultPlane(enum data2h5_enum job,
-                                 struct GFAST_faultPlane_struct *fp,
-                                 struct h5_faultPlane_struct *h5_fp);
-int GFAST_HDF5__copy__ffResults(enum data2h5_enum job,
-                                struct GFAST_ffResults_struct *ff,
-                                struct h5_ffResults_struct *h5_ff);
-int GFAST_HDF5__copy__peakDisplacementData(enum data2h5_enum job,
-                          struct GFAST_peakDisplacementData_struct *pgd_data,
-                          struct h5_peakDisplacementData_struct *h5_pgd_data);
-int GFAST_HDF5__copy__pgdResults(enum data2h5_enum job,
-                                 struct GFAST_pgdResults_struct *pgd,
-                                 struct h5_pgdResults_struct *h5_pgd);
-herr_t GFAST_HDF5__createType__cmtResults(hid_t group_id);
-herr_t GFAST_HDF5__createType__faultPlane(hid_t group_id);
-herr_t GFAST_HDF5__createType__ffResults(hid_t group_id);
-herr_t GFAST_HDF5__createType__offsetData(hid_t group_id);
-herr_t GFAST_HDF5__createType__peakDisplacementData(hid_t group_id);
-herr_t GFAST_HDF5__createType__pgdResults(hid_t group_id);
-int GFAST_HDF5__initialize(const char *adir,
-                           const char *evid,
-                           const char *propfilename);
-int GFAST_HDF5__memory__freeCMTResults(struct h5_cmtResults_struct *cmt);
-int GFAST_HDF5__memory__freeFFResults(struct h5_ffResults_struct *ff);
-int GFAST_HDF5__memory__freePGDResults(struct h5_pgdResults_struct *pgd);
-int GFAST_HDF5__setFileName(const char *adir,
-                            const char *evid, 
-                            char fname[PATH_MAX]);
-int GFAST_HDF5__update__cmt(const char *adir,
+int hdf5_copy__cmtResults(const enum data2h5_enum job,
+                          struct GFAST_cmtResults_struct *cmt,
+                          struct h5_cmtResults_struct *h5_cmt);
+int hdf5_copy__faultPlane(const enum data2h5_enum job,
+                          struct GFAST_faultPlane_struct *fp,
+                          struct h5_faultPlane_struct *h5_fp);
+int hdf5_copy__ffResults(const enum data2h5_enum job,
+                         struct GFAST_ffResults_struct *ff,
+                         struct h5_ffResults_struct *h5_ff);
+int hdf5_copy__hypocenter(const enum data2h5_enum job,
+                          struct GFAST_shakeAlert_struct *hypo,
+                          struct h5_hypocenter_struct *h5_hypo);
+int hdf5_copy__offsetData(const enum data2h5_enum job,
+                          struct GFAST_offsetData_struct *offset_data,
+                          struct h5_offsetData_struct *h5_offset_data);
+int hdf5_copy__peakDisplacementData(
+    const enum data2h5_enum job,
+    struct GFAST_peakDisplacementData_struct *pgd_data,
+    struct h5_peakDisplacementData_struct *h5_pgd_data);
+int hdf5_copy__pgdResults(const enum data2h5_enum job,
+                          struct GFAST_pgdResults_struct *pgd,
+                          struct h5_pgdResults_struct *h5_pgd);
+
+herr_t hdf5_createType__cmtResults(hid_t group_id);
+herr_t hdf5_createType__faultPlane(hid_t group_id);
+herr_t hdf5_createType__ffResults(hid_t group_id);
+herr_t hdf5_createType__hypocenter(hid_t group_id);
+herr_t hdf5_createType__offsetData(hid_t group_id);
+herr_t hdf5_createType__peakDisplacementData(hid_t group_id);
+herr_t hdf5_createType__pgdResults(hid_t group_id);
+
+int hdf5_initialize(const char *adir,
+                    const char *evid,
+                    const char *propfilename);
+
+
+int hdf5_memory__freeCMTResults(struct h5_cmtResults_struct *cmt);
+int hdf5_memory__freeFaultPlane(struct h5_faultPlane_struct *fp);
+int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff);
+int hdf5_memory__freeOffsetData(
+    struct h5_offsetData_struct *h5_offset_data);
+int hdf5_memory__freePGDData(
+    struct h5_peakDisplacementData_struct *h5_pgd_data);
+int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd);
+
+int hdf5_setFileName(const char *adir,
+                     const char *evid, 
+                     char fname[PATH_MAX]);
+
+int hdf5_update__cmt(const char *adir,
+                     const char *evid,
+                     const int h5k,
+                     struct GFAST_offsetData_struct cmt_data,
+                     struct GFAST_cmtResults_struct cmt);
+int hdf5_update__ff(const char *adir,
+                    const char *evid,
+                    const int h5k,
+                    struct GFAST_offsetData_struct ff_data,
+                    struct GFAST_ffResults_struct ff);
+int hdf5_update__hypocenter(const char *adir,
                             const char *evid,
                             const int h5k,
-                            struct GFAST_offsetData_struct cmt_data,
-                            struct GFAST_cmtResults_struct cmt);
-int GFAST_HDF5__update__ff(const char *adir,
-                           const char *evid,
-                           const int h5k,
-                           struct GFAST_offsetData_struct ff_data,
-                           struct GFAST_ffResults_struct ff);
-int GFAST_HDF5__update__getIteration(const char *adir,
-                                     const char *evid,
-                                     const double epoch);
-int GFAST_HDF5__update__pgd(const char *adir,
-                            const char *evid,
-                            const int h5k,
-                            struct GFAST_peakDisplacementData_struct pgd_data,
-                            struct GFAST_pgdResults_struct pgd);
+                            struct GFAST_shakeAlert_struct hypo);
+int hdf5_update__getIteration(const char *adir,
+                              const char *evid,
+                              const double epoch);
+int hdf5_update__pgd(const char *adir,
+                     const char *evid,
+                     const int h5k,
+                     struct GFAST_peakDisplacementData_struct pgd_data,
+                     struct GFAST_pgdResults_struct pgd);
 
 
 
@@ -207,6 +245,67 @@ int h5_n_group_members(const char *group_name, const hid_t file_id);
 int h5_get_array_size(const hid_t file_id, const char *citem);
 bool h5_item_exists(const hid_t file_id, const char *citem_in);
 hid_t h5_create_group(const hid_t file_id, const char *cgroup);
+
+#define GFAST_hdf5_setFileName(...)       \
+              hdf5_setFileName(__VA_ARGS__)
+
+#define GFAST_hdf5_copy__cmtResults(...)       \
+              hdf5_copy__cmtResults(__VA_ARGS__)
+#define GFAST_hdf5_copy__faultPlane(...)       \
+              hdf5_copy__faultPlane(__VA_ARGS__)
+#define GFAST_hdf5_copy__ffResults(...)       \
+              hdf5_copy__ffResults(__VA_ARGS__)
+#define GFAST_hdf5_copy__hypocenter(...)       \
+              hdf5_copy__hypocenter(__VA_ARGS__)
+#define GFAST_hdf5_copy__offsetData(...)       \
+              hdf5_copy__offsetData(__VA_ARGS__)
+#define GFAST_hdf5_copy__peakDisplacementData(...)       \
+              hdf5_copy__peakDisplacementData(__VA_ARGS__)
+#define GFAST_hdf5_copy__pgdResults(...)       \
+              hdf5_copy__pgdResults(__VA_ARGS__)
+
+#define GFAST_hdf5_createType__cmtResults(...)       \
+              hdf5_createType__cmtResults(__VA_ARGS__)
+#define GFAST_hdf5_createType__faultPlane(...)       \
+              hdf5_createType__faultPlane(__VA_ARGS__)
+#define GFAST_hdf5_createType__ffResults(...)       \
+              hdf5_createType__ffResults(__VA_ARGS__)
+#define GFAST_hdf5_createType__hypocenter(...)       \
+              hdf5_createType__hypocenter(__VA_ARGS__)
+#define GFAST_hdf5_createType__offsetData(...)       \
+              hdf5_createType__offsetData(__VA_ARGS__)
+#define GFAST_hdf5_createType__peakDisplacementData(...)       \
+              hdf5_createType__peakDisplacementData(__VA_ARGS__)
+#define GFAST_hdf5_createType__pgdResults(...)       \
+              hdf5_createType__pgdResults(__VA_ARGS__)
+
+#define GFAST_hdf5_initialize(...)       \
+              hdf5_initialize(__VA_ARGS__)
+#define GFAST_hdf5_memory__freeCMTResults(...)       \
+              hdf5_memory__freeCMTResults(__VA_ARGS__)
+#define GFAST_hdf5_memory__freePGDData(...)       \
+              hdf5_memory__freePGDData(__VA_ARGS__)
+#define GFAST_hdf5_memory__freePGDResults(...)       \
+              hdf5_memory__freePGDResults(__VA_ARGS__)
+#define GFAST_hdf5_memory__freeFaultPlane(...)       \
+              hdf5_memory__freeFaultPlane(__VA_ARGS__)
+#define GFAST_hdf5_memory__freeFFResults(...)       \
+              hdf5_memory__freeFFResults(__VA_ARGS__)
+#define GFAST_hdf5_memory__freeOffsetData(...)       \
+              hdf5_memory__freeOffsetData(__VA_ARGS__)
+#define GFAST_hdf5_update__cmt(...)       \
+              hdf5_update__cmt(__VA_ARGS__)
+#define GFAST_hdf5_update__ff(...)       \
+              hdf5_update__ff(__VA_ARGS__)
+#define GFAST_hdf5_update__getIteration(...)            \
+              hdf5_update__getIteration(__VA_ARGS__)
+#define GFAST_hdf5_update__hypocenter(...)       \
+              hdf5_update__hypocenter(__VA_ARGS__)
+#define GFAST_hdf5_update__pgd(...)            \
+              hdf5_update__pgd(__VA_ARGS__)
+
+
+
 #ifdef __cplusplus
 }
 #endif

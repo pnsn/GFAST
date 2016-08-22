@@ -2,7 +2,6 @@
 #include "cmopad.h"
 #include "gfast_core.h"
 #include "gfast_enum.h"
-#include "gfast_log.h"
 #include "gfast_numpy.h"
 #include "gfast_obspy.h"
 #include "gfast_os.h"
@@ -13,11 +12,9 @@
 #ifndef __GFAST__
 #define __GFAST__
 
-#define CACHE_LINE_SIZE 64
 #define GFAST_ALGORITHM_VERSION "0.01"
 #define GFAST_VERSION "0.01"
 #define GFAST_INSTANCE "PNSN"
- 
 
 #ifdef __cplusplus
 extern "C"
@@ -76,16 +73,6 @@ void GFAST_memory_freeFFResults(struct GFAST_ffResults_struct *ff);
 void GFAST_memory_freePGDData(
      struct GFAST_peakDisplacementData_struct *pgd_data);
 void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data);
-int *GFAST_memory_calloc__int(int n);
-int *GFAST_memory_alloc__int(int n);
-bool *GFAST_memory_calloc__bool(int n);
-bool *GFAST_memory_alloc__bool(int n);
-double *GFAST_memory_calloc__double(int n);
-double *GFAST_memory_alloc__double(int n);
-void GFAST_memory_free(void *p);
-void GFAST_memory_free__double(double **p);
-void GFAST_memory_free__int(int **p);
-void GFAST_memory_free__bool(bool **p);
 /* Initializes the GFAST parameters */
 int GFAST_properties__init(char *propfilename,
                            struct GFAST_props_struct *props);

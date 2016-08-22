@@ -240,7 +240,9 @@ struct GFAST_ffResults_struct
 
 struct GFAST_cmtResults_struct
 {
-    double *objfn;     /*!< Objective function at all depths */
+    double *l2;        /*!< L_2 objective function at all depths [ndeps] */
+    double *pct_dc;    /*!< Percent double couple at each depth [ndeps] */
+    double *objfn;     /*!< Objective function at all depths = l2/pct_dc */
     double *mts;       /*!< Holds the NED moment tensor terms packed
                             \f$ \{m_{xx}, m_{yy}, m_{zz},
                                   m_{xy}, m_{xz}, m_{yz} \} \f$.  [6*ndeps] */
@@ -284,11 +286,14 @@ struct GFAST_pgdResults_struct
 {
     double *mpgd;      /*!< PGD magnitude at id'th depth [ndeps] */
     double *mpgd_vr;   /*!< PGD variance reduction at id'th depth [ndeps] */
+    double *dep_vr_pgd;/*!< PGD variance reduction at id'th depth 
+                            normalized by the interquartile range [ndeps] */
     double *UP;        /*!< PGD estimates for each source depth
                             [nsites*ndeps] */
     double *UPinp;     /*!< PGD observations for each site [nsites] */
     double *srcDepths; /*!< PGD source depths in grid search (km) [ndeps] */
-    double *iqr75_25;  /*!< 75-25 interquartile range of the weighted
+    double *srdist;    /*!< Source receiver distance (km) [ndeps*nsites] */
+    double *iqr;       /*!< interquartile range (75 - 25) of the weighted
                             residuals at each depth [ndeps] */
     bool *lsiteUsed;   /*!< If true then the isite'th site from the 
                             site list was used in the PGD estimation [nsites] */

@@ -40,7 +40,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                               struct GFAST_pgdResults_struct *pgd)
 {
     const char *fcnm = "GFAST_scaling_PGD__driver\0";
-    double *d, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
+    double *d, *srdist, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
            iqrMin, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
     int i, idep, ierr, j, k, l1, zone_loc;
     bool *luse, lnorthp;
@@ -54,6 +54,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     utmRecvEasting = NULL;
     staAlt = NULL;
     Uest = NULL;
+    srdist = NULL;
     luse = NULL;
     // Verify the input data structure makes sense
     if (pgd_data.nsites < 1)
@@ -96,7 +97,8 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     }
     if (pgd->mpgd == NULL || pgd->mpgd_vr == NULL ||
         pgd->srcDepths == NULL || pgd->UP == NULL ||
-        pgd->UPinp == NULL || pgd->lsiteUsed == NULL)
+        pgd->UPinp == NULL || pgd->srdist == NULL ||
+        pgd->lsiteUsed == NULL)
     {
         if (pgd->mpgd == NULL)
         {
@@ -117,6 +119,10 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         if (pgd->UPinp == NULL)
         {
             log_errorF("%s: pgd->UPinp is NULL\n", fcnm);
+        }
+        if (pgd->srdist == NULL)
+        {
+            log_errorF("%s: pgd->srdist is NULL\n", fcnm);
         }
         if (pgd->lsiteUsed == NULL)
         {
@@ -183,6 +189,7 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
     staAlt          = ISCL_memory_calloc__double(l1);
     wts             = ISCL_memory_calloc__double(l1);
     Uest            = ISCL_memory_calloc__double(l1*pgd->ndeps);
+    srdist          = ISCL_memory_calloc__double(l1*pgd->ndeps);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Estimate UTM zone from source lon
@@ -226,9 +233,10 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
                                                   staAlt,
                                                   d,
                                                   wts,
+                                                  srdist,
                                                   pgd->mpgd,
                                                   pgd->mpgd_vr,
-                                                  pgd->iqr75_25,
+                                                  pgd->iqr,
                                                   Uest);
     if (ierr != 0)
     {   
@@ -247,18 +255,20 @@ int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
         pgd->UPinp[i] = d[k];
         k = k + 1;
     }
-    iqrMin = array_min__double(pgd->ndeps, pgd->iqr75_25);
+    iqrMin = array_min__double(pgd->ndeps, pgd->iqr);
     // Extract the estimates and compute weighted objective function
     for (idep=0; idep<pgd->ndeps; idep++)
     {
+        pgd->dep_vr_pgd[idep] = pgd->mpgd[idep]*iqrMin/pgd->iqr[idep];
         j = 0;
-        pgd->dep_vr_pgd[i] = pgd->mpgd[i]*iqrMin/pgd->iqr75_25[i];
         for (i=0; i<pgd->nsites; i++)
         {
             pgd->UP[idep*pgd->nsites+i] = 0.0;
+            pgd->srdist[idep*pgd->nsites+i] = 0.0;
             if (luse[i])
             {
                 pgd->UP[idep*pgd->nsites+i] = Uest[idep*l1+j];
+                pgd->srdist[idep*pgd->nsites+i] = srdist[idep*l1+j];
                 j = j + 1;
             }
         }
@@ -270,6 +280,7 @@ ERROR:;
     ISCL_memory_free__double(&staAlt);
     ISCL_memory_free__double(&wts);
     ISCL_memory_free__double(&Uest);
+    ISCL_memory_free__double(&srdist);
     ISCL_memory_free__bool(&luse);
     return ierr;
 }

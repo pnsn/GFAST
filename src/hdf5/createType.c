@@ -131,8 +131,11 @@ herr_t hdf5_createType__pgdResults(hid_t group_id)
     ierr += H5Tinsert(dataType, "sourceDepth\0",
                       HOFFSET(struct h5_pgdResults_struct, srcDepths),
                       vlenDData);
-    ierr += H5Tinsert(dataType, "interQuartileRanges_75_25\0",
-                      HOFFSET(struct h5_pgdResults_struct, iqr75_25),
+    ierr += H5Tinsert(dataType, "sourceReceiverDistance\0",
+                      HOFFSET(struct h5_pgdResults_struct, srdist),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "interQuartileRange\0",
+                      HOFFSET(struct h5_pgdResults_struct, iqr),
                       vlenDData);
     ierr += H5Tinsert(dataType, "siteUsed\0",
                       HOFFSET(struct h5_pgdResults_struct, lsiteUsed),
@@ -250,6 +253,68 @@ herr_t hdf5_createType__offsetData(hid_t group_id)
 }
 //============================================================================//
 /*!
+ * @brief Creates the hypocenter data type
+ *
+ * @param[in] group_id    HDF5 group_id handle
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+herr_t hdf5_createType__hypocenter(hid_t group_id)
+{
+    const char *fcnm = "hdf5_createType__hypocenter\0";
+    hid_t dataType, string128Type;
+    herr_t ierr = 0;
+    //------------------------------------------------------------------------//
+    //
+    // Nothing to do
+    if (H5Lexists(group_id, "hypocenterStructure\0", H5P_DEFAULT) != 0)
+    {
+        return ierr;
+    }
+    // String data type 
+    string128Type = H5Tcopy(H5T_C_S1);
+    H5Tset_size(string128Type, 128);
+    // Build the data structure
+    dataType = H5Tcreate(H5T_COMPOUND,
+                         sizeof(struct h5_hypocenter_struct));
+    ierr += H5Tinsert(dataType, "eventName\0",
+                      HOFFSET(struct h5_hypocenter_struct, eventid),
+                      string128Type);
+    ierr += H5Tinsert(dataType, "latitude\0",
+                      HOFFSET(struct h5_hypocenter_struct, lat),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "longitude\0",
+                      HOFFSET(struct h5_hypocenter_struct, lon),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "depth\0",
+                      HOFFSET(struct h5_hypocenter_struct, dep),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "magnitude\0",
+                      HOFFSET(struct h5_hypocenter_struct, mag),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "originTime\0",
+                      HOFFSET(struct h5_hypocenter_struct, time),
+                      H5T_NATIVE_DOUBLE);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Failed to pack type\n", fcnm);
+        return ierr;
+    }
+    // Commit it
+    ierr = H5Tcommit(group_id, "hypocenterStructure\0", dataType,
+                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Failed to create offset data structure\n", fcnm);
+        return ierr;
+    }
+    return ierr;
+}
+//============================================================================//
+/*!
  * @brief Creates the CMT results structure 
  *
  * @param[in] group_id    HDF5 group_id handle
@@ -276,13 +341,19 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
     // Build the data structure
     dataType = H5Tcreate(H5T_COMPOUND,
                          sizeof(struct h5_cmtResults_struct));
+    ierr += H5Tinsert(dataType, "L2norm\0",
+                      HOFFSET(struct h5_cmtResults_struct, l2),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "percentDoubleCouple\0",
+                      HOFFSET(struct h5_cmtResults_struct, pct_dc),
+                      vlenDData);
     ierr += H5Tinsert(dataType, "ObjectiveFunction\0",
                       HOFFSET(struct h5_cmtResults_struct, objfn),
                       vlenDData);
     ierr += H5Tinsert(dataType, "momentTensors\0",
                       HOFFSET(struct h5_cmtResults_struct, mts),
                       vlenDData);
-    ierr += H5Tinsert(dataType, "strikesFaultPlane1\0",
+    ierr += H5Tinsert(dataType, "strikeFaultPlane1\0",
                       HOFFSET(struct h5_cmtResults_struct, str1),
                       vlenDData);
     ierr += H5Tinsert(dataType, "dipFaultPlane1\0",
@@ -291,7 +362,7 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
     ierr += H5Tinsert(dataType, "rakeFaultPlane1\0",
                       HOFFSET(struct h5_cmtResults_struct, rak1),
                       vlenDData);
-    ierr += H5Tinsert(dataType, "strikesFaultPlane2\0",
+    ierr += H5Tinsert(dataType, "strikeFaultPlane2\0",
                       HOFFSET(struct h5_cmtResults_struct, str2),
                       vlenDData);
     ierr += H5Tinsert(dataType, "dipFaultPlane2\0",
@@ -528,6 +599,9 @@ herr_t hdf5_createType__ffResults(hid_t group_id)
                       H5T_NATIVE_DOUBLE);
     ierr += H5Tinsert(dataType, "sourceLongitude\0",
                       HOFFSET(struct h5_ffResults_struct, SA_lon),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "sourceDepth\0",
+                      HOFFSET(struct h5_ffResults_struct, SA_dep),
                       H5T_NATIVE_DOUBLE);
     ierr += H5Tinsert(dataType, "sourceMagnitude\0",
                       HOFFSET(struct h5_ffResults_struct, SA_mag),

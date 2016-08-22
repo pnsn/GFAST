@@ -12,7 +12,8 @@ int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd)
     if (pgd->UP.p         != NULL){free(pgd->UP.p);}
     if (pgd->UPinp.p      != NULL){free(pgd->UPinp.p);}
     if (pgd->srcDepths.p  != NULL){free(pgd->srcDepths.p);}
-    if (pgd->iqr75_25.p   != NULL){free(pgd->iqr75_25.p);}
+    if (pgd->srdist.p     != NULL){free(pgd->srdist.p);}
+    if (pgd->iqr.p        != NULL){free(pgd->iqr.p);}
     if (pgd->lsiteUsed.p  != NULL){free(pgd->lsiteUsed.p);}
     memset(pgd, 0, sizeof(struct h5_pgdResults_struct));
     return 0;
@@ -20,6 +21,8 @@ int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd)
 
 int hdf5_memory__freeCMTResults(struct h5_cmtResults_struct *cmt)
 {
+    if (cmt->l2.p        != NULL){free(cmt->l2.p);}
+    if (cmt->pct_dc.p    != NULL){free(cmt->pct_dc.p);}
     if (cmt->objfn.p     != NULL){free(cmt->objfn.p);}
     if (cmt->mts.p       != NULL){free(cmt->mts.p);}
     if (cmt->str1.p      != NULL){free(cmt->str1.p);}
@@ -87,5 +90,39 @@ int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff)
     if (ff->str.p != NULL){free(ff->str.p);}
     if (ff->dip.p != NULL){free(ff->dip.p);}
     memset(ff, 0, sizeof(struct h5_ffResults_struct));
+    return 0;
+}
+
+int hdf5_memory__freePGDData(
+    struct h5_peakDisplacementData_struct *h5_pgd_data)
+{
+    if (h5_pgd_data->pd.p      != NULL){free(h5_pgd_data->pd.p);}
+    if (h5_pgd_data->wt.p      != NULL){free(h5_pgd_data->wt.p);}
+    if (h5_pgd_data->sta_lat.p != NULL){free(h5_pgd_data->sta_lat.p);}
+    if (h5_pgd_data->sta_lon.p != NULL){free(h5_pgd_data->sta_lon.p);}
+    if (h5_pgd_data->sta_alt.p != NULL){free(h5_pgd_data->sta_alt.p);}
+    if (h5_pgd_data->stnm.p    != NULL){free(h5_pgd_data->stnm.p);}
+    if (h5_pgd_data->lactive.p != NULL){free(h5_pgd_data->lactive.p);}
+    if (h5_pgd_data->lmask.p   != NULL){free(h5_pgd_data->lmask.p);}
+    memset(h5_pgd_data, 0, sizeof(struct h5_peakDisplacementData_struct));
+    return 0;
+}
+
+int hdf5_memory__freeOffsetData(
+    struct h5_offsetData_struct *h5_offset_data)
+{
+    if (h5_offset_data->ubuff.p    != NULL){free(h5_offset_data->ubuff.p);}
+    if (h5_offset_data->nbuff.p    != NULL){free(h5_offset_data->nbuff.p);}
+    if (h5_offset_data->ebuff.p    != NULL){free(h5_offset_data->ebuff.p);}
+    if (h5_offset_data->wtu.p      != NULL){free(h5_offset_data->wtu.p);}
+    if (h5_offset_data->wtn.p      != NULL){free(h5_offset_data->wtn.p);}
+    if (h5_offset_data->wte.p      != NULL){free(h5_offset_data->wte.p);}
+    if (h5_offset_data->sta_lat.p  != NULL){free(h5_offset_data->sta_lat.p);}
+    if (h5_offset_data->sta_lon.p  != NULL){free(h5_offset_data->sta_lon.p);}
+    if (h5_offset_data->sta_alt.p  != NULL){free(h5_offset_data->sta_alt.p);}
+    if (h5_offset_data->stnm.p     != NULL){free(h5_offset_data->stnm.p);}
+    if (h5_offset_data->lactive.p  != NULL){free(h5_offset_data->lactive.p);}
+    if (h5_offset_data->lmask.p    != NULL){free(h5_offset_data->lmask.p);}
+    memset(h5_offset_data, 0, sizeof(struct h5_offsetData_struct));
     return 0;
 }

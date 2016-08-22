@@ -204,10 +204,16 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      const double *__restrict__ staAlt,
                                      const double *__restrict__ d,
                                      const double *__restrict__ wts,
+                                     double *__restrict__ srdist,
                                      double *__restrict__ M,
                                      double *__restrict__ VR,
                                      double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
+/* Finalize the PGD data structures */
+void core_scaling_pgd_finalize(
+    struct GFAST_pgd_props_struct *pgd_props,
+    struct GFAST_peakDisplacementData_struct *pgd_data,
+    struct GFAST_pgdResults_struct *pgd);
 /* Initialize PGD scaling data structures */
 int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
                                 struct GFAST_data_struct gps_data,
@@ -296,6 +302,8 @@ int core_waveformProcessor_peakDisplacement(
               core_ff_faultPlaneGridSearch(__VA_ARGS__)
 #define GFAST_core_ff_initialize(...)       \
               core_ff_initialize(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_finalize(...)       \
+              core_scaling_pgd_finalize(__VA_ARGS__)
 #define GFAST_core_ff_meshFaultPlane(...)       \
               core_ff_meshFaultPlane(__VA_ARGS__)
 #define GFAST_core_ff_setDiagonalWeightMatrix(...)       \

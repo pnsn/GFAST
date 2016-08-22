@@ -26,7 +26,7 @@ int hdf5_update__getIteration(const char *adir,
     const char *group_root = "/GFAST_History\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX], iterGroup[256];
-    hid_t fileID;
+    hid_t fileID, groupID;
     int ierr, k;
     //------------------------------------------------------------------------//
     //
@@ -54,12 +54,93 @@ int hdf5_update__getIteration(const char *adir,
         return ierr;
     }
     ierr = h5_create_group(fileID, iterGroup);
+    // Write the epochal time as an attribute
+    groupID = H5Gopen2(fileID, iterGroup, H5P_DEFAULT);
+    ierr = h5_write_attribute__double("epoch\0", groupID, 1, &epoch);
+    ierr = H5Gclose(groupID);
     ierr = h5_close(fileID);
+    // Add the epochal time
     return k;
 }
 //============================================================================//
-/*
- * @brief Writes the next iteration of the PGD estimation fro the given event
+/*!
+ * @brief Writes the triggering hypocenter for the next iteration of GFAST
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+int hdf5_update__hypocenter(const char *adir,
+                            const char *evid,
+                            const int h5k,
+                            struct GFAST_shakeAlert_struct hypo)
+{
+    const char *fcnm = "hdf5_update__hypocenter\0";
+    const char *item_root = "/GFAST_History/Iteration\0";
+    char h5fl[PATH_MAX];
+    struct h5_hypocenter_struct h5_hypo;
+    hid_t dataSet, dataSpace, dataType, fileID, groupID;
+    char hypoGroup[256];
+    int ierr;
+    hsize_t dimInfo[1] = {1};
+    const int rank = {1};
+    //------------------------------------------------------------------------//
+    //
+    // Initialize
+    memset(&h5_hypo, 0, sizeof(struct h5_hypocenter_struct));
+    // Open the old HDF5 file 
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error setting filename\n", fcnm);
+        return -1;
+    }
+    if (!os_path_isfile(h5fl))
+    {
+        log_errorF("%s: Error file %s does not exist!\n", fcnm);
+        return -1;
+    }
+    fileID = h5_open_rdwt(h5fl);
+    // Verify iteration group exists 
+    memset(hypoGroup, 0, sizeof(hypoGroup));
+    sprintf(hypoGroup, "%s_%d", item_root, h5k);
+    if (!h5_item_exists(fileID, hypoGroup))
+    {
+        log_errorF("%s: Error group should exist\n", fcnm);
+        ierr = h5_close(fileID);
+        return ierr;
+    }
+    // Open the group for writing
+    groupID = H5Gopen2(fileID, hypoGroup, H5P_DEFAULT);
+    // Copy and write the data
+    ierr = ierr + GFAST_hdf5_copy__hypocenter(COPY_DATA_TO_H5,
+                                              &hypo,
+                                              &h5_hypo);
+    dataType = H5Topen(groupID, "/DataStructures/hypocenterStructure\0",
+                       H5P_DEFAULT);
+    dataSpace = H5Screate_simple(rank, dimInfo, NULL);
+    dataSet   = H5Dcreate(groupID, "triggeringHypocenter\0", dataType,
+                          dataSpace,
+                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Dwrite(dataSet, dataType, H5S_ALL, H5S_ALL,
+                    H5P_DEFAULT, &h5_hypo);
+    ierr = H5Dclose(dataSet);
+    ierr = ierr + H5Sclose(dataSpace);
+    ierr = ierr + H5Tclose(dataType);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error writing hypocenter\n", fcnm);
+    }
+    // Close the group and file
+    ierr = ierr + H5Gclose(groupID);
+    ierr = h5_close(fileID);
+    return ierr;
+}
+
+//============================================================================//
+/*!
+ * @brief Writes the next iteration of the PGD estimation for the given event
  *
  * @result 0 indicates success
  *
@@ -111,12 +192,27 @@ int hdf5_update__pgd(const char *adir,
     }
     // Open the group for writing
     groupID = H5Gopen2(fileID, pgdGroup, H5P_DEFAULT); 
-    // Open the requisite HDF5 data structures
-
-    // Copy the data and the results
-    //ierr = ierr + GFAST_HDF5__copy__peakDisplacementData(COPY_DATA_TO_H5,
-    //                                                  &pgd_data, &h5_pgd_data);
-    // Copy and write the results
+    // Copy and write the data
+    ierr = ierr + GFAST_hdf5_copy__peakDisplacementData(COPY_DATA_TO_H5,
+                                                        &pgd_data,
+                                                        &h5_pgd_data);
+    dataType = H5Topen(groupID,
+                       "/DataStructures/peakDisplacementDataStructure\0",
+                        H5P_DEFAULT);
+    dataSpace = H5Screate_simple(rank, dimInfo, NULL);
+    dataSet   = H5Dcreate(groupID, "pgdData\0", dataType,
+                          dataSpace,
+                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Dwrite(dataSet, dataType, H5S_ALL, H5S_ALL,
+                    H5P_DEFAULT, &h5_pgd_data);
+    ierr = H5Dclose(dataSet);
+    ierr = ierr + H5Sclose(dataSpace);
+    ierr = ierr + H5Tclose(dataType);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error writing PGD data\n", fcnm);
+    }
+    // Copy and write the results 
     ierr = ierr +  GFAST_hdf5_copy__pgdResults(COPY_DATA_TO_H5,
                                                 &pgd, &h5_pgd);
     dataType = H5Topen(groupID, "/DataStructures/pgdResultsStructure\0",
@@ -129,7 +225,7 @@ int hdf5_update__pgd(const char *adir,
                     H5P_DEFAULT, &h5_pgd);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing Greens functions\n", fcnm);
+        log_errorF("%s: Error writing PGD results\n", fcnm);
     }
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
@@ -139,6 +235,7 @@ int hdf5_update__pgd(const char *adir,
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     } 
     // Free the space
+    ierr = GFAST_hdf5_memory__freePGDData(&h5_pgd_data);
     ierr = GFAST_hdf5_memory__freePGDResults(&h5_pgd);
     // Close the group and file
     ierr = ierr + H5Gclose(groupID);
@@ -191,6 +288,25 @@ int hdf5_update__cmt(const char *adir,
     }
     // Open the group for writing 
     groupID = H5Gopen2(fileID, cmtGroup, H5P_DEFAULT);
+    // Copy and write the data
+    ierr = ierr + GFAST_hdf5_copy__offsetData(COPY_DATA_TO_H5,
+                                              &cmt_data,
+                                              &h5_cmt_data);
+    dataType = H5Topen(groupID, "/DataStructures/offsetDataStructure\0",
+                       H5P_DEFAULT);
+    dataSpace = H5Screate_simple(rank, dimInfo, NULL);
+    dataSet   = H5Dcreate(groupID, "cmtData\0", dataType,
+                          dataSpace,
+                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Dwrite(dataSet, dataType, H5S_ALL, H5S_ALL,
+                    H5P_DEFAULT, &h5_cmt_data);
+    ierr = H5Dclose(dataSet);
+    ierr = ierr + H5Sclose(dataSpace);
+    ierr = ierr + H5Tclose(dataType);
+    if (ierr != 0)
+    {   
+        log_errorF("%s: Error writing CMT data\n", fcnm);
+    }
     // Copy and write the results
     ierr = ierr +  GFAST_hdf5_copy__cmtResults(COPY_DATA_TO_H5,
                                                 &cmt, &h5_cmt);
@@ -214,6 +330,7 @@ int hdf5_update__cmt(const char *adir,
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     }
     // Free the space
+    ierr = GFAST_hdf5_memory__freeOffsetData(&h5_cmt_data);
     ierr = GFAST_hdf5_memory__freeCMTResults(&h5_cmt);
     // Close the group and file
     ierr = ierr + H5Gclose(groupID);
@@ -229,12 +346,13 @@ int hdf5_update__ff(const char *adir,
 {
     const char *fcnm = "hdf5_update__ff\0";
     const char *item_root = "/GFAST_History/Iteration\0";
-    char h5fl[PATH_MAX];
+    char h5fl[PATH_MAX], dataName[256];
     struct h5_offsetData_struct h5_ff_data;
     struct h5_ffResults_struct h5_ff;
+    struct h5_faultPlane_struct h5_fp;
     hid_t dataSet, dataSpace, dataType, fileID, groupID;
     char ffGroup[256];
-    int ierr;
+    int i, ierr;
     hsize_t dimInfo[1] = {1};
     const int rank = {1};
     //------------------------------------------------------------------------//
@@ -286,6 +404,29 @@ int hdf5_update__ff(const char *adir,
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {
+        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+    }
+    // Write the faults individually for h5py
+    dataType = H5Topen(groupID, "/DataStructures/faultPlaneStructure\0",
+                       H5P_DEFAULT);
+    dataSpace = H5Screate_simple(rank, dimInfo, NULL);
+    /* TODO: this is a kludge for h5py - retry with newer version */
+    for (i=0; i<ff.nfp; i++)
+    {
+        memset(dataName, 0, sizeof(dataName));
+        sprintf(dataName, "faultPlane_%d", i+1);
+        dataSet = H5Dcreate(groupID, dataName, dataType,
+                            dataSpace,
+                            H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        GFAST_hdf5_copy__faultPlane(COPY_DATA_TO_H5, &ff.fp[i], &h5_fp);
+        ierr = H5Dwrite(dataSet, dataType, H5S_ALL, H5S_ALL,
+                        H5P_DEFAULT, &h5_fp);
+        ierr = hdf5_memory__freeFaultPlane(&h5_fp);
+    }
+    ierr = ierr + H5Sclose(dataSpace);
+    ierr = ierr + H5Tclose(dataType);
+    if (ierr != 0)
+    {   
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     }
     // Free the space

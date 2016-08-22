@@ -127,10 +127,11 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
     ISCL_memory_free__double(&pgd->mpgd);
     ISCL_memory_free__double(&pgd->mpgd_vr);
     ISCL_memory_free__double(&pgd->dep_vr_pgd);
-    ISCL_memory_free__double(&pgd->iqr75_25);
+    ISCL_memory_free__double(&pgd->iqr);
     ISCL_memory_free__double(&pgd->UP);
     ISCL_memory_free__double(&pgd->UPinp);
     ISCL_memory_free__double(&pgd->srcDepths);
+    ISCL_memory_free__double(&pgd->srdist);
     ISCL_memory_free(pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     return;
@@ -147,6 +148,8 @@ void GFAST_memory_freePGDResults(struct GFAST_pgdResults_struct *pgd)
 void GFAST_memory_freeCMTResults(struct GFAST_cmtResults_struct *cmt)
 {
     if (cmt == NULL){return;}
+    ISCL_memory_free__double(&cmt->l2);
+    ISCL_memory_free__double(&cmt->pct_dc);
     ISCL_memory_free__double(&cmt->objfn);
     ISCL_memory_free__double(&cmt->mts);
     ISCL_memory_free__double(&cmt->str1); 
