@@ -5,6 +5,8 @@
 #include <math.h>
 #include "gfast.h"
 #include "sacio.h"
+#include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 /*! 
  * @brief This is a routine for reading SAC headers from the SAC file flname
@@ -191,7 +193,7 @@ double *sacio_readData(char *flname, int *npts, int *ierr)
         return data;
     }
     // Copy single precision to double precision
-    data = GFAST_memory_calloc__double(nlen);
+    data = ISCL_memory_calloc__double(nlen);
     if (data == NULL){
         log_errorF("%s: Error allocating output\n", fcnm);
         *ierr = 1;
