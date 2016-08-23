@@ -6,6 +6,7 @@
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 
 /*!
  * @brief Reads a elarmS based shakeAlert message into the GFAST 
@@ -72,7 +73,8 @@ int GFAST_readElarmS__xml(const char *message, double SA_NAN,
             }
             lfound = true;
             // Parse it
-            ierr = GFAST_xml_coreInfo__read((void *) core_xml, SA_NAN, &core);
+            ierr = GFAST_xml_shakeAlert_readCoreInfo((void *) core_xml,
+                                                     SA_NAN, &core);
             if (ierr != 0)
             {
                  log_errorF("%s: Error reading core info!\n", fcnm);
