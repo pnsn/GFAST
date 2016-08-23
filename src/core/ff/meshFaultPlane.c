@@ -202,7 +202,7 @@ int core_ff_meshFaultPlane(const double ev_lat,
             fault_Y3 = (y0 + (di + 1.0)*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
 
             fault_X4 = (x0 + di*xsoff + (dj + 1.0)*xdoff)*1.e3; //km->m
-            fault_Y4 = (x0 + di*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
+            fault_Y4 = (y0 + di*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
 
             // Convert from UTMs back to lat/lon 
             fault_X = fault_X*1000.0; // km -> m

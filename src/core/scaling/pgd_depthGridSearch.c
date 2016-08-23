@@ -9,6 +9,7 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/statistics/statistics.h"
+#include "iscl/time/time.h"
 
 /*!
  * @brief Computes the predicted mangitude using PGD and Pd from
@@ -43,10 +44,12 @@
  *                             if NULL or if each weight is the same then
  *                             this array will be ignored.
  *
+ * @param[out] srdist          source receiver distance between the
+ *                             idep'th source and k'th receiver [l1*ndeps]
  * @param[out] M               magnitude at each depth [ndeps]
  * @param[out] VR              variance reduction (percentage) at each
  *                             depth [ndeps]
- * @param[out] iqr75_25        the interquartile range computed from the
+ * @param[out] iqr             the interquartile range computed from the
  *                             difference of the 75th percentile of the 
  *                             weighted residuals and the 25th percentile
  *                             of the weighted residuals at each depth [ndeps]
@@ -71,18 +74,19 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      const double *__restrict__ staAlt,
                                      const double *__restrict__ d,
                                      const double *__restrict__ wts,
+                                     double *__restrict__ srdist,
                                      double *__restrict__ M,
                                      double *__restrict__ VR,
-                                     double *__restrict__ iqr75_25,
+                                     double *__restrict__ iqr,
                                      double *__restrict__ Uest)
 {
     const char *fcnm = "core_scaling_pgd_depthGridSearch\0";
     double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, *wres, pct[2], M1[1],
            est, srcDepth, xden, xnum;
     int i, idep, ierr, ierr1;
-    const double A = -6.687;
+    const double A =-6.687;
     const double B = 1.500;
-    const double C = -0.214;
+    const double C =-0.214;
     const double q[2] = {25.0, 75.0}; 
     const int nq = 2;
     //const double A = -4.434; /* TODO remove with approval */
@@ -118,7 +122,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     }
     if (srcDepths == NULL || utmRecvEasting == NULL || 
         utmRecvNorthing == NULL || staAlt == NULL || 
-        d == NULL || M == NULL || VR == NULL || Uest == NULL)
+        d == NULL || M == NULL || VR == NULL || Uest == NULL || srdist == NULL)
     {
         if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
         if (utmRecvEasting == NULL)
@@ -134,6 +138,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         if (M == NULL){log_errorF("%s: M is NULL\n", fcnm);}
         if (VR == NULL){log_errorF("%s: VR is NULL\n", fcnm);}
         if (Uest == NULL){log_errorF("%s: Uest is NULL\n", fcnm);}
+        if (srdist == NULL){log_errorF("%s: srdist is NULL\n", fcnm);}
         ierr = 1;
         goto ERROR;
     }
@@ -197,12 +202,17 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         log_errorF("%s: Error weighting observations\n", fcnm);
         goto ERROR;
     }
-    // Loop on depths
+    // Grid search on source depths
+    ISCL_time_tic();
+    if (verbose > 2)
+    {   
+        log_debugF("%s: Beginning search on depths...\n", fcnm);
+    }
 #ifdef PARALLEL_PGD
     #pragma omp parallel for \
      firstprivate(A, B, C, G, r, UP, verbose, WG, wres) \
      private(i, idep, ierr1, est, M1, pct, srcDepth, xden, xnum) \
-     shared(b, d, iqr75_25, fcnm, M, repi, \
+     shared(b, d, iqr, fcnm, M, repi, srdist, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
             Uest, VR, W, Wb) \
      reduction(+:ierr) default(none)
@@ -217,6 +227,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
             r[i] = sqrt( pow(utmSrcEasting  - utmRecvEasting[i], 2)
                        + pow(utmSrcNorthing - utmRecvNorthing[i], 2)
                        + pow(srcDepth*1000.0 - staAlt[i], 2) )*1.e-3;
+            srdist[idep*l1+i] = r[i];
         }
         // Generate the over-determined system: [B + C*log10(r)]*m = RHS 
         ierr1 = GFAST_core_scaling_pgd_setForwardModel(l1,
@@ -266,11 +277,11 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         // Compute the interquartile range which will later be used as a penalty
         ierr1 = __statistics_percentile__double(l1, wres, nq, q,
                                                 STATS_PERCENTILE_LINEAR, pct);
-        iqr75_25[idep] = pct[1] - pct[0];
+        iqr[idep] = pct[1] - pct[0];
         if (ierr1 != 0)
         {   
             log_errorF("%s: Error computing interquartile range\n", fcnm);
-            iqr75_25[idep] = 1.0;
+            iqr[idep] = 1.0;
         }
         // Copy results
         M[idep] = M1[0];
@@ -280,6 +291,13 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     {
         log_errorF("%s: Errors detected during grid search\n", fcnm);
         ierr = 1;
+    }
+    else
+    {   
+        if (verbose > 2)
+        {
+            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, ISCL_time_toc());
+        }
     }
 ERROR:; // An error was encountered
     // Free space

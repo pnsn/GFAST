@@ -68,6 +68,8 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
         if (gps_data.data[i].lskip_cmt){cmt_data->lmask[i] = true;}
     }
     // cmt structure
+    cmt->l2        = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->pct_dc    = ISCL_memory_calloc__double(cmt->ndeps);
     cmt->objfn     = ISCL_memory_calloc__double(cmt->ndeps);
     cmt->mts       = ISCL_memory_calloc__double(6*cmt->ndeps);
     cmt->str1      = ISCL_memory_calloc__double(cmt->ndeps);
