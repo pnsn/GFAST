@@ -72,25 +72,8 @@ OBJ_H5 = $(OBJ_H5_DIR)/copy.o \
 	 $(OBJ_H5_DIR)/initialize.o \
 	 $(OBJ_H5_DIR)/h5_cinter.o \
 	 $(OBJ_H5_DIR)/memory.o \
-	 $(OBJ_H5_DIR)/pgd.o \
 	 $(OBJ_H5_DIR)/setFileName.o \
 	 $(OBJ_H5_DIR)/update.o
-OBJ_XML = $(OBJ_XML_DIR)/coreInfo.o \
-	  $(OBJ_XML_DIR)/depth.o \
-	  $(OBJ_XML_DIR)/epoch2string.o \
-	  $(OBJ_XML_DIR)/focalMechanism.o \
-	  $(OBJ_XML_DIR)/latitude.o \
-	  $(OBJ_XML_DIR)/longitude.o \
-	  $(OBJ_XML_DIR)/momentTensor.o \
-	  $(OBJ_XML_DIR)/nodalPlanes.o \
-	  $(OBJ_XML_DIR)/principalAxes.o \
-	  $(OBJ_XML_DIR)/segment.o \
-	  $(OBJ_XML_DIR)/slip.o \
-	  $(OBJ_XML_DIR)/tensor.o \
-	  $(OBJ_XML_DIR)/time.o \
-	  $(OBJ_XML_DIR)/vertices.o \
-	  $(OBJ_XML_DIR)/vertex.o \
-	  $(OBJ_XML_DIR)/units.o
 OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ)/cmt_driver.o \
 	  $(OBJ)/ff_driver.o \
@@ -106,7 +89,24 @@ OBJ_LIB = $(OBJ)/buffer.o \
 	  $(OBJ_XML)
 OBJ_GFAST = $(OBJ)/gfast.o $(OBJ_ACQ) $(OBJ_LIB)
 
-all: $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
+lib: corelib xmllib
+
+all: corelib xmllib $(GFAST_STATIC) $(GFAST_SHARED) $(GFAST)
+
+clean: cleancore cleanxml
+
+corelib:
+	( cd core; $(MAKE) lib; cd ..)
+
+xmllib:
+	( cd xml; $(MAKE) lib; cd ..)
+
+cleancore:
+	( cd core; $(MAKE) clean; cd ..)
+
+cleanxml:
+	( cd xml; $(MAKE) clean; cd ..)
+
 
 $(GFAST_STATIC): $(OBJ_LIB)
 	$(ARCH) $(ARCHFLAGS) $(GFAST_STATIC) $(OBJ_LIB)
@@ -215,9 +215,6 @@ $(OBJ_H5_DIR)/h5_cinter.o: hdf5/h5_cinter.c
 $(OBJ_H5_DIR)/memory.o: hdf5/memory.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/memory.c -o $(OBJ_H5_DIR)/memory.o
 
-$(OBJ_H5_DIR)/pgd.o: hdf5/pgd.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/pgd.c -o $(OBJ_H5_DIR)/pgd.o
-
 $(OBJ_H5_DIR)/setFileName.o: hdf5/setFileName.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(CSHARED) -c hdf5/setFileName.c -o $(OBJ_H5_DIR)/setFileName.o
 
@@ -227,9 +224,6 @@ $(OBJ_H5_DIR)/update.o: hdf5/update.c
 ####################################### Scaling #######################################
 
 ######################################### XML #########################################
-
-$(OBJ_XML_DIR)/coreInfo.o: xml/coreInfo.c
-	$(CC) $(CFLAGS) $(INC_ALL) $(INC_XML2) $(CSHARED) -c xml/coreInfo.c -o $(OBJ_XML_DIR)/coreInfo.o
 
 $(OBJ_XML_DIR)/depth.o: xml/depth.c
 	$(CC) $(CFLAGS) $(INC_ALL) $(INC_XML2) $(CSHARED) -c xml/depth.c -o $(OBJ_XML_DIR)/depth.o
@@ -288,5 +282,5 @@ $(OBJ)/sacio.o: sacio.c
 #	$(MV) $(GFAST_SHARED) $(GFAST_STATIC)
 
 clean:
-	$(RM) -rf $(OBJ)/*.o $(OBJ_ACQ) $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST_SHARED_CORE) $(GFAST_STATIC_CORE) $(GFAST)
+	$(RM) -rf $(OBJ)/*.o /core/$(OBJ)/*.o $(OBJ_ACQ) $(OBJ_LIB) $(GFAST_SHARED) $(GFAST_STATIC) $(GFAST) 
 
