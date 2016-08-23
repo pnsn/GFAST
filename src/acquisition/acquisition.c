@@ -4,7 +4,7 @@
 #include <float.h>
 #include <math.h>
 #include "gfast.h"
-
+#include "iscl/log/log.h"
 #define EPOCH0_NAN -(DBL_MAX + 1.0)
 /*!
  * @brief Gets the acquisition start time from the minimum epochal time
