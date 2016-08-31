@@ -97,7 +97,10 @@ if (MKL_FOUND)
                         -lm -ldl -lpthread)
  else()
   target_link_libraries(gfast_eew
-                        gfast_hdf5_shared
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        gfast_activeMQ_shared
                         ${ISCL_LIBRARIES}
                         -Wl,--start-group
                         ${MKL_LIBRARIES}
@@ -112,6 +115,7 @@ if (MKL_FOUND)
                         -lm)
  endif(IPP_FOUND)
 else()
+ if (IPP_FOUND)
   target_link_libraries(gfast_eew
                         gfast_xml_static
                         gfast_hdf5_static
@@ -130,7 +134,10 @@ else()
                         -lm -ldl -lpthread)
  else()
   target_link_libraries(gfast_eew
-                        gfast_hdf5_shared
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        gfast_activeMQ_shared
                         ${ISCL_LIBRARIES}
                         ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
@@ -141,7 +148,8 @@ else()
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm)
-endif()
+ endif(IPP_FOUND)
+endif(MKL_FOUND)
 
 set(CPACK_PACKAGE_NAME "GFAST")
 set(CPACK_PACKAGE_VENDOR "PNSN")
