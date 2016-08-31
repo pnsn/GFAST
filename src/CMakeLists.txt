@@ -112,7 +112,35 @@ if (MKL_FOUND)
                         -lm)
  endif(IPP_FOUND)
 else()
-
+  target_link_libraries(gfast_eew
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        gfast_activeMQ_shared
+                        ${ISCL_LIBRARIES}
+                        ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES}
+                        ${IPP_LIBRARIES}
+                        ${GEOLIB_LIBRARIES}
+                        ${H5_LIBRARIES}
+                        ${HDF5_hdf5_LIBRARY_RELEASE}
+                        ${ZLIB_LIBRARY}
+                        ${LIBXML2_LIBRARIES}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARIES}
+                        -lm -ldl -lpthread)
+ else()
+  target_link_libraries(gfast_eew
+                        gfast_hdf5_shared
+                        ${ISCL_LIBRARIES}
+                        ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES}
+                        ${GEOLIB_LIBRARIES}
+                        ${HDF5_LIBRARIES}
+                        ${HDF5_hdf5_LIBRARY_RELEASE}
+                        ${ZLIB_LIBRARY}
+                        ${LIBXML2_LIBRARIES}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARIES}
+                        -lm)
 endif()
 
 set(CPACK_PACKAGE_NAME "GFAST")
