@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gfast.h"
+#include "gfast_events.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Removes an event from the active event list if 
@@ -18,13 +18,16 @@
  *
  * @result true if the event SA was removed from the events list
  *
+ * @author Ben Baker (ISTI)
+ *
  */
-bool GFAST_events__removeEvent(double maxtime, double currentTime,
-                               int verbose,
-                               struct GFAST_shakeAlert_struct SA,
-                               struct GFAST_activeEvents_struct *events)
+bool events_removeEvent(const double maxtime,
+                        const double currentTime,
+                        const int verbose,
+                        struct GFAST_shakeAlert_struct SA,
+                        struct GFAST_activeEvents_struct *events)
 {
-    const char *fcnm = "GFAST_events__removeEvent\0";
+    const char *fcnm = "GFAST_events_removeEvent\0";
     struct GFAST_activeEvents_struct SAtemp;
     int iev, jev, nev0, pop_indx;
     bool lpopped;
@@ -38,11 +41,15 @@ bool GFAST_events__removeEvent(double maxtime, double currentTime,
     // Find the event and see if I can remove it
     pop_indx =-2;
     nev0 = events->nev;
-    for (iev=0; iev<nev0; iev++){
-        if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0){
+    for (iev=0; iev<nev0; iev++)
+    {
+        if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
+        {
             pop_indx =-1;
-            if ((currentTime - SA.time) > maxtime){
-                if (verbose > 0){
+            if ((currentTime - SA.time) > maxtime)
+            {
+                if (verbose > 0)
+                {
                     log_infoF("%s: Removing %s %f from event list at %f\n",
                               fcnm, SA.eventid, SA.time, currentTime);
                 }
@@ -52,18 +59,22 @@ bool GFAST_events__removeEvent(double maxtime, double currentTime,
         }
     }
     // I couldn't even find the event in the event list
-    if (pop_indx ==-2){
-        if (verbose > 0){
+    if (pop_indx ==-2)
+    {
+        if (verbose > 0)
+        {
             log_warnF("%s: Strangely cannot find this event %s\n",
                       fcnm, SA.eventid);
         }
         return lpopped;
     }
     // Remove the event?
-    if (pop_indx >-1){
+    if (pop_indx >-1)
+    {
         // Only event - good bye
-        if (nev0 == 1){
-            GFAST_memory_freeEvents(events);
+        if (nev0 == 1)
+        {
+            GFAST_events_freeEvents(events);
             events->nev = 0;
             return lpopped;
         }
@@ -72,7 +83,8 @@ bool GFAST_events__removeEvent(double maxtime, double currentTime,
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
                     calloc(SAtemp.nev, sizeof(struct GFAST_shakeAlert_struct));
         jev = 0;
-        for (iev=0; iev<nev0; iev++){
+        for (iev=0; iev<nev0; iev++)
+        {
             if (iev == pop_indx){continue;}
             memcpy(&SAtemp.SA[jev], &events->SA[iev],
                    sizeof(struct GFAST_shakeAlert_struct));
@@ -80,18 +92,19 @@ bool GFAST_events__removeEvent(double maxtime, double currentTime,
         }
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
-        GFAST_memory_freeEvents(events);
+        GFAST_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
                      calloc(events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
-        for (iev=0; iev<events->nev; iev++){
+        for (iev=0; iev<events->nev; iev++)
+        {
             memcpy(&events->SA[iev], &SAtemp.SA[iev],
                    sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
-        GFAST_memory_freeEvents(&SAtemp);
+        GFAST_events_freeEvents(&SAtemp);
     }
     return lpopped;
 }

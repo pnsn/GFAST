@@ -1,7 +1,7 @@
-#include <omp.h>
 #include "gfast_struct.h"
 #ifndef __GFAST_EEWUTILS_H__
 #define __GFAST_EEWUTILS_H__
+
 #ifdef __cplusplus
 extern "C" 
 {

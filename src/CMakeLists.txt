@@ -75,8 +75,6 @@ add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
 add_executable(gfast_eew cmt_driver.c ff_driver.c pgd_driver.c gfast_eew.c properties.c ${SRCS})
 
-MESSAGE(${MKL_LIBRARIES})
-MESSAGE(${IPP_LIBRARIES})
 if (MKL_FOUND)
  if (IPP_FOUND)
   target_link_libraries(gfast_eew
@@ -94,7 +92,7 @@ if (MKL_FOUND)
                         ${HDF5_hdf5_LIBRARY_RELEASE}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
-                        ${LIBAMQ_LIBRARY} ${LCRTYPO_LIBRARY} ${LSSL_LIBRARY}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread)
  else()
@@ -109,7 +107,7 @@ if (MKL_FOUND)
                         ${HDF5_hdf5_LIBRARY_RELEASE}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
-                        ${LIBAMQ_LIBRARY} ${LCRTYPO_LIBRARY} ${LSSL_LIBRARY}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm)
  endif(IPP_FOUND)

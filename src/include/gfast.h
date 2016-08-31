@@ -2,6 +2,7 @@
 #include "cmopad.h"
 #include "gfast_activeMQ.h"
 #include "gfast_core.h"
+#include "gfast_eewUtils.h"
 #include "gfast_enum.h"
 #include "gfast_events.h"
 #include "gfast_hdf5.h"

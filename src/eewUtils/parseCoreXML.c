@@ -6,6 +6,7 @@
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include "gfast_eewUtils.h"
+#include "gfast_xml.h"
 #include "iscl/log/log.h"
 
 /*!

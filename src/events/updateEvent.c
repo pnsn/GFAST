@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "gfast.h"
+#include "gfast_events.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Checks if the shakeAlert event differs from the version in the 
@@ -26,19 +26,21 @@
  * @author Ben Baker, ISTI
  * 
  */
-bool GFAST_events__updateEvent(struct GFAST_shakeAlert_struct SA,
-                               struct GFAST_activeEvents_struct *events,
-                               int *ierr)
+bool events_updateEvent(struct GFAST_shakeAlert_struct SA,
+                        struct GFAST_activeEvents_struct *events,
+                        int *ierr)
 {
-    const char *fcnm = "GFAST_events__updateEvent\0";
+    const char *fcnm = "GFAST_events_updateEvent\0";
     bool lfound, lmodified, lnew_event;
     int iev;
     *ierr = 0;
     lmodified = false;
     // Look for this event and 
     lfound = false;
-    for (iev=0; iev<events->nev; iev++){
-        if (strcasecmp(events->SA[iev].eventid, SA.eventid) == 0){
+    for (iev=0; iev<events->nev; iev++)
+    {
+        if (strcasecmp(events->SA[iev].eventid, SA.eventid) == 0)
+        {
             lfound = true;
             if (SA.lat  != events->SA[iev].lat ||
                 SA.lon  != events->SA[iev].lon ||
@@ -54,13 +56,17 @@ bool GFAST_events__updateEvent(struct GFAST_shakeAlert_struct SA,
         }
     }
     // Surprisingly i didn't find the event - try to add it
-    if (!lfound){
+    if (!lfound)
+    {
         log_warnF("%s: Warning will try to append event %s to list\n",
                   fcnm, SA.eventid);
-        lnew_event = GFAST_events__newEvent(SA, events);
-        if (!lnew_event){
+        lnew_event = GFAST_events_newEvent(SA, events);
+        if (!lnew_event)
+        {
             log_warnF("%s: This is really weird\n", fcnm);
-        }else{
+        }
+        else
+        {
             lmodified = true;
         }
     }

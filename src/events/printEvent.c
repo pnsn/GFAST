@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "gfast.h"
+#include "gfast_events.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Convenience function that prints the details of an event to debug
@@ -9,10 +9,10 @@
  *
  * @author Ben Baker, ISTI
  */
-void GFAST_events__print(struct GFAST_shakeAlert_struct SA) 
+void events_printEvents(struct GFAST_shakeAlert_struct SA) 
 {
-    const char *fcnm   = "GFAST_events__print\0";
-    const char *lspace = "                   \0";
+    const char *fcnm   = "GFAST_events_print\0";
+    const char *lspace = "                  \0";
     log_debugF("%s: Event %s statistics:\n", fcnm, SA.eventid);
     log_debugF("%s  Event latitude %f (degrees)\n", lspace, SA.lat);
     log_debugF("%s  Event longitude %f (degrees)\n", lspace, SA.lon);
