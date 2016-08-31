@@ -122,7 +122,7 @@ else()
                         gfast_core_static
                         gfast_activeMQ_shared
                         ${ISCL_LIBRARIES}
-                        ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES}
+                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
                         ${IPP_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
@@ -139,7 +139,7 @@ else()
                         gfast_core_static
                         gfast_activeMQ_shared
                         ${ISCL_LIBRARIES}
-                        ${LAPACKE_LIBRARIES} ${CBLAS_LIBRARIES}
+                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${HDF5_LIBRARIES}
                         ${HDF5_hdf5_LIBRARY_RELEASE}
