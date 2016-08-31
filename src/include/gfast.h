@@ -1,10 +1,9 @@
 #include <stdbool.h>
 #include "cmopad.h"
+#include "gfast_activeMQ.h"
 #include "gfast_core.h"
 #include "gfast_enum.h"
-#include "gfast_numpy.h"
-#include "gfast_obspy.h"
-#include "gfast_os.h"
+#include "gfast_events.h"
 #include "gfast_hdf5.h"
 #include "gfast_struct.h"
 #include "gfast_time.h"
@@ -47,20 +46,6 @@ void GFAST_buffer_print__samplingPeriod(struct GFAST_data_struct gps_data);
 void GFAST_buffer_print__locations(struct GFAST_data_struct gps_data);
 void GFAST_buffer__setInitialTime(double epoch0,
                                   struct GFAST_data_struct *gps_data);
-/* Handles events */
-double GFAST_events__getMinOriginTime(struct GFAST_props_struct props,
-                                      struct GFAST_activeEvents_struct events,
-                                      bool *lnoEvents);
-bool GFAST_events__newEvent(struct GFAST_shakeAlert_struct SA,
-                            struct GFAST_activeEvents_struct *events);
-bool GFAST_events__updateEvent(struct GFAST_shakeAlert_struct SA,
-                               struct GFAST_activeEvents_struct *events,
-                               int *ierr);
-void GFAST_events__print(struct GFAST_shakeAlert_struct SA);
-bool GFAST_events__removeEvent(double maxtime, double currentTime,
-                               int verbose,
-                               struct GFAST_shakeAlert_struct SA, 
-                               struct GFAST_activeEvents_struct *events);
 /* Frees memory on pointers and data structures */
 void GFAST_memory_freeWaveformData(struct GFAST_waveformData_struct *data);
 void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
@@ -74,9 +59,10 @@ void GFAST_memory_freePGDData(
      struct GFAST_peakDisplacementData_struct *pgd_data);
 void GFAST_memory_freeOffsetData(struct GFAST_offsetData_struct *offset_data);
 /* Initializes the GFAST parameters */
-int GFAST_properties__init(char *propfilename,
-                           struct GFAST_props_struct *props);
-void GFAST_properties__print(struct GFAST_props_struct props);
+int GFAST_properties_initialize(const char *propfilename,
+                                const enum opmode_type opmode,
+                                struct GFAST_props_struct *props);
+void GFAST_properties_print(struct GFAST_props_struct props);
 /* Reads the ElarmS file */
 int GFAST_readElarmS__xml(const char *message, double SA_NAN,
                           struct GFAST_shakeAlert_struct *SA);

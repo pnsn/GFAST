@@ -297,7 +297,8 @@ int xml_shakeAlert_writeVertex(const double lat,
               xml_shakeAlert_writeVertex(__VA_ARGS__)
 #define GFAST_xml_shakeAlert_readVertices(...)       \
               xml_shakeAlert_readVertices(__VA_ARGS__)
-
+#define GFAST_xml_shakeAlert_writeVertices(...)       \
+              xml_shakeAlert_writeVertices(__VA_ARGS__)
 #ifdef __cplusplus
 }
 #endif

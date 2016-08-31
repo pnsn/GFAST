@@ -23,10 +23,19 @@ enum locinit_type
 
 enum opmode_type
 {
-    REAL_TIME = 1,   /*!< GFAST is running in `real time' mode */
-    PLAYBACK = 2,    /*!< GFAST is running in historical playback mode */
-    OFFLINE = 3      /*!< GFAST is running offline and obtaining data 
-                          and configuration purely from files */
+    REAL_TIME_EEW = 1,  /*!< GFAST is running in real time mode for
+                             earthquake early warning */
+    REAL_TIME_PTWC = 2, /*!< GFAST is running in real time mode for PTWC */
+    REAL_TIME_ATWC = 3, /*!< GFAST is running in real time mode for ATWC */
+    PLAYBACK = 21,      /*!< GFAST is running in historical playback mode */
+    OFFLINE = 31        /*!< GFAST is running offline and obtaining data 
+                             and configuration purely from files */
+};
+
+enum acquisition_type
+{
+    DATA_FROM_EARTHWORM = 1, /*<! GFAST will acquire data from earthworm */
+    DATA_FROM_H5 = 2,        /*!< GFAST will read data from disk */
 };
 
 enum pgd_return_enum

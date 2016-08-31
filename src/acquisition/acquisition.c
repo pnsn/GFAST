@@ -258,23 +258,31 @@ int GFAST_acquisition__init(struct GFAST_props_struct props,
     //              Special cases for real-time, playback and offline         //
     //------------------------------------------------------------------------//
     // Initialize real-time feed
-    if (props.opmode == REAL_TIME){
+    if (props.opmode == REAL_TIME_EEW)
+    {
         log_errorF("%s: Real-time feed not yet done!\n", fcnm);
         return -1;
+    }
     // Initialize offline SAC feed
-    }else if (props.opmode == OFFLINE){
+    else if (props.opmode == OFFLINE)
+    {
         // Set the sampling periods
         ierr = GFAST_buffer__setSiteSamplingPeriod(props, gps_acquisition);
-        if (ierr != 0){ 
+        if (ierr != 0)
+        {
             log_errorF("%s: Error setting sampling periods\n", fcnm);
             return -1;
         }
+    }
     // Earthworm playback
-    }else if (props.opmode == PLAYBACK){
+    else if (props.opmode == PLAYBACK)
+    {
         log_errorF("%s: This operation is not yet done!\n", fcnm);
         return -1;
+    }
     // I don't know what you want from me
-    }else{
+    else
+    {
         log_errorF("%s: Invalid operation mode %d\n", fcnm, props.opmode);
         return -1;
     }

@@ -1,0 +1,10 @@
+add_sources(
+decomposeMomentTensor.c
+depthGridSearch.c
+initialize.c
+setDiagonalWeightMatrix.c
+setForwardModel.c
+setRHS.c
+weightForwardModel.c
+weightObservations.c
+)

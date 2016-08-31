@@ -3,11 +3,13 @@
 #include <string.h>
 #include <iniparser.h>
 #include "gfast.h"
+#include "iscl/os/os.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
  *
  * @param[in] propfilename   name of properties file
+ * @param[in] opmode         GFAST operational mode
  *
  * @param[out] props         on successful exit holds the GFAST properties
  *                           structure
@@ -17,12 +19,16 @@
  * @result 0 indicates success
  *
  */
-int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
+int GFAST_properties_initialize(const char *propfilename,
+                                const enum opmode_type opmode,
+                                struct GFAST_props_struct *props)
 {
     const char *fcnm = "GFAST_properties__init\0";
     const char *s;
     int ierr; 
     dictionary *ini;
+    //------------------------------------------------------------------------//
+    props->opmode = opmode;
     // Require the properties file exists
     ierr =-1;
     memset(props, 0, sizeof(struct GFAST_props_struct));
@@ -36,29 +42,13 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     ierr = 1;
     ini = iniparser_load(propfilename);
     //-------------------------GFAST General Parameters-----------------------//
-    s = iniparser_getstring(ini, "general:streamfile\0", "GFAST_streams.txt\0");
-    strcpy(props->streamfile, s);
-    if (!os_path_isfile(props->streamfile))
+    s = iniparser_getstring(ini, "general:sitefile\0", "GFAST_streams.txt\0");
+    strcpy(props->sitefile, s);
+    if (!os_path_isfile(props->sitefile))
     {
-        log_errorF("%s: Cannot find station list %s\n",
-                   fcnm, props->streamfile);
+        log_errorF("%s: Cannot find station list %s\n", fcnm, props->sitefile);
         return -1;
     }
-    props->opmode = iniparser_getint(ini, "general:opmode\0", 0);
-    if (props->opmode < 1 || props->opmode > 3)
-    {
-        log_errorF("%s: Invalid operation mode %d\n", fcnm, props->opmode); 
-    }
-    s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
-    if (s == NULL)
-    {
-        log_errorF("%s: Could not find ElarmS message filename!\n", fcnm);
-        goto ERROR;
-    }
-    strcpy(props->eewsfile, s);
-
-    s = iniparser_getstring(ini, "general:eewgfile\0", "GFAST_output.txt\0");
-    strcpy(props->eewgfile, s);
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
     if (props->bufflen <= 0.0)
     {
@@ -67,19 +57,13 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
     }
     if (props->opmode == OFFLINE)
     {
-        s = iniparser_getstring(ini, "general:syndriver\0", NULL);
-        if (s == NULL) 
+        s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
+        if (s == NULL)
         {
-            log_errorF("%s: Synthetic driver file must be specified!\n", fcnm);
+            log_errorF("%s: Could not find decision module XML file!\n", fcnm);
             goto ERROR;
         }
-        strcpy(props->syndriver, s);
-        if (!os_path_isfile(props->syndriver))
-        {
-            log_errorF("%s: Synthetic driver file %s doesnt exist\n",
-                       fcnm, props->syndriver);
-            goto ERROR;
-        }
+        strcpy(props->eewsfile, s);
         s = iniparser_getstring(ini, "general:synthetic_data_directory\0",
                                 "./"); 
         if (strlen(s) > 0)
@@ -128,14 +112,13 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
             props->dt_init = 3;
         }
     }
-    s = iniparser_getstring(ini, "general:dtfile\0", NULL);
     if (props->opmode == OFFLINE)
     {
         // Make sure the EEW XML file exists
         if (!os_path_isfile(props->eewsfile))
         {
             log_errorF("%s: Cannot find EEW XML file!\n",
-                       fcnm, props->streamfile);
+                       fcnm, props->eewsfile);
             goto ERROR;
         }
         // Figure out how to initialize sampling period
@@ -144,14 +127,8 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
             props->dt_init = iniparser_getint(ini, "general:dt_init\0", 1);
             if (s == NULL)
             {
-                log_errorF("%s: Must specify dtfile!\n", fcnm);
+                log_errorF("%s: Must specify sitefile!\n", fcnm);
                 goto ERROR; 
-            }
-            strcpy(props->dtfile, s);
-            if (!os_path_isfile(props->dtfile))
-            {
-                log_errorF("%s: Cannot find dtfile %s!\n", fcnm, s);
-                goto ERROR;
             }
         }
         else if (props->dt_init == INIT_DT_FROM_SAC)
@@ -184,25 +161,6 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         {
             log_errorF("%s: offline can't initialize locations from tracebuf\n",
                        fcnm);
-            goto ERROR;
-        }
-    }
-    if (props->loc_init == INIT_LOCS_FROM_FILE)
-    {
-        s = iniparser_getstring(ini, "general:siteposfile\0", NULL);
-        if (s == NULL)
-        {
-            log_errorF("%s: Site position file must be defined\n");
-            return -1;
-        }
-        else
-        {
-            strcpy(props->siteposfile, s);
-        }
-        if (!os_path_isfile(props->siteposfile))
-        {
-            log_errorF("%s: Position file %s does not exist!\n",
-                       fcnm, props->siteposfile);
             goto ERROR;
         }
     }
@@ -385,39 +343,88 @@ int GFAST_properties__init(char *propfilename, struct GFAST_props_struct *props)
         goto ERROR;
     }
     //---------------------------ActiveMQ Parameters--------------------------//
-    s = iniparser_getstring(ini, "ActiveMQ:AMQhost\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find AMQhost!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->AMQhost, s);
-    }
-    props->AMQport = iniparser_getint(ini, "ActiveMQ:AMQport\0", -12345);
-    if (props->AMQport ==-12345){
-        log_errorF("%s: Could not find AMQport\n", fcnm);
-        goto ERROR;
-    }
-    s = iniparser_getstring(ini, "ActiveMQ:AMQtopic\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find AMQtopic!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->AMQtopic, s); 
-    }
-    s = iniparser_getstring(ini, "ActiveMQ:AMQuser\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find AMQuser!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->AMQuser, s); 
-    }
-    s = iniparser_getstring(ini, "ActiveMQ:AMQpassword\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find AMQpassword!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->AMQpassword, s); 
-    }
+    if (props->opmode == REAL_TIME_EEW) 
+    {
+        s = iniparser_getstring(ini, "ActiveMQ:host\0", NULL);
+        if (s == NULL)
+        {
+            log_errorF("%s: Could not find ActiveMQ host!\n", fcnm);
+            goto ERROR;
+        }
+        else
+        {
+            strcpy(props->activeMQ_props.host, s);
+        }
+        s = iniparser_getstring(ini, "ActiveMQ:user\0", NULL);
+        if (s == NULL)
+        {
+            log_errorF("%s: Could not find ActiveMQ user!\n", fcnm);
+            goto ERROR;
+        }
+        else
+        {
+            strcpy(props->activeMQ_props.user, s);
+        }
+        s = iniparser_getstring(ini, "ActiveMQ:password\0", NULL);
+        if (s == NULL)
+        {
+            log_errorF("%s: Could not find password!\n", fcnm);
+            goto ERROR;
+        }
+        else
+        {
+             strcpy(props->activeMQ_props.password, s);
+        }
+        s = iniparser_getstring(ini, "ActiveMQ:originTopic\0", NULL);
+        if (s == NULL)
+        {
+            log_errorF("%s: Could not find activeMQ originTopic\n", fcnm);
+            goto ERROR;
+        }
+        else
+        {
+            strcpy(props->activeMQ_props.originTopic, s);
+        }
+        s = iniparser_getstring(ini, "ActiveMQ:destinationTopic\0", NULL);
+        if (s == NULL)
+        {
+            log_errorF("%s: Could not find ActiveMQ destinationTopic!\n", fcnm);
+            goto ERROR;
+        }
+        else
+        {
+            strcpy(props->activeMQ_props.destinationTopic, s); 
+        }
+        props->activeMQ_props.port = iniparser_getint(ini, "ActiveMQ:port\0",
+                                                      -12345);
+        if (props->activeMQ_props.port ==-12345)
+        {
+            log_errorF("%s: Could not find activeMQ port\n", fcnm);
+            goto ERROR;
+        }
+        props->activeMQ_props.msReconnect
+             = iniparser_getint(ini, "ActiveMQ:msReconnect\0", 500);
+        if (props->activeMQ_props.msReconnect < 0)
+        {
+            log_warnF("%s: Overriding msReconnect to 500\n", fcnm);
+            props->activeMQ_props.msReconnect = 500;
+        }
+        props->activeMQ_props.maxAttempts
+             = iniparser_getint(ini, "ActiveMQ:maxAttempts\0", 5);
+        if (props->activeMQ_props.maxAttempts < 0)
+        {
+            log_warnF("%s: Overriding maxAttempts to 5\n", fcnm);
+            props->activeMQ_props.maxAttempts = 5;
+        }
+        props->activeMQ_props.msWaitForMessage 
+             = iniparser_getint(ini, "ActiveMQ:msWaitForMessage\0", 0);
+        if (props->activeMQ_props.msWaitForMessage < 0)
+        {
+            log_warnF("%s: ActiveMQ could hang indefinitely, overriding to 0\n",
+                      fcnm);
+            props->activeMQ_props.msWaitForMessage = 0;
+        }
+    } // End check on need for ActiveMQ
     //----------------------------RabbitMQ Parameters-------------------------//
 /*
     s = iniparser_getstring(ini, "RabbitMQ:RMQhost\0", NULL);
@@ -478,23 +485,22 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-void GFAST_properties__print(struct GFAST_props_struct props)
+void GFAST_properties_print(struct GFAST_props_struct props)
 {
-    const char *fcnm = "GFAST_properties__print\0";
+    const char *fcnm = "GFAST_properties_print\0";
     const char *lspace = "    \0";
     log_debugF("\n%s: GFAST properties\n", fcnm);
     if (props.opmode == OFFLINE)
     {
         log_debugF("%s GFAST site position file %s\n", lspace,
-                   props.siteposfile);  
-        log_debugF("%s GFAST results file %s\n", lspace, props.eewgfile);
+                   props.sitefile);  
         log_debugF("%s GFAST is operating in offline mode\n", lspace);
         log_debugF("%s GFAST default sampling period is %f (s)\n", lspace,
                    props.dt_default);
         if (props.dt_init == INIT_DT_FROM_FILE)
         {
             log_debugF("%s GFAST will get sampling period from file %s\n",
-                       lspace, props.dtfile); 
+                       lspace, props.sitefile); 
         }
         else if (props.dt_init == INIT_DT_FROM_DEFAULT)
         {
@@ -509,7 +515,7 @@ void GFAST_properties__print(struct GFAST_props_struct props)
         if (props.loc_init == INIT_LOCS_FROM_FILE)
         {
             log_debugF("%s GFAST will initialize locations from file %s\n",
-                       lspace, props.siteposfile);
+                       lspace, props.sitefile);
         }
         else if (props.loc_init == INIT_LOCS_FROM_TRACEBUF)
         {
@@ -535,9 +541,34 @@ void GFAST_properties__print(struct GFAST_props_struct props)
     {
         log_debugF("%s GFAST is operating in playback mode\n", lspace);
     }
-    else if (props.opmode == REAL_TIME)
+    else if (props.opmode == REAL_TIME_EEW ||
+             props.opmode == REAL_TIME_PTWC)
     {
-        log_debugF("%s GFAST is operating in real-time mode\n", lspace);
+        log_debugF("%s GFAST is operating in EEW real-time mode\n", lspace);
+        log_debugF("%s GFAST site position file %s\n", lspace,
+                   props.sitefile);
+        log_debugF("%s GFAST default sampling period is %f (s)\n", lspace,
+                   props.dt_default);
+        if (props.opmode == REAL_TIME_EEW)
+        {
+            log_debugF("%s GFAST host name: %s\n", lspace,
+                       props.activeMQ_props.host);
+            log_debugF("%s GFAST origin topic: %s\n",
+                       lspace, props.activeMQ_props.originTopic);
+            log_debugF("%s GFAST destination topic: %s\n",
+                       lspace, props.activeMQ_props.destinationTopic);
+            log_debugF("%s Will connect to port %d\n", lspace,
+                       props.activeMQ_props.port);
+            if (props.activeMQ_props.maxAttempts > 0)
+            {
+                log_debugF("%s Milliseconds before reconnect %d\n",
+                           lspace, props.activeMQ_props.msReconnect); 
+                log_debugF("%s Max number of attempts to connect %d\n",
+                           lspace, props.activeMQ_props.maxAttempts);
+            }
+            log_debugF("%s Will wait %d milliseconds for a message\n",
+                       lspace, props.activeMQ_props.msWaitForMessage);
+        }
     }
     log_debugF("%s GFAST buffer length is %f seconds\n", lspace, props.bufflen);
     if (props.utm_zone ==-12345)
@@ -550,7 +581,7 @@ void GFAST_properties__print(struct GFAST_props_struct props)
                    props.utm_zone);
     }
     log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
-    log_debugF("%s GFAST stream file: %s\n", lspace, props.streamfile);
+    log_debugF("%s GFAST stream file: %s\n", lspace, props.sitefile);
     log_debugF("%s GFAST HDF5 archive dir: %s\n", lspace, props.h5ArchiveDir);
     log_debugF("%s GFAST will finish processing an event after %f (s)\n",
                lspace, props.processingTime);

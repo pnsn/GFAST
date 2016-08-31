@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "gfast.h"
+#include "gfast_events.h"
 /*!
  * @brief Alarms to a new event and adds it to the working events list
  *
@@ -19,8 +19,8 @@
  * @author Ben Baker, ISTI
  *
  */
-bool GFAST_events__newEvent(struct GFAST_shakeAlert_struct SA,
-                            struct GFAST_activeEvents_struct *events)
+bool events_newEvent(struct GFAST_shakeAlert_struct SA,
+                     struct GFAST_activeEvents_struct *events)
 {
     struct GFAST_activeEvents_struct SAtemp;
     int iev, nev0;
@@ -28,36 +28,40 @@ bool GFAST_events__newEvent(struct GFAST_shakeAlert_struct SA,
     lnewEvent = true;
     // New event -> copy and update
     nev0 = events->nev;
-    for (iev=0; iev<nev0; iev++){
-        if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0){
+    for (iev=0; iev<nev0; iev++)
+    {
+        if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
+        {
             lnewEvent = false;
             break;
         }
     }
-    if (lnewEvent){
+    if (lnewEvent)
+    {
         // Copy new event into workspace
         SAtemp.nev = nev0 + 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
                     calloc(SAtemp.nev, sizeof(struct GFAST_shakeAlert_struct));
-        for (iev=0; iev<nev0; iev++){
+        for (iev=0; iev<nev0; iev++)
+        {
             memcpy(&SAtemp.SA[iev], &events->SA[iev],
                    sizeof(struct GFAST_shakeAlert_struct));
         }
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
-        GFAST_memory_freeEvents(events);
+        GFAST_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
                      calloc(events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
-        for (iev=0; iev<events->nev; iev++){
+        for (iev=0; iev<events->nev; iev++)
+        {
             memcpy(&events->SA[iev], &SAtemp.SA[iev],
                    sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
-        GFAST_memory_freeEvents(&SAtemp);
-        //memory_freeEvents(events);
+        GFAST_events_freeEvents(&SAtemp);
     }
     return lnewEvent;
 }

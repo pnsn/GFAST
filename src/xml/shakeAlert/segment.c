@@ -97,11 +97,11 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
         return -1;
     }
     // Write the slip
-    rc = GFAST_xml_shakeAlert_wrteSlip(ss, ss_units,
-                                       ds, ds_units,
-                                       ss_uncer, ss_uncer_units,
-                                       ds_uncer, ds_uncer_units,
-                                       (void *)writer);
+    rc = GFAST_xml_shakeAlert_writeSlip(ss, ss_units,
+                                        ds, ds_units,
+                                        ss_uncer, ss_uncer_units,
+                                        ds_uncer, ds_uncer_units,
+                                        (void *)writer);
     if (rc < 0)
     {
         log_errorF("%s: Error writing slip\n", fcnm);

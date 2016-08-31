@@ -210,6 +210,12 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
 /* Finalize the PGD data structures */
+void core_scaling_pgd_finalize__props(
+     struct GFAST_pgd_props_struct *pgd_props);
+void core_scaling_pgd_finalize__pgdData(
+     struct GFAST_peakDisplacementData_struct *pgd_data);
+void core_scaling_pgd_finalize__pgdResults(
+    struct GFAST_pgdResults_struct *pgd);
 void core_scaling_pgd_finalize(
     struct GFAST_pgd_props_struct *pgd_props,
     struct GFAST_peakDisplacementData_struct *pgd_data,
@@ -302,6 +308,12 @@ int core_waveformProcessor_peakDisplacement(
               core_ff_faultPlaneGridSearch(__VA_ARGS__)
 #define GFAST_core_ff_initialize(...)       \
               core_ff_initialize(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_finalize__props(...)       \
+              core_scaling_pgd_finalize__props(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_finalize__pgdData(...)       \
+              core_scaling_pgd_finalize__pgdData(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_finalize__pgdResults(...)       \
+              core_scaling_pgd_finalize__pgdResults(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_finalize(...)       \
               core_scaling_pgd_finalize(__VA_ARGS__)
 #define GFAST_core_ff_meshFaultPlane(...)       \

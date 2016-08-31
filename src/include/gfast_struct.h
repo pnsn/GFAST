@@ -87,6 +87,27 @@ struct GFAST_ff_props_struct
                               inversion (should be 2) */
 };
 
+struct GFAST_activeMQ_struct
+{
+    char host[512];             /*!< Earthquake early warning ActiveMQ
+                                     host name */
+    char user[512];             /*!< Username for ActiveMQ host computer */
+    char password[512];         /*!< Password to ActiveMQ host computer */
+    char originTopic[512];      /*!< This is the topic (ActiveMQ destination)
+                                     that the decision module sends messages
+                                     to and GFAST  */
+    char destinationTopic[512]; /*!< This is the topic (ActiveMQ destination)
+                                     that GFAST will send messages to */
+    int port;                   /*!< Port number of host machine */
+    int msReconnect;            /*!< milliseconds to wait before reconnect
+                                     (default is 500) */
+    int maxAttempts;            /*!< Max number of attempts before declaring
+                                     inability to connect to the host
+                                     (default is 5) */
+    int msWaitForMessage;       /*!< Milliseconds to wait for a message
+                                     (default is 0) */
+};
+
 struct GFAST_props_struct
 {
     struct GFAST_pgd_props_struct
@@ -95,41 +116,38 @@ struct GFAST_props_struct
            cmt_props;           /*!< CMT properties structure */
     struct GFAST_ff_props_struct
            ff_props;            /*!< FF properties structure */
-    char streamfile[PATH_MAX];  /*!< File of streams to include in the
-                                     processing. */
-    char dtfile[PATH_MAX];      /*!< File with site names and sampling periods
-                                     if initializing from file */
-    char siteposfile[PATH_MAX]; /*!< File of all the site locations.  The
-                                     format used is currently from the SOPAC
-                                     SECTOR web service. */
-    char eewsfile[PATH_MAX];    /*!< File to output the results of the ActiveMQ
-                                     listener from the seismic warning file. */
-    char eewgfile[PATH_MAX];    /*!< File to output the results of G-FAST */
-    char syndriver[PATH_MAX];   /*!< The synthetic mode driver file. */
-    char synoutput[PATH_MAX];   /*!< The synthetic mode output file. */
+    struct GFAST_activeMQ_struct
+           activeMQ_props;      /*!< ActiveMQ properties (required for 
+                                     earthquake early warning */
+    char sitefile[PATH_MAX];    /*!< Contains all sites, locations, and 
+                                     sampling periods of streams to be 
+                                     used by GFAST.  */
+    char eewsfile[PATH_MAX];    /*!< In playback mode this XML decision
+                                     module style module has the event
+                                     hypocenter and origin time */ 
     char syndata_dir[PATH_MAX]; /*!< Synthetic data directory */
     char syndata_pre[PATH_MAX]; /*!< Synthetic data prefix (LX) */
     char h5ArchiveDir[PATH_MAX];/*!< HDF5 archive directory */ 
-    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
-                                     (siren). */
-    char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages
-                                     (eew.alg.elarms.data). */
-    char AMQuser[512];          /*!< ActiveMQ username to access ElarmS
-                                     messages */
-    char AMQpassword[512];      /*!< ActiveMQ password to access ElarmS
-                                     messages */
-    char RMQhost[512];          /*!< RabbitMQ hostname to acceess processed GPS
-                                     positions.  PANGA separates this into two 
-                                     distinct processing groups, CWU-ppp and
-                                     UNAVCO-rtx */
-    char RMQtopic[512];         /*!< RabbitMQ topic to access processed GPS
-                                     positions (www.panga.org) */
-    char RMQuser[512];          /*!< RabbitMQ username to acess processed GPS
-                                     positions */
-    char RMQpassword[512];      /*!< RabbitMQ password to access processed GPS
-                                     positions */
-    char RMQexchange[512];      /*!< RabbitMQ exchange to access processed GPS
-                                     positions (nev-cor) */
+//    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
+//                                     (siren). */
+//    char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages
+//                                     (eew.alg.elarms.data). */
+//    char AMQuser[512];          /*!< ActiveMQ username to access ElarmS
+//                                     messages */
+//    char AMQpassword[512];      /*!< ActiveMQ password to access ElarmS
+//                                     messages */
+//    char RMQhost[512];          /*!< RabbitMQ hostname to acceess processed GPS
+//                                     positions.  PANGA separates this into two 
+//                                     distinct processing groups, CWU-ppp and
+//                                     UNAVCO-rtx */
+//    char RMQtopic[512];         /*!< RabbitMQ topic to access processed GPS
+//                                     positions (www.panga.org) */
+//    char RMQuser[512];          /*!< RabbitMQ username to acess processed GPS
+//                                     positions */
+//    char RMQpassword[512];      /*!< RabbitMQ password to access processed GPS
+//                                     positions */
+//    char RMQexchange[512];      /*!< RabbitMQ exchange to access processed GPS
+//                                     positions (nev-cor) */
     double dt_default;          /*!< Default sampling period (s) for GPS
                                      stations */
     double bufflen;             /*!< The number of seconds to keep in the data

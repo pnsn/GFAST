@@ -1,0 +1,11 @@
+add_sources(
+faultPlaneGridSearch.c
+initialize.c
+meshFaultPlane.c
+setDiagonalWeightMatrix.c
+setForwardModel.c
+setRegularizer.c
+setRHS.c
+weightForwardModel.c
+weightObservations.c
+)

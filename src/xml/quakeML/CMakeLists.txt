@@ -1,0 +1,14 @@
+add_sources(
+depth.c
+epoch2string.c
+focalMechanism.c
+latitude.c
+longitude.c
+momentTensor.c
+nodalPlanes.c
+origin.c
+principalAxes.c
+tensor.c
+time.c
+units.c
+)
