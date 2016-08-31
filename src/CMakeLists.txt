@@ -124,6 +124,7 @@ else()
                         ${ISCL_LIBRARIES}
                         ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
                         ${IPP_LIBRARIES}
+                        ${FFTW3_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
                         ${HDF5_hdf5_LIBRARY_RELEASE}
@@ -131,7 +132,7 @@ else()
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
-                        -lm -ldl -lpthread)
+                        -lm -ldl -lpthread -lgfortran)
  else()
   target_link_libraries(gfast_eew
                         gfast_xml_static
@@ -140,6 +141,7 @@ else()
                         gfast_activeMQ_shared
                         ${ISCL_LIBRARIES}
                         ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
+                        ${FFTW3_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${HDF5_LIBRARIES}
                         ${HDF5_hdf5_LIBRARY_RELEASE}
@@ -147,7 +149,7 @@ else()
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
-                        -lm)
+                        -lm -ldl -lpthread -lgfortran)
  endif(IPP_FOUND)
 endif(MKL_FOUND)
 
