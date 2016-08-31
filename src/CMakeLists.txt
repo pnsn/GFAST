@@ -14,7 +14,7 @@ endif (MKL_FOUND)
 find_package(IniParser REQUIRED)
 find_package(ISCL REQUIRED)
 find_package(GeographicLib REQUIRED)
-find_package(HDF5 REQUIRED)
+find_package(H5 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(XML2 REQUIRED)
 find_package(IPP)
@@ -26,7 +26,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
   ${LAPACKE_INCLUDE_DIR}
   ${CBLAS_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
-  ${HDF5_C_INCLUDE_DIR}
+  ${H5_C_INCLUDE_DIR}
   ${INIPARSER_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR})
 
@@ -88,7 +88,7 @@ if (MKL_FOUND)
                         -Wl,--end-group
                         ${IPP_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
-                        ${HDF5_LIBRARIES}
+                        ${H5_LIBRARIES}
                         ${HDF5_hdf5_LIBRARY_RELEASE}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
