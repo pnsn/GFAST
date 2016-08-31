@@ -1,4 +1,5 @@
 add_sources(
+freeEvents.c
 getMinOriginTime.c
 newEvent.c
 printEvent.c
