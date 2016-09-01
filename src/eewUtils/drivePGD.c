@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
-#include "gfast.h"
+#include "gfast_eewUtils.h"
+#include "gfast_core.h"
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
@@ -34,12 +35,14 @@
  * @date May 2016
  *
  */ 
-int GFAST_scaling_PGD__driver(struct GFAST_pgd_props_struct pgd_props,
-                              double SA_lat, double SA_lon, double SA_dep,
-                              struct GFAST_peakDisplacementData_struct pgd_data,
-                              struct GFAST_pgdResults_struct *pgd)
+int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
+                      const double SA_lat,
+                      const double SA_lon,
+                      const double SA_dep,
+                      struct GFAST_peakDisplacementData_struct pgd_data,
+                      struct GFAST_pgdResults_struct *pgd)
 {
-    const char *fcnm = "GFAST_scaling_PGD__driver\0";
+    const char *fcnm = "eewUtils_drivePGD\0";
     double *d, *srdist, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
            iqrMin, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
     int i, idep, ierr, j, k, l1, zone_loc;

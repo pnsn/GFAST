@@ -66,6 +66,7 @@ add_library(gfast_core_shared SHARED ${SRCS_CORE})
 add_library(gfast_core_static STATIC ${SRCS_CORE})
 add_library(gfast_xml_shared SHARED ${SRCS_XML})
 add_library(gfast_xml_static STATIC ${SRCS_XML})
+#add_library(gfast_traceBuffer SHARED ${SRCS_ 
 if (AMQ_FOUND)
 add_library(gfast_activeMQ_shared SHARED ${SRCS_AMQ})
 add_library(gfast_activeMQ_static STATIC ${SRCS_AMQ})
@@ -73,7 +74,7 @@ endif (AMQ_FOUND)
 add_library(gfast_hdf5_shared SHARED ${SRCS_HDF5})
 add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
-add_executable(gfast_eew cmt_driver.c ff_driver.c pgd_driver.c gfast_eew.c properties.c ${SRCS})
+add_executable(gfast_eew gfast_eew.c properties.c ${SRCS})
 
 if (MKL_FOUND)
  if (IPP_FOUND)

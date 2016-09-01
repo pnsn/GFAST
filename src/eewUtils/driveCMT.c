@@ -6,7 +6,8 @@
 #include <stdbool.h>
 #include <omp.h>
 #include <lapacke.h>
-#include "gfast.h"
+#include "gfast_eewUtils.h"
+#include "gfast_core.h"
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
@@ -38,12 +39,14 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
-int GFAST_CMT__driver(struct GFAST_cmt_props_struct cmt_props,
-                      double SA_lat, double SA_lon, double SA_dep,
+int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
+                      const double SA_lat,
+                      const double SA_lon,
+                      const double SA_dep,
                       struct GFAST_offsetData_struct cmt_data,
                       struct GFAST_cmtResults_struct *cmt)
 {
-    const char *fcnm = "GFAST_CMT__driver\0";
+    const char *fcnm = "eewUtils_driveCMT\0";
     double *utmRecvEasting, *utmRecvNorthing, *staAlt,
            *eOffset, *eEst, *eWts, *nOffset, *nEst, *nWts,
            *uOffset, *uEst, *uWts,

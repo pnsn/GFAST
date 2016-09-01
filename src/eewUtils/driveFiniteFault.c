@@ -6,7 +6,8 @@
 #include <string.h>
 #include <lapacke.h>
 #include <cblas.h>
-#include "gfast.h"
+#include "gfast_eewUtils.h"
+#include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
@@ -28,7 +29,7 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
  *                        on output contains the results of the finite
  *                        fault inversion which includes slip along
  *                        strike and slip down dip on each plane,
- *                        uncertainties, and estimate data and observed data 
+ *                        uncertainties, and estimate data and observed data
  *
  * @result \reval 0 indicates success.
  *
@@ -37,12 +38,14 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
  * @date May 2016
  *
  */
-int GFAST_FF__driver(struct GFAST_ff_props_struct ff_props,
-                     double SA_lat, double SA_lon, double SA_dep,
-                     struct GFAST_offsetData_struct ff_data,
-                     struct GFAST_ffResults_struct *ff)
+int eewUtils_driveFiniteFault(struct GFAST_ff_props_struct ff_props,
+                              const double SA_lat,
+                              const double SA_lon,
+                              const double SA_dep,
+                              struct GFAST_offsetData_struct ff_data,
+                              struct GFAST_ffResults_struct *ff)
 {
-    const char *fcnm = "GFAST_FF__driver\0";
+    const char *fcnm = "eewUtils_driveFiniteFault\0";
     double *dip, *dslip, *dslip_unc, *eOffset, *EN, *eWts,
            *fault_xutm, *fault_yutm, *fault_alt, *length,
            *Mw, *nOffset, *NN, *nWts, *sslip, *sslip_unc, *staAlt,
