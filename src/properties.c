@@ -418,12 +418,12 @@ int GFAST_properties_initialize(const char *propfilename,
             props->activeMQ_props.maxAttempts = 5;
         }
         props->activeMQ_props.msWaitForMessage 
-             = iniparser_getint(ini, "ActiveMQ:msWaitForMessage\0", 0);
+             = iniparser_getint(ini, "ActiveMQ:msWaitForMessage\0", 1);
         if (props->activeMQ_props.msWaitForMessage < 0)
         {
-            log_warnF("%s: ActiveMQ could hang indefinitely, overriding to 0\n",
+            log_warnF("%s: ActiveMQ could hang indefinitely, overriding to 1\n",
                       fcnm);
-            props->activeMQ_props.msWaitForMessage = 0;
+            props->activeMQ_props.msWaitForMessage = 1;
         }
     } // End check on need for ActiveMQ
     //----------------------------RabbitMQ Parameters-------------------------//

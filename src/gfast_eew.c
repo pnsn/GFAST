@@ -85,7 +85,7 @@ int main(int argc, char **argv)
         // Run through the machine every second
 
         // Update my buffers
-
+  
         // Check my mail for an event
         amqMessage = activeMQ_getMessage(props.activeMQ_props.msWaitForMessage,
                                          &ierr);
@@ -102,13 +102,8 @@ int main(int argc, char **argv)
             }
             free(amqMessage);
             amqMessage = NULL;
+            lacquire = false;
         } 
-        else
-        {
-            log_errorF("%s: Error getting the ActiveMQ message\n", fcnm);
-            goto ERROR;
-        }
-        lacquire = false;
     }
 ERROR:;
     ISCL_iscl_finalize();
