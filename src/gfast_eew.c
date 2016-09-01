@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
-    int ierr;
+    int ierr, iev;
     bool lacquire, lnewEvent;
     // Initialize 
     ierr = 0;
@@ -80,6 +80,8 @@ int main(int argc, char **argv)
         goto ERROR;
     }
     //activeMQ_initialize( );
+    // Initialize the memory for the data structures
+
     // Begin the acquisition loop
     amqMessage = NULL;
     t0 = (double) (long) ISCL_time_timeStamp();
@@ -117,11 +119,36 @@ int main(int argc, char **argv)
             }
             free(amqMessage);
             amqMessage = NULL;
-            // Is the event new?
+            // If this is a new event we have some file handling to do
             lnewEvent = GFAST_events_newEvent(SA, &events);
+            if (lnewEvent)
+            {
+                ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
+                                             SA.eventid,
+                                             propfilename);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error initializing the archive file\n",
+                               fcnm);
+                    goto ERROR;
+                }
+            }
         }
         // Are there events to process? 
+        for (iev=0; iev<events.nev; iev++)
+        {
+            if (props.verbose > 2)
+            {
+                log_debugF("%s: Processing event %s\n", fcnm,
+                           events.SA[iev].eventid);
+            }
+            // Read the data from the buffers
 
+            // Apply the waveform processors
+
+            // Update the HDF5 archive
+
+        }
     }
 ERROR:;
     GFAST_activeMQ_finalize(); 
