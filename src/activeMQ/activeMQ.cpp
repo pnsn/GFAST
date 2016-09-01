@@ -100,8 +100,8 @@ class ShakeAlertConsumer : public ExceptionListener,
             __messageCount = 0;
             __user = username;
             __password = password;
-            __brokerURI = brokerURI; 
             __destURI = destination;
+            __brokerURI = brokerURI; 
                 
             __useTopic = useTopic;
             __clientAck = clientAck;
@@ -512,14 +512,14 @@ extern "C" int activeMQ_initializeConsumer(const char AMQuser[],
                                            const int verbose)
 {
     const char *fcnm = "activeMQ_initialize\0";
-    string brokerURI, destination, hostname, password, username; 
-    username = AMQuser;
-    password = AMQpassword;
-    hostname = AMQhostname;
-    destination = AMQdestination;
+    string username = AMQuser;
+    string password = AMQpassword;
+    string hostname = AMQhostname;
+    string destination = AMQdestination;
     // Set the URI 
-    brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
-                                          msReconnect, maxAttempts);
+    string brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
+                                                 msReconnect, maxAttempts);
+cout << brokerURI << endl;
     // Make sure the library is initialized
     if (!linit_amqlib)
     {
@@ -536,6 +536,7 @@ extern "C" int activeMQ_initializeConsumer(const char AMQuser[],
     }
     consumer.initialize(username, password, destination, brokerURI,
                         useTopic, clientAck, luseListener, verbose);
+    consumer.startMessageListener();
     return 0;
 }
 //============================================================================//

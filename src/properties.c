@@ -28,10 +28,10 @@ int GFAST_properties_initialize(const char *propfilename,
     int ierr; 
     dictionary *ini;
     //------------------------------------------------------------------------//
-    props->opmode = opmode;
     // Require the properties file exists
     ierr =-1;
     memset(props, 0, sizeof(struct GFAST_props_struct));
+    props->opmode = opmode;
     if (!os_path_isfile(propfilename))
     {
         log_errorF("%s: Properties file: %s does not exist\n",
@@ -343,6 +343,7 @@ int GFAST_properties_initialize(const char *propfilename,
         goto ERROR;
     }
     //---------------------------ActiveMQ Parameters--------------------------//
+    printf("%d\n", props->opmode);
     if (props->opmode == REAL_TIME_EEW) 
     {
         s = iniparser_getstring(ini, "ActiveMQ:host\0", NULL);
