@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     if (ierr != 0)
     {
         log_errorF("%s: Error connecting to upstream message queue\n", fcnm);
-        //goto ERROR;
+        goto ERROR;
     }
     //activeMQ_initialize( );
     // Begin the acquisition loop
@@ -103,6 +103,14 @@ int main(int argc, char **argv)
             free(amqMessage);
             amqMessage = NULL;
             lacquire = false;
+        }
+        else
+        {
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error getting message\n", fcnm);
+                break;
+            }
         } 
     }
 ERROR:;
