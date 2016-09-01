@@ -519,7 +519,6 @@ extern "C" int activeMQ_initializeConsumer(const char AMQuser[],
     // Set the URI 
     string brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
                                                  msReconnect, maxAttempts);
-cout << brokerURI << endl;
     // Make sure the library is initialized
     if (!linit_amqlib)
     {
