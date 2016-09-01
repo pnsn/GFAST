@@ -5,6 +5,7 @@
 #include "gfast.h"
 #include "iscl/log/log.h"
 #include "iscl/iscl/iscl.h"
+#include "iscl/time/time.h"
 
 /*!
  * @brief GFAST earthquake early warning driver routine
@@ -23,12 +24,13 @@ int main(int argc, char **argv)
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
     char *amqMessage;
+    double t0, t1;
     const enum opmode_type opmode = REAL_TIME_EEW;
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
     int ierr;
-    bool lacquire;
+    bool lacquire, lnewEvent;
     // Initialize 
     ierr = 0;
     memset(&props,    0, sizeof(struct GFAST_props_struct));
@@ -79,17 +81,30 @@ int main(int argc, char **argv)
     }
     //activeMQ_initialize( );
     // Begin the acquisition loop
+    amqMessage = NULL;
+    t0 = (double) (long) ISCL_time_timeStamp();
     lacquire = true;
     while(lacquire)
     {
+        // Initialize the iteration
+        amqMessage = NULL;
         // Run through the machine every second
-
+        t1 = (double) (long) ISCL_time_timeStamp();
+        if (t1 - t0 < props.waitTime){continue;}
+        t0 = t1;
         // Update my buffers
   
         // Check my mail for an event
-        amqMessage = activeMQ_getMessage(props.activeMQ_props.msWaitForMessage,
-                                         &ierr);
-        if (amqMessage != NULL && ierr == 0)
+        amqMessage =
+            GFAST_activeMQ_getMessage(props.activeMQ_props.msWaitForMessage,
+                                      &ierr);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Internal error when getting message\n", fcnm);
+            goto ERROR;
+        }
+        // If there's a message then process it
+        if (amqMessage != NULL)
         {
             // Parse the event message 
             ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
@@ -102,18 +117,14 @@ int main(int argc, char **argv)
             }
             free(amqMessage);
             amqMessage = NULL;
-            lacquire = false;
+            // Is the event new?
+            lnewEvent = GFAST_events_newEvent(SA, &events);
         }
-        else
-        {
-            if (ierr != 0)
-            {
-                log_errorF("%s: Error getting message\n", fcnm);
-                break;
-            }
-        } 
+        // Are there events to process? 
+
     }
 ERROR:;
+    GFAST_activeMQ_finalize(); 
     ISCL_iscl_finalize();
     if (ierr != 0)
     {

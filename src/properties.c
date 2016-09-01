@@ -153,6 +153,17 @@ int GFAST_properties_initialize(const char *propfilename,
             props->dt_init = INIT_DT_FROM_TRACEBUF;
         }
     }
+    // Wait time
+    props->waitTime = 1.0;
+    if (props->opmode == REAL_TIME_EEW || props->opmode == REAL_TIME_PTWC)
+    {
+        props->waitTime = iniparser_getdouble(ini, "general:waitTime\0", 1.0);
+        if (props->waitTime < 0.0)
+        {
+            log_errorF("%s: Invalid wait time %f!\n", fcnm, props->waitTime);
+            goto ERROR;
+        } 
+    }        
     // Location initialization
     props->loc_init = iniparser_getint(ini, "general:loc_init\0", 1);
     if (props->opmode == OFFLINE)
@@ -546,6 +557,8 @@ void GFAST_properties_print(struct GFAST_props_struct props)
              props.opmode == REAL_TIME_PTWC)
     {
         log_debugF("%s GFAST is operating in EEW real-time mode\n", lspace);
+        log_debugF("%s GFAST time between iterations is %f (s)\n", lspace,
+                   props.waitTime);
         log_debugF("%s GFAST site position file %s\n", lspace,
                    props.sitefile);
         log_debugF("%s GFAST default sampling period is %f (s)\n", lspace,

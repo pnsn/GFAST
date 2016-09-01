@@ -160,6 +160,8 @@ struct GFAST_props_struct
     double eqDefaultDepth;      /*!< Default earthquake depth (km) to be applied
                                      to shakeAlert structure */
     double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode */
+    double waitTime;            /*!< Number of seconds to wait before running
+                                     another iteration of the realtime code */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     int RMQport;                /*!< RabbitMQ port to access processed GPS
