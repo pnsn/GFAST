@@ -810,7 +810,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // net-implosion
     else if (EW2 < 0.0 && xsum < 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Net-implosion (1)\n");}
+        if (iverb > 2){log_infoF("%s: Net-implosion (1)\n", fcnm);}
         if (fabs(EW1_devi) < fabs(EW3_devi))
         {
             symmetry_around_tension = 1;
