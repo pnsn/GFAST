@@ -97,7 +97,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     }
     // From the NED mt get the moment tensor in USE to write to QuakeML
     memcpy(M_use, mt, 6*sizeof(double));
-    ierr = cmopad_basis__transformMatrixM6(M_use, NED, USE);
+    ierr = cmopad_basis_transformMatrixM6(M_use, NED, USE);
     if (ierr != 0)
     {
         log_errorF("%s: Error converting NED to USE moment tensor\n", fcnm);

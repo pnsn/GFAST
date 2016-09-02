@@ -65,10 +65,10 @@ static void __cmopad_swap8(double *a, double *b);
  * @result 0 in indicates success
  *
  */
-int cmopad_basis__switcher(enum cmopad_basis_enum in_system, 
-                           enum cmopad_basis_enum out_system, double r[3][3])
+int cmopad_basis_switcher(enum cmopad_basis_enum in_system, 
+                          enum cmopad_basis_enum out_system, double r[3][3])
 {
-    const char *fcnm = "cmopad_basis__switcher\0";
+    const char *fcnm = "cmopad_basis_switcher\0";
     double From[9], To[9], r9[9]; 
     double alpha = 1.0;
     double beta  = 0.0;
@@ -160,11 +160,11 @@ int cmopad_basis__switcher(enum cmopad_basis_enum in_system,
  * @result 0 indicates success
  *
  */
-int cmopad_basis__transformMatrixM6(double *m,
-                                    enum cmopad_basis_enum in_sys,
-                                    enum cmopad_basis_enum out_sys)
+int cmopad_basis_transformMatrixM6(double *m,
+                                   enum cmopad_basis_enum in_sys,
+                                   enum cmopad_basis_enum out_sys)
 {
-    const char *fcnm = "cmopad_basis__transformMatrixM6\0";
+    const char *fcnm = "cmopad_basis_transformMatrixM6\0";
     double M33[3][3];
     int ierr;
     //------------------------------------------------------------------------//
@@ -177,7 +177,7 @@ int cmopad_basis__transformMatrixM6(double *m,
     M33[0][2] = M33[2][0] = m[4]; //mxz; mrp
     M33[1][2] = M33[2][1] = m[5]; //myz; mtp
     // Switch basis 
-    ierr = cmopad_basis__transformMatrixM33(M33, in_sys, out_sys);
+    ierr = cmopad_basis_transformMatrixM33(M33, in_sys, out_sys);
     if (ierr != 0)
     {
         log_errorF("%s: Error changing basis\n", fcnm);
@@ -205,11 +205,11 @@ int cmopad_basis__transformMatrixM6(double *m,
  * @result 0 indicates success
  *
  */
-int cmopad_basis__transformMatrixM33(double m[3][3],
-                                     enum cmopad_basis_enum in_sys,
-                                     enum cmopad_basis_enum out_sys)
+int cmopad_basis_transformMatrixM33(double m[3][3],
+                                    enum cmopad_basis_enum in_sys,
+                                    enum cmopad_basis_enum out_sys)
 {
-    const char *fcnm = "cmopad_basis__transformMatrixM33\0";
+    const char *fcnm = "cmopad_basis_transformMatrixM33\0";
     double r[3][3], t9[9], invR[3][3], invR9[9], r9[9], m9[9];
     double alpha = 1.0;
     double beta = 0.0;
@@ -218,7 +218,7 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
     //------------------------------------------------------------------------//
     //
     // Compute change of basis matrix 
-    ierr = cmopad_basis__switcher(in_sys, out_sys, r);
+    ierr = cmopad_basis_switcher(in_sys, out_sys, r);
     if (ierr != 0)
     {
         log_errorF("%s: Error generating basis switching matrix\n",fcnm);
@@ -278,11 +278,11 @@ int cmopad_basis__transformMatrixM33(double m[3][3],
  * @result 0 indicates success
  *
  */
-int cmopad_basis__transformVector(double v[3],
-                                  enum cmopad_basis_enum in_sys,
-                                  enum cmopad_basis_enum out_sys)
+int cmopad_basis_transformVector(double v[3],
+                                 enum cmopad_basis_enum in_sys,
+                                 enum cmopad_basis_enum out_sys)
 {
-    const char *fcnm = "cmopad_basis__transformVector\0";
+    const char *fcnm = "cmopad_basis_transformVector\0";
     double r[3][3], r9[9], x[3]; 
     double alpha = 1.0;
     double beta = 0.0;
@@ -293,7 +293,7 @@ int cmopad_basis__transformVector(double v[3],
     //------------------------------------------------------------------------//
     //
     // Compute change of basis matrix
-    ierr = cmopad_basis__switcher(in_sys, out_sys, r);
+    ierr = cmopad_basis_switcher(in_sys, out_sys, r);
     if (ierr != 0)
     {
         log_errorF("%s: Error making basis switcher matrix\n", fcnm);
@@ -357,7 +357,7 @@ int cmopad_Eigenvector2PrincipalAxis(enum cmopad_basis_enum coord, double eig,
     //
     // Convert eigenvector ev to USE convention 
     cblas_dcopy(3, ev, 1, v, 1);
-    ierr = cmopad_basis__transformVector(v, coord, USE);
+    ierr = cmopad_basis_transformVector(v, coord, USE);
     if (ierr != 0)
     {
         log_errorF("%s: Error switching basis\n", fcnm);
@@ -749,7 +749,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     ierr = __cmopad_Eigs3x3(EV_devi, ival, EW_devi);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing eigenvalues (a)!",fcnm);
+        log_errorF("%s: Error computing eigenvalues (a)!", fcnm);
         return -1; 
     } 
     ierr = __cmopad_argsort3(EW_devi, EW_order);
@@ -776,7 +776,8 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     EW1 = EW[EW_order[0]];
     EW2 = EW[EW_order[1]];
     EW3 = EW[EW_order[2]];
-    for (i=0; i<3; i++){
+    for (i=0; i<3; i++)
+    {
         //EV1_devi[i] = EV_devi[i][EW_order[0]];
         //EV2_devi[i] = EV_devi[i][EW_order[1]]; 
         //EV3_devi[i] = EV_devi[i][EW_order[2]]; 
@@ -1177,7 +1178,7 @@ int cmopad_SetupMT(int nmech, double *mech,
         return -1;
     }
     // Rotate into NED basis for local processing
-    ierr = cmopad_basis__transformMatrixM33(Mech_out, input_basis, NED);
+    ierr = cmopad_basis_transformMatrixM33(Mech_out, input_basis, NED);
     if (ierr != 0)
     {
         log_errorF("%s: Error transforming matrix\n", fcnm);

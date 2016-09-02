@@ -57,16 +57,16 @@ void cmopad_findStrikeDipRake(double rot_mat[3][3],
                               double *alpha, double *beta, double *gamma);
 void cmopad_eulerToMatrix(double alpha, double beta, double gamma,
                           double mat[3][3]);
-int cmopad_basis__switcher(enum cmopad_basis_enum in_system,
-                           enum cmopad_basis_enum out_system, double r[3][3]);
+int cmopad_basis_switcher(enum cmopad_basis_enum in_system,
+                          enum cmopad_basis_enum out_system, double r[3][3]);
 int cmopad_Eigenvector2PrincipalAxis(enum cmopad_basis_enum coord, double eig, 
                                      double ev[3], double paxis[3]);
-int cmopad_basis__transformMatrixM6(double *m,
+int cmopad_basis_transformMatrixM6(double *m,
+                                   enum cmopad_basis_enum in_sys,
+                                   enum cmopad_basis_enum out_sys);
+int cmopad_basis_transformMatrixM33(double m[3][3],
                                     enum cmopad_basis_enum in_sys,
                                     enum cmopad_basis_enum out_sys);
-int cmopad_basis__transformMatrixM33(double m[3][3],
-                                     enum cmopad_basis_enum in_sys,
-                                     enum cmopad_basis_enum out_sys);
 void cmopad_strikeDipRake2MT6(double strike, double dip, double rake,
                               double moments[6]);
 int cmopad_SetupMT(int nmech, double *mech, 
