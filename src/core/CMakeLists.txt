@@ -1,4 +1,3 @@
-add_subdirectory(cmopad)
 add_subdirectory(cmt)
 add_subdirectory(coordtools)
 add_subdirectory(ff)

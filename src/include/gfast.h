@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include "cmopad.h"
 #include "gfast_activeMQ.h"
 #include "gfast_core.h"
 #include "gfast_eewUtils.h"

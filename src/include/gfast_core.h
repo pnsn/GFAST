@@ -41,6 +41,12 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                              double *__restrict__ eEst,
                              double *__restrict__ uEst,
                              double *__restrict__ mts);
+/* Frees memory on the CMT structures */
+void core_cmt_finalize__cmtResults(struct GFAST_cmtResults_struct *cmt);
+void core_cmt_finalize__offsetData(struct GFAST_offsetData_struct *offset_data);
+void core_cmt_finalize(struct GFAST_cmt_props_struct *cmt_props,
+                       struct GFAST_offsetData_struct *offset_data,
+                       struct GFAST_cmtResults_struct *cmt);
 /* Initialize CMT data structures */
 int core_cmt_initialize(struct GFAST_cmt_props_struct props,
                         struct GFAST_data_struct gps_data,
@@ -122,6 +128,13 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                  double *__restrict__ sslip_unc,
                                  double *__restrict__ dslip_unc
                                  );
+/* Frees finite fault structures */
+void core_ff_finalize__faultPlane(struct GFAST_faultPlane_struct *fp);
+void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff);
+void core_ff_finalize__offsetData(struct GFAST_offsetData_struct *offset_data);
+void core_ff_finalize(struct GFAST_ff_props_struct *ff_props,
+                      struct GFAST_offsetData_struct *ff_data,
+                      struct GFAST_ffResults_struct *ff);
 /* Initializes finite fault data structures */
 int core_ff_initialize(struct GFAST_ff_props_struct props,
                        struct GFAST_data_struct gps_data,
@@ -282,6 +295,12 @@ int core_waveformProcessor_peakDisplacement(
               core_cmt_decomposeMomentTensor(__VA_ARGS__)
 #define GFAST_core_cmt_depthGridSearch(...)       \
               core_cmt_depthGridSearch(__VA_ARGS__)
+#define GFAST_core_cmt_finalize__cmtResults(...)       \
+              core_cmt_finalize__cmtResults(__VA_ARGS__)
+#define GFAST_core_cmt_finalize__offsetData(...)       \
+              core_cmt_finalize__offsetData(__VA_ARGS__)
+#define GFAST_core_cmt_finalize(...)       \
+              core_cmt_finalize(__VA_ARGS__)
 #define GFAST_core_cmt_initialize(...)       \
               core_cmt_initialize(__VA_ARGS__)
 #define GFAST_core_cmt_setDiagonalWeightMatrix(...)       \
@@ -306,6 +325,14 @@ int core_waveformProcessor_peakDisplacement(
 
 #define GFAST_core_ff_faultPlaneGridSearch(...)       \
               core_ff_faultPlaneGridSearch(__VA_ARGS__)
+#define GFAST_core_ff_finalize__ffResults(...)       \
+              core_ff_finalize__ffResults(__VA_ARGS__)
+#define GFAST_core_ff_finalize__faultPlane(...)       \
+              core_ff_finalize__faultPlane(__VA_ARGS__)
+#define GFAST_core_ff_finalize__offsetData(...)       \
+              core_ff_finalize__offsetData(__VA_ARGS__)
+#define GFAST_core_ff_finalize(...)       \
+              core_ff_finalize(__VA_ARGS__)
 #define GFAST_core_ff_initialize(...)       \
               core_ff_initialize(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_finalize__props(...)       \

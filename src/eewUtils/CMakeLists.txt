@@ -1,6 +1,6 @@
 add_sources(
 driveCMT.c
-driveFiniteFault.c
+driveFF.c
 drivePGD.c
 parseCoreXML.c
 )

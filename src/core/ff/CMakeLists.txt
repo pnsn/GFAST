@@ -1,5 +1,6 @@
 add_sources(
 faultPlaneGridSearch.c
+finalize.c
 initialize.c
 meshFaultPlane.c
 setDiagonalWeightMatrix.c

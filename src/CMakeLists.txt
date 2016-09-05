@@ -46,6 +46,7 @@ macro (add_sources)
     endif (_relPath)
 endmacro (add_sources)
 
+add_subdirectory(include)
 add_subdirectory(core)
 add_subdirectory(eewUtils)
 add_subdirectory(events)

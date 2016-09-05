@@ -6,7 +6,6 @@
 #include <lapacke.h>
 #include <cblas.h>
 #include "cmopad.h"
-#include "iscl/log/log.h"
 
 /*
 Copyright (C) 2010
@@ -102,7 +101,7 @@ int cmopad_basis_switcher(enum cmopad_basis_enum in_system,
     }
     else
     {
-        log_errorF("%s: Invalid in coordinate system %d\n", fcnm, in_system);
+        printf("%s: Invalid in coordinate system %d\n", fcnm, in_system);
         return -1;
     }
     // Classify out
@@ -127,7 +126,7 @@ int cmopad_basis_switcher(enum cmopad_basis_enum in_system,
     }
     else
     {
-        log_errorF("%s: Invalid out coordinate system %d\n", fcnm, out_system);
+        printf("%s: Invalid out coordinate system %d\n", fcnm, out_system);
         return -1;
     }  
     // Multiply inv(in)*out
@@ -180,7 +179,7 @@ int cmopad_basis_transformMatrixM6(double *m,
     ierr = cmopad_basis_transformMatrixM33(M33, in_sys, out_sys);
     if (ierr != 0)
     {
-        log_errorF("%s: Error changing basis\n", fcnm);
+        printf("%s: Error changing basis\n", fcnm);
         return -1;
     }
     // Convert matrix matrix back to array matrix
@@ -221,7 +220,7 @@ int cmopad_basis_transformMatrixM33(double m[3][3],
     ierr = cmopad_basis_switcher(in_sys, out_sys, r);
     if (ierr != 0)
     {
-        log_errorF("%s: Error generating basis switching matrix\n",fcnm);
+        printf("%s: Error generating basis switching matrix\n",fcnm);
         return -1;
     }
     for (i=0; i<3; i++)
@@ -238,7 +237,7 @@ int cmopad_basis_transformMatrixM33(double m[3][3],
     ierr = __cmopad_inv3(invR); //double Amat[3][3])
     if (ierr != 0)
     {
-        log_errorF("%s: Unlikely error!\n", fcnm);
+        printf("%s: Unlikely error!\n", fcnm);
         return -1;
     }
     for (i=0; i<3; i++)
@@ -296,7 +295,7 @@ int cmopad_basis_transformVector(double v[3],
     ierr = cmopad_basis_switcher(in_sys, out_sys, r);
     if (ierr != 0)
     {
-        log_errorF("%s: Error making basis switcher matrix\n", fcnm);
+        printf("%s: Error making basis switcher matrix\n", fcnm);
         return -1;
     }
     for (i=0; i<3; i++)
@@ -360,7 +359,7 @@ int cmopad_Eigenvector2PrincipalAxis(enum cmopad_basis_enum coord, double eig,
     ierr = cmopad_basis_transformVector(v, coord, USE);
     if (ierr != 0)
     {
-        log_errorF("%s: Error switching basis\n", fcnm);
+        printf("%s: Error switching basis\n", fcnm);
         return -1; 
     }   
     // Compute azimuth and plunge angles  
@@ -492,7 +491,7 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
     // system of the reference Double Couple
     if (iverb > 1)
     {
-        log_debugF("%s: Pressure, null, tension eigenvectors:\n",fcnm);
+        printf("%s: Pressure, null, tension eigenvectors:\n",fcnm);
     }
     for (j=0; j<3; j++)
     {
@@ -502,7 +501,7 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
        }
        if (iverb > 1)
        {
-           log_debugF(
+           printf(
            "%8.5f %8.5f %8.5f\n",pnt_sorted_EV_matrix[j][0],
                                  pnt_sorted_EV_matrix[j][1],
                                  pnt_sorted_EV_matrix[j][2]);
@@ -510,12 +509,12 @@ int cmopad_findFaultPlanes(int iverb, struct cmopad_struct *src)
     }
     if (iverb > 1)
     {
-        log_debugF("%s: Reference double couple eigenvectors:\n",fcnm);
+        printf("%s: Reference double couple eigenvectors:\n",fcnm);
         for (i=0; i<3; i++)
         {
-            log_debugF(
-           "%8.5f %8.5f %8.5f\n",refDC_evecs[i],
-                                 refDC_evecs[3+i],refDC_evecs[6+i]);
+            printf(
+            "%8.5f %8.5f %8.5f\n",refDC_evecs[i],
+                                  refDC_evecs[3+i],refDC_evecs[6+i]);
         }
     }
     cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans, n3, n3, n3, 
@@ -749,7 +748,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     ierr = __cmopad_Eigs3x3(EV_devi, ival, EW_devi);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing eigenvalues (a)!", fcnm);
+        printf("%s: Error computing eigenvalues (a)!", fcnm);
         return -1; 
     } 
     ierr = __cmopad_argsort3(EW_devi, EW_order);
@@ -759,7 +758,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     ierr = __cmopad_Eigs3x3(EV, ival, EW);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing eigenvalues (b)!", fcnm);
+        printf("%s: Error computing eigenvalues (b)!", fcnm);
         return -1;
     }
     for (i=0; i<3; i++){
@@ -793,14 +792,14 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // implosion
     if (EW1 < 0.0 && EW2 < 0.0 && EW3 < 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Implosion\n", fcnm);}
+        if (iverb > 2){printf("%s: Implosion\n", fcnm);}
         symmetry_around_tension = 0;
         clr = 1;
     }
     // explosion
     else if (EW1 > 0.0 && EW2 > 0.0 && EW3 > 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Explosion\n", fcnm);}
+        if (iverb > 2){printf("%s: Explosion\n", fcnm);}
         symmetry_around_tension = 1;
         if (fabs(EW1_devi) > fabs(EW3_devi))
         {
@@ -811,7 +810,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // net-implosion
     else if (EW2 < 0.0 && xsum < 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Net-implosion (1)\n", fcnm);}
+        if (iverb > 2){printf("%s: Net-implosion (1)\n", fcnm);}
         if (fabs(EW1_devi) < fabs(EW3_devi))
         {
             symmetry_around_tension = 1;
@@ -826,7 +825,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // net-implosion
     else if (EW2_devi >= 0.0 && xsum < 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Net-impolosion (2)\n", fcnm);}
+        if (iverb > 2){printf("%s: Net-impolosion (2)\n", fcnm);}
         symmetry_around_tension = 0;
         clr = -1;
         if (fabs(EW1_devi) < fabs(EW3_devi))
@@ -838,7 +837,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // net-explosion
     else if (EW2_devi < 0.0 && xsum > 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Net-explosion (1)\n", fcnm);}
+        if (iverb > 2){printf("%s: Net-explosion (1)\n", fcnm);}
         symmetry_around_tension = 1;
         clr = 1;
         if (fabs(EW1_devi) > fabs(EW3_devi))
@@ -850,7 +849,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     // net-explosion
     else if ( EW2_devi >= 0.0 && xsum > 0.0)
     {
-        if (iverb > 2){log_infoF("%s: Net-explosion (2)\n", fcnm);}
+        if (iverb > 2){printf("%s: Net-explosion (2)\n", fcnm);}
         symmetry_around_tension = 0;
         clr = -1;
     }
@@ -858,13 +857,13 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     {
         // If the trace is 0 to machine epsilon then purely deviatoric
         if (trace_M/fmax(fabs(EW1_devi),fabs(EW3_devi)) > 1.e-10){ //!= 0.0){
-            log_warnF("%s: Warning should not be here %f %f %f\n",
+            printf("%s: Warning should not be here %f %f %f\n",
                       fcnm, EW2_devi, trace_M, xsum);
         }
     }
     if (iverb > 1)
     {
-        log_infoF("%s: sym/clr %d %d\n",
+        printf("%s: sym/clr %d %d\n",
                   fcnm, symmetry_around_tension, clr);
     }
     // Deviatoric classification
@@ -881,30 +880,30 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     //explosive src with all neg evals?
     if (EW3 < 0.0 && trace_M >= 0.0)
     {
-        log_errorF("%s: Critical error!\n", fcnm);
+        printf("%s: Critical error!\n", fcnm);
         return -1;
     }
 
     // Classify pure deviatoric - pure deviatoric
     if (trace_M == 0.0)
     {
-        if (iverb > 1){log_infoF("%s: Pure-deviatoric\n", fcnm);}
+        if (iverb > 1){printf("%s: Pure-deviatoric\n", fcnm);}
         // pure shear
         if (EW2 == 0.0)
         {
-            if (iverb > 1){log_infoF("%s: Pure-shear\n", fcnm);}
+            if (iverb > 1){printf("%s: Pure-shear\n", fcnm);}
             symmetry_around_tension = 1;
             clr = 1;
         }
         else if (2.0*fabs(EW2) == fabs(EW1) || 2.0*fabs(EW2) == fabs(EW3))
         {
-            if (iverb > 1){log_infoF("%s: Pure CLVD\n", fcnm);}
+            if (iverb > 1){printf("%s: Pure CLVD\n", fcnm);}
             // CLVD symmetry around tension
             if (fabs(EW1) < EW3)
             {
                 if (iverb > 2)
                 {
-                    log_infoF("%s: CLVD symmetry around tension\n", fcnm);
+                    printf("%s: CLVD symmetry around tension\n", fcnm);
                 }
                 symmetry_around_tension = 1;
                 clr = 1;
@@ -914,7 +913,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
             {
                 if (iverb > 2)
                 {
-                    log_infoF("%s: CLVD symmetry around pressure\n", fcnm);
+                    printf("%s: CLVD symmetry around pressure\n", fcnm);
                 }
                 symmetry_around_tension = 0;
                 clr = -1;
@@ -925,14 +924,14 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
         {
             if (iverb > 1)
             {
-                log_infoF("%s: Mix of DC and CLVD\n", fcnm);
+                printf("%s: Mix of DC and CLVD\n", fcnm);
             }
             // symmetry around tension
             if (fabs(EW1) < EW3)
             {
                 if (iverb > 2)
                 {
-                    log_infoF("%s: Symmetry around tension\n", fcnm);
+                    printf("%s: Symmetry around tension\n", fcnm);
                 }
                 symmetry_around_tension = 1;
                 clr = 1;
@@ -942,7 +941,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
             {
                 if (iverb > 2)
                 {
-                    log_infoF("%s: Symmetry around pressure\n", fcnm);
+                    printf("%s: Symmetry around pressure\n", fcnm);
                 }
                 symmetry_around_tension = 0;
                 clr = -1;
@@ -951,7 +950,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     }
     if (iverb > 0)
     {
-        log_infoF("%s: Final symmetry %d %d\n",
+        printf("%s: Final symmetry %d %d\n",
                   fcnm, symmetry_around_tension, clr);
     }
     // Define order of eigenvectors and values according to symmetry axis
@@ -1013,7 +1012,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
     ierr = cmopad_findFaultPlanes(iverb, src);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing fault planes!\n", fcnm);
+        printf("%s: Error computing fault planes!\n", fcnm);
     }
     return ierr;
 }
@@ -1045,7 +1044,7 @@ void cmopad_printMatrix3x3(bool lfact, double m[3][3])
         }
         if (norm_fact == 0.0)
         {
-            log_warnF("%s: Warning norm_fact = 0.0!\n", fcnm);
+            printf("%s: Warning norm_fact = 0.0!\n", fcnm);
             return;
         }
     }
@@ -1057,16 +1056,16 @@ void cmopad_printMatrix3x3(bool lfact, double m[3][3])
     m23 = m[1][2]/norm_fact; 
     if (lfact)
     {
-        log_infoF(" [ %5.2f %5.2f %5.2f ] \n",m11,m12,m13);
-        log_infoF(" [ %5.2f %5.2f %5.2f ] x %f\n",
+        printf(" [ %5.2f %5.2f %5.2f ] \n",m11,m12,m13);
+        printf(" [ %5.2f %5.2f %5.2f ] x %f\n",
                           m12,m22,m23,norm_fact);
-        log_infoF(" [ %5.2f %5.2f %5.2f ] \n",m13,m23,m33);
+        printf(" [ %5.2f %5.2f %5.2f ] \n",m13,m23,m33);
     }
     else
     {
-        log_infoF(" [ %5.2f %5.2f %5.2f ]\n",m11,m12,m13);
-        log_infoF(" [ %5.2f %5.2f %5.2f ]\n",m12,m22,m23);
-        log_infoF(" [ %5.2f %5.2f %5.2f ]\n",m13,m23,m33);
+        printf(" [ %5.2f %5.2f %5.2f ]\n",m11,m12,m13);
+        printf(" [ %5.2f %5.2f %5.2f ]\n",m12,m22,m23);
+        printf(" [ %5.2f %5.2f %5.2f ]\n",m13,m23,m33);
     }
     return;
 }
@@ -1174,14 +1173,14 @@ int cmopad_SetupMT(int nmech, double *mech,
     // Unknown mechanism
     else
     {
-        log_errorF("%s: Invalid mechanism!\n", fcnm);
+        printf("%s: Invalid mechanism!\n", fcnm);
         return -1;
     }
     // Rotate into NED basis for local processing
     ierr = cmopad_basis_transformMatrixM33(Mech_out, input_basis, NED);
     if (ierr != 0)
     {
-        log_errorF("%s: Error transforming matrix\n", fcnm);
+        printf("%s: Error transforming matrix\n", fcnm);
         return -1;
     }
     return 0;
@@ -1227,7 +1226,7 @@ int cmopad_sortEigenvAscending(bool isabs, double e[3], double ev[3][3])
     ierr = __cmopad_argsort3(ework, iperm);
     if (ierr != 0)
     {
-        log_errorF("%s: Error in permutation sort\n", fcnm);
+        printf("%s: Error in permutation sort\n", fcnm);
         return -1;
     }
     // Copy back into ascending order
@@ -1324,13 +1323,13 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     ierr = __cmopad_Eigs3x3(eigenvtot, ival, eigenwtot);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing eigs (a)!\n",fcnm);
+        printf("%s: Error computing eigs (a)!\n",fcnm);
         return -1;
     } 
     ierr = __cmopad_Eigs3x3(eigenvdevi, ival, eigenwdevi);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing eigs (b)!\n",fcnm);
+        printf("%s: Error computing eigs (b)!\n",fcnm);
         return -1;
     }
 
@@ -1339,7 +1338,7 @@ int cmopad_standardDecomposition(double Min[3][3], struct cmopad_struct *src)
     ierr = ierr + cmopad_sortEigenvAscending(true, eigenwdevi, eigenvdevi);
     if (ierr != 0)
     {
-        log_errorF("%s: Error sorting eigenvalues/eigenvectors\n", fcnm);
+        printf("%s: Error sorting eigenvalues/eigenvectors\n", fcnm);
         return -1;
     }
 
@@ -1535,11 +1534,11 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
         *gamma = numpy_mod(*gamma+M_PI, 2.0*M_PI) - M_PI;
         if (!(0. <= *beta && *beta < M_PI))
         {
-            log_warnF("%s: Warning on bounds on beta!", fcnm);
+            printf("%s: Warning on bounds on beta!", fcnm);
         }
         if (!(-M_PI <= *gamma && *gamma < M_PI))
         {
-            log_warnF("%s: Warning on bounds on gamma!", fcnm);
+            printf("%s: Warning on bounds on gamma!", fcnm);
         }
     }
 
@@ -1597,7 +1596,7 @@ static int __cmopad_argsort3(double x[3], int iperm[3])
     {
         if (x[iperm[i-1]] > x[iperm[i]])
         {
-            log_errorF("%s: Failed to sort numbers in ascending order\n", fcnm);
+            printf("%s: Failed to sort numbers in ascending order\n", fcnm);
             return -1;
         }
     }
@@ -1636,7 +1635,7 @@ static int __cmopad_inv3(double Amat[3][3])
     detA = __cmopad_determinant3x3(Amat);
     if (detA == 0.0)
     {
-        log_errorF("%s: Error matrix is singular!\n", fcnm);
+        printf("%s: Error matrix is singular!\n", fcnm);
         return -1;
     }
     detAi = 1.0/detA;
@@ -1723,7 +1722,7 @@ static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
     }
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing eigenvalues\n", fcnm);
+        printf("%s: Error computing eigenvalues\n", fcnm);
         ierr = 1;
     }
     // Copy eigenvectors back onto A
