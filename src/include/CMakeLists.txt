@@ -1,5 +1,4 @@
 set(headers
-cmopad.h
 gfast_activeMQ.h
 gfast_core.h
 gfast_eewUtils.h

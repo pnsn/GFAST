@@ -22,6 +22,7 @@ find_package(AMQ)
 # Bring in headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
   ${includes}
+  cmopad
   ${CBLAS_INCLUDE_DIR}
   ${LAPACKE_INCLUDE_DIR}
   ${CBLAS_INCLUDE_DIR}
@@ -47,6 +48,7 @@ macro (add_sources)
 endmacro (add_sources)
 
 add_subdirectory(include)
+add_subdirectory(cmopad)
 add_subdirectory(core)
 add_subdirectory(eewUtils)
 add_subdirectory(events)
@@ -67,6 +69,8 @@ add_library(gfast_core_shared SHARED ${SRCS_CORE})
 add_library(gfast_core_static STATIC ${SRCS_CORE})
 add_library(gfast_xml_shared SHARED ${SRCS_XML})
 add_library(gfast_xml_static STATIC ${SRCS_XML})
+add_library(cmopad_shared SHARED ${SRCS_CMOPAD})
+#add_library(cmopad_static STATIC ${SRCS_CMOPAD}) # Need a license agreement from pnsn
 #add_library(gfast_traceBuffer SHARED ${SRCS_ 
 if (AMQ_FOUND)
 add_library(gfast_activeMQ_shared SHARED ${SRCS_AMQ})
@@ -84,6 +88,7 @@ if (MKL_FOUND)
                         gfast_hdf5_static
                         gfast_core_static
                         gfast_activeMQ_shared
+                        cmopad_shared
                         ${ISCL_LIBRARIES}
                         -Wl,--start-group
                         ${MKL_LIBRARIES}
@@ -103,6 +108,7 @@ if (MKL_FOUND)
                         gfast_hdf5_static
                         gfast_core_static
                         gfast_activeMQ_shared
+                        cmopad_shared
                         ${ISCL_LIBRARIES}
                         -Wl,--start-group
                         ${MKL_LIBRARIES}
@@ -123,6 +129,7 @@ else()
                         gfast_hdf5_static
                         gfast_core_static
                         gfast_activeMQ_shared
+                        cmopad_shared
                         ${ISCL_LIBRARIES}
                         ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
                         ${IPP_LIBRARIES}
@@ -141,6 +148,7 @@ else()
                         gfast_hdf5_static
                         gfast_core_static
                         gfast_activeMQ_shared
+                        cmopad_shared
                         ${ISCL_LIBRARIES}
                         ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
                         ${FFTW3_LIBRARIES}

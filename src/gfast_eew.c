@@ -80,8 +80,33 @@ int main(int argc, char **argv)
         goto ERROR;
     }
     //activeMQ_initialize( );
-    // Initialize the memory for the data structures
 
+/*
+    // Initialize PGD
+    ierr = GFAST_core_scaling_pgd_initialize(props.pgd_props, gps_acquisition,
+                                             &pgd, &pgd_data);
+    if (ierr != 0)
+    {   
+        log_errorF("%s: Error initializing PGD\n", fcnm);
+        goto ERROR;
+    }
+    // Initialize CMT
+    ierr = GFAST_core_cmt_initialize(props.cmt_props, gps_acquisition,
+                                     &cmt, &cmt_data);
+    if (ierr != 0)
+    {   
+        log_errorF("%s: Error initializing CMT\n", fcnm);
+        goto ERROR;
+    }
+    // Initialize finite fault
+    ierr = GFAST_core_ff_initialize(props.ff_props, gps_acquisition,
+                                    &ff, &ff_data);
+    if (ierr != 0)
+    {   
+        log_errorF("%s: Error initializing FF\n", fcnm);
+        goto ERROR;
+    }
+*/
     // Begin the acquisition loop
     amqMessage = NULL;
     t0 = (double) (long) ISCL_time_timeStamp();
