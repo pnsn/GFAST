@@ -79,7 +79,7 @@ endif (AMQ_FOUND)
 add_library(gfast_hdf5_shared SHARED ${SRCS_HDF5})
 add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
-add_executable(gfast_eew gfast_eew.c properties.c ${SRCS})
+add_executable(gfast_eew gfast_eew.c ${SRCS})
 
 if (MKL_FOUND)
  if (IPP_FOUND)

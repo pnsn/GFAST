@@ -46,13 +46,13 @@ int main(int argc, char **argv)
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
-    ierr = GFAST_properties_initialize(propfilename, opmode, &props);
+    ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
     if (ierr != 0)
     {
         log_errorF("%s: Error reading GFAST initialization file\n", fcnm);
         goto ERROR;
     }
-    if (props.verbose > 2){GFAST_properties_print(props);}
+    if (props.verbose > 2){GFAST_core_properties_print(props);}
     // Initialize the stations locations/names for the module
     if (props.verbose > 0)
     {   
