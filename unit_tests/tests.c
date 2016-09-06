@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "gfast_time.h"
+#include "iscl/log/log.h"
 
 int numpy_lstsq_test();
 int coord_test_ll2utm();
@@ -32,12 +32,14 @@ int main()
         return EXIT_FAILURE;
     }
 
+/*
     ierr = numpy_lstsq_test();
     if (ierr != 0)
     {
         printf("%s: Failed the least-squares test!\n", fcnm);
         return EXIT_FAILURE;
     }
+*/
 
     ierr = coord_test_ll2utm();
     if (ierr != 0)

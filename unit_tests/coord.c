@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 
 int coord_test_ll2utm()
 {
@@ -19,10 +20,10 @@ int coord_test_ll2utm()
     utm_zone_ref = 10;
     utm_zone = 10;
     utm_unknown_zone =-1;
-    GFAST_coordtools__ll2utm(lat, lon, &utmNorth0, &utmEast0,
-                             &lnorthp, &utm_unknown_zone);
-    GFAST_coordtools__ll2utm(lat, lon + 360.0, &utmNorth1, &utmEast1,
-                             &lnorthp, &utm_zone);
+    GFAST_core_coordtools_ll2utm(lat, lon, &utmNorth0, &utmEast0,
+                                 &lnorthp, &utm_unknown_zone);
+    GFAST_core_coordtools_ll2utm(lat, lon + 360.0, &utmNorth1, &utmEast1,
+                                 &lnorthp, &utm_zone);
     if (!lnorthp)
     {
         log_errorF("%s: Wrong hemisphere\n", fcnm);
@@ -46,8 +47,8 @@ int coord_test_ll2utm()
         return EXIT_FAILURE;
     }
     // Recover
-    GFAST_coordtools__utm2ll(utm_zone, lnorthp, utmNorth0, utmEast0,
-                             &lat0, &lon0);
+    GFAST_core_coordtools_utm2ll(utm_zone, lnorthp, utmNorth0, utmEast0,
+                                 &lat0, &lon0);
     if (fabs(lat0 - lat) > 1.e-5)
     {
         log_errorF("%s: Failed to recover lat\n", fcnm);
@@ -66,10 +67,10 @@ int coord_test_ll2utm()
     utm_zone_ref = 19;
     utm_zone = 19;
     utm_unknown_zone =-1;
-    GFAST_coordtools__ll2utm(lat, lon + 360.0, &utmNorth0, &utmEast0,
-                             &lnorthp, &utm_unknown_zone);
-    GFAST_coordtools__ll2utm(lat, lon, &utmNorth1, &utmEast1,
-                             &lnorthp, &utm_zone);
+    GFAST_core_coordtools_ll2utm(lat, lon + 360.0, &utmNorth0, &utmEast0,
+                                 &lnorthp, &utm_unknown_zone);
+    GFAST_core_coordtools_ll2utm(lat, lon, &utmNorth1, &utmEast1,
+                                 &lnorthp, &utm_zone);
     if (lnorthp)
     {
         log_errorF("%s: Wrong hemisphere 2\n", fcnm);
@@ -93,8 +94,8 @@ int coord_test_ll2utm()
         return EXIT_FAILURE;
     }
     // Recover
-    GFAST_coordtools__utm2ll(utm_zone, lnorthp, utmNorth0, utmEast0,
-                             &lat0, &lon0);
+    GFAST_core_coordtools_utm2ll(utm_zone, lnorthp, utmNorth0, utmEast0,
+                                 &lat0, &lon0);
     if (fabs(lat0 - lat) > 1.e-5)
     {
         log_errorF("%s: Failed to recover lat 2\n", fcnm);

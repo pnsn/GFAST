@@ -4,6 +4,8 @@
 #include <string.h>
 #include <math.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 static bool lequal(double a, double b, double tol)
 {
@@ -49,7 +51,7 @@ int cmt_greens_test()
 
     double G[(3*4)*5];
     int i, ierr, indx, j;
-    ierr = GFAST_CMT__setForwardModel__deviatoric(l1, y1, x1, z1, G); 
+    ierr = GFAST_core_cmt_setForwardModel(l1, true, y1, x1, z1, G); 
     if (ierr != 0)
     {
         log_errorF("%s: Error setting forward model!\n", fcnm);
@@ -100,17 +102,17 @@ static int read_results(const char *filenm,
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){goto ERROR;}
     sscanf(cline, "%lf %lf %lf\n", SA_lat, SA_lon, SA_dep);
-    cmt_data->ubuff = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->ebuff = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->nbuff = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->wtu = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->wte = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->wtn = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->sta_lat = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->sta_lon = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->sta_alt = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt_data->lactive = GFAST_memory_calloc__bool(cmt_data->nsites);
-    cmt_data->lmask = GFAST_memory_calloc__bool(cmt_data->nsites);
+    cmt_data->ubuff = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->ebuff = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->nbuff = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->wtu = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->wte = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->wtn = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->sta_lat = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->sta_lon = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->sta_alt = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->lactive = ISCL_memory_calloc__bool(cmt_data->nsites);
+    cmt_data->lmask = ISCL_memory_calloc__bool(cmt_data->nsites);
     // cmt data
     for (i=0; i<cmt_data->nsites; i++)
     {
@@ -128,22 +130,24 @@ static int read_results(const char *filenm,
     // Results + depths in grid search
     cmt->nsites = cmt_data->nsites;
     cmt->ndeps = cmt_props->ngridSearch_deps;
-    cmt->objfn = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->mts = GFAST_memory_calloc__double(cmt->ndeps*6);
-    cmt->str1 = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->str2 = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->dip1 = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->dip2 = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->rak1 = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->rak2 = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->Mw = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->srcDepths = GFAST_memory_calloc__double(cmt->ndeps);
-    cmt->EN = GFAST_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
-    cmt->NN = GFAST_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
-    cmt->UN = GFAST_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
-    cmt->Einp = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt->Ninp = GFAST_memory_calloc__double(cmt_data->nsites);
-    cmt->Uinp = GFAST_memory_calloc__double(cmt_data->nsites);
+    cmt->l2 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->pct_dc = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->objfn = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->mts = ISCL_memory_calloc__double(cmt->ndeps*6);
+    cmt->str1 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->str2 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->dip1 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->dip2 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->rak1 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->rak2 = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->Mw = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->srcDepths = ISCL_memory_calloc__double(cmt->ndeps);
+    cmt->EN = ISCL_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
+    cmt->NN = ISCL_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
+    cmt->UN = ISCL_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
+    cmt->Einp = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt->Ninp = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt->Uinp = ISCL_memory_calloc__double(cmt_data->nsites);
     for (idep=0; idep<cmt->ndeps; idep++)
     {
         // depth
@@ -203,28 +207,30 @@ int cmt_inversion_test()
     // Set space
     cmt.nsites = cmt_ref.nsites;
     cmt.ndeps = cmt_ref.ndeps;
-    cmt.objfn = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.mts = GFAST_memory_calloc__double(cmt.ndeps*6);
-    cmt.str1 = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.str2 = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.dip1 = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.dip2 = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.rak1 = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.rak2 = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.Mw = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.srcDepths = GFAST_memory_calloc__double(cmt.ndeps);
-    cmt.EN = GFAST_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
-    cmt.NN = GFAST_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
-    cmt.UN = GFAST_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
-    cmt.Einp = GFAST_memory_calloc__double(cmt_data.nsites);
-    cmt.Ninp = GFAST_memory_calloc__double(cmt_data.nsites);
-    cmt.Uinp = GFAST_memory_calloc__double(cmt_data.nsites);
-    cmt.lsiteUsed = GFAST_memory_calloc__bool(cmt_data.nsites);
+    cmt.l2 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.pct_dc = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.objfn = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.mts = ISCL_memory_calloc__double(cmt.ndeps*6);
+    cmt.str1 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.str2 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.dip1 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.dip2 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.rak1 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.rak2 = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.Mw = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.srcDepths = ISCL_memory_calloc__double(cmt.ndeps);
+    cmt.EN = ISCL_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
+    cmt.NN = ISCL_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
+    cmt.UN = ISCL_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
+    cmt.Einp = ISCL_memory_calloc__double(cmt_data.nsites);
+    cmt.Ninp = ISCL_memory_calloc__double(cmt_data.nsites);
+    cmt.Uinp = ISCL_memory_calloc__double(cmt_data.nsites);
+    cmt.lsiteUsed = ISCL_memory_calloc__bool(cmt_data.nsites);
     for (i=0; i<cmt.ndeps; i++)
     {
         cmt.srcDepths[i] = cmt_ref.srcDepths[i];
     }
-    ierr = GFAST_CMT__driver(cmt_props,
+    ierr = eewUtils_driveCMT(cmt_props,
                              SA_lat, SA_lon, SA_dep,
                              cmt_data,
                              &cmt);
@@ -313,9 +319,9 @@ int cmt_inversion_test()
         }
     }
     // Clean up
-    GFAST_memory_freeOffsetData(&cmt_data);
-    GFAST_memory_freeCMTResults(&cmt);
-    GFAST_memory_freeCMTResults(&cmt_ref);
+    GFAST_core_cmt_finalize__offsetData(&cmt_data);
+    GFAST_core_cmt_finalize__cmtResults(&cmt);
+    GFAST_core_cmt_finalize__cmtResults(&cmt_ref);
     log_infoF("%s: Success!\n", fcnm);
     return EXIT_SUCCESS; 
 }

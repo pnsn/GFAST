@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast.h"
-
+#include "iscl/log/log.h"
 /*
 int GFAST_alert__parse__shakeAlertXML(const char *message, double SA_NAN,
                                       struct GFAST_shakeAlert_struct *SA)
@@ -56,7 +56,7 @@ int readCoreInfo_test()
     fclose(xmlfl);
     // Parse it
     //ierr = GFAST_alert__parse__shakeAlertXML(message, SA_NAN, &SA);
-    ierr = GFAST_readElarmS__xml(message, SA_NAN, &SA);
+    ierr = eewUtils_parseCoreXML(message, SA_NAN, &SA);
     free(message);
     if (ierr != 0){
         printf("%s: Error getting shakeAlert info\n", fcnm);

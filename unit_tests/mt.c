@@ -3,7 +3,8 @@
 #include <string.h>
 #include <math.h>
 #include <cblas.h>
-#include "gfast.h"
+#include "cmopad.h"
+#include "iscl/log/log.h"
 /*
 #include <seismic/momentTensor/utils/mopad.h>
 #include <seismic/utils/math/lapack_extern.h>
@@ -404,7 +405,7 @@ int decompose(int iverb, struct mt_t mt)
     // Mopad works in North, East, Down frame but inversion is Up, South, East
     cin = USE;
     cloc = NED;
-    cmopad_basis__transformMatrixM33(M, cin, cloc); //USE -> NED
+    cmopad_basis_transformMatrixM33(M, cin, cloc); //USE -> NED
     // Compute the isotropic, CLVD, DC decomposition 
     ierr = cmopad_standardDecomposition(M, &src); 
     if (ierr != 0){ 
