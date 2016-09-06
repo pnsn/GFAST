@@ -66,7 +66,7 @@ void core_cmt_finalize(struct GFAST_cmt_props_struct *cmt_props,
                        struct GFAST_offsetData_struct *offset_data,
                        struct GFAST_cmtResults_struct *cmt)
 {
-    memset(cmt_props, 0, sizeof(struct GFAST_cmt_props_struct));
+    GFAST_core_properties_finalize__cmtProperties(cmt_props);
     GFAST_core_cmt_finalize__offsetData(offset_data);
     GFAST_core_cmt_finalize__cmtResults(cmt);
     return;

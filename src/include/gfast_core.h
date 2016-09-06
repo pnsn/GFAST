@@ -201,6 +201,26 @@ int core_ff_weightObservations(const int mrows,
                                double *__restrict__ diagWb);
 
 //----------------------------------------------------------------------------//
+//                          Properties/initialization                         //
+//----------------------------------------------------------------------------//
+/* Finalize/free properties */
+void core_properties_finalize__pgdProperties(
+   struct GFAST_pgd_props_struct *pgd_props);
+void core_properties_finalize__cmtProperties(
+   struct GFAST_cmt_props_struct *cmt_props);
+void core_properties_finalize__ffProperties(
+    struct GFAST_ff_props_struct *ff_props);
+void core_properties_finalize__activeMQProperties(
+    struct GFAST_activeMQ_struct *activeMQ_props);
+void core_properties_finalize(struct GFAST_props_struct *props);
+/* Initialize the properties from an ini file */
+int core_properties_initialize(const char *propfilename,
+                               const enum opmode_type opmode,
+                               struct GFAST_props_struct *props);
+/* Print the properties */
+void core_properties_print(struct GFAST_props_struct props);
+
+//----------------------------------------------------------------------------//
 //                              PGD scaling                                   //
 //----------------------------------------------------------------------------//
 
@@ -223,8 +243,6 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
 /* Finalize the PGD data structures */
-void core_scaling_pgd_finalize__props(
-     struct GFAST_pgd_props_struct *pgd_props);
 void core_scaling_pgd_finalize__pgdData(
      struct GFAST_peakDisplacementData_struct *pgd_data);
 void core_scaling_pgd_finalize__pgdResults(
@@ -357,6 +375,21 @@ int core_waveformProcessor_peakDisplacement(
               core_ff_weightForwardModel(__VA_ARGS__)
 #define GFAST_core_ff_weightObservations(...)       \
               core_ff_weightObservations(__VA_ARGS__)
+
+#define GFAST_core_properties_finalize__pgdProperties(...)       \
+              core_properties_finalize__pgdProperties(__VA_ARGS__)
+#define GFAST_core_properties_finalize__cmtProperties(...)       \
+              core_properties_finalize__cmtProperties(__VA_ARGS__)
+#define GFAST_core_properties_finalize__ffProperties(...)       \
+              core_properties_finalize__ffProperties(__VA_ARGS__) 
+#define GFAST_core_properties_finalize__activeMQProperties(...)       \
+              core_properties_finalize__activeMQProperties(__VA_ARGS__)
+#define GFAST_core_properties_finalize(...)       \
+              core_properties_finalize(__VA_ARGS__)
+#define GFAST_core_properties_initialize(...)       \
+              core_properties_initialize(__VA_ARGS__)
+#define GFAST_core_properties_print(...)       \
+              core_properties_print(__VA_ARGS__)
 
 #define GFAST_core_scaling_pgd_depthGridSearch(...)       \
               core_scaling_pgd_depthGridSearch(__VA_ARGS__)

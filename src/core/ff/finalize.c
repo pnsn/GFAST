@@ -116,7 +116,7 @@ void core_ff_finalize(struct GFAST_ff_props_struct *ff_props,
                       struct GFAST_offsetData_struct *offset_data,
                       struct GFAST_ffResults_struct *ff)
 {
-    memset(ff_props, 0, sizeof(struct GFAST_ff_props_struct));
+    GFAST_core_properties_finalize__ffProperties(ff_props);
     GFAST_core_ff_finalize__offsetData(offset_data);
     GFAST_core_ff_finalize__ffResults(ff);
     return;

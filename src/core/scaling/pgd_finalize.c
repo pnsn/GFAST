@@ -5,21 +5,6 @@
 #include "iscl/memory/memory.h"
 
 /*!
- * @brief Nulls out the PGD properties structure
- *
- * @param[out] pgd_props   nulled out PGD properties structure
- *
- * @author Ben Baker (ISTI)
- *
- */
-void core_scaling_pgd_finalize__props(
-     struct GFAST_pgd_props_struct *pgd_props)
-{
-    memset(pgd_props, 0, sizeof(struct GFAST_pgd_props_struct));
-    return;
-}
-//============================================================================//
-/*!
  * @brief Releases the memory on the PGD data data structure
  *
  * @param[out] pgd_data    freed PGD data data structure
@@ -90,7 +75,7 @@ void core_scaling_pgd_finalize(
     struct GFAST_peakDisplacementData_struct *pgd_data,
     struct GFAST_pgdResults_struct *pgd)
 {
-    GFAST_core_scaling_pgd_finalize__props(pgd_props);
+    GFAST_core_properties_finalize__pgdProperties(pgd_props);
     GFAST_core_scaling_pgd_finalize__pgdData(pgd_data);
     GFAST_core_scaling_pgd_finalize__pgdResults(pgd);
     return;

@@ -1,6 +1,7 @@
 add_subdirectory(cmt)
 add_subdirectory(coordtools)
 add_subdirectory(ff)
+add_subdirectory(properties)
 add_subdirectory(scaling)
 add_subdirectory(waveformProcessor)
 set (SRCS_CORE ${SRCS} PARENT_SCOPE)
