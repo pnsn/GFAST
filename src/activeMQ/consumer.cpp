@@ -227,7 +227,6 @@ class ShakeAlertConsumer : public ExceptionListener,
                     printf("%s: ActiveMQ listener running...\n", fcnm);
                 }
                 __lconnected = true;
-
             }
             catch (CMSException &e)
             {
@@ -368,7 +367,7 @@ class ShakeAlertConsumer : public ExceptionListener,
         {
             printf("CMS Exception occurred.  Shutting down client.\n");
             ex.printStackTrace();
-            exit(1);
+            exit(1); // This looks dangerous
         }
     //---------------------------End public functions-------------------------//
 
@@ -452,6 +451,7 @@ class ShakeAlertConsumer : public ExceptionListener,
         }
     //--------------------------End private functions-------------------------//
 };
+
 //----------------------------------------------------------------------------//
 //                 End the listener class. Begin the C interface              //
 //----------------------------------------------------------------------------//
@@ -542,7 +542,7 @@ extern "C" int activeMQ_initializeConsumer(const char AMQuser[],
 /*!
  * @brief C interface function to destroy the ActiveMQ listener
  */
-extern "C" void activeMQ_finalize(void)
+extern "C" void activeMQ_finalizeConsumer(void)
 {
     //ShakeAlertConsumerClass consumer;
     consumer.destroy();
