@@ -54,7 +54,16 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         pgd_data->sta_lon[i] = gps_data.data[i].sta_lon; 
         pgd_data->sta_alt[i] = gps_data.data[i].sta_alt;
         pgd_data->stnm[i] = (char *)calloc(64, sizeof(char));
-        strcpy(pgd_data->stnm[i], gps_data.data[i].site);
+        strcpy(pgd_data->stnm[i], gps_data.data[i].netw);
+        strcat(pgd_data->stnm[i], ".\0");
+        strcat(pgd_data->stnm[i], gps_data.data[i].stnm);
+        strcat(pgd_data->stnm[i], ".\0");
+        strncpy(pgd_data->stnm[i], gps_data.data[i].chan[0], 2); 
+        strcat(pgd_data->stnm[i], "?.\0");
+        if (strlen(gps_data.data[i].loc) > 0)
+        {
+            strcat(pgd_data->stnm[i], gps_data.data[i].loc);
+        }
         if (gps_data.data[i].lskip_pgd){pgd_data->lmask[i] = true;}
     }
     pgd->mpgd = ISCL_memory_calloc__double(pgd->ndeps);

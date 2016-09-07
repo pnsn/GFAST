@@ -46,7 +46,7 @@ void GFAST_buffer_print__locations(struct GFAST_data_struct gps_data);
 void GFAST_buffer__setInitialTime(double epoch0,
                                   struct GFAST_data_struct *gps_data);
 /* Frees memory on pointers and data structures */
-void GFAST_memory_freeWaveformData(struct GFAST_waveformData_struct *data);
+void GFAST_memory_freeWaveformData(struct GFAST_waveform3CData_struct *data);
 void GFAST_memory_freeData(struct GFAST_data_struct *gps_data);
 void GFAST_memory_freeProps(struct GFAST_props_struct *props);
 void GFAST_memory_freeEvents(struct GFAST_activeEvents_struct *events);

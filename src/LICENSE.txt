@@ -1,10 +1,12 @@
 TODO: Brendan - this is a placeholder.  Office of Tech Transfer and
 CoMotion will probably want to provide you with a suitable license that
-allows government agencies to use the software for free, modify the
-software, and not hold the university liable - ben
+allows researchers and government agencies to use the software for free,
+modify the software, and never ever hold UW liable.  doug n. may also
+have some recomendations based on experiences with the caltech license.
+- ben
 
-    GFAST - geodetic first approximation of earthquake size and timing.
-    Copyright (C) 2016  Brendan Crowell
+    GFAST - geodetic fast approximation of earthquake size and timing.
+    Copyright (C) 2016  Brendan Crowell (Pacific Northwest Seismic Network)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

@@ -111,22 +111,21 @@ struct GFAST_activeMQ_struct
 struct GFAST_props_struct
 {
     struct GFAST_pgd_props_struct
-           pgd_props;           /*!< PGD properties structure */
+           pgd_props;            /*!< PGD properties structure */
     struct GFAST_cmt_props_struct
-           cmt_props;           /*!< CMT properties structure */
+           cmt_props;            /*!< CMT properties structure */
     struct GFAST_ff_props_struct
-           ff_props;            /*!< FF properties structure */
+           ff_props;             /*!< FF properties structure */
     struct GFAST_activeMQ_struct
-           activeMQ_props;      /*!< ActiveMQ properties (required for 
-                                     earthquake early warning */
-    char sitefile[PATH_MAX];    /*!< Contains all sites, locations, and 
-                                     sampling periods of streams to be 
-                                     used by GFAST.  */
-    char eewsfile[PATH_MAX];    /*!< In playback mode this XML decision
-                                     module style module has the event
-                                     hypocenter and origin time */ 
-    char syndata_dir[PATH_MAX]; /*!< Synthetic data directory */
-    char syndata_pre[PATH_MAX]; /*!< Synthetic data prefix (LX) */
+           activeMQ_props;       /*!< ActiveMQ properties (required for 
+                                      earthquake early warning) */
+    char sitefile[PATH_MAX];     /*!< Contains all sites, locations, and 
+                                      sampling periods of streams to be 
+                                      used by GFAST.  */
+    char eewsfile[PATH_MAX];     /*!< In playback mode this XML decision
+                                      module style module has the event
+                                      hypocenter and origin time */ 
+    char obsdata_file[PATH_MAX]; /*!< Observed (archived) data file */
     char h5ArchiveDir[PATH_MAX];/*!< HDF5 archive directory */ 
 //    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
 //                                     (siren). */
@@ -367,9 +366,12 @@ struct GFAST_offsetData_struct
 };
 
 
-struct GFAST_waveformData_struct
+struct GFAST_waveform3CData_struct
 {
-    char site[64];    /*!< Name of site */
+    char netw[64];    /*!< Network name */
+    char stnm[64];    /*!< Station name */
+    char chan[3][64]; /*!< Channel codes (Z, N, E) */
+    char loc[64];     /*!< Location code */ 
     double *ubuff;    /*!< Up precise-point position buffer (meters).  If any
                            sample is not known it should be a NAN. [maxpts] */
     double *nbuff;    /*!< North precise-point position buffer (meters).  If any
@@ -404,8 +406,8 @@ struct GFAST_waveformData_struct
 
 struct GFAST_data_struct
 {
-    struct GFAST_waveformData_struct *data;  /*!< Collocated data structure
-                                                  [stream_length] */
+    struct GFAST_waveform3CData_struct *data;  /*!< Collocated data structure
+                                                   [stream_length] */
     int stream_length;                       /*!< Number of streams */
 };
 

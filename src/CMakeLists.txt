@@ -79,6 +79,7 @@ endif (AMQ_FOUND)
 add_library(gfast_hdf5_shared SHARED ${SRCS_HDF5})
 add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
+add_executable(gfast_playback gfast_playback.c ${SRCS})
 add_executable(gfast_eew gfast_eew.c ${SRCS})
 
 if (MKL_FOUND)
@@ -96,7 +97,23 @@ if (MKL_FOUND)
                         ${IPP_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
-                        ${HDF5_hdf5_LIBRARY_RELEASE}
+                        ${ZLIB_LIBRARY}
+                        ${LIBXML2_LIBRARIES}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARIES}
+                        -lm -ldl -lpthread)
+  target_link_libraries(gfast_playback
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        cmopad_shared
+                        ${ISCL_LIBRARIES}
+                        -Wl,--start-group
+                        ${MKL_LIBRARIES}
+                        -Wl,--end-group
+                        ${IPP_LIBRARIES}
+                        ${GEOLIB_LIBRARIES}
+                        ${H5_LIBRARIES}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
@@ -114,13 +131,27 @@ if (MKL_FOUND)
                         ${MKL_LIBRARIES}
                         -Wl,--end-group
                         ${GEOLIB_LIBRARIES}
-                        ${HDF5_LIBRARIES}
-                        ${HDF5_hdf5_LIBRARY_RELEASE}
+                        ${H5_LIBRARIES}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
-                        -lm)
+                        -lm -ldl -lpthread)
+  target_link_libraries(gfast_playback
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        cmopad_shared
+                        ${ISCL_LIBRARIES}
+                        -Wl,--start-group
+                        ${MKL_LIBRARIES}
+                        -Wl,--end-group
+                        ${GEOLIB_LIBRARIES}
+                        ${H5_LIBRARIES}
+                        ${ZLIB_LIBRARY}
+                        ${LIBXML2_LIBRARIES}
+                        ${INIPARSER_LIBRARIES}
+                        -lm -ldl -lpthread)
  endif(IPP_FOUND)
 else()
  if (IPP_FOUND)
@@ -136,10 +167,24 @@ else()
                         ${FFTW3_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
-                        ${HDF5_hdf5_LIBRARY_RELEASE}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARIES}
+                        -lm -ldl -lpthread -lgfortran)
+  target_link_libraries(gfast_playback
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        cmopad_shared
+                        ${ISCL_LIBRARIES}
+                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
+                        ${IPP_LIBRARIES}
+                        ${FFTW3_LIBRARIES}
+                        ${GEOLIB_LIBRARIES}
+                        ${H5_LIBRARIES}
+                        ${ZLIB_LIBRARY}
+                        ${LIBXML2_LIBRARIES}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread -lgfortran)
  else()
@@ -153,11 +198,24 @@ else()
                         ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
                         ${FFTW3_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
-                        ${HDF5_LIBRARIES}
-                        ${HDF5_hdf5_LIBRARY_RELEASE}
+                        ${H5_LIBRARIES}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARIES}
+                        -lm -ldl -lpthread -lgfortran)
+  target_link_libraries(gfast_playback
+                        gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        cmopad_shared
+                        ${ISCL_LIBRARIES}
+                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
+                        ${FFTW3_LIBRARIES}
+                        ${GEOLIB_LIBRARIES}
+                        ${H5_LIBRARIES}
+                        ${ZLIB_LIBRARY}
+                        ${LIBXML2_LIBRARIES}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread -lgfortran)
  endif(IPP_FOUND)

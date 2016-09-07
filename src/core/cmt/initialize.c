@@ -64,7 +64,16 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
         cmt_data->sta_lon[i] = gps_data.data[i].sta_lon;
         cmt_data->sta_alt[i] = gps_data.data[i].sta_alt;
         cmt_data->stnm[i] = (char *)calloc(64, sizeof(char));
-        strcpy(cmt_data->stnm[i], gps_data.data[i].site);
+        strcpy(cmt_data->stnm[i], gps_data.data[i].netw);
+        strcat(cmt_data->stnm[i], ".\0");
+        strcat(cmt_data->stnm[i], gps_data.data[i].stnm);
+        strcat(cmt_data->stnm[i], ".\0");
+        strncpy(cmt_data->stnm[i], gps_data.data[i].chan[0], 2);
+        strcat(cmt_data->stnm[i], "?.\0");
+        if (strlen(gps_data.data[i].loc) > 0)
+        {
+            strcat(cmt_data->stnm[i], gps_data.data[i].loc);
+        } 
         if (gps_data.data[i].lskip_cmt){cmt_data->lmask[i] = true;}
     }
     // cmt structure

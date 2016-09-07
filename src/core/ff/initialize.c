@@ -62,7 +62,16 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
         ff_data->sta_lon[i] = gps_data.data[i].sta_lon;
         ff_data->sta_alt[i] = gps_data.data[i].sta_alt;
         ff_data->stnm[i] = (char *)calloc(64, sizeof(char));
-        strcpy(ff_data->stnm[i], gps_data.data[i].site);
+        strcpy(ff_data->stnm[i], gps_data.data[i].netw);
+        strcat(ff_data->stnm[i], ".\0");
+        strcat(ff_data->stnm[i], gps_data.data[i].stnm);
+        strcat(ff_data->stnm[i], ".\0");
+        strncpy(ff_data->stnm[i], gps_data.data[i].chan[0], 2);
+        strcat(ff_data->stnm[i], "?.\0");
+        if (strlen(gps_data.data[i].loc) > 0)
+        {
+            strcat(ff_data->stnm[i], gps_data.data[i].loc);
+        }
         if (gps_data.data[i].lskip_ff){ff_data->lmask[i] = true;}
     }
     // ff inversion structure

@@ -94,6 +94,17 @@ void core_coordtools_ll2utm(const double lat_deg, const double lon_deg,
 void core_coordtools_utm2ll(const int zone, const bool lnorthp,
                             const double UTMNorthing, const double UTMEasting,
                             double *lat_deg, double *lon_deg);
+//----------------------------------------------------------------------------//
+//                         GFAST gps data streams                             //
+//----------------------------------------------------------------------------//
+/* Frees memory on the GPS data buffer */
+void core_data_finalize(struct GFAST_data_struct *gps_data);
+/* Initializes the GPS metadata */
+int core_data_initialize(struct GFAST_props_struct props,
+                         struct GFAST_data_struct *gps_data);
+/* Reads the site file */
+int core_data_readSiteFile(const char *sitefl,
+                           struct GFAST_data_struct *gps_data);
 
 //----------------------------------------------------------------------------//
 //                              finite fault                                  //
@@ -340,6 +351,13 @@ int core_waveformProcessor_peakDisplacement(
               core_coordtools_ll2utm(__VA_ARGS__)
 #define GFAST_core_coordtools_utm2ll(...) \
               core_coordtools_utm2ll(__VA_ARGS__)
+
+#define GFAST_core_data_finalize(...)       \
+              core_data_finalize(__VA_ARGS__)
+#define GFAST_core_data_initialize(...)       \
+              core_data_initialize(__VA_ARGS__)
+#define GFAST_core_data_readSiteFile(...)       \
+              core_data_readSiteFile(__VA_ARGS__)
 
 #define GFAST_core_ff_faultPlaneGridSearch(...)       \
               core_ff_faultPlaneGridSearch(__VA_ARGS__)

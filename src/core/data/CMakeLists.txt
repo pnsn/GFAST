@@ -1,4 +1,5 @@
 add_sources(
+finalize.c
 initialize.c
-readSiteData.c
+readSiteFile.c
 )

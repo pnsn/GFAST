@@ -64,24 +64,22 @@ int core_properties_initialize(const char *propfilename,
             goto ERROR;
         }
         strcpy(props->eewsfile, s);
-        s = iniparser_getstring(ini, "general:synthetic_data_directory\0",
-                                "./"); 
-        if (strlen(s) > 0)
+        s = iniparser_getstring(ini, "general:observed_data_file\0", NULL);
+        if (s != NULL)
         {
-            strcpy(props->syndata_dir, s);
-            if (!os_path_isdir(props->syndata_dir))
+            strcpy(props->obsdata_file, s);
+            if (!os_path_isfile(props->obsdata_file))
             {
-                log_errorF("%s: Synthetic data directory %s doesn't exist\n",
-                           fcnm, props->syndata_dir);
+                log_errorF("%s: Observed data file %s doesn't exist\n",
+                           fcnm, props->obsdata_file);
                 goto ERROR;
             }
         }
         else
         {
-            strcpy(props->syndata_dir, "./\0");
+            log_errorF("%s: Must specify observed data file!\n", fcnm);
         }
         s = iniparser_getstring(ini, "general:synthetic_data_prefix\0", "LX\0");
-        if (strlen(s) > 0){strcpy(props->syndata_pre, s);}
     }
     // UTM zone
     props->utm_zone = iniparser_getint(ini, "general:utm_zone\0", -12345);
@@ -354,7 +352,6 @@ int core_properties_initialize(const char *propfilename,
         goto ERROR;
     }
     //---------------------------ActiveMQ Parameters--------------------------//
-    printf("%d\n", props->opmode);
     if (props->opmode == REAL_TIME_EEW) 
     {
         s = iniparser_getstring(ini, "ActiveMQ:host\0", NULL);

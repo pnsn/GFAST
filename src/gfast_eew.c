@@ -20,6 +20,7 @@ int main(int argc, char **argv)
     struct GFAST_ffResults_struct ff;
     struct GFAST_offsetData_struct cmt_data, ff_data;
     struct GFAST_peakDisplacementData_struct pgd_data;
+    struct GFAST_data_struct gps_data;
     struct GFAST_pgdResults_struct pgd;
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
@@ -34,9 +35,7 @@ int main(int argc, char **argv)
     // Initialize 
     ierr = 0;
     memset(&props,    0, sizeof(struct GFAST_props_struct));
-/*
-    memset(&gps_acquisition, 0, sizeof(struct GFAST_data_struct));
-*/
+    memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
     memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
     memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
@@ -53,10 +52,16 @@ int main(int argc, char **argv)
         goto ERROR;
     }
     if (props.verbose > 2){GFAST_core_properties_print(props);}
-    // Initialize the stations locations/names for the module
+    // Initialize the stations locations/names/sampling periods for the module
     if (props.verbose > 0)
     {   
-        log_infoF("%s: Initializing the acquisition...\n", fcnm);
+        log_infoF("%s: Initializing the data buffers...\n", fcnm);
+    }
+    ierr = GFAST_core_data_initialize(props, &gps_data);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error initializing data buffers\n", fcnm);
+        goto ERROR;
     }
     // Fire up the listener
     if (props.verbose > 0)
@@ -81,9 +86,8 @@ int main(int argc, char **argv)
     }
     //activeMQ_initialize( );
 
-/*
     // Initialize PGD
-    ierr = GFAST_core_scaling_pgd_initialize(props.pgd_props, gps_acquisition,
+    ierr = GFAST_core_scaling_pgd_initialize(props.pgd_props, gps_data,
                                              &pgd, &pgd_data);
     if (ierr != 0)
     {   
@@ -91,7 +95,7 @@ int main(int argc, char **argv)
         goto ERROR;
     }
     // Initialize CMT
-    ierr = GFAST_core_cmt_initialize(props.cmt_props, gps_acquisition,
+    ierr = GFAST_core_cmt_initialize(props.cmt_props, gps_data,
                                      &cmt, &cmt_data);
     if (ierr != 0)
     {   
@@ -99,14 +103,13 @@ int main(int argc, char **argv)
         goto ERROR;
     }
     // Initialize finite fault
-    ierr = GFAST_core_ff_initialize(props.ff_props, gps_acquisition,
+    ierr = GFAST_core_ff_initialize(props.ff_props, gps_data,
                                     &ff, &ff_data);
     if (ierr != 0)
     {   
         log_errorF("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
-*/
     // Begin the acquisition loop
     amqMessage = NULL;
     t0 = (double) (long) ISCL_time_timeStamp();
@@ -177,10 +180,21 @@ int main(int argc, char **argv)
     }
 ERROR:;
     GFAST_activeMQ_finalize(); 
+    GFAST_core_cmt_finalize(&props.cmt_props,
+                            &cmt_data,
+                            &cmt);
+    GFAST_core_ff_finalize(&props.ff_props,
+                           &ff_data,
+                           &ff);
+    GFAST_core_scaling_pgd_finalize(&props.pgd_props,
+                                    &pgd_data,
+                                    &pgd);
+    GFAST_core_data_finalize(&gps_data);
+    GFAST_core_properties_finalize(&props);
     ISCL_iscl_finalize();
     if (ierr != 0)
     {
-        log_errorF("%s: Terminating with error\n", fcnm);
+        printf("%s: Terminating with error\n", fcnm);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
