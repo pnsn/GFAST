@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
-    int ierr, iev;
+    int ierr, iev, msWait;
     bool lacquire, lnewEvent;
     // Initialize 
     ierr = 0;
@@ -68,23 +68,22 @@ int main(int argc, char **argv)
     {
         log_infoF("%s: Initializing trigger listener...\n", fcnm);
     }
-    ierr = activeMQ_initializeConsumer(props.activeMQ_props.user,
-                                       props.activeMQ_props.password,
-                                       props.activeMQ_props.originTopic,
-                                       props.activeMQ_props.host,
-                                       props.activeMQ_props.port,
-                                       props.activeMQ_props.msReconnect,
-                                       props.activeMQ_props.maxAttempts,
-                                       useTopic,
-                                       clientAck,
-                                       luseListener,
-                                       props.verbose);
+    ierr = activeMQ_consumer_initialize(props.activeMQ_props.user,
+                                        props.activeMQ_props.password,
+                                        props.activeMQ_props.originTopic,
+                                        props.activeMQ_props.host,
+                                        props.activeMQ_props.port,
+                                        props.activeMQ_props.msReconnect,
+                                        props.activeMQ_props.maxAttempts,
+                                        useTopic,
+                                        clientAck,
+                                        luseListener,
+                                        props.verbose);
     if (ierr != 0)
     {
         log_errorF("%s: Error connecting to upstream message queue\n", fcnm);
         goto ERROR;
     }
-    //activeMQ_initialize( );
 
     // Initialize PGD
     ierr = GFAST_core_scaling_pgd_initialize(props.pgd_props, gps_data,
@@ -125,9 +124,8 @@ int main(int argc, char **argv)
         // Update my buffers
   
         // Check my mail for an event
-        amqMessage =
-            GFAST_activeMQ_getMessage(props.activeMQ_props.msWaitForMessage,
-                                      &ierr);
+        msWait = props.activeMQ_props.msWaitForMessage;
+        amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
         if (ierr != 0)
         {
             log_errorF("%s: Internal error when getting message\n", fcnm);
@@ -179,7 +177,7 @@ int main(int argc, char **argv)
         }
     }
 ERROR:;
-    GFAST_activeMQ_finalize(); 
+    GFAST_activeMQ_consumer_finalize(); 
     GFAST_core_cmt_finalize(&props.cmt_props,
                             &cmt_data,
                             &cmt);

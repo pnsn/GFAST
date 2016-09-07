@@ -499,19 +499,19 @@ static bool linit_amqlib = false;
  * @author Ben Baker, ISTI
  *
  */
-extern "C" int activeMQ_initializeConsumer(const char AMQuser[],
-                                           const char AMQpassword[],
-                                           const char AMQdestination[],
-                                           const char AMQhostname[],
-                                           const int port,
-                                           const int msReconnect,
-                                           const int maxAttempts,
-                                           const bool useTopic,
-                                           const bool clientAck,
-                                           const bool luseListener,
-                                           const int verbose)
+extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
+                                            const char AMQpassword[],
+                                            const char AMQdestination[],
+                                            const char AMQhostname[],
+                                            const int port,
+                                            const int msReconnect,
+                                            const int maxAttempts,
+                                            const bool useTopic,
+                                            const bool clientAck,
+                                            const bool luseListener,
+                                            const int verbose)
 {
-    const char *fcnm = "activeMQ_initialize\0";
+    const char *fcnm = "activeMQ_consumer_initialize\0";
     string username = AMQuser;
     string password = AMQpassword;
     string hostname = AMQhostname;
@@ -542,22 +542,12 @@ extern "C" int activeMQ_initializeConsumer(const char AMQuser[],
 /*!
  * @brief C interface function to destroy the ActiveMQ listener
  */
-extern "C" void activeMQ_finalizeConsumer(void)
+extern "C" void activeMQ_consumer_finalize(void)
 {
     //ShakeAlertConsumerClass consumer;
     consumer.destroy();
     activemq::library::ActiveMQCPP::shutdownLibrary();
     linit_amqlib = false;
-    return;
-}
-//============================================================================//
-/*!
- * @brief C interface to start the message listener.  This is called after
- *        the initialization
- */
-extern "C" void activeMQ_startMessageListener(void)
-{
-    consumer.startMessageListener();
     return;
 }
 //============================================================================//
@@ -576,9 +566,9 @@ extern "C" void activeMQ_startMessageListener(void)
  *         or contains a null terminated char * shakeAlert decision module
  *         message
  */
-extern "C" char *activeMQ_getMessage(const int ms_wait, int *ierr)
+extern "C" char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr)
 {
-    const char *fcnm = "activeMQ_getMessage\0";
+    const char *fcnm = "activeMQ_consumer_getMessage\0";
     char *message = NULL;
     message = consumer.getMessage(ms_wait, ierr);
     if (*ierr != 0)
@@ -600,9 +590,9 @@ extern "C" char *activeMQ_getMessage(const int ms_wait, int *ierr)
  *         or contains a null terminated char * shakeAlert decision module
  *         message
  */
-extern "C" char *activeMQ_getMessageFromListener(int *ierr)
+extern "C" char *activeMQ_consumer_getMessageFromListener(int *ierr)
 {
-    const char *fcnm = "activeMQ_getMessageFromListener\0";
+    const char *fcnm = "activeMQ_consumer_getMessageFromListener\0";
     char *message = NULL;
     message = consumer.getMessageFromListener(ierr);
     if (*ierr != 0)

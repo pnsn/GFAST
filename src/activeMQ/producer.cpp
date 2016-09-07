@@ -306,3 +306,38 @@ class ShakeAlertProducer
         }
     //--------------------------End private functions-------------------------//
 };
+//----------------------------------------------------------------------------//
+//                 End the listener class. Begin the C interface              //
+//----------------------------------------------------------------------------//
+static ShakeAlertProducer producer;
+static bool linit_amqlib = false;
+/*!
+ * @brief C interface function to destroy the ActiveMQ producer 
+ */
+extern "C" void activeMQ_producer_finalize(void)
+{
+    producer.destroy();
+    activemq::library::ActiveMQCPP::shutdownLibrary();
+    linit_amqlib = false;
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Sends a message
+ *
+ * @param[in] message   message to send
+ *
+ * @result 0 indicates success
+ *
+ */
+extern "C" int activeMQ_producer_sendMessage(const char *message)
+{
+    const char *fcnm = "activeMQ_producer_sendMessage\0";
+    int ierr;
+    ierr = producer.sendMessage(message);
+    if (ierr != 0)
+    {
+        printf("%s: Error getting message\n", fcnm);
+    }
+    return ierr;
+}
