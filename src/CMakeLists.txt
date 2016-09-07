@@ -32,6 +32,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
   ${ISCL_INCLUDE_DIR})
 
 #macro for adding sources
+set(SRCS "")
 macro (add_sources)
     file (RELATIVE_PATH _relPath "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
     foreach (_src ${ARGN})
@@ -41,7 +42,7 @@ macro (add_sources)
             list (APPEND SRCS "${_src}")
         endif (_relPath)
     endforeach (_src ${ARGN})
-    #propigate up to parent
+    #propagate up to parent
     if (_relPath)
         set (SRCS ${SRCS} PARENT_SCOPE)
     endif (_relPath)
@@ -74,7 +75,7 @@ add_library(cmopad_shared SHARED ${SRCS_CMOPAD})
 #add_library(gfast_traceBuffer SHARED ${SRCS_ 
 if (AMQ_FOUND)
 add_library(gfast_activeMQ_shared SHARED ${SRCS_AMQ})
-add_library(gfast_activeMQ_static STATIC ${SRCS_AMQ})
+#add_library(gfast_activeMQ_static STATIC ${SRCS_AMQ})
 endif (AMQ_FOUND)
 add_library(gfast_hdf5_shared SHARED ${SRCS_HDF5})
 add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
