@@ -82,7 +82,7 @@ add_library(gfast_hdf5_shared SHARED ${SRCS_HDF5})
 add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
 add_executable(gfast_playback gfast_playback.c ${SRCS_EEW} ${SRCS_H5TB})
-add_executable(gfast_eew gfast_eew.c ${SRCS_EEW})
+add_executable(gfast_eew gfast_eew.c ${SRCS_EEW} ${SRCS_H5TB})
 
 if (MKL_FOUND)
  if (IPP_FOUND)

@@ -1,6 +1,7 @@
 add_sources(
 driveCMT.c
 driveFF.c
+driveGFAST.c
 drivePGD.c
 parseCoreXML.c
 )

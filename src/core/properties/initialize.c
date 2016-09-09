@@ -41,6 +41,7 @@ int core_properties_initialize(const char *propfilename,
     // Load the ini file
     ierr = 1;
     ini = iniparser_load(propfilename);
+    strcpy(props->propfilename, propfilename);
     //-------------------------GFAST General Parameters-----------------------//
     s = iniparser_getstring(ini, "general:sitefile\0", "GFAST_streams.txt\0");
     strcpy(props->sitefile, s);

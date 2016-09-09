@@ -126,7 +126,8 @@ struct GFAST_props_struct
                                       module style module has the event
                                       hypocenter and origin time */ 
     char obsdata_file[PATH_MAX]; /*!< Observed (archived) data file */
-    char h5ArchiveDir[PATH_MAX];/*!< HDF5 archive directory */ 
+    char h5ArchiveDir[PATH_MAX]; /*!< HDF5 archive directory */ 
+    char propfilename[PATH_MAX]; /*!< Name of GFAST properties file */
 //    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
 //                                     (siren). */
 //    char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages

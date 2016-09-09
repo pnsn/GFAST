@@ -6,6 +6,7 @@
 #include "gfast_events.h"
 #include "gfast_hdf5.h"
 #include "gfast_struct.h"
+#include "gfast_traceBuffer.h"
 #include "gfast_xml.h"
 #ifndef __GFAST__
 #define __GFAST__
