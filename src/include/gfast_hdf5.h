@@ -32,6 +32,12 @@ struct h5_waveform3CData_struct
     int lskip_ff; 
 };
 
+struct h5_gpsData_struct
+{
+    hvl_t data;
+    int stream_length;
+};
+
 struct h5_peakDisplacementData_struct
 {
     hvl_t stnm;
@@ -171,6 +177,9 @@ int hdf5_copy__faultPlane(const enum data2h5_enum job,
 int hdf5_copy__ffResults(const enum data2h5_enum job,
                          struct GFAST_ffResults_struct *ff,
                          struct h5_ffResults_struct *h5_ff);
+int hdf5_copy__gpsData(const enum data2h5_enum job,
+                       struct GFAST_data_struct *gps_data,
+                       struct h5_gpsData_struct *h5_gpsData);
 int hdf5_copy__hypocenter(const enum data2h5_enum job,
                           struct GFAST_shakeAlert_struct *hypo,
                           struct h5_hypocenter_struct *h5_hypo);
@@ -184,14 +193,19 @@ int hdf5_copy__peakDisplacementData(
 int hdf5_copy__pgdResults(const enum data2h5_enum job,
                           struct GFAST_pgdResults_struct *pgd,
                           struct h5_pgdResults_struct *h5_pgd);
+int hdf5_copy__waveform3CData(const enum data2h5_enum job,
+                              struct GFAST_waveform3CData_struct *data,
+                              struct h5_waveform3CData_struct *h5_data);
 
 herr_t hdf5_createType__cmtResults(hid_t group_id);
 herr_t hdf5_createType__faultPlane(hid_t group_id);
 herr_t hdf5_createType__ffResults(hid_t group_id);
+herr_t hdf5_createType__gpsData(hid_t group_id);
 herr_t hdf5_createType__hypocenter(hid_t group_id);
 herr_t hdf5_createType__offsetData(hid_t group_id);
 herr_t hdf5_createType__peakDisplacementData(hid_t group_id);
 herr_t hdf5_createType__pgdResults(hid_t group_id);
+herr_t hdf5_createType__waveform3CData(hid_t group_id);
 
 int hdf5_initialize(const char *adir,
                     const char *evid,
@@ -201,11 +215,13 @@ int hdf5_initialize(const char *adir,
 int hdf5_memory__freeCMTResults(struct h5_cmtResults_struct *cmt);
 int hdf5_memory__freeFaultPlane(struct h5_faultPlane_struct *fp);
 int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff);
+int hdf5_memory__freeGPSData(struct h5_gpsData_struct *gpsData);
 int hdf5_memory__freeOffsetData(
     struct h5_offsetData_struct *h5_offset_data);
 int hdf5_memory__freePGDData(
     struct h5_peakDisplacementData_struct *h5_pgd_data);
 int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd);
+int hdf5_memory__freeWaveform3CData(struct h5_waveform3CData_struct *data);
 
 int hdf5_setFileName(const char *adir,
                      const char *evid, 
@@ -221,6 +237,10 @@ int hdf5_update__ff(const char *adir,
                     const int h5k,
                     struct GFAST_offsetData_struct ff_data,
                     struct GFAST_ffResults_struct ff);
+int hdf5_update__gpsData(const char *adir,
+                         const char *evid,
+                         const int h5k, 
+                         struct GFAST_data_struct data);
 int hdf5_update__hypocenter(const char *adir,
                             const char *evid,
                             const int h5k,
@@ -276,6 +296,8 @@ hid_t h5_create_group(const hid_t file_id, const char *cgroup);
               hdf5_copy__faultPlane(__VA_ARGS__)
 #define GFAST_hdf5_copy__ffResults(...)       \
               hdf5_copy__ffResults(__VA_ARGS__)
+#define GFAST_hdf5_copy__gpsData(...)       \
+              hdf5_copy__gpsData(__VA_ARGS__)
 #define GFAST_hdf5_copy__hypocenter(...)       \
               hdf5_copy__hypocenter(__VA_ARGS__)
 #define GFAST_hdf5_copy__offsetData(...)       \
@@ -284,6 +306,8 @@ hid_t h5_create_group(const hid_t file_id, const char *cgroup);
               hdf5_copy__peakDisplacementData(__VA_ARGS__)
 #define GFAST_hdf5_copy__pgdResults(...)       \
               hdf5_copy__pgdResults(__VA_ARGS__)
+#define GFAST_hdf5_copy__waveform3CData(...)       \
+              hdf5_copy__waveform3CData(__VA_ARGS__)
 
 #define GFAST_hdf5_createType__cmtResults(...)       \
               hdf5_createType__cmtResults(__VA_ARGS__)
@@ -291,6 +315,8 @@ hid_t h5_create_group(const hid_t file_id, const char *cgroup);
               hdf5_createType__faultPlane(__VA_ARGS__)
 #define GFAST_hdf5_createType__ffResults(...)       \
               hdf5_createType__ffResults(__VA_ARGS__)
+#define GFAST_hdf5_createType__gpsData(...)       \
+              hdf5_createType__gpsData(__VA_ARGS__)
 #define GFAST_hdf5_createType__hypocenter(...)       \
               hdf5_createType__hypocenter(__VA_ARGS__)
 #define GFAST_hdf5_createType__offsetData(...)       \
@@ -299,11 +325,15 @@ hid_t h5_create_group(const hid_t file_id, const char *cgroup);
               hdf5_createType__peakDisplacementData(__VA_ARGS__)
 #define GFAST_hdf5_createType__pgdResults(...)       \
               hdf5_createType__pgdResults(__VA_ARGS__)
+#define GFAST_hdf5_createType__waveform3CData(...)       \
+              hdf5_createType__waveform3CData(__VA_ARGS__)
 
 #define GFAST_hdf5_initialize(...)       \
               hdf5_initialize(__VA_ARGS__)
 #define GFAST_hdf5_memory__freeCMTResults(...)       \
               hdf5_memory__freeCMTResults(__VA_ARGS__)
+#define GFAST_hdf5_memory__freeGPSData(...)       \
+              hdf5_memory__freeGPSData(__VA_ARGS__)
 #define GFAST_hdf5_memory__freePGDData(...)       \
               hdf5_memory__freePGDData(__VA_ARGS__)
 #define GFAST_hdf5_memory__freePGDResults(...)       \
@@ -320,11 +350,14 @@ hid_t h5_create_group(const hid_t file_id, const char *cgroup);
               hdf5_update__ff(__VA_ARGS__)
 #define GFAST_hdf5_update__getIteration(...)            \
               hdf5_update__getIteration(__VA_ARGS__)
+#define GFAST_hdf5_update__gpsData(...)       \
+              hdf5_update__gpsData(__VA_ARGS__)
 #define GFAST_hdf5_update__hypocenter(...)       \
               hdf5_update__hypocenter(__VA_ARGS__)
 #define GFAST_hdf5_update__pgd(...)            \
               hdf5_update__pgd(__VA_ARGS__)
-
+#define GFAST_hdf5_memory__freeWaveform3CData(...)       \
+              hdf5_memory__freeWaveform3CData(__VA_ARGS__)
 
 
 #ifdef __cplusplus

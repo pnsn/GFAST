@@ -29,11 +29,11 @@
  *
  * @author Ben Baker 
  */
-int GFAST_xml_shakeAlert_readCoreInfo(const void *xml_reader,
-                                      const double SA_NAN,
-                                      struct coreInfo_struct *core)
+int xml_shakeAlert_readCoreInfo(const void *xml_reader,
+                                const double SA_NAN,
+                                struct coreInfo_struct *core)
 {
-    const char *fcnm = "GFAST_xml_shakeAlert_readCoreInfo\0";
+    const char *fcnm = "xml_shakeAlert_readCoreInfo\0";
     xmlNodePtr core_xml, core_xml_info;
     xmlAttrPtr attr;
     xmlChar *value;
@@ -61,6 +61,8 @@ int GFAST_xml_shakeAlert_readCoreInfo(const void *xml_reader,
     int dom, hour, ierr, item, item0, minute, month, nzmsec, nzmusec,
         nzsec, year;
     bool lfound, lunpack;
+    //------------------------------------------------------------------------//
+    //
     // Initialize result
     ierr = 0;
     lfound = false;
@@ -120,7 +122,8 @@ int GFAST_xml_shakeAlert_readCoreInfo(const void *xml_reader,
         // Otherwise do a linear search of citems
         if (!lunpack)
         {
-            for (item=0; item<nitems; item++){
+            for (item=0; item<nitems; item++)
+            {
                 if (xmlStrcmp(core_xml_info->name, citems[item]) == 0)
                 {
                     lunpack = true;
@@ -158,7 +161,8 @@ int GFAST_xml_shakeAlert_readCoreInfo(const void *xml_reader,
         value = xmlNodeGetContent(core_xml_info);
         if (value != NULL)
         {
-             if (types[item0] == UNPACK_DOUBLE){
+             if (types[item0] == UNPACK_DOUBLE)
+             {
                  values[item0] = xmlXPathCastStringToNumber(value);
              }
              else if (types[item0] == UNPACK_TIME)
@@ -238,10 +242,10 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-int GFAST_xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,
-                                       void *xml_writer)
+int xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,
+                                 void *xml_writer)
 {
-    const char *fcnm = "GFAST_xml_shakeAlert_writeCoreInfo\0";
+    const char *fcnm = "xml_shakeAlert_writeCoreInfo\0";
     xmlTextWriterPtr writer;
     char units[128], var[128], cevtime[128];
     int rc;

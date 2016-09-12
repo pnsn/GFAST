@@ -56,6 +56,8 @@ int hdf5_initialize(const char *adir,
     ierr = ierr + GFAST_hdf5_createType__ffResults(groupID);
     ierr = ierr + GFAST_hdf5_createType__hypocenter(groupID);
     ierr = ierr + GFAST_hdf5_createType__offsetData(groupID);
+    ierr = ierr + GFAST_hdf5_createType__waveform3CData(groupID);
+    ierr = ierr + GFAST_hdf5_createType__gpsData(groupID);
     ierr = ierr + H5Gclose(groupID);
     // Save the ini file
     ierr = ierr + h5_create_group(fileID, "/InitializationFile\0");

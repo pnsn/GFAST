@@ -154,7 +154,7 @@ int core_properties_initialize(const char *propfilename,
     }
     // Wait time
     props->waitTime = 1.0;
-    if (props->opmode == REAL_TIME_EEW || props->opmode == REAL_TIME_PTWC)
+    if (props->opmode == REAL_TIME_EEW)
     {
         props->waitTime = iniparser_getdouble(ini, "general:waitTime\0", 1.0);
         if (props->waitTime < 0.0)
@@ -216,6 +216,9 @@ int core_properties_initialize(const char *propfilename,
             strcpy(props->h5ArchiveDir, "./\0");
         }
     }
+    // Only write summary HDF5 files?
+    props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
+                                                 false);
     //------------------------------PGD Parameters----------------------------//
     props->pgd_props.verbose = props->verbose;
     props->pgd_props.utm_zone = props->utm_zone;

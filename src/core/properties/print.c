@@ -66,8 +66,7 @@ void core_properties_print(struct GFAST_props_struct props)
     {
         log_debugF("%s GFAST is operating in playback mode\n", lspace);
     }
-    else if (props.opmode == REAL_TIME_EEW ||
-             props.opmode == REAL_TIME_PTWC)
+    else if (props.opmode == REAL_TIME_EEW)
     {
         log_debugF("%s GFAST is operating in EEW real-time mode\n", lspace);
         log_debugF("%s GFAST time between iterations is %f (s)\n", lspace,
@@ -114,6 +113,14 @@ void core_properties_print(struct GFAST_props_struct props)
                lspace, props.processingTime);
     log_debugF("%s GFAST will use a default earthquake depth of %f\n",
                lspace, props.eqDefaultDepth);
+    if (props.lh5SummaryOnly)
+    {
+        log_debugF("%s GFAST will only write an HDF5 summary\n", lspace);
+    }
+    else
+    {
+        log_debugF("%s GFAST will save all steps to HDF5\n", lspace);
+    }
     //--------------------------------pgd-------------------------------------//
     log_debugF("%s GFAST PGD source receiver distance tolerance %f (km)\n",
                lspace, props.pgd_props.dist_tol);

@@ -30,10 +30,10 @@
  *      have units degrees for lat and lon, and km for depth
  *
  */
-int xml_readVertex(const void *xml_reader, const double VTX_NAN,
-                   double *lat, double *lon, double *depth)
+int xml_shakeAlert_readVertex(const void *xml_reader, const double VTX_NAN,
+                              double *lat, double *lon, double *depth)
 {
-    const char *fcnm = "xml_readVertex\0";
+    const char *fcnm = "xml_shakeAlert_readVertex\0";
     xmlNodePtr vertex_xml;
     xmlChar *value;
     enum unpack_types_enum

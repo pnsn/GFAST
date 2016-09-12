@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
 #include <hdf5.h>
 #include <cblas.h>
 #include "gfast_hdf5.h"
@@ -177,17 +179,17 @@ int hdf5_copy__offsetData(const enum data2h5_enum job,
 /*!
  * @brief Copies PGD results structure to/from HDF5 PGD results structure
  *
- * @param[in] job        if job = COPY_DATA_TO_H5 then copy pgd -> h5_pgd
- *                       if job = COPY_H5_TO_DATA then copy h5_pgd -> pgd
+ * @param[in] job        if job = COPY_DATA_TO_H5 then copy pgd -> h5_pgd.
+ *                       if job = COPY_H5_TO_DATA then copy h5_pgd -> pgd.
  *
  * @param[inout] pgd     if job = COPY_DATA_TO_H5 then on input this is the
- *                       structure to copy to h5_pgd
+ *                       structure to copy to h5_pgd.
  *                       if job = COPY_H5_TO_DATA then on output this is the
- *                       copied h5_pgd structure 
+ *                       copied h5_pgd structure.
  * @param[inout] h5_pgd  if job = COPY_DATA_TO_H5 then on output this is the
- *                       HDF5 version of pgd
+ *                       HDF5 version of pgd.
  *                       if job = COPY_DATA_TO_H5 then on input this is the
- *                       structure to copy to pgd 
+ *                       structure to copy to pgd.
  *
  * @author Ben Baker, ISTI
  *
@@ -275,17 +277,17 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
 /*!
  * @brief Copies hypocenter structure to/from HDF5 hypocenter structure
  *
- * @param[in] job         if job = COPY_DATA_TO_H5 then copy cmt -> h5_cmt
- *                        if job = COPY_H5_TO_DATA then copy h5_cmt -> cmt 
+ * @param[in] job         if job = COPY_DATA_TO_H5 then copy cmt -> h5_cmt.
+ *                        if job = COPY_H5_TO_DATA then copy h5_cmt -> cmt.
  *
  * @param[inout] hypo     if job = COPY_DATA_TO_H5 then on input this is the
- *                        structure to copy to h5_hypo
+ *                        structure to copy to h5_hypo.
  *                        if job = COPY_H5_TO_DATA then on output this is the
- *                        copied h5_hypo structure 
+ *                        copied h5_hypo structure.
  * @param[inout] h5_hypo  if job = COPY_DATA_TO_H5 then on output this is the
- *                        HDF5 version of hypo 
+ *                        HDF5 version of hypo.
  *                        if job = COPY_DATA_TO_H5 then on input this is the
- *                        structure to copy to hypo 
+ *                        structure to copy to hypo.
  *
  * @author Ben Baker, ISTI
  *
@@ -329,17 +331,17 @@ int hdf5_copy__hypocenter(const enum data2h5_enum job,
 /*!
  * @brief Copies CMT results structure to/from HDF5 CMT results structure
  *
- * @param[in] job        if job = COPY_DATA_TO_H5 then copy cmt -> h5_cmt
- *                       if job = COPY_H5_TO_DATA then copy h5_cmt -> cmt 
+ * @param[in] job        if job = COPY_DATA_TO_H5 then copy cmt -> h5_cmt.
+ *                       if job = COPY_H5_TO_DATA then copy h5_cmt -> cmt.
  *
  * @param[inout] cmt     if job = COPY_DATA_TO_H5 then on input this is the
- *                       structure to copy to h5_cmt
+ *                       structure to copy to h5_cmt.
  *                       if job = COPY_H5_TO_DATA then on output this is the
- *                       copied h5_cmt structure 
+ *                       copied h5_cmt structure.
  * @param[inout] h5_cmt  if job = COPY_DATA_TO_H5 then on output this is the
- *                       HDF5 version of cmt 
+ *                       HDF5 version of cmt.
  *                       if job = COPY_DATA_TO_H5 then on input this is the
- *                       structure to copy to cmt
+ *                       structure to copy to cmt.
  *
  * @author Ben Baker, ISTI
  *
@@ -601,17 +603,17 @@ int hdf5_copy__faultPlane(const enum data2h5_enum job,
  * @brief Copies finite fault results structure to/from HDF5 finite fault
  *        results structure
  *
- * @param[in] job        if job = COPY_DATA_TO_H5 then copy ff -> h5_ff
- *                       if job = COPY_H5_TO_DATA then copy h5_ff -> ff
+ * @param[in] job        if job = COPY_DATA_TO_H5 then copy ff -> h5_ff.
+ *                       if job = COPY_H5_TO_DATA then copy h5_ff -> ff.
  *
  * @param[inout] ff      if job = COPY_DATA_TO_H5 then on input this is the
- *                       structure to copy to h5_ff
+ *                       structure to copy to h5_ff.
  *                       if job = COPY_H5_TO_DATA then on output this is the
- *                       copied h5_ff structure 
+ *                       copied h5_ff structure.
  * @param[inout] h5_ff   if job = COPY_DATA_TO_H5 then on output this is the
- *                       HDF5 version of ff
+ *                       HDF5 version of ff.
  *                       if job = COPY_DATA_TO_H5 then on input this is the
- *                       structure to copy to ff 
+ *                       structure to copy to ff.
  *
  * @author Ben Baker, ISTI
  *
@@ -629,6 +631,7 @@ int hdf5_copy__ffResults(const enum data2h5_enum job,
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
+        memset(ff, 0, sizeof(struct h5_ffResults_struct));
         nfp = ff->nfp;
         if (nfp < 0)
         {
@@ -669,6 +672,180 @@ int hdf5_copy__ffResults(const enum data2h5_enum job,
         h5_ff->nfp = ff->nfp;
 
     }   
+    else if (job == COPY_H5_TO_DATA)
+    {
+        log_errorF("%s: not yet done\n", fcnm);
+        ierr = 1;
+    }
+    else
+    {
+        log_errorF("%s: Invalid job\n", fcnm);
+        ierr = 1;
+    }
+    return ierr;
+}
+
+//============================================================================//
+/*!
+ * @brief Copies three component waveform data structure to/from HDF5
+ *        three component waveform structure 
+ *
+ * @param[in] job          if job = COPY_DATA_TO_H5 then copy data -> h5_data.
+ *                         if job = COPY_H5_TO_DATA then copy h5_data -> data
+ *
+ * @param[inout] data      if job = COPY_DATA_TO_H5 then on input this is the
+ *                         structure to copy to h5_data.
+ *                         if job = COPY_H5_TO_DATA then on output this is the
+ *                         copied h5_data structure.
+ * @param[inout] h5_data   if job = COPY_DATA_TO_H5 then on output this is the
+ *                         HDF5 version of data.
+ *                         if job = COPY_DATA_TO_H5 then on input this is the
+ *                         structure to copy to data.
+ *
+ * @author Ben Baker, ISTI
+ *
+ * @bug COPY_H5_TO_DATA not yet done
+ *
+ */
+int hdf5_copy__waveform3CData(const enum data2h5_enum job,
+                              struct GFAST_waveform3CData_struct *data,
+                              struct h5_waveform3CData_struct *h5_data)
+{
+    const char *fcnm = "hdf5_copy__waveform3CData\0";
+    char *netw, *stnm, *chan, *loc;
+    double nanv[1] = {NAN};
+    int ierr, npts;
+    //------------------------------------------------------------------------//
+    ierr = 0;
+    if (job == COPY_DATA_TO_H5)
+    {
+        memset(h5_data, 0, sizeof(struct h5_waveform3CData_struct));
+        npts = data->npts;
+        h5_data->ubuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
+        h5_data->nbuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
+        h5_data->ebuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
+        h5_data->tbuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
+        h5_data->ubuff.len = fmax(npts, 1);
+        h5_data->nbuff.len = fmax(npts, 1);
+        h5_data->ebuff.len = fmax(npts, 1);
+        h5_data->tbuff.len = fmax(npts, 1);
+        if (npts > 0)
+        {
+            cblas_dcopy(npts, data->ubuff, 1, h5_data->ubuff.p, 1);
+            cblas_dcopy(npts, data->nbuff, 1, h5_data->nbuff.p, 1);
+            cblas_dcopy(npts, data->ebuff, 1, h5_data->ebuff.p, 1);
+            cblas_dcopy(npts, data->tbuff, 1, h5_data->tbuff.p, 1);
+        }
+        else
+        {
+            cblas_dcopy(1, nanv, 1, h5_data->ubuff.p, 1);
+            cblas_dcopy(1, nanv, 1, h5_data->nbuff.p, 1);
+            cblas_dcopy(1, nanv, 1, h5_data->ebuff.p, 1);
+            cblas_dcopy(1, nanv, 1, h5_data->tbuff.p, 1);
+        }
+        h5_data->dt = data->dt;
+        h5_data->sta_lat = data->sta_lat;
+        h5_data->sta_lon = data->sta_lon;
+        h5_data->sta_alt = data->sta_alt;
+        h5_data->maxpts = data->maxpts;
+        h5_data->npts   = data->npts;
+        h5_data->lskip_pgd = data->lskip_pgd;
+        h5_data->lskip_cmt = data->lskip_cmt;
+        h5_data->lskip_ff  = data->lskip_ff;
+
+        netw = (char *)calloc(64, sizeof(char));
+        strcpy(netw, data->netw);
+        h5_data->netw.len = 1;
+        h5_data->netw.p = netw;
+
+        stnm = (char *)calloc(64, sizeof(char));
+        strcpy(netw, data->stnm);
+        h5_data->stnm.len = 1;
+        h5_data->stnm.p = stnm;
+
+        chan = (char *)calloc(3*64, sizeof(char));
+        strcpy(&chan[0],   data->chan[0]);
+        strcpy(&chan[64],  data->chan[1]);
+        strcpy(&chan[128], data->chan[2]);
+        h5_data->chan.len = 3;
+        h5_data->chan.p = chan;
+
+        loc = (char *)calloc(64, sizeof(char));
+        strcpy(loc, data->loc);
+        h5_data->loc.len = 1;
+        h5_data->loc.p = loc;
+
+    }
+    else if (job == COPY_H5_TO_DATA)
+    {
+        log_errorF("%s: not yet done\n", fcnm);
+        ierr = 1;
+    }
+    else
+    {
+        log_errorF("%s: Invalid job\n", fcnm);
+        ierr = 1;
+    }
+    return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Copies GPS data structure to/from HDF5 GPS data structure 
+ *
+ * @param[in] job             if job = COPY_DATA_TO_H5 then copy
+ *                            gps_data -> h5_gpsData.
+ *                            if job = COPY_H5_TO_DATA then copy
+ *                            h5_gpsData -> gps_data
+ *
+ * @param[inout] gps_data     if job = COPY_DATA_TO_H5 then on input this is
+ *                            the structure to copy to h5_gpsData.
+ *                            if job = COPY_H5_TO_DATA then on output this is
+ *                            the copied h5_gpsData structure.
+ * @param[inout] h5_gpsData   if job = COPY_DATA_TO_H5 then on output this is
+ *                            the HDF5 version of gps_data.
+ *                            if job = COPY_DATA_TO_H5 then on input this is
+ *                            the structure to copy to gps_data.
+ *
+ * @author Ben Baker, ISTI
+ *
+ * @bug COPY_H5_TO_DATA not yet done
+ *
+ */
+int hdf5_copy__gpsData(const enum data2h5_enum job,
+                       struct GFAST_data_struct *gps_data,
+                       struct h5_gpsData_struct *h5_gpsData)
+{
+    const char *fcnm = "hdf5_copy__gpsData\0";
+    struct h5_waveform3CData_struct *h5_data;
+    int ierr, k, nstreams;
+    //------------------------------------------------------------------------//
+    ierr = 0;
+    if (job == COPY_DATA_TO_H5)
+    {   
+        memset(h5_gpsData, 0, sizeof(struct h5_gpsData_struct));
+        nstreams = gps_data->stream_length;
+        if (nstreams < 1)
+        {
+            log_errorF("%s: Error no streams to copy!\n", fcnm);
+            ierr = 1;
+        }
+        h5_data = (struct h5_waveform3CData_struct *)
+                  calloc(nstreams, sizeof(struct h5_waveform3CData_struct));
+        h5_gpsData->stream_length = nstreams;
+        for (k=0; k<nstreams; k++)
+        {
+            ierr = GFAST_hdf5_copy__waveform3CData(job,
+                                                   &gps_data->data[k],
+                                                   &h5_data[k]); 
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error copying 3C data\n", fcnm);
+                return ierr;
+            }
+        }
+        h5_gpsData->data.p = h5_data;
+        h5_gpsData->data.len = nstreams;
+    }
     else if (job == COPY_H5_TO_DATA)
     {
         log_errorF("%s: not yet done\n", fcnm);

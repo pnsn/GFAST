@@ -25,8 +25,8 @@ enum opmode_type
 {
     REAL_TIME_EEW = 1,  /*!< GFAST is running in real time mode for
                              earthquake early warning */
-    REAL_TIME_PTWC = 2, /*!< GFAST is running in real time mode for PTWC */
-    REAL_TIME_ATWC = 3, /*!< GFAST is running in real time mode for ATWC */
+    //REAL_TIME_PTWC = 2, /*!< GFAST is running in real time mode for PTWC */
+    //REAL_TIME_ATWC = 3, /*!< GFAST is running in real time mode for ATWC */
     PLAYBACK = 21,      /*!< GFAST is running in historical playback mode */
     OFFLINE = 31        /*!< GFAST is running offline and obtaining data 
                              and configuration purely from files */

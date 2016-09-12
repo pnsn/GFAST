@@ -177,6 +177,8 @@ struct GFAST_props_struct
                                       = 3 -> Output generic information,
                                              warnings, and debug information
                                              and debug information. */
+    bool lh5SummaryOnly;        /*!< If true then only the HDF5 summary
+                                     will be written */
     enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
                                      playback, offline) */
     enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
@@ -436,7 +438,8 @@ struct coreInfo_struct
     double mag;                              /*!< Magnitude */
     enum alert_units_enum mag_units;         /*!< Magnitude units */
     double mag_uncer;                        /*!< Magnitude uncertainty */
-    enum alert_units_enum mag_uncer_units;   /*!< Magnitude uncertainty units */    double lat;                              /*!< Event latitude */
+    enum alert_units_enum mag_uncer_units;   /*!< Magnitude uncertainty units */
+    double lat;                              /*!< Event latitude */
     enum alert_units_enum lat_units;         /*!< Latitude units */
     double lat_uncer;                        /*!< Latitude uncertainty */
     enum alert_units_enum lat_uncer_units;   /*!< Latitude uncertainty units */
@@ -455,6 +458,16 @@ struct coreInfo_struct
          orig_time_uncer_units;              /*!< Origin time uncertainty
                                                   units */
     double likelihood;  /*!< TODO: I have no idea what likelihood means */
+};
+
+struct GFAST_xmlMessages_struct
+{
+    char **evids;  /*!< Event IDs */
+    char **cmtQML; /*!< CMT quakeML message */
+    char **ffXML;  /*!< Finite fault shakeAlert XML message */
+    char **pgdXML; /*!< PGD shakeAlert XML message */
+    int nmessages; /*!< Number of XML messages */
+    int mmessages; /*!< Max number of XML messages */
 };
 
 #endif /* __GFAST_STRUCT_H__ */

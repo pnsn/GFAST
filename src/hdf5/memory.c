@@ -126,3 +126,30 @@ int hdf5_memory__freeOffsetData(
     memset(h5_offset_data, 0, sizeof(struct h5_offsetData_struct));
     return 0;
 }
+
+int hdf5_memory__freeWaveform3CData(struct h5_waveform3CData_struct *data)
+{
+    if (data->netw.p  != NULL){free(data->netw.p);}
+    if (data->stnm.p  != NULL){free(data->stnm.p);}
+    if (data->chan.p  != NULL){free(data->chan.p);}
+    if (data->loc.p   != NULL){free(data->loc.p);}
+    if (data->ubuff.p != NULL){free(data->ubuff.p);}
+    if (data->nbuff.p != NULL){free(data->nbuff.p);}
+    if (data->ebuff.p != NULL){free(data->ebuff.p);}
+    if (data->tbuff.p != NULL){free(data->tbuff.p);}
+    memset(data, 0, sizeof(struct h5_waveform3CData_struct));
+    return 0;
+}
+
+int hdf5_memory__freeGPSData(struct h5_gpsData_struct *gpsData)
+{
+    struct h5_waveform3CData_struct *data;
+    int k;
+    data = (struct h5_waveform3CData_struct *)gpsData->data.p;
+    for (k=0; k<gpsData->stream_length; k++)
+    {
+        GFAST_hdf5_memory__freeWaveform3CData(&data[k]);
+    }
+    memset(gpsData, 0, sizeof(struct h5_waveform3CData_struct));
+    return 0; 
+}

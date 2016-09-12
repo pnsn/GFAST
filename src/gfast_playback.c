@@ -23,10 +23,11 @@ int main()
     struct GFAST_pgdResults_struct pgd;
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
+    struct GFAST_xmlMessages_struct xmlMessages;
     char *elarms_xml_message;
-    double currentTime, dtmax, t0sim;
+    double currentTime, dtmax, t0sim, tbeg;
     const enum opmode_type opmode = OFFLINE;
-    int ierr, k, kt, message_length, ntsim;
+    int ierr, im, k, kt, message_length, ntsim;
     //------------------------------------------------------------------------//
     //
     // Initialize 
@@ -41,6 +42,7 @@ int main()
     memset(&pgd_data, 0, sizeof( struct GFAST_peakDisplacementData_struct));
     memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
+    memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct)); 
     ISCL_iscl_init(); // Fire up the computational library
     // Read the properties file
@@ -137,6 +139,7 @@ int main()
         return ierr;
     }
     t0sim = SA.time;
+    tbeg = time_timeStamp();
     // Loop on time steps in simulation
     for (kt=0; kt<ntsim; kt++)
     {
@@ -153,8 +156,46 @@ int main()
                                    &events,
                                    &pgd,
                                    &cmt,
-                                   &ff);
+                                   &ff,
+                                   &xmlMessages);
+         if (ierr != 0)
+         {
+             log_errorF("%s: Error calling GFAST driver!\n", fcnm);
+             break;
+         }
+         if (xmlMessages.mmessages > 0)
+         {
+             for (im=0; im<xmlMessages.nmessages; im++)
+             {
+                 if (xmlMessages.evids[im] != NULL)
+                 {
+                     free(xmlMessages.evids[im]);
+                     xmlMessages.evids = NULL;
+                 }
+                 if (xmlMessages.cmtQML[im] != NULL)
+                 {
+                     free(xmlMessages.cmtQML[im]);
+                     xmlMessages.cmtQML = NULL;
+                 }
+                 if (xmlMessages.pgdXML[im] != NULL)
+                 {
+                     free(xmlMessages.pgdXML[im]);
+                     xmlMessages.pgdXML = NULL;
+                 }
+                 if (xmlMessages.ffXML[im] != NULL)
+                 {
+                     free(xmlMessages.ffXML[im]);
+                     xmlMessages.ffXML = NULL;
+                 }
+             }
+             if (xmlMessages.evids == NULL){free(xmlMessages.evids);}
+             if (xmlMessages.cmtQML == NULL){free(xmlMessages.cmtQML);}
+             if (xmlMessages.ffXML  == NULL){free(xmlMessages.ffXML);}
+             if (xmlMessages.pgdXML == NULL){free(xmlMessages.pgdXML);}
+             memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
+         }
     }
+    log_infoF("%s: Simultation time: %f\n", fcnm, time_timeStamp() - tbeg);
 ERROR:;
     if (elarms_xml_message != NULL){free(elarms_xml_message);}
     GFAST_core_cmt_finalize(&props.cmt_props,

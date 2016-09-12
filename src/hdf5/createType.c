@@ -654,7 +654,7 @@ herr_t hdf5_createType__waveform3CData(hid_t group_id)
     //------------------------------------------------------------------------//
     //  
     // Nothing to do
-    if (H5Lexists(group_id, "waveform3CData\0", H5P_DEFAULT) != 0)
+    if (H5Lexists(group_id, "waveform3CDataStructure\0", H5P_DEFAULT) != 0)
     {
         return ierr;
     }
@@ -718,7 +718,7 @@ herr_t hdf5_createType__waveform3CData(hid_t group_id)
                       HOFFSET(struct h5_waveform3CData_struct, lskip_ff),
                       H5T_NATIVE_INT);
     // Commit it
-    ierr = H5Tcommit(group_id, "waveform3CData\0", dataType,
+    ierr = H5Tcommit(group_id, "waveform3CDataStructure\0", dataType,
                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
@@ -729,5 +729,63 @@ herr_t hdf5_createType__waveform3CData(hid_t group_id)
     ierr += H5Tclose(vlenCData);
     ierr += H5Tclose(vlenDData);
     ierr += H5Tclose(string64Type);
+    return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Creates the GFAST data structure
+ *
+ * @param[in] group_id    HDF5 group_id handle
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+herr_t hdf5_createType__gpsData(hid_t group_id)
+{
+    const char *fcnm = "hdf5_createType__gpsData\0";
+    hid_t dataType, threeCdataType, vlen3CData;
+    herr_t ierr = 0;
+    //------------------------------------------------------------------------//
+    //  
+    // Nothing to do
+    if (H5Lexists(group_id, "gpsDataStructure\0", H5P_DEFAULT) != 0)
+    {
+        return ierr;
+    }
+    if (H5Lexists(group_id, "waveform3CDataStructure\0", H5P_DEFAULT) == 0)
+    {
+        log_warnF("%s: Making 3C data structure\n", fcnm);
+        ierr = GFAST_hdf5_createType__waveform3CData(group_id);
+        if (ierr != 0)
+        {
+            log_errorF("%s: ERror making 3C data structure\n", fcnm);
+            return ierr;
+        }
+    }
+    threeCdataType = H5Topen(group_id, "waveform3CDataStructure\0",
+                             H5P_DEFAULT);
+    vlen3CData = H5Tvlen_create(threeCdataType);
+    // Build the data structure
+    dataType = H5Tcreate(H5T_COMPOUND,
+                         sizeof(struct h5_gpsData_struct));
+    ierr += H5Tinsert(dataType, "threeComponentDataStreams\0",
+                      HOFFSET(struct h5_gpsData_struct, data),
+                      vlen3CData);
+    ierr += H5Tinsert(dataType, "numberOfSites\0",
+                      HOFFSET(struct h5_gpsData_struct, stream_length),
+                      H5T_NATIVE_INT);
+    // Commit it
+    ierr = H5Tcommit(group_id, "gpsDataStructure\0", dataType,
+                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Failed to create gpsData structure\n", fcnm);
+        return ierr;
+    }
+    ierr += H5Tclose(dataType);
+    ierr += H5Tclose(vlen3CData);
+    ierr += H5Tclose(threeCdataType);
     return ierr;
 }

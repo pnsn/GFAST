@@ -285,6 +285,8 @@ int xml_shakeAlert_writeVertex(const double lat,
 
 #define GFAST_xml_shakeAlert_readCoreInfo(...)       \
               xml_shakeAlert_readCoreInfo(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_writeCoreInfo(...)       \
+              xml_shakeAlert_writeCoreInfo(__VA_ARGS__)
 #define GFAST_xml_shakeAlert_writeSegment(...)       \
               xml_shakeAlert_writeSegment(__VA_ARGS__)
 #define GFAST_xml_shakeAlert_readSlip(...)       \

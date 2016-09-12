@@ -436,3 +436,79 @@ int hdf5_update__ff(const char *adir,
     ierr = h5_close(fileID);
     return ierr;
 }
+//============================================================================//
+int hdf5_update__gpsData(const char *adir,
+                         const char *evid,
+                         const int h5k,
+                         struct GFAST_data_struct data)
+{
+    const char *fcnm = "hdf5_update__gpsData\0";
+    const char *item_root = "/GFAST_History/Iteration\0";
+    char h5fl[PATH_MAX], dataName[256];
+    struct h5_gpsData_struct h5_gpsData;
+    //struct h5_waveform3CData_struct h5_3cdata;
+    hid_t dataSet, dataSpace, dataType, fileID, groupID;
+    char gpsGroup[256];
+    int i, ierr;
+    hsize_t dimInfo[1] = {1};
+    const int rank = {1};
+    //------------------------------------------------------------------------//
+    //  
+    // Initialize
+    memset(&h5_gpsData, 0, sizeof(struct h5_gpsData_struct));
+    // Open the old HDF5 file 
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error setting filename\n", fcnm);
+        return -1;
+    }
+    if (!os_path_isfile(h5fl))
+    {
+        log_errorF("%s: Error file %s does not exist!\n", fcnm);
+        return -1;
+    }
+    fileID = h5_open_rdwt(h5fl);
+    // Have HDF5 count the group members as to compute the iteration number 
+    memset(gpsGroup, 0, sizeof(gpsGroup));
+    sprintf(gpsGroup, "%s_%d", item_root, h5k);
+    if (!h5_item_exists(fileID, gpsGroup))
+    {
+        log_errorF("%s: Error group should exist\n", fcnm);
+        ierr = h5_close(fileID);
+        return ierr;
+    }
+    // Open the group for writing 
+    groupID = H5Gopen2(fileID, gpsGroup, H5P_DEFAULT);
+    // Copy and write the results
+    ierr = hdf5_copy__gpsData(COPY_DATA_TO_H5,
+                              &data, &h5_gpsData);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error copying GPS data!\n", fcnm);
+        h5_close(fileID);
+        return -1;
+    }
+    dataType = H5Topen(groupID, "/DataStructures/gpsDataStructure\0",
+                       H5P_DEFAULT);
+    dataSpace = H5Screate_simple(rank, dimInfo, NULL);
+    dataSet   = H5Dcreate(groupID, "gpsData\0", dataType,
+                          dataSpace,
+                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Dwrite(dataSet, dataType, H5S_ALL, H5S_ALL,
+                    H5P_DEFAULT, &h5_gpsData);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error writing Greens functions\n", fcnm);
+    }
+    ierr = H5Dclose(dataSet);
+    ierr = ierr + H5Sclose(dataSpace);
+    ierr = ierr + H5Tclose(dataType);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+    }
+
+    ierr = h5_close(fileID);
+    return ierr;
+}
