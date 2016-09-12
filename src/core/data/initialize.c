@@ -43,6 +43,7 @@ int core_data_initialize(struct GFAST_props_struct props,
         gps_data->data[k].ubuff = ISCL_memory_calloc__double(mpts);
         gps_data->data[k].nbuff = ISCL_memory_calloc__double(mpts);
         gps_data->data[k].ebuff = ISCL_memory_calloc__double(mpts);
+        gps_data->data[k].tbuff = ISCL_memory_calloc__double(mpts);
     }
     return 0;
 }

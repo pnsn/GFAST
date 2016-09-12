@@ -63,7 +63,8 @@ int core_waveformProcessor_peakDisplacement(
     int *ierr)
 {
     const char *fcnm = "core_waveformProcessor_peakDisplacement\0";
-    double currentTime, distance, effectiveHypoDist, peakDisp, x1, x2, y1, y2;
+    double currentTime, distance, effectiveHypoDist, epoch,
+           peakDisp, x1, x2, y1, y2;
     int k, nsites, zone_loc;
     bool lnorthp;
     //------------------------------------------------------------------------//
@@ -118,7 +119,8 @@ int core_waveformProcessor_peakDisplacement(
         distance = distance*1.e-3; // convert to km
         // Apply an S wave window mask to preclude likely outliers in
         // the ensuing PGD inversion 
-        currentTime = gps_data.data[k].epoch
+        epoch = gps_data.data[k].tbuff[0]; //gps_data.data[k].epoch;
+        currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
         if (distance < effectiveHypoDist)
@@ -127,7 +129,7 @@ int core_waveformProcessor_peakDisplacement(
             peakDisp = __getPeakDisplacement(gps_data.data[k].npts,
                                              gps_data.data[k].dt,
                                              ev_time,
-                                             gps_data.data[k].epoch,
+                                             epoch,
                                              gps_data.data[k].ubuff,
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff);

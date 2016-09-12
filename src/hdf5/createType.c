@@ -78,11 +78,11 @@ herr_t hdf5_createType__peakDisplacementData(hid_t group_id)
         log_errorF("%s: Failed to create pgd data structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
     ierr += H5Tclose(vlenCData);
     ierr += H5Tclose(vlenDData);
     ierr += H5Tclose(vlenIData);
     ierr += H5Tclose(string64Type);
-    ierr += H5Tclose(dataType);
     return ierr;
 }
 //============================================================================//
@@ -159,6 +159,7 @@ herr_t hdf5_createType__pgdResults(hid_t group_id)
         log_errorF("%s: Failed to create pgd results structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
     ierr += H5Tclose(vlenDData);
     ierr += H5Tclose(vlenIData);
     return ierr;
@@ -247,8 +248,11 @@ herr_t hdf5_createType__offsetData(hid_t group_id)
         log_errorF("%s: Failed to create offset data structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
+    ierr += H5Tclose(vlenCData);
     ierr += H5Tclose(vlenDData);
     ierr += H5Tclose(vlenIData);
+    ierr += H5Tclose(string64Type);
     return ierr;
 }
 //============================================================================//
@@ -311,6 +315,8 @@ herr_t hdf5_createType__hypocenter(hid_t group_id)
         log_errorF("%s: Failed to create offset data structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
+    ierr += H5Tclose(string128Type);
     return ierr;
 }
 //============================================================================//
@@ -421,6 +427,7 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
         log_errorF("%s: Failed to create cmt results structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
     ierr += H5Tclose(vlenIData);
     ierr += H5Tclose(vlenDData);
     return ierr;
@@ -536,6 +543,7 @@ herr_t hdf5_createType__faultPlane(hid_t group_id)
         log_errorF("%s: Failed to create fault plane structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
     ierr += H5Tclose(vlenIData);
     ierr += H5Tclose(vlenDData);
     return ierr;
@@ -621,8 +629,105 @@ herr_t hdf5_createType__ffResults(hid_t group_id)
         log_errorF("%s: Failed to create ff results structure\n", fcnm);
         return ierr;
     }
+    ierr += H5Tclose(dataType);
     ierr += H5Tclose(faultType);
     ierr += H5Tclose(vlenFault);
     ierr += H5Tclose(vlenDData);
+    return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Creates the three component GPS data structure 
+ *
+ * @param[in] group_id    HDF5 group_id handle
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
+herr_t hdf5_createType__waveform3CData(hid_t group_id)
+{
+    const char *fcnm = "hdf5_createType__waveform3CData\0";
+    hid_t dataType, string64Type, vlenCData, vlenDData;
+    herr_t ierr = 0;
+    //------------------------------------------------------------------------//
+    //  
+    // Nothing to do
+    if (H5Lexists(group_id, "waveform3CData\0", H5P_DEFAULT) != 0)
+    {
+        return ierr;
+    }
+    // String data type 
+    string64Type = H5Tcopy(H5T_C_S1);
+    H5Tset_size(string64Type, 64);
+    vlenCData = H5Tvlen_create(string64Type);
+    vlenDData = H5Tvlen_create(H5T_NATIVE_DOUBLE);
+    // Build the data structure
+    dataType = H5Tcreate(H5T_COMPOUND,
+                         sizeof(struct h5_waveform3CData_struct));
+    ierr += H5Tinsert(dataType, "Network\0",
+                      HOFFSET(struct h5_waveform3CData_struct, netw),
+                      vlenCData);
+    ierr += H5Tinsert(dataType, "Station\0", 
+                      HOFFSET(struct h5_waveform3CData_struct, stnm),
+                      vlenCData);
+    ierr += H5Tinsert(dataType, "Channels\0",
+                      HOFFSET(struct h5_waveform3CData_struct, chan),
+                      vlenCData);
+    ierr += H5Tinsert(dataType, "Location\0",
+                      HOFFSET(struct h5_waveform3CData_struct, loc),
+                      vlenCData);
+    ierr += H5Tinsert(dataType, "UpPrecisePointPosition\0",
+                      HOFFSET(struct h5_waveform3CData_struct, ubuff),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "NorthPrecisePointPosition\0",
+                      HOFFSET(struct h5_waveform3CData_struct, nbuff),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "EastPrecisePointPosition\0",
+                      HOFFSET(struct h5_waveform3CData_struct, ebuff),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "EpochalTimes\0",
+                      HOFFSET(struct h5_waveform3CData_struct, tbuff),
+                      vlenDData);
+    ierr += H5Tinsert(dataType, "samplingPeriod\0",
+                      HOFFSET(struct h5_waveform3CData_struct, dt),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "stationLatitude\0",
+                      HOFFSET(struct h5_waveform3CData_struct, sta_lat),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "stationLongitude\0",
+                      HOFFSET(struct h5_waveform3CData_struct, sta_lon),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "stationElevation\0",
+                      HOFFSET(struct h5_waveform3CData_struct, sta_alt),
+                      H5T_NATIVE_DOUBLE);
+    ierr += H5Tinsert(dataType, "maxNumberOfPoints\0",
+                      HOFFSET(struct h5_waveform3CData_struct, maxpts),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfPoints\0",
+                      HOFFSET(struct h5_waveform3CData_struct, npts),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "lskipPGD\0",
+                      HOFFSET(struct h5_waveform3CData_struct, lskip_pgd),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "lskipCMT\0",
+                      HOFFSET(struct h5_waveform3CData_struct, lskip_cmt),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "lskipFF\0",
+                      HOFFSET(struct h5_waveform3CData_struct, lskip_ff),
+                      H5T_NATIVE_INT);
+    // Commit it
+    ierr = H5Tcommit(group_id, "waveform3CData\0", dataType,
+                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Failed to create 3C data structure\n", fcnm);
+        return ierr;
+    }
+    ierr += H5Tclose(dataType);
+    ierr += H5Tclose(vlenCData);
+    ierr += H5Tclose(vlenDData);
+    ierr += H5Tclose(string64Type);
     return ierr;
 }

@@ -11,6 +11,27 @@ enum data2h5_enum
     COPY_H5_TO_DATA = 1,  /*!< Copies HDF5 structure to data structure */
 };
 
+struct h5_waveform3CData_struct
+{
+    hvl_t netw;
+    hvl_t stnm;
+    hvl_t chan;
+    hvl_t loc;
+    hvl_t ubuff;
+    hvl_t nbuff;
+    hvl_t ebuff;
+    hvl_t tbuff;
+    double dt;
+    double sta_lat;
+    double sta_lon;
+    double sta_alt;
+    int maxpts;
+    int npts;
+    int lskip_pgd;
+    int lskip_cmt;
+    int lskip_ff; 
+};
+
 struct h5_peakDisplacementData_struct
 {
     hvl_t stnm;

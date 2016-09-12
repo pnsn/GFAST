@@ -22,14 +22,17 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_peakDisplacementData_struct *pgd_data,
                         struct GFAST_offsetData_struct *cmt_data,
                         struct GFAST_offsetData_struct *ff_data,
-                        struct GFAST_activeEvents_struct *events)
+                        struct GFAST_activeEvents_struct *events,
+                        struct GFAST_pgdResults_struct *pgd,
+                        struct GFAST_cmtResults_struct *cmt,
+                        struct GFAST_ffResults_struct *ff)
 {
     const char *fcnm = "eewUtils_driveGFAST\0";
     struct GFAST_data_struct *gps_tempData;
     struct GFAST_shakeAlert_struct SA;
     double t1, t2;
     int ierr, iev, nsites_cmt, nsites_ff, nsites_pgd;
-    bool lnewEvent;
+    bool lcmtSuccess, lffSuccess, lnewEvent, lpgdSuccess;
     const double SA_NAN =-12345.0; 
     //------------------------------------------------------------------------//
     //
@@ -134,6 +137,76 @@ time_tic();
         {
             log_errorF("%s: Error processing FF offset\n", fcnm);
             continue;
+        }
+        // Run the PGD scaling
+        lpgdSuccess = false;
+        if (nsites_pgd >= props.pgd_props.min_sites)
+        {
+            if (props.verbose > 2)
+            {
+                log_infoF("%s: Estimating PGD scaling...\n", fcnm);
+            }
+            lpgdSuccess = true;
+            ierr = eewUtils_drivePGD(props.pgd_props,
+                                     SA.lat, SA.lon, SA.dep,
+                                     *pgd_data,
+                                     pgd);
+            if (ierr != PGD_SUCCESS)
+            {
+                log_errorF("%s: Error computing PGD\n", fcnm);
+                lpgdSuccess = false;
+            }
+        }
+        // Run the CMT inversion
+        lcmtSuccess = false;
+        if (nsites_cmt >= props.cmt_props.min_sites)
+        {
+            lcmtSuccess = true;
+            ierr = eewUtils_driveCMT(props.cmt_props,
+                                     SA.lat, SA.lon, SA.dep,
+                                     *cmt_data,
+                                     cmt);
+            if (ierr != CMT_SUCCESS)
+            {
+                log_errorF("%s: Error computing CMT\n", fcnm);
+                lcmtSuccess = false;
+            }
+        }
+        // If we got a CMT see if we can run a finite fault inversion  
+        lffSuccess = false;
+        if (lcmtSuccess && nsites_ff >= props.ff_props.min_sites)
+        {
+            ff->SA_lat = events->SA[iev].lat;
+            ff->SA_lon = events->SA[iev].lon;
+            ff->SA_dep = cmt->srcDepths[cmt->opt_indx];
+            ff->SA_mag = cmt->Mw[cmt->opt_indx];
+            ff->str[0] = cmt->str1[cmt->opt_indx];
+            ff->str[1] = cmt->str2[cmt->opt_indx];
+            ff->dip[0] = cmt->dip1[cmt->opt_indx];
+            ff->dip[1] = cmt->dip2[cmt->opt_indx];
+            lffSuccess = true;
+            ierr = eewUtils_driveFF(props.ff_props,
+                                    SA.lat, SA.lon, SA.dep,
+                                    *ff_data,
+                                    ff);
+            if (ierr != FF_SUCCESS)
+            {
+                log_errorF("%s: Error computing finite fault\n", fcnm);
+                lffSuccess = false;
+            }
+        }
+        // Update the archive
+        if (lpgdSuccess)
+        {
+
+        }
+        if (lcmtSuccess)
+        {
+
+        }
+        if (lffSuccess)
+        {
+
         }
         gps_tempData = NULL;
     }

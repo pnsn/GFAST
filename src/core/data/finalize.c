@@ -22,6 +22,7 @@ void core_data_finalize(struct GFAST_data_struct *gps_data)
            ISCL_memory_free__double(&gps_data->data[k].ubuff);
            ISCL_memory_free__double(&gps_data->data[k].nbuff);
            ISCL_memory_free__double(&gps_data->data[k].ebuff);
+           ISCL_memory_free__double(&gps_data->data[k].tbuff);
        }
        free(gps_data->data);
     }

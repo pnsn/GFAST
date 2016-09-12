@@ -380,8 +380,8 @@ struct GFAST_waveform3CData_struct
     double *ebuff;    /*!< East precise-point position buffer (meters).  If any
                            sample is not known it should be a NAN. */
     double *tbuff;    /*!< Epochal time buffer (s) [maxpts] */ 
-    double epoch;     /*!< Epoch time (seconds) corresponding to first sample 
-                           of u, n, and e traces */
+    //double epoch;     /*!< Epoch time (seconds) corresponding to first sample 
+     //                      of u, n, and e traces */
     double dt;        /*!< Sampling period (seconds). */
     double sta_lat;   /*!< Site latitude [-90,90] (degrees) */
     double sta_lon;   /*!< Site longitude [0,360] (degrees) */

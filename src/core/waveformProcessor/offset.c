@@ -80,7 +80,7 @@ int core_waveformProcessor_offset(const int utm_zone,
                                   int *ierr)
 {
     const char *fcnm = "core_waveformProcessor_offset\0";
-    double currentTime, distance, effectiveHypoDist, eOffset, nOffset,
+    double currentTime, distance, effectiveHypoDist, eOffset, epoch, nOffset,
            swave_time, uOffset, x1, x2, y1, y2;
     int k, nsites, zone_loc;
     bool lnorthp, luse;
@@ -145,7 +145,8 @@ int core_waveformProcessor_offset(const int utm_zone,
         distance = distance*1.e-3; // convert to km
         // Apply an S wave window mask to preclude likely outliers in the
         // ensuing CMT/finite fault inversions
-        currentTime = gps_data.data[k].epoch
+        epoch = gps_data.data[k].tbuff[0]; //gps_data.data[k].epoch
+        currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
         if (distance < effectiveHypoDist)
@@ -156,7 +157,7 @@ int core_waveformProcessor_offset(const int utm_zone,
                                       gps_data.data[k].dt, 
                                       ev_time,
                                       swave_time,
-                                      gps_data.data[k].epoch,
+                                      epoch,
                                       gps_data.data[k].ubuff,
                                       gps_data.data[k].nbuff,
                                       gps_data.data[k].ebuff,

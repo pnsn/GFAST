@@ -150,7 +150,10 @@ int main()
                                    &pgd_data,
                                    &cmt_data,
                                    &ff_data,
-                                   &events);
+                                   &events,
+                                   &pgd,
+                                   &cmt,
+                                   &ff);
     }
 ERROR:;
     if (elarms_xml_message != NULL){free(elarms_xml_message);}
