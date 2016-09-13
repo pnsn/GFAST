@@ -243,7 +243,25 @@ int eewUtils_driveGFAST(const double currentTime,
         if (currentTime - SA.time >= props.processingTime)
         {
             lfinalize = true;
-
+            cmtQML = eewUtils_makeXML__quakeML("UW\0",
+                                               "anss.org\0",
+                                               SA.eventid,
+                                               SA.lat,
+                                               SA.lon,
+                                               cmt->srcDepths[cmt->opt_indx],
+                                               SA.time,
+                                               &cmt->mts[6*cmt->opt_indx],
+                                               &ierr);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error generating CMT quakeML\n", fcnm);
+                if (cmtQML != NULL)
+                {
+                    free(cmtQML);
+                    cmtQML = NULL;
+                }
+            }
+            if (cmtQML){free(cmtQML);}
         }
         // Update the archive
         if (lfinalize || !props.lh5SummaryOnly)

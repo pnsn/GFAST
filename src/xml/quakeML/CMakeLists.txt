@@ -4,6 +4,7 @@ epoch2string.c
 focalMechanism.c
 latitude.c
 longitude.c
+magnitude.c
 momentTensor.c
 nodalPlanes.c
 origin.c

@@ -104,7 +104,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
         return -1;
     }
     // <focalMechanism>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "momentTensor\0");
+    rc += xmlTextWriterStartElement(writer, BAD_CAST "focalMechanism\0");
     // Write the moment tensor 
     ierr = GFAST_xml_quakeML_writeMomentTensor(publicIDroot,
                                                evid,

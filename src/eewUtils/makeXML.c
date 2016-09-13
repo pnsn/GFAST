@@ -5,7 +5,9 @@
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
+#include "gfast_eewUtils.h"
 #include "gfast_xml.h"
+#include "cmopad.h"
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"
 
@@ -265,21 +267,24 @@ char *eewUtils_makeXML__ff(const int mode,
  * @bug memory leak --show-leak-kinds=all: xmlNewRMutex
  *
  */
-char *GFAST_CMT__makeQuakeML(const char *network,
-                             const char *domain,
-                             const char *evid,
-                             const double evla,
-                             const double evlo,
-                             const double evdp,
-                             const double t0,
-                             const double mt[6],
-                             int *ierr)
+char *eewUtils_makeXML__quakeML(const char *network,
+                                const char *domain,
+                                const char *evid,
+                                const double evla,
+                                const double evlo,
+                                const double evdp,
+                                const double t0,
+                                const double mt[6],
+                                int *ierr)
 {
-    const char *fcnm = "GFAST_CMT__makeQuakeML\0";
+    const char *fcnm = "eewUtils_makeXML__quakeML\0";
     char *qml;
     char publicID[512], publicIDroot[512], datasource[512], dataid[512];
     char networkLower[64];
+    double mag;
     int i, msglen, rc;
+    struct qmlOrigin_struct origin;
+    struct qmlMagnitude_struct magnitude;
     xmlTextWriterPtr writer;
     xmlBufferPtr buf;
     const char *method = "gps\0";
@@ -383,9 +388,42 @@ char *GFAST_CMT__makeQuakeML(const char *network,
                                                   mt,
                                                   (void *) writer);
     // Make the magnitude
-
+    memset(&magnitude, 0, sizeof(struct qmlMagnitude_struct));
+    mag = cmopad_momentMagnitudeM6(mt, ierr);
+    if (*ierr == 0)
+    {
+        magnitude.magnitude = mag;
+        strcpy(magnitude.type, "Mw_gps\0"); /* TODO need a magnitude type */
+        magnitude.lhaveMag = true; 
+        magnitude.lhaveType = true;
+    }
+    else
+    {
+        log_errorF("%s: Error computing moment magnitude\n", fcnm);
+    }
     // Make the origin
+    memset(&origin, 0, sizeof(struct qmlOrigin_struct));
+    origin.originTime.time = t0;
+    origin.originTime.time_units = UTC;
+    origin.originTime.lhaveTime = true;
 
+    origin.latitude.latitude = evla;
+    origin.latitude.latitude_units = DEGREES;
+    origin.latitude.lhaveLat = true;
+
+    origin.longitude.longitude = evlo;
+    origin.longitude.longitude_units = DEGREES;
+    origin.longitude.lhaveLon = true;
+
+    origin.depth.depth = evdp;
+    origin.depth.depth_units = KILOMETERS;
+    origin.depth.lhaveDepth = true;
+
+    *ierr = GFAST_xml_quakeML_writeOrigin(publicIDroot,
+                                          evid,
+                                          method,
+                                          origin,
+                                          (void *) writer);
     // </event>
     rc = xmlTextWriterEndElement(writer);
     // </eventParameters>

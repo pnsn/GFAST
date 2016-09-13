@@ -79,6 +79,8 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma);
 void cmopad_MatrixToEuler(double rotmat[3][3],
                           double *alpha, double *beta, double *gamma);
 void cmopad_printMatrix3x3(bool lfact, double m[3][3]);
+double cmopad_momentMagnitudeM6(const double M6[6], int *ierr);
+double cmopad_momentMagnitudeM3x3(const double M[3][3], int *ierr);
 
 #ifdef __cplusplus
 }

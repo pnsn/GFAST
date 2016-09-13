@@ -421,6 +421,70 @@ void cmopad_eulerToMatrix(double alpha, double beta, double gamma,
 }
 //============================================================================//
 /*!
+ * @brief Computes the moment magnitude from a 6 vector
+ *
+ * @param[in] M6     moment tensor stored:
+ *                    \f$ \{m_{11},m_{22},m_{33},m_{12},m_{13},m_{23} \} \f$
+ *                   with the moment tensor terms of units Newton-meters
+ *
+ * @param[out] ierr  0 indicates success
+ *
+ * @result moment magnitue
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
+double cmopad_momentMagnitudeM6(const double M6[6], int *ierr)
+{
+    const char *fcnm = "cmopad_momentMagnitudeM6\0";
+    double mag;
+    const double two_third = 2.0/3.0;
+    *ierr = 0;
+    mag = M6[0]*M6[0] + M6[1]*M6[1] + M6[2]*M6[2]
+        + 2.0*(M6[3]*M6[3] + M6[4]*M6[4] + M6[5]*M6[5]);
+    if (mag == 0.0)
+    {
+        *ierr = 1;
+        printf("%s: Error magnitude is zero\n", fcnm);
+    }
+    else
+    {
+        mag = two_third*(log10(mag) - 9.1);
+    }
+    return mag;
+}
+//============================================================================//
+/*!
+ * @brief Computes the moment magnitude from a the symmetric moment tensor
+ *
+ * @param[in] M      symmetric moment tensor with terms given in Newton-meters
+ *
+ * @param[out] ierr  0 indicates success
+ *
+ * @result moment magnitue
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
+double cmopad_momentMagnitudeM3x3(const double M[3][3], int *ierr)
+{
+    const char *fcnm = "cmopad_momentMagnitudeM33\0";
+    double M6[6], mag;
+    M6[0] = M[0][0];
+    M6[1] = M[1][1];
+    M6[2] = M[2][2];
+    M6[3] = M[0][1];
+    M6[4] = M[0][2];
+    M6[5] = M[1][2];
+    mag = cmopad_momentMagnitudeM6(M6, ierr);
+    if (*ierr != 0) 
+    {
+        printf("%s: Error computing moment magnitude\n", fcnm);
+    }
+    return mag;
+}
+//============================================================================//
+/*!
  * @brief Sets the two angle-triples, describing the faultplanes of the
  *        Double Couple, defined by the eigenvectors P and T of the
  *        moment tensor object.

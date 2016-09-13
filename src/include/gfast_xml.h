@@ -49,6 +49,16 @@ struct qmlOriginUncertainty_struct
 
 };
 
+struct qmlMagnitude_struct
+{
+    double magnitude;     /*!< Magnitude */
+    double magUncer;      /*!< Magnitude uncertainty */
+    char type[64];        /*!< Event type TODO: should be an enum */
+    bool lhaveMag;        /*!< If true then have the magnitude */
+    bool lhaveMagUncer;   /*1< Magnitude uncertainty */
+    bool lhaveType;       /*!< If true then have the magnitude type */
+};
+
 struct qmlTime_struct
 {
     double time;                           /*!< Time */
@@ -85,7 +95,7 @@ struct qmlLongitude_struct
     enum alert_units_enum lonUncer_units;  /*!< Longitude uncertainty units */
     bool lhaveLon;                         /*!< If true then longitude is
                                                 defined */
-    bool lhaveLatUncer;                    /*!< If true lonUncer is defined */
+    bool lhaveLonUncer;                    /*!< If true lonUncer is defined */
     bool lhaveConfidence;                   /*!< If true confidenceLevel
                                                  is defined */
 };
@@ -107,12 +117,18 @@ struct qmlDepth_struct
 
 struct qmlOrigin_struct
 {
-    struct qmlConfidenceEllipse_struct *ellipse; /*!< Error ellipsoid */
-    struct qmlOriginUncertainty_struct *oriUnc;  /*!< Origin uncertainty */
+    struct qmlConfidenceEllipse_struct ellipse;  /*!< Error ellipsoid */
+    struct qmlOriginUncertainty_struct oriUnc;   /*!< Origin uncertainty */
     struct qmlLatitude_struct latitude;          /*!< Event latitude */
     struct qmlLongitude_struct longitude;        /*!< Event longitude */
     struct qmlDepth_struct depth;                /*!< Event depth */
     struct qmlTime_struct originTime;            /*!< Event origin time */
+    bool lhaveEllipse;     /*!< If true then there is a confidence ellipse */
+    bool lhaveOriUnc;      /*!< If true then there is an origin uncertainty */
+    bool lhaveLatitude;    /*!< If true then there is a latitude */
+    bool lhaveLongitude;   /*!< If true then there is a lognitude */
+    bool lhaveDepth;       /*!< If true then there is a depth */ 
+    bool lhaveOriginTime;  /*!< If true then there is an origin time */
 };
 
 #ifdef __cplusplus
@@ -156,6 +172,14 @@ int xml_quakeML_writeLongitude(const double longitude,
                                const double confidence,
                                const bool lhaveConfidence,
                                void *xml_writer);
+/* Write magnitude */
+int xml_quakeML_writeMagnitude(const double magnitude,
+                               const bool lhaveMag,
+                               const double magUncer,
+                               const bool lhaveMagUncer,
+                               const char *type,
+                               const bool lhaveType,
+                               void *xml_writer);
 /* Write the focal mechanism */
 int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                     const char *evid,
@@ -175,6 +199,12 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
 int xml_quakeML_writeNodalPlanes(const double np1[3],
                                  const double np2[3],
                                  void *xml_writer);
+/* Write the origin */
+int xml_quakeML_writeOrigin(const char *publicIDroot,
+                            const char *evid,
+                            const char *method,
+                            struct qmlOrigin_struct origin,
+                            void *xml_writer);
 /* Write the principal axes */
 int xml_quakeML_writePrincipalAxes(const double taxis[3],
                                    const double paxis[3],
@@ -271,10 +301,14 @@ int xml_shakeAlert_writeVertex(const double lat,
               xml_quakeML_writeLongitude(__VA_ARGS__)
 #define GFAST_xml_quakeML_writeFocalMechanism(...)       \
               xml_quakeML_writeFocalMechanism(__VA_ARGS__)
+#define GFAST_xml_quakeML_writeMagnitude(...)       \
+              xml_quakeML_writeMagnitude(__VA_ARGS__)
 #define GFAST_xml_quakeML_writeMomentTensor(...)       \
               xml_quakeML_writeMomentTensor(__VA_ARGS__)
 #define GFAST_xml_quakeML_writeNodalPlanes(...)       \
               xml_quakeML_writeNodalPlanes(__VA_ARGS__) 
+#define GFAST_xml_quakeML_writeOrigin(...)       \
+              xml_quakeML_writeOrigin(__VA_ARGS__)
 #define GFAST_xml_quakeML_writePrincipalAxes(...)       \
               xml_quakeML_writePrincipalAxes(__VA_ARGS__)
 #define GFAST_xml_quakeML_writeTensor(...)       \
