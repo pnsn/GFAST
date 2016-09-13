@@ -128,6 +128,10 @@ struct GFAST_props_struct
     char obsdata_file[PATH_MAX]; /*!< Observed (archived) data file */
     char h5ArchiveDir[PATH_MAX]; /*!< HDF5 archive directory */ 
     char propfilename[PATH_MAX]; /*!< Name of GFAST properties file */
+    char anssNetwork[512];       /*!< ANSS network when writing quakeML
+                                      (e.g. UW, PM, etc.) */
+    char anssDomain[512];        /*!< ANSS domain when writing quake ML
+                                      (e.g. anss.org, tsunami.gov, etc) */
 //    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
 //                                     (siren). */
 //    char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages
@@ -433,31 +437,76 @@ struct GFAST_activeEvents_struct
 
 struct coreInfo_struct
 {
-    int version;                             /*!< Version number */
-    char id[128];                            /*!< Event ID */
-    double mag;                              /*!< Magnitude */
-    enum alert_units_enum mag_units;         /*!< Magnitude units */
-    double mag_uncer;                        /*!< Magnitude uncertainty */
-    enum alert_units_enum mag_uncer_units;   /*!< Magnitude uncertainty units */
-    double lat;                              /*!< Event latitude */
-    enum alert_units_enum lat_units;         /*!< Latitude units */
-    double lat_uncer;                        /*!< Latitude uncertainty */
-    enum alert_units_enum lat_uncer_units;   /*!< Latitude uncertainty units */
-    double lon;                              /*!< Event longitude */
-    enum alert_units_enum lon_units;         /*!< Longitude units */
-    double lon_uncer;                        /*!< Longitude uncertainty */
-    enum alert_units_enum lon_uncer_units;   /*!< Longitude uncertainty units */
-    double depth;                            /*!< Event depth */
-    enum alert_units_enum depth_units;       /*!< Event depth units */
-    double depth_uncer;                      /*!< Depth uncertainty */
-    enum alert_units_enum depth_uncer_units; /*!< Depth uncertainty units */
-    double orig_time;                        /*!< UTC origin time */
-    enum alert_units_enum orig_time_units;   /*!< Origin time units */
-    double orig_time_uncer;                  /*!< Origin time uncertainty */
+    int version;                           /*!< Version number */
+    char id[128];                          /*!< Event ID */
+    double mag;                            /*!< Magnitude */
+    bool lhaveMag;                         /*!< If true then mag is defined */
+    enum alert_units_enum magUnits;        /*!< Magnitude units */
+    bool lhaveMagUnits;                    /*!< If true then mag units are
+                                                defined */
+    double magUncer;                       /*!< Magnitude uncertainty */
+    bool lhaveMagUncer;                    /*!< If true then mag_uncer is
+                                                defined */
+    enum alert_units_enum magUncerUnits;   /*!< Magnitude uncertainty units */
+    bool lhaveMagUncerUnits;               /*!< If true then mag uncer units
+                                                is defined */
+    double lat;                            /*!< Event latitude */
+    bool lhaveLat;                         /*!< If true then the latitude
+                                                is defined */
+    enum alert_units_enum latUnits;        /*!< Latitude units */
+    bool lhaveLatUnits;                    /*!< If true then the lat units
+                                                are defined */
+    double latUncer;                       /*!< Latitude uncertainty */
+    bool lhaveLatUncer;                    /*!< If true then the latitude
+                                                uncertainty is defined */
+    enum alert_units_enum latUncerUnits;   /*!< Latitude uncertainty units */
+    bool lhaveLatUncerUnits;               /*!< If true then the latitude
+                                                uncertainty units are
+                                                defined */
+    double lon;                            /*!< Event longitude */
+    bool lhaveLon;                         /*!< If true then the longitude
+                                                is defined */
+    enum alert_units_enum lonUnits;        /*!< Longitude units */
+    bool lhaveLonUnits;                    /*!< If true then the longitude
+                                                units are defined */
+    double lonUncer;                       /*!< Longitude uncertainty */
+    bool lhaveLonUncer;                    /*!< If true then the longitude
+                                                uncertainty units are 
+                                                defined */
+    enum alert_units_enum lonUncerUnits;   /*!< Longitude uncertainty units */
+    bool lhaveLonUncerUnits;               /*!< If true then the longitude
+                                                uncertainty units are 
+                                                defined */
+    double depth;                          /*!< Event depth */
+    bool lhaveDepth;                       /*!< If true then the depth is
+                                                defined */
+    enum alert_units_enum depthUnits;      /*!< Event depth units */
+    bool lhaveDepthUnits;                  /*!< If true then the depth
+                                                units are defined */
+    double depthUncer;                     /*!< Depth uncertainty */
+    bool lhaveDepthUncer;                  /*!< If true then the depth
+                                                uncertainty is defined */
+    enum alert_units_enum depthUncerUnits; /*!< Depth uncertainty units */
+    bool lhaveDepthUncerUnits;             /*!< If true then the depth
+                                                uncertainty units are 
+                                                defined */
+    double origTime;                       /*!< UTC origin time */
+    bool lhaveOrigTime;                    /*!< If true then the origin
+                                                time is defined */
+    enum alert_units_enum origTimeUnits;   /*!< Origin time units */
+    bool lhaveOrigTimeUnits;               /*!< If true then the origin
+                                                time units are defined */
+    double origTimeUncer;                  /*!< Origin time uncertainty */
+    bool lhaveOrigTimeUncer;               /*!< If true then the origin time
+                                                uncertainty is defined */
     enum alert_units_enum
-         orig_time_uncer_units;              /*!< Origin time uncertainty
-                                                  units */
+         origTimeUncerUnits;                /*!< Origin time uncertainty
+                                                 units */
+    bool lhaveOrigTimeUncerUnits;           /*!< If true then the origin time
+                                                 uncertainty units are 
+                                                 defined */
     double likelihood;  /*!< TODO: I have no idea what likelihood means */
+    bool lhaveLikelihood; /*!< If true then the likelihood is defined */
 };
 
 struct GFAST_xmlMessages_struct

@@ -184,7 +184,8 @@ int xml_shakeAlert_readCoreInfo(const void *xml_reader,
 NEXT_CORE_XML_INFO:;
         core_xml_info = core_xml_info->next;
     } // End loop on core_xml_info
-    if (!lfound){
+    if (!lfound)
+    {
         log_errorF("%s: Error I couldn't find any elements in core_info\n",
                    fcnm);
         ierr = 1;
@@ -199,28 +200,79 @@ ERROR:;
         }
     }
     // Copy the results - values
-    core->mag             = values[0];
-    core->mag_uncer       = values[1];
-    core->lat             = values[2];
-    core->lat_uncer       = values[3];
-    core->lon             = values[4];
-    core->lon_uncer       = values[5];
-    core->depth           = values[6];
-    core->depth_uncer     = values[7];
-    core->orig_time       = values[8];
-    core->orig_time_uncer = values[9];
-    core->likelihood      = values[10];
+    core->mag           = values[0];
+    core->magUncer      = values[1];
+    core->lat           = values[2];
+    core->latUncer      = values[3];
+    core->lon           = values[4];
+    core->lonUncer      = values[5];
+    core->depth         = values[6];
+    core->depthUncer    = values[7];
+    core->origTime      = values[8];
+    core->origTimeUncer = values[9];
+    core->likelihood    = values[10];
+    if (core->mag           != SA_NAN){core->lhaveMag = true;}
+    if (core->magUncer      != SA_NAN){core->lhaveMagUncer = true;}
+    if (core->lat           != SA_NAN){core->lhaveLat = true;}
+    if (core->latUncer      != SA_NAN){core->lhaveLatUncer = true;}
+    if (core->lon           != SA_NAN){core->lhaveLon = true;}
+    if (core->lonUncer      != SA_NAN){core->lhaveLonUncer = true;}
+    if (core->depth         != SA_NAN){core->lhaveDepth = true;}
+    if (core->depthUncer    != SA_NAN){core->lhaveDepthUncer = true;}
+    if (core->origTime      != SA_NAN){core->lhaveOrigTime = true;}
+    if (core->origTimeUncer != SA_NAN){core->lhaveOrigTimeUncer = true;}
+    if (core->likelihood    != SA_NAN){core->lhaveLikelihood = true;}
     // Copy the units 
-    core->mag_units             = units[0];
-    core->mag_uncer_units       = units[1];
-    core->lat_units             = units[2];
-    core->lat_uncer_units       = units[3];
-    core->lon_units             = units[4];
-    core->lon_uncer_units       = units[5];
-    core->depth_units           = units[6];
-    core->depth_uncer_units     = units[7];
-    core->orig_time_units       = units[8];
-    core->orig_time_uncer_units = units[9];
+    core->magUnits           = units[0];
+    core->magUncerUnits      = units[1];
+    core->latUnits           = units[2];
+    core->latUncerUnits      = units[3];
+    core->lonUnits           = units[4];
+    core->lonUncerUnits      = units[5];
+    core->depthUnits         = units[6];
+    core->depthUncerUnits    = units[7];
+    core->origTimeUnits      = units[8];
+    core->origTimeUncerUnits = units[9];
+    if (core->magUnits            != UNKNOWN_UNITS)
+    {
+        core->lhaveMagUnits = true;
+    }
+    if (core->magUncerUnits       != UNKNOWN_UNITS)
+    {
+        core->lhaveMagUncerUnits = true;
+    }
+    if (core->latUnits            != UNKNOWN_UNITS)
+    {
+        core->lhaveLatUnits = true;
+    }
+    if (core->latUncerUnits       != UNKNOWN_UNITS)
+    {
+        core->lhaveLatUncerUnits = true;
+    }
+    if (core->lonUnits            != UNKNOWN_UNITS)
+    {
+        core->lhaveLonUnits = true;
+    }
+    if (core->lonUncerUnits       != UNKNOWN_UNITS)
+    {
+        core->lhaveLonUncerUnits = true;
+    }
+    if (core->depthUnits          != UNKNOWN_UNITS)
+    {
+        core->lhaveDepthUnits = true;
+    }
+    if (core->depthUncerUnits     != UNKNOWN_UNITS)
+    {
+        core->lhaveDepthUncerUnits = true;
+    }
+    if (core->origTimeUnits       != UNKNOWN_UNITS)
+    {
+        core->lhaveOrigTimeUnits = true;
+    }
+    if (core->origTimeUncerUnits  != UNKNOWN_UNITS)
+    {
+        core->lhaveOrigTimeUncerUnits = true;
+    }
     return ierr;
 }
 //============================================================================//
@@ -257,100 +309,163 @@ int xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "id\0",
                                       BAD_CAST core.id);
     // magnitude: <mag units="Mw">float</mag>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "mag\0");
-    __xml_units__enum2string(core.mag_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.mag);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveMag)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "mag\0");
+        if (core.lhaveMagUncer)
+        {
+            __xml_units__enum2string(core.magUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.mag);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // magnitude uncertainty: <mag_uncer units="deg">float</mag_uncer>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "mag_uncer\0");
-    __xml_units__enum2string(core.mag_uncer_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.mag_uncer);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveMagUncer)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "mag_uncer\0");
+        if (core.lhaveMagUncerUnits)
+        {
+            __xml_units__enum2string(core.magUncerUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.magUncer);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // latitude: <lat units="deg">float</lat>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "lat\0");
-    __xml_units__enum2string(core.lat_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.lat);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveLat)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "lat\0");
+        if (core.lhaveLatUnits)
+        {
+            __xml_units__enum2string(core.latUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.lat);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // latitude uncertainty: <lat_uncer units="deg">float</lat_uncer>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "lat_uncer\0");
-    __xml_units__enum2string(core.lat_uncer_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.lat_uncer);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveLatUncer)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "lat_uncer\0");
+        if (core.lhaveLatUncerUnits)
+        {
+            __xml_units__enum2string(core.latUncerUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.latUncer);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // longitude: <lon units="deg">float</lon>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "lon\0");
-    __xml_units__enum2string(core.lon_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.lon);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveLon)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "lon\0");
+        if (core.lhaveLonUnits)
+        {
+            __xml_units__enum2string(core.lonUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.lon);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // longitude uncertainty: <lon_uncer units="deg">float</lon_uncer>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "lon_uncer\0");
-    __xml_units__enum2string(core.lon_uncer_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.lon_uncer);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveLonUncer)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "lon_uncer\0");
+        if (core.lhaveLonUncerUnits)
+        {
+            __xml_units__enum2string(core.lonUncerUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.lonUncer);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // depth: <depth units="km">float</depth>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "depth\0");
-    __xml_units__enum2string(core.depth_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.depth);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveDepth)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "depth\0");
+        if (core.lhaveDepthUnits)
+        {
+            __xml_units__enum2string(core.depthUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.depth);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // depth uncertainty: <depth_uncer units="km">float</depth_uncer>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "depth_uncer\0");
-    __xml_units__enum2string(core.depth_uncer_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.depth_uncer);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveDepthUncer)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "depth_uncer\0");
+        if (core.lhaveDepthUncerUnits)
+        {
+            __xml_units__enum2string(core.depthUncerUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.depthUncer);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // origin time: <orig_time units="UTC">YYYY-MM-DD:HH:MM:SS.SSSZ"</orig_time>
-    rc = xml_epoch2string(core.orig_time, cevtime);
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "orig_time\0");
-    __xml_units__enum2string(core.orig_time_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST cevtime);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveOrigTime)
+    {
+        rc = xml_epoch2string(core.origTime, cevtime);
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "orig_time\0");
+        if (core.lhaveOrigTimeUnits)
+        {
+            __xml_units__enum2string(core.origTimeUnits, units);
+            rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                              BAD_CAST units);
+        }
+        rc += xmlTextWriterWriteString(writer, BAD_CAST cevtime);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // o.t. uncertainty: <orig_time_uncer units="sec">float</orig_time_uncer>
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "orig_time_uncer\0");
-    __xml_units__enum2string(core.orig_time_uncer_units, units);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
-                                      BAD_CAST units);
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.orig_time_uncer);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer);
+    if (core.lhaveOrigTimeUncer)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "orig_time_uncer\0");
+        if (core.lhaveOrigTimeUncerUnits)
+        {
+            __xml_units__enum2string(core.origTimeUncerUnits, units);
+             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
+                                               BAD_CAST units);
+        }
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.origTimeUncer);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
+    }
     // likelihood
-    rc += xmlTextWriterStartElement(writer, BAD_CAST "likelihood\0");
-    memset(var, 0, sizeof(var));
-    sprintf(var, "%f", core.likelihood);
-    rc += xmlTextWriterWriteString(writer, BAD_CAST var);
-    rc += xmlTextWriterEndElement(writer); 
+    if (core.lhaveLikelihood)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "likelihood\0");
+        memset(var, 0, sizeof(var));
+        sprintf(var, "%f", core.likelihood);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer); 
+    }
     // </core_info>
     rc = xmlTextWriterEndElement(writer); // </core_info>
     if (rc < 0)

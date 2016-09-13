@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <iniparser.h>
 #include "gfast_core.h"
 #include "iscl/os/os.h"
@@ -25,7 +26,7 @@ int core_properties_initialize(const char *propfilename,
 {
     const char *fcnm = "core_properties_initialize\0";
     const char *s;
-    int ierr; 
+    int i, ierr; 
     dictionary *ini;
     //------------------------------------------------------------------------//
     // Require the properties file exists
@@ -219,6 +220,15 @@ int core_properties_initialize(const char *propfilename,
     // Only write summary HDF5 files?
     props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
                                                  false);
+    // ANSS informaiton
+    s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
+    strcpy(props->anssNetwork, s);
+    for (i=0; i<strlen(props->anssNetwork); i++)
+    {
+        props->anssNetwork[i] = toupper(props->anssNetwork[i]);
+    }
+    s = iniparser_getstring(ini, "general:anssDomain\0", "anss.org\0"); 
+    strcpy(props->anssDomain, s);
     //------------------------------PGD Parameters----------------------------//
     props->pgd_props.verbose = props->verbose;
     props->pgd_props.utm_zone = props->utm_zone;

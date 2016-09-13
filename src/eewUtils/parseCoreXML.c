@@ -96,11 +96,56 @@ NEXT_EVENT_XML:;
     else
     {
         strcpy(SA->eventid, core.id);
-        SA->time = core.orig_time;
-        SA->lat = core.lat;
-        SA->lon = core.lon;
-        SA->dep = core.depth;
-        SA->mag = core.mag;
+        // origin time
+        if (core.lhaveOrigTime)
+        {
+            SA->time = core.origTime;
+        }
+        else
+        {
+            log_errorF("%s: Couldn't find origin time\n", fcnm);
+            ierr = ierr + 1;
+        }
+        // latitude
+        if (core.lhaveLat)
+        {
+            SA->lat = core.lat;
+        }
+        else
+        {
+            log_errorF("%s: Couldn't find latitude\n", fcnm);
+            ierr = ierr + 1;
+        }
+        // longitude
+        if (core.lhaveLon)
+        {
+            SA->lon = core.lon;
+        }
+        else
+        {
+            log_errorF("%s: Couldn't find longitude\n", fcnm);
+            ierr = ierr + 1;
+        }
+        // depth
+        if (core.lhaveDepth)
+        {
+            SA->dep = core.depth;
+        }
+        else
+        {
+            log_errorF("%s: Couldn't find depth\n", fcnm);
+            ierr = ierr + 1;
+        }
+        // magnitude
+        if (core.lhaveMag)
+        {
+            SA->mag = core.mag;
+        }
+        else
+        {
+            log_errorF("%s: Couldn't find magnitude\n", fcnm);
+            ierr = ierr + 1;
+        }
         if (SA->lon < 0.0){SA->lon = SA->lon + 360.0;}
     }
     // Clean up

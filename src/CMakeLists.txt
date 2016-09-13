@@ -99,7 +99,6 @@ if (MKL_FOUND)
                         ${IPP_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
-                        ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
@@ -116,7 +115,6 @@ if (MKL_FOUND)
                         ${IPP_LIBRARIES}
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
-                        ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}

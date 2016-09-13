@@ -94,10 +94,6 @@ char *eewUtils_makeXML__ff(const int mode,
     {
         strcpy(cmode, "playback\0"); 
     }
-    else if (mode == 3)
-    {
-        strcpy(cmode, "offline\0");
-    }
     else
     {
         log_warnF("%s: Defaulting to live mode\n", fcnm);
@@ -129,26 +125,47 @@ char *eewUtils_makeXML__ff(const int mode,
     memset(&core, 0, sizeof(struct coreInfo_struct));
     strcpy(core.id, evid);
     core.mag = SA_mag;
-    core.mag_units = MOMENT_MAGNITUDE;
-    core.mag_uncer = 0.5;
-    core.mag_uncer_units = MOMENT_MAGNITUDE;
+    core.lhaveMag = true;
+    core.magUnits = MOMENT_MAGNITUDE;
+    core.lhaveMagUnits = true;
+    core.magUncer = 0.5;
+    core.lhaveMagUncer = true;
+    core.magUncerUnits = MOMENT_MAGNITUDE;
+    core.lhaveMagUncerUnits = true;
     core.lat = SA_lat; 
-    core.lat_units = DEGREES;
-    core.lat_uncer = 0.5;
-    core.lat_uncer_units = DEGREES;
+    core.lhaveLat = true;
+    core.latUnits = DEGREES;
+    core.lhaveLatUnits = true;
+    core.latUncer = 0.5;
+    core.lhaveLatUncer = true;
+    core.latUncerUnits = DEGREES;
+    core.lhaveLatUncerUnits = true;
     core.lon = SA_lon;
-    core.lon_units = DEGREES;
-    core.lon_uncer = 0.5;
-    core.lon_uncer_units = DEGREES;
+    core.lhaveLon = true;
+    core.lonUnits = DEGREES;
+    core.lhaveLonUnits = true;
+    core.lonUncer = 0.5;
+    core.lhaveLonUncer = true;
+    core.lonUncerUnits = DEGREES;
+    core.lhaveLonUncerUnits = true;
     core.depth = SA_depth;
-    core.depth_units = KILOMETERS;
-    core.depth_uncer = 5.0;
-    core.depth_uncer_units = KILOMETERS;
-    core.orig_time = SA_time; 
-    core.orig_time_units = UTC;
-    core.orig_time_uncer = 20.0;
-    core.orig_time_uncer_units = SECONDS;
+    core.lhaveDepth = true;
+    core.depthUnits = KILOMETERS;
+    core.lhaveDepthUnits = true;
+    core.depthUncer = 5.0;
+    core.lhaveDepthUncer = true;
+    core.depthUncerUnits = KILOMETERS;
+    core.lhaveDepthUncerUnits = true;
+    core.origTime = SA_time;
+    core.lhaveOrigTime = true;
+    core.origTimeUnits = UTC;
+    core.lhaveOrigTimeUnits = true;
+    core.origTimeUncer = 20.0;
+    core.lhaveOrigTimeUncer = true;
+    core.origTimeUncerUnits = SECONDS;
+    core.lhaveOrigTimeUncerUnits = true;
     core.likelihood = 0.8;
+    core.lhaveLikelihood = true;
     rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
     if (rc != 0)
     {
@@ -242,7 +259,7 @@ char *eewUtils_makeXML__ff(const int mode,
 /*!
  * @brief Generates a CMT QuakeML message
  *
- * @param[in] network    two chracter ANSS network code
+ * @param[in] network    ANSS network code
  * @param[in] domain     ANSS's network's main web page domain
  *                       (e.g. anss.org, tsunami.gov,
  *                        www.ldeo.columbia.edu, etc.)
@@ -452,4 +469,182 @@ char *eewUtils_makeXML__quakeML(const char *network,
     xmlDictCleanup();
     xmlCleanupThreads();
     return qml;
+}
+//============================================================================//
+/*!
+ *
+ */
+char *eewUtils_makeXML__pgd(const int mode,
+                            const char *orig_sys,
+                            const char *alg_vers,
+                            const char *instance,
+                            const char *message_type,
+                            const char *version,
+                            const char *evid,
+                            const double SA_lat,
+                            const double SA_lon,
+                            const double SA_depth,
+                            const double SA_mag,
+                            const double SA_time,
+                            int *ierr)
+{
+    const char *fcnm = "eewUtils_makeXML__pgd\0";
+    struct coreInfo_struct core;
+    char *xmlmsg, cnow[128], cmode[64];
+    xmlTextWriterPtr writer;
+    xmlBufferPtr buf;
+    //xmlChar *tmp;
+    double now;
+    int msglen, rc;
+    //------------------------------------------------------------------------//
+    //
+    // Create a new XML buffer to which the XML document will be written
+    *ierr = 0;
+    xmlmsg = NULL;
+    buf = xmlBufferCreate();
+    if (buf == NULL)
+    {
+        log_errorF("%s: Error creating XML buffer!\n", fcnm);
+        *ierr = 1;
+        return xmlmsg;
+    }
+    // Create a new xmlWriter for uri with no compression
+    writer = xmlNewTextWriterMemory(buf, 0);
+    if (writer == NULL)
+    {
+        log_errorF("%s: Error creating xml writer\n", fcnm);
+        *ierr = 1;
+        return xmlmsg;
+    }
+    // Start the document with default xml version
+    rc = xmlTextWriterStartDocument(writer, NULL, XML_ENCODING, NULL);
+    if (rc < 0)
+    {
+        log_errorF("%s: Error starting writer\n", fcnm);
+        *ierr = 1;
+        return xmlmsg;
+    }
+    //-----------------------------<event_message>----------------------------//
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "event_message");
+    if (rc < 0)
+    {
+        log_errorF("%s: Error writing event_message\n", fcnm);
+        *ierr = 1;
+        return xmlmsg;
+    }
+    memset(cmode, 0, sizeof(cmode));
+    if (mode == 1)
+    {
+        strcpy(cmode, "live\0");
+    }
+    else if (mode == 2)
+    {
+        strcpy(cmode, "playback\0");
+    }
+    else
+    {
+        log_warnF("%s: Defaulting to live mode\n", fcnm);
+        strcpy(cmode, "live\0");
+    }
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
+                                     BAD_CAST cmode);
+    now = ISCL_time_timeStamp();
+    rc = xml_epoch2string(now, cnow);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp\0",
+                                      BAD_CAST cnow);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "orig_sys\0",
+                                      BAD_CAST orig_sys);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "alg_vers\0",
+                                      BAD_CAST alg_vers);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "instance\0",
+                                      BAD_CAST instance);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "message_type\0",
+                                      BAD_CAST message_type);
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "version\0",
+                                      BAD_CAST version);
+    if (rc < 0)
+    {
+        log_errorF("%s: Error setting attributes\n", fcnm);
+        *ierr = 1;
+        return xmlmsg;
+    }
+    memset(&core, 0, sizeof(struct coreInfo_struct));
+    strcpy(core.id, evid);
+    core.mag = SA_mag;
+    core.lhaveMag = true;
+    core.magUnits = MOMENT_MAGNITUDE;
+    core.lhaveMagUnits = true;
+    core.magUncer = 0.5;
+    core.lhaveMagUncer = true;
+    core.magUncerUnits = MOMENT_MAGNITUDE;
+    core.lhaveMagUncerUnits = true;
+    core.lat = SA_lat; 
+    core.lhaveLat = true;
+    core.latUnits = DEGREES;
+    core.lhaveLatUnits = true;
+    core.latUncer = 0.5;
+    core.lhaveLatUncer = true;
+    core.latUncerUnits = DEGREES;
+    core.lhaveLatUncerUnits = true;
+    core.lon = SA_lon;
+    core.lhaveLon = true;
+    core.lonUnits = DEGREES;
+    core.lhaveLonUnits = true;
+    core.lonUncer = 0.5;
+    core.lhaveLonUncer = true;
+    core.lonUncerUnits = DEGREES;
+    core.lhaveLonUncerUnits = true;
+    core.depth = SA_depth;
+    core.lhaveDepth = true;
+    core.depthUnits = KILOMETERS;
+    core.lhaveDepthUnits = true;
+    core.depthUncer = 5.0;
+    core.lhaveDepthUncer = true;
+    core.depthUncerUnits = KILOMETERS;
+    core.lhaveDepthUncerUnits = true;
+    core.origTime = SA_time;
+    core.lhaveOrigTime = true;
+    core.origTimeUnits = UTC;
+    core.lhaveOrigTimeUnits = true;
+    core.origTimeUncer = 20.0;
+    core.lhaveOrigTimeUncer = true;
+    core.origTimeUncerUnits = SECONDS;
+    core.lhaveOrigTimeUncerUnits = true;
+    core.likelihood = 0.8;
+    core.lhaveLikelihood = true;
+    rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
+    //---------------------------------magnitude------------------------------//
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "magnitude\0");
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "pgd\0",
+                                     BAD_CAST "false\0");
+    rc = xmlTextWriterWriteFormatElement(writer,
+                                         BAD_CAST "value\0",
+                                         "%f", SA_mag);
+    rc = xmlTextWriterEndElement(writer);
+    // </event_message>
+    rc = xmlTextWriterEndElement(writer); // </event_message>
+    if (rc < 0)
+    {
+        log_errorF("%s: Error closing EVENT_MESSAGE\n", fcnm);
+        return xmlmsg;
+    }
+    // Finalize the writer
+    rc = xmlTextWriterEndDocument(writer);
+    if (rc < 0)
+    {
+        log_errorF("%s: Error writing ending the document\n", fcnm);
+        *ierr = 1;
+        return xmlmsg;
+    }
+    xmlFreeTextWriter(writer);
+    xmlCleanupCharEncodingHandlers();
+    // Finally copy the char * XML message
+    msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
+    xmlmsg = (char *)calloc(msglen+1, sizeof(char));
+    strncpy(xmlmsg, (const char *)buf->content, msglen);
+    xmlCleanupParser();
+    xmlBufferFree(buf);
+    xmlDictCleanup();
+    xmlCleanupThreads();
+    return xmlmsg;
 }

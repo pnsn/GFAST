@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "gfast.h"
 #include "gfast_core.h"
 #include "gfast_eewUtils.h"
 #include "gfast_events.h"
 #include "gfast_hdf5.h"
 #include "gfast_traceBuffer.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
@@ -39,7 +41,8 @@ int eewUtils_driveGFAST(const double currentTime,
     //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2;
-    int h5k, ierr, iev, nsites_cmt, nsites_ff, nsites_pgd;
+    int h5k, ierr, iev, ipf, nsites_cmt, nsites_ff, nsites_pgd, nstrdip,
+        pgdOpt, shakeAlertMode;
     bool lcmtSuccess, lffSuccess, lfinalize, lnewEvent, lpgdSuccess;
     const double SA_NAN =-12345.0; 
     //------------------------------------------------------------------------//
@@ -82,6 +85,9 @@ int eewUtils_driveGFAST(const double currentTime,
             }
         }
     }
+    // Figure out the mode for generating shakeAlert messages
+    shakeAlertMode = 1;
+    if (props.opmode == PLAYBACK){shakeAlertMode = 2;}
     // Nothing to do
     if (events->nev <= 0){return 0;}
     // Set memory for XML messages
@@ -243,26 +249,100 @@ int eewUtils_driveGFAST(const double currentTime,
         if (currentTime - SA.time >= props.processingTime)
         {
             lfinalize = true;
-            cmtQML = eewUtils_makeXML__quakeML("UW\0",
-                                               "anss.org\0",
+            // Make the PGD xml
+            if (lpgdSuccess)
+            {
+                pgdOpt = ISCL_array_argmax__double(pgd->ndeps, pgd->dep_vr_pgd);
+                pgdXML = eewUtils_makeXML__pgd(shakeAlertMode,
+                                               "GFAST\0",
+                                               GFAST_ALGORITHM_VERSION,
+                                               GFAST_INSTANCE,
+                                               "new\0",
+                                               GFAST_VERSION,
                                                SA.eventid,
                                                SA.lat,
                                                SA.lon,
-                                               cmt->srcDepths[cmt->opt_indx],
+                                               pgd->srcDepths[pgdOpt],
+                                               pgd->mpgd[pgdOpt],
                                                SA.time,
-                                               &cmt->mts[6*cmt->opt_indx],
                                                &ierr);
-            if (ierr != 0)
-            {
-                log_errorF("%s: Error generating CMT quakeML\n", fcnm);
-                if (cmtQML != NULL)
+                if (ierr != 0)
                 {
-                    free(cmtQML);
-                    cmtQML = NULL;
+                    log_errorF("%s: Error generating PGD XML\n", fcnm);
+                    if (pgdXML != NULL)
+                    {   
+                        free(pgdXML);
+                        pgdXML = NULL;
+                    }
                 }
+                xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
             }
-            if (cmtQML){free(cmtQML);}
-        }
+            // Make the CMT quakeML
+            if (lcmtSuccess)
+            {
+                cmtQML = eewUtils_makeXML__quakeML(props.anssNetwork,
+                                                  props.anssDomain,
+                                                  SA.eventid,
+                                                  SA.lat,
+                                                  SA.lon,
+                                                  cmt->srcDepths[cmt->opt_indx],
+                                                  SA.time,
+                                                  &cmt->mts[6*cmt->opt_indx],
+                                                  &ierr);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error generating CMT quakeML\n", fcnm);
+                    if (cmtQML != NULL)
+                    {
+                        free(cmtQML);
+                        cmtQML = NULL;
+                    }
+                }
+                xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
+            }
+            // Make the finite fault XML
+            if (lffSuccess)
+            {
+                ipf = ff->preferred_fault_plane;
+                nstrdip = ff->fp[ipf].nstr*ff->fp[ipf].ndip;
+                ffXML = eewUtils_makeXML__ff(props.opmode,
+                                             "GFAST\0",
+                                             GFAST_ALGORITHM_VERSION,
+                                             GFAST_INSTANCE,
+                                             "new\0",
+                                             GFAST_VERSION,
+                                             SA.eventid,
+                                             SA.lat,
+                                             SA.lon,
+                                             SA.dep,
+                                             SA.mag,
+                                             SA.time,
+                                             nstrdip,
+                                             ff->fp[ipf].fault_ptr,
+                                             ff->fp[ipf].lat_vtx,
+                                             ff->fp[ipf].lon_vtx,
+                                             ff->fp[ipf].dep_vtx,
+                                             ff->fp[ipf].sslip,
+                                             ff->fp[ipf].dslip,
+                                             ff->fp[ipf].sslip_unc,
+                                             ff->fp[ipf].dslip_unc,
+                                             &ierr); 
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error generating finite fault XML\n", fcnm);
+                    if (ffXML != NULL)
+                    {
+                        free(ffXML);
+                        ffXML = NULL;
+                    }
+                }
+                xmlMessages->ffXML[xmlMessages->nmessages] = ffXML;
+            }
+            xmlMessages->evids[xmlMessages->nmessages]
+                = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
+            strcpy(xmlMessages->evids[xmlMessages->nmessages], SA.eventid);
+            xmlMessages->nmessages = xmlMessages->nmessages + 1;
+        } // End check on finalizing
         // Update the archive
         if (lfinalize || !props.lh5SummaryOnly)
         {
@@ -316,7 +396,7 @@ int eewUtils_driveGFAST(const double currentTime,
             {
 
             }
-        }
+        } // End check on updating archive or finalizing event
         // Close the logs
         log_closeLogs();
     } // Loop on the events

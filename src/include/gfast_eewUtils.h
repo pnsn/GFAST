@@ -76,6 +76,20 @@ char *eewUtils_makeXML__quakeML(const char *network,
                                 const double t0, 
                                 const double mt[6],
                                 int *ierr);
+/* Make the PGD XML */
+char *eewUtils_makeXML__pgd(const int mode,
+                            const char *orig_sys,
+                            const char *alg_vers,
+                            const char *instance,
+                            const char *message_type,
+                            const char *version,
+                            const char *evid,
+                            const double SA_lat,
+                            const double SA_lon,
+                            const double SA_depth,
+                            const double SA_mag,
+                            const double SA_time,
+                            int *ierr);
 /* Parses the core XML message */
 int eewUtils_parseCoreXML(const char *message,
                           const double SA_NAN,
