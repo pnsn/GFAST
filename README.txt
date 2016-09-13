@@ -108,9 +108,31 @@ Directories:
 
 (b)  legacy - the original Python GFAST
 
-(c)  src - contains the GFAST source code and includes
-           core -> contains the core GFAST computational routines
-           more descriptions to come!
+(c)  src
+     (i)    include - contains the GFAST include files
+     (ii)   cmopad - contains the functions for moment tensor conversions
+                     and decompositions (MoPaD Moment tensor Plotting and
+                     Decomposition - A tool for graphical and numerical
+                     analysis of seismic moment tensors) [library]
+     (iii)  core - core modeling and inversion utilities [library] 
+     (iv)   eewUtils - earthquake early warning utilities and drivers
+                       with EEW application logic - a good place to start
+                       if you'd like to learn how to use all the other
+                       libraries [application]
+     (v)    events - in real-time applications this handles the bookkeeping
+                     for GFAST and keeps track of the number of events to
+                     process [probably should move to core]
+     (vi)   xml - for writing (and reading?) XML for shakeAlert and
+                  quakeML for the CMT inversion [library]
+     (vii)  hdf5 - for archiving results [library]
+     (viii) activeMQ - for earthquake early warning this is the requisite
+                       functions for incoming shakeAlert core messages (on
+                       which GFAST EEW triggers) and for sending the finite
+                       fault and PGD shakeAlert XML messages [library]
+     (iix)  traceBuffer - handles the getting of data into the program.
+                          in here there reside the earthworm hooks.  though
+                          if not compiling for a real-time application this
+                          can be ignored.
 
 (d)  cython - (C)Python interface to libgfast.so.  After successfully
               building the cython wrappers one can use them as if the
