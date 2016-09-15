@@ -372,10 +372,10 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         // Append lampred*T to G2
         cblas_daxpy(nt, lampred, T, 1, &G2[ng], 1);
         // Solve the least squares problem
-        ierr1 = __linalg_lstsq__qr(LAPACK_ROW_MAJOR,
-                                   mrowsG2, ncolsG2, 1, lrmtx,
-                                   G2, WUD,
-                                   S, R);
+        ierr1 = __linalg_lstsq_qr__double(LAPACK_ROW_MAJOR,
+                                          mrowsG2, ncolsG2, 1, lrmtx,
+                                          G2, WUD,
+                                          S, R);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error solving least squares problem\n", fcnm);

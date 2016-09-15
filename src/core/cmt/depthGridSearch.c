@@ -265,10 +265,10 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
             continue;
         }
         // Solve the weighted least squares problem
-        ierr1 = __linalg_lstsq__qr(LAPACK_ROW_MAJOR,
-                                   mrows, ncols, 1, false,
-                                   WG, WU,
-                                   S, NULL);
+        ierr1 = __linalg_lstsq_qr__double(LAPACK_ROW_MAJOR,
+                                          mrows, ncols, 1, false,
+                                          WG, WU,
+                                          S, NULL);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error solving least squares problem\n", fcnm);
