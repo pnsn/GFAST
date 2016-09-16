@@ -631,7 +631,7 @@ int hdf5_copy__ffResults(const enum data2h5_enum job,
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
-        memset(ff, 0, sizeof(struct h5_ffResults_struct));
+        memset(h5_ff, 0, sizeof(struct h5_ffResults_struct));
         nfp = ff->nfp;
         if (nfp < 0)
         {

@@ -386,7 +386,7 @@ int hdf5_update__ff(const char *adir,
     groupID = H5Gopen2(fileID, ffGroup, H5P_DEFAULT);
     // Copy and write the results
     ierr = ierr + GFAST_hdf5_copy__ffResults(COPY_DATA_TO_H5,
-                                              &ff, &h5_ff);
+                                             &ff, &h5_ff);
     dataType = H5Topen(groupID, "/DataStructures/finiteFaultResultsStructure\0",
                        H5P_DEFAULT);
     dataSpace = H5Screate_simple(rank, dimInfo, NULL);
