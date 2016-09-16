@@ -412,7 +412,8 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                     dslip_unc[if_off+i] = sqrt(ds_unc);
                 }
             }
-            else // Be a little more careful unpacking uncertainties
+            // Unpack only desired uncertainties
+            else
             {
                 for (i=0; i<l2; i++)
                 {
