@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
+#include <string.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
@@ -183,7 +184,8 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                            struct h5traceBuffer_struct *h5traceBuffer)
 {
     const char *fcnm = "traceBuffer_h5_getData\0";
-    double *work, dt, ts1, ts2;
+    char dataBuffer1[64], dataBuffer2[64];
+    double *work, dt, ts1, ts2, ts1Use, ts2Use;
     int i, ierr, i1, i2, j1, j2, maxpts, nc1, nc2, ncopy;
     hid_t groupID;
     herr_t status;
@@ -231,6 +233,81 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
         ISCL_memory_free__double(&h5traceBuffer->traces[i].data);
         work = ISCL_memory_alloc__double(ncopy);
+        // Set the databuffers and names
+        memset(dataBuffer1, 0, sizeof(dataBuffer1));
+        memset(dataBuffer2, 0, sizeof(dataBuffer2));
+        if (ts1 < ts2)
+        {
+            ts1Use = ts1;
+            ts2Use = ts2;
+            strcpy(dataBuffer1, "dataBuffer1\0");
+            strcpy(dataBuffer2, "dataBuffer2\0");
+        }
+        else
+        {
+            ts1Use = ts2;
+            ts2Use = ts1;
+            strcpy(dataBuffer1, "dataBuffer2\0");
+            strcpy(dataBuffer2, "dataBuffer1\0");
+        }
+        // First buffer
+        if (t1 < ts2Use)
+        {
+            i1 = (int) ((t1 - ts1Use)/dt + 0.5);
+            i2 = maxpts - 1;
+            // All on first buffer
+            if (t2 < ts2Use)
+            {
+                i2 = (int) ((t2 - ts1Use)/dt + 0.5);
+                // Get data from [i1:i2]
+                ierr = traceBuffer_h5_getDoubleArray(groupID,
+                                                     i1, i2,
+                                                     dataBuffer1,
+                                                     NAN,
+                                                     ncopy, work);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error getting array\n", fcnm);
+                }
+            }
+            // Bleeds onto second buffer
+            else
+            {
+                i2 = maxpts - 1;
+                j1 = 0;
+                j2 = fmin(maxpts-1, (int) ((t2 - ts2Use)/dt + 0.5));
+                nc1 = i2 - i1 + 1;
+                nc2 = j2 - j1 + 1;
+                // Get data from [i1:i2] then [j1:j2]
+                ierr = traceBuffer_h5_getDoubleArray(groupID,
+                                                     i1, i2, 
+                                                     dataBuffer1,
+                                                     NAN,
+                                                     nc1, work);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error getting array\n", fcnm);
+                }
+                ierr = traceBuffer_h5_getDoubleArray(groupID,
+                                                     j1, j2,
+                                                     dataBuffer2,
+                                                     NAN,
+                                                     nc2, &work[nc1]);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error getting array\n", fcnm);
+                }
+            }
+            h5traceBuffer->traces[i].data = work;
+            h5traceBuffer->traces[i].t1 = ts1 + (double) i1*dt;
+            h5traceBuffer->traces[i].ncopy = ncopy;
+        }
+        else
+        {
+            log_errorF("%s: Invalid data range %16.4f %16.4f %16.4f!\n",
+                       fcnm, t1, ts1Use, ts2Use);
+        }
+/*
         // Get the data in order
         if (ts1 < ts2)
         {
@@ -287,15 +364,13 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                 h5traceBuffer->traces[i].ncopy = ncopy;
             }
         }
-        else
-        {
-
 printf("%s not done!\n", fcnm);
 ierr = 1;
 return ierr;
         }
         //h5traceBuffer->data = (double *)calloc(npcopy, sizeof(double));
 //printf("%d\n", ncopy);
+*/
         status = status + H5Gclose(groupID);
 //getchar();
     }
