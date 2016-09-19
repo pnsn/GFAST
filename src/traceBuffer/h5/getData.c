@@ -31,7 +31,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
     const char *fcnm = "traceBuffer_h5_getData\0";
     char dataBuffer1[64], dataBuffer2[64];
     double *work, dt, ts1, ts2, ts1Use, ts2Use;
-    int i, ierr, i1, i2, j1, j2, maxpts, nc1, nc2, ncopy;
+    int i, ierr, ierrAll, i1, i2, j1, j2, maxpts, nc1, nc2, ncopy;
     hid_t groupID;
     herr_t status;
     //------------------------------------------------------------------------//
@@ -42,6 +42,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         log_errorF("%s: Invalid input times\n", fcnm);
         return -1;
     }
+    ierrAll = 0;
     status = 0;
     // Loop on the traces
     for (i=0; i<h5traceBuffer->ntraces; i++)
@@ -56,23 +57,27 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         if (ierr != 0)
         {
             log_errorF("%s: Error getting scalars!\n", fcnm);
+            ierrAll = ierrAll + 1;
             continue;
         }
         if (dt <= 0.0)
         {
             log_errorF("%s: Error dt is wrong %f!\n", fcnm);
+            ierrAll = ierrAll + 1;
             continue;
         }
         if (t1 < ts1 && t1 < ts2)
         {
             log_errorF("%s: Error time is too %16.f %16.f %16.f\n",
                        fcnm, t1, ts1, ts2);
+            ierrAll = ierrAll + 1;
             continue;
         }
         if (t2 > fmax(ts1, ts2) + (double) (maxpts - 1)*dt)
         {
             log_errorF("%s: Error stale buffers %16.f %16.f %16.f\n",
                        fcnm, t2, ts1, ts2);
+            ierrAll = ierrAll + 1;
             continue;
         }
         ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
@@ -113,6 +118,8 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                 if (ierr != 0)
                 {
                     log_errorF("%s: Error getting array\n", fcnm);
+                    ierrAll = ierrAll + 1;
+                    continue;
                 }
             }
             // Bleeds onto second buffer
@@ -141,6 +148,8 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                 if (ierr != 0)
                 {
                     log_errorF("%s: Error getting array\n", fcnm);
+                    ierrAll = ierrAll + 1;
+                    continue;
                 }
             }
             h5traceBuffer->traces[i].data = work;
@@ -149,8 +158,31 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         }
         else
         {
-            log_errorF("%s: Invalid data range %16.4f %16.4f %16.4f!\n",
-                       fcnm, t1, ts1Use, ts2Use);
+            // All on second buffer
+            if (t1 >= ts2Use)
+            {
+                j1 = fmax(0, (int) ((t1 - ts2Use)/dt + 0.5));
+                j2 = fmin(maxpts-1, (int) ((t2 - ts2Use)/dt + 0.5));
+                ierr = GFAST_traceBuffer_h5_getDoubleArray(groupID,
+                                                           j1, j2,
+                                                           dataBuffer2,
+                                                           NAN,
+                                                           ncopy, work);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error getting array\n", fcnm);
+                    ierrAll = ierrAll + 1;
+                    continue;
+                }
+                h5traceBuffer->traces[i].data = work;
+                h5traceBuffer->traces[i].t1 = ts2 + (double) j1*dt;
+                h5traceBuffer->traces[i].ncopy = ncopy;
+            }
+            else
+            {
+                log_errorF("%s: Invalid data range %16.4f %16.4f %16.4f!\n",
+                           fcnm, t1, ts1Use, ts2Use);
+            }
         }
         status = status + H5Gclose(groupID);
     } // Loop on traces
@@ -159,5 +191,10 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         log_errorF("%s: Error accessing data\n", fcnm);
         return -1;
     }
-    return 0;
+    if (ierrAll != 0)
+    {
+        log_errorF("%s: %d errors detected when getting data\n",
+                   fcnm, ierrAll);
+    }
+    return ierrAll;
 }
