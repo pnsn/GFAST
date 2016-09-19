@@ -249,22 +249,22 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         log_debugF("%s: Setting RHS...\n", fcnm);
     }
     // Set the RHS
-    ierr = GFAST_core_ff_setRHS(l1,
-                                nObsOffset,
-                                eObsOffset,
-                                uObsOffset,
-                                UD);
+    ierr = core_ff_setRHS(l1,
+                          nObsOffset,
+                          eObsOffset,
+                          uObsOffset,
+                          UD);
     if (ierr != 0)
     {
         log_errorF("%s: Error setting right hand side\n", fcnm);
         goto ERROR;
     }
     // Compute the diagonal data weights
-    ierr = GFAST_core_ff_setDiagonalWeightMatrix(l1,
-                                                 nWts,
-                                                 eWts,
-                                                 uWts,
-                                                 diagWt);
+    ierr = core_ff_setDiagonalWeightMatrix(l1,
+                                           nWts,
+                                           eWts,
+                                           uWts,
+                                           diagWt);
     if (ierr != 0)
     {
         log_warnF("%s: Setting data weights to unity\n", fcnm);
@@ -274,10 +274,10 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         }
     }
     // Weight the observations
-    ierr = GFAST_core_ff_weightObservations(mrowsG,
-                                            diagWt,
-                                            UD,
-                                            WUD);
+    ierr = core_ff_weightObservations(mrowsG,
+                                      diagWt,
+                                      UD,
+                                      WUD);
     if (ierr != 0)
     {
         log_errorF("%s: Error weighting observations\n", fcnm);
@@ -325,13 +325,13 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
             }
         }
         // Compute the forward modeling matrix (which is in row major format)
-        ierr1 = GFAST_core_ff_setForwardModel__okadagreenF(l1, l2,
-                                                           xrs, yrs, zrs,
-                                                           &strike[if_off],
-                                                           &dip[if_off],
-                                                           &width[if_off],
-                                                           &length[if_off],
-                                                           G);
+        ierr1 = core_ff_setForwardModel__okadagreenF(l1, l2,
+                                                     xrs, yrs, zrs,
+                                                     &strike[if_off],
+                                                     &dip[if_off],
+                                                     &width[if_off],
+                                                     &length[if_off],
+                                                     G);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error setting forward model\n", fcnm);
@@ -339,10 +339,10 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
             continue;
         }
         // Weight the column major diagonal forward modeling matrix 
-        ierr1 = GFAST_core_ff_weightForwardModel(mrowsG, ncolsG,
-                                                 diagWt,
-                                                 G,
-                                                 G2);
+        ierr1 = core_ff_weightForwardModel(mrowsG, ncolsG,
+                                           diagWt,
+                                           G,
+                                           G2);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error weighting forward modeling matrix\n", fcnm);
@@ -350,13 +350,13 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
             continue;
         }
         // Set the regularizer (also in row major format)
-        ierr1 = GFAST_core_ff_setRegularizer(l2,
-                                             nstr,
-                                             ndip,
-                                             nt,
-                                             &width[if_off],
-                                             &length[if_off],
-                                             T);
+        ierr1 = core_ff_setRegularizer(l2,
+                                       nstr,
+                                       ndip,
+                                       nt,
+                                       &width[if_off],
+                                       &length[if_off],
+                                       T);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error setting regulizer\n", fcnm);

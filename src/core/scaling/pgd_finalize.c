@@ -75,8 +75,8 @@ void core_scaling_pgd_finalize(
     struct GFAST_peakDisplacementData_struct *pgd_data,
     struct GFAST_pgdResults_struct *pgd)
 {
-    GFAST_core_properties_finalize__pgdProperties(pgd_props);
-    GFAST_core_scaling_pgd_finalize__pgdData(pgd_data);
-    GFAST_core_scaling_pgd_finalize__pgdResults(pgd);
+    core_properties_finalize__pgdProperties(pgd_props);
+    core_scaling_pgd_finalize__pgdData(pgd_data);
+    core_scaling_pgd_finalize__pgdResults(pgd);
     return;
 }

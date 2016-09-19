@@ -139,9 +139,9 @@ int core_ff_meshFaultPlane(const double ev_lat,
     // Get the source location
     zone_loc = utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Get UTM zone from source lat/lon
-    GFAST_core_coordtools_ll2utm(ev_lat, ev_lon,
-                                 &y0, &x0,
-                                 &lnorthp, &zone_loc);
+    core_coordtools_ll2utm(ev_lat, ev_lon,
+                           &y0, &x0,
+                           &lnorthp, &zone_loc);
     x0 = x0*1.e-3; // Convert to km
     y0 = y0*1.e-3; // Convert to km
     // Estimate the fault size
@@ -207,24 +207,24 @@ int core_ff_meshFaultPlane(const double ev_lat,
             // Convert from UTMs back to lat/lon 
             fault_X = fault_X*1000.0; // km -> m
             fault_Y = fault_Y*1000.0; // km -> m
-            GFAST_core_coordtools_utm2ll(zone_loc, lnorthp,
-                                         fault_Y, fault_X,
-                                         &latF, &lonF);
+            core_coordtools_utm2ll(zone_loc, lnorthp,
+                                   fault_Y, fault_X,
+                                   &latF, &lonF);
             k = j*nstr + i;
             fault_ptr[k+1] = 4*(k + 1);
             // Generate output
-            GFAST_core_coordtools_utm2ll(zone_loc, lnorthp,
-                                         fault_Y1, fault_X1,
-                                         &lat_vtx[4*k+0], &lon_vtx[4*k+0]);
-            GFAST_core_coordtools_utm2ll(zone_loc, lnorthp,
-                                         fault_Y2, fault_X2,
-                                         &lat_vtx[4*k+1], &lon_vtx[4*k+1]);
-            GFAST_core_coordtools_utm2ll(zone_loc, lnorthp,
-                                         fault_Y3, fault_X3,
-                                         &lat_vtx[4*k+2], &lon_vtx[4*k+2]);
-            GFAST_core_coordtools_utm2ll(zone_loc, lnorthp,
-                                         fault_Y4, fault_X4,
-                                         &lat_vtx[4*k+3], &lon_vtx[4*k+3]);
+            core_coordtools_utm2ll(zone_loc, lnorthp,
+                                   fault_Y1, fault_X1,
+                                   &lat_vtx[4*k+0], &lon_vtx[4*k+0]);
+            core_coordtools_utm2ll(zone_loc, lnorthp,
+                                   fault_Y2, fault_X2,
+                                   &lat_vtx[4*k+1], &lon_vtx[4*k+1]);
+            core_coordtools_utm2ll(zone_loc, lnorthp,
+                                   fault_Y3, fault_X3,
+                                   &lat_vtx[4*k+2], &lon_vtx[4*k+2]);
+            core_coordtools_utm2ll(zone_loc, lnorthp,
+                                   fault_Y4, fault_X4,
+                                   &lat_vtx[4*k+3], &lon_vtx[4*k+3]);
             dep_vtx[4*k+0] = fault_Z; //depF;
             dep_vtx[4*k+1] = fault_Z; //depF;
             dep_vtx[4*k+2] = fault_Z; //depF;

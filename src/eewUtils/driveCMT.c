@@ -159,9 +159,9 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     // Get the source location
     zone_loc = cmt_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
-    GFAST_core_coordtools_ll2utm(SA_lat, SA_lon,
-                                 &y1, &x1,
-                                 &lnorthp, &zone_loc);
+    core_coordtools_ll2utm(SA_lat, SA_lon,
+                           &y1, &x1,
+                           &lnorthp, &zone_loc);
     utmSrcNorthing = y1;
     utmSrcEasting = x1;
     // Get cartesian positions and observations onto local arrays
@@ -170,10 +170,10 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     {
         if (!luse[k]){continue;}
         // Get the recevier UTM
-        GFAST_core_coordtools_ll2utm(cmt_data.sta_lat[k],
-                                     cmt_data.sta_lon[k],
-                                     &y2, &x2,
-                                     &lnorthp, &zone_loc);
+        core_coordtools_ll2utm(cmt_data.sta_lat[k],
+                               cmt_data.sta_lon[k],
+                               &y2, &x2,
+                               &lnorthp, &zone_loc);
         // Copy the pertinent data
         uOffset[l1] = cmt_data.ubuff[k];
         nOffset[l1] = cmt_data.nbuff[k];
@@ -191,25 +191,25 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     { 
         log_debugF("%s: Inverting for CMT with %d sites\n", fcnm, l1);
     }
-    ierr = GFAST_core_cmt_depthGridSearch(l1, cmt->ndeps,
-                                          cmt_props.verbose,
-                                          cmt_props.ldeviatoric,
-                                          utmSrcEasting,
-                                          utmSrcNorthing,
-                                          cmt->srcDepths,
-                                          utmRecvEasting,
-                                          utmRecvNorthing,
-                                          staAlt,
-                                          nOffset,
-                                          eOffset,
-                                          uOffset,
-                                          nWts,
-                                          eWts,
-                                          uWts,
-                                          nEst,
-                                          eEst,
-                                          uEst,
-                                          cmt->mts);
+    ierr = core_cmt_depthGridSearch(l1, cmt->ndeps,
+                                    cmt_props.verbose,
+                                    cmt_props.ldeviatoric,
+                                    utmSrcEasting,
+                                    utmSrcNorthing,
+                                    cmt->srcDepths,
+                                    utmRecvEasting,
+                                    utmRecvNorthing,
+                                    staAlt,
+                                    nOffset,
+                                    eOffset,
+                                    uOffset,
+                                    nWts,
+                                    eWts,
+                                    uWts,
+                                    nEst,
+                                    eEst,
+                                    uEst,
+                                    cmt->mts);
     if (ierr != 0)
     {   
         log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
@@ -250,15 +250,15 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         }
         sum_res2 = sqrt(sum_res2);
         // Decompose the moment tensor
-        ierr1 = GFAST_core_cmt_decomposeMomentTensor(1, &cmt->mts[6*idep],
-                                                     &DC_pct,
-                                                     &cmt->Mw[idep],
-                                                     &cmt->str1[idep],
-                                                     &cmt->str2[idep],
-                                                     &cmt->dip1[idep],
-                                                     &cmt->dip2[idep],
-                                                     &cmt->rak1[idep],
-                                                     &cmt->rak2[idep]);
+        ierr1 = core_cmt_decomposeMomentTensor(1, &cmt->mts[6*idep],
+                                               &DC_pct,
+                                               &cmt->Mw[idep],
+                                               &cmt->str1[idep],
+                                               &cmt->str2[idep],
+                                               &cmt->dip1[idep],
+                                               &cmt->dip2[idep],
+                                               &cmt->rak1[idep],
+                                               &cmt->rak2[idep]);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error decomposing mt\n", fcnm);

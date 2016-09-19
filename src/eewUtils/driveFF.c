@@ -193,19 +193,19 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     // Get the source location
     zone_loc = ff_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
-    GFAST_core_coordtools_ll2utm(SA_lat, SA_lon,
-                                 &y1, &x1,
-                                 &lnorthp, &zone_loc);
+    core_coordtools_ll2utm(SA_lat, SA_lon,
+                           &y1, &x1,
+                           &lnorthp, &zone_loc);
     // Get cartesian positions and observations onto local arrays
     l1 = 0;
     for (k=0; k<ff_data.nsites; k++)
     {
         if (!luse[k]){continue;}
         // Get the recevier UTM
-        GFAST_core_coordtools_ll2utm(ff_data.sta_lat[k],
-                                     ff_data.sta_lon[k],
-                                     &y2, &x2,
-                                     &lnorthp, &zone_loc);
+        core_coordtools_ll2utm(ff_data.sta_lat[k],
+                               ff_data.sta_lon[k],
+                               &y2, &x2,
+                               &lnorthp, &zone_loc);
         // Copy the pertinent data
         uOffset[l1] = ff_data.ubuff[k];
         nOffset[l1] = ff_data.nbuff[k];
@@ -234,23 +234,23 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
 #endif
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
-        ierr1 = GFAST_core_ff_meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
-                                             ff_props.flen_pct,
-                                             ff_props.fwid_pct,
-                                             ff->SA_mag, ff->str[ifp], ff->dip[ifp],
-                                             ff->fp[ifp].nstr, ff->fp[ifp].ndip,
-                                             zone_loc, ff_props.verbose,
-                                             ff->fp[ifp].fault_ptr,
-                                             ff->fp[ifp].lat_vtx,
-                                             ff->fp[ifp].lon_vtx,
-                                             ff->fp[ifp].dep_vtx,
-                                             ff->fp[ifp].fault_xutm,
-                                             ff->fp[ifp].fault_yutm,
-                                             ff->fp[ifp].fault_alt,
-                                             ff->fp[ifp].strike,
-                                             ff->fp[ifp].dip,
-                                             ff->fp[ifp].length,
-                                             ff->fp[ifp].width);
+        ierr1 = core_ff_meshFaultPlane(ff->SA_lat, ff->SA_lon, ff->SA_dep,
+                                       ff_props.flen_pct,
+                                       ff_props.fwid_pct,
+                                       ff->SA_mag, ff->str[ifp], ff->dip[ifp],
+                                       ff->fp[ifp].nstr, ff->fp[ifp].ndip,
+                                       zone_loc, ff_props.verbose,
+                                       ff->fp[ifp].fault_ptr,
+                                       ff->fp[ifp].lat_vtx,
+                                       ff->fp[ifp].lon_vtx,
+                                       ff->fp[ifp].dep_vtx,
+                                       ff->fp[ifp].fault_xutm,
+                                       ff->fp[ifp].fault_yutm,
+                                       ff->fp[ifp].fault_alt,
+                                       ff->fp[ifp].strike,
+                                       ff->fp[ifp].dip,
+                                       ff->fp[ifp].length,
+                                       ff->fp[ifp].width);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error meshing fault plane\n", fcnm);
@@ -287,20 +287,20 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                    fcnm, nfp, l1);
     }
     // Perform the finite fault inversion
-    ierr = GFAST_core_ff_faultPlaneGridSearch(l1, l2,
-                                              nstr, ndip, nfp,
-                                              ff_props.verbose,
-                                              nOffset, eOffset, uOffset,
-                                              nWts, eWts, uWts,
-                                              utmRecvEasting, utmRecvNorthing,
-                                              staAlt,
-                                              fault_xutm, fault_yutm, fault_alt,
-                                              length, width,
-                                              strike, dip,
-                                              sslip, dslip,
-                                              Mw, vr,
-                                              NN, EN, UN,
-                                              sslip_unc, dslip_unc);
+    ierr = core_ff_faultPlaneGridSearch(l1, l2,
+                                        nstr, ndip, nfp,
+                                        ff_props.verbose,
+                                        nOffset, eOffset, uOffset,
+                                        nWts, eWts, uWts,
+                                        utmRecvEasting, utmRecvNorthing,
+                                        staAlt,
+                                        fault_xutm, fault_yutm, fault_alt,
+                                        length, width,
+                                        strike, dip,
+                                        sslip, dslip,
+                                        Mw, vr,
+                                        NN, EN, UN,
+                                        sslip_unc, dslip_unc);
     if (ierr != 0)
     {
         log_errorF("%s: Error performing finite fault grid search\n", fcnm);

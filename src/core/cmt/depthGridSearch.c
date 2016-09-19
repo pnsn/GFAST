@@ -187,19 +187,18 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         yrs[i] = utmRecvNorthing[i] - utmSrcNorthing;
     }
     // Set the RHS
-    ierr = GFAST_core_cmt_setRHS(l1,
-                                 nObsOffset, eObsOffset, uObsOffset, U);
+    ierr = core_cmt_setRHS(l1, nObsOffset, eObsOffset, uObsOffset, U);
     if (ierr != 0)
     {
         log_errorF("%s: error setting RHS!\n", fcnm);
         goto ERROR;
     }
     // Compute the diagonal data weights
-    ierr = GFAST_core_cmt_setDiagonalWeightMatrix(l1,
-                                                  nWts,
-                                                  eWts,
-                                                  uWts,
-                                                  diagWt);
+    ierr = core_cmt_setDiagonalWeightMatrix(l1,
+                                            nWts,
+                                            eWts,
+                                            uWts,
+                                            diagWt);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to set weight matrix - will set to identity\n",
@@ -210,10 +209,10 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         }
     }
     // Apply the diagonal data weights to the data
-    ierr = GFAST_core_cmt_weightObservations(mrows,
-                                              diagWt,
-                                              U,
-                                              WU);
+    ierr = core_cmt_weightObservations(mrows,
+                                       diagWt,
+                                       U,
+                                       WU);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to apply data weights to data\n", fcnm);
@@ -244,11 +243,11 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
             zrs_negative[i] =-(staAlt[i] + eq_alt);
         }
         // Set the forward modeling matrix - note convention of xrs and yrs 
-        ierr1 = GFAST_core_cmt_setForwardModel(l1, deviatoric, 
-                                               yrs,
-                                               xrs,
-                                               zrs_negative,
-                                               G);
+        ierr1 = core_cmt_setForwardModel(l1, deviatoric, 
+                                         yrs,
+                                         xrs,
+                                         zrs_negative,
+                                         G);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error constructing Green's function matrix\n",
@@ -257,7 +256,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
             continue;
         }
         // Apply the data weights
-        ierr1 = GFAST_core_cmt_weightForwardModel(mrows, ncols, diagWt, G, WG);
+        ierr1 = core_cmt_weightForwardModel(mrows, ncols, diagWt, G, WG);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error weighting forward modeling matrix!\n", fcnm);

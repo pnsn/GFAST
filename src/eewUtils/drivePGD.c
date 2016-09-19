@@ -196,9 +196,9 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Estimate UTM zone from source lon
-    GFAST_core_coordtools_ll2utm(SA_lat, SA_lon,
-                                 &y1, &x1,
-                                 &lnorthp, &zone_loc);
+    core_coordtools_ll2utm(SA_lat, SA_lon,
+                           &y1, &x1,
+                           &lnorthp, &zone_loc);
     utmSrcNorthing = y1; 
     utmSrcEasting = x1;
     // Loop on the receivers, get distances, and data
@@ -207,10 +207,10 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     {   
         if (!pgd_data.lactive[k] || pgd_data.wt[k] <= 0.0){continue;}
         // Get the recevier UTM
-        GFAST_core_coordtools_ll2utm(pgd_data.sta_lat[k],
-                                     pgd_data.sta_lon[k],
-                                     &y2, &x2,
-                                     &lnorthp, &zone_loc);
+        core_coordtools_ll2utm(pgd_data.sta_lat[k],
+                               pgd_data.sta_lon[k],
+                               &y2, &x2,
+                               &lnorthp, &zone_loc);
         // Copy information to data structures for grid search
         d[l1] = pgd_data.pd[k]*100.0; // convert peak ground displacement to cm
         wts[l1] = pgd_data.wt[k];
@@ -224,23 +224,23 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     {   
         log_debugF("%s: Inverting for PGD with %d sites\n", fcnm, l1);
     }   
-    ierr = GFAST_core_scaling_pgd_depthGridSearch(l1, pgd->ndeps,
-                                                  pgd_props.verbose,
-                                                  pgd_props.dist_tol,
-                                                  pgd_props.disp_def,
-                                                  utmSrcEasting,
-                                                  utmSrcNorthing,
-                                                  pgd->srcDepths,
-                                                  utmRecvEasting,
-                                                  utmRecvNorthing,
-                                                  staAlt,
-                                                  d,
-                                                  wts,
-                                                  srdist,
-                                                  pgd->mpgd,
-                                                  pgd->mpgd_vr,
-                                                  pgd->iqr,
-                                                  Uest);
+    ierr = core_scaling_pgd_depthGridSearch(l1, pgd->ndeps,
+                                            pgd_props.verbose,
+                                            pgd_props.dist_tol,
+                                            pgd_props.disp_def,
+                                            utmSrcEasting,
+                                            utmSrcNorthing,
+                                            pgd->srcDepths,
+                                            utmRecvEasting,
+                                            utmRecvNorthing,
+                                            staAlt,
+                                            d,
+                                            wts,
+                                            srdist,
+                                            pgd->mpgd,
+                                            pgd->mpgd_vr,
+                                            pgd->iqr,
+                                            Uest);
     if (ierr != 0)
     {   
         if (pgd_props.verbose > 0)

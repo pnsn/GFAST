@@ -173,30 +173,30 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         repi[i] = repi[i]*1.e-3; // m -> km
     }
     // Set the RHS log10(d) - A
-    ierr = GFAST_core_scaling_pgd_setRHS(l1,
-                                         dist_tol, disp_def,
-                                         A, d,
-                                         b);
+    ierr = core_scaling_pgd_setRHS(l1,
+                                   dist_tol, disp_def,
+                                   A, d,
+                                   b);
     if (ierr != 0)
     {
         log_errorF("%s: Error creating RHS\n", fcnm);
         goto ERROR;
     }
     // Compute the diagonal data weights
-    ierr = GFAST_core_scaling_pgd_setDiagonalWeightMatrix(l1,
-                                                          repi,
-                                                          wts,
-                                                          W);
+    ierr = core_scaling_pgd_setDiagonalWeightMatrix(l1,
+                                                    repi,
+                                                    wts,
+                                                    W);
     if (ierr != 0)
     {
         log_errorF("%s: Error setting diagonal weight matrix\n", fcnm);
         goto ERROR;
     }
     // Weight the observations
-    ierr = GFAST_core_scaling_pgd_weightObservations(l1,
-                                                     W,
-                                                     b,
-                                                     Wb);
+    ierr = core_scaling_pgd_weightObservations(l1,
+                                               W,
+                                               b,
+                                               Wb);
     if (ierr < 0)
     {
         log_errorF("%s: Error weighting observations\n", fcnm);
@@ -230,9 +230,9 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
             srdist[idep*l1+i] = r[i];
         }
         // Generate the over-determined system: [B + C*log10(r)]*m = RHS 
-        ierr1 = GFAST_core_scaling_pgd_setForwardModel(l1,
-                                                       B, C, r,
-                                                       G);
+        ierr1 = core_scaling_pgd_setForwardModel(l1,
+                                                 B, C, r,
+                                                 G);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error creating G matrix\n", fcnm);
@@ -240,10 +240,10 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
             continue;
         }
         // Weight the forward modeling matrix
-        ierr1 = GFAST_core_scaling_pgd_weightForwardModel(l1, 
-                                                          W,
-                                                          G,
-                                                          WG);
+        ierr1 = core_scaling_pgd_weightForwardModel(l1, 
+                                                    W,
+                                                    G,
+                                                    WG);
         if (ierr1 < 0)
         {
             log_errorF("%s: Error weighting forward modeling matrix\n", fcnm);
