@@ -84,9 +84,9 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
     Mrt = M_use[3];
     Mrp = M_use[4];
     Mtp = M_use[5];
-    ierr = GFAST_xml_quakeML_writeTensor(Mrr, Mtt, Mpp,
-                                         Mrt, Mrp, Mtp,
-                                         (void *) writer);
+    ierr = xml_quakeML_writeTensor(Mrr, Mtt, Mpp,
+                                   Mrt, Mrp, Mtp,
+                                   (void *) writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing tensor\n", fcnm);

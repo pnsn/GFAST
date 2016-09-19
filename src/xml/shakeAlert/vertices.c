@@ -94,9 +94,8 @@ int xml_shakeAlert_readVertices(const void *xml_reader,
         // Update the pointer and read the next vertex
         nv = nv + 1;
         vertex_xml = vertices_xml->xmlChildrenNode;
-        ierr = ierr
-             + GFAST_xml_shakeAlert_readVertex((void *)vertex_xml, VTX_NAN,
-                                               &lat[nv], &lon[nv], &depth[nv]);
+        ierr = ierr + xml_shakeAlert_readVertex((void *)vertex_xml, VTX_NAN,
+                                                &lat[nv], &lon[nv], &depth[nv]);
         if (ierr != 0)
         {
             log_errorF("%s Error unpacking vertex %d\n", fcnm, nv + 1);
@@ -180,18 +179,20 @@ int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
     rc = 0;
     writer = (xmlTextWriterPtr )xml_writer;
     npts = shape;
-    if (shape < 2 || shape > 4){
+    if (shape < 2 || shape > 4)
+    {
         log_errorF("%s: Invalid shape %d\n", fcnm, shape);
         return -1;
     }
     // Begin <vertices>
     rc = xmlTextWriterStartElement(writer, BAD_CAST "vertices\0");
     // Write each vertex 
-    for (i=0; i<npts; i++){
-        rc = GFAST_xml_shakeAlert_writeVertex(lats[i], lat_units,
-                                              lons[i], lon_units,
-                                              depths[i], depth_units,
-                                              (void *)writer);
+    for (i=0; i<npts; i++)
+    {
+        rc = xml_shakeAlert_writeVertex(lats[i], lat_units,
+                                        lons[i], lon_units,
+                                        depths[i], depth_units,
+                                        (void *)writer);
         if (rc < 0)
         {
             log_errorF("%s: Error writing vertex\n", fcnm);

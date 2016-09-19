@@ -86,22 +86,22 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
         return -1;
     }
     // Write the vertices
-    rc = GFAST_xml_shakeAlert_writeVertices(shape,
-                                            lats, lat_units,
-                                            lons, lon_units,
-                                            depths, depth_units,
-                                            (void *)writer);
+    rc = xml_shakeAlert_writeVertices(shape,
+                                      lats, lat_units,
+                                      lons, lon_units,
+                                      depths, depth_units,
+                                      (void *)writer);
     if (rc < 0)
     {
         log_errorF("%s: Error writing vertices %d\n", fcnm, rc);
         return -1;
     }
     // Write the slip
-    rc = GFAST_xml_shakeAlert_writeSlip(ss, ss_units,
-                                        ds, ds_units,
-                                        ss_uncer, ss_uncer_units,
-                                        ds_uncer, ds_uncer_units,
-                                        (void *)writer);
+    rc = xml_shakeAlert_writeSlip(ss, ss_units,
+                                  ds, ds_units,
+                                  ss_uncer, ss_uncer_units,
+                                  ds_uncer, ds_uncer_units,
+                                  (void *)writer);
     if (rc < 0)
     {
         log_errorF("%s: Error writing slip\n", fcnm);

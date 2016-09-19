@@ -106,32 +106,32 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     // <focalMechanism>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "focalMechanism\0");
     // Write the moment tensor 
-    ierr = GFAST_xml_quakeML_writeMomentTensor(publicIDroot,
-                                               evid,
-                                               method,
-                                               M_use,
-                                               src.seismic_moment,
-                                               src.DC_percentage,
-                                               src.CLVD_percentage,
-                                               (void *) xml_writer);
+    ierr = xml_quakeML_writeMomentTensor(publicIDroot,
+                                         evid,
+                                         method,
+                                         M_use,
+                                         src.seismic_moment,
+                                         src.DC_percentage,
+                                         src.CLVD_percentage,
+                                         (void *) xml_writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing momentTensor!\n", fcnm);
         return -1;
     }
     // Write the nodal planes
-    ierr = GFAST_xml_quakeML_writeNodalPlanes(src.fp1, src.fp2,
-                                              (void *) writer);
+    ierr = xml_quakeML_writeNodalPlanes(src.fp1, src.fp2,
+                                        (void *) writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing nodal planes\n", fcnm);
         return -1;
     }
     // Write the principal axes
-    ierr = GFAST_xml_quakeML_writePrincipalAxes(taxis,
-                                                paxis,
-                                                naxis,
-                                                (void *) writer);
+    ierr = xml_quakeML_writePrincipalAxes(taxis,
+                                          paxis,
+                                          naxis,
+                                          (void *) writer);
     if (ierr != 0)
     {
         log_errorF("%s: Error writing principal axes\n", fcnm);
