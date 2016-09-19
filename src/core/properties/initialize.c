@@ -33,7 +33,7 @@ int core_properties_initialize(const char *propfilename,
     ierr =-1;
     memset(props, 0, sizeof(struct GFAST_props_struct));
     props->opmode = opmode;
-    if (!os_path_isfile(propfilename))
+    if (!ISCL_os_path_isfile(propfilename))
     {
         log_errorF("%s: Properties file: %s does not exist\n",
                    fcnm, propfilename);
@@ -46,7 +46,7 @@ int core_properties_initialize(const char *propfilename,
     //-------------------------GFAST General Parameters-----------------------//
     s = iniparser_getstring(ini, "general:sitefile\0", "GFAST_streams.txt\0");
     strcpy(props->sitefile, s);
-    if (!os_path_isfile(props->sitefile))
+    if (!ISCL_os_path_isfile(props->sitefile))
     {
         log_errorF("%s: Cannot find station list %s\n", fcnm, props->sitefile);
         return -1;
@@ -70,7 +70,7 @@ int core_properties_initialize(const char *propfilename,
         if (s != NULL)
         {
             strcpy(props->obsdata_file, s);
-            if (!os_path_isfile(props->obsdata_file))
+            if (!ISCL_os_path_isfile(props->obsdata_file))
             {
                 log_errorF("%s: Observed data file %s doesn't exist\n",
                            fcnm, props->obsdata_file);
@@ -115,7 +115,7 @@ int core_properties_initialize(const char *propfilename,
     if (props->opmode == OFFLINE)
     {
         // Make sure the EEW XML file exists
-        if (!os_path_isfile(props->eewsfile))
+        if (!ISCL_os_path_isfile(props->eewsfile))
         {
             log_errorF("%s: Cannot find EEW XML file!\n",
                        fcnm, props->eewsfile);
@@ -208,7 +208,7 @@ int core_properties_initialize(const char *propfilename,
     else
     {
         strcpy(props->h5ArchiveDir, s);
-        if (!os_path_isdir(props->h5ArchiveDir))
+        if (!ISCL_os_path_isdir(props->h5ArchiveDir))
         {
             log_warnF("%s: Archive directory %s doesn't exist\n",
                        fcnm, props->h5ArchiveDir);
