@@ -21,7 +21,7 @@ hid_t h5_open_rdonly(const char *flname)
 {
     const char *fcnm = "h5_open_rdonly\0";
     hid_t file_id;
-    if (!os_path_isfile(flname))
+    if (!ISCL_os_path_isfile(flname))
     {
         log_errorF("%s: HDF5 file %s does not exist!\n", fcnm, flname);
     }

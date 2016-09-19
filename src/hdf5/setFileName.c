@@ -55,9 +55,9 @@ int hdf5_setFileName(const char *adir,
         else
         {
             // Require the directory exists - if not make it
-            if (!os_path_isdir(adir))
+            if (!ISCL_os_path_isdir(adir))
             {
-                ierr = os_makedirs(adir);
+                ierr = ISCL_os_makedirs(adir);
                 if (ierr != 0)
                 {
                     log_errorF("%s: Failed making directory %s\n", fcnm, adir);
