@@ -444,12 +444,12 @@ int hdf5_update__gpsData(const char *adir,
 {
     const char *fcnm = "hdf5_update__gpsData\0";
     const char *item_root = "/GFAST_History/Iteration\0";
-    char h5fl[PATH_MAX], dataName[256];
+    char h5fl[PATH_MAX];
     struct h5_gpsData_struct h5_gpsData;
     //struct h5_waveform3CData_struct h5_3cdata;
     hid_t dataSet, dataSpace, dataType, fileID, groupID;
     char gpsGroup[256];
-    int i, ierr;
+    int ierr;
     hsize_t dimInfo[1] = {1};
     const int rank = {1};
     //------------------------------------------------------------------------//
