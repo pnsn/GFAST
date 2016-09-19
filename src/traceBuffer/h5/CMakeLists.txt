@@ -2,6 +2,8 @@ add_sources(
 copyTraceBufferToGFAST.c
 finalize.c
 getData.c
+getDoubleArray.c
+getScalars.c
 initialize.c
 setFileName.c
 setTraceBufferFromGFAST.c

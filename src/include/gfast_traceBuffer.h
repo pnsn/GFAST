@@ -52,6 +52,19 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace);
 /* Get data from the HDF5 file */
 int traceBuffer_h5_getData(const double t1, const double t2,
                            struct h5traceBuffer_struct *h5traceBuffer);
+/* Get a double array */
+int traceBuffer_h5_getDoubleArray(const hid_t groupID,
+                                  const int i1, const int i2, 
+                                  const char *citem,
+                                  const double traceNaN, 
+                                  const int nwork,
+                                  double *__restrict__ work);
+/* Get scalar data from the HDF5 file */
+int traceBuffer_h5_getScalars(const hid_t groupID,
+                              const int intNaN,
+                              const double doubleNaN,
+                              int *maxpts,
+                              double *dt, double *ts1, double *ts2);
 /* Initialize the HDF5 tracebuffer structure */
 int traceBuffer_h5_initialize(const int job,
                               const bool linMemory,
@@ -69,6 +82,10 @@ int traceBuffer_h5_setFileName(const char *h5dir,
               traceBuffer_h5_finalize(__VA_ARGS__)
 #define GFAST_traceBuffer_h5_getData(...)       \
               traceBuffer_h5_getData(__VA_ARGS__)
+#define GFAST_traceBuffer_h5_getDoubleArray(...)       \
+              traceBuffer_h5_getDoubleArray(__VA_ARGS__)
+#define GFAST_traceBuffer_h5_getScalars(...)       \
+              traceBuffer_h5_getScalars(__VA_ARGS__)
 #define GFAST_traceBuffer_h5_initialize(...)       \
               traceBuffer_h5_initialize(__VA_ARGS__)
 #define GFAST_traceBuffer_h5_setFileName(...)       \
