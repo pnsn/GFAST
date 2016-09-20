@@ -47,6 +47,10 @@ int traceBuffer_h5_getData(const double t1, const double t2,
     // Loop on the traces
     for (i=0; i<h5traceBuffer->ntraces; i++)
     {
+        // Set the trace to a fail
+        ISCL_memory_free__double(&h5traceBuffer->traces[i].data);
+        h5traceBuffer->traces[i].t1 = 0.0;
+        h5traceBuffer->traces[i].ncopy = 0;
         // Open the group for reading 
         groupID = H5Gopen2(h5traceBuffer->fileID,
                            h5traceBuffer->traces[i].groupName, H5P_DEFAULT);
@@ -60,9 +64,15 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             ierrAll = ierrAll + 1;
             continue;
         }
+        if (maxpts < 1)
+        {
+            log_errorF("%s: Error maxpts is wrong %d\n", fcnm, maxpts);
+            ierrAll = ierrAll + 1;
+            continue;
+        }
         if (dt <= 0.0)
         {
-            log_errorF("%s: Error dt is wrong %f!\n", fcnm);
+            log_errorF("%s: Error dt is wrong %f!\n", fcnm, dt);
             ierrAll = ierrAll + 1;
             continue;
         }
@@ -81,7 +91,6 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             continue;
         }
         ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
-        ISCL_memory_free__double(&h5traceBuffer->traces[i].data);
         work = ISCL_memory_alloc__double(ncopy);
         // Set the databuffers and names
         memset(dataBuffer1, 0, sizeof(dataBuffer1));

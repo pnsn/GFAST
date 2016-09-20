@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "gfast_struct.h"
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
@@ -12,6 +13,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
 {
     const char *fcnm = "traceBuffer_h5_setTraceBufferFromGFAST\0";
     char temp[1024];
+    double dt0;
     int i, j, k;
     // Count the number of traces
     traceBuffer->ntraces = 0;
@@ -31,6 +33,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
         return -1;
     }
     i = 0;
+    dt0 =-12345.0;
     traceBuffer->traces = calloc(traceBuffer->ntraces,
                                  sizeof(struct h5trace_struct));
     for (k=0; k<gps_data.stream_length; k++)
@@ -56,6 +59,13 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
             traceBuffer->traces[i].groupName
                 = (char *)calloc(strlen(temp)+1, sizeof(char)); 
             strcpy(traceBuffer->traces[i].groupName, temp);
+            if (dt0 ==-12345.0){dt0 = gps_data.data[k].dt;}
+            if (fabs(dt0 - gps_data.data[k].dt)/dt0 > 1.e-10)
+            {
+                log_errorF("%s: Error can't yet handle multirate data\n",
+                           fcnm);
+                return -1;
+            } 
             traceBuffer->traces[i].dt = gps_data.data[k].dt;
             traceBuffer->traces[i].maxpts  
                 = (int) (bufflen/traceBuffer->traces[i].dt + 0.5) + 1;

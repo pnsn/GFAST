@@ -11,6 +11,11 @@
 /*!
  * @brief Writes the data on the h5traceBuffer to the HDF5 archive
  *
+ * @param[in] npupd           number of points to update
+ * @param[in] h5traceBuffer   contains the data and streams to be updated in the
+ *                            HDF5 file
+ *
+ * @result 0 indicates success
  *
  */
 int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
@@ -24,8 +29,25 @@ int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
     herr_t status;
     //------------------------------------------------------------------------//
     //
-    // Error checking
-    if (h5traceBuffer->ntraces == 0){return 0;} // Nothing to update
+    // Never initialized
+    if (!h5traceBuffer->linit)
+    {
+        log_errorF("%s: Error h5traceBuffer not initialized\n", fcnm);
+        return -1;
+    }
+    // No data
+    if (h5traceBuffer->ntraces == 0){return 0;}
+    // Nothing to update
+    lnoData = true;
+    for (i=0; i<h5traceBuffer->ntraces; i++)
+    {
+        if (h5traceBuffer->traces[i].ncopy > 0)
+        {
+            lnoData = false;
+            break;
+        } 
+    }
+    if (lnoData){return 0;}
     // Get the min and max times to copy
     ierr = 0;
     ierrAll = 0;
@@ -108,4 +130,105 @@ int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
  
     }
     return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Updates the subset of data in the existing dataSetName
+ *        to dataSet[i1:i2] inclusive
+ *
+ * @param[in] groupID      HDF5 group handle containing dataSetID
+ * @param[in] dataSetName  null terminated name of HDF5 dataset
+ * @param[in] i1           first index in HDF5 (C numbered)
+ * @param[in] i2           last index in HDF5 to write data (C numbered)
+ * @param[in] npts         number of data points to write (should = i2 - i1 + 1)
+ * @param[in] data         dataset to write [npts]
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
+int udpate_dataSet(const hid_t groupID,
+                   const char *dataSetName,  
+                   int i1, int i2, const int npts,
+                   const double *__restrict__ data)
+{
+    const char *fcnm = "udpate_dataSet\0";
+    hid_t dataSetID, dataSpace, memSpace;
+    herr_t status;
+    hsize_t count[1], chunkDims[1], dims[1], offset[1];
+    const int rank = 1; // Data is 1 dimensional
+    //------------------------------------------------------------------------//
+    //
+    // Nothing to do
+    if (npts == 0){return 0;}
+    // Check the inputs
+    if (i2 < i1 || npts != i2 - i1 + 1 || data == NULL)
+    {
+        if (i2 < i1){log_errorF("%s: Error i2 < i1!\n", fcnm);}
+        if (npts != i2 - i1 + 1)
+        {
+            log_errorF("%s: Error npts != i2 - i1 + 1\n", fcnm);
+        }
+        if (data == NULL){log_errorF("%s: data is NULL\n", fcnm);}
+        return -1;
+    }
+    if (H5Lexists(groupID, dataSetName, H5P_DEFAULT != 1))
+    {
+        log_errorF("%s: Dataset %s does not exist\n", fcnm, dataSetName); 
+        return -1;
+    }
+    // Open the dataspace
+    dataSetID = H5Dopen(groupID, dataSetName, H5P_DEFAULT);
+    dataSpace = H5Dget_space(dataSetID);
+    if (H5Sget_simple_extent_ndims(dataSpace) != rank)
+    {
+        log_errorF("%s: Invalid rank\n", fcnm);
+        status =-1;
+        goto ERROR1;
+    }
+    status = H5Sget_simple_extent_dims(dataSpace, dims, NULL);
+    if (dims[0] < npts)
+    {
+        log_errorF("%s: Too many points to write %d %d!\n",
+                   fcnm, npts, (int) dims[0]);
+        status =-1;
+        goto ERROR1;
+    }
+    if (dims[0] < i1 + npts)
+    {
+        log_errorF("%s: Trying to write past end of data %d %d %d!\n",
+                   fcnm, i1, npts, (int) dims[0]);
+        status =-1;
+        goto ERROR1;
+    } 
+    chunkDims[0] = dims[0];
+    memSpace = H5Screate_simple(rank, chunkDims, NULL); 
+    // Select HDF5 chunk
+    status = 0;
+    offset[0] = i1;
+    count[0] = npts;
+    status = H5Sselect_hyperslab(dataSpace, H5S_SELECT_SET, offset, NULL,
+                                 count, NULL);
+    if (status < 0)
+    {
+        log_errorF("%s: Error selecting hyperslab\n", fcnm);
+        status =-1;
+        goto ERROR2;
+    }
+    // Write the data to that space
+    status = H5Dwrite(dataSetID, H5T_NATIVE_DOUBLE, memSpace, dataSpace,
+                      H5P_DEFAULT, data); 
+    if (status < 0)
+    {
+        log_errorF("%s: Error writing data\n", fcnm);
+        status =-1;
+        goto ERROR2;
+    }
+ERROR2:;
+    status = H5Sclose(memSpace);
+ERROR1:;
+    status = H5Sclose(dataSpace);
+    status = H5Dclose(dataSetID);
+    return status;
 }
