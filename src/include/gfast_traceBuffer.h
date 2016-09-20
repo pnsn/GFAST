@@ -9,19 +9,21 @@
 struct h5trace_struct
 {
     char *groupName;      /*!< Full path to HDF5 group (null terminated) */
-    double *buffer1;      /*!< Dataset 1 [maxpts] */
-    double *buffer2;      /*!< Dataset 2 [maxpts] */
+    double *buffer1;      /*!< Dataset 1 [maxpts] - TODO - delete its in h5 */
+    double *buffer2;      /*!< Dataset 2 [maxpts] - TODO - delete its in h5 */
     double *data;         /*!< Data to be copied onto other structure [ncopy] */
     double t1;            /*!< Start time of data (UTC-seconds) */
-    double t1beg;         /*!< Epochal start time of buffer1 (UTC-seconds) */
-    double t2beg;         /*!< Epochal start time of buffer2 (UTC-seconds) */
+    double t1beg;         /*!< Epochal start time of buffer1 (UTC-seconds) - TODO - delete */
+    double t2beg;         /*!< Epochal start time of buffer2 (UTC-seconds) - TODO - delete */
     double dt;            /*!< Sampling period (seconds) */
     int idest;            /*!< Maps this trace back to the appropriate
                                three-component data stream */
     int maxpts;           /*!< Max number of points in data buffers */
-    int npts1;            /*!< Number of points in buffer 1 */
-    int npts2;            /*!< Number of points in buffer 2 */
-    int ncopy;            /*!< Number of points to copy */
+    int npts1;            /*!< Number of points in buffer 1 - TODO - delete */
+    int npts2;            /*!< Number of points in buffer 2 - TODO - delete */
+    int ncopy;            /*!< Number of points to copy from Earthworm traceBuffer
+                               to HDF5 or number of points to copy from HDF5 to
+                               GFAST data buffer */
 };
 
 struct h5traceBuffer_struct
