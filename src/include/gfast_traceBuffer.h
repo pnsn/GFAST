@@ -9,12 +9,12 @@
 struct h5trace_struct
 {
     char *groupName;      /*!< Full path to HDF5 group (null terminated) */
-    double *buffer1;      /*!< Dataset 1 [maxpts] - TODO - delete its in h5 */
-    double *buffer2;      /*!< Dataset 2 [maxpts] - TODO - delete its in h5 */
+    //double *buffer1;      /*!< Dataset 1 [maxpts] - TODO - delete its in h5 */
+    //double *buffer2;      /*!< Dataset 2 [maxpts] - TODO - delete its in h5 */
     double *data;         /*!< Data to be copied onto other structure [ncopy] */
     double t1;            /*!< Start time of data (UTC-seconds) */
-    double t1beg;         /*!< Epochal start time of buffer1 (UTC-seconds) - TODO - delete */
-    double t2beg;         /*!< Epochal start time of buffer2 (UTC-seconds) - TODO - delete */
+    //double t1beg;         /*!< Epochal start time of buffer1 (UTC-seconds) - TODO - delete */
+    //double t2beg;         /*!< Epochal start time of buffer2 (UTC-seconds) - TODO - delete */
     double dt;            /*!< Sampling period (seconds) */
     int idest;            /*!< Maps this trace back to the appropriate
                                three-component data stream */
@@ -77,6 +77,13 @@ int traceBuffer_h5_initialize(const int job,
 int traceBuffer_h5_setFileName(const char *h5dir,
                                const char *h5file,
                                char h5name[PATH_MAX]);
+/* Set scalar data */
+int traceBuffer_h5_setDoubleScalar(const hid_t groupID,
+                                   const char *citem,
+                                   const double scalar);
+int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
+                                    const char *citem,
+                                    const double scalar);
 
 #define GFAST_traceBuffer_h5_copyTraceBufferToGFAST(...)       \
               traceBuffer_h5_copyTraceBufferToGFAST(__VA_ARGS__)
@@ -92,6 +99,10 @@ int traceBuffer_h5_setFileName(const char *h5dir,
               traceBuffer_h5_initialize(__VA_ARGS__)
 #define GFAST_traceBuffer_h5_setFileName(...)       \
               traceBuffer_h5_setFileName(__VA_ARGS__)
+#define GFAST_traceBuffer_h5_setDoubleScalar(...)       \
+              traceBuffer_h5_setDoubleScalar(__VA_ARGS__)
+#define GFAST_traceBuffer_h5_setIntegerScalar(...)       \
+              traceBuffer_h5_setIntegerScalar(__VA_ARGS__)
 #define GFAST_traceBuffer_h5_setTraceBufferFromGFAST(...)       \
               traceBuffer_h5_setTraceBufferFromGFAST(__VA_ARGS__)
 

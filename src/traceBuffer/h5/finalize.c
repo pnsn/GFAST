@@ -22,6 +22,7 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
     const char *fcnm = "traceBuffer_h5_finalize\0";
     herr_t status;
     int i, ierr;
+    //------------------------------------------------------------------------//
     ierr = 0;
     if (!h5trace->linit)
     {
@@ -36,14 +37,6 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
             if (h5trace->traces[i].groupName != NULL)
             {
                 free(h5trace->traces[i].groupName);
-            }
-            if (h5trace->traces[i].buffer1 != NULL)
-            {
-                free(h5trace->traces[i].buffer1);
-            }
-            if (h5trace->traces[i].buffer2 != NULL)
-            {
-                free(h5trace->traces[i].buffer2);
             }
         }
         free(h5trace->traces);
