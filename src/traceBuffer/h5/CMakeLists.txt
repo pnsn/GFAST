@@ -5,6 +5,7 @@ getData.c
 getDoubleArray.c
 getScalars.c
 initialize.c
+setData.c
 setFileName.c
 setTraceBufferFromGFAST.c
 )

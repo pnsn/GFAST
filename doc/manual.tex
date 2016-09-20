@@ -41,6 +41,33 @@ Geodetic First Approximation of Size and Timing: \\ User's Guide
 copy brendan's original manual, note the amazon funding, and add brendan's publications
 so people know what to cite  
 
+G-FAST (Geodetic First Approximation of Size and Timing) was developed by Brendan Crowell
+as a Python based geodetic earthquake early warning (EEW) module.  Funding from Amazon has
+allowed PNSN to developed a compiled-language production variant of G-FAST for integration 
+into the USGS's next generation ShakeAlert EEW system.  The software is released under the 
+license described in Appendix \ref{s:license}.
+
+Nominally, G-FAST acquires real-time geodetic data and, when triggered by a ShakeAlert
+message, activates three geodetic co-seismic inversion suites: a peak ground displacement 
+(PGD) inversion, a centroid moment tensor (CMT) inversion, and a CMT driven slip or finite fault
+inversion.  The PGD module provides a quick and robust estimate of magnitude.  
+The CMT inversion provides a robust estimate of magnitude, depth, and moment tensor
+components.  The moment-tensor derived fault planes and depth are then passed onto the
+slip inversion which resolves the CMT fault plane ambiguity while providing an 
+additional magnitude estimate.  The PGD and slip model are then passed onto the
+ShakeAlert decision module as the event unfolds.  
+
+As in the Python implementation, G-FAST still acquires real-time data from the Pacific
+Northwest Geodetic Array (PANGA) and, in the EEW context, is triggered on ShakeAlert
+messages.  The key differences are now that an Earthworm server is responsible for the
+import of PANGA data and the ShakeAlert communication is directly implemented via  
+ActiveMQ.  Additionally, G-FAST has been separated into multiple C-libraries to encourage
+reuse by groups outside of EEW.  
+
+
+
+ 
+
 \clearpage
 \section{Installation}
 This section outlines the GFAST installation procedure.  This consists of two primary steps.
@@ -82,10 +109,12 @@ follow the strategy of
         which is freely available at \url{https://software.intel.com/sites/campaigns/nest/}.
         Also, note that MKL contains an implementation of FFTw and may reduce the number of
         dependencies. 
-  \item Check a package manager for a pre-built LAPACK and BLAS which is distributed with a
+  \item Check a package manager for a pre-built LAPACK and BLAS which are distributed with a
   modified BSD license.
+  \item TODO: look for OpenBLAS then, if not found, ATLAS in the CMakeModules if using a 
+  package manager's lapacke + blas.      
   \item At last resort obtain and build LAPACK and BLAS from \url{http://www.netlib.org/lapack/}
-  which is distributed with a modified BSD license.  
+  which are distributed with a modified BSD license. 
 \end{enumerate}
 
 \subsubsection{libGeographic}
@@ -201,18 +230,39 @@ HDF5 file format is selected.  For playbacks, a pre-processing program can be us
 a valid input data 
 file\footnote{`File' is a generic word in the context of this discussion.  
 It is unnecessary and potentially undesirable from a performance standpoint that
-the file actually exist on disk space.  The illusion of keeping the file on actual disk
-is accomplished by instructing HDF5 to memory map the data file during the start-up phase.}
+the file physically exist in the computer's disk space.  The illusion of keeping 
+the file on disk is accomplished by instructing HDF5 to memory map the data 
+file during the start-up phase.}
 which is queried by a simple API for data in a given a time range.  
 Likewise, real-time data is  
 written\footnote{The writes can be to memory or disk.}
 to an HDF5 file with the same structure as a playback data file and, like in playback mode,
 can be queried by the same API as the playback for data in a given time range.
 
+\begin{center}
+\begin{figure}
+\includegraphics[scale=0.55]{Figs/gfast_dataIO.jpg}
+\caption{A depiction of the current data flow.  The goal is to put the data in a common, 
+continuous, finite-sized format hereby encapsulated by the HDF5 archive.  
+In the context of playbacks the bottom functions are not used.
+Hence, it is the same function that queries the HDF5 archive in playback and 
+real-time mode and the G-FAST application developer is only exposed to one data 
+fetcher API.  The API is very simple in that G-FAST specifies two times, for example 
+the event origin time and the current time, and the data is returned with the understanding
+some data may be latent or non-existent and have a predetermined value indicating its absence. 
+For real-time scenarios the Earthworm acquisition must be configured 
+and running prior to launching a G-FAST application.  However, the GPS ring is 
+accessed directly by a G-FAST function.  In addition to a playback, a real-time application 
+must call the G-FAST ring reader function periodically, say every second, as to refresh the 
+HDF5 archive.
+}\label{F:gfastDataIO}
+\end{figure}
+\end{center}
+
 \clearpage
 \subsection{XML Output}
 This section outlines the three XML data products.  Two XML products, PGD and finite fault, have
-defined shakeAlert schemas.  The third XML product is a QuakeML summary CMT summary for potentially
+defined ShakeAlert schemas.  The third XML product is a QuakeML summary CMT summary for potentially
 expediting communication between the tsunami warning centers and NEIC. 
 
 \clearpage
@@ -221,6 +271,18 @@ This section outlines the HDF5 summary files.  HDF5 is a portable and high perfo
 utility which makes it possible to easily archive the results\footnote{Since results are 
 encapsulated in data structures the HDF5 files are the data structures after each iteration.}
 of GFAST after each iteration thereby providing a snapshot of the GFAST execution and 
+
+\section{Acknowledgements}
+This software was developed with funds from the amazon catylyst and government grants a, b, c and d.  
+
+\appendix
+\section{License}\label{s:license}
+brendan, you have to email the comotion (tech transfer) and see what they want.  
+i'm going to guess this software belongs to uw, ideally it is free (as in beer) in
+an academic or government setting, uw owns all modifications to the software, the software
+is provided as is, and you cannot hold uw liable.  they may settle for a gpl-3 which would 
+be a good compromise if the goal is to keep a company from touching it.  this may have
+already been decided in the amazon catalyst proposal. 
 
 \end{document}
 
