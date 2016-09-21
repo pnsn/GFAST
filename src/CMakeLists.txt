@@ -30,6 +30,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
   ${LIBXML2_INCLUDE_DIR}
   ${H5_C_INCLUDE_DIR}
   ${INIPARSER_INCLUDE_DIR}
+  ${EW_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR})
 
 #macro for adding sources
@@ -63,6 +64,7 @@ include_directories(${LIBAMQ_INCLUDE_DIR} ${APR_INCLUDE_DIR})
 add_subdirectory(activeMQ)
 endif (AMQ_FOUND)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EW_BUILD_FLAGS}" CACHE STRING "" FORCE)
 
 #set(CORE_SOURCE
 #    add_subdirectory(core)
@@ -87,6 +89,21 @@ add_executable(gfast_eew gfast_eew.c ${SRCS_EEW} ${SRCS_H5TB})
 
 if (MKL_FOUND)
  if (IPP_FOUND)
+  message(${ISCL_LIBRARY})
+  if (EW_FOUND)
+    set (LIBBASE ${ISCL_LIBARARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+                 ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
+                 ${LIBXML2_LIBRARY} ${EW_LIBRARY})
+  else()
+    set (LIBBASE ${ISCL_LIBARARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+                 ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
+                 ${LIBXML2_LIBRARY})
+  endif(EW_FOUND)
+  if (AMQ_FOUND) 
+    set (LIBRT ${LIBBASE} ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY})
+  else ()
+    set (LIBRT ${LIBBASE})
+  endif ()
   target_link_libraries(gfast_eew
                         gfast_xml_static
                         gfast_hdf5_static
@@ -119,6 +136,7 @@ if (MKL_FOUND)
                         ${H5_LIBRARY}
                         ${LIBXML2_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${EW_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
  else()
@@ -152,6 +170,7 @@ if (MKL_FOUND)
                         ${GEOLIB_LIBRARY}
                         ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
+                        ${EW_LIBRARY} 
                         ${LIBXML2_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
@@ -188,6 +207,7 @@ else()
                         ${GEOLIB_LIBRARY}
                         ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
+                        ${EW_LIBRARY}
                         ${LIBXML2_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
@@ -220,6 +240,7 @@ else()
                         ${GEOLIB_LIBRARY}
                         ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
+                        ${EW_LIBRARY}
                         ${LIBXML2_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
