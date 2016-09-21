@@ -21,7 +21,7 @@ if (not BLAS_LIBRARY)
     NAMES blas
     HINTS /usr/lib /usr/lib64 $ENV{BLASDIR}/lib ${LIB_INSTALL_DIR}
   )
-endif
+endif ()
 #find_file(CBLAS_LIBRARY
 #  libcblas.so.3
 #  libcblas.a
