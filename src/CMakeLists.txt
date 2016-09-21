@@ -17,6 +17,7 @@ find_package(GeographicLib REQUIRED)
 find_package(H5 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(XML2 REQUIRED)
+find_package(EW REQUIRED)
 find_package(IPP)
 find_package(AMQ)
 # Bring in headers
@@ -100,6 +101,7 @@ if (MKL_FOUND)
                         ${GEOLIB_LIBRARIES}
                         ${H5_LIBRARIES}
                         ${LIBXML2_LIBRARIES}
+                        ${EW_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread)
