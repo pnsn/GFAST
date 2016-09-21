@@ -136,6 +136,7 @@ if (MKL_FOUND)
                         ${H5_LIBRARIES}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
+                        ${EW_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread)
@@ -171,6 +172,7 @@ else()
                         ${H5_LIBRARIES}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
+                        ${EW_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread -lgfortran)
@@ -203,6 +205,7 @@ else()
                         ${H5_LIBRARIES}
                         ${ZLIB_LIBRARY}
                         ${LIBXML2_LIBRARIES}
+                        ${EW_LIBRARIES}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARIES}
                         -lm -ldl -lpthread -lgfortran)
