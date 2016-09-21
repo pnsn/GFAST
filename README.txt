@@ -1,7 +1,11 @@
 
+For installation instructions RTFM in doc/manual.pdf
+
 Introduction:
 
-Dependencies:
+Read the manual.
+
+Dependencies (verify with manual):
 
 (a)  You must have cmake >= 2.6 for generation of makefiles
 
@@ -102,7 +106,7 @@ Install:
      stabilized.  This is because the Python to C interfaces are low
      priority for development.
 
-Directories:
+Directories (this is valid - TODO: copy to manual):
 
 (a)  doc - documentation for algorithms
 
