@@ -2,7 +2,7 @@
 #
 
 # This module defines
-#  MKL_LIBRARIES, the libraries to link against to use MKL.
+#  MKL_LIBRARY, the libraries to link against to use MKL.
 #  MKL_DEFINITIONS - You should ADD_DEFINITONS(${MKL_DEFINITIONS}) before compiling code that includes MKL library files.
 #  MKL_FOUND, If false, do not try to use MKL.
 
@@ -18,25 +18,25 @@ FOREACH (MKL_NAME ${MKL_NAMES})
    SET(TMP_LIBRARY ${${MKL_NAME}_LIBRARY})
 
    IF(TMP_LIBRARY)
-      SET(MKL_LIBRARIES ${MKL_LIBRARIES} ${TMP_LIBRARY})
+      SET(MKL_LIBRARY ${MKL_LIBRARY} ${TMP_LIBRARY})
    ENDIF()
 endforeach()
 
-IF (MKL_LIBRARIES)
-    SET(MKL_LIBRARIES ${MKL_LIBRARIES})
+IF (MKL_LIBRARY)
+    SET(MKL_LIBRARY ${MKL_LIBRARY})
     SET(MKL_FOUND "YES")
-ENDIF (MKL_LIBRARIES)
+ENDIF (MKL_LIBRARY)
 
 IF (MKL_FOUND)
     IF (NOT MKL_FIND_QUIETLY)
-	MESSAGE(STATUS "Found MKL: ${MKL_LIBRARIES}")
+	MESSAGE(STATUS "Found MKL: ${MKL_LIBRARY}")
     ENDIF (NOT MKL_FIND_QUIETLY)
-    MARK_AS_ADVANCED(MKL_LIBRARIES MKL_LIBRARIES)
+    MARK_AS_ADVANCED(MKL_LIBRARY MKL_LIBRARY)
 ELSE (MKL_FOUND)
     IF (MKL_FIND_REQUIRED)
 	MESSAGE(FATAL_ERROR "Could not find MKL library")
     ENDIF (MKL_FIND_REQUIRED)
 ENDIF (MKL_FOUND)
 include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (MKL DEFAULT_MSG MKL_LIBRARIES)
-mark_as_advanced(MKL_LIBRARIES)
+find_package_handle_standard_args (MKL DEFAULT_MSG MKL_LIBRARY)
+mark_as_advanced(MKL_LIBRARY)

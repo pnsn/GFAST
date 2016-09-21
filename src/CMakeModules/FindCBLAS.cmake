@@ -1,20 +1,28 @@
 # include(FindLibraryWithDebug)
-if (CBLAS_INCLUDE_DIR AND CBLAS_LIBRARIES AND BLAS_LIBRARIES)
+if (CBLAS_INCLUDE_DIR AND CBLAS_LIBRARY AND BLAS_LIBRARY)
   set(CBLAS_FIND_QUIETLY TRUE)
-endif (CBLAS_INCLUDE_DIR AND CBLAS_LIBRARIES AND BLAS_LIBRARIES)
+endif (CBLAS_INCLUDE_DIR AND CBLAS_LIBRARY AND BLAS_LIBRARY)
 find_path(CBLAS_INCLUDE_DIR
   NAMES cblas.h
   HINTS /usr/include $ENV{CBLASDIR}/include ${INCLUDE_INSTALL_DIR}
 )
-find_library(CBLAS_LIBRARIES
+find_library(CBLAS_LIBRARY
   NAMES cblas
   HINTS /usr/lib /usr/lib64 $ENV{CBLASDIR}/lib ${LIB_INSTALL_DIR}
 )
-find_library(BLAS_LIBRARIES
-  NAMES blas
-  HINTS /usr/lib /usr/lib64 $ENV{CBLASDIR}/lib ${LIB_INSTALL_DIR}
+# Look for openBLAS first
+find_library(BLAS_LIBRARY
+(
+  NAME openblas
+  HINTS /usr/lib /usr/lib64 $ENV{BLASDIR}/lib ${LIB_INSTALL_DIR}
 )
-#find_file(CBLAS_LIBRARIES
+if (not BLAS_LIBRARY)
+  find_library(BLAS_LIBRARY
+    NAMES blas
+    HINTS /usr/lib /usr/lib64 $ENV{BLASDIR}/lib ${LIB_INSTALL_DIR}
+  )
+endif
+#find_file(CBLAS_LIBRARY
 #  libcblas.so.3
 #  libcblas.a
 #  libblas.so.3
@@ -27,5 +35,5 @@ find_library(BLAS_LIBRARIES
 #)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(CBLAS DEFAULT_MSG
-                                  CBLAS_INCLUDE_DIR CBLAS_LIBRARIES BLAS_LIBRARIES)
-mark_as_advanced(CBLAS_INCLUDE_DIR CBLAS_LIBRARIES BLAS_LIBRARIES)
+                                  CBLAS_INCLUDE_DIR CBLAS_LIBRARY BLAS_LIBRARY)
+mark_as_advanced(CBLAS_INCLUDE_DIR CBLAS_LIBRARY BLAS_LIBRARY)

@@ -13,7 +13,7 @@ else()
 endif (MKL_FOUND)
 find_package(IniParser REQUIRED)
 find_package(ISCL REQUIRED)
-find_package(GeographicLib REQUIRED)
+find_package(GEOLIB REQUIRED)
 find_package(H5 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(XML2 REQUIRED)
@@ -93,33 +93,33 @@ if (MKL_FOUND)
                         gfast_core_static
                         gfast_activeMQ_shared
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
+                        ${ISCL_LIBRARY}
                         -Wl,--start-group
-                        ${MKL_LIBRARIES}
+                        ${MKL_LIBRARY}
                         -Wl,--end-group
-                        ${IPP_LIBRARIES}
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
-                        ${LIBXML2_LIBRARIES}
-                        ${EW_LIBRARIES}
+                        ${IPP_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
+                        ${LIBXML2_LIBRARY}
+                        ${EW_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARIES}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
   target_link_libraries(gfast_playback
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
+                        ${ISCL_LIBRARY}
                         -Wl,--start-group
-                        ${MKL_LIBRARIES}
+                        ${MKL_LIBRARY}
                         -Wl,--end-group
-                        ${IPP_LIBRARIES}
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
-                        ${LIBXML2_LIBRARIES}
+                        ${IPP_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
+                        ${LIBXML2_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARIES}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
  else()
   target_link_libraries(gfast_eew
@@ -128,32 +128,32 @@ if (MKL_FOUND)
                         gfast_core_static
                         gfast_activeMQ_shared
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
+                        ${ISCL_LIBRARY}
                         -Wl,--start-group
-                        ${MKL_LIBRARIES}
+                        ${MKL_LIBRARY}
                         -Wl,--end-group
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARIES}
-                        ${EW_LIBRARIES}
+                        ${LIBXML2_LIBRARY}
+                        ${EW_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARIES}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
   target_link_libraries(gfast_playback
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
+                        ${ISCL_LIBRARY}
                         -Wl,--start-group
-                        ${MKL_LIBRARIES}
+                        ${MKL_LIBRARY}
                         -Wl,--end-group
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARIES}
-                        ${INIPARSER_LIBRARIES}
+                        ${LIBXML2_LIBRARY}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
  endif(IPP_FOUND)
 else()
@@ -164,32 +164,32 @@ else()
                         gfast_core_static
                         gfast_activeMQ_shared
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
-                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
-                        ${IPP_LIBRARIES}
-                        ${FFTW3_LIBRARIES}
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
+                        ${ISCL_LIBRARY}
+                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+                        ${IPP_LIBRARY}
+                        ${FFTW3_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARIES}
-                        ${EW_LIBRARIES}
+                        ${LIBXML2_LIBRARY}
+                        ${EW_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARIES}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
   target_link_libraries(gfast_playback
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
-                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
-                        ${IPP_LIBRARIES}
-                        ${FFTW3_LIBRARIES}
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
+                        ${ISCL_LIBRARY}
+                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+                        ${IPP_LIBRARY}
+                        ${FFTW3_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARIES}
-                        ${INIPARSER_LIBRARIES}
+                        ${LIBXML2_LIBRARY}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
  else()
   target_link_libraries(gfast_eew
@@ -198,30 +198,30 @@ else()
                         gfast_core_static
                         gfast_activeMQ_shared
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
-                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
-                        ${FFTW3_LIBRARIES}
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
+                        ${ISCL_LIBRARY}
+                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+                        ${FFTW3_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARIES}
-                        ${EW_LIBRARIES}
+                        ${LIBXML2_LIBRARY}
+                        ${EW_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARIES}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
   target_link_libraries(gfast_playback
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
                         cmopad_shared
-                        ${ISCL_LIBRARIES}
-                        ${LAPACKE_LIBRARIES} ${LAPACK_LIBRARIES} ${CBLAS_LIBRARIES} ${BLAS_LIBRARIES}
-                        ${FFTW3_LIBRARIES}
-                        ${GEOLIB_LIBRARIES}
-                        ${H5_LIBRARIES}
+                        ${ISCL_LIBRARY}
+                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+                        ${FFTW3_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
                         ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARIES}
-                        ${INIPARSER_LIBRARIES}
+                        ${LIBXML2_LIBRARY}
+                        ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
  endif(IPP_FOUND)
 endif(MKL_FOUND)

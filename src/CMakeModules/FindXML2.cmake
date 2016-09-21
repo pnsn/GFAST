@@ -2,7 +2,7 @@
 # Once done this will define
 #  LIBXML2_FOUND - System has LibXml2
 #  LIBXML2_INCLUDE_DIR - The LibXml2 include directories
-#  LIBXML2_LIBRARIES - The libraries needed to use LibXml2
+#  LIBXML2_LIBRARY - The libraries needed to use LibXml2
 #  LIBXML2_DEFINITIONS - Compiler switches required for using LibXml2
 
 find_package(PkgConfig)
@@ -24,5 +24,5 @@ find_package_handle_standard_args(LibXml2  DEFAULT_MSG
 
 mark_as_advanced(LIBXML2_INCLUDE_DIR LIBXML2_LIBRARY )
 
-set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY} )
+set(LIBXML2_LIBRARY ${LIBXML2_LIBRARY} )
 set(LIBXML2_INCLUDE_DIR ${LIBXML2_INCLUDE_DIR} )
