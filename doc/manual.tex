@@ -193,19 +193,21 @@ src/CMakeLists.txt  file.
 
 To increase the likelihood that G-FAST can be compiled on multiple platforms (e.g. Linux, 
 Windows, OSX) and ease the burden on developers to modify cumbersome makefiles G-FAST 
-adopts an automatic makefile generation utility in CMake.  Naively, one can descend 
-into G-FAST's src directory and type 
+adopts the \href{https://cmake.org/}{CMake} automatic makefile generation utility.  
+Naively, one can descend into G-FAST's src directory and type 
 \begin{verbatim}
 cmake .
 \end{verbatim}  
 The CMakeModules will attempt to find the requisite libraries and may be moderately successful
-if items are installed in `standard'
-locations.  Alternatively, if one would rather specify paths to custom directories
-cmake can be used by  
+if items are installed in `standard' locations.  
+
+Alternatively, if one would prefers a less serendipitous build then the paths to the custom
+directories can be provided directly to cmake  
 \begin{verbatim}
 cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DCMAKE_INSTALL_PREFIX=./ \
       -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
+      -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED  -D_USE_PTHREADS" \
       -DCMAKE_CXX_FLAGS="-g3 -O2" \
       -DAPR_INCLUDE_DIR=path_to_include_apr-1 \
       -DLIBAMQ_INCLUDE_DIR=path_to_include_activemq-cpp-3.8.2 \
@@ -238,6 +240,7 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DCMAKE_C_COMPILER=/usr/bin/gcc-5 \
       -DCMAKE_CXX_COMPILER=/usr/bin/c++ \
       -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall" \
+      -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED  -D_USE_PTHREADS" \
       -DCMAKE_CXX_FLAGS="-g3 -O2" \
       -DAPR_INCLUDE_DIR=path_to_apr \
       -DLIBAMQ_LIBRARY=path_to_libactivemq-cpp \
@@ -257,6 +260,11 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DLIBXML2_INCLUDE_DIR=path_to_libxml2_include \
       -DLIBXML2_LIBRARY=path_to_libxml2
 \end{verbatim}
+In both instances the Earthworm pre-processor flags were obtained from the appropriate
+${GLOBALVARS}$ as to be consistent with Earthworm headers.  If Earthworm cannot be
+detected or is not specified then the lone directory which depends on Earthworm will
+not be built and there will be no real-time acquisition capability.  This may be 
+advantageous if only building a playback facility.  
 
 \clearpage
 \section{GFAST Library Overview}
