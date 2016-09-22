@@ -5,6 +5,7 @@
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
+
 /*!
  * @brief Allocates space for the CMT grid search 
  *
