@@ -1,7 +1,6 @@
+#ifndef _cmopad_h__
+#define _cmopad_h__ 1
 #include <stdbool.h>
-
-#ifndef __CMOPAD_H__
-#define __CMOPAD_H__
 
 struct cmopad_struct
 {
@@ -85,4 +84,4 @@ double cmopad_momentMagnitudeM3x3(const double M[3][3], int *ierr);
 #ifdef __cplusplus
 }
 #endif
-#endif /* __CMOPAD_H__ */
+#endif /* _cmopad_h__ */
