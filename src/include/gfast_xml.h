@@ -1,5 +1,5 @@
-#ifndef __XML_H__
-#define __XML_H__
+#ifndef _gfast_xml_h__
+#define _gfast_xml_h__ 1
 
 #include "gfast_struct.h"
 #include "gfast_enum.h"
@@ -338,5 +338,5 @@ int xml_shakeAlert_writeVertex(const double lat,
 #ifdef __cplusplus
 }
 #endif
-#endif /* __GFAST_XML_H__ */
+#endif /* _gfast_xml_h__ */
 

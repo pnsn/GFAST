@@ -1,3 +1,5 @@
+#ifndef _gfast__h_
+#define _gfast__h_ 1
 #include <stdbool.h>
 #include "gfast_activeMQ.h"
 #include "gfast_core.h"
@@ -8,8 +10,6 @@
 #include "gfast_struct.h"
 #include "gfast_traceBuffer.h"
 #include "gfast_xml.h"
-#ifndef __GFAST__
-#define __GFAST__
 
 #define GFAST_ALGORITHM_VERSION "0.01"
 #define GFAST_VERSION "0.01"
@@ -61,4 +61,4 @@ int GFAST_readElarmS_ElarmSMessage2SAStruct(int verbose, char *buff,
 #ifdef __cplusplus
 }
 #endif
-#endif /* #ifndef __GFAST__ */
+#endif /* #ifndef _gfast__h_ */

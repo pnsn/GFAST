@@ -1,7 +1,7 @@
+#ifndef _gfast_core_h__
+#define _gfast_core_h__ 1
 #include <omp.h>
 #include "gfast_struct.h"
-#ifndef __GFAST_CORE_H__
-#define __GFAST_CORE_H__
 #ifdef __cplusplus
 extern "C"
 {
@@ -432,4 +432,4 @@ int core_waveformProcessor_peakDisplacement(
 #ifdef __cplusplus
 }
 #endif
-#endif /* __GFAST_CORE_H__ */
+#endif /* _gfast_core_h__ */

@@ -1,5 +1,5 @@
-#ifndef __GFAST_ENUM__
-#define __GFAST_ENUM__
+#ifndef _gfast_enum__
+#define _gfast_enum__ 1
 
 enum dtinit_type
 {
@@ -79,4 +79,4 @@ enum alert_units_enum
     NEWTON_METERS= 8,     /*!< Torque - Newton meters */
 };
 
-#endif /* __GFAST_ENUM__ */
+#endif /* _gfast_enum__ */

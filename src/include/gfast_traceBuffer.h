@@ -1,10 +1,9 @@
+#ifndef _gfast_tracebuffer_h__
+#define _gfast_tracebuffer_h__ 1
 #include <hdf5.h>
 #include <stdbool.h>
 #include <limits.h>
 #include "gfast_struct.h"
-
-#ifndef __GFAST_TRACEBUFFER_H__
-#define __GFAST_TRACEBUFFER_H__
 
 struct h5trace_struct
 {
@@ -119,4 +118,4 @@ int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
 }
 #endif
 
-#endif /* __GFAST_TRACEBUFFER_H__ */
+#endif /* _gfast_tracebuffer_h__ */

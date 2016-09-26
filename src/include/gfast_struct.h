@@ -1,9 +1,9 @@
+#ifndef _gfast_struct_h__
+#define _gfast_struct_h__ 1
 #include <stdbool.h>
 #include <limits.h>
 #include "gfast_enum.h"
 
-#ifndef __GFAST_STRUCT_H__
-#define __GFAST_STRUCT_H__
 
 struct GFAST_pgd_props_struct
 {
@@ -519,4 +519,4 @@ struct GFAST_xmlMessages_struct
     int mmessages; /*!< Max number of XML messages */
 };
 
-#endif /* __GFAST_STRUCT_H__ */
+#endif /* _gfast_struct_h__ */

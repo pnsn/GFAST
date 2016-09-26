@@ -1,7 +1,7 @@
+#ifndef _gfast_eewutils_h__
+#define _gfast_eewutils_h__ 1
 #include "gfast_struct.h"
 #include "gfast_traceBuffer.h"
-#ifndef __GFAST_EEWUTILS_H__
-#define __GFAST_EEWUTILS_H__
 
 #ifdef __cplusplus
 extern "C" 

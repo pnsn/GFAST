@@ -1,9 +1,12 @@
+#ifndef _gfast_hdf5_h__
+#define _gfast_hdf5_h__ 1
 #include <limits.h>
 #include <hdf5.h>
 #include "gfast_struct.h"
 
-#ifndef __GFAST_HDF5_H__
-#define __GFAST_HDF5_H__
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 enum data2h5_enum
 {
@@ -363,4 +366,4 @@ hid_t h5_create_group(const hid_t file_id, const char *cgroup);
 #ifdef __cplusplus
 }
 #endif
-#endif /* __GFAST_HDF5_H__ */
+#endif /* _gfast_hdf5_h__ */

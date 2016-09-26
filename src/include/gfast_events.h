@@ -1,8 +1,7 @@
+#ifndef _gfast_events_h__
+#define _gfast_events_h__ 1
 #include <stdbool.h>
 #include "gfast_struct.h"
-
-#ifndef __GFAST_EVENTS_H__
-#define __GFAST_EVENTS_H__
 
 #ifdef __cplusplus
 extern "C"
@@ -46,4 +45,4 @@ bool events_updateEvent(struct GFAST_shakeAlert_struct SA,
 #ifdef __cplusplus
 }
 #endif
-#endif /* __GFAST_EVENTS_H__ */
+#endif /* _gfast_events_h__ */

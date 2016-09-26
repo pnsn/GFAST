@@ -1,5 +1,5 @@
-#ifndef __GFAST_ACTIVEMQ_H__
-#define __GFAST_ACTIVEMQ_H__
+#ifndef _gfast_activemq_h__
+#define _gfast_activemq_h__ 1
 
 #ifdef __cplusplus
 extern "C"
@@ -51,4 +51,4 @@ char *activeMQ_setTcpURIRequest(const char *host,
 #ifdef __cplusplus
 }
 #endif
-#endif /* __GFAST_ACTIVEMQ_H__ */
+#endif /* _gfast_activemq_h__ */
