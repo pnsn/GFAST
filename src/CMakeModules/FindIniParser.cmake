@@ -11,14 +11,14 @@ SET(INIPARSER_FOUND "NO")
 
 FIND_PATH(INIPARSER_INCLUDE_DIR
     NAMES iniparser.h
-    HINTS /usr/include
+    HINTS /usr/include /usr/local/include
 )
 
 SET(INIPARSER_NAMES ${INIPARSER_NAMES} libiniparser.a)
 FOREACH (INIPARSER_NAME ${INIPARSER_NAMES})
    FIND_LIBRARY(${INIPARSER_NAME}_LIBRARY
        NAMES ${INIPARSER_NAME} 
-       PATHS /usr/lib /usr/lib64
+       PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64
    )
    SET(TMP_LIBRARY ${${INIPARSER_NAME}_LIBRARY})
 

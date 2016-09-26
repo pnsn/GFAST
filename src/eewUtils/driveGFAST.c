@@ -70,10 +70,22 @@ int eewUtils_driveGFAST(const double currentTime,
             }
             // Set the log file names
             setFileNames(SA.eventid);
-            if (os_path_isfile(errorLogFileName)){remove(errorLogFileName);}
-            if (os_path_isfile(infoLogFileName)){remove(infoLogFileName);}
-            if (os_path_isfile(debugLogFileName)){remove(debugLogFileName);}
-            if (os_path_isfile(warnLogFileName)){remove(warnLogFileName);}
+            if (ISCL_os_path_isfile(errorLogFileName))
+            {
+                remove(errorLogFileName);
+            }
+            if (ISCL_os_path_isfile(infoLogFileName))
+            {
+                remove(infoLogFileName);
+            }
+            if (ISCL_os_path_isfile(debugLogFileName))
+            {
+                remove(debugLogFileName);
+            }
+            if (ISCL_os_path_isfile(warnLogFileName))
+            {
+                remove(warnLogFileName);
+            }
             // Initialize the HDF5 file
             ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                          SA.eventid,

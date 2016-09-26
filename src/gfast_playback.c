@@ -170,22 +170,18 @@ int main()
                  if (xmlMessages.evids[im] != NULL)
                  {
                      free(xmlMessages.evids[im]);
-                     xmlMessages.evids = NULL;
                  }
                  if (xmlMessages.cmtQML[im] != NULL)
                  {
                      free(xmlMessages.cmtQML[im]);
-                     xmlMessages.cmtQML = NULL;
                  }
                  if (xmlMessages.pgdXML[im] != NULL)
                  {
                      free(xmlMessages.pgdXML[im]);
-                     xmlMessages.pgdXML = NULL;
                  }
                  if (xmlMessages.ffXML[im] != NULL)
                  {
                      free(xmlMessages.ffXML[im]);
-                     xmlMessages.ffXML = NULL;
                  }
              }
              if (xmlMessages.evids == NULL){free(xmlMessages.evids);}
@@ -198,19 +194,20 @@ int main()
     log_infoF("%s: Simultation time: %f\n", fcnm, time_timeStamp() - tbeg);
 ERROR:;
     if (elarms_xml_message != NULL){free(elarms_xml_message);}
-    GFAST_core_cmt_finalize(&props.cmt_props,
-                            &cmt_data,
-                            &cmt);
-    GFAST_core_ff_finalize(&props.ff_props,
-                           &ff_data,
-                           &ff);
-    GFAST_core_scaling_pgd_finalize(&props.pgd_props,
-                                    &pgd_data,
-                                    &pgd);
-    GFAST_core_data_finalize(&gps_data);
-    GFAST_core_properties_finalize(&props);
-    GFAST_core_data_finalize(&gps_data);
-    GFAST_traceBuffer_h5_finalize(&h5traceBuffer);
+    core_cmt_finalize(&props.cmt_props,
+                      &cmt_data,
+                      &cmt);
+    core_ff_finalize(&props.ff_props,
+                     &ff_data,
+                     &ff);
+    core_scaling_pgd_finalize(&props.pgd_props,
+                              &pgd_data,
+                              &pgd);
+    core_data_finalize(&gps_data);
+    core_properties_finalize(&props);
+    core_data_finalize(&gps_data);
+    events_freeEvents(&events);
+    traceBuffer_h5_finalize(&h5traceBuffer);
     ISCL_iscl_finalize();
     if (ierr != 0)
     {   

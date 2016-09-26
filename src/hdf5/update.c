@@ -37,7 +37,7 @@ int hdf5_update__getIteration(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!os_path_isfile(h5fl))
+    if (!ISCL_os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -96,7 +96,7 @@ int hdf5_update__hypocenter(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!os_path_isfile(h5fl))
+    if (!ISCL_os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -175,7 +175,7 @@ int hdf5_update__pgd(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!os_path_isfile(h5fl))
+    if (!ISCL_os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -271,7 +271,7 @@ int hdf5_update__cmt(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!os_path_isfile(h5fl))
+    if (!ISCL_os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -367,7 +367,7 @@ int hdf5_update__ff(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1; 
     }   
-    if (!os_path_isfile(h5fl))
+    if (!ISCL_os_path_isfile(h5fl))
     {   
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1; 
@@ -463,7 +463,7 @@ int hdf5_update__gpsData(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!os_path_isfile(h5fl))
+    if (!ISCL_os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -501,6 +501,7 @@ int hdf5_update__gpsData(const char *adir,
     {
         log_errorF("%s: Error writing Greens functions\n", fcnm);
     }
+    ierr = hdf5_memory__freeGPSData(&h5_gpsData);
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
     ierr = ierr + H5Tclose(dataType);
