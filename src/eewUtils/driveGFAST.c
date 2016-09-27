@@ -10,6 +10,7 @@
 #include "gfast_traceBuffer.h"
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
+#include "iscl/log/logfiles.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
