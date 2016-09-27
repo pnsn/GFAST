@@ -184,10 +184,10 @@ int main()
                      free(xmlMessages.ffXML[im]);
                  }
              }
-             if (xmlMessages.evids == NULL){free(xmlMessages.evids);}
-             if (xmlMessages.cmtQML == NULL){free(xmlMessages.cmtQML);}
-             if (xmlMessages.ffXML  == NULL){free(xmlMessages.ffXML);}
-             if (xmlMessages.pgdXML == NULL){free(xmlMessages.pgdXML);}
+             if (xmlMessages.evids != NULL){free(xmlMessages.evids);}
+             if (xmlMessages.cmtQML != NULL){free(xmlMessages.cmtQML);}
+             if (xmlMessages.ffXML  != NULL){free(xmlMessages.ffXML);}
+             if (xmlMessages.pgdXML != NULL){free(xmlMessages.pgdXML);}
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
          }
     }

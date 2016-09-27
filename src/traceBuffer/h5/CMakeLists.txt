@@ -7,5 +7,6 @@ getScalars.c
 initialize.c
 setData.c
 setFileName.c
+setScalars.c
 setTraceBufferFromGFAST.c
 )

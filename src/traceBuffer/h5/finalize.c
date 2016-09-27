@@ -38,6 +38,10 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
             {
                 free(h5trace->traces[i].groupName);
             }
+            if (h5trace->traces[i].metaGroupName != NULL)
+            {
+                free(h5trace->traces[i].metaGroupName);
+            }
         }
         free(h5trace->traces);
     }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
@@ -133,12 +134,21 @@ static int copyTrace(const int npts,
                      double *__restrict__ dest)
 {
     const char *fcnm = "copyTrace\0";
-    int i;
+    int i, ierr;//, nc;
+    ierr = 0;
     if (npts > ndest)
     {
-        log_errorF("%s: npts > ndest %d %d\n", npts, ndest);
+        log_errorF("%s: npts > ndest %d %d\n", fcnm, npts, ndest);
         return 1;
     }
+/*
+    ierr = ISCL__array_copy__double(npts, origin, dest);
+    nc = npts - ndest + 1;
+    if (nc > 0)
+    {
+        ierr = ISCL__array_set__double(nc, NAN, &dest[npts]);
+    }
+*/
     if (ndest > 0 && dest == NULL)
     {
         log_errorF("%s: dest is NULL\n", fcnm);
@@ -159,5 +169,5 @@ static int copyTrace(const int npts,
     {
         dest[i] = NAN;
     }
-    return 0;
+    return ierr;
 }

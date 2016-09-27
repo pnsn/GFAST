@@ -162,7 +162,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                 }
             }
             h5traceBuffer->traces[i].data = work;
-            h5traceBuffer->traces[i].t1 = ts1 + (double) i1*dt;
+            h5traceBuffer->traces[i].t1 = ts1Use + (double) i1*dt;
             h5traceBuffer->traces[i].ncopy = ncopy;
         }
         else
@@ -184,7 +184,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                     continue;
                 }
                 h5traceBuffer->traces[i].data = work;
-                h5traceBuffer->traces[i].t1 = ts2 + (double) j1*dt;
+                h5traceBuffer->traces[i].t1 = ts2Use + (double) j1*dt;
                 h5traceBuffer->traces[i].ncopy = ncopy;
             }
             else
