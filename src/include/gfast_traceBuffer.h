@@ -13,6 +13,29 @@
 #define PATH_MAX 4096
 #endif
 
+#ifdef USE_EW
+#include <transport.h>
+#include <earthworm.h>
+#include <trace_buf.h>
+struct ewRing_struct
+{
+    char ewRingName[512];  /*!< Earthworm ring name to which we will connect */
+    SHM_INFO region;       /*!< Earthworm shared memory region corresponding to
+                                the earthworm ring */
+    MSG_LOGO *getLogo;     /*!< Logos to scrounge from the ring [nlogo] */
+    long ringKey;          /*!< Ring key number */
+    short nlogo;           /*!< Number of logos */
+    bool linit;            /*!< True if the structure is initialized.
+                                False if the structure is not initialized. */
+    unsigned msWait;       /*!< microseconds to wait after reading ring */
+};
+#else
+struct ewRing_struct
+{
+    bool linit;            /*!< Bogus value so that compilation proceeds */ 
+};
+#endif
+
 struct h5trace_struct
 {
     char netw[64];        /*!< Network name for forming earthworm requests */

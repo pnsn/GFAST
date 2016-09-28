@@ -64,6 +64,11 @@ include_directories(${LIBAMQ_INCLUDE_DIR} ${APR_INCLUDE_DIR})
 add_subdirectory(activeMQ)
 endif (AMQ_FOUND)
 
+if (EW_FOUND)
+MESSAGE("Will use Earthworm")
+add_definitions(-DUSE_EW=1)
+endif (EW_FOUND)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EW_BUILD_FLAGS}" CACHE STRING "" FORCE)
 
 #set(CORE_SOURCE

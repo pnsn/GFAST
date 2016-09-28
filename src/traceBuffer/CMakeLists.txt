@@ -1,5 +1,5 @@
 add_subdirectory(h5)
 if (EW_FOUND)
-add_subdirectory(ew)
+add_subdirectory(ewrr)
 endif (EW_FOUND)
 set (SRCS_H5TB ${SRCS} PARENT_SCOPE)

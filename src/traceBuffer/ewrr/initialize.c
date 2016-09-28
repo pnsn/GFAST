@@ -8,7 +8,6 @@
 #include <limits.h>
 #include <math.h>
 #include <string.h>
-#include <trace_buf.h>
 #include <transport.h>
 #include <earthworm.h>
 #include <trace_buf.h>
@@ -26,22 +25,6 @@ typedef struct
    unsigned char TypeWaveform;    /*!< Earthworm waveform messages */
 } EWH;
 
-struct ewRing_struct
-{
-    char ewRingName[512];  /*!< Earthworm ring name to which we will connect */
-    SHM_INFO region;       /*!< Earthworm shared memory region corresponding to
-                                the earthworm ring */
-    MSG_LOGO *getLogo;     /*!< Logos to scrounge from the ring [nlogo] */
-    long ringKey;          /*!< Ring key number */
-    short nlogo;           /*!< Number of logos */
-    bool linit;            /*!< True if the structure is initialized.
-                                False if the structure is not initialized. */
-    unsigned msWait;       /*!< microseconds to wait after reading ring */
-};
-
-//static SHM_INFO inRegion;
-//static long ringKey;
-
 /*!
  * @brief Initializes the HDF5
  *
@@ -51,15 +34,14 @@ struct ewRing_struct
  *
  *
  */
-int traceBuffer_ew_initialize(const char configFile[PATH_MAX],
-                              const char tablePath[PATH_MAX],
-                              const char *ewRing,
-                              const int msWait,
-                              SHM_INFO *region,
-                              struct ewRing_struct *ringInfo)
+int traceBuffer_ewrr_initialize(const char configFile[PATH_MAX],
+                                const char tablePath[PATH_MAX],
+                                const char *ewRing,
+                                const int msWait,
+                                SHM_INFO *region,
+                                struct ewRing_struct *ringInfo)
 {
-    const char *fcnm = "traceBuffer_ew_initialize\0";
-    //long msgLen;
+    const char *fcnm = "traceBuffer_ewrr_initialize\0";
     char fullTablePath[PATH_MAX];
     // Check the inputs
     if (ringInfo == NULL)
@@ -100,39 +82,12 @@ int traceBuffer_ew_initialize(const char configFile[PATH_MAX],
         return -1;
     }
     tport_attach(&ringInfo->region, ringInfo->ringKey);
-/*
-    if (GetConfig(fullTablePath, &Gparm) ==-1)
-    {
-        log_errorF("%s: GetConfig failed with file %s\n", fcnm, configFile);
-        return -1;
-    }
-*/
-    
-    // Attach to existing transport rings
-    //tport_attach(&Gparm.InRegion, Gparm.lInKey);
-    // Flush the input waveform ring
-/*
-    while (tport_copyfrom( &region, getlogo, nLogo, &logo, &gotsize,
-           (char *)&msg, MAX_TRACEBUF_SIZ, &sequence_number ) != GET_NONE )
-    {
-         packet_total++;
-         packet_total_size += gotsize;
-    } 
-*/
-/*
-    result = tport_getmsg(&Gparm.InRegion, &getlogoW, 1, &logo, &msgLen,
-                          waveBuf, MAX_TRACEBUF_SIZ);
-    while (result != GET_NONE)
-    {
-        result = tport_getmsg(&Gparm.InRegion, &getlogoW, 1, &logo, &msgLen,
-                              waveBuf, MAX_TRACEBUF_SIZ);
-    }
-*/
+    ringInfo->linit = true;
     return 0;
 }
 //============================================================================//
 /*!
- * @brief Classifies the earthworm message
+ * @brief Classifies return value from an earthworm get transport activity 
  *
  * @param[in] retval    earthworm return code to classify
  *
@@ -142,9 +97,9 @@ int traceBuffer_ew_initialize(const char configFile[PATH_MAX],
  * @retval -2 an error occurred and no messages were received
  *
  */
-int traceBuffer_ew_classifyRetval(const int retval)
+int traceBuffer_ewrr_classifyGetRetval(const int retval)
 {
-    const char *fcnm = "traceBuffer_ew_classifyRetval\0";
+    const char *fcnm = "traceBuffer_ewrr_classifyGetRetval\0";
     char msg[128];
     // Got a requested message (modid, type, class)
     if (retval == GET_OK){return 1;}
@@ -199,9 +154,9 @@ int traceBuffer_ew_classifyRetval(const int retval)
     return -2;
 }
 //============================================================================//
-int traceBuffer_ew_flushRing(const int msWait, struct ewRing_struct *ringInfo)
+int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo)
 {
-    const char *fcnm = "traceBuffer_ew_flushRing\0";
+    const char *fcnm = "traceBuffer_ewrr_flushRing\0";
     MSG_LOGO logo;
     char msg[MAX_TRACEBUF_SIZ];
     unsigned char sequenceNumber;
@@ -229,7 +184,7 @@ int traceBuffer_ew_flushRing(const int msWait, struct ewRing_struct *ringInfo)
                                 &logo, &gotSize, msg, MAX_TRACEBUF_SIZ,
                                 &sequenceNumber);
     }
-    if (msWait < 0)
+    if (ringInfo->msWait <= 0)
     {
         return 0;
     }
@@ -250,9 +205,9 @@ int traceBuffer_ew_flushRing(const int msWait, struct ewRing_struct *ringInfo)
  * @author Ben Baker (ISTI)
  *
  */
-int traceBuffer_ew_finalize(struct ewRing_struct *ringInfo)
+int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo)
 {
-    const char *fcnm = "traceBuffer_ew_finalize\0";
+    const char *fcnm = "traceBuffer_ewrr_finalize\0";
     if (!ringInfo->linit)
     {
         log_errorF("%s: Error ewRing_struct was never initialized\n", fcnm);
