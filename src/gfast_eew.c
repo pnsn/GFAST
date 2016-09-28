@@ -109,7 +109,10 @@ int main(int argc, char **argv)
         log_errorF("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
+    // Connect to the earthworm
+ 
     // Begin the acquisition loop
+    log_infoF("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
     t0 = (double) (long) ISCL_time_timeStamp();
     lacquire = true;
