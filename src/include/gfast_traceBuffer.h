@@ -79,6 +79,22 @@ extern "C"
 {
 #endif
 
+
+/* Initialize the earthworm ring reader connection */
+int traceBuffer_ewrr_initialize(const char configFile[PATH_MAX],
+                                const char tablePath[PATH_MAX],
+                                const char *ewRing,
+                                const int msWait,
+                                SHM_INFO *region,
+                                struct ewRing_struct *ringInfo);
+/* Classify return value from Earthworm get transport call */
+int traceBuffer_ewrr_classifyGetRetval(const int retval);
+/* Flush an earthworm ring */
+int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
+/* Finalize earthworm ring reader */
+int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
+
+
 /* Copies the trace buffer to the GFAST structure */
 int traceBuffer_h5_copyTraceBufferToGFAST(
     struct h5traceBuffer_struct *traceBuffer,

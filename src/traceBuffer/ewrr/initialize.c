@@ -8,9 +8,7 @@
 #include <limits.h>
 #include <math.h>
 #include <string.h>
-#include <transport.h>
-#include <earthworm.h>
-#include <trace_buf.h>
+#include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 
 
