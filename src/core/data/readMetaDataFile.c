@@ -345,7 +345,7 @@ static int splitLine(const char *cline,
         i = i + 1;
         token = strtok(NULL, split);
     }
-    if (i != 13)
+    if (i != 13 && i != 14)
     {
         log_errorF("%s: Failed to split line %d %s\n", fcnm, i, cline);
         ierr = 1;
