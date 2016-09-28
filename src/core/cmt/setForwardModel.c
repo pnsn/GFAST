@@ -7,6 +7,10 @@
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 /*!
  * @brief Computes matrix of Green's functions for the CMT inversion.
  *        If the deviatoric constraint is applied then the columns of 

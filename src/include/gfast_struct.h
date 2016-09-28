@@ -116,6 +116,12 @@ struct GFAST_activeMQ_struct
                                      (default is 0) */
 };
 
+struct GFAST_ew_struct
+{
+    char gpsRingName[256];      /*!< Name of earthworm ring with GPS data */
+    char moduleName[256];       /*!< Earthworm module name */ 
+};
+
 struct GFAST_props_struct
 {
     struct GFAST_pgd_props_struct
@@ -127,6 +133,8 @@ struct GFAST_props_struct
     struct GFAST_activeMQ_struct
            activeMQ_props;       /*!< ActiveMQ properties (required for 
                                       earthquake early warning) */
+    struct GFAST_ew_struct
+           ew_props;             /*!< Earthworm properties */
     char metaDataFile[PATH_MAX]; /*!< Contains the GPS metadata file 
                                       which defines the sites, locations,
                                       sampling periods, etc. to be used

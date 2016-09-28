@@ -4,6 +4,10 @@
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 /*!
  * @brief Meshes a fault plane from the magnitude, strike, and dip
  *        computed in the CMT inversion.   Note the fault patch at 

@@ -8,6 +8,9 @@
 #define eps 6.1232e-14 /*!< A close number for okadaGreenF */
 // Poisson's ratio
 #define nu 0.25 /*!< Poisson's ratio for okadaGreenF */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 #pragma omp declare simd
 static inline void __ss_ds(const double cos_dip, const double sin_dip,

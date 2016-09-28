@@ -459,6 +459,23 @@ int core_properties_initialize(const char *propfilename,
             props->activeMQ_props.msWaitForMessage = 1;
         }
     } // End check on need for ActiveMQ
+    //---------------------------Earthworm parameters-------------------------//
+    if (props->opmode == REAL_TIME_EEW)
+    {
+        s = iniparser_getstring(ini, "earthworm:gpsRingName\0", "WAVE_RING\0");
+        strcpy(props->ew_props.gpsRingName, s);
+        if (strlen(props->ew_props.gpsRingName) < 1)
+        {
+            log_warnF("%s: GPS ring name may not be specified\n", fcnm);
+        }
+        s = iniparser_getstring(ini, "earthworm:moduleName\0", "geojson2ew\0");
+        strcpy(props->ew_props.moduleName, s);
+        if (strlen(props->ew_props.moduleName) < 1)
+        {
+            log_errorF("%s: Module name is not specified\n", fcnm);
+            goto ERROR;
+        }
+    }
     //----------------------------RabbitMQ Parameters-------------------------//
 /*
     s = iniparser_getstring(ini, "RabbitMQ:RMQhost\0", NULL);

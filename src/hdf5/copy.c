@@ -725,10 +725,12 @@ int hdf5_copy__waveform3CData(const enum data2h5_enum job,
         h5_data->nbuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
         h5_data->ebuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
         h5_data->tbuff.p = (double *)calloc(fmax(npts, 1), sizeof(double));
+        h5_data->gain.p  = (double *)calloc(3, sizeof(double));
         h5_data->ubuff.len = fmax(npts, 1);
         h5_data->nbuff.len = fmax(npts, 1);
         h5_data->ebuff.len = fmax(npts, 1);
         h5_data->tbuff.len = fmax(npts, 1);
+        h5_data->gain.len  = 3;
         if (npts > 0)
         {
             cblas_dcopy(npts, data->ubuff, 1, h5_data->ubuff.p, 1);
@@ -743,6 +745,7 @@ int hdf5_copy__waveform3CData(const enum data2h5_enum job,
             cblas_dcopy(1, nanv, 1, h5_data->ebuff.p, 1);
             cblas_dcopy(1, nanv, 1, h5_data->tbuff.p, 1);
         }
+        cblas_dcopy(3, data->gain, 1, h5_data->gain.p, 1);
         h5_data->dt = data->dt;
         h5_data->sta_lat = data->sta_lat;
         h5_data->sta_lon = data->sta_lon;
