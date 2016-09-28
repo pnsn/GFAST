@@ -22,15 +22,15 @@ void core_properties_print(struct GFAST_props_struct props)
     log_debugF("\n%s: GFAST properties\n", fcnm);
     if (props.opmode == OFFLINE)
     {
-        log_debugF("%s GFAST site position file %s\n", lspace,
-                   props.sitefile);  
+        log_debugF("%s GFAST site metadata file %s\n", lspace,
+                   props.metaDataFile);  
         log_debugF("%s GFAST is operating in offline mode\n", lspace);
         log_debugF("%s GFAST default sampling period is %f (s)\n", lspace,
                    props.dt_default);
         if (props.dt_init == INIT_DT_FROM_FILE)
         {
             log_debugF("%s GFAST will get sampling period from file %s\n",
-                       lspace, props.sitefile); 
+                       lspace, props.metaDataFile); 
         }
         else if (props.dt_init == INIT_DT_FROM_DEFAULT)
         {
@@ -45,7 +45,7 @@ void core_properties_print(struct GFAST_props_struct props)
         if (props.loc_init == INIT_LOCS_FROM_FILE)
         {
             log_debugF("%s GFAST will initialize locations from file %s\n",
-                       lspace, props.sitefile);
+                       lspace, props.metaDataFile);
         }
         else if (props.loc_init == INIT_LOCS_FROM_TRACEBUF)
         {
@@ -72,7 +72,7 @@ void core_properties_print(struct GFAST_props_struct props)
         log_debugF("%s GFAST time between iterations is %f (s)\n", lspace,
                    props.waitTime);
         log_debugF("%s GFAST site position file %s\n", lspace,
-                   props.sitefile);
+                   props.metaDataFile);
         log_debugF("%s GFAST default sampling period is %f (s)\n", lspace,
                    props.dt_default);
         if (props.opmode == REAL_TIME_EEW)
@@ -107,7 +107,16 @@ void core_properties_print(struct GFAST_props_struct props)
                    props.utm_zone);
     }
     log_debugF("%s GFAST verbosity level is %d\n", lspace, props.verbose);
-    log_debugF("%s GFAST stream file: %s\n", lspace, props.sitefile);
+    log_debugF("%s GFAST stream file: %s\n", lspace, props.metaDataFile);
+    if (os_path_isfile(props.siteMaskFile))
+    {
+        log_debugF("%s GFAST will use site maskfile: %s\n", lspace,
+                   props.siteMaskFile);
+    }
+    else
+    {
+        log_debugF("%s GFAST will not mask any sites\n", lspace);
+    } 
     log_debugF("%s GFAST HDF5 archive dir: %s\n", lspace, props.h5ArchiveDir);
     log_debugF("%s GFAST will finish processing an event after %f (s)\n",
                lspace, props.processingTime);

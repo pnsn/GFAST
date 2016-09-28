@@ -1,9 +1,17 @@
 #ifndef _gfast_tracebuffer_h__
 #define _gfast_tracebuffer_h__ 1
-#include <hdf5.h>
-#include <stdbool.h>
+#if defined WINNT || defined WIN32 || defined WIN64
+#include <windows.h>
 #include <limits.h>
+#else
+#include <linux/limits.h>
+#endif
+#include <stdbool.h>
+#include <hdf5.h>
 #include "gfast_struct.h"
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 struct h5trace_struct
 {

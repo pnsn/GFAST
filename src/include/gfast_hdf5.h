@@ -1,8 +1,18 @@
 #ifndef _gfast_hdf5_h__
 #define _gfast_hdf5_h__ 1
+#if defined WINNT || defined WIN32 || defined WIN64
+#include <windows.h>
 #include <limits.h>
+#else
+#include <linux/limits.h>
+#endif
 #include <hdf5.h>
 #include "gfast_struct.h"
+#include "gfast_enum.h"
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -24,6 +34,7 @@ struct h5_waveform3CData_struct
     hvl_t nbuff;
     hvl_t ebuff;
     hvl_t tbuff;
+    hvl_t gain;
     double dt;
     double sta_lat;
     double sta_lon;

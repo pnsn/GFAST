@@ -137,6 +137,7 @@ int hdf5_memory__freeWaveform3CData(struct h5_waveform3CData_struct *data)
     if (data->nbuff.p != NULL){free(data->nbuff.p);}
     if (data->ebuff.p != NULL){free(data->ebuff.p);}
     if (data->tbuff.p != NULL){free(data->tbuff.p);}
+    if (data->gain.p  != NULL){free(data->gain.p);}
     memset(data, 0, sizeof(struct h5_waveform3CData_struct));
     return 0;
 }

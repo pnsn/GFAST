@@ -44,12 +44,23 @@ int core_properties_initialize(const char *propfilename,
     ini = iniparser_load(propfilename);
     strcpy(props->propfilename, propfilename);
     //-------------------------GFAST General Parameters-----------------------//
-    s = iniparser_getstring(ini, "general:sitefile\0", "GFAST_streams.txt\0");
-    strcpy(props->sitefile, s);
-    if (!ISCL_os_path_isfile(props->sitefile))
+    s = iniparser_getstring(ini, "general:metaDataFile\0",
+                            "GFAST_streams.txt\0");
+    strcpy(props->metaDataFile, s);
+    if (!ISCL_os_path_isfile(props->metaDataFile))
     {
-        log_errorF("%s: Cannot find station list %s\n", fcnm, props->sitefile);
+        log_errorF("%s: Cannot find station list %s\n",
+                   fcnm, props->metaDataFile);
         return -1;
+    }
+    s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
+    if (s != NULL)
+    {
+        strcpy(props->siteMaskFile, s);
+        if (!os_path_isfile(props->siteMaskFile))
+        {
+            memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
+        }
     }
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
     if (props->bufflen <= 0.0)
@@ -127,7 +138,7 @@ int core_properties_initialize(const char *propfilename,
             props->dt_init = iniparser_getint(ini, "general:dt_init\0", 1);
             if (s == NULL)
             {
-                log_errorF("%s: Must specify sitefile!\n", fcnm);
+                log_errorF("%s: Must specify metaDataFile!\n", fcnm);
                 goto ERROR; 
             }
         }

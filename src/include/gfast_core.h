@@ -102,9 +102,13 @@ void core_data_finalize(struct GFAST_data_struct *gps_data);
 /* Initializes the GPS metadata */
 int core_data_initialize(struct GFAST_props_struct props,
                          struct GFAST_data_struct *gps_data);
-/* Reads the site file */
-int core_data_readSiteFile(const char *sitefl,
-                           struct GFAST_data_struct *gps_data);
+/* Reads the metadata file */
+int core_data_readMetaDataFile(const char *metaDataFile,
+                               struct GFAST_data_struct *gps_data);
+/* Reads the site mask file */
+int core_data_readSiteMaskFile(const char *siteMaskFile,
+                               const int verbose,
+                               struct GFAST_data_struct *gps_data);
 
 //----------------------------------------------------------------------------//
 //                              finite fault                                  //
@@ -356,8 +360,10 @@ int core_waveformProcessor_peakDisplacement(
               core_data_finalize(__VA_ARGS__)
 #define GFAST_core_data_initialize(...)       \
               core_data_initialize(__VA_ARGS__)
-#define GFAST_core_data_readSiteFile(...)       \
-              core_data_readSiteFile(__VA_ARGS__)
+#define GFAST_core_data_readMetaDataFile(...)       \
+              core_data_readMetaDataFile(__VA_ARGS__)
+#define GFAST_core_data_readSiteMaskFile(...)       \
+              core_data_readSiteMaskFile(__VA_ARGS__)
 
 #define GFAST_core_ff_faultPlaneGridSearch(...)       \
               core_ff_faultPlaneGridSearch(__VA_ARGS__)

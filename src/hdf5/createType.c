@@ -690,6 +690,9 @@ herr_t hdf5_createType__waveform3CData(hid_t group_id)
     ierr += H5Tinsert(dataType, "EpochalTimes\0",
                       HOFFSET(struct h5_waveform3CData_struct, tbuff),
                       vlenDData);
+    ierr += H5Tinsert(dataType, "gain\0",
+                      HOFFSET(struct h5_waveform3CData_struct, gain),
+                      vlenDData);
     ierr += H5Tinsert(dataType, "samplingPeriod\0",
                       HOFFSET(struct h5_waveform3CData_struct, dt),
                       H5T_NATIVE_DOUBLE);

@@ -1,8 +1,16 @@
 #ifndef _gfast_struct_h__
 #define _gfast_struct_h__ 1
-#include <stdbool.h>
+#if defined WINNT || defined WIN32 || defined WIN64
+#include <windows.h>
 #include <limits.h>
+#else
+#include <linux/limits.h>
+#endif
+#include <stdbool.h>
 #include "gfast_enum.h"
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 
 struct GFAST_pgd_props_struct
@@ -119,9 +127,16 @@ struct GFAST_props_struct
     struct GFAST_activeMQ_struct
            activeMQ_props;       /*!< ActiveMQ properties (required for 
                                       earthquake early warning) */
-    char sitefile[PATH_MAX];     /*!< Contains all sites, locations, and 
-                                      sampling periods of streams to be 
-                                      used by GFAST.  */
+    char metaDataFile[PATH_MAX]; /*!< Contains the GPS metadata file 
+                                      which defines the sites, locations,
+                                      sampling periods, etc. to be used
+                                      by GFAST */
+    char siteMaskFile[PATH_MAX]; /*!< Contains a list of sites to mask from
+                                      the inversions.  If not specified then
+                                      all sites will be read. */
+//    char sitefile[PATH_MAX];     /*!< Contains all sites, locations, and 
+//                                       sampling periods of streams to be 
+//                                       used by GFAST. */
     char eewsfile[PATH_MAX];     /*!< In playback mode this XML decision
                                       module style module has the event
                                       hypocenter and origin time */ 
@@ -392,6 +407,7 @@ struct GFAST_waveform3CData_struct
     double sta_lat;   /*!< Site latitude [-90,90] (degrees) */
     double sta_lon;   /*!< Site longitude [0,360] (degrees) */
     double sta_alt;   /*!< Site altitude (m) */
+    double gain[3];   /*!< Instrument gain on all three channels */
     int maxpts;       /*!< Max number of poitns in buffer.  This is 
                            computed from the site sampling period and
                            the GFAST_parm_struct's bufflen */

@@ -29,11 +29,21 @@ int core_data_initialize(struct GFAST_props_struct props,
     // Get the sites to be used
     ierr = 0;
     if (props.verbose > 0){log_infoF("%s: Initializing metadata...\n", fcnm);}
-    ierr = core_data_readSiteFile(props.sitefile, gps_data);
+    ierr = core_data_readMetaDataFile(props.metaDataFile, gps_data);
     if (ierr != 0)
     {
         log_errorF("%s: Error reading sites file!\n", fcnm);
         return -1;
+    }
+    if (os_path_isfile(props.siteMaskFile))
+    {
+        ierr = core_data_readSiteMaskFile(props.siteMaskFile,
+                                          props.verbose, gps_data);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Error reading site mask file\n", fcnm);
+            return -1;
+        }
     }
     // Set the buffer lengths
     for (k=0; k<gps_data->stream_length; k++)

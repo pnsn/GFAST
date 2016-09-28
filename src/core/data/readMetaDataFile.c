@@ -1,39 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static int splitLine(const char *cline,
-                     char netw[64], char stat[64], char chan[64],  char loc[64],
+                     char netw[64], char stat[64], char loc[64], char chan[64],
                      double *lat, double *lon, double *elev,
-                     double *dt, int *iuse);
+                     double *dt, double *gain,
+                     char units[64], char sensorType[64],
+                     double *reflat, double *reflon);
 /*!
- * @brief Reads the site file.  From this we initialize the site network,
- *        station, channel, and location code, it's position (latitude,
- *        longitude, elevation), sampling period, and whether or not the
- *        site/channel will be used in the inversion.
+ * @brief Reads the site metadata file.  From this we initialize the site
+ *        network, station, channel, and location code, it's position (latitude,
+ *        longitude, elevation), sampling period, and gain)
  *
- * @param[in] sitefile    name of GPS site file
+ * @param[in] metaDataFile    name of GPS metadata file
  *
- * @param[out] gps_data   GPS streams with
+ * @param[out] gps_data       GPS streams with
  *
  * @result 0 indicates success
  *
  * @author Ben Baker (ISTI)
  *
  */ 
-int core_data_readSiteFile(const char *sitefile,
-                           struct GFAST_data_struct *gps_data)
+int core_data_readMetaDataFile(const char *metaDataFile,
+                               struct GFAST_data_struct *gps_data)
 {
-    const char *fcnm = "core_acquisition_readSiteFile\0";
+    const char *fcnm = "core_data_readMetaDataFile\0";
     FILE *infl;
     char **textfl, **sites, cline[1024],
          site[256], chan[64], chan1[64], loc[64], loc1[64],
-         netw[64], netw1[64], stat[64], stat1[64];
-    double dt, elev, lat, lon;
-    int *lines, i, ierr, iuse, j, k, lfound, nlines, ns;
+         netw[64], netw1[64], stat[64], stat1[64],
+         sensorType[64], units[64];
+    double gain0[3], dt, elev, gain, lat, lon, reflat, reflon;
+    int *lines, i, ierr, j, k, lfound, nlines, ns;
     // Initialize 
     ierr = 0;
     infl = NULL;
@@ -43,13 +46,13 @@ int core_data_readSiteFile(const char *sitefile,
     nlines = 0;
     ns = 0;
     // Require the site file exists
-    if (!os_path_isfile(sitefile))
+    if (!os_path_isfile(metaDataFile))
     {
         log_errorF("%s: Error site file does not exist!\n", fcnm);
         return -1;
     }
     // Open the file for reading and count the sites
-    infl = fopen(sitefile, "r");
+    infl = fopen(metaDataFile, "r");
     while (fgets(cline, 1024, infl) != NULL)
     {
         nlines = nlines + 1;
@@ -97,9 +100,11 @@ int core_data_readSiteFile(const char *sitefile,
     {
         // Get the root name (ignoring the channel orientation) 
         ierr = splitLine(textfl[i],
-                         netw, stat, chan, loc,
+                         netw, stat, loc, chan,
                          &lat, &lon, &elev,
-                         &dt, &iuse);
+                         &dt, &gain,
+                         units, sensorType,
+                         &reflat, &reflon);
         if (ierr != 0)
         {
             log_errorF("%s: Error parsing line!\n", fcnm);
@@ -130,12 +135,17 @@ int core_data_readSiteFile(const char *sitefile,
         strcpy(sites[ns-1], site);
         // Now verify at least 1 or 3 sites are specified 
         lfound = 0;
+        gain0[0] = NAN;
+        gain0[1] = NAN;
+        gain0[2] = NAN;
         for (j=0; j<nlines; j++)
         {
             ierr = splitLine(textfl[j],
-                             netw1, stat1, chan1, loc1,
+                             netw1, stat1, loc1, chan1,
                              &lat, &lon, &elev,
-                             &dt, &iuse);
+                             &dt, &gain,
+                             units, sensorType,
+                             &reflat, &reflon);
             if (ierr != 0)
             {
                 log_errorF("%s: Error parsing line!\n", fcnm);
@@ -146,15 +156,25 @@ int core_data_readSiteFile(const char *sitefile,
                 strcasecmp( loc1,  loc)  == 0 &&
                 strncasecmp(chan1, chan, 2) == 0)
             {
+                gain0[lfound] = gain;
                 if (chan1[2] == 'Z'){lfound = lfound + 1;}
                 if (chan1[2] == 'N'){lfound = lfound + 1;}
-                if (chan1[2] == 'E'){lfound = lfound + 1;} 
+                if (chan1[2] == 'E'){lfound = lfound + 1;}
             }
         }
         if (lfound == 1 || lfound == 3)
         {
             lines[gps_data->stream_length] = i;
             gps_data->stream_length = gps_data->stream_length + 1;
+            if (lfound == 3)
+            {
+                if (fabs(gain0[0] - gain0[1]) > 1.e-6 ||
+                    fabs(gain0[0] - gain0[2]) > 1.e-6)
+                {
+                    log_errorF("%s: Error inconstent gain\n", fcnm);
+                    goto ERROR;
+                }
+            }
         }
         else
         {
@@ -181,9 +201,11 @@ NEXT_LINE:; // Try another site to match
     {
         // Parse the line
         ierr = splitLine(textfl[lines[k]],
-                         netw, stat, chan, loc,
+                         netw, stat, loc, chan,
                          &lat, &lon, &elev,
-                         &dt, &iuse);
+                         &dt, &gain,
+                         units, sensorType,
+                         &reflat, &reflon);
         if (ierr != 0)
         {
             log_errorF("%s: Error parsing line!\n", fcnm);
@@ -223,12 +245,34 @@ NEXT_LINE:; // Try another site to match
         gps_data->data[k].sta_lon = lon;
         gps_data->data[k].sta_alt = elev;
         gps_data->data[k].dt = dt; 
-        if (iuse == 0)
+        gps_data->data[k].gain[0] = gain;
+        gps_data->data[k].gain[1] = gain;
+        gps_data->data[k].gain[2] = gain;
+        if (gain == 0.0 || dt <= 0.0 || isnan(dt))
         {
-            gps_data->data[k].lskip_pgd = true;
-            gps_data->data[k].lskip_cmt = true;
-            gps_data->data[k].lskip_ff  = true;
-        }
+            if (gain == 0.0)
+            {
+                log_warnF("%s: Instrument gain will mute staion\n", fcnm);
+            }
+            if (dt <= 0.0)
+            {
+                log_errorF("%s: Sampling period %f is invalid\n", fcnm, dt);
+                ierr = 1;
+                goto ERROR;
+            }
+            if (isnan(dt))
+            {
+                log_errorF("%s: Sampling rate input was zero\n", fcnm);
+                ierr = 1;
+                goto ERROR;
+            }
+         } 
+        //if (iuse == 0)
+        //{
+        //    gps_data->data[k].lskip_pgd = true;
+        //    gps_data->data[k].lskip_cmt = true;
+        //    gps_data->data[k].lskip_ff  = true;
+        //}
     } 
 ERROR:;
     if (lines != NULL){free(lines);}
@@ -253,9 +297,11 @@ ERROR:;
 }
 
 static int splitLine(const char *cline,
-                     char netw[64], char stat[64], char chan[64],  char loc[64],
+                     char netw[64], char stat[64], char loc[64], char chan[64],
                      double *lat, double *lon, double *elev,
-                     double *dt, int *iuse)
+                     double *dt, double *gain,
+                     char units[64], char sensorType[64],
+                     double *reflat, double *reflon)
 {
     const char *fcnm = "splitLine\0";
     char *token, *work;
@@ -267,31 +313,39 @@ static int splitLine(const char *cline,
     work = (char *)calloc(strlen(cline)+1, sizeof(char));
     strcpy(work, cline);
     // Set the outputs
-    memset(netw, 0, 64);
-    memset(stat, 0, 64);
-    memset(chan, 0, 64);
-    memset(loc,  0, 64);
+    memset(netw, 0, sizeof(char)*64);
+    memset(stat, 0, sizeof(char)*64);
+    memset(chan, 0, sizeof(char)*64);
+    memset(loc,  0, sizeof(char)*64);
     *lat = 0.0;
     *lon = 0.0;
     *elev = 0.0;
     *dt = 0.0;
-    *iuse = 0;
+    *gain = 0;
+    memset(units,      0, sizeof(char)*64);
+    memset(sensorType, 0, sizeof(char)*64); 
+    *reflat = NAN;
+    *reflon = NAN;
     token = strtok(work, split);
     while (token)
     {
         if (i == 0){strcpy(netw, token);}
         if (i == 1){strcpy(stat, token);}
-        if (i == 2){strcpy(chan, token);}
-        if (i == 3){strcpy(loc,  token);}
+        if (i == 2){strcpy(loc,  token);}
+        if (i == 3){strcpy(chan, token);}
         if (i == 4){*lat = (double) atof(token);}
         if (i == 5){*lon = (double) atof(token);}
         if (i == 6){*elev = (double) atof(token);}
-        if (i == 7){*dt = (double) atof(token);}
-        if (i == 8){*iuse = atoi(token);}
+        if (i == 7){*dt = 1.0/(double) atof(token);} // actually rate
+        if (i == 8){*gain = (double) atof(token);}
+        if (i == 9){strcpy(units, token);}
+        if (i == 10){strcpy(sensorType, token);}
+        if (i == 11){*reflat = (double) atof(token);}
+        if (i == 12){*reflon = (double) atof(token);}
         i = i + 1;
         token = strtok(NULL, split);
     }
-    if (i != 9)
+    if (i != 13)
     {
         log_errorF("%s: Failed to split line %d %s\n", fcnm, i, cline);
         ierr = 1;
