@@ -32,11 +32,9 @@ typedef struct
  *
  *
  */
-int traceBuffer_ewrr_initialize(const char configFile[PATH_MAX],
-                                const char tablePath[PATH_MAX],
+int traceBuffer_ewrr_initialize(const char *configFile,
                                 const char *ewRing,
                                 const int msWait,
-                                SHM_INFO *region,
                                 struct ewRing_struct *ringInfo)
 {
     const char *fcnm = "traceBuffer_ewrr_initialize\0";
@@ -175,12 +173,15 @@ int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo)
                             ringInfo->getLogo, ringInfo->nlogo,
                             &logo, &gotSize, msg, MAX_TRACEBUF_SIZ,
                             &sequenceNumber);
+printf("%d\n", retval);
     while (retval != GET_NONE)
     {
         retval = tport_copyfrom(&ringInfo->region,
                                 ringInfo->getLogo, ringInfo->nlogo,
                                 &logo, &gotSize, msg, MAX_TRACEBUF_SIZ,
                                 &sequenceNumber);
+printf("%d\n", retval);
+        traceBuffer_ewrr_classifyGetRetval(retval);
     }
     if (ringInfo->msWait <= 0)
     {

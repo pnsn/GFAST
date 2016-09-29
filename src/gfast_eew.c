@@ -24,8 +24,9 @@ int main(int argc, char **argv)
     struct GFAST_pgdResults_struct pgd;
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
+    struct ewRing_struct ringInfo;
     char *amqMessage;
-    double t0, t1;
+    double t0, t1, tbeg;
     const enum opmode_type opmode = REAL_TIME_EEW;
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
@@ -43,6 +44,7 @@ int main(int argc, char **argv)
     memset(&pgd_data, 0, sizeof( struct GFAST_peakDisplacementData_struct));
     memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
+    memset(&ringInfo, 0, sizeof(struct ewRing_struct)); 
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
@@ -57,7 +59,7 @@ int main(int argc, char **argv)
     {   
         log_infoF("%s: Initializing the data buffers...\n", fcnm);
     }
-    ierr = GFAST_core_data_initialize(props, &gps_data);
+    ierr = core_data_initialize(props, &gps_data);
     if (ierr != 0)
     {
         log_errorF("%s: Error initializing data buffers\n", fcnm);
@@ -86,46 +88,58 @@ int main(int argc, char **argv)
     }
 
     // Initialize PGD
-    ierr = GFAST_core_scaling_pgd_initialize(props.pgd_props, gps_data,
-                                             &pgd, &pgd_data);
+    ierr = core_scaling_pgd_initialize(props.pgd_props, gps_data,
+                                       &pgd, &pgd_data);
     if (ierr != 0)
     {   
         log_errorF("%s: Error initializing PGD\n", fcnm);
         goto ERROR;
     }
     // Initialize CMT
-    ierr = GFAST_core_cmt_initialize(props.cmt_props, gps_data,
-                                     &cmt, &cmt_data);
+    ierr = core_cmt_initialize(props.cmt_props, gps_data,
+                               &cmt, &cmt_data);
     if (ierr != 0)
     {   
         log_errorF("%s: Error initializing CMT\n", fcnm);
         goto ERROR;
     }
     // Initialize finite fault
-    ierr = GFAST_core_ff_initialize(props.ff_props, gps_data,
-                                    &ff, &ff_data);
+    ierr = core_ff_initialize(props.ff_props, gps_data,
+                              &ff, &ff_data);
     if (ierr != 0)
     {   
         log_errorF("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
     // Connect to the earthworm
- 
+char configFile[PATH_MAX];
+    ierr = traceBuffer_ewrr_initialize(configFile,
+                                       props.ew_props.gpsRingName,
+                                       10,
+                                       &ringInfo);
+    // Flush the buffer
+    log_infoF("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
+    ierr = traceBuffer_ewrr_flushRing(&ringInfo);
     // Begin the acquisition loop
     log_infoF("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
-    t0 = (double) (long) ISCL_time_timeStamp();
+    t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
+    tbeg = t0; 
     lacquire = true;
     while(lacquire)
     {
         // Initialize the iteration
         amqMessage = NULL;
         // Run through the machine every second
-        t1 = (double) (long) ISCL_time_timeStamp();
+        t1 = (double) (long) (ISCL_time_timeStamp() + 0.5);
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
         // Update my buffers
-  
+ if (t1 - tbeg > 5)
+{
+printf("premature shut down\n");
+break;
+} 
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
         amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
@@ -180,16 +194,17 @@ int main(int argc, char **argv)
         }
     }
 ERROR:;
-    GFAST_activeMQ_consumer_finalize(); 
-    GFAST_core_cmt_finalize(&props.cmt_props,
-                            &cmt_data,
-                            &cmt);
-    GFAST_core_ff_finalize(&props.ff_props,
-                           &ff_data,
-                           &ff);
-    GFAST_core_scaling_pgd_finalize(&props.pgd_props,
-                                    &pgd_data,
-                                    &pgd);
+    traceBuffer_ewrr_finalize(&ringInfo);
+    activeMQ_consumer_finalize(); 
+    core_cmt_finalize(&props.cmt_props,
+                      &cmt_data,
+                      &cmt);
+    core_ff_finalize(&props.ff_props,
+                     &ff_data,
+                     &ff);
+    core_scaling_pgd_finalize(&props.pgd_props,
+                              &pgd_data,
+                              &pgd);
     GFAST_core_data_finalize(&gps_data);
     GFAST_core_properties_finalize(&props);
     ISCL_iscl_finalize();
