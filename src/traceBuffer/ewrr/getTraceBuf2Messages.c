@@ -15,8 +15,10 @@
  * @param[in] ringInfo      Earthworm ring reader structure
  *
  * @param[out] nRead        number of traceBuffer2 messages read
- * @param[out] msgs         traceBuffer2 messages read from the earthworm ring
- *                          [maxMessages]
+ * @param[out] msgs         traceBuffer2 messages read from the earthworm ring.
+ *                          the k'th message start index (for k=1,2,...,nRead)
+ *                          is given by: (k - 1)*MAX_TRACEBUF_SIZE 
+ *                          [maxMessages*MAX_TRACEBUF_SIZE]
  *
  * \retval  0 indicates success
  * \retval -1 indicates a terminate signal from the ring.
@@ -35,14 +37,14 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
                                           const bool showWarnings,
                                           struct ewRing_struct *ringInfo,
                                           int *nRead,
-                                          char **msgs)
+                                          char *msgs)
 {
     const char *fcnm = "traceBuffer_ewrr_getgetTraceBuf2Messages\0";
     MSG_LOGO gotLogo; 
     char msg[MAX_TRACEBUF_SIZ];
     unsigned char sequenceNumber;
     long gotSize;
-    int retval;
+    int kdx, retval;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
@@ -86,7 +88,8 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
         if (gotLogo.type == ringInfo->traceBuffer2Type)
         {
             // Copy the message
-            memcpy(msgs[*nRead], msg, sizeof(msg));
+            kdx = *nRead*MAX_TRACEBUF_SIZ;
+            memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
             // Save the user from themselves 
             *nRead = *nRead + 1;
             if (*nRead == maxMessages)
