@@ -81,11 +81,9 @@ extern "C"
 
 
 /* Initialize the earthworm ring reader connection */
-int traceBuffer_ewrr_initialize(const char configFile[PATH_MAX],
-                                const char tablePath[PATH_MAX],
+int traceBuffer_ewrr_initialize(const char *configFile,
                                 const char *ewRing,
                                 const int msWait,
-                                SHM_INFO *region,
                                 struct ewRing_struct *ringInfo);
 /* Classify return value from Earthworm get transport call */
 int traceBuffer_ewrr_classifyGetRetval(const int retval);
