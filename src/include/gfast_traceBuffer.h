@@ -29,6 +29,18 @@ struct ewRing_struct
     bool linit;            /*!< True if the structure is initialized.
                                 False if the structure is not initialized. */
     unsigned msWait;       /*!< microseconds to wait after reading ring */
+    unsigned char
+       traceBuffer2Type;   /*!< traceBuffer2type earthworm type */ 
+    unsigned char
+       heartBeatType;      /*!< earthworm heartbeat type */ 
+    unsigned char
+       errorType;          /*!< earthworm error type */
+    unsigned char  
+       instLocalID;        /*!< earthworm local instrument ID type */
+    unsigned char
+       instWildcardID;     /*!< instrument wildcard ID */
+    unsigned char
+       modWildcardID;      /*!< module wildcard ID */
 };
 #else
 #ifndef MAX_TRACEBUF_SIZ

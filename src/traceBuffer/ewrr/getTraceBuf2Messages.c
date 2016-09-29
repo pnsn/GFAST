@@ -40,7 +40,6 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
     unsigned char sequenceNumber;
     long gotSize;
     int retval;
-    unsigned char traceBuf2Type;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
@@ -56,13 +55,6 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
         if (maxMessages < 1){log_errorF("%s: Error no space\n", fcnm);}
         if (msgs == NULL){log_errorF("%s: Error messages is NULL\n", fcnm);}
         return -4;
-    }
-    retval = GetType("TYPE_TRACEBUF2", &traceBuf2Type);
-    if (retval != 0)
-    {
-        log_errorF("%s: Can't find TYPE_TRACEBUF2 in earthworm_(global).d\n",
-                   fcnm);
-        return -5;
     }
     // Unpack the ring
     while (true)
@@ -88,7 +80,7 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
             return -2;
         }
         // Verify i want this message
-        if (gotLogo.type == traceBuf2Type)
+        if (gotLogo.type == ringInfo->traceBuffer2Type)
         {
             // Copy the message
             memcpy(msgs[*nRead], msg, sizeof(msg));

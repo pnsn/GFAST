@@ -77,6 +77,43 @@ int traceBuffer_ewrr_initialize(const char *configFile,
         log_errorF("%s: Invalid ring %s\n", fcnm, ewRing);
         return -1;
     }
+    // Look up instrumentID 
+    if (GetLocalInst(&ringInfo->instLocalID) != 0)
+    {
+        log_errorF("%s: Error getting local instrument id!\n", fcnm);
+        return -1;
+    }
+    if (GetInst("INST_WILDCARD", &ringInfo->instWildcardID ) != 0)
+    {
+        log_errorF("%s: Error getting INST_WILDCARD!\n", fcnm);
+        return -1;
+    } 
+    // Look up the tracebuffer2 type 
+    if (GetType("TYPE_TRACEBUF2", &ringInfo->traceBuffer2Type) != 0)
+    {
+        log_errorF("%s Error getting TYPE_TRACEBUF2!\n", fcnm);
+        return -1;
+    }
+    // Look up the heartbeat type 
+    if (GetType("TYPE_HEARTBEAT", &ringInfo->heartBeatType) != 0)
+    {   
+        log_errorF("%s Error getting TYPE_HEARTBEAT!\n", fcnm);
+        return -1; 
+    }
+    // Look up the error type
+    if (GetType("TYPE_ERROR", &ringInfo->errorType) != 0)
+    {
+        log_errorF("%s Error getting TYPE_ERROR!\n", fcnm);
+        return -1;
+    }
+    if (GetModId( "MOD_WILDCARD", &ringInfo->modWildcardID) != 0 )
+    {
+        log_errorF("%s: MOD_WILDCARD Missing from earthworm(_global).d\n",
+                  fcnm);
+        return -1;
+    }
+    // Hook these types up to the regions
+
     tport_attach(&ringInfo->region, ringInfo->ringKey);
     ringInfo->linit = true;
     return 0;
