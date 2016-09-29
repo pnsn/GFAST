@@ -31,6 +31,9 @@ struct ewRing_struct
     unsigned msWait;       /*!< microseconds to wait after reading ring */
 };
 #else
+#ifndef MAX_TRACEBUF_SIZ
+#define MAX_TRACEBUF_SIZ 4096
+#endif
 struct ewRing_struct
 {
     bool linit;            /*!< Bogus value so that compilation proceeds */ 
