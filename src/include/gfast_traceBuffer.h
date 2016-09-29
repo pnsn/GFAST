@@ -107,7 +107,7 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
                                           const bool showWarnings,
                                           struct ewRing_struct *ringInfo,
                                           int *nRead,
-                                          char **msgs);
+                                          char *msgs);
 /* Initialize the earthworm ring reader connection */
 int traceBuffer_ewrr_initialize(const char *configFile,
                                 const char *ewRing,
