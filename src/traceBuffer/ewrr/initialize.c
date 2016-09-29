@@ -112,8 +112,11 @@ int traceBuffer_ewrr_initialize(const char *configFile,
                   fcnm);
         return -1;
     }
-    // Hook these types up to the regions
-
+    // Hook the getLogo's up for reading tracebuffer2s
+    ringInfo->nlogo = 1;
+    ringInfo->getLogo = (MSG_LOGO *)calloc(ringInfo->nlogo, sizeof(MSG_LOGO));
+    ringInfo->getLogo[0].type = ringInfo->traceBuffer2Type;
+    // Attach to the ring
     tport_attach(&ringInfo->region, ringInfo->ringKey);
     ringInfo->linit = true;
     return 0;

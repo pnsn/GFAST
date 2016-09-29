@@ -27,6 +27,10 @@ int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo)
         log_errorF("%s: Error ewRing_struct was never initialized\n", fcnm);
         return -1; 
     }
+    if (ringInfo->getLogo != NULL && ringInfo->nlogo > 0)
+    {
+        free(ringInfo->getLogo);
+    }
     tport_detach(&ringInfo->region);
     memset(ringInfo, 0, sizeof(struct ewRing_struct));
     return 0;

@@ -37,6 +37,7 @@ int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo)
                                 ringInfo->getLogo, ringInfo->nlogo,
                                 &gotLogo, &gotSize, msg, MAX_TRACEBUF_SIZ,
                                 &sequenceNumber);
+printf("here\n");
         if (retval == GET_NONE){break;} // End of ring
         //traceBuffer_ewrr_classifyGetRetval(retval);
     }
