@@ -8,13 +8,15 @@
  * @brief Reads the tracebuffer2 messages off the earthworm ring specified
  *        on ringInfo
  *
- * @param[in] maxMessages  max number of messages that can be read
- *                         off the ring
- * @param[in] ringInfo     Earthworm ring reader structure
+ * @param[in] maxMessages   max number of messages that can be read
+ *                          off the ring
+ * @param[in] showWarnings  if true the print warnings about having read
+ *                          maximum number of messages
+ * @param[in] ringInfo      Earthworm ring reader structure
  *
- * @param[out] nRead       number of traceBuffer2 messages read
- * @param[out] msgs        traceBuffer2 messages read from the earthworm ring
- *                         [maxMessages]
+ * @param[out] nRead        number of traceBuffer2 messages read
+ * @param[out] msgs         traceBuffer2 messages read from the earthworm ring
+ *                          [maxMessages]
  *
  * \retval  0 indicates success
  * \retval -1 indicates a terminate signal from the ring.
@@ -30,6 +32,7 @@
  *
  */
 int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
+                                          const bool showWarnings,
                                           struct ewRing_struct *ringInfo,
                                           int *nRead,
                                           char **msgs)
@@ -88,8 +91,11 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
             *nRead = *nRead + 1;
             if (*nRead == maxMessages)
             {
-                log_warnF("%s: Insufficient space for messages - leaving\n",
-                          fcnm);
+                if (showWarnings)
+                {
+                    log_warnF("%s: Insufficient space for messages - leaving\n",
+                              fcnm);
+                }
                 break;
             }
         }

@@ -104,6 +104,7 @@ int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
 /* Read tracebuf2 messages from the ring */
 int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
+                                          const bool showWarnings,
                                           struct ewRing_struct *ringInfo,
                                           int *nRead,
                                           char **msgs);
