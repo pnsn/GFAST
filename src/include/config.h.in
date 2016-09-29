@@ -1,0 +1,6 @@
+#ifndef _gfast_config_h__
+#define _gfast_config_h__ 1
+
+#cmakedefine GFAST_USE_EW
+
+#endif /* _gfast_config_h__ */

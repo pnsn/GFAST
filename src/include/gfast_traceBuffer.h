@@ -9,11 +9,12 @@
 #include <stdbool.h>
 #include <hdf5.h>
 #include "gfast_struct.h"
+#include "gfast_config.h"
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
 
-#ifdef USE_EW
+#ifdef GFAST_USE_EW
 #include <transport.h>
 #include <earthworm.h>
 #include <trace_buf.h>

@@ -64,8 +64,9 @@ include_directories(${LIBAMQ_INCLUDE_DIR} ${APR_INCLUDE_DIR})
 add_subdirectory(activeMQ)
 endif (AMQ_FOUND)
 
+set(GFAST_USE_EW off CACHE BOOL "Not using ew")
 if (EW_FOUND)
-MESSAGE("Will use Earthworm")
+set(GFAST_USE_EW on CACHE BOOL "Using Earthworm")
 add_definitions(-DUSE_EW=1)
 endif (EW_FOUND)
 
