@@ -14,7 +14,7 @@ FIND_PATH(EW_INCLUDE_DIR
     HINTS /usr/include/earthworm
 )
 
-SET(EW_NAMES ${EW_NAMES} libew.a)
+SET(EW_NAMES ${EW_NAMES} libew.a swap.o)
 FOREACH (EW_NAME ${EW_NAMES})
    FIND_LIBRARY(${EW_NAME}_LIBRARY
        NAMES ${EW_NAME} 
