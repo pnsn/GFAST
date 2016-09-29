@@ -5,7 +5,10 @@
 #include "gfast.h"
 #include "iscl/log/log.h"
 #include "iscl/iscl/iscl.h"
+#include "iscl/memory/memory.h"
 #include "iscl/time/time.h"
+
+#define MAX_MESSAGES 1024
 
 /*!
  * @brief GFAST earthquake early warning driver routine
@@ -25,13 +28,14 @@ int main(int argc, char **argv)
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
     struct ewRing_struct ringInfo;
+    char *msgs;
     char *amqMessage;
     double t0, t1, tbeg;
     const enum opmode_type opmode = REAL_TIME_EEW;
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
-    int ierr, iev, msWait;
+    int ierr, iev, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent;
     // Initialize 
     ierr = 0;
@@ -120,6 +124,8 @@ char configFile[PATH_MAX];
     // Flush the buffer
     log_infoF("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
     ierr = traceBuffer_ewrr_flushRing(&ringInfo);
+    // Set space for messages
+    msgs = ISCL_memory_calloc__char(MAX_MESSAGES*MAX_TRACEBUF_SIZ);
     // Begin the acquisition loop
     log_infoF("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
@@ -134,7 +140,15 @@ char configFile[PATH_MAX];
         t1 = (double) (long) (ISCL_time_timeStamp() + 0.5);
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
+printf("start\n");
         // Update my buffers
+        ierr = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
+                                                     false,
+                                                     &ringInfo,
+                                                     &nTracebufs2Read,
+                                                     msgs);
+printf("end %d\n", nTracebufs2Read);
+// early quit
  if (t1 - tbeg > 5)
 {
 printf("premature shut down\n");
@@ -207,6 +221,7 @@ ERROR:;
                               &pgd);
     GFAST_core_data_finalize(&gps_data);
     GFAST_core_properties_finalize(&props);
+    ISCL_memory_free__char(&msgs);
     ISCL_iscl_finalize();
     if (ierr != 0)
     {
