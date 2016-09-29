@@ -1,3 +1,4 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/gfast_config.h)
 set(headers
 gfast_activeMQ.h
 gfast_core.h
