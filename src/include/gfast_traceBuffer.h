@@ -81,11 +81,23 @@ extern "C"
 #endif
 
 
+/* Classify the result of earthworm tport_copyfrom */
+int traceBuffer_ewrr_classifyGetRetval(const int retval);
+/* Finalize earthworm ring reader */
+int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
+/* Flush an earthworm ring */
+int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
+/* Read tracebuf2 messages from the ring */
+int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
+                                          struct ewRing_struct *ringInfo,
+                                          int *nRead,
+                                          char **msgs);
 /* Initialize the earthworm ring reader connection */
 int traceBuffer_ewrr_initialize(const char *configFile,
                                 const char *ewRing,
                                 const int msWait,
                                 struct ewRing_struct *ringInfo);
+
 /* Classify return value from Earthworm get transport call */
 int traceBuffer_ewrr_classifyGetRetval(const int retval);
 /* Flush an earthworm ring */
