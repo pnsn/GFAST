@@ -2,10 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#endif
 #include <iniparser.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_core.h"
 #include "iscl/os/os.h"
 #include "iscl/log/log.h"
+
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
  *
@@ -15,7 +23,7 @@
  * @param[out] props         on successful exit holds the GFAST properties
  *                           structure
  *
- * @author Brendan Crowell (crowellb@uw.edu) and Ben Baker (benbaker@isti.com)
+ * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  * @result 0 indicates success
  *
@@ -26,7 +34,7 @@ int core_properties_initialize(const char *propfilename,
 {
     const char *fcnm = "core_properties_initialize\0";
     const char *s;
-    int i, ierr; 
+    int i, ierr, itemp, lenos;
     dictionary *ini;
     //------------------------------------------------------------------------//
     // Require the properties file exists
@@ -115,7 +123,8 @@ int core_properties_initialize(const char *propfilename,
                   fcnm, props->dt_init, 1.0);
         props->dt_default = 1.0; 
     }
-    props->dt_init = iniparser_getint(ini, "general:dt_init\0", 3);
+    itemp = iniparser_getint(ini, "general:dt_init\0", 3);
+    props->dt_init = (enum dtinit_type) itemp; //iniparser_getint(ini, "general:dt_init\0", 3);
     if (props->opmode != OFFLINE)
     {
         if (props->dt_init != INIT_DT_FROM_TRACEBUF){
@@ -135,7 +144,8 @@ int core_properties_initialize(const char *propfilename,
         // Figure out how to initialize sampling period
         if (props->dt_init == INIT_DT_FROM_FILE)
         {
-            props->dt_init = iniparser_getint(ini, "general:dt_init\0", 1);
+            itemp = iniparser_getint(ini, "general:dt_init\0", 1);
+            props->dt_init = (enum dtinit_type) itemp;
             if (s == NULL)
             {
                 log_errorF("%s: Must specify metaDataFile!\n", fcnm);
@@ -176,7 +186,8 @@ int core_properties_initialize(const char *propfilename,
         } 
     }        
     // Location initialization
-    props->loc_init = iniparser_getint(ini, "general:loc_init\0", 1);
+    itemp = iniparser_getint(ini, "general:loc_init\0", 1);
+    props->loc_init = (enum locinit_type) itemp;
     if (props->opmode == OFFLINE)
     {
         if (props->loc_init == INIT_LOCS_FROM_TRACEBUF)
@@ -234,10 +245,18 @@ int core_properties_initialize(const char *propfilename,
     // ANSS informaiton
     s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
     strcpy(props->anssNetwork, s);
-    for (i=0; i<strlen(props->anssNetwork); i++)
+    lenos = (int) (strlen(props->anssNetwork));
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+#endif
+    for (i=0; i<lenos; i++)
     {
-        props->anssNetwork[i] = toupper(props->anssNetwork[i]);
+        putchar(props->anssNetwork[i]);
     }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     s = iniparser_getstring(ini, "general:anssDomain\0", "anss.org\0"); 
     strcpy(props->anssDomain, s);
     //------------------------------PGD Parameters----------------------------//
