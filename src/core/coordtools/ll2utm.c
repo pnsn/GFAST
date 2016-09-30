@@ -47,7 +47,7 @@ void core_coordtools_ll2utm(const double lat_deg, const double lon_deg,
         zone_loc = (int) (fmod(floor((lon_deg_use + 180.0)/6.0), 60.0) + 0.5)
                  + 1;
     }
-    lon0_deg = (double) (fabs(zone_loc)*6) - 183.0;
+    lon0_deg = (double) (abs(zone_loc)*6) - 183.0;
     lon0 = lon0_deg*pi180;   //central meridian (-123 for zone 10)
 
     A = (lon - lon0)*cos(lat);

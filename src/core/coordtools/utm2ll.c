@@ -33,7 +33,7 @@ void core_coordtools_utm2ll(const int zone, const bool lnorthp,
     const double pi180 = M_PI/180.0;
     const double pi180i = 180.0/M_PI;
     //------------------------------------------------------------------------//
-    lon0_deg = fabs(zone)*6.0 - 183.0;
+    lon0_deg = abs(zone)*6.0 - 183.0;
     lon0 = lon0_deg*pi180;
     M1 = UTMNorthing/k0;
     if (!lnorthp){M1 = (UTMNorthing - 10000000.0)/k0;}
