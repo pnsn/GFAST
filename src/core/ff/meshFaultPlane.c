@@ -12,6 +12,11 @@
  * @brief Meshes a fault plane from the magnitude, strike, and dip
  *        computed in the CMT inversion.   Note the fault patch at 
  *        (istr, idep) is accessed by kndx = idip*nstr + istr.
+ *        For more information on the magnitude to fault size scaling
+ *        see D. Dreger and A Kaverina, Seismic Remote Sending for the
+ *        Earthquake Source Process and Near-Source STrong Shaking: A Case
+ *        Study of the October 16, 1999 Hector Mine Earthquake.
+ *        Geophysical Research Letters, Volume 27 (No 13), 1941-1944, (2000).
  *
  * @param[in] ev_lat       event latitude (degrees)
  * @param[in] ev_lon       event longitude (degrees) 
@@ -57,12 +62,6 @@
  * @result 0 indicates success
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
- *
- * @cite D. Dreger and A Kaverina,
- *       Seismic Remote Sending for the Earthquake Source Process and
- *       Near-Source STrong Shaking: A Case Study of the October 16,
- *       1999 Hector Mine Earthquake.  Geophysical Research Letters,
- *       Volume 27 (No 13), 1941-1944, (2000).
  *
  */
 int core_ff_meshFaultPlane(const double ev_lat,

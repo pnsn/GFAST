@@ -39,7 +39,8 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         return -1;
     }
     // data
-    pgd_data->stnm = (char **)calloc(gps_data.stream_length, sizeof(char *));
+    pgd_data->stnm = (char **)calloc((unsigned long) gps_data.stream_length,
+                                     sizeof(char *));
     pgd_data->pd = ISCL_memory_calloc__double(gps_data.stream_length);
     pgd_data->wt = ISCL_memory_calloc__double(gps_data.stream_length);
     pgd_data->sta_lat = ISCL_memory_calloc__double(gps_data.stream_length);

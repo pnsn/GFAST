@@ -16,7 +16,7 @@ static int splitLine(const char *cline,
  * @param[in] siteMaskFile  name of the site mask file 
  * @param[in] verbose       if > 0 then will report on the masked sites
  *
- * @param[inout] gps_data   on input contains the sites and SNCL's.
+ * @param[in,out] gps_data  on input contains the sites and SNCL's.
  *                          on output, if the SNCL is located in the
  *                          site mask file, the site is masked from the
  *                          inverserions.

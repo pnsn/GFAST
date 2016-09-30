@@ -221,7 +221,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     {
         // Compute radial distance
         srcDepth = srcDepths[idep];
-        #pragma omp simd aligned(r:CACHE_LINE_SIZE)
+        #pragma omp simd
         for (i=0; i<l1; i++)
         {
             r[i] = sqrt( pow(utmSrcEasting  - utmRecvEasting[i], 2)

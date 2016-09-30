@@ -87,6 +87,7 @@ int core_ff_setRegularizer(const int l2, const int nstr,
         T[i] = 0.0;
     }
     // Fill in the regularizer
+    k = 0;
     ldt = 2*l2;
     for (j=0; j<ndip; j++)
     {

@@ -9,7 +9,6 @@
  *        \f$ \{ e_{avg}^{(i)}, n_{avg}^{(i)}, u_{avg}^{(i)} \} \f$.
  *
  * @param[in] n         number of points
- * @param[in] verbose   controls verbosity (0 is quiet)
  * @param[in] nOffset   offset on north channel [n]
  * @param[in] eOffset   offset on east channel [n]
  * @param[in] uOffset   offset on vertical channel [n]

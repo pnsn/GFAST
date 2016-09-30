@@ -11,7 +11,6 @@
  *        where A is a scalar shift and d is the distance at each station.
  *
  * @param[in] n         number of points
- * @param[in] verbose   controls verbosity (0 is quiet)
  * @param[in] dist_tol  distance tolerance - if d is less than this then
  *                      it will be set to a default value (cm)
  * @param[in] dist_def  distance default value (cm)

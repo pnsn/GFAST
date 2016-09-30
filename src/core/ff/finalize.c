@@ -7,7 +7,7 @@
 /*!
  * @brief Free the fault plane structure
  *
- * @param[inout] fp       fault plane structure with memory to be freed
+ * @param[in,out] fp       fault plane structure with memory to be freed
  *
  * @author Ben Baker (ISTI)
  *
@@ -43,7 +43,7 @@ void core_ff_finalize__faultPlane(struct GFAST_faultPlane_struct *fp)
 /*!
  * @brief Free the finite fault results structure
  *
- * @param[inout] ff      finite fault results structure with memory to be freed
+ * @param[in,out] ff      finite fault results structure with memory to be freed
  *
  * @author Ben Baker, ISTI
  *
@@ -69,7 +69,7 @@ void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff)
 /*!
  * @brief Frees memory associated with the offset data 
  *
- * @param[inout] offset_data     offset data structure with memory to be freed
+ * @param[in,out] offset_data     offset data structure with memory to be freed
  *
  * @author Ben Baker (ISTI)
  *

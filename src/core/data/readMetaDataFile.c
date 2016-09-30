@@ -66,10 +66,10 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     rewind(infl);
     // Read the text file into memory
     nlines = nlines - 1; // remove the header
-    textfl = (char **)calloc(nlines, sizeof(char *));
-    sites = (char **)calloc(nlines, sizeof(char *));
+    textfl = (char **)calloc((unsigned long) nlines, sizeof(char *));
+    sites = (char **)calloc((unsigned long) nlines, sizeof(char *));
     for (i=0; i<nlines; i++){sites[i] = NULL;}
-    lines = (int *)calloc(nlines, sizeof(int));
+    lines = (int *)calloc((unsigned long) nlines, sizeof(int));
     for (i=0; i<nlines+1; i++)
     {
         memset(cline, 0, sizeof(cline));
@@ -135,9 +135,9 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         strcpy(sites[ns-1], site);
         // Now verify at least 1 or 3 sites are specified 
         lfound = 0;
-        gain0[0] = NAN;
-        gain0[1] = NAN;
-        gain0[2] = NAN;
+        gain0[0] = (double) NAN;
+        gain0[1] = (double) NAN;
+        gain0[2] = (double) NAN;
         for (j=0; j<nlines; j++)
         {
             ierr = splitLine(textfl[j],
@@ -194,7 +194,7 @@ NEXT_LINE:; // Try another site to match
         log_warnF("%s: Warning - counting problem\n", fcnm);
     }
     gps_data->data = (struct GFAST_waveform3CData_struct *)
-                     calloc(gps_data->stream_length,
+                     calloc((unsigned long) gps_data->stream_length,
                             sizeof(struct GFAST_waveform3CData_struct));
     // Now parse the lines
     for (k=0; k<gps_data->stream_length; k++)
@@ -324,8 +324,8 @@ static int splitLine(const char *cline,
     *gain = 0;
     memset(units,      0, sizeof(char)*64);
     memset(sensorType, 0, sizeof(char)*64); 
-    *reflat = NAN;
-    *reflon = NAN;
+    *reflat = (double) NAN;
+    *reflon = (double) NAN;
     token = strtok(work, split);
     while (token)
     {
