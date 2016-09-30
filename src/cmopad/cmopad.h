@@ -60,6 +60,9 @@ int cmopad_basis_switcher(enum cmopad_basis_enum in_system,
                           enum cmopad_basis_enum out_system, double r[3][3]);
 int cmopad_Eigenvector2PrincipalAxis(enum cmopad_basis_enum coord, double eig, 
                                      double ev[3], double paxis[3]);
+int cmopad_basis_transformVector(double v[3],
+                                 enum cmopad_basis_enum in_sys,
+                                 enum cmopad_basis_enum out_sys);
 int cmopad_basis_transformMatrixM6(double *m,
                                    enum cmopad_basis_enum in_sys,
                                    enum cmopad_basis_enum out_sys);

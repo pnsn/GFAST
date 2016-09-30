@@ -51,6 +51,7 @@ static double __cmopad_determinant3x3(double A[3][3]);
 static double __cmopad_trace3(double M[3][3]);
 static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3]);
 static void __cmopad_swap8(double *a, double *b);
+static void array_cross3(double *u, double *v, double *n);
 
 //============================================================================//
 /*!
@@ -148,7 +149,7 @@ int cmopad_basis_switcher(enum cmopad_basis_enum in_system,
  *        routine to cmopad_basis__transformMatrixM33
  *        because many matrices are stored as a length 6 array.
  *
- * @param[inout] m      on input length 6 matrix in in_sys.  the ordering is 
+ * @param[in,out] m     on input length 6 matrix in in_sys.  the ordering is 
  *                      \f$ {1,2,3,4,5,6} = {11,22,33,12,13,23} \f$.
  *                      on output length 6 matrix in out_sys.  the ordering is
  *                      \f$ {1,2,3,4,5,6} = {11,22,33,12,13,23} \f$.
@@ -195,7 +196,7 @@ int cmopad_basis_transformMatrixM6(double *m,
 /*!
  * @brief Transform a symmetric 3x3 matrix from in_sys to out_sys. 
  *
- * @param[inout] m      on input [3x3] symmetric matrix in in_sys.
+ * @param[in,out] m     on input [3x3] symmetric matrix in in_sys.
  *                      on output [3x3] symmetric matrix in out_sys
  *
  * @param[in] in_sys    input system: NED, USE, XYZ, NWU
@@ -268,7 +269,7 @@ int cmopad_basis_transformMatrixM33(double m[3][3],
 /*!  
  * @brief Transforms a vector v from basis in_sys to basis out_sys
  *
- * @param[inout] v      on input length 3 vector in in_sys.  
+ * @param[in,out] v     on input length 3 vector in in_sys.  
  *                      on output length 3 vector in out_sys.
  *
  * @param[in] in_sys    input system: NED, USE, XYZ, NWU
@@ -321,7 +322,7 @@ int cmopad_basis_transformVector(double v[3],
  * @param[out] n   normal vector n = u x v [3]
  *
  */
-void array_cross3(double *u, double *v, double *n)
+static void array_cross3(double *u, double *v, double *n)
 {
     n[0] = u[1]*v[2] - u[2]*v[1];
     n[1] = u[2]*v[0] - u[0]*v[2]; 
@@ -501,7 +502,7 @@ double cmopad_momentMagnitudeM3x3(const double M[3][3], int *ierr)
  *
  * @param[in] iverb     controls verbosity for debugging. 0 should be quiet.
  *
- * @param[inout] src    on input holds plot_clr_order 
+ * @param[in,out] src   on input holds plot_clr_order 
  *                      on output holds the strike, dips, and rakes
  *                      describing fault planes fp1 and fp2
  *
@@ -675,8 +676,9 @@ void cmopad_findStrikeDipRake(double rot_mat[3][3],
 void cmopad_MatrixToEuler(double rotmat[3][3],
                           double *alpha, double *beta, double *gamma)
 {
-    int n3 = 3, inc = 1;
-    double ex[n3], ez[n3], exs[n3], ezs[n3], enodes[n3], enodess[n3], 
+    const int n3 = 3;
+    int inc = 1;
+    double ex[3], ez[3], exs[3], ezs[3], enodes[3], enodess[3], 
            xnorm, cos_alpha, a,b,g,a1,a2;
     double twopi = 2.0*M_PI;
     int i,j;
@@ -784,7 +786,7 @@ static double numpy_mod(double a, double b)
  *
  * @param[in] iverb     controls verbosity.  0 is quiet.
  *
- * @param[inout] src    on input holds the input moment tensor 
+ * @param[in,out] src   on input holds the input moment tensor 
  *                      on output has the eigenvalues and fault planes
  *
  */
@@ -1256,8 +1258,8 @@ int cmopad_SetupMT(int nmech, double *mech,
  *
  * @param[in] isabs     if true then sort on absolute value of eigenvalues
  * 
- * @param[inout] e      eigenvalues sorted in ascending order [3]
- * @param[inout] ev     corresponding eigenvectors sorted along with eigenvalues
+ * @param[in,out] e     eigenvalues sorted in ascending order [3]
+ * @param[in,out] ev    corresponding eigenvectors sorted along with eigenvalues
  *                      [3 x 3]
  *
  * @result 0 indicates success
@@ -1543,9 +1545,9 @@ void cmopad_strikeDipRake2MT6(double strike, double dip, double rake,
  * Puts euler angles into ranges compatible with (dip,strike,-rake) in
  * seismology:
  *
- * @param[inout] alpha     dip angle to put into range [0, pi/2]
- * @param[inout] beta      strike angle to put into range [0, 2*pi)
- * @param[inout] gamma     -rake angle to put into range [-pi, pi)
+ * @param[in,out] alpha    dip angle to put into range [0, pi/2]
+ * @param[in,out] beta     strike angle to put into range [0, 2*pi)
+ * @param[in,out] gamma    -rake angle to put into range [-pi, pi)
  *
  * @note If alpha is near to zero, beta is replaced by beta+gamma and gamma is
  *       set to zero, to prevent that additional ambiguity.
@@ -1591,7 +1593,7 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
     if (fabs(*beta - 2.*M_PI) < 1e-10){*beta = 0.;}
     if (fabs(*beta) < 1e-10){*beta = 0.;}
 
-    if (*alpha == 0.5*M_PI && *beta >= M_PI)
+    if ((fabs(*alpha - 0.5*M_PI) < 1.e-14) && *beta >= M_PI)
     {
         *gamma =-*gamma;
         *beta  = numpy_mod(*beta-M_PI, 2.0*M_PI);
@@ -1615,14 +1617,13 @@ void cmopad_uniqueEuler(double *alpha, double *beta, double *gamma)
 }
 //============================================================================//
 /*!
- * @brief Ascending argument sort for three numbers
+ * @brief Ascending argument sort for three numbers.  For more information:
+ *        http://stackoverflow.com/questions/4367745/simpler-way-of-sorting-three-numbers
  *
  * @param[in] x       array to sort into ascending[3]
  *
  * @param[out] iperm  permutation such that x3[iperm[:]] is in ascending
  *                    order
- *
- * @reference http://stackoverflow.com/questions/4367745/simpler-way-of-sorting-three-numbers
  *
  */
 static int __cmopad_argsort3(double x[3], int iperm[3])
@@ -1685,7 +1686,7 @@ static double __cmopad_determinant3x3(double A[3][3])
 /*!
  * @brief Computes the inverse of a 3 x 3 matrix
  *
- * @param[inout] Amat    on input the 3 x 3 matrix to invert.
+ * @param[in,out] Amat   on input the 3 x 3 matrix to invert.
  *                       on output the inverted matrix
  *
  * @result 0 indicates success
@@ -1740,7 +1741,7 @@ static double __cmopad_trace3(double M[3][3])
  * @brief Calculates all eigenvalues and eigenvectors (job = 0) of a
  *        symmetric 3 x 3 matrix using LAPACK. 
  *
- * @param[inout] a   on input matrix of which to calculate eigenvalues
+ * @param[in,out] a  on input matrix of which to calculate eigenvalues
  *                   and optionally eigenvectors.
  *                   on output if the eigenvectors are desired they are
  *                   stored on a 
@@ -1807,8 +1808,8 @@ static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3])
 /*!
  * @brief Function for swapping to two numbers a, b
  *
- * @param[inout] a    on input a = a, on output a = b
- * @param[inout] b    on input b = b, on output b = a
+ * @param[in,out] a    on input a = a, on output a = b
+ * @param[in,out] b    on input b = b, on output b = a
  *
  */
 static void __cmopad_swap8(double *a, double *b)
