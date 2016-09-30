@@ -20,31 +20,31 @@ static double __getPeakDisplacement(const int npts,
  *        data stream with the additional requirement that the shear wave
  *        has passed through the site.
  *
- * @param[in] utm_zone     if not -12345 then this is the desired UTM zone
- *                         in which to compute source and receiver positions.
- *                         otherwise, the UTM zone will be estimated from
- *                         the source location
- * @param[in] svel_window  the shear wave velocity used in data windowing
- *                         (km/s).  if the site/source distance is less than
+ * @param[in] utm_zone      if not -12345 then this is the desired UTM zone
+ *                          in which to compute source and receiver positions.
+ *                          otherwise, the UTM zone will be estimated from
+ *                          the source location
+ * @param[in] svel_window   the shear wave velocity used in data windowing
+ *                          (km/s).  if the site/source distance is less than
  *                           (current_time - ev_time)*svel_window 
- *                         then the site will be excluded
- * @param[in] ev_lat       source hypocentral latitude (degrees) [-90,90]
- * @param[in] ev_lon       source hypocentral longitude (degrees) [0,360]
- * @param[in] ev_dep       source hypocentral depth (km) (this is positive
- *                         down from the free surface)
- * @param[in] ev_time      source origin time in seconds since epoch (UTC)
- * @param[in] gps_data     contains the most up-to-date precise point 
- *                         positions for each site 
+ *                          then the site will be excluded
+ * @param[in] ev_lat        source hypocentral latitude (degrees) [-90,90]
+ * @param[in] ev_lon        source hypocentral longitude (degrees) [0,360]
+ * @param[in] ev_dep        source hypocentral depth (km) (this is positive
+ *                          down from the free surface)
+ * @param[in] ev_time       source origin time in seconds since epoch (UTC)
+ * @param[in] gps_data      contains the most up-to-date precise point 
+ *                          positions for each site 
  *
- * @param[inout] pgd_data  on input holds a logical mask if a site is to
- *                         be ignored.
- *                         on output holds the peak ground displacement
- *                         at each site satisfying the S velocity window mask.
- *                         in this instance all sites with data are given
- *                         data weights of unity and all sites without
- *                         data are given data weights of zero.
+ * @param[in,out] pgd_data  on input holds a logical mask if a site is to
+ *                          be ignored.
+ *                          on output holds the peak ground displacement
+ *                          at each site satisfying the S velocity window mask.
+ *                          in this instance all sites with data are given
+ *                          data weights of unity and all sites without
+ *                          data are given data weights of zero.
  *
- * @param[out] ierr        0 indicates success
+ * @param[out] ierr         0 indicates success
  *
  * @result the number of sites at which peak displacement was computed
  *
@@ -134,7 +134,7 @@ int core_waveformProcessor_peakDisplacement(
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff);
             // If it isn't a NaN then retain it for processing
-            if (peakDisp != NAN)
+            if (!isnan(peakDisp))
             {
                 pgd_data->pd[k] = peakDisp; // meters
                 pgd_data->wt[k] = 1.0;
@@ -184,8 +184,8 @@ static double __getPeakDisplacement(const int npts,
     n0 = 0.0;
     e0 = 0.0;
     diffT = ev_time - epoch;
-    indx0 = fmax(0, (int) (diffT/dt + 0.5));
-    indx0 = fmin(npts-1, indx0);
+    indx0 = (int) (fmax(0, (int) (diffT/dt + 0.5)));
+    indx0 = (int) (fmin(npts-1, indx0));
     // Compute the offset
     diffT = ev_time - epoch;
     u0 = ubuff[indx0];
@@ -194,7 +194,7 @@ static double __getPeakDisplacement(const int npts,
     // Prevent a problem
     if (isnan(u0) || isnan(n0) || isnan(e0))
     {
-        return NAN;
+        return (double) NAN;
     }
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
@@ -210,6 +210,9 @@ static double __getPeakDisplacement(const int npts,
         }
         peakDisplacement = fmax(peakDisplacement_i, peakDisplacement);
     } // Loop on data points
-    if (peakDisplacement == PD_MAX_NAN){peakDisplacement = NAN;}
+    if (fabs(peakDisplacement - PD_MAX_NAN)/fabs(PD_MAX_NAN) < 1.e-10)
+    {
+         peakDisplacement = (double) NAN;
+    }
     return peakDisplacement;
 }

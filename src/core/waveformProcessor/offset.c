@@ -35,24 +35,25 @@ static bool __getAverageOffset(const int npts,
  *       the shear velocity.
  *         
  *
- * @param[in] utm_zone        if not -12345 then this is the desired UTM zone
- *                            in which to compute source and receiver positions.
- *                            otherwise, the UTM zone will be estimated from
- *                            the source location
- * @param[in] svel_window     the shear wave velocity used in data windowing
- *                            (km/s).  if the the site/source distance is
- *                            less than
+ * @param[in] utm_zone         if not -12345 then this is the desired UTM zone
+ *                             in which to compute source and receiver
+ *                             positions.
+ *                             otherwise, the UTM zone will be estimated from
+ *                             the source location
+ * @param[in] svel_window      the shear wave velocity used in data windowing
+ *                             (km/s).  if the the site/source distance is
+ *                             less than
  *                              (current_time - ev_time)*svel_window 
- *                            then the site will be excluded
- * @param[in] ev_lat          source hypocentral latitude (degrees) [-90,90]
- * @param[in] ev_lon          source hypocentral longitude (degrees) [0,360]
- * @param[in] ev_dep          source hypocentral depth (km) (this is positive
- *                            down from the free surface)
- * @param[in] ev_time         source origin time in seconds since epoch (UTC)
- * @param[in] gps_data        contains the most up-to-date precise point
- *                            positions for each site
+ *                             then the site will be excluded
+ * @param[in] ev_lat           source hypocentral latitude (degrees) [-90,90]
+ * @param[in] ev_lon           source hypocentral longitude (degrees) [0,360]
+ * @param[in] ev_dep           source hypocentral depth (km) (this is positive
+ *                             down from the free surface)
+ * @param[in] ev_time          source origin time in seconds since epoch (UTC)
+ * @param[in] gps_data         contains the most up-to-date precise point
+ *                             positions for each site
  *
- * @param[inout] offset_data   on input holds a logical mask if a site is to
+ * @param[in,out] offset_data  on input holds a logical mask if a site is to
  *                             be ignored.
  *                             on output holds the average offset at each 
  *                             site satisfying the S velocity window mask.
@@ -60,7 +61,7 @@ static bool __getAverageOffset(const int npts,
  *                             data weights of unity and all sites without
  *                             data are given weights of zero.
  *
- * @param[out] ierr        0 indicates success
+ * @param[out] ierr            0 indicates success
  *
  * @result the number of sites at which peak displacement was computed
  *
@@ -195,7 +196,7 @@ int core_waveformProcessor_offset(const int utm_zone,
  * @param[in] ebuff       east precise point position data [npts]
  *
  * @param[out] uOffset    offset in vertical position
- * @param[out] noffset    offset in north position
+ * @param[out] nOffset    offset in north position
  * @param[out] eOffset    offset in east position
  *
  * @result if true then uOffset, nOffset, and eOffset are not NaN's and can
@@ -223,9 +224,9 @@ static bool __getAverageOffset(const int npts,
     //------------------------------------------------------------------------//
     //
     // Initialize result 
-    *uOffset = NAN;
-    *nOffset = NAN;
-    *eOffset = NAN;
+    *uOffset = (double) NAN;
+    *nOffset = (double) NAN;
+    *eOffset = (double) NAN;
     luse = false;
     // This is a bad input
     if (ev_time > swave_time)
@@ -246,8 +247,8 @@ static bool __getAverageOffset(const int npts,
     // Estimate the origin time index
     diffT = ev_time - epoch;
     if (diffT < 0.0){return luse;} // This will be a disaster
-    indx0 = fmax(0, (int) (diffT/dt + 0.5));
-    indx0 = fmin(npts-1, indx0);
+    indx0 = (int) (fmax(0, (int) (diffT/dt + 0.5)));
+    indx0 = (int) (fmin(npts-1, indx0));
     u0 = ubuff[indx0];
     n0 = nbuff[indx0];
     e0 = ebuff[indx0];
@@ -256,8 +257,8 @@ static bool __getAverageOffset(const int npts,
     // Estimate the S wave arrival time index
     diffT = swave_time - epoch;
     if (diffT < 0.0){return luse;}
-    indx0 = fmax(0, (int) (diffT/dt + 0.5));
-    indx0 = fmin(npts-1, indx0);
+    indx0 = (int) (fmax(0, (int) (diffT/dt + 0.5)));
+    indx0 = (int) (fmin(npts-1, indx0));
     // Compute the average from the S wave arrival to the end of the data
     uOffsetNan = 0.0;
     nOffsetNan = 0.0;
