@@ -58,8 +58,8 @@ hid_t h5_open_rdwt(const char *flname)
  */
 int h5_close(const hid_t file_id)
 {
-    hid_t ierr;
-    ierr = H5Fclose(file_id);
+    int ierr;
+    ierr = (int) (H5Fclose(file_id));
     return ierr; 
 }
 //============================================================================//
@@ -89,7 +89,7 @@ int h5_write_array__float(const char *dset_name, const hid_t file_id,
     // Copy file handle and name
     strcpy(citem,dset_name);
     // Create dataspace
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     flt_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create dataset
     flt_dataset_id = H5Dcreate2(file_id, citem, H5T_NATIVE_FLOAT,
@@ -140,7 +140,7 @@ int h5_write_array__double(const char *dset_name, const hid_t file_id,
     // Copy file handle and name
     strcpy(citem, dset_name);
     // Create dataspace
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     dbl_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create dataset
     dbl_dataset_id = H5Dcreate2(file_id, citem, H5T_NATIVE_DOUBLE,
@@ -190,7 +190,7 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
     // Copy file handle and name
     strcpy(citem, dset_name);
     // Create dataspace
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     int_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create dataset
     int_dataset_id = H5Dcreate2(file_id, citem, H5T_NATIVE_INT,
@@ -218,11 +218,10 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
 /*!
  * @brief Writes a char ** array to HDF5
  *
- * @param[in] citem_char  name of char** dataset
- * @param[in] file_id     HDF5 file handle
- * @param[in] citem_char  name of char** dataset
- * @param[in] n           number of items in c
- * @param[in] c           char** dataset to write [n]
+ * @param[in] citem_chr  name of char** dataset
+ * @param[in] file_id    HDF5 file handle
+ * @param[in] n          number of items in c
+ * @param[in] c          char** dataset to write [n]
  *
  * @result 0 indicates success
  *
@@ -234,7 +233,7 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
 {
     const char *fcnm = "h5_write_array__chars\0";
     char **cout, *citem_hdf5;
-    int len_item = strlen(citem_chr);
+    int len_item = (int) strlen(citem_chr);
     hid_t chr_dataset_id, chr_dataspace_id, cftype, cmtype;
     hsize_t dims[1];
     herr_t status;
@@ -242,11 +241,10 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
     //------------------------------------------------------------------------//
     //  
     // Set the name of the attribute while remembering a null terminator 
-    citem_hdf5 = (char *)calloc(len_item+1, sizeof(char));
-    memset(citem_hdf5, 0, len_item+1);
+    citem_hdf5 = (char *)calloc((unsigned long) (len_item+1), sizeof(char));
     strncpy(citem_hdf5, citem_chr, len_item);
     // Create dataspace
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     chr_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create file and memory types
     cftype = H5Tcopy(H5T_C_S1);
@@ -268,12 +266,11 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
                                 chr_dataspace_id,
                                 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     // Create output
-    cout = (char **)calloc(n, sizeof(char *));
+    cout = (char **)calloc((unsigned long) n, sizeof(char *));
     for (i=0; i<n; i++)
     {
-        lens = strlen(c[i]);
-        cout[i] = (char *)calloc(lens+1, sizeof(char));
-        memset(cout[i], 0, lens+1);
+        lens = (int) (strlen(c[i]));
+        cout[i] = (char *)calloc((unsigned long) (lens+1), sizeof(char));
         strcpy(cout[i], c[i]);
     }
     // Write the data
@@ -336,12 +333,12 @@ int h5_read_array__double(const char *dset_name, const hid_t file_id,
     dbl_dataspace = H5Dget_space(dbl_dataset);
     // Get size of dimensions
     rank = H5Sget_simple_extent_ndims(dbl_dataspace);
-    dims = (hsize_t *)calloc(rank, sizeof(hsize_t));
+    dims = (hsize_t *)calloc((unsigned long) (rank), sizeof(hsize_t));
     status = H5Sget_simple_extent_dims(dbl_dataspace, dims, NULL);
     nwork = 1;
     for (i=0; i<rank; i++)
     {
-        nwork = nwork*dims[i];
+        nwork = nwork*(int) dims[i];
     }
     if (nwork > nref)
     {
@@ -406,12 +403,12 @@ int h5_read_array__float(const char *dset_name, const hid_t file_id,
     flt_dataspace = H5Dget_space(flt_dataset);
     // Get size of dimensions
     rank = H5Sget_simple_extent_ndims(flt_dataspace);
-    dims = (hsize_t *)calloc(rank, sizeof(hsize_t));
+    dims = (hsize_t *)calloc((unsigned long) rank, sizeof(hsize_t));
     status = H5Sget_simple_extent_dims(flt_dataspace, dims, NULL);
     nwork = 1;
     for (i=0; i<rank; i++)
     {
-        nwork = nwork*dims[i];
+        nwork = nwork*(int) (dims[i]);
     }
     if (nwork > nref)
     {
@@ -477,11 +474,11 @@ int h5_read_array__int(const char *dset_name, const hid_t file_id,
     int_dataspace = H5Dget_space(int_dataset);
     // Get size of dimensions
     rank = H5Sget_simple_extent_ndims(int_dataspace);
-    dims = (hsize_t *)calloc(rank,sizeof(hsize_t));
+    dims = (hsize_t *)calloc((unsigned long) (rank), sizeof(hsize_t));
     status = H5Sget_simple_extent_dims(int_dataspace, dims, NULL);
     nwork = 1;
     for (i=0; i<rank; i++){
-        nwork = nwork*dims[i];
+        nwork = nwork*(int) (dims[i]);
     }
     if (nwork > nref){
         log_errorF("%s: Insufficient space!\n", fcnm);
@@ -531,17 +528,17 @@ int h5_write_attribute__double(const char *citem, const hid_t hdf5_id,
 {
     const char *fcnm = "h5_write_attribute__double\0";
     char *citem_hdf5;
-    int len_item = strlen(citem);
+    int len_item = (int) (strlen(citem));
     hid_t attr_dataspace_id, attribute_id;
     hsize_t dims[1];
     herr_t status;
     //------------------------------------------------------------------------//
     //
     // Set item name
-    citem_hdf5 = (char *)calloc(len_item+1, sizeof(char));
+    citem_hdf5 = (char *)calloc((unsigned long) (len_item+1), sizeof(char));
     strncpy(citem_hdf5, citem, len_item);
     // Create a dataspace for the attribute
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     attr_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create dataset id for the attribute
     attribute_id = H5Acreate2(hdf5_id, citem_hdf5, H5T_NATIVE_DOUBLE,
@@ -578,17 +575,17 @@ int h5_write_attribute__int(const char *citem, const hid_t hdf5_id,
 {
     const char *fcnm = "h5_write_attribute__int\0";
     char *citem_hdf5;
-    int len_item = strlen(citem);
+    int len_item = (int) strlen(citem);
     hid_t attr_dataspace_id, attribute_id;
     hsize_t dims[1];
     herr_t status;
     //------------------------------------------------------------------------//
     //  
     // Set item name
-    citem_hdf5 = (char *)calloc(len_item+1, sizeof(char));
+    citem_hdf5 = (char *)calloc((unsigned long) (len_item+1), sizeof(char));
     strncpy(citem_hdf5, citem, len_item);
     // Create a dataspace for the attribute
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     attr_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create dataset id for the attribute
     attribute_id = H5Acreate2(hdf5_id, citem_hdf5, H5T_NATIVE_INT,
@@ -625,7 +622,7 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
 {
     const char *fcnm = "h5_write_attribute__char\0";
     char **cout, *citem_hdf5;
-    int len_item = strlen(citem);
+    int len_item = (int) (strlen(citem));
     int i, lens;
     hid_t attr_dataspace_id, attribute_id, cftype, cmtype;
     hsize_t dims[1];
@@ -633,10 +630,10 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
     //------------------------------------------------------------------------//
     //
     // Set item name
-    citem_hdf5 = (char *)calloc(len_item+1,sizeof(char));
+    citem_hdf5 = (char *)calloc((unsigned long) (len_item+1),sizeof(char));
     strncpy(citem_hdf5, citem, len_item);
     // Create a dataspace 
-    dims[0] = n;
+    dims[0] = (hsize_t) n;
     attr_dataspace_id = H5Screate_simple(1, dims, NULL);
     // Create the datatypes 
     cftype = H5Tcopy(H5T_C_S1);
@@ -657,11 +654,11 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
     attribute_id = H5Acreate2(hdf5_id, citem_hdf5, cftype,
                               attr_dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
     // Create output
-    cout = (char **)calloc(n, sizeof(char *));
+    cout = (char **)calloc((unsigned long) n, sizeof(char *));
     for (i=0; i<n; i++)
     {
-        lens = strlen(cattr[i]);
-        cout[i] = (char *)calloc(lens+1, sizeof(char));
+        lens = (int) (strlen(cattr[i]));
+        cout[i] = (char *)calloc((unsigned long) (lens+1), sizeof(char));
         strncpy(cout[i], cattr[i], lens);
     } 
     // Write the attributes
@@ -760,14 +757,14 @@ int h5_get_array_size(const hid_t file_id, const char *citem)
     // Open dataspace 
     dataspace_id = H5Dget_space(dataset_id);
     // Get the size of the dataspace 
-    nwork = H5Sget_simple_extent_npoints(dataspace_id);
+    nwork = (hsize_t) (H5Sget_simple_extent_npoints(dataspace_id));
     // Close it up 
     status  = H5Sclose(dataspace_id);
     status += H5Dclose(dataset_id);
     if (status != 0)
     {
         log_errorF("%s: Error closing h5\n", fcnm);
-        return nwork;
+        return (int) nwork;
     }   
     free(citem_hdf5);
     nwork_out = (int) nwork;
@@ -815,19 +812,18 @@ bool h5_item_exists(const hid_t file_id, const char *citem_in)
  * @author Ben Baker, ISTI
  *
  */
-hid_t h5_create_group(const hid_t file_id, const char *cgroup)
+herr_t h5_create_group(const hid_t file_id, const char *cgroup)
 {
     const char *fcnm = "h5_create_group\0";
     char *cgroup_hdf5;
-    int len_item = strlen(cgroup);
+    int len_item = (int) (strlen(cgroup));
     hid_t group_id;
     herr_t status;
     int lexist;
     //------------------------------------------------------------------------//
     //  
     // Set group name 
-    cgroup_hdf5 = (char *)calloc(len_item+1, sizeof(char));
-    memset(cgroup_hdf5, 0, len_item+1);
+    cgroup_hdf5 = (char *)calloc((unsigned long) (len_item+1), sizeof(char));
     strncpy(cgroup_hdf5, cgroup, len_item);
     // Make sure group does not exist 
     lexist = H5Lexists(file_id, cgroup, H5P_DEFAULT);

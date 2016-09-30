@@ -8,7 +8,7 @@
 /*!
  * @brief Closes the HDF5 file on h5trace
  *
- * @param[inout] h5trace    on input holds the HDF5 file handle and
+ * @param[in,out] h5trace   on input holds the HDF5 file handle and
  *                          h5traceBuffer properties. 
  *                          on output h5tracebuffer information is reset
  *                          and the underlying HDF5 file with the traces

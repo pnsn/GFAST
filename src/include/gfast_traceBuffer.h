@@ -141,7 +141,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const char *msgs,
     struct h5traceBuffer_struct *h5traces);
 
-
+/* Sets data in h5 file */
+int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer);
 /* Copies the trace buffer to the GFAST structure */
 int traceBuffer_h5_copyTraceBufferToGFAST(
     struct h5traceBuffer_struct *traceBuffer,

@@ -14,11 +14,17 @@
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-qual"
+#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
+#endif
 //============================================================================//
 /*!
  * @brief Generates the char * XML message corresponding to the finite
  *        fault inversion
  *
+ * @bug fix cast quality
  */
 char *eewUtils_makeXML__ff(const int mode,
                            const char *orig_sys,
@@ -250,7 +256,7 @@ char *eewUtils_makeXML__ff(const int mode,
     xmlCleanupCharEncodingHandlers();
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
-    xmlmsg = (char *)calloc(msglen+1, sizeof(char));
+    xmlmsg = (char *)calloc((unsigned long) (msglen+1), sizeof(char));
     strncpy(xmlmsg, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);
@@ -320,10 +326,11 @@ char *eewUtils_makeXML__quakeML(const char *network,
     //------------------------------------------------------------------------//
     // Set the network code (all lower case)
     memset(networkLower, 0, sizeof(networkLower));
+    strcpy(networkLower, network);
     lenos = (int) (strlen(network)); 
     for (i=0; i<lenos; i++)
     {
-        networkLower[i] = tolower(network[i]);
+        putchar(tolower(network[i]));
     }
     // Make the root part of the publicID:
     //   quakeml:<network>.<domain>/<type>/<code>
@@ -653,3 +660,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     xmlCleanupThreads();
     return xmlmsg;
 }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif

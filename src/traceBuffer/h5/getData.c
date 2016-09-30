@@ -13,7 +13,7 @@
  * @param[in] t1                 epochal start time of traces (UTC seconds)
  * @param[in] t2                 epochal end time of traces (UTC seconds)
  *
- * @param[inout] h5traceBuffer   on input contains the desired traces (SNCLs)
+ * @param[in,out] h5traceBuffer  on input contains the desired traces (SNCLs)
  *                               to query the HDF5 file.
  *                               on successful exit contains the traces for
  *                               each SNCL from times t1 to t2.  any unknown
@@ -55,7 +55,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         groupID = H5Gopen2(h5traceBuffer->fileID,
                            h5traceBuffer->traces[i].groupName, H5P_DEFAULT);
         // Get the scalars describing this dataset
-        ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, -NAN,
+        ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, (double) NAN,
                                                &maxpts,
                                                &dt, &ts1, &ts2);
         if (ierr != 0)
@@ -122,7 +122,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                 ierr = GFAST_traceBuffer_h5_getDoubleArray(groupID,
                                                            i1, i2,
                                                            dataBuffer1,
-                                                           NAN,
+                                                           (double) NAN,
                                                            ncopy, work);
                 if (ierr != 0)
                 {
@@ -136,14 +136,14 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             {
                 i2 = maxpts - 1;
                 j1 = 0;
-                j2 = fmin(maxpts-1, (int) ((t2 - ts2Use)/dt + 0.5));
+                j2 = (int) (fmin(maxpts-1, (int) ((t2 - ts2Use)/dt + 0.5)));
                 nc1 = i2 - i1 + 1;
                 nc2 = j2 - j1 + 1;
                 // Get data from [i1:i2] then [j1:j2]
                 ierr = GFAST_traceBuffer_h5_getDoubleArray(groupID,
                                                            i1, i2, 
                                                            dataBuffer1,
-                                                           NAN,
+                                                           (double) NAN,
                                                            nc1, work);
                 if (ierr != 0)
                 {
@@ -152,7 +152,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                 ierr = GFAST_traceBuffer_h5_getDoubleArray(groupID,
                                                            j1, j2,
                                                            dataBuffer2,
-                                                           NAN,
+                                                           (double) NAN,
                                                            nc2, &work[nc1]);
                 if (ierr != 0)
                 {
@@ -170,12 +170,12 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             // All on second buffer
             if (t1 >= ts2Use)
             {
-                j1 = fmax(0, (int) ((t1 - ts2Use)/dt + 0.5));
-                j2 = fmin(maxpts-1, (int) ((t2 - ts2Use)/dt + 0.5));
+                j1 = (int) (fmax(0, (int) ((t1 - ts2Use)/dt + 0.5)));
+                j2 = (int) (fmin(maxpts-1, (int) ((t2 - ts2Use)/dt + 0.5)));
                 ierr = GFAST_traceBuffer_h5_getDoubleArray(groupID,
                                                            j1, j2,
                                                            dataBuffer2,
-                                                           NAN,
+                                                           (double) NAN,
                                                            ncopy, work);
                 if (ierr != 0)
                 {

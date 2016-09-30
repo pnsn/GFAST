@@ -31,8 +31,8 @@ int traceBuffer_h5_getDoubleArray(const hid_t groupID,
         }
         return -1;
     }
-    offset[0] = i1;
-    count[0] = ncopy;
+    offset[0] = (hsize_t) i1;
+    count[0] = (hsize_t) ncopy;
     dataSet = H5Dopen(groupID, citem, H5P_DEFAULT);
     dataSpace = H5Dget_space(dataSet);
     rank = H5Sget_simple_extent_ndims(dataSpace);
@@ -50,8 +50,8 @@ int traceBuffer_h5_getDoubleArray(const hid_t groupID,
     memSpace = H5Screate_simple(rank, dims, NULL);
     status = H5Sselect_hyperslab(dataSpace, H5S_SELECT_SET, offset, 
                                  NULL, count, NULL);
-    offset[0] = i1;
-    count[0] = ncopy;
+    offset[0] = (hsize_t) i1;
+    count[0] = (hsize_t) ncopy;
     status = H5Sselect_hyperslab(memSpace, H5S_SELECT_SET, offset, 
                                  NULL, count, NULL);
     status = H5Dread(dataSet, H5T_NATIVE_DOUBLE, memSpace, dataSpace,

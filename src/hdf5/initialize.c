@@ -28,7 +28,8 @@ int hdf5_initialize(const char *adir,
     const char *bufout[1];
     char fname[PATH_MAX], *buffer;
     hid_t fileID, groupID;
-    int ierr, lsize, nread;
+    int ierr;
+    size_t lsize, nread;
     //------------------------------------------------------------------------//
     //
     // Set the filename
@@ -65,9 +66,9 @@ int hdf5_initialize(const char *adir,
     {
         ifl = fopen(propfilename, "rb");
         fseek(ifl, 0L, SEEK_END);
-        lsize = ftell(ifl);
+        lsize = (unsigned long) (ftell(ifl));
         rewind(ifl);
-        buffer = calloc(1, lsize+1);
+        buffer = (char *)calloc(1, (lsize+1)*sizeof(char));
         nread = fread(buffer, lsize, 1, ifl);
         if (nread < 1)
         {

@@ -19,7 +19,7 @@ static int copyTrace(const int npts,
  *                           buffer is appropriately queried for times
  *                           [t1, t2]
  *
- * @param[inout] gps_data    on input contains the requisite space 
+ * @param[in,out] gps_data   on input contains the requisite space 
  *                           to store the data from the traceBuffer.
  *                           on output contains the data from [t1, t2]
  *                           and fills all excess points (up to maxpts)
@@ -43,11 +43,11 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     {
         log_warnF("%s: Expecting multiple of 3 traces\n", fcnm);
     }
-    ltInit = ISCL_memory_calloc__bool(fmax(traceBuffer->ntraces/3, 1)); 
+    ltInit = ISCL_memory_calloc__bool((int) (fmax(traceBuffer->ntraces/3, 1)));
     // Copy the data back
     for (i=0; i<traceBuffer->ntraces; i++)
     {
-        j = fmod(traceBuffer->traces[i].idest, 3);
+        j = (int) (fmod(traceBuffer->traces[i].idest, 3));
         k = (traceBuffer->traces[i].idest - j)/3;
         if (traceBuffer->traces[i].ncopy > gps_data->data[k].maxpts)
         {
@@ -167,7 +167,7 @@ static int copyTrace(const int npts,
     #pragma omp simd
     for (i=npts; i<ndest; i++)
     {
-        dest[i] = NAN;
+        dest[i] = (double) NAN;
     }
     return ierr;
 }

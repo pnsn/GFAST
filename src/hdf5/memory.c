@@ -78,7 +78,7 @@ int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff)
     if (ff->fp.p != NULL)
     {
         fp = (struct h5_faultPlane_struct *) ff->fp.p;
-        for (i=0; i<ff->fp.len; i++)
+        for (i=0; i<(int) ff->fp.len; i++)
         {
             GFAST_hdf5_memory__freeFaultPlane(&fp[i]);
         }

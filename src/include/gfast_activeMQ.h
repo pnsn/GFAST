@@ -34,7 +34,7 @@ char *activeMQ_setTcpURIRequest(const char *host,
                                 const int msReconnect,
                                 const int maxAttempts);
 
-
+#ifndef __cplusplus
 #define GFAST_activeMQ_consumer_initialize(...)       \
               activeMQ_consumer_initialize(__VA_ARGS__)
 #define GFAST_activeMQ_consumer_getMessage(...)       \
@@ -47,6 +47,7 @@ char *activeMQ_setTcpURIRequest(const char *host,
               activeMQ_producer_sendMessage(__VA_ARGS__)
 #define GFAST_activeMQ_setTcpURIRequest(...)       \
               activeMQ_setTcpURIRequest(__VA_ARGS__)
+#endif
 
 #ifdef __cplusplus
 }

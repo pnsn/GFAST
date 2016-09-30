@@ -397,7 +397,6 @@ int eewUtils_driveGFAST(const double currentTime,
                 ierr = GFAST_hdf5_update__ff(props.h5ArchiveDir,
                                              SA.eventid,
                                              h5k,
-                                             *ff_data,
                                              *ff);
             }
             // Write the XML to the HDF5 file

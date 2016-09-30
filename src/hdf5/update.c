@@ -27,6 +27,7 @@ int hdf5_update__getIteration(const char *adir,
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX], iterGroup[256];
     hid_t fileID, groupID;
+    herr_t status;
     int ierr, k;
     //------------------------------------------------------------------------//
     //
@@ -56,9 +57,9 @@ int hdf5_update__getIteration(const char *adir,
     ierr = h5_create_group(fileID, iterGroup);
     // Write the epochal time as an attribute
     groupID = H5Gopen2(fileID, iterGroup, H5P_DEFAULT);
-    ierr = h5_write_attribute__double("epoch\0", groupID, 1, &epoch);
-    ierr = H5Gclose(groupID);
-    ierr = h5_close(fileID);
+    status = h5_write_attribute__double("epoch\0", groupID, 1, &epoch);
+    status = H5Gclose(groupID);
+    status = h5_close(fileID);
     // Add the epochal time
     return k;
 }
@@ -341,7 +342,6 @@ int hdf5_update__cmt(const char *adir,
 int hdf5_update__ff(const char *adir,
                     const char *evid,
                     const int h5k,
-                    struct GFAST_offsetData_struct ff_data,
                     struct GFAST_ffResults_struct ff)
 {
     const char *fcnm = "hdf5_update__ff\0";

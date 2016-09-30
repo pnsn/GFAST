@@ -9,10 +9,10 @@
  *
  * @param[in] retval    earthworm return code to classify
  *
- * @retval  1 the requested message was received
- * @retval  0 there are no more messages
- * @retval -1 messages were received but there may be a loss of information
- * @retval -2 an error occurred and no messages were received
+ * @result  1 the requested message was received.
+ *          0 there are no more messages
+ *         -1 messages were received but there may be a loss of information
+ *         -2 an error occurred and no messages were received
  *
  * @author Ben Baker (ISTI)
  *

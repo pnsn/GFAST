@@ -12,18 +12,18 @@
  * @brief Initializes the HDF5 file for archiving the acquisition or
  *        reading in playback mode. 
  *
- * @param[in] job               If job = 1 then the file will be opened as
- *                              read only.
- *                              If job = 2 then the file will be opened as
- *                              read/write.
- * @param[in] linMemory         If true then keep the opened file in memory.
- * @param[in] h5dir             directory where HDF5 file exists
- * @param[in] h5file            name of the HDF5 file in the directory
+ * @param[in] job                If job = 1 then the file will be opened as
+ *                               read only.
+ *                               If job = 2 then the file will be opened as
+ *                               read/write.
+ * @param[in] linMemory          If true then keep the opened file in memory.
+ * @param[in] h5dir              directory where HDF5 file exists
+ * @param[in] h5file             name of the HDF5 file in the directory
  *
- * @param[inout] h5TraceBuffer  On input, contains the names of the HDF5
- *                              dataset names
- *                              On output, contains the HDF5 file handle
- *                              from which we'll read and write.
+ * @param[in,out] h5traceBuffer  On input, contains the names of the HDF5
+ *                               dataset names.
+ *                               On output, contains the HDF5 file handle
+ *                               from which we'll read and write.
  *
  * @result 0 indicates success
  * 
@@ -69,7 +69,7 @@ int traceBuffer_h5_initialize(const int job,
         // Get the size of the file
         fp = fopen(h5file, "rb\0");
         fseek(fp, 0L, SEEK_END);
-        blockSize = ftell(fp);
+        blockSize = (unsigned long) ftell(fp);
         fclose(fp);
         // Open the file
         properties = H5Pcreate(H5P_FILE_ACCESS);
@@ -106,7 +106,7 @@ int traceBuffer_h5_initialize(const int job,
     else
     {
         // Set the time to now
-        tbeg = (double) (long) ISCL_time_timeStamp(); 
+        tbeg = (double) ((long) (ISCL_time_timeStamp())); 
         // If scratch file was saved then remove it 
         if (os_path_isfile(h5file))
         {
@@ -131,9 +131,10 @@ int traceBuffer_h5_initialize(const int job,
                     log_warnF("%s: maxpts is 0 for trace %d\n", fcnm, i+1);
                 }
             }
-            blockSize = blockSize + 8*2*maxpts + 8*3 + 4;
+            blockSize = blockSize + 8*2*(unsigned long) maxpts + 8*3 + 4;
         }
-        blockSize = (int) (double) (blockSize*1.1 + 0.5); // add a little extra
+        // add a little extra
+        blockSize = (unsigned long) ((double) (blockSize*1.1 + 0.5));
         properties = H5Pcreate(H5P_FILE_ACCESS); 
         status = H5Pset_fapl_core(properties, blockSize, false);
         if (status < 0)
@@ -188,7 +189,7 @@ int traceBuffer_h5_initialize(const int job,
                 work = ISCL_memory_calloc__double(maxpts);
                 for (k=0; k<maxpts; k++)
                 {
-                    work[k] = NAN;
+                    work[k] = (double) NAN;
                 }
                 ISCL_memory_free__double(&work);
             }

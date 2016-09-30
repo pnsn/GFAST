@@ -249,7 +249,6 @@ int hdf5_update__cmt(const char *adir,
 int hdf5_update__ff(const char *adir,
                     const char *evid,
                     const int h5k,
-                    struct GFAST_offsetData_struct ff_data,
                     struct GFAST_ffResults_struct ff);
 int hdf5_update__gpsData(const char *adir,
                          const char *evid,
@@ -299,7 +298,7 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
 int h5_n_group_members(const char *group_name, const hid_t file_id);
 int h5_get_array_size(const hid_t file_id, const char *citem);
 bool h5_item_exists(const hid_t file_id, const char *citem_in);
-hid_t h5_create_group(const hid_t file_id, const char *cgroup);
+herr_t h5_create_group(const hid_t file_id, const char *cgroup);
 
 #define GFAST_hdf5_setFileName(...)       \
               hdf5_setFileName(__VA_ARGS__)
