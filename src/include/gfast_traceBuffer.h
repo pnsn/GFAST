@@ -7,7 +7,10 @@
 #include <linux/limits.h>
 #endif
 #include <stdbool.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 #include <hdf5.h>
+#pragma clang diagnostic pop
 #include "gfast_struct.h"
 #include "gfast_config.h"
 #ifndef PATH_MAX
@@ -86,9 +89,9 @@ struct h5traceBuffer_struct
 {
     struct h5trace_struct *traces; /*!< HDF5 trace data structure */
     hid_t fileID;                  /*!< HDF5 file handle */
+    int ntraces;                   /*!< Number of traces to collect */
     bool linit;                    /*!< True if the structure has been
                                         initialized */
-    int ntraces;                   /*!< Number of traces to collect */
 };
 
 #ifdef __cplusplus

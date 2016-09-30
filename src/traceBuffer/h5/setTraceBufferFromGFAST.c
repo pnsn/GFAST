@@ -33,8 +33,9 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
         return -1;
     }
     i = 0;
-    dt0 =-12345.0;
-    traceBuffer->traces = calloc(traceBuffer->ntraces,
+    dt0 = (double) NAN;
+    traceBuffer->traces = (struct h5trace_struct *)
+                          calloc((unsigned long) traceBuffer->ntraces,
                                  sizeof(struct h5trace_struct));
     for (k=0; k<gps_data.stream_length; k++)
     {
@@ -86,7 +87,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
             traceBuffer->traces[i].groupName
                 = (char *)calloc(strlen(temp)+1, sizeof(char));
             strcpy(traceBuffer->traces[i].groupName, temp);
-            if (dt0 ==-12345.0){dt0 = gps_data.data[k].dt;}
+            if (isnan(dt0)){dt0 = gps_data.data[k].dt;}
             if (fabs(dt0 - gps_data.data[k].dt)/dt0 > 1.e-10)
             {
                 log_errorF("%s: Error can't yet handle multirate data\n",

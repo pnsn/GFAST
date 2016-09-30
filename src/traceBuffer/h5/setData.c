@@ -51,7 +51,7 @@ int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
     // Get the min and max times to copy
     ierr = 0;
     ierrAll = 0;
-    dt0 =-DBL_MAX;
+    dt0 = NAN;
     ts1Min = DBL_MAX;
     ts2Max =-DBL_MAX;
     tmaxH50 =-DBL_MAX;
@@ -81,7 +81,7 @@ int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
                        fcnm, dt, dtH5);
             ierrAll = ierrAll + 1;
         }
-        if (dt0 ==-DBL_MAX){dt0 = dt;}
+        if (isnan(dt0)){dt0 = dt;}
         if (fabs(dt - dt0)/dt > 1.e-10)
         {
             log_errorF("%s: Need constant sampling period in data\n", fcnm);

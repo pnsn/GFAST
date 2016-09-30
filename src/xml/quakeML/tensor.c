@@ -1,32 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
 /*!
  * @brief Writes the moment tensor terms in Up, South, East coordinates
- *        as described in Aki and Richards pg 113.
+ *        as described in Aki and Richards - Quantitative Seismology
+ *        2nd Ed. pg 113.
  *
- * @cite Aki and Richards - Quantitative Seismology 2nd Edition pg. 113
+ * @param[in] Mrr             Mrr component of moment tensor (USE) coordinates.
+ *                            Units are Newton-meters.
+ * @param[in] Mtt             Mtt component of moment tensor (USE) coordinates.
+ *                            Units are Newton-meters.
+ * @param[in] Mpp             Mpp component of moment tensor (USE) coordinates.
+ *                            Units are Newton-meters.
+ * @param[in] Mrt             Mrt component of moment tensor (USE) coordinates.
+ *                            Units are Newton-meters.
+ * @param[in] Mrp             Mrp component of moment tensor (USE) coordinates.
+ *                            Units are Newton-meters.
+ * @param[in] Mtp             Mtp component of moment tensor (USE) coordinates.
+ *                            Units are Newton-meters.
  *
- * @param[in] Mrr            Mrr component of moment tensor (USE) coordinates.
- *                           Units are Newton-meters.
- * @param[in] Mtt            Mtt component of moment tensor (USE) coordinates.
- *                           Units are Newton-meters.
- * @param[in] Mpp            Mpp component of moment tensor (USE) coordinates.
- *                           Units are Newton-meters.
- * @param[in] Mrt            Mrt component of moment tensor (USE) coordinates.
- *                           Units are Newton-meters.
- * @param[in] Mrp            Mrp component of moment tensor (USE) coordinates.
- *                           Units are Newton-meters.
- * @param[in] Mtp            Mtp component of moment tensor (USE) coordinates.
- *                           Units are Newton-meters.
- *
- * @param[inout] xml_writer  handle to XML writer to which to write 
- *                           the (moment) tensor
+ * @param[in,out] xml_writer  handle to XML writer to which to write 
+ *                            the (moment) tensor
  *
  * @result 0 indicates success
  *

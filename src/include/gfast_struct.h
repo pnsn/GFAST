@@ -454,7 +454,7 @@ struct GFAST_shakeAlert_struct
 
 struct GFAST_activeEvents_struct
 {
-    struct GFAST_shakeAlert_struct *SA; /*<! Shake alert structure with 
+    struct GFAST_shakeAlert_struct *SA; /*!< Shake alert structure with 
                                              requisite event info [nev] */
     int nev;                            /*!< Number of events */ 
 };

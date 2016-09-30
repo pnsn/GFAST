@@ -41,12 +41,12 @@ struct qmlMT_struct
 
 struct qmlConfidenceEllipse_struct
 {
-    
+    int bogus; /* TODO fix me */
 };
 
 struct qmlOriginUncertainty_struct
 {
-
+    int bogus; /* TODO fix me */
 };
 
 struct qmlMagnitude_struct
@@ -222,7 +222,7 @@ int xml_quakeML_writeTime(const double time,
                           const double timeUncer,
                           const enum alert_units_enum timeUncer_units,
                           const bool lhaveTimeUncer,
-                          const const double confidence,
+                          const double confidence,
                           const bool lhaveConfidence,
                           void *xml_writer);
 //----------------------------------------------------------------------------//

@@ -44,7 +44,7 @@ enum cmopad_basis_enum
     NED = 1,   /*!< North, East, Down - like in Jost and Herrmann */
     USE = 2,   /*!< Up, South, East - like in Global CMT */
     XYZ = 3,   /*!< North, Esat, Up */
-    NWU = 4    /*!< North, West, Up */
+    NWU = 4,   /*!< North, West, Up */
 };
 
 #ifdef __cplusplus

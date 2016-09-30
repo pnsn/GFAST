@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 /*!
@@ -28,7 +31,7 @@
  * @param[in] dc_pct          percent double couple [0,100]
  * @param[in] clvd_pct        percent CLVD [0,100]
  *
- * @param[inout] xml_writer   XML handle to which to write the moment
+ * @param[in,out] xml_writer  XML handle to which to write the moment
  *                            tensor
  *
  * @result 0 indicates success
@@ -49,7 +52,8 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
     xmlTextWriterPtr writer;
     char publicID[512];
     double Mrr, Mtt, Mpp, Mrt, Mrp, Mtp;
-    int ierr, lenos, rc;
+    int ierr, rc;
+    unsigned long lenos;
     //------------------------------------------------------------------------//
     //
     rc = 0;

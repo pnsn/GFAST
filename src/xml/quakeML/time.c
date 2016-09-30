@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
@@ -16,7 +19,7 @@ int xml_quakeML_writeTime(const double time,
                           const double timeUncer,
                           const enum alert_units_enum timeUncer_units,
                           const bool lhaveTimeUncer,
-                          const const double confidence,
+                          const double confidence,
                           const bool lhaveConfidence,
                           void *xml_writer)
 {

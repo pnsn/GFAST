@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
@@ -27,7 +30,7 @@ int xml_quakeML_writeMagnitude(const double magnitude,
     //------------------------------------------------------------------------//
     //  
     // nothing to do
-    if (!lhaveMag && !lhaveMagUncer && !lhaveType)
+    if (!lhaveMag && !lhaveMagUncer && !lhaveType){return 0;}
     // get writer
     rc = 0;
     writer = (xmlTextWriterPtr) xml_writer;

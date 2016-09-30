@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
@@ -15,7 +18,8 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
     const char *fcnm = "xml_quakeML_writeOrigin\0";
     xmlTextWriterPtr writer;
     char publicID[512];
-    int ierr, lenos, rc;
+    int ierr, rc;
+    unsigned long lenos;
     //------------------------------------------------------------------------//
     //
     // Nothing to do

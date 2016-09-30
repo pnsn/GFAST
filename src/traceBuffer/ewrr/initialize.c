@@ -24,12 +24,20 @@ typedef struct
 } EWH;
 
 /*!
- * @brief Initializes the HDF5
+ * @brief Initializes tracebuf2 ring reader
  *
  * @param[in] ewRing     null terminated earthworm data ring name
+ * @param[in] msWait     number of milliseconds to wait after reading
+ *                       earthworm ring.  will be attached to ringInfo
  *
- * @param[out] region    shared memory region corresponding to earthworm ring
+ * @param[out] ringInfo  requisite information for reading the tracebuf2's
+ *                       off the ewRing earthworm ring
+ *                         
+ * @result 0 indicates success
  *
+ * @author Ben Baker (ISTI)
+ *
+ * @copyright Apache 2
  *
  */
 int traceBuffer_ewrr_initialize(const char *configFile,
@@ -57,6 +65,8 @@ int traceBuffer_ewrr_initialize(const char *configFile,
         log_errorF("%s: Error ewRing must be specified\n", fcnm);
         return -1;
     }
+    ringInfo->msWait = 0;
+    if (msWait > 0){ringInfo->msWait = (unsigned int) msWait;}
     // Environmental parameter to read stations
     memset(fullTablePath, 0, sizeof(fullTablePath));
 #ifdef _WINNT
@@ -114,7 +124,8 @@ int traceBuffer_ewrr_initialize(const char *configFile,
     }
     // Hook the getLogo's up for reading tracebuffer2s
     ringInfo->nlogo = 1;
-    ringInfo->getLogo = (MSG_LOGO *)calloc(ringInfo->nlogo, sizeof(MSG_LOGO));
+    ringInfo->getLogo = (MSG_LOGO *) calloc((unsigned long) ringInfo->nlogo,
+                                            sizeof(MSG_LOGO));
     ringInfo->getLogo[0].type = ringInfo->traceBuffer2Type;
     // Attach to the ring
     tport_attach(&ringInfo->region, ringInfo->ringKey);

@@ -1,25 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Writes the tension, pressure, and null principal axes. 
  *
- * @param[in] taxis          tension principal axis defined by its 
- *                           azimuth angle (dgrees), plunge angle (degrees),
- *                           and length (Nm) respectively [3]
- * @param[in] paxis          pressure principal axis defined by its 
- *                           azimuth angle (dgrees), plunge angle (degrees),
- *                           and length (Nm) respectively [3]
- * @param[in] naxis          null (intermediate) principal axis defined by its
- *                           azimuth angle (dgrees), plunge angle (degrees),
- *                           and length (Nm) respectively [3]
+ * @param[in] taxis           tension principal axis defined by its 
+ *                            azimuth angle (dgrees), plunge angle (degrees),
+ *                            and length (Nm) respectively [3]
+ * @param[in] paxis           pressure principal axis defined by its 
+ *                            azimuth angle (dgrees), plunge angle (degrees),
+ *                            and length (Nm) respectively [3]
+ * @param[in] naxis           null (intermediate) principal axis defined by its
+ *                            azimuth angle (dgrees), plunge angle (degrees),
+ *                            and length (Nm) respectively [3]
  *
- * @param[inout] xml_writer  handle of XML writer to which the principal
- *                           axes will be written
+ * @param[in,out] xml_writer  handle of XML writer to which the principal
+ *                            axes will be written
  * 
  * @result 0 indicates success
  *
@@ -115,6 +118,7 @@ int xml_quakeML_writePrincipalAxes(const double taxis[3],
  * @bug This is not yet programmed
  *
  */
+/*
 int xml_quakeML_readPrincipalAxes(const void *xml_reader,
                                   const double PA_NAN,
                                   double taxis[3],
@@ -125,3 +129,4 @@ int xml_quakeML_readPrincipalAxes(const void *xml_reader,
     log_errorF("%s: Error this isn't programmed yet\n", fcnm);
     return -1; 
 }
+*/

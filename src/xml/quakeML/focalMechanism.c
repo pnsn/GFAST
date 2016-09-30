@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "cmopad.h"
 #include "iscl/log/log.h"
@@ -12,17 +15,17 @@
  *        scalar moment, double couple and CLVD percentage, nodal planes,
  *        and principal axes to QuakeML
  *
- * @param[in] publicIDroot   QuakeML public ID root
- *                           (e.g. quakeml:us.anss.org/)
- * @param[in] evid           event ID
- * @param[in] method         method (for this project use gps)
- * @param[in] mt             moment tensor in NED format with units of
- *                           Newton-meters.   the moment tensor is packed
- *                           \f$ \{ m_{xx}, m_{yy}, m_{zz},
- *                                  m_{xy}, m_{xz}, m_{yz} \} \f$.
+ * @param[in] publicIDroot    QuakeML public ID root
+ *                            (e.g. quakeml:us.anss.org/)
+ * @param[in] evid            event ID
+ * @param[in] method          method (for this project use gps)
+ * @param[in] mt              moment tensor in NED format with units of
+ *                            Newton-meters.   the moment tensor is packed
+ *                            \f$ \{ m_{xx}, m_{yy}, m_{zz},
+ *                                   m_{xy}, m_{xz}, m_{yz} \} \f$.
  *
- * @param[inout] xml_writer  handle to XML writer to which moment tensor
- *                           and derived quantities are to be written. 
+ * @param[in,out] xml_writer  handle to XML writer to which moment tensor
+ *                            and derived quantities are to be written. 
  *
  * @result 0 indicates success
  *
@@ -40,7 +43,8 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     char publicID[512];
     struct cmopad_struct src;
     double M_ned[3][3], M_use[6], naxis[3], paxis[3], taxis[3];
-    int ierr, lenos, rc;
+    int ierr, rc;
+    unsigned long lenos;
     //------------------------------------------------------------------------//
     //
     // Initialize

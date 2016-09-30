@@ -23,7 +23,7 @@ int traceBuffer_h5_setFileName(const char *h5dir,
                                char h5name[PATH_MAX])
 {
     const char *fcnm = "traceBuffer_h5_setFileName\0";
-    int lend;
+    unsigned long lend;
     memset(h5name, 0, PATH_MAX*sizeof(char));
     if (h5file == NULL)
     {

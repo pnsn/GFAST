@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#pragma clang diagnostic pop
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 /*!
@@ -10,20 +13,19 @@
  *        The strike is measured clockwise north [0,360].  The dip is 
  *        measured positive down from horizontal [0,90], and rake
  *        represents the angle between the strike and slip direction 
- *        [-180,180].  For further details see Ak and Richards.
+ *        [-180,180].  For further details see Aki and Richards
+ *        Quantitative Seismology Ed. 2 pg 101.
  *
- * @param[in] np1            first nodal plane defined by its strike, dip,
- *                           and rake respectively (degrees) [3]
- * @param[in] np2            second nodal plane defined by its strike, dip,
- *                           and rake respectively (degrees) [3]
+ * @param[in] np1             first nodal plane defined by its strike, dip,
+ *                            and rake respectively (degrees) [3]
+ * @param[in] np2             second nodal plane defined by its strike, dip,
+ *                            and rake respectively (degrees) [3]
  *
- * @param[inout] xml_writer  handle of XML writer to which the nodal planes
- *                           will be written
+ * @param[in,out] xml_writer  handle of XML writer to which the nodal planes
+ *                            will be written
  * 
  * @result 0 indicates success
  *
- * @reference Aki and Richards (2002) Quantitative Seismology Ed. 2, pg. 101
- *  
  * @author Ben Baker (ISTI)
  *
  */
@@ -95,6 +97,7 @@ int xml_quakeML_writeNodalPlanes(const double np1[3],
  * @bug This is not yet programmed
  *
  */
+/*
 int xml_quakeML_readNodalPlanes(const void *xml_reader,
                                 const double NP_NAN,
                                 double strike[2],
@@ -105,3 +108,4 @@ int xml_quakeML_readNodalPlanes(const void *xml_reader,
     log_errorF("%s: Error this isn't programmed yet\n", fcnm);
     return -1;
 }
+*/
