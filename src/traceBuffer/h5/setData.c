@@ -11,7 +11,6 @@
 /*!
  * @brief Writes the data on the h5traceBuffer to the HDF5 archive
  *
- * @param[in] npupd           number of points to update
  * @param[in] h5traceBuffer   contains the data and streams to be updated in the
  *                            HDF5 file
  *
@@ -51,7 +50,7 @@ int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
     // Get the min and max times to copy
     ierr = 0;
     ierrAll = 0;
-    dt0 = NAN;
+    dt0 = (double) NAN;
     ts1Min = DBL_MAX;
     ts2Max =-DBL_MAX;
     tmaxH50 =-DBL_MAX;
@@ -72,7 +71,7 @@ int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
         // Get the same information from the HDF5 buffer
         groupID =  H5Gopen2(h5traceBuffer->fileID,
                             h5traceBuffer->traces[i].groupName, H5P_DEFAULT);
-        ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, -NAN,
+        ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, (double) NAN,
                                                &maxpts,
                                                &dtH5, &ts1, &ts2);
         if (fabs(dtH5 - dt)/dtH5 > 1.e-10)
@@ -188,14 +187,14 @@ int udpate_dataSet(const hid_t groupID,
         goto ERROR1;
     }
     status = H5Sget_simple_extent_dims(dataSpace, dims, NULL);
-    if (dims[0] < npts)
+    if (dims[0] < (hsize_t) npts)
     {
         log_errorF("%s: Too many points to write %d %d!\n",
                    fcnm, npts, (int) dims[0]);
         status =-1;
         goto ERROR1;
     }
-    if (dims[0] < i1 + npts)
+    if (dims[0] < (hsize_t) (i1 + npts))
     {
         log_errorF("%s: Trying to write past end of data %d %d %d!\n",
                    fcnm, i1, npts, (int) dims[0]);
@@ -206,8 +205,8 @@ int udpate_dataSet(const hid_t groupID,
     memSpace = H5Screate_simple(rank, chunkDims, NULL); 
     // Select HDF5 chunk
     status = 0;
-    offset[0] = i1;
-    count[0] = npts;
+    offset[0] = (hsize_t) i1;
+    count[0] = (hsize_t) npts;
     status = H5Sselect_hyperslab(dataSpace, H5S_SELECT_SET, offset, NULL,
                                  count, NULL);
     if (status < 0)

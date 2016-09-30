@@ -2,11 +2,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 /*!
@@ -30,7 +38,7 @@
  *      have units degrees for lat and lon, and km for depth
  *
  */
-int xml_shakeAlert_readVertex(const void *xml_reader, const double VTX_NAN,
+int xml_shakeAlert_readVertex(void *xml_reader, const double VTX_NAN,
                               double *lat, double *lon, double *depth)
 {
     const char *fcnm = "xml_shakeAlert_readVertex\0";
@@ -104,14 +112,14 @@ int xml_shakeAlert_readVertex(const void *xml_reader, const double VTX_NAN,
         if (!lunpack)
         {
             log_warnF("%s: Warning couldn't find item %s\n", fcnm,
-                      (char *)vertex_xml->name);
+                      vertex_xml->name);
             goto NEXT_VERTEX_XML;
         }
         // Check on item index to avoid a segfault
         if (item0 < 0 || item0 > nitems - 1)
         {
             log_errorF("%s: Invalid index %s %d\n",
-                        fcnm, (char *)vertex_xml->name, item0);
+                        fcnm, vertex_xml->name, item0);
             ierr = 1;
             goto ERROR;
         }
@@ -162,14 +170,14 @@ ERROR:;
 /*!
  * @brief Writes a vertex defined by a (latitude, longitude, depth)
  *
- * @param[in] lat            vertex latitude with units given by lat_units 
- * @param[in] lat_units      units corresponding to lat (e.g. DEGREES)
- * @param[in] lon            vertex longitude with units given by lon_units
- * @param[in] lon_units      units corresponding to lon (e.g. DEGREES)
- * @param[in] depth          vertex depth with units given by dep_units
- * @param[in] depth_units    units corresponding to depth (e.g. KILOMETERS)
+ * @param[in] lat             vertex latitude with units given by lat_units 
+ * @param[in] lat_units       units corresponding to lat (e.g. DEGREES)
+ * @param[in] lon             vertex longitude with units given by lon_units
+ * @param[in] lon_units       units corresponding to lon (e.g. DEGREES)
+ * @param[in] depth           vertex depth with units given by dep_units
+ * @param[in] depth_units     units corresponding to depth (e.g. KILOMETERS)
  *
- * @param[inout] xml_writer  xmlTextWriterPtr to which to add vertex 
+ * @param[in,out] xml_writer  xmlTextWriterPtr to which to add vertex 
  *
  * @result 0 indicates success
  *

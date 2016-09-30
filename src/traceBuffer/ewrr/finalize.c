@@ -7,10 +7,10 @@
 /*!
  * @brief Disconnects from the ring and clears the earthworm ring structure
  *
- * @param[inout] ringInfo   on input contains the initialized earthworm ring
- *                          information.
- *                          on output contains the cleared earthworm ring
- *                          information.
+ * @param[in,out] ringInfo   on input contains the initialized earthworm ring
+ *                           information.
+ *                           on output contains the cleared earthworm ring
+ *                           information.
  *
  * @result 0 indicates success
  *

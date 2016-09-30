@@ -2,9 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
+#pragma clang diagnostic pop
 #include "gfast_eewUtils.h"
 #include "gfast_xml.h"
 #include "cmopad.h"
@@ -105,7 +108,7 @@ char *eewUtils_makeXML__ff(const int mode,
     rc = xml_epoch2string(now, cnow);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp\0",
                                       BAD_CAST cnow);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "orig_sys\0",
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST ("orig_sys\0"),
                                       BAD_CAST orig_sys);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "alg_vers\0",
                                       BAD_CAST alg_vers);
@@ -113,7 +116,7 @@ char *eewUtils_makeXML__ff(const int mode,
                                       BAD_CAST instance);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "message_type\0",
                                       BAD_CAST message_type);
-    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "version\0",
+    rc += xmlTextWriterWriteAttribute(writer, BAD_CAST ("version\0"),
                                       BAD_CAST version);
     if (rc < 0)
     {
@@ -304,6 +307,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     struct qmlMagnitude_struct magnitude;
     xmlTextWriterPtr writer;
     xmlBufferPtr buf;
+    int lenos;
     const char *method = "gps\0";
     const char *xmlns = "http://quakeml.org/xmlns/bed/1.2\0";
     const char *xmlns_cat = "http://anss.org/xmlns/catalog/0.1\0";
@@ -316,7 +320,8 @@ char *eewUtils_makeXML__quakeML(const char *network,
     //------------------------------------------------------------------------//
     // Set the network code (all lower case)
     memset(networkLower, 0, sizeof(networkLower));
-    for (i=0; i<strlen(network); i++)
+    lenos = (int) (strlen(network)); 
+    for (i=0; i<lenos; i++)
     {
         networkLower[i] = tolower(network[i]);
     }
@@ -462,7 +467,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     xmlCleanupCharEncodingHandlers();
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
-    qml = (char *)calloc(msglen+1, sizeof(char));
+    qml = (char *)calloc((unsigned long) msglen+1, sizeof(char));
     strncpy(qml, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);
@@ -640,7 +645,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     xmlCleanupCharEncodingHandlers();
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
-    xmlmsg = (char *)calloc(msglen+1, sizeof(char));
+    xmlmsg = (char *)calloc((unsigned long) msglen+1, sizeof(char));
     strncpy(xmlmsg, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);

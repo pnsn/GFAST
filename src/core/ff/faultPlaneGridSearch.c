@@ -80,12 +80,12 @@
  *                             component (m) for the i'th site on the ifp'th
  *                             fault plane [l1*nfp].
  *
- * @param[inout] sslip_unc     if not NULL then this is the uncertainty (m)
+ * @param[in,out] sslip_unc    if not NULL then this is the uncertainty (m)
  *                             estimated from the diagonal of the model
  *                             covariance matrix for the slip along strike on
  *                             the if'th fault patch
  *                             on the ifp'th fault plane [l2*nfp]
- * @param[inout] dslip_unc     if not NULL then this is the uncertainty (m)
+ * @param[in,out] dslip_unc    if not NULL then this is the uncertainty (m)
  *                             estimated from the diagonal of the model
  *                             covariance matrix for the slip down dip on
  *                             the on the if'th fault patch
@@ -309,10 +309,13 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         if_off = ifp*l2; // Offset the fault plane
         io_off = ifp*l1; // Offset the observations/estimates
         // Null out G2, regularizer, and possibly R matrix
-        memset(G, 0, ng*sizeof(double));
-        memset(G2, 0, ng2*sizeof(double));
-        memset(T, 0, nt*sizeof(double));
-        if (lrmtx){memset(R, 0, ncolsG2*ncolsG2*sizeof(double));}
+        memset(G, 0, (unsigned long) ng*sizeof(double));
+        memset(G2, 0, (unsigned long) ng2*sizeof(double));
+        memset(T, 0, (unsigned long) nt*sizeof(double));
+        if (lrmtx)
+        {
+            memset(R, 0, (unsigned long) (ncolsG2*ncolsG2)*sizeof(double));
+        }
         // Compute the site/fault patch offsets
         for (i=0; i<l2; i++)
         {
@@ -427,7 +430,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                     {
                         ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
                                                      &R[(2*i+1)*ncolsG2], 1);
-                        sslip_unc[if_off+i] = sqrt(ss_unc);
+                        sslip_unc[if_off+i] = sqrt(ds_unc);
                         dslip_unc[if_off+i] = sqrt(ds_unc);
                     }
                 }
@@ -467,7 +470,6 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         }
         // Compute the magnitude
         M0 = 0.0;
-        #pragma omp simd reduction(+:M0)
         for (i=0; i<l2; i++)
         {
             st = sqrt( pow(sslip[if_off+i], 2) + pow(dslip[if_off+i], 2) );

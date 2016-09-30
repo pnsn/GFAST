@@ -59,8 +59,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 (strcasecmp(chan, traceHeader->chan) == 0) &&
                 (strcasecmp(loc,  traceHeader->loc)  == 0))
             {
-                longData  = (long *)  (msg + sizeof (TRACE2_HEADER));
-                shortData = (short *) (msg + sizeof (TRACE2_HEADER));
+                longData  = (long *)  (msg + sizeof(TRACE2_HEADER));
+                shortData = (short *) (msg + sizeof(TRACE2_HEADER));
                 break;
             }
         } // Loop on messages read

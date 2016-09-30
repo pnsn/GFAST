@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "gfast_events.h"
 #include "iscl/log/log.h"
 /*!
@@ -9,14 +10,14 @@
  *        current events list and if it does differ then this function 
  *        updates the events list to match the input SA event
  *
- * @param[in] SA         shakeAlert structure to check for in events list
+ * @param[in] SA          shakeAlert structure to check for in events list
  *
- * @param[inout] events  on input contains the current list of events.
- *                       on output, if SA is not identical to an SA in the 
- *                       events list, the input SA then overrides the 
- *                       the corresponding SA in events.  additionally, if
- *                       SA does not exist in events then the program will
- *                       attempt to add the event.
+ * @param[in,out] events  on input contains the current list of events.
+ *                        on output, if SA is not identical to an SA in the 
+ *                        events list, the input SA then overrides the 
+ *                        the corresponding SA in events.  additionally, if
+ *                        SA does not exist in events then the program will
+ *                        attempt to add the event.
  *
  * @param[out] ierr      0 indicates success
  *
@@ -42,11 +43,11 @@ bool events_updateEvent(struct GFAST_shakeAlert_struct SA,
         if (strcasecmp(events->SA[iev].eventid, SA.eventid) == 0)
         {
             lfound = true;
-            if (SA.lat  != events->SA[iev].lat ||
-                SA.lon  != events->SA[iev].lon ||
-                SA.dep  != events->SA[iev].dep ||
-                SA.mag  != events->SA[iev].mag ||
-                SA.time != events->SA[iev].time)
+            if (fabs(SA.lat  - events->SA[iev].lat)  > 1.e-10 ||
+                fabs(SA.lon  - events->SA[iev].lon)  > 1.e-10 ||
+                fabs(SA.dep  - events->SA[iev].dep)  > 1.e-10 ||
+                fabs(SA.mag  - events->SA[iev].mag)  > 1.e-10 ||
+                fabs(SA.time - events->SA[iev].time) > 1.e-5)
             {
                 memcpy(&events->SA[iev], &SA,
                        sizeof(struct GFAST_shakeAlert_struct));

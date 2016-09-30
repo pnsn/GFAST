@@ -1,7 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
@@ -43,7 +51,7 @@
  * @param[in] ds_uncer_units  units for ucnertainty for slip in
  *                            dip direction (e.g. METERS)
  *
- * @param[inout] xml_writer  xmlTextWriterPtr to which to write segment
+ * @param[in,out] xml_writer  xmlTextWriterPtr to which to write segment
  *
  * @result 0 indicates success
  *

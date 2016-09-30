@@ -19,7 +19,6 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
 int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                      const double SA_lat,
                      const double SA_lon,
-                     const double SA_dep,
                      struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff);
 /* Drive GFAST */

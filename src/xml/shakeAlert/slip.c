@@ -2,12 +2,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 /*!
@@ -32,7 +40,7 @@
  *      have units meters for all variables 
  *
  */
-int xml_shakeAlert_readSlip(const void *xml_reader, const double VTX_NAN,
+int xml_shakeAlert_readSlip(void *xml_reader, const double VTX_NAN,
                             double *ss, double *ss_uncer,
                             double *ds, double *ds_uncer)
 {
@@ -69,7 +77,7 @@ int xml_shakeAlert_readSlip(const void *xml_reader, const double VTX_NAN,
         log_errorF("%s: Error NULL poitner\n", fcnm);
         goto ERROR;
     }
-    slip_xml = (xmlNodePtr )xml_reader;
+    slip_xml = (xmlNodePtr) (xml_reader);
     if ((xmlStrcmp(slip_xml->name, (const xmlChar *) "slip\0")))
     {
         log_errorF("%s: Error reader must start at <slip>\n", fcnm);
@@ -107,14 +115,14 @@ int xml_shakeAlert_readSlip(const void *xml_reader, const double VTX_NAN,
         if (!lunpack)
         {
             log_warnF("%s: Warning couldn't find item %s\n", fcnm,
-                      (char *)slip_xml->name);
+                      slip_xml->name);
             goto NEXT_SLIP_XML;
         }
         // Check on item index to avoid a segfault
         if (item0 < 0 || item0 > nitems - 1)
         {
             log_errorF("%s: Invalid index %s %d\n",
-                        fcnm, (char *)slip_xml->name, item0);
+                        fcnm, slip_xml->name, item0);
             ierr = 1;
             goto ERROR;
         }
@@ -166,25 +174,25 @@ ERROR:;
 /*!
  * @brief Writes the slip on a fault patch in the finite fault 
  *
- * @param[in] ss              slip in strike
- * @param[in] ss_units        units for slip in strike direction on segment
- *                            (e.g. METERS)
- * @param[in] ds              slip in dip direction
- * @param[in] ds_units        units for slip in dip direction on segment
- *                            (e.g. METERS)
- * @param[in] ss_uncer        uncertainty on slip in strike direction for this
- *                            segment with units given by ss_unc_units.  if
- *                            negative this value is ignored.
- * @param[in] ss_uncer_units  units for uncertainty for slip in strike
- *                            direction (e.g. METERS)
- * @param[in] ds_uncer        uncertainty on slip in strike direction for this
- *                            segment with units given by ds_unc_units.  if
- *                            negative this value is ignored. 
- * @param[in] ds_uncer_units  units for ucnertainty for slip in
- *                            dip direction (e.g. METERS)
+ * @param[in] ss               slip in strike
+ * @param[in] ss_units         units for slip in strike direction on segment
+ *                             (e.g. METERS)
+ * @param[in] ds               slip in dip direction
+ * @param[in] ds_units         units for slip in dip direction on segment
+ *                             (e.g. METERS)
+ * @param[in] ss_uncer         uncertainty on slip in strike direction for this
+ *                             segment with units given by ss_unc_units.  if
+ *                             negative this value is ignored.
+ * @param[in] ss_uncer_units   units for uncertainty for slip in strike
+ *                             direction (e.g. METERS)
+ * @param[in] ds_uncer         uncertainty on slip in strike direction for this
+ *                             segment with units given by ds_unc_units.  if
+ *                             negative this value is ignored. 
+ * @param[in] ds_uncer_units   units for ucnertainty for slip in
+ *                             dip direction (e.g. METERS)
  *
- * @param[inout] xml_writer   pointer to xmlTExtWriterPtr to which the slip
- *                            is to be written
+ * @param[in,out] xml_writer   pointer to xmlTExtWriterPtr to which the slip
+ *                             is to be written
  * 
  * @author Ben Baker (ISTI)
  *

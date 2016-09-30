@@ -2,9 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#endif
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_eewUtils.h"
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
@@ -37,7 +44,7 @@ int eewUtils_parseCoreXML(const char *message,
     ierr = 0;
     memset(SA, 0, sizeof(struct GFAST_shakeAlert_struct));
     memset(&core, 0, sizeof(struct coreInfo_struct));
-    length = strlen(message);
+    length = (int) (strlen(message));
     if (length == 0)
     {
         log_errorF("%s: Error the message is empty\n", fcnm);

@@ -13,7 +13,7 @@
  * @param[in] SA           shakeAlert event information to possibly remove
  * @param[in] verbose      controls verbosity
  *
- * @param[inout] events    on input contains all events.
+ * @param[in,out] events   on input contains all events.
  *                         on output may contain the removed SA event
  *
  * @result true if the event SA was removed from the events list
@@ -81,7 +81,8 @@ bool events_removeEvent(const double maxtime,
         // Copy old events into workspace ignoring event at pop_indx 
         SAtemp.nev = nev0 - 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
-                    calloc(SAtemp.nev, sizeof(struct GFAST_shakeAlert_struct));
+                    calloc((unsigned long) SAtemp.nev,
+                           sizeof(struct GFAST_shakeAlert_struct));
         jev = 0;
         for (iev=0; iev<nev0; iev++)
         {
@@ -95,7 +96,7 @@ bool events_removeEvent(const double maxtime,
         GFAST_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
-                     calloc(events->nev,
+                     calloc((unsigned long) events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
         for (iev=0; iev<events->nev; iev++)

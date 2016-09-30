@@ -24,7 +24,7 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
  * @param[in] SA_dep     event depth (km)
  * @param[in] cmt_data   cmt offset data to invert
  *
- * @param[inout] cmt     on input contains the depths for the grid search
+ * @param[in,out] cmt    on input contains the depths for the grid search
  *                       on output contains the corresponding variance
  *                       reduction, moment tensors, nodal planes at each
  *                       depth in the CMT grid search, and optimal depth

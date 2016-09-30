@@ -7,7 +7,7 @@
 /*!
  * @brief Free the CMT results structure
  *
- * @param[inout] cmt       CMT results structure with memory to be freed
+ * @param[in,out] cmt       CMT results structure with memory to be freed
  *
  * @author Ben Baker, ISTI
  *
@@ -41,7 +41,7 @@ void core_cmt_finalize__cmtResults(struct GFAST_cmtResults_struct *cmt)
 /*!
  * @brief Frees memory associated with the offset data 
  *
- * @param[inout] offset_data     offset data structure with memory to be freed
+ * @param[in,out] offset_data     offset data structure with memory to be freed
  *
  * @author Ben Baker (ISTI)
  *

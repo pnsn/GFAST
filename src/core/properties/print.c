@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iniparser.h>
 #include "gfast_core.h"
 #include "iscl/os/os.h"
 #include "iscl/log/log.h"

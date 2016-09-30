@@ -6,13 +6,13 @@
 /*!
  * @brief Alarms to a new event and adds it to the working events list
  *
- * @param[in] SA         this is the shakeAlert event which is checked for in
- *                       the events structure.  if it does not exist in events
- *                       then it is added to events
- *
- * @param[inout] events  on input holds the current active list of events.
- *                       on output holds the new event in SA provided that 
- *                       SA does not already exist.
+ * @param[in] SA          this is the shakeAlert event which is checked for in
+ *                        the events structure.  if it does not exist in events
+ *                        then it is added to events
+ * 
+ * @param[in,out] events  on input holds the current active list of events.
+ *                        on output holds the new event in SA provided that 
+ *                        SA does not already exist.
  *
  * @result if true then the new event in SA has been added to the events list
  *
@@ -41,7 +41,8 @@ bool events_newEvent(struct GFAST_shakeAlert_struct SA,
         // Copy new event into workspace
         SAtemp.nev = nev0 + 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
-                    calloc(SAtemp.nev, sizeof(struct GFAST_shakeAlert_struct));
+                    calloc((unsigned long) SAtemp.nev,
+                           sizeof(struct GFAST_shakeAlert_struct));
         for (iev=0; iev<nev0; iev++)
         {
             memcpy(&SAtemp.SA[iev], &events->SA[iev],
@@ -52,7 +53,7 @@ bool events_newEvent(struct GFAST_shakeAlert_struct SA,
         GFAST_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
-                     calloc(events->nev,
+                     calloc((unsigned long) events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
         for (iev=0; iev<events->nev; iev++)

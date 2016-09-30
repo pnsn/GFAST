@@ -2,12 +2,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"
@@ -29,7 +37,7 @@
  *
  * @author Ben Baker 
  */
-int xml_shakeAlert_readCoreInfo(const void *xml_reader,
+int xml_shakeAlert_readCoreInfo(void *xml_reader,
                                 const double SA_NAN,
                                 struct coreInfo_struct *core)
 {
@@ -61,6 +69,7 @@ int xml_shakeAlert_readCoreInfo(const void *xml_reader,
     int dom, hour, ierr, item, item0, minute, month, nzmsec, nzmusec,
         nzsec, year;
     bool lfound, lunpack;
+    const double tol = 1.e-14;
     //------------------------------------------------------------------------//
     //
     // Initialize result
@@ -211,17 +220,20 @@ ERROR:;
     core->origTime      = values[8];
     core->origTimeUncer = values[9];
     core->likelihood    = values[10];
-    if (core->mag           != SA_NAN){core->lhaveMag = true;}
-    if (core->magUncer      != SA_NAN){core->lhaveMagUncer = true;}
-    if (core->lat           != SA_NAN){core->lhaveLat = true;}
-    if (core->latUncer      != SA_NAN){core->lhaveLatUncer = true;}
-    if (core->lon           != SA_NAN){core->lhaveLon = true;}
-    if (core->lonUncer      != SA_NAN){core->lhaveLonUncer = true;}
-    if (core->depth         != SA_NAN){core->lhaveDepth = true;}
-    if (core->depthUncer    != SA_NAN){core->lhaveDepthUncer = true;}
-    if (core->origTime      != SA_NAN){core->lhaveOrigTime = true;}
-    if (core->origTimeUncer != SA_NAN){core->lhaveOrigTimeUncer = true;}
-    if (core->likelihood    != SA_NAN){core->lhaveLikelihood = true;}
+    if (fabs(core->mag           - SA_NAN) > tol){core->lhaveMag = true;}
+    if (fabs(core->magUncer      - SA_NAN) > tol){core->lhaveMagUncer = true;}
+    if (fabs(core->lat           - SA_NAN) > tol){core->lhaveLat = true;}
+    if (fabs(core->latUncer      - SA_NAN) > tol){core->lhaveLatUncer = true;}
+    if (fabs(core->lon           - SA_NAN) > tol){core->lhaveLon = true;}
+    if (fabs(core->lonUncer      - SA_NAN) > tol){core->lhaveLonUncer = true;}
+    if (fabs(core->depth         - SA_NAN) > tol){core->lhaveDepth = true;}
+    if (fabs(core->depthUncer    - SA_NAN) > tol){core->lhaveDepthUncer = true;}
+    if (fabs(core->origTime      - SA_NAN) > tol){core->lhaveOrigTime = true;}
+    if (fabs(core->origTimeUncer - SA_NAN) > tol)
+    {
+        core->lhaveOrigTimeUncer = true;
+    }
+    if (fabs(core->likelihood    - SA_NAN) > tol){core->lhaveLikelihood = true;}
     // Copy the units 
     core->magUnits           = units[0];
     core->magUncerUnits      = units[1];
@@ -294,7 +306,7 @@ ERROR:;
  * @author Ben Baker, ISTI
  *
  */
-int xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,
+int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
                                  void *xml_writer)
 {
     const char *fcnm = "xml_shakeAlert_writeCoreInfo\0";

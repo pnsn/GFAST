@@ -106,14 +106,18 @@ int eewUtils_driveGFAST(const double currentTime,
     // Set memory for XML messages
     xmlMessages->mmessages = events->nev;
     xmlMessages->nmessages = 0;
-    xmlMessages->evids  = (char **)calloc(xmlMessages->mmessages,
-                                          sizeof(char *));
-    xmlMessages->cmtQML = (char **)calloc(xmlMessages->mmessages,
-                                          sizeof(char *));
-    xmlMessages->ffXML  = (char **)calloc(xmlMessages->mmessages,
-                                          sizeof(char *));
-    xmlMessages->pgdXML = (char **)calloc(xmlMessages->mmessages,
-                                          sizeof(char *));
+    xmlMessages->evids  = (char **)
+                          calloc((unsigned long) xmlMessages->mmessages,
+                                 sizeof(char *));
+    xmlMessages->cmtQML = (char **)
+                          calloc((unsigned long) xmlMessages->mmessages,
+                                 sizeof(char *));
+    xmlMessages->ffXML  = (char **)
+                          calloc((unsigned long) xmlMessages->mmessages,
+                                 sizeof(char *));
+    xmlMessages->pgdXML = (char **)
+                          calloc((unsigned long) xmlMessages->mmessages,
+                                 sizeof(char *));
     // Loop on the events
     for (iev=0; iev<events->nev; iev++)
     {
@@ -245,7 +249,7 @@ int eewUtils_driveGFAST(const double currentTime,
             ff->dip[1] = cmt->dip2[cmt->opt_indx];
             lffSuccess = true;
             ierr = eewUtils_driveFF(props.ff_props,
-                                    SA.lat, SA.lon, SA.dep,
+                                    SA.lat, SA.lon, //SA.dep,
                                     *ff_data,
                                     ff);
             if (ierr != FF_SUCCESS)

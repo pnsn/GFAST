@@ -2,11 +2,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
@@ -32,7 +40,7 @@
  * @date May 2016
  *
  */
-int xml_shakeAlert_readVertices(const void *xml_reader,
+int xml_shakeAlert_readVertices(void *xml_reader,
                                 const enum xml_segmentShape_enum shape,
                                 const double VTX_NAN,
                                 double *__restrict__ lat,
@@ -132,27 +140,24 @@ NEXT_VERTICES_XML:;
 /*!
  * @brief Writes the vertices for a segment
  *
- * @param[in] shape         Segment shape.  This can be:
- *                            LINE (2) which has two points.
- *                            TRIANGLE (3) which has three points.
- *                            RECTANGLE (4) which has four points.
- * @param[in] lats           the latitudes at each vertex.  the length should
- *                           correspond to the number of points indicated by
- *                           shape.
- * @param[in] lat_units      units for the input latitudes (e.g. DEGREES)
- * @param[in] lons           the longitudes at each vertex.  the length should
- *                           correspond to the number of points indicated by
- *                           shape.
- * @param[in] lon_units      units for the input longitudes (e.g. DEGREES)
- * @param[in] lons           the longitudes at each vertex.  the length should
- *                           correspond to the number of points indicated by
- *                           shape.
- * @param[in] depths         the depths at each vertex.  the length should
- *                           correspond to the number of points indicated by
- *                           shape.
- * @param[in] depth_units    units for the input depths (e.g. KILOMETERS)
+ * @param[in] shape          Segment shape.  This can be:
+ *                             LINE (2) which has two points.
+ *                             TRIANGLE (3) which has three points.
+ *                             RECTANGLE (4) which has four points.
+ * @param[in] lats            the latitudes at each vertex.  the length should
+ *                            correspond to the number of points indicated by
+ *                            shape.
+ * @param[in] lat_units       units for the input latitudes (e.g. DEGREES)
+ * @param[in] lons            the longitudes at each vertex.  the length should
+ *                            correspond to the number of points indicated by
+ *                            shape.
+ * @param[in] lon_units       units for the input longitudes (e.g. DEGREES)
+ * @param[in] depths          the depths at each vertex.  the length should
+ *                            correspond to the number of points indicated by
+ *                            shape.
+ * @param[in] depth_units     units for the input depths (e.g. KILOMETERS)
  *
- * @param[inout] xml_writer  xmlTextWriterPtr to which to add vertices 
+ * @param[in,out] xml_writer  xmlTextWriterPtr to which to add vertices 
  *
  * @result 0 indicates success
  *

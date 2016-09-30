@@ -51,12 +51,12 @@ struct qmlOriginUncertainty_struct
 
 struct qmlMagnitude_struct
 {
-    double magnitude;     /*!< Magnitude */
-    double magUncer;      /*!< Magnitude uncertainty */
-    char type[64];        /*!< Event type TODO: should be an enum */
-    bool lhaveMag;        /*!< If true then have the magnitude */
-    bool lhaveMagUncer;   /*1< Magnitude uncertainty */
-    bool lhaveType;       /*!< If true then have the magnitude type */
+    double magnitude;        /*!< Magnitude */
+    double magUncer;         /*!< Magnitude uncertainty */
+    char type[64];           /*!< Event type TODO: should be an enum */
+    bool lhaveMag;           /*!< If true then have the magnitude */
+    bool lhaveMagUncer;      /*!< Magnitude uncertainty */
+    bool lhaveType;          /*!< If true then have the magnitude type */
 };
 
 struct qmlTime_struct
@@ -229,7 +229,7 @@ int xml_quakeML_writeTime(const double time,
 //                                shakeAlert                                  //
 //----------------------------------------------------------------------------//
 /* Read shakeAlert coreInfo */
-int xml_shakeAlert_readCoreInfo(const void *xml_reader,
+int xml_shakeAlert_readCoreInfo(void *xml_reader,
                                 const double SA_NAN,
                                 struct coreInfo_struct *core);
 /* Write shakeAlert coreInfo */
@@ -253,7 +253,7 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
                                 const enum alert_units_enum ds_uncer_units,
                                 void *xml_writer);
 /* Read slip */
-int xml_shakeAlert_readSlip(const void *xml_reader, const double VTX_NAN,
+int xml_shakeAlert_readSlip(void *xml_reader, const double VTX_NAN,
                             double *ss, double *ss_uncer,
                             double *ds, double *ds_uncer);
 /* Write slip */
@@ -267,7 +267,7 @@ int xml_shakeAlert_writeSlip(const double ss,
                              const enum alert_units_enum ds_uncer_units,
                              void *xml_writer);
 /* Read shakeAlert finite fault vertices */
-int xml_shakeAlert_readVertices(const void *xml_reader,
+int xml_shakeAlert_readVertices(void *xml_reader,
                                 const enum xml_segmentShape_enum shape,
                                 const double VTX_NAN,
                                 double *__restrict__ lat,
@@ -283,7 +283,7 @@ int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
                                  const enum alert_units_enum depth_units,
                                  void *xml_writer);
 /* Read vertex */
-int xml_shakeAlert_readVertex(const void *xml_reader, const double VTX_NAN,
+int xml_shakeAlert_readVertex(void *xml_reader, const double VTX_NAN,
                               double *lat, double *lon, double *depth);
 /* Write a vertex */
 int xml_shakeAlert_writeVertex(const double lat,

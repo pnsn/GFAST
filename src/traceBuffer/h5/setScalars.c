@@ -17,7 +17,7 @@
  */
 int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
                                     const char *citem,
-                                    const double scalar)
+                                    const int scalar)
 {
     const char *fcnm = "traceBuffer_h5_setIntegerScalar\0";
     int scalars[1];

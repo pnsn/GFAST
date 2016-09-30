@@ -7,10 +7,14 @@
 #include <linux/limits.h>
 #endif
 #include <stdbool.h>
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <hdf5.h>
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 #include "gfast_struct.h"
 #include "gfast_config.h"
 #ifndef PATH_MAX
@@ -18,9 +22,16 @@
 #endif
 
 #ifdef GFAST_USE_EW
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+#endif
 #include <transport.h>
 #include <earthworm.h>
 #include <trace_buf.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 int WaveMsg2MakeLocal( TRACE2_HEADER* wvmsg );
 struct ewRing_struct
 {
@@ -124,6 +135,11 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval);
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
 /* Finalize earthworm ring reader */
 int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
+/* Unpack messages */
+int traceBuffer_ewrr_unpackTraceBuf2Messages(
+    const int nRead,
+    const char *msgs,
+    struct h5traceBuffer_struct *h5traces);
 
 
 /* Copies the trace buffer to the GFAST structure */
@@ -169,7 +185,7 @@ int traceBuffer_h5_setDoubleScalar(const hid_t groupID,
                                    const double scalar);
 int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
                                     const char *citem,
-                                    const double scalar);
+                                    const int scalar);
 
 #define GFAST_traceBuffer_h5_copyTraceBufferToGFAST(...)       \
               traceBuffer_h5_copyTraceBufferToGFAST(__VA_ARGS__)

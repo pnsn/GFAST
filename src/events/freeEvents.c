@@ -5,7 +5,7 @@
 /*!
  * @brief Frees memory on the active events structure
  *
- * @param[inout] events     active event list with data to be freed
+ * @param[in,out] events     active event list with data to be freed
  *
  * @author Ben Baker, ISTI
  *

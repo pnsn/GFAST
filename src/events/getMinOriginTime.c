@@ -34,7 +34,7 @@ double events_getMinOriginTime(struct GFAST_props_struct props,
     {
         t0 = fmin(t0, events.SA[iev].time);
     }   
-    if (props.verbose > 1 && t0 == DBL_MAX)
+    if (props.verbose > 1 && fabs(t0 - DBL_MAX) < 1.e-10)
     {
         *lnoEvents = true;
         log_warnF("%s: Warning origin times are screwy\n", fcnm);

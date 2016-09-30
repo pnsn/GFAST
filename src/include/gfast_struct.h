@@ -461,8 +461,8 @@ struct GFAST_activeEvents_struct
 
 struct coreInfo_struct
 {
-    int version;                           /*!< Version number */
     char id[128];                          /*!< Event ID */
+    int version;                           /*!< Version number */
     double mag;                            /*!< Magnitude */
     bool lhaveMag;                         /*!< If true then mag is defined */
     enum alert_units_enum magUnits;        /*!< Magnitude units */

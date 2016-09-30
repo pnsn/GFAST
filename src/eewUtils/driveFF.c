@@ -19,19 +19,18 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
  * @param[in] ff_props    finite fault inversion parameters
  * @param[in] SA_lat      event latitude (degrees)
  * @param[in] SA_lon      event longitude (degrees) 
- * @param[in] SA_dep      event depth (km).  note, it may be advantageous
- *                        to obtain this from the CMT inversion
  * @param[in] ff_data     offset data for the finite fault inversion
  *
- * @param[inout] ff       on input contains space for the finite fault
+ * @param[in,out] ff      on input contains space for the finite fault
  *                        inversion as well as the fault strike and rake
- *                        on all the nodal planes in the inversion.
+ *                        on all the nodal planes, and centroid depth
+ *                        in the inversion.
  *                        on output contains the results of the finite
  *                        fault inversion which includes slip along
  *                        strike and slip down dip on each plane,
  *                        uncertainties, and estimate data and observed data
  *
- * @result \reval 0 indicates success.
+ * @result 0 indicates success.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
@@ -41,7 +40,6 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
 int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                      const double SA_lat,
                      const double SA_lon,
-                     const double SA_dep,
                      struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff)
 {

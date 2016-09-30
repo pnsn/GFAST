@@ -22,13 +22,13 @@
  *                          is given by: (k - 1)*MAX_TRACEBUF_SIZE 
  *                          [maxMessages*MAX_TRACEBUF_SIZE]
  *
- * \retval  0 indicates success
- * \retval -1 indicates a terminate signal from the ring.
+ * @result  0 indicates success.
+ *         -1 indicates a terminate signal from the ring.
  *            the user should call traceBuffer_ewrr_finalize and quit.
- * \retval -2 indicates a read error on the ring.
- * \retval -3 indicates the ringInfo structure was not initalized
- * \retval -4 indicates insufficient space on output
- * \retval -5 indicates tracebuf2 type is unknown
+ *         -2 indicates a read error on the ring.
+ *         -3 indicates the ringInfo structure was not initalized
+ *         -4 indicates insufficient space on output
+ *         -5 indicates tracebuf2 type is unknown
  *
  * @author Ben Baker (ISTI)
  *
