@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+#endif
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 #include "gfast_xml.h"
 #include "cmopad.h"
 #include "iscl/log/log.h"
@@ -157,9 +161,11 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
  * @bug This isn't yet programmed
  *
  */
+/*
 int xml_quakeML_readFocalMechanism()
 {
     const char *fcnm = "xml_quakeML_readFocalMechanism\0";
     log_errorF("%s: Error not yet programmed\n", fcnm);
     return -1;
 } 
+*/
