@@ -2,7 +2,7 @@
 #
 
 # This module defines
-#  EW_INCLUDE_DIR, where to find ipp.h, etc.
+#  EW_INCLUDE_DIR, where to find earthworm.h, etc.
 #  EW_LIBRARY, the libraries to link against to use EW.
 #  EW_DEFINITIONS - You should ADD_DEFINITONS(${EW_DEFINITIONS}) before compiling code that includes EW library files.
 #  EW_FOUND, If false, do not try to use EW.
@@ -11,14 +11,14 @@ SET(EW_FOUND "NO")
 
 FIND_PATH(EW_INCLUDE_DIR
     NAMES earthworm.h
-    HINTS /usr/include/earthworm
+    HINTS /usr/include/earthworm /usr/local/include $ENV{EWDIR}/include
 )
 
 SET(EW_NAMES ${EW_NAMES} libew.a swap.o)
 FOREACH (EW_NAME ${EW_NAMES})
    FIND_LIBRARY(${EW_NAME}_LIBRARY
        NAMES ${EW_NAME} 
-       PATHS /usr/lib64/ /usr/lib
+       PATHS /usr/lib64/ /usr/lib /usr/local/lib /usr/local/lib64 $ENV{EWDIR}/lib
    )
    SET(TMP_LIBRARY ${${EW_NAME}_LIBRARY})
 

@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int nRead,
@@ -10,11 +12,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     struct h5traceBuffer_struct *h5traces)
 {
     const char *fcnm = "traceBuffer_ewrr_unpackTraceBuf2Messages\0";
-    char msg[MAX_TRACEBUF_SIZ], netw[64], stat[64], chan[64], loc[64];
+    char *msg, netw[64], stat[64], chan[64], loc[64];
     TRACE2_HEADER *traceHeader;
     long *longData;
     short *shortData;
-    int i, ierr, indx, k;
+    int i, ierr, indx, k, nsamp0;
+    bool lswap;
     //------------------------------------------------------------------------//
     //
     // Check the h5traces was initialized
@@ -26,6 +29,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Nothing to do
     if (h5traces->ntraces == 0){return 0;}
     if (nRead == 0){return 0;}
+    // Set the workspace
+    msg = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
     {
@@ -41,11 +46,14 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             traceHeader = (TRACE2_HEADER *) msg;
             // Get the bytes in right endianness
-            ierr = WaveMsg2MakeLocal(msg);
+            lswap = false;
+            nsamp0 = traceHeader->nsamp;
+            ierr = WaveMsg2MakeLocal(traceHeader);
             if (ierr < 0)
             {
                  log_errorF("%s: Error flipping bytes\n", fcnm);
-            } 
+            }
+            if (nsamp0 != traceHeader->nsamp){lswap = true;}
             if ((strcasecmp(netw, traceHeader->net)  == 0) &&
                 (strcasecmp(stat, traceHeader->sta)  == 0) &&
                 (strcasecmp(chan, traceHeader->chan) == 0) &&
@@ -57,5 +65,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
         } // Loop on messages read
     } // Loop on waveforms
+    ISCL_memory_free__char(&msg);
     return 0;
 }

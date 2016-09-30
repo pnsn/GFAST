@@ -4,6 +4,8 @@
 #include <string.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
+
 /*!
  * @brief Reads the tracebuffer2 messages off the earthworm ring specified
  *        on ringInfo
@@ -41,7 +43,7 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
 {
     const char *fcnm = "traceBuffer_ewrr_getgetTraceBuf2Messages\0";
     MSG_LOGO gotLogo; 
-    char msg[MAX_TRACEBUF_SIZ];
+    char *msg;
     unsigned char sequenceNumber;
     long gotSize;
     int kdx, retval;
@@ -61,6 +63,8 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
         if (msgs == NULL){log_errorF("%s: Error messages is NULL\n", fcnm);}
         return -4;
     }
+    // Set space
+    msg = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
     // Unpack the ring
     while (true)
     {
@@ -105,6 +109,7 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
         // End of ring - time to leave
         if (retval == GET_NONE){break;}
     }
+    ISCL_memory_free__char(&msg);
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
     return 0;
 }

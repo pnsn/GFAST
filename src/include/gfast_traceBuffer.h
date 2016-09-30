@@ -18,6 +18,7 @@
 #include <transport.h>
 #include <earthworm.h>
 #include <trace_buf.h>
+int WaveMsg2MakeLocal( TRACE2_HEADER* wvmsg );
 struct ewRing_struct
 {
     char ewRingName[512];  /*!< Earthworm ring name to which we will connect */
