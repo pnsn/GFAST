@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
@@ -92,7 +93,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     if ((xmlStrcmp(core_xml->name, BAD_CAST "core_info\0") != 0))
     {
         log_errorF("%s: Error xml_reader does not start at core_info %s!\n",
-                   fcnm, (char *) core_xml->name);
+                   fcnm, core_xml->name);
         return -1;
     }
     // Get the eventID
@@ -145,14 +146,14 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
         if (!lunpack)
         {
             log_warnF("%s: Warning couldn't find item %s\n",
-                      fcnm, (char *) core_xml_info->name);
+                      fcnm, core_xml_info->name);
             goto NEXT_CORE_XML_INFO;
         }
         // Check on item index to avoid a segfault
         if (item0 < 0 || item0 > nitems - 1)
         {
             log_errorF("%s: Invalid index %s %d\n",
-                       fcnm, (char *)core_xml_info->name, item0);
+                       fcnm, core_xml_info->name, item0);
            ierr = 1;
            lfound = false;
            goto ERROR;
@@ -235,16 +236,16 @@ ERROR:;
     }
     if (fabs(core->likelihood    - SA_NAN) > tol){core->lhaveLikelihood = true;}
     // Copy the units 
-    core->magUnits           = units[0];
-    core->magUncerUnits      = units[1];
-    core->latUnits           = units[2];
-    core->latUncerUnits      = units[3];
-    core->lonUnits           = units[4];
-    core->lonUncerUnits      = units[5];
-    core->depthUnits         = units[6];
-    core->depthUncerUnits    = units[7];
-    core->origTimeUnits      = units[8];
-    core->origTimeUncerUnits = units[9];
+    core->magUnits           = (enum alert_units_enum) units[0];
+    core->magUncerUnits      = (enum alert_units_enum) units[1];
+    core->latUnits           = (enum alert_units_enum) units[2];
+    core->latUncerUnits      = (enum alert_units_enum) units[3];
+    core->lonUnits           = (enum alert_units_enum) units[4];
+    core->lonUncerUnits      = (enum alert_units_enum) units[5];
+    core->depthUnits         = (enum alert_units_enum) units[6];
+    core->depthUncerUnits    = (enum alert_units_enum) units[7];
+    core->origTimeUnits      = (enum alert_units_enum) units[8];
+    core->origTimeUncerUnits = (enum alert_units_enum) units[9];
     if (core->magUnits            != UNKNOWN_UNITS)
     {
         core->lhaveMagUnits = true;
@@ -291,15 +292,15 @@ ERROR:;
 /*!
  * @brief Writes the shakeAlert core info to the xmlTextWriter xml_writer
  *
- * @param[in] core           contains the core information which is the 
- *                           event ID, magnitude, magnitude uncertainty,
- *                           latitude, latitude uncertainty, longitude, 
- *                           longitude uncertainty, depth, depth uncertainty,
- *                           origin time, origin time uncertainty, all with
- *                           accompanying units and the likelihood
+ * @param[in] core            contains the core information which is the 
+ *                            event ID, magnitude, magnitude uncertainty,
+ *                            latitude, latitude uncertainty, longitude, 
+ *                            longitude uncertainty, depth, depth uncertainty,
+ *                            origin time, origin time uncertainty, all with
+ *                            accompanying units and the likelihood
  *
- * @param[inout] xml_writer  pointer to xmlTextWriterPtr which is updated
- *                           with the shakeAlert core_info
+ * @param[in,out] xml_writer  pointer to xmlTextWriterPtr which is updated
+ *                            with the shakeAlert core_info
  * 
  * @result 0 indicates success
  *
