@@ -109,10 +109,10 @@ printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 times[i] = traceHeader.starttime;
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
-                if (fabs(h5traces[k].traces->dt - dt) > 1.e-5)
+                if (fabs(h5traces->traces[k].dt - dt) > 1.e-5)
                 {
                     log_errorF("%s: Sampling period mismatch %f %f\n",
-                               fcnm, dt, h5traces[k].traces->dt);
+                               fcnm, dt, h5traces->traces[k].dt);
                 }
                 //longData  = (long *)  (msg + sizeof(TRACE2_HEADER));
                 //shortData = (short *) (msg + sizeof(TRACE2_HEADER));
@@ -152,7 +152,7 @@ printf("here\n");
     {
         if (kpts[k] > 0)
         {
-            h5traces[k].traces->data = ISCL_memory_calloc__double(kpts[k]);
+            h5traces->traces[k].data = ISCL_memory_calloc__double(kpts[k]);
         }
     }
     // Unpack the traces
