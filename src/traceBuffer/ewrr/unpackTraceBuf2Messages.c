@@ -53,8 +53,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //long *longData;
     //short *shortData;
     double *resp, *times, dt;
-    int *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *npts,
+    int *imap, *imapPtr, *imsg, *iperm, *kpts, *npts,
         dtype, i, i1, i2, ierr, im, indx, ir, k, lswap, nReadPtr, nsamp0, nsort;
+    const int maxpts = MAX_TRACEBUF_SIZ/8;
     //------------------------------------------------------------------------//
     //
     // Check the h5traces was initialized
@@ -72,12 +73,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     imsg  = ISCL_memory_calloc__int(nRead);
     npts  = ISCL_memory_calloc__int(nRead); 
     iperm = ISCL_memory_calloc__int(nRead);
-    jperm = ISCL_memory_calloc__int(nRead);
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
     imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     times = ISCL_memory_calloc__double(nRead);
-    resp  = ISCL_memory_calloc__double(MAX_TRACEBUF_SIZ/8);
-    for (i=0; i<nRead+1; i++){imap[i] = h5traces->ntraces;}
+    resp  = ISCL_memory_calloc__double(maxpts);
+    for (i=0; i<nRead+1; i++){imap[i] = h5traces->ntraces + 1;}
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
     {
@@ -102,6 +102,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             if (ierr < 0)
             {
                  log_errorF("%s: Error flipping bytes\n", fcnm);
+                 return -1;
             }
             // This is a match - update the 
             if ((strcasecmp(netw, traceHeader.net)  == 0) &&
@@ -109,18 +110,25 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 (strcasecmp(chan, traceHeader.chan) == 0) &&
                 (strcasecmp(loc,  traceHeader.loc)  == 0))
             {
-                if (imap[i] < h5traces->ntraces)
+                if (imap[i] < h5traces->ntraces + 1)
                 {
                     log_errorF("%s: Error multiply mapped wave\n", fcnm);
+                    return -1;
                 }
                 imap[i] = k;
                 imsg[i] = i;
                 npts[i] = traceHeader.nsamp;
+                if (npts[i] < 0 || npts[i] > maxpts)
+                {
+                    log_errorF("%s: Invalid number of points %d %d\n",
+                               fcnm, npts[i], maxpts);
+                    return -1;
+                }
                 times[i] = traceHeader.starttime;
                 kpts[k] = kpts[k] + traceHeader.nsamp;
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
-printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
+//printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 if (fabs(h5traces->traces[k].dt - dt) > 1.e-5)
                 {
                     log_errorF("%s: Sampling period mismatch %f %f\n",
@@ -132,7 +140,6 @@ printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
             }
         } // Loop on messages read
     } // Loop on waveforms
-printf("here\n");
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
@@ -164,27 +171,28 @@ printf("here\n");
             nsort = i2 - i1 + 1;
             if (nsort > 1)
             {
+printf("sorting %d %d\n", i1, i2);
                 // Verify sort is necessary (benefit of stable sort) 
                 if (!ISCL_sorting_issorted__double(nsort, &times[i1],
                                                    ASCENDING))
                 {
                     ierr = ISCL__sorting_argsort__double(nsort, &times[i1],
-                                                         ASCENDING, jperm);
+                                                         ASCENDING, iperm);
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed partial sort\n", fcnm);
                         return -1;
                     }
-                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                    ISCL__sorting_applyPermutation__int(nsort, iperm,
                                                         &imap[i1],
                                                         &imap[i1]);
-                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                    ISCL__sorting_applyPermutation__int(nsort, iperm,
                                                         &imsg[i1],
                                                         &imsg[i1]);
-                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                    ISCL__sorting_applyPermutation__int(nsort, iperm,
                                                         &npts[i1],
                                                         &npts[i1]);
-                    ISCL__sorting_applyPermutation__double(nsort, jperm,
+                    ISCL__sorting_applyPermutation__double(nsort, iperm,
                                                            &times[i1],
                                                            &times[i1]);
                 }
@@ -216,8 +224,12 @@ printf("%d\n", ir);
         for (im=i1; im<i2; im++)
         {
             i = imsg[im];
+            if (i < 0 || i >= nRead)
+            {
+                log_errorF("%s: Invalid message number %d\n", fcnm, i);
+                continue;
+            }
             indx = i*MAX_TRACEBUF_SIZ;
-
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
             nsamp0 = traceHeader.nsamp;
@@ -252,7 +264,6 @@ printf("%d\n", ir);
     ISCL_memory_free__int(&imsg);
     ISCL_memory_free__int(&npts);
     ISCL_memory_free__int(&iperm);
-    ISCL_memory_free__int(&jperm);
     ISCL_memory_free__int(&kpts);
     ISCL_memory_free__double(&times);
     ISCL_memory_free__double(&resp);
