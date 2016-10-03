@@ -38,7 +38,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 {
     const char *fcnm = "traceBuffer_ewrr_unpackTraceBuf2Messages\0";
     char *msg, netw[64], stat[64], chan[64], loc[64];
-    TRACE2_HEADER *traceHeader;
+    TRACE2_HEADER traceHeader;
     //long *longData;
     //short *shortData;
     double *times, dt;
@@ -64,7 +64,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
     lswap = ISCL_memory_calloc__bool(nRead);
     times = ISCL_memory_calloc__double(nRead);
-    traceHeader = (TRACE2_HEADER *)calloc(1, sizeof(TRACE2_HEADER));
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
     {
@@ -78,32 +77,32 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         {
             indx = i*MAX_TRACEBUF_SIZ;
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            memcpy(traceHeader, msg, sizeof(TRACE2_HEADER));
+            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
             // Get the bytes in right endianness
             lswap[i] = false;
-            nsamp0 = traceHeader->nsamp;
-            ierr = WaveMsg2MakeLocal(traceHeader);
+            nsamp0 = traceHeader.nsamp;
+            ierr = WaveMsg2MakeLocal(&traceHeader);
             if (ierr < 0)
             {
                  log_errorF("%s: Error flipping bytes\n", fcnm);
             }
-            if (nsamp0 != traceHeader->nsamp){lswap[i] = true;}
+            if (nsamp0 != traceHeader.nsamp){lswap[i] = true;}
             // This is a match - update the 
-            if ((strcasecmp(netw, traceHeader->net)  == 0) &&
-                (strcasecmp(stat, traceHeader->sta)  == 0) &&
-                (strcasecmp(chan, traceHeader->chan) == 0) &&
-                (strcasecmp(loc,  traceHeader->loc)  == 0))
+            if ((strcasecmp(netw, traceHeader.net)  == 0) &&
+                (strcasecmp(stat, traceHeader.sta)  == 0) &&
+                (strcasecmp(chan, traceHeader.chan) == 0) &&
+                (strcasecmp(loc,  traceHeader.loc)  == 0))
             {
                 if (imap[i] >= 0)
                 {
                     log_errorF("%s: Error multiply mapped station\n", fcnm);
                 }
                 imap[i] = k;
-                npts[i] = traceHeader->nsamp;
-                times[i] = traceHeader->starttime; 
+                npts[i] = traceHeader.nsamp;
+                times[i] = traceHeader.starttime; 
                 kpts[k] = kpts[k] + npts[i];
                 // Verify the sampling periods are consistent
-                dt = 1.0/traceHeader->samprate;
+                dt = 1.0/traceHeader.samprate;
                 if (fabs(h5traces[k].traces->dt - dt) > 1.e-5)
                 {
                     log_errorF("%s: Sampling period mismatch %f %f\n",
@@ -140,6 +139,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             nReadPtr = nReadPtr + 1;
         }
     }
+/*
     // Now set the workspace
     for (k=0; k<h5traces->ntraces; k++)
     {
@@ -160,13 +160,17 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
  
         }
     }
+*/
     // Finally unpack the data
+
+    // Free space
     ISCL_memory_free__char(&msg);
-    ISCL_memory_free__int(&npts);
     ISCL_memory_free__int(&imap);
-    ISCL_memory_free__int(&kpts);
+    ISCL_memory_free__int(&npts);
     ISCL_memory_free__int(&iperm);
+    ISCL_memory_free__int(&kpts);
+    ISCL_memory_free__bool(&lswap);
     ISCL_memory_free__double(&times);
-    free(traceHeader);
+    ISCL_memory_free__int(&imapPtr);
     return 0;
 }

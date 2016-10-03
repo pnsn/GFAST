@@ -149,8 +149,6 @@ char configFile[PATH_MAX];
         log_errorF("%s: Error flusing the ring\n", fcnm);
         goto ERROR;
     }
-    // Set space for messages
-    msgs = ISCL_memory_calloc__char(MAX_MESSAGES*MAX_TRACEBUF_SIZ);
     // Begin the acquisition loop
     log_infoF("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
@@ -172,7 +170,7 @@ printf("start\n");
                                                      &ringInfo,
                                                      &nTracebufs2Read,
                                                      &ierr);
-        if (ierr < 0 || msgs == NULL)
+        if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
             if (ierr ==-1)
             {
@@ -196,6 +194,19 @@ printf("start\n");
             }
             goto ERROR;
         }
+        if (nTracebufs2Read == 0)
+        {
+            log_warnF("%s: No data acquired - skipping\n", fcnm);
+            continue;
+        }
+        // Unpackage the tracebuf2 messages
+        ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
+                                                        msgs, &h5traceBuffer);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
+            goto ERROR;
+        }
 printf("end %d\n", nTracebufs2Read);
 // early quit
  if (t1 - tbeg > 5)
@@ -203,8 +214,6 @@ printf("end %d\n", nTracebufs2Read);
 printf("premature shut down\n");
 break;
 } 
-        // Unpackage the tracebuf2 messages
-
         ISCL_memory_free__char(&msgs);
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
@@ -274,7 +283,6 @@ ERROR:;
     GFAST_core_data_finalize(&gps_data);
     GFAST_core_properties_finalize(&props);
     traceBuffer_h5_finalize(&h5traceBuffer);
-    ISCL_memory_free__char(&msgs);
     ISCL_iscl_finalize();
     if (ierr != 0)
     {
