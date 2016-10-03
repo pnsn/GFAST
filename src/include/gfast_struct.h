@@ -148,7 +148,8 @@ struct GFAST_props_struct
     char eewsfile[PATH_MAX];     /*!< In playback mode this XML decision
                                       module style module has the event
                                       hypocenter and origin time */ 
-    char obsdata_file[PATH_MAX]; /*!< Observed (archived) data file */
+    char obsdataDir[PATH_MAX];   /*!< Observed data file directory */
+    char obsdataFile[PATH_MAX];  /*!< Observed (archived) data file */
     char h5ArchiveDir[PATH_MAX]; /*!< HDF5 archive directory */ 
     char propfilename[PATH_MAX]; /*!< Name of GFAST properties file */
     char anssNetwork[512];       /*!< ANSS network when writing quakeML

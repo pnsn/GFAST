@@ -59,14 +59,14 @@ int traceBuffer_h5_initialize(const int job,
     if (job == 1)
     {
         // If scratch file was saved then remove it
-        if (!os_path_isfile(h5file))
+        if (!os_path_isfile(h5name))
         {
             log_errorF("%s: Error HDF5 file does %s not exist!\n",
-                       fcnm, h5file);
+                       fcnm, h5name);
             return -1;
         }
         // Get the size of the file
-        fp = fopen(h5file, "rb\0");
+        fp = fopen(h5name, "rb\0");
         fseek(fp, 0L, SEEK_END);
         blockSize = (unsigned long) ftell(fp);
         fclose(fp);
@@ -107,9 +107,9 @@ int traceBuffer_h5_initialize(const int job,
         // Set the time to now
         tbeg = (double) ((long) (ISCL_time_timeStamp())); 
         // If scratch file was saved then remove it 
-        if (os_path_isfile(h5file))
+        if (os_path_isfile(h5name))
         {
-            log_warnF("%s: Deleting file %s\n", fcnm, h5file);
+            log_warnF("%s: Deleting file %s\n", fcnm, h5name);
             return -1; 
         }
         blockSize = 0;

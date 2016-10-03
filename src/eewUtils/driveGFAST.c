@@ -224,6 +224,10 @@ int eewUtils_driveGFAST(const double currentTime,
         lcmtSuccess = false;
         if (nsites_cmt >= props.cmt_props.min_sites)
         {
+            if (props.verbose > 2)
+            {
+                log_infoF("%s: Estimating CMT...\n", fcnm);
+            }
             lcmtSuccess = true;
             ierr = eewUtils_driveCMT(props.cmt_props,
                                      SA.lat, SA.lon, SA.dep,
@@ -239,6 +243,10 @@ int eewUtils_driveGFAST(const double currentTime,
         lffSuccess = false;
         if (lcmtSuccess && nsites_ff >= props.ff_props.min_sites)
         {
+            if (props.verbose > 2)
+            {
+                log_infoF("%s: Estimating finite fault...\n", fcnm);
+            }
             ff->SA_lat = events->SA[iev].lat;
             ff->SA_lon = events->SA[iev].lon;
             ff->SA_dep = cmt->srcDepths[cmt->opt_indx];

@@ -58,8 +58,10 @@ void core_properties_print(struct GFAST_props_struct props)
         }
         log_debugF("%s GFAST simulation time (s) %f\n",
                    lspace, props.synthetic_runtime);
+        log_debugF("%s GFAST observed data directory: %s\n",
+                   lspace, props.obsdataDir);
         log_debugF("%s GFAST observed data file: %s\n",
-                   lspace, props.obsdata_file);
+                   lspace, props.obsdataFile);
     }
     else if (props.opmode == PLAYBACK)
     {
