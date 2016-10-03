@@ -101,7 +101,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 {
                     log_errorF("%s: Error multiply mapped station\n", fcnm);
                 }
-printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 imap[i] = k;
                 npts[i] = traceHeader.nsamp;
                 kpts[k] = kpts[k] + npts[i];
@@ -109,6 +108,7 @@ printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 times[i] = traceHeader.starttime;
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
+printf("match %d %d %d %d %d\n", i, k, nRead, h5traces->ntraces, lswap[i]);
                 if (fabs(h5traces->traces[k].dt - dt) > 1.e-5)
                 {
                     log_errorF("%s: Sampling period mismatch %f %f\n",
