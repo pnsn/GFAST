@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     struct GFAST_activeEvents_struct events;
     struct GFAST_cmtResults_struct cmt;
     struct GFAST_ffResults_struct ff;
+    struct h5traceBuffer_struct h5traceBuffer;
     struct GFAST_offsetData_struct cmt_data, ff_data;
     struct GFAST_peakDisplacementData_struct pgd_data;
     struct GFAST_data_struct gps_data;
@@ -37,6 +38,7 @@ int main(int argc, char **argv)
     const bool luseListener = false; // C can't trigger so turn this off
     int ierr, iev, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent;
+    const int rdwt = 2; // H5 file is read/write
     // Initialize 
     ierr = 0;
     memset(&props,    0, sizeof(struct GFAST_props_struct));
@@ -49,6 +51,7 @@ int main(int argc, char **argv)
     memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ringInfo, 0, sizeof(struct ewRing_struct)); 
+    memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
@@ -67,6 +70,23 @@ int main(int argc, char **argv)
     if (ierr != 0)
     {
         log_errorF("%s: Error initializing data buffers\n", fcnm);
+        goto ERROR;
+    }
+    // Set the trace buffer names and open the HDF5 datafile
+    ierr = GFAST_traceBuffer_h5_setTraceBufferFromGFAST(props.bufflen,
+                                                        gps_data,
+                                                        &h5traceBuffer);
+    if (ierr != 0)
+    {   
+        log_errorF("%s: Error setting the H5 tracebuffer\n", fcnm);
+        goto ERROR;
+    }
+    // Initialize the tracebuffer h5 archive
+    ierr = traceBuffer_h5_initialize(rdwt, true, "./\0", "work.h5\0", 
+                                     &h5traceBuffer);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error initializing the HDF5 wave file\n", fcnm);
         goto ERROR;
     }
     // Fire up the listener
@@ -223,6 +243,7 @@ ERROR:;
                               &pgd);
     GFAST_core_data_finalize(&gps_data);
     GFAST_core_properties_finalize(&props);
+    traceBuffer_h5_finalize(&h5traceBuffer);
     ISCL_memory_free__char(&msgs);
     ISCL_iscl_finalize();
     if (ierr != 0)
