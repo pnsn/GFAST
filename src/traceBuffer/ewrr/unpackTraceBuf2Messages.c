@@ -104,9 +104,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 imap[i] = k;
                 npts[i] = traceHeader.nsamp;
-                times[i] = traceHeader.starttime; 
                 kpts[k] = kpts[k] + npts[i];
                 if (nsamp0 != traceHeader.nsamp){lswap[i] = true;}
+                times[i] = traceHeader.starttime;
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
                 if (fabs(h5traces[k].traces->dt - dt) > 1.e-5)
