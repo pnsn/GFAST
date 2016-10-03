@@ -9,6 +9,8 @@
  * @param[in] ringInfo    structure with earthworm ring information to 
  *                        flush
  *
+ * @result 0 indicates success
+ *
  * @author Ben Baker (ISTI)
  *
  * @copyright Apache 2

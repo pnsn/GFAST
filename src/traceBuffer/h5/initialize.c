@@ -187,7 +187,7 @@ int traceBuffer_h5_initialize(const int job,
             status = H5Gclose(groupID);
             if (status < 0)
             {
-                log_errorF("%s: ERror creating group %s\n",
+                log_errorF("%s: Error creating group %s\n",
                            fcnm, h5traceBuffer->traces[i].metaGroupName);
                 return -1;
             }
