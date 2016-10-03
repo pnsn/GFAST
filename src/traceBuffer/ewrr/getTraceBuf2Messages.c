@@ -59,11 +59,12 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
     *ierr = 0;
     *nRead = 0;
     msg = NULL;
+    msgs = NULL;
     if (!ringInfo->linit)
     {
         log_errorF("%s: Error ringInfo not initialized\n", fcnm);
         *ierr =-3;
-        return msg;
+        return msgs;
     }
     // Avoid a segfault
 /*
@@ -78,7 +79,7 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
     {
         log_errorF("%s: messageBlock allocator must be postiive\n", fcnm);
         *ierr =-4;
-        return msg;
+        return msgs;
     }
     // Set space
     msgs = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ*messageBlock);

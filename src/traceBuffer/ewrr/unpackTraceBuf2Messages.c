@@ -69,6 +69,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     for (k=0; k<h5traces->ntraces; k++)
     {
         // Copy on the SNCL
+        memset(netw, 0, sizeof(netw));
+        memset(stat, 0, sizeof(stat));
+        memset(chan, 0, sizeof(chan));
+        memset(loc,  0, sizeof(loc));
         strcpy(netw, h5traces->traces[k].netw);
         strcpy(stat, h5traces->traces[k].stnm);
         strcpy(chan, h5traces->traces[k].chan); 
@@ -83,6 +87,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             lswap[i] = false;
             nsamp0 = traceHeader.nsamp;
             ierr = WaveMsg2MakeLocal(&traceHeader);
+printf("%d\n", nsamp0);
             if (ierr < 0)
             {
                  log_errorF("%s: Error flipping bytes\n", fcnm);
@@ -115,6 +120,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
         } // Loop on messages read
     } // Loop on waveforms
+printf("here\n");
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
