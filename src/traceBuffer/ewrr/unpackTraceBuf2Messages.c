@@ -42,9 +42,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //long *longData;
     //short *shortData;
     double *times, dt;
-    int *imap, *imapPtr, *iperm, *kpts, *npts, i, i1, i2, ierr, im, indx,
-         k, nReadPtr, nsamp0;
-    bool *lswap;
+    int *imap, *imapPtr, *iperm, *jperm, *kpts, *lswap, *npts,
+        i, i1, i2, ierr, im, indx, k, nReadPtr, nsamp0, nsort;
     //------------------------------------------------------------------------//
     //
     // Check the h5traces was initialized
@@ -61,8 +60,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     imap  = ISCL_memory_calloc__int(nRead+1);
     npts  = ISCL_memory_calloc__int(nRead); 
     iperm = ISCL_memory_calloc__int(nRead);
+    jperm = ISCL_memory_calloc__int(nRead);
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
-    lswap = ISCL_memory_calloc__bool(nRead);
+    lswap = ISCL_memory_calloc__int(nRead);
     times = ISCL_memory_calloc__double(nRead);
     for (i=0; i<nRead+1; i++){imap[i] =-1;}
     // Loop on waveforms and get workspace count
@@ -84,7 +84,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
             // Get the bytes in right endianness
-            lswap[i] = false;
+            lswap[i] = 0;
             nsamp0 = traceHeader.nsamp;
             ierr = WaveMsg2MakeLocal(&traceHeader);
             if (ierr < 0)
@@ -105,7 +105,7 @@ printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 imap[i] = k;
                 npts[i] = traceHeader.nsamp;
                 kpts[k] = kpts[k] + npts[i];
-                if (nsamp0 != traceHeader.nsamp){lswap[i] = true;}
+                if (nsamp0 != traceHeader.nsamp){lswap[i] = 1;}
                 times[i] = traceHeader.starttime;
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
@@ -133,16 +133,56 @@ printf("here\n");
         return -1;
     }
     // Apply the permutations
-    
+    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imap,  imap);
+    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, npts,  npts);
+    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, lswap, lswap);
+    ierr = ISCL__sorting_applyPermutation__double(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
     imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     for (i=0; i<nRead; i++)
     {
-        if (imap[iperm[i+1]] != imap[iperm[i]])
+        // update next station
+        if (imap[i+1] != imap[i])
         {
             imapPtr[nReadPtr+1] = i + 1;
+            i1 = imapPtr[nReadPtr];
+            i2 = imapPtr[nReadPtr+1];
+            // Do a partial sort based on start times
+            nsort = i2 - i1 + 1;
+            if (nsort > 1)
+            {
+                // Verify sort is necessary (benefit of stable sort) 
+                if (!ISCL_sorting_issorted__double(nsort, &times[i1],
+                                                   ASCENDING))
+                {
+                    ierr = ISCL__sorting_argsort__double(nsort, &times[i1],
+                                                         ASCENDING, jperm);
+                    if (ierr != 0)
+                    {
+                        log_errorF("%s: Failed partial sort\n", fcnm);
+                        return -1;
+                    }
+                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                                                        &imap[i1],
+                                                        &imap[i1]);
+                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                                                        &npts[i1],
+                                                        &npts[i1]);
+                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                                                        &lswap[i1],
+                                                        &lswap[i1]);
+                    ISCL__sorting_applyPermutation__double(nsort, jperm,
+                                                           &times[i1],
+                                                           &times[i1]);
+                }
+            }
+            else if (nsort == 0)
+            {
+                log_errorF("%s: Counting error\n", fcnm);
+                return -1;
+            }
             nReadPtr = nReadPtr + 1;
         }
     }
@@ -175,8 +215,9 @@ printf("here\n");
     ISCL_memory_free__int(&imap);
     ISCL_memory_free__int(&npts);
     ISCL_memory_free__int(&iperm);
+    ISCL_memory_free__int(&jperm);
     ISCL_memory_free__int(&kpts);
-    ISCL_memory_free__bool(&lswap);
+    ISCL_memory_free__int(&lswap);
     ISCL_memory_free__double(&times);
     ISCL_memory_free__int(&imapPtr);
     return 0;
