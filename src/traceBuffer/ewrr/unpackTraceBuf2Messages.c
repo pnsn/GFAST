@@ -87,12 +87,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             lswap[i] = false;
             nsamp0 = traceHeader.nsamp;
             ierr = WaveMsg2MakeLocal(&traceHeader);
-printf("%d\n", nsamp0);
             if (ierr < 0)
             {
                  log_errorF("%s: Error flipping bytes\n", fcnm);
             }
-            if (nsamp0 != traceHeader.nsamp){lswap[i] = true;}
             // This is a match - update the 
             if ((strcasecmp(netw, traceHeader.net)  == 0) &&
                 (strcasecmp(stat, traceHeader.sta)  == 0) &&
@@ -103,10 +101,12 @@ printf("%d\n", nsamp0);
                 {
                     log_errorF("%s: Error multiply mapped station\n", fcnm);
                 }
+printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 imap[i] = k;
                 npts[i] = traceHeader.nsamp;
                 times[i] = traceHeader.starttime; 
                 kpts[k] = kpts[k] + npts[i];
+                if (nsamp0 != traceHeader.nsamp){lswap[i] = true;}
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
                 if (fabs(h5traces[k].traces->dt - dt) > 1.e-5)
