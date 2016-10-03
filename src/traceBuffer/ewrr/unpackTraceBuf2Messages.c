@@ -53,8 +53,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //long *longData;
     //short *shortData;
     double *resp, *times, dt;
-    int *dtype, *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *lswap, *npts,
-        i, i1, i2, ierr, im, indx, ir, k, nReadPtr, nsamp0, nsort;
+    int *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *npts,
+        dtype, i, i1, i2, ierr, im, indx, ir, k, lswap, nReadPtr, nsamp0, nsort;
     //------------------------------------------------------------------------//
     //
     // Check the h5traces was initialized
@@ -74,12 +74,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     iperm = ISCL_memory_calloc__int(nRead);
     jperm = ISCL_memory_calloc__int(nRead);
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
-    lswap = ISCL_memory_calloc__int(nRead);
-    dtype = ISCL_memory_calloc__int(nRead);
     imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     times = ISCL_memory_calloc__double(nRead);
     resp  = ISCL_memory_calloc__double(MAX_TRACEBUF_SIZ/8);
-    for (i=0; i<nRead+1; i++){imap[i] =-1;}
+    for (i=0; i<nRead+1; i++){imap[i] = h5traces->ntraces+1;}
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
     {
@@ -99,7 +97,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
             // Get the bytes in right endianness
-            lswap[i] = 0;
             nsamp0 = traceHeader.nsamp;
             ierr = WaveMsg2MakeLocal(&traceHeader);
             if (ierr < 0)
@@ -112,25 +109,18 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 (strcasecmp(chan, traceHeader.chan) == 0) &&
                 (strcasecmp(loc,  traceHeader.loc)  == 0))
             {
-                if (imap[i] >= 0)
+                if (imap[i] > h5traces->ntraces)
                 {
-                    log_errorF("%s: Error multiply mapped station\n", fcnm);
+                    log_errorF("%s: Error multiply mapped wave\n", fcnm);
                 }
                 imap[i] = k;
                 imsg[i] = i;
                 npts[i] = traceHeader.nsamp;
-                dtype[i] = 4;
-                if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
-                    strcasecmp(traceHeader.datatype, "i2\0") == 0)
-                {
-                    dtype[i] = 2;
-                }
-                kpts[k] = kpts[k] + npts[i];
-                if (nsamp0 != traceHeader.nsamp){lswap[i] = 1;}
                 times[i] = traceHeader.starttime;
+                kpts[k] = kpts[k] + traceHeader.nsamp;
                 // Verify the sampling periods are consistent
                 dt = 1.0/traceHeader.samprate;
-printf("match %d %d %d %d %d\n", i, k, nRead, h5traces->ntraces, lswap[i]);
+printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
                 if (fabs(h5traces->traces[k].dt - dt) > 1.e-5)
                 {
                     log_errorF("%s: Sampling period mismatch %f %f\n",
@@ -158,8 +148,6 @@ printf("here\n");
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imap,  imap);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imsg,  imsg);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, npts,  npts);
-    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, lswap, lswap);
-    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, dtype, dtype);
     ierr = ISCL__sorting_applyPermutation__double(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
@@ -196,12 +184,6 @@ printf("here\n");
                     ISCL__sorting_applyPermutation__int(nsort, jperm,
                                                         &npts[i1],
                                                         &npts[i1]);
-                    ISCL__sorting_applyPermutation__int(nsort, jperm,
-                                                        &lswap[i1],
-                                                        &lswap[i1]);
-                    ISCL__sorting_applyPermutation__int(nsort, jperm,
-                                                        &dtype[i1],
-                                                        &dtype[i1]);
                     ISCL__sorting_applyPermutation__double(nsort, jperm,
                                                            &times[i1],
                                                            &times[i1]);
@@ -235,8 +217,28 @@ printf("here\n");
             i = imsg[im];
 printf("%d %d %d %d\n", i1, i2, imap[im], i); 
             indx = i*MAX_TRACEBUF_SIZ;
+
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            ierr = fastUnpack(npts[i], lswap[i], dtype[i], &msgs[indx], resp);
+            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+            nsamp0 = traceHeader.nsamp;
+            ierr = WaveMsg2MakeLocal(&traceHeader);
+            if (ierr < 0)
+            {
+                 log_errorF("%s: Error flipping bytes\n", fcnm);
+            }
+            dtype = 4;
+            if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
+                strcasecmp(traceHeader.datatype, "i2\0") == 0)
+            {
+                dtype = 2;
+            }
+            lswap = 0;
+            if (nsamp0 != traceHeader.nsamp){lswap = 1;}
+            ierr = fastUnpack(npts[i], lswap, dtype, &msgs[indx], resp);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error unpacking data\n", fcnm);
+            }
         }
     }
 
@@ -248,8 +250,6 @@ printf("%d %d %d %d\n", i1, i2, imap[im], i);
     ISCL_memory_free__int(&iperm);
     ISCL_memory_free__int(&jperm);
     ISCL_memory_free__int(&kpts);
-    ISCL_memory_free__int(&lswap);
-    ISCL_memory_free__int(&dtype);
     ISCL_memory_free__double(&times);
     ISCL_memory_free__double(&resp);
     ISCL_memory_free__int(&imapPtr);
