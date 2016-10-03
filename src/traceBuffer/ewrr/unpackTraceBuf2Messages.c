@@ -54,7 +54,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //short *shortData;
     double *resp, *times, dt;
     int *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *lswap, *npts,
-        i, i1, i2, ierr, im, indx, k, nReadPtr, nsamp0, nsort;
+        i, i1, i2, ierr, im, indx, ir, k, nReadPtr, nsamp0, nsort;
     //------------------------------------------------------------------------//
     //
     // Check the h5traces was initialized
@@ -213,10 +213,10 @@ printf("here\n");
         }
     }
     // Unpack the traces
-    for (i=0; i<nReadPtr; i++)
+    for (ir=0; ir<nReadPtr; ir++)
     {
-        i1 = imapPtr[i];
-        i2 = imapPtr[i+1];
+        i1 = imapPtr[ir];
+        i2 = imapPtr[ir+1];
         k = imap[i1];
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
