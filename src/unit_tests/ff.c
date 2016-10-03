@@ -627,7 +627,7 @@ int ff_inversion_test()
         ff.fp[i].fault_ptr = ISCL_memory_calloc__int(l2+1);
     }
     ierr = eewUtils_driveFF(ff_props,
-                            SA_lat, SA_lon, SA_dep,
+                            SA_lat, SA_lon,
                             ff_data, &ff);
     if (ierr != 0)
     {

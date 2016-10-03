@@ -198,7 +198,6 @@ static double __getPeakDisplacement(const int npts,
     }
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
-    #pragma omp simd reduction(max:peakDisplacement)
     for (i=indx0; i<npts; i++)
     {
         peakDisplacement_i = PD_MAX_NAN;

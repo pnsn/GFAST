@@ -48,18 +48,16 @@ class ShakeAlertConsumer : public ExceptionListener,
         Session *__session;
         Destination *__destination;
         MessageConsumer *__consumer;
-        // Parameters for AMQ initialization
         string __user;
         string __password;
         string __destURI;
         string __brokerURI;
+        string __textMessage;
+        long __messageCount;
+        int __verbose;
         bool __useTopic; 
         bool __clientAck;
         bool __luseListener;
-        // Private variables used when listening for messages
-        string __textMessage;
-        int __verbose;
-        long __messageCount;
         bool __isInitialized;
         bool __lconnected;
         bool __lhaveMessage;
@@ -294,6 +292,20 @@ class ShakeAlertConsumer : public ExceptionListener,
         }
         //====================================================================//
         /*!
+         * @brief Convenience function to determine if the class was
+         *        initialized
+         *
+         * @result if true then the class was initialized
+         *
+         * @author Ben Baker (ISTI)
+         *
+         */
+        bool isInitialized(void)
+        {
+            return __isInitialized;
+        }
+        //====================================================================//
+        /*!
          * @brief Checks if a message exists, and if yes, returns the message
          *
          * @param[out] ierr    0 indicates success
@@ -306,6 +318,7 @@ class ShakeAlertConsumer : public ExceptionListener,
         {
             const char *fcnm = "ShakeAlertConsumer getMessageFromListener\0";
             char *message = NULL;
+            size_t lenos;
             *ierr = 0;
             if (!__lconnected)
             {
@@ -316,8 +329,11 @@ class ShakeAlertConsumer : public ExceptionListener,
             // If I have a message then copy and return it
             if (__lhaveMessage)
             {
-                message = (char *)calloc(strlen(__textMessage.c_str() + 1), 
-                                         sizeof(char));
+                //message = (char *)calloc(strlen(__textMessage.c_str() + 1), 
+                //                         sizeof(char));
+                lenos = strlen(__textMessage.c_str());
+                message =  new char[lenos+1];
+                memset(message, 0, lenos+1);
                 strcpy(message, __textMessage.c_str());
                 __lhaveMessage = false;
                 __textMessage = ""; 
@@ -345,6 +361,7 @@ class ShakeAlertConsumer : public ExceptionListener,
             const TextMessage *textMessage;
             string text;
             char *charMessage = NULL;
+            size_t lenos;
             *ierr = 0;
             if (!__lconnected)
             {
@@ -366,8 +383,11 @@ class ShakeAlertConsumer : public ExceptionListener,
             if (textMessage != NULL)
             {
                 text = textMessage->getText(); 
-                charMessage = (char *)
-                              calloc(strlen(text.c_str()+1), sizeof(char));
+                //charMessage = (char *)
+                //              calloc(strlen(text.c_str()+1), sizeof(char));
+                lenos = strlen(text.c_str());
+                charMessage =  new char[lenos+1];
+                memset(charMessage, 0, lenos+1);
                 strcpy(charMessage, text.c_str());
                 text = "";
             }
@@ -473,7 +493,7 @@ class ShakeAlertConsumer : public ExceptionListener,
 //                 End the listener class. Begin the C interface              //
 //----------------------------------------------------------------------------//
 static ShakeAlertConsumer consumer;
-static bool linit_amqlib = false;
+//static bool linit_amqlib = false;
 /*!
  * @brief C interface function to initialize the ActiveMQ shakeAlert
  *        decision module message listener.  This function must be called
@@ -537,14 +557,15 @@ extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
     string brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
                                                  msReconnect, maxAttempts);
     // Make sure the library is initialized
-    if (!linit_amqlib)
+    //if (!linit_amqlib)
+    if (!consumer.isInitialized())
     {
         if (verbose > 0)
         {
             printf("%s: Initializing ActiveMQ library...\n", fcnm);
         }
         activemq::library::ActiveMQCPP::initializeLibrary();
-        linit_amqlib = true;
+        //linit_amqlib = true;
     }
     if (verbose > 0)
     {
@@ -564,7 +585,7 @@ extern "C" void activeMQ_consumer_finalize(void)
     //ShakeAlertConsumerClass consumer;
     consumer.destroy();
     activemq::library::ActiveMQCPP::shutdownLibrary();
-    linit_amqlib = false;
+    //linit_amqlib = false;
     return;
 }
 //============================================================================//
@@ -587,6 +608,13 @@ extern "C" char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr)
 {
     const char *fcnm = "activeMQ_consumer_getMessage\0";
     char *message = NULL;
+    *ierr = 0;
+    if (!consumer.isInitialized())
+    {
+        *ierr = 1;
+        printf("%s: Error consumer never initialized\n", fcnm);
+        return message;
+    }
     message = consumer.getMessage(ms_wait, ierr);
     if (*ierr != 0)
     {
@@ -611,6 +639,13 @@ extern "C" char *activeMQ_consumer_getMessageFromListener(int *ierr)
 {
     const char *fcnm = "activeMQ_consumer_getMessageFromListener\0";
     char *message = NULL;
+    *ierr = 0;
+    if (!consumer.isInitialized())
+    {
+        *ierr = 1;
+        printf("%s: Error consumer never initialized\n", fcnm);
+        return message;
+    }
     message = consumer.getMessageFromListener(ierr);
     if (*ierr != 0)
     {   
@@ -665,7 +700,8 @@ extern "C" char *activeMQ_setTcpURIRequest(const char *host,
         strcat(cwork, "?startupMaxReconnectAttempts=\0");
         strcat(cwork, cbuff);
     }
-    uri = (char *)calloc(strlen(cwork)+1, sizeof(cwork));
+    uri = new char[strlen(cwork)+1]; //(char *)calloc(strlen(cwork)+1, sizeof(cwork));
+    memset(uri, 0, strlen(cwork)+1);
     strcpy(uri, cwork);
     return uri;
 }

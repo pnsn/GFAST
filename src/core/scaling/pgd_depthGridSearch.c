@@ -165,7 +165,6 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     repi = ISCL_memory_calloc__double(l1);
     wres = ISCL_memory_calloc__double(l1);
     // Compute the epicentral distances (km)
-    #pragma omp simd
     for (i=0; i<l1; i++)
     {
         repi[i] = sqrt( pow(utmSrcEasting  - utmRecvEasting[i], 2)
@@ -221,7 +220,6 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     {
         // Compute radial distance
         srcDepth = srcDepths[idep];
-        #pragma omp simd
         for (i=0; i<l1; i++)
         {
             r[i] = sqrt( pow(utmSrcEasting  - utmRecvEasting[i], 2)
@@ -265,7 +263,6 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         // Compute the variance reduction
         xnum = 0.0;
         xden = 0.0;
-        #pragma omp simd reduction(+:xnum, xden)
         for (i=0; i<l1; i++)
         {
             est = pow(10.0, UP[i] + A);

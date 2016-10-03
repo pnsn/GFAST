@@ -39,7 +39,6 @@ int core_scaling_pgd_setRHS(const int n,
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
         return -1;
     }
-    #pragma omp simd
     for (i=0; i<n; i++)
     {
         dist = d[i];

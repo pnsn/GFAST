@@ -86,7 +86,6 @@ int core_cmt_setForwardModel(const int l1, const bool ldeviatoric,
     {
         // Loop on sites and fill up Green's function deviatoric matrix
         indx = 0;
-        #pragma omp simd
         for (i=0; i<l1; i++)
         {
             // compute coefficients in greens functions

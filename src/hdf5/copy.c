@@ -3,7 +3,6 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include <hdf5.h>
 #include <cblas.h>
 #include "gfast_hdf5.h"
 #include "iscl/log/log.h"

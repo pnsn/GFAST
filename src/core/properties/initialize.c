@@ -5,6 +5,7 @@
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
 #endif
 #include <iniparser.h>
 #ifdef __clang__

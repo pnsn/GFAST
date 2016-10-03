@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <hdf5.h>
 #include <math.h>
 #include "gfast_hdf5.h"
 #include "iscl/log/log.h"

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-#include <hdf5.h>
 #include "gfast_hdf5.h"
 #include "iscl/log/log.h"
 #include "iscl/os/os.h"

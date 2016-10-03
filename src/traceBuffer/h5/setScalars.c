@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <hdf5.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 

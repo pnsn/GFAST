@@ -6,7 +6,14 @@
 #else
 #include <linux/limits.h>
 #endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
 #include <hdf5.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_struct.h"
 #include "gfast_enum.h"
 #ifndef PATH_MAX

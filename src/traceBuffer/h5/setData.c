@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <float.h>
 #include <math.h>
-#include <hdf5.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"

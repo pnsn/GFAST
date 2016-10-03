@@ -2,7 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
 #include <hdf5.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_hdf5.h"
 #include "iscl/log/log.h"
 #include "iscl/os/os.h"

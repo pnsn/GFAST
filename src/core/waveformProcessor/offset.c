@@ -265,7 +265,6 @@ static bool __getAverageOffset(const int npts,
     eOffsetNan = 0.0;
     iavg = 0;
     // Compute the average over the window
-    #pragma omp simd reduction(+:iavg, eOffsetNan, nOffsetNan, uOffsetNan)
     for (i=indx0; i<npts; i++)
     {
         luse = false;
@@ -273,8 +272,9 @@ static bool __getAverageOffset(const int npts,
         dn = 0.0;
         de = 0.0;
         iavg1 = 0;
-        if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) &&
-            ubuff[i] >-999.0 && nbuff[i] >-999.0 && ebuff[i] >-999.0)
+        //if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) &&
+        //    ubuff[i] >-999.0 && nbuff[i] >-999.0 && ebuff[i] >-999.0)
+        if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]))
         {
             luse = true;
         }

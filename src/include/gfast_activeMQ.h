@@ -1,5 +1,5 @@
-#ifndef _gfast_activemq_h__
-#define _gfast_activemq_h__ 1
+#ifndef gfast_activemq_h
+#define gfast_activemq_h 1
 
 #ifdef __cplusplus
 extern "C"

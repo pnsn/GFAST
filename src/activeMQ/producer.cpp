@@ -49,18 +49,15 @@ class ShakeAlertProducer
         Session *__session;
         Destination *__destination;
         MessageProducer *__producer;
-        // Parameters for AMQ initialization
         string __user;
         string __password;
         string __destURI;
         string __brokerURI;
+        string __textMessage;
+        size_t __messageCount;
+        int __verbose;
         bool __useTopic;
         bool __sessionTransacted;
-        //bool __luseListener;
-        // Private variables used when listening for messages
-        string __textMessage;
-        int __verbose;
-        long __messageCount;
         bool __isInitialized;
         bool __lconnected;
         bool __lhaveMessage;

@@ -27,7 +27,8 @@ int main()
     char *elarms_xml_message;
     double currentTime, dtmax, t0sim, tbeg;
     const enum opmode_type opmode = OFFLINE;
-    int ierr, im, k, kt, message_length, ntsim;
+    int ierr, im, k, kt, ntsim;
+    size_t message_length;
     //------------------------------------------------------------------------//
     //
     // Initialize 
@@ -122,9 +123,9 @@ int main()
     // Read the elarms file once and for all
     elarms_xml_file = fopen(props.eewsfile, "rb");
     fseek(elarms_xml_file, 0L, SEEK_END);
-    message_length = ftell(elarms_xml_file);
+    message_length = (size_t) (ftell(elarms_xml_file));
     rewind(elarms_xml_file);
-    elarms_xml_message = (char *)calloc(message_length+1, sizeof(char));
+    elarms_xml_message = (char *)calloc(message_length + 1, sizeof(char));
     if (fread(elarms_xml_message, message_length, 1, elarms_xml_file) == 0)
     {
         log_errorF("%s: Error reading xml file\n", fcnm);

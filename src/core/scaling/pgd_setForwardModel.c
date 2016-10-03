@@ -35,7 +35,6 @@ int core_scaling_pgd_setForwardModel(const int n,
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
         return -1;
     }
-    #pragma omp simd
     for (i=0; i<n; i++)
     {
         G[i] = B + C*(log10(r[i]));

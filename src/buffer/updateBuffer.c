@@ -4,6 +4,7 @@
 #include <math.h>
 #include <omp.h>
 #include "gfast.h"
+#include "iscl/log/log.h"
 
 /*!
  * @brief Updates a data buffer with data from t0 to t0 + (npts - 1)*dt

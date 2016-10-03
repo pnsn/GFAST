@@ -55,7 +55,6 @@ int core_ff_setDiagonalWeightMatrix(const int n,
             if (eWts == NULL){log_warnF("%s: Setting eWts to unity\n", fcnm);}
             if (uWts == NULL){log_warnF("%s: Setting uWts to unity\n", fcnm);}
             i3 = 0;
-            #pragma omp simd
             for (i=0; i<n; i++)
             {   
                 i3 = 3*i;
