@@ -141,13 +141,15 @@ char configFile[PATH_MAX];
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
 printf("start\n");
-        // Update my buffers
+        // Look through ring for new data 
         ierr = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
                                                      false,
                                                      &ringInfo,
                                                      &nTracebufs2Read,
                                                      msgs);
-printf("end %d\n", nTracebufs2Read);
+        // Update my buffers
+
+printf("end %d %d\n", nTracebufs2Read, ierr);
 // early quit
  if (t1 - tbeg > 5)
 {
