@@ -211,11 +211,11 @@ printf("here\n");
         i1 = imapPtr[ir];
         i2 = imapPtr[ir+1];
         k = imap[i1];
+printf("%d\n", ir);
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
             i = imsg[im];
-printf("%d %d %d %d\n", i1, i2, imap[im], i); 
             indx = i*MAX_TRACEBUF_SIZ;
 
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
@@ -239,6 +239,10 @@ printf("%d %d %d %d\n", i1, i2, imap[im], i);
             {
                 log_errorF("%s: Error unpacking data\n", fcnm);
             }
+ printf("%16.8f %s %s %s %s %d\n", traceHeader.starttime,
+                                traceHeader.net, traceHeader.sta,
+                                traceHeader.chan, traceHeader.loc,
+                                traceHeader.nsamp); 
         }
     }
 
