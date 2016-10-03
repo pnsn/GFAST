@@ -100,6 +100,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
             traceBuffer->traces[i].selev = gps_data.data[k].sta_alt;
             traceBuffer->traces[i].maxpts
                 = (int) (bufflen/traceBuffer->traces[i].dt + 0.5) + 1;
+            traceBuffer->traces[i].dt = gps_data.data[k].dt;
             i = i + 1; 
         }
     }
