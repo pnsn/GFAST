@@ -77,7 +77,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     times = ISCL_memory_calloc__double(nRead);
     resp  = ISCL_memory_calloc__double(MAX_TRACEBUF_SIZ/8);
-    for (i=0; i<nRead+1; i++){imap[i] = h5traces->ntraces+1;}
+    for (i=0; i<nRead+1; i++){imap[i] = h5traces->ntraces;}
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
     {
@@ -109,7 +109,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 (strcasecmp(chan, traceHeader.chan) == 0) &&
                 (strcasecmp(loc,  traceHeader.loc)  == 0))
             {
-                if (imap[i] > h5traces->ntraces)
+                if (imap[i] < h5traces->ntraces)
                 {
                     log_errorF("%s: Error multiply mapped wave\n", fcnm);
                 }
