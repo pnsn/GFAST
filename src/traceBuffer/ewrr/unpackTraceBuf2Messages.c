@@ -53,7 +53,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //long *longData;
     //short *shortData;
     double *resp, *times, dt;
-    int *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *lswap, *npts,
+    int *dtype, *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *lswap, *npts,
         i, i1, i2, ierr, im, indx, ir, k, nReadPtr, nsamp0, nsort;
     //------------------------------------------------------------------------//
     //
@@ -75,6 +75,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     jperm = ISCL_memory_calloc__int(nRead);
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
     lswap = ISCL_memory_calloc__int(nRead);
+    dtype = ISCL_memory_calloc__int(nRead);
+    imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     times = ISCL_memory_calloc__double(nRead);
     resp  = ISCL_memory_calloc__double(MAX_TRACEBUF_SIZ/8);
     for (i=0; i<nRead+1; i++){imap[i] =-1;}
@@ -117,6 +119,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 imap[i] = k;
                 imsg[i] = i;
                 npts[i] = traceHeader.nsamp;
+                dtype[i] = 4;
+                if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
+                    strcasecmp(traceHeader.datatype, "i2\0") == 0)
+                {
+                    dtype[i] = 2;
+                }
                 kpts[k] = kpts[k] + npts[i];
                 if (nsamp0 != traceHeader.nsamp){lswap[i] = 1;}
                 times[i] = traceHeader.starttime;
@@ -151,11 +159,11 @@ printf("here\n");
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imsg,  imsg);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, npts,  npts);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, lswap, lswap);
+    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, dtype, dtype);
     ierr = ISCL__sorting_applyPermutation__double(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
-    imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     for (i=0; i<nRead; i++)
     {
         // update next station
@@ -191,6 +199,9 @@ printf("here\n");
                     ISCL__sorting_applyPermutation__int(nsort, jperm,
                                                         &lswap[i1],
                                                         &lswap[i1]);
+                    ISCL__sorting_applyPermutation__int(nsort, jperm,
+                                                        &dtype[i1],
+                                                        &dtype[i1]);
                     ISCL__sorting_applyPermutation__double(nsort, jperm,
                                                            &times[i1],
                                                            &times[i1]);
@@ -222,13 +233,12 @@ printf("here\n");
         for (im=i1; im<i2; im++)
         {
             i = imsg[i];
-printf("%d %d\n", imap[i], i); 
+printf("%d %d %d %d\n", i1, i2, imap[i], i); 
             indx = i*MAX_TRACEBUF_SIZ;
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            ierr = fastUnpack(npts[i], lswap[i], 4, &msgs[indx], resp); 
+            ierr = fastUnpack(npts[i], lswap[i], dtype[i], &msgs[indx], resp);
         }
     }
-    // Finally unpack the data
 
     // Free space
     ISCL_memory_free__char(&msg);
@@ -239,6 +249,7 @@ printf("%d %d\n", imap[i], i);
     ISCL_memory_free__int(&jperm);
     ISCL_memory_free__int(&kpts);
     ISCL_memory_free__int(&lswap);
+    ISCL_memory_free__int(&dtype);
     ISCL_memory_free__double(&times);
     ISCL_memory_free__double(&resp);
     ISCL_memory_free__int(&imapPtr);
@@ -350,7 +361,7 @@ static void fastUnpackI2(const int npts, const int lswap,
  * @param[in] npts    number of points to unpack
  * @param[in] lswap   if 0 then do not byte swap the data.
  *                    if 1 then do byte swap the data.
- * @param[in] type    if 4 then the data is 4 bytes.
+ * @param[in] dtype   if 4 then the data is 4 bytes.
  *                    if 2 then the data is 2 bytes.
  * @param[in] msg     tracebuf2 message to unpack [MAX_TRACEBUF_SIZ]
  *
@@ -362,17 +373,17 @@ static void fastUnpackI2(const int npts, const int lswap,
  *
  */
 static int fastUnpack(const int npts, const int lswap,
-                      const int type,
+                      const int dtype,
                       const char *__restrict__ msg,
                       double *__restrict__ resp)
 {
     const char *fcnm = "fastUnpack\0";
     if (npts < 1){return 0;} // Nothing to do
-    if (type == 4)
+    if (dtype == 4)
     {
         fastUnpackI4(npts, lswap, msg, resp);
     }
-    else if (type == 2)
+    else if (dtype == 2)
     {
         fastUnpackI2(npts, lswap, msg, resp);
     }
