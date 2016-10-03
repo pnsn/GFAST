@@ -68,7 +68,7 @@ int traceBuffer_h5_initialize(const int job,
         // Get the size of the file
         fp = fopen(h5name, "rb\0");
         fseek(fp, 0L, SEEK_END);
-        blockSize = (unsigned long) ftell(fp);
+        blockSize = (size_t) (ftell(fp));
         fclose(fp);
         // Open the file
         properties = H5Pcreate(H5P_FILE_ACCESS);
@@ -130,10 +130,10 @@ int traceBuffer_h5_initialize(const int job,
                     log_warnF("%s: maxpts is 0 for trace %d\n", fcnm, i+1);
                 }
             }
-            blockSize = blockSize + 8*2*(unsigned long) maxpts + 8*3 + 4;
+            blockSize = blockSize + 8*2*(size_t) maxpts + 8*3 + 4;
         }
         // add a little extra
-        blockSize = (unsigned long) ((double) (blockSize*1.1 + 0.5));
+        blockSize = (size_t) ((double) (blockSize*1.1 + 0.5));
         properties = H5Pcreate(H5P_FILE_ACCESS); 
         status = H5Pset_fapl_core(properties, blockSize, false);
         if (status < 0)
@@ -158,16 +158,26 @@ int traceBuffer_h5_initialize(const int job,
                              "/Data\0",
                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         status = H5Gclose(groupID);
+        if (status < 0)
+        {
+            log_errorF("%s: Error creating /Data group\n", fcnm);
+            return -1;
+        }
         groupID = H5Gcreate2(h5traceBuffer->fileID,
                              "/MetaData\0",
                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         status = H5Gclose(groupID);
+        if (status < 0)
+        {
+            log_errorF("%s: Error creating /MetaData group\n", fcnm);
+            return -1;
+        }
         // Make the groups
         for (i=0; i<h5traceBuffer->ntraces; i++)
         {
             // MetaData
             groupID = H5Gcreate2(h5traceBuffer->fileID,
-                                 h5traceBuffer->traces[i].groupName,
+                                 h5traceBuffer->traces[i].metaGroupName,
                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
             dt = h5traceBuffer->traces[i].dt;
             slat = h5traceBuffer->traces[i].slat;
@@ -175,6 +185,12 @@ int traceBuffer_h5_initialize(const int job,
             selev = h5traceBuffer->traces[i].selev;
 
             status = H5Gclose(groupID);
+            if (status < 0)
+            {
+                log_errorF("%s: ERror creating group %s\n",
+                           fcnm, h5traceBuffer->traces[i].metaGroupName);
+                return -1;
+            }
             // Data
             groupID = H5Gcreate2(h5traceBuffer->fileID,
                                  h5traceBuffer->traces[i].groupName,
@@ -193,6 +209,12 @@ int traceBuffer_h5_initialize(const int job,
                 ISCL_memory_free__double(&work);
             }
             status = H5Gclose(groupID);
+            if (status < 0)
+            {
+                log_errorF("%s: ERror creating group %s\n",
+                           fcnm, h5traceBuffer->traces[i].groupName);
+                return -1;
+            }
         }
     }
     h5traceBuffer->linit = true;
