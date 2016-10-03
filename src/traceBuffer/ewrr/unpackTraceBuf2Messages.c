@@ -8,6 +8,17 @@
 #include "iscl/memory/memory.h"
 #include "iscl/sorting/sorting.h"
 
+static void fastUnpackI4(const int npts, const int lswap,
+                         const char *__restrict__ msg,
+                         double *__restrict__ resp);
+static void fastUnpackI2(const int npts, const int lswap,
+                         const char *__restrict__ msg,
+                         double *__restrict__ resp);
+static int fastUnpack(const int npts, const int lswap,
+                      const int type,
+                      const char *__restrict__ msg,
+                      double *__restrict__ resp);
+
 /*!
  * @brief Unpacks the tracebuf2 message and returns the data for
  *        the desired SNCL's in the h5traces struct
@@ -41,8 +52,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     TRACE2_HEADER traceHeader;
     //long *longData;
     //short *shortData;
-    double *times, dt;
-    int *imap, *imapPtr, *iperm, *jperm, *kpts, *lswap, *npts,
+    double *resp, *times, dt;
+    int *imap, *imapPtr, *imsg, *iperm, *jperm, *kpts, *lswap, *npts,
         i, i1, i2, ierr, im, indx, k, nReadPtr, nsamp0, nsort;
     //------------------------------------------------------------------------//
     //
@@ -58,12 +69,14 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Set the workspace
     msg   = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
     imap  = ISCL_memory_calloc__int(nRead+1);
+    imsg  = ISCL_memory_calloc__int(nRead);
     npts  = ISCL_memory_calloc__int(nRead); 
     iperm = ISCL_memory_calloc__int(nRead);
     jperm = ISCL_memory_calloc__int(nRead);
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
     lswap = ISCL_memory_calloc__int(nRead);
     times = ISCL_memory_calloc__double(nRead);
+    resp  = ISCL_memory_calloc__double(MAX_TRACEBUF_SIZ/8);
     for (i=0; i<nRead+1; i++){imap[i] =-1;}
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
@@ -102,6 +115,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                     log_errorF("%s: Error multiply mapped station\n", fcnm);
                 }
                 imap[i] = k;
+                imsg[i] = i;
                 npts[i] = traceHeader.nsamp;
                 kpts[k] = kpts[k] + npts[i];
                 if (nsamp0 != traceHeader.nsamp){lswap[i] = 1;}
@@ -134,6 +148,7 @@ printf("here\n");
     }
     // Apply the permutations
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imap,  imap);
+    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imsg,  imsg);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, npts,  npts);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, lswap, lswap);
     ierr = ISCL__sorting_applyPermutation__double(nRead, iperm, times, times);
@@ -168,6 +183,9 @@ printf("here\n");
                                                         &imap[i1],
                                                         &imap[i1]);
                     ISCL__sorting_applyPermutation__int(nsort, jperm,
+                                                        &imsg[i1],
+                                                        &imsg[i1]);
+                    ISCL__sorting_applyPermutation__int(nsort, jperm,
                                                         &npts[i1],
                                                         &npts[i1]);
                     ISCL__sorting_applyPermutation__int(nsort, jperm,
@@ -186,13 +204,12 @@ printf("here\n");
             nReadPtr = nReadPtr + 1;
         }
     }
-/*
     // Now set the workspace
     for (k=0; k<h5traces->ntraces; k++)
     {
         if (kpts[k] > 0)
         {
-            h5traces->traces[k].data = ISCL_memory_calloc__double(kpts[k]);
+            //h5traces->traces[k].data = ISCL_memory_calloc__double(kpts[k]);
         }
     }
     // Unpack the traces
@@ -200,25 +217,169 @@ printf("here\n");
     {
         i1 = imapPtr[i];
         i2 = imapPtr[i+1];
-        k = imap[iperm[i]];
+        k = imap[i1];
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
- 
+            i = imsg[i];
+printf("%d %d\n", imap[i], i); 
+            indx = i*MAX_TRACEBUF_SIZ;
+            memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
+            ierr = fastUnpack(npts[i], lswap[i], 4, &msgs[indx], resp); 
         }
     }
-*/
     // Finally unpack the data
 
     // Free space
     ISCL_memory_free__char(&msg);
     ISCL_memory_free__int(&imap);
+    ISCL_memory_free__int(&imsg);
     ISCL_memory_free__int(&npts);
     ISCL_memory_free__int(&iperm);
     ISCL_memory_free__int(&jperm);
     ISCL_memory_free__int(&kpts);
     ISCL_memory_free__int(&lswap);
     ISCL_memory_free__double(&times);
+    ISCL_memory_free__double(&resp);
     ISCL_memory_free__int(&imapPtr);
+    return 0;
+}
+//============================================================================//
+/*!
+ * @brief Unpacks a 4 byte integer character data
+ *
+ * @param[in] npts    number of points to unpack
+ * @param[in] lswap   if 0 then do not byte swap the data.
+ *                    if 1 then do byte swap the data.
+ * @param[in] msg     tracebuf2 message to unpack [MAX_TRACEBUF_SIZ]
+ *
+ * @param[out] resp   response data [npts]
+ *
+ * @author Ben Baker (ISTI)
+ *
+ * @copyright Apache 2
+ *
+ */
+static void fastUnpackI4(const int npts, const int lswap,
+                         const char *__restrict__ msg,
+                         double *__restrict__ resp)
+{
+    const int ioff = (int) (sizeof(TRACE2_HEADER));
+    char c4[4];
+    int i, i4;
+    if (lswap == 0)
+    {
+        #pragma omp simd
+        for (i=0; i<npts; i++)
+        {
+            c4[0] = msg[ioff+4*i+0];
+            c4[1] = msg[ioff+4*i+1]; 
+            c4[2] = msg[ioff+4*i+2]; 
+            c4[3] = msg[ioff+4*i+3];
+            memcpy(&i4, c4, sizeof(int));
+            resp[i] = (double) i4; 
+        }
+    }
+    else
+    {
+        #pragma omp simd
+        for (i=0; i<npts; i++)
+        {
+            c4[3] = msg[ioff+4*i+0];
+            c4[2] = msg[ioff+4*i+1]; 
+            c4[1] = msg[ioff+4*i+2]; 
+            c4[0] = msg[ioff+4*i+3];
+            memcpy(&i4, c4, sizeof(int));
+            resp[i] = (double) i4;
+        }
+    }
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Unpacks a 2 byte integer character data
+ *
+ * @param[in] npts    number of points to unpack
+ * @param[in] lswap   if 0 then do not byte swap the data.
+ *                    if 1 then do byte swap the data.
+ * @param[in] msg     tracebuf2 message to unpack [MAX_TRACEBUF_SIZ]
+ *
+ * @param[out] resp   response data [npts]
+ *
+ * @author Ben Baker (ISTI)
+ *
+ * @copyright Apache 2
+ *
+ */
+static void fastUnpackI2(const int npts, const int lswap,
+                         const char *__restrict__ msg,
+                         double *__restrict__ resp)
+{
+    const int ioff = (int) (sizeof(TRACE2_HEADER));
+    char c2[2];
+    int i;
+    short i2;
+    if (lswap == 0)
+    {
+        #pragma omp simd
+        for (i=0; i<npts; i++)
+        {
+            c2[0] = msg[ioff+2*i+0];
+            c2[1] = msg[ioff+2*i+1];
+            memcpy(&i2, c2, sizeof(short));
+            resp[i] = (double) i2;
+        }
+    }
+    else
+    {
+        #pragma omp simd
+        for (i=0; i<npts; i++)
+        {
+            c2[1] = msg[ioff+2*i+0];
+            c2[0] = msg[ioff+2*i+1]; 
+            memcpy(&i2, c2, sizeof(short));
+            resp[i] = (double) i2;
+        }
+    }   
+    return;
+}
+//============================================================================//
+/*!
+ * @brief Unpacks a 2 or 4 byte integer character data
+ *
+ * @param[in] npts    number of points to unpack
+ * @param[in] lswap   if 0 then do not byte swap the data.
+ *                    if 1 then do byte swap the data.
+ * @param[in] type    if 4 then the data is 4 bytes.
+ *                    if 2 then the data is 2 bytes.
+ * @param[in] msg     tracebuf2 message to unpack [MAX_TRACEBUF_SIZ]
+ *
+ * @param[out] resp   response data [npts]
+ *
+ * @author Ben Baker (ISTI)
+ *
+ * @copyright Apache 2
+ *
+ */
+static int fastUnpack(const int npts, const int lswap,
+                      const int type,
+                      const char *__restrict__ msg,
+                      double *__restrict__ resp)
+{
+    const char *fcnm = "fastUnpack\0";
+    if (npts < 1){return 0;} // Nothing to do
+    if (type == 4)
+    {
+        fastUnpackI4(npts, lswap, msg, resp);
+    }
+    else if (type == 2)
+    {
+        fastUnpackI2(npts, lswap, msg, resp);
+    }
+    else
+    {
+        log_errorF("%s: Invalid type\n", fcnm);
+        return -1;
+    }
     return 0;
 }
