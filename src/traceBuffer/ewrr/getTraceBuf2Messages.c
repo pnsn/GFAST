@@ -10,61 +10,78 @@
  * @brief Reads the tracebuffer2 messages off the earthworm ring specified
  *        on ringInfo
  *
- * @param[in] maxMessages   max number of messages that can be read
- *                          off the ring
- * @param[in] showWarnings  if true the print warnings about having read
- *                          maximum number of messages
- * @param[in] ringInfo      Earthworm ring reader structure
+ * @param[in] messageBlock   block allocator size.  instead of reallocating
+ *                           memory every loop iteration in the acquisition
+ *                           one can allocate in a chunk of messages (e.g.
+ *                           200 messages at a time i.e. messageBlock = 200).
+ *                           if this number is too small there will be 
+ *                           overhead in memory reallocation, if this number
+ *                           is too big a lot of unnecessary space will be
+ *                           allocated. 
+ * @param[in] showWarnings   if true the print warnings about having read
+ *                           maximum number of messages
+ * @param[in] ringInfo       Earthworm ring reader structure
  *
- * @param[out] nRead        number of traceBuffer2 messages read
- * @param[out] msgs         traceBuffer2 messages read from the earthworm ring.
- *                          the k'th message start index (for k=1,2,...,nRead)
- *                          is given by: (k - 1)*MAX_TRACEBUF_SIZE 
- *                          [maxMessages*MAX_TRACEBUF_SIZE]
+ * @param[out] nRead         number of traceBuffer2 messages read
  *
- * @result  0 indicates success.
- *         -1 indicates a terminate signal from the ring.
- *            the user should call traceBuffer_ewrr_finalize and quit.
- *         -2 indicates a read error on the ring.
- *         -3 indicates the ringInfo structure was not initalized
- *         -4 indicates insufficient space on output
- *         -5 indicates tracebuf2 type is unknown
+ * @param[out] ierr          0 indicates success.
+ *                          -1 indicates a terminate signal from the ring.
+ *                             the user should call traceBuffer_ewrr_finalize
+ *                             and quit.
+ *                          -2 indicates a read error on the ring.
+ *                          -3 indicates the ringInfo structure was not
+ *                             initalized.
+ *                          -4 indicates tracebuf2 type is unknown.
+ *
+ * @result traceBuffer2 nRead messages read from the earthworm ring.
+ *         the k'th message start index (for k=1,2,...,nRead) is given
+ *         by: (k - 1)*MAX_TRACEBUF_SIZE [nRead*MAX_TRACEBUF_SIZE]
  *
  * @author Ben Baker (ISTI)
  *
  * @copyright Apache 2
  *
  */
-int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
-                                          const bool showWarnings,
-                                          struct ewRing_struct *ringInfo,
-                                          int *nRead,
-                                          char *msgs)
+char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
+                                            const bool showWarnings,
+                                            struct ewRing_struct *ringInfo,
+                                            int *nRead, int *ierr)
 {
     const char *fcnm = "traceBuffer_ewrr_getgetTraceBuf2Messages\0";
     MSG_LOGO gotLogo; 
-    char *msg;
+    char *msg, *msgWork;
     unsigned char sequenceNumber;
     long gotSize;
-    int kdx, retval;
+    int kdx, ncopy, nwork, retval;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
+    *ierr = 0;
     *nRead = 0;
+    msg = NULL;
     if (!ringInfo->linit)
     {
         log_errorF("%s: Error ringInfo not initialized\n", fcnm);
-        return -3;
+        *ierr =-3;
+        return msg;
     }
     // Avoid a segfault
-    if (maxMessages < 1 || msgs == NULL)
+/*
+    if (maxMessages < 1 || msg == NULL)
     {
         if (maxMessages < 1){log_errorF("%s: Error no space\n", fcnm);}
         if (msgs == NULL){log_errorF("%s: Error messages is NULL\n", fcnm);}
         return -4;
     }
+*/
+    if (messageBlock < 1)
+    {
+        log_errorF("%s: messageBlock allocator must be postiive\n", fcnm);
+        *ierr =-4;
+        return msg;
+    }
     // Set space
-    msg = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
+    msg = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ*messageBlock);
     // Unpack the ring
     while (true)
     {
@@ -74,7 +91,8 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
         {
             log_errorF("%s: Receiving kill signal from ring %s\n",
                        fcnm, ringInfo->ewRingName);
-            return -1;
+            *ierr =-1;
+            return msg;
         }
         // Copy from the memory
         retval = tport_copyfrom(&ringInfo->region,
@@ -86,30 +104,40 @@ int traceBuffer_ewrr_getTraceBuf2Messages(const int maxMessages,
         if (retval ==-2)
         {
             log_errorF("%s: An error was encountered getting message\n", fcnm);
-            return -2;
+            *ierr =-2;
+            return msg;
         }
         // Verify i want this message
         if (gotLogo.type == ringInfo->traceBuffer2Type)
         {
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
-            memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
-            // Save the user from themselves 
+            memcpy(&msg[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
+            // Reallocate space 
             *nRead = *nRead + 1;
-            if (*nRead == maxMessages)
+            if (*nRead == messageBlock)
             {
                 if (showWarnings)
                 {
-                    log_warnF("%s: Insufficient space for messages - leaving\n",
-                              fcnm);
+                    log_warnF("%s: Reallocating msg block\n", fcnm);
                 }
-                break;
+                // get workspace sizes
+                nwork = MAX_TRACEBUF_SIZ*(*nRead + messageBlock);
+                ncopy = MAX_TRACEBUF_SIZ*(*nRead);
+                // set workspace and copy old messages
+                msgWork = ISCL_memory_calloc__char(ncopy);
+                memcpy(msgWork, msg, (size_t) ncopy);
+                // resize msg
+                ISCL_memory_free__char(&msg);
+                msg = ISCL_memory_calloc__char(nwork);
+                // copy back and free workspace
+                memcpy(msg, msgWork, (size_t) ncopy);
+                ISCL_memory_free__char(&msgWork);
             }
         }
         // End of ring - time to leave
         if (retval == GET_NONE){break;}
     }
-    ISCL_memory_free__char(&msg);
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
-    return 0;
+    return msg;
 }

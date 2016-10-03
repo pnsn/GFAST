@@ -144,6 +144,11 @@ char configFile[PATH_MAX];
     // Flush the buffer
     log_infoF("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
     ierr = traceBuffer_ewrr_flushRing(&ringInfo);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error flusing the ring\n", fcnm);
+        goto ERROR;
+    }
     // Set space for messages
     msgs = ISCL_memory_calloc__char(MAX_MESSAGES*MAX_TRACEBUF_SIZ);
     // Begin the acquisition loop
@@ -162,11 +167,35 @@ char configFile[PATH_MAX];
         t0 = t1;
 printf("start\n");
         // Update my buffers
-        ierr = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
+        msgs = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
                                                      false,
                                                      &ringInfo,
                                                      &nTracebufs2Read,
-                                                     msgs);
+                                                     &ierr);
+        if (ierr < 0 || msgs == NULL)
+        {
+            if (ierr ==-1)
+            {
+                log_errorF("%s: Terminate message received from ring\n", fcnm);
+                ierr = 1;
+            }
+            else if (ierr ==-2)
+            {
+                log_errorF("%s: Read error encountered on ring\n", fcnm);
+                ierr = 1;
+            }
+            else if (ierr ==-3)
+            {
+                log_errorF("%s: Ring info structure never initialized\n", fcnm);
+                ierr = 1;
+            }
+            else if (msgs == NULL)
+            {
+                log_errorF("%s: Message allocation error\n", fcnm);
+                ierr = 1;
+            }
+            goto ERROR;
+        }
 printf("end %d\n", nTracebufs2Read);
 // early quit
  if (t1 - tbeg > 5)
@@ -174,6 +203,9 @@ printf("end %d\n", nTracebufs2Read);
 printf("premature shut down\n");
 break;
 } 
+        // Unpackage the tracebuf2 messages
+
+        ISCL_memory_free__char(&msgs);
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
         amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
