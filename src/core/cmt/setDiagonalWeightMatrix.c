@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <omp.h> 
 #include "gfast_core.h"
 #include "iscl/log/log.h"
@@ -27,6 +28,7 @@ int core_cmt_setDiagonalWeightMatrix(const int n,
 {
     const char *fcnm = "core_cmt_setDiagonalWeightMatrix\0";
     int i, i3;
+    bool leWts, lnWts, luWts;
     if (n < 1)
     {
         log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
@@ -50,19 +52,48 @@ int core_cmt_setDiagonalWeightMatrix(const int n,
         }
         else // Selectively make weights 1
         {
-            if (nWts == NULL){log_warnF("%s: Setting nWts to unity\n", fcnm);}
-            if (eWts == NULL){log_warnF("%s: Setting eWts to unity\n", fcnm);}
-            if (uWts == NULL){log_warnF("%s: Setting uWts to unity\n", fcnm);}
+            lnWts = true;
+            leWts = true;
+            luWts = true;
+            if (nWts == NULL)
+            {
+                log_warnF("%s: Setting nWts to unity\n", fcnm);
+                lnWts = false;
+            }
+            if (eWts == NULL)
+            {
+                log_warnF("%s: Setting eWts to unity\n", fcnm);
+                leWts = false;
+            }
+            if (uWts == NULL)
+            {
+                log_warnF("%s: Setting uWts to unity\n", fcnm);
+                luWts = false;
+            }
             i3 = 0;
-            for (i=0; i<n; i++)
-            {   
-                i3 = 3*i;
-                diagWt[i3+0] = 1.0;
-                diagWt[i3+1] = 1.0;
-                diagWt[i3+2] = 1.0;
-                if (nWts != NULL){diagWt[i3+0] = nWts[i];}
-                if (eWts != NULL){diagWt[i3+1] = eWts[i];}
-                if (uWts != NULL){diagWt[i3+2] = uWts[i];}
+            if (lnWts && leWts && luWts)
+            {
+                #pragma omp simd
+                for (i=0; i<n; i++)
+                {
+                    i3 = 3*i;
+                    diagWt[i3+0] = nWts[i];
+                    diagWt[i3+1] = eWts[i];
+                    diagWt[i3+2] = uWts[i];
+                }
+            }
+            else
+            {
+                for (i=0; i<n; i++)
+                {   
+                    i3 = 3*i;
+                    diagWt[i3+0] = 1.0;
+                    if (lnWts){diagWt[i3+0] = nWts[i];}
+                    diagWt[i3+1] = 1.0;
+                    if (leWts){diagWt[i3+1] = eWts[i];}
+                    diagWt[i3+2] = 1.0;
+                    if (luWts){diagWt[i3+2] = uWts[i];}
+                }
             }
         }
         return 0;
