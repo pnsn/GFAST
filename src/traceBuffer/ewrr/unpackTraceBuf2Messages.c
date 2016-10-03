@@ -232,8 +232,8 @@ printf("here\n");
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
-            i = imsg[i];
-printf("%d %d %d %d\n", i1, i2, imap[i], i); 
+            i = imsg[im];
+printf("%d %d %d %d\n", i1, i2, imap[im], i); 
             indx = i*MAX_TRACEBUF_SIZ;
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             ierr = fastUnpack(npts[i], lswap[i], dtype[i], &msgs[indx], resp);
