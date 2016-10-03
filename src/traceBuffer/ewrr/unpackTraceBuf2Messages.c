@@ -64,6 +64,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
     lswap = ISCL_memory_calloc__bool(nRead);
     times = ISCL_memory_calloc__double(nRead);
+    for (i=0; i<nRead+1; i++){imap[i] =-1;}
     // Loop on waveforms and get workspace count
     for (k=0; k<h5traces->ntraces; k++)
     {
