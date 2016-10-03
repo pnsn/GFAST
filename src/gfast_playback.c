@@ -6,12 +6,13 @@
 #include "gfast.h"
 #include "iscl/log/log.h"
 #include "iscl/iscl/iscl.h"
+#include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     const char *fcnm = "gfast_playback\0";
-    char propfilename[] = "gfast.props\0";
+    char propfilename[PATH_MAX]; // = "gfast.props\0";
     FILE *elarms_xml_file;
     struct GFAST_activeEvents_struct events;
     struct GFAST_cmtResults_struct cmt;
@@ -31,6 +32,21 @@ int main()
     size_t message_length;
     //------------------------------------------------------------------------//
     //
+    // Read the input file
+    if (argc != 2)
+    {
+        printf("Usage: %s property_file_name\n", fcnm);
+        printf("Example: %s gfast.props\n", fcnm);
+        return EXIT_FAILURE;
+    }
+    memset(propfilename, 0, sizeof(propfilename));
+    strcpy(propfilename, argv[1]);
+    if (!os_path_isfile(propfilename))
+    {
+        log_errorF("%s: Properties file %s doesn't exist\n"
+                  , fcnm, propfilename);
+        return EXIT_FAILURE;
+    }
     // Initialize 
     ierr = 0;
     elarms_xml_message = NULL;
@@ -98,8 +114,8 @@ int main()
         log_errorF("%s: Error setting the H5 tracebuffer\n", fcnm);
         goto ERROR;
     }
-    ierr = GFAST_traceBuffer_h5_initialize(1, true, "./\0",
-                                           props.obsdata_file, &h5traceBuffer);
+    ierr = GFAST_traceBuffer_h5_initialize(1, true, props.obsdataDir,
+                                           props.obsdataFile, &h5traceBuffer);
     if (ierr != 0)
     {
         log_errorF("%s: Error initializing H5 traebuffer\n", fcnm);

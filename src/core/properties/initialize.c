@@ -35,6 +35,7 @@ int core_properties_initialize(const char *propfilename,
 {
     const char *fcnm = "core_properties_initialize\0";
     const char *s;
+    char cwork[PATH_MAX];
     int i, ierr, itemp, lenos;
     dictionary *ini;
     //------------------------------------------------------------------------//
@@ -86,14 +87,43 @@ int core_properties_initialize(const char *propfilename,
             goto ERROR;
         }
         strcpy(props->eewsfile, s);
+        s = iniparser_getstring(ini, "general:observed_data_dir\0", NULL);
+        if (s != NULL)
+        {
+            strcpy(props->obsdataDir, s);
+            if (!ISCL_os_path_isdir(props->obsdataDir))
+            {
+                log_errorF("%s: Observed data directory %s doesn't exist\n",
+                           fcnm, props->obsdataDir);
+                goto ERROR; 
+            }
+            if (strlen(props->obsdataDir) == 0)
+            {
+                strcpy(props->obsdataDir, "./\0");
+            }
+            else
+            {
+                if (props->obsdataDir[strlen(props->obsdataDir)-1] != '/')
+                {
+                    strcat(props->obsdataDir, "/\0");
+                }
+            }
+        }
+        else
+        {
+            strcpy(props->obsdataDir, "./\0");
+        }
         s = iniparser_getstring(ini, "general:observed_data_file\0", NULL);
         if (s != NULL)
         {
-            strcpy(props->obsdata_file, s);
-            if (!ISCL_os_path_isfile(props->obsdata_file))
+            strcpy(props->obsdataFile, s);
+            memset(cwork, 0, sizeof(cwork));
+            strcpy(cwork, props->obsdataDir);
+            strcat(cwork, props->obsdataFile);
+            if (!ISCL_os_path_isfile(cwork))
             {
                 log_errorF("%s: Observed data file %s doesn't exist\n",
-                           fcnm, props->obsdata_file);
+                           fcnm, cwork);
                 goto ERROR;
             }
         }
