@@ -49,7 +49,7 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
 {
     const char *fcnm = "traceBuffer_ewrr_getgetTraceBuf2Messages\0";
     MSG_LOGO gotLogo; 
-    char *msg, *msgWork;
+    char *msg, *msgs, *msgWork;
     unsigned char sequenceNumber;
     long gotSize;
     int kdx, ncopy, nwork, retval;
@@ -81,7 +81,8 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
         return msg;
     }
     // Set space
-    msg = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ*messageBlock);
+    msgs = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ*messageBlock);
+    msg  = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
     // Unpack the ring
     while (true)
     {
@@ -92,7 +93,7 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
             log_errorF("%s: Receiving kill signal from ring %s\n",
                        fcnm, ringInfo->ewRingName);
             *ierr =-1;
-            return msg;
+            return msgs;
         }
         // Copy from the memory
         retval = tport_copyfrom(&ringInfo->region,
@@ -105,39 +106,40 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
         {
             log_errorF("%s: An error was encountered getting message\n", fcnm);
             *ierr =-2;
-            return msg;
+            return msgs;
         }
         // Verify i want this message
         if (gotLogo.type == ringInfo->traceBuffer2Type)
         {
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
-            memcpy(&msg[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
+            memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
             // Reallocate space 
             *nRead = *nRead + 1;
             if (*nRead == messageBlock)
             {
                 if (showWarnings)
                 {
-                    log_warnF("%s: Reallocating msg block\n", fcnm);
+                    log_warnF("%s: Reallocating msgs block\n", fcnm);
                 }
                 // get workspace sizes
                 nwork = MAX_TRACEBUF_SIZ*(*nRead + messageBlock);
                 ncopy = MAX_TRACEBUF_SIZ*(*nRead);
                 // set workspace and copy old messages
                 msgWork = ISCL_memory_calloc__char(ncopy);
-                memcpy(msgWork, msg, (size_t) ncopy);
-                // resize msg
-                ISCL_memory_free__char(&msg);
-                msg = ISCL_memory_calloc__char(nwork);
+                memcpy(msgWork, msgs, (size_t) ncopy);
+                // resize msgs
+                ISCL_memory_free__char(&msgs);
+                msgs = ISCL_memory_calloc__char(nwork);
                 // copy back and free workspace
-                memcpy(msg, msgWork, (size_t) ncopy);
+                memcpy(msgs, msgWork, (size_t) ncopy);
                 ISCL_memory_free__char(&msgWork);
             }
         }
         // End of ring - time to leave
         if (retval == GET_NONE){break;}
     }
+    ISCL_memory_free__char(&msg);
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
-    return msg;
+    return msgs;
 }
