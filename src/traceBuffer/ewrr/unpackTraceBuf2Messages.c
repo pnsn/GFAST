@@ -250,7 +250,8 @@ printf("%d %d %d\n", ir, i1, i2);
                 log_errorF("%s: Error unpacking data\n", fcnm);
             }
             // Update the points
-            dt = 1.0/traceHeader.samprate; 
+            dt = 1.0/traceHeader.samprate;
+/*
             tb2Data->traces[k].dt = dt;
             // Is a new chunk beginning?
             if (im > i1)
@@ -267,16 +268,19 @@ printf("%d %d %d\n", ir, i1, i2);
             #pragma omp simd
             for (l=0; l<npts; l++)
             {
-                tb2Data->traces[k].data[kndx+l] = resp[l]; 
+                tb2Data->traces[k].data[kndx+l] = resp[l];
                 tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                                                  + (double) l*dt;
             }
+*/
             kndx = kndx + npts; 
  printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
                                 traceHeader.net, traceHeader.sta,
                                 traceHeader.chan, traceHeader.loc,
                                 traceHeader.nsamp, (double) resp[0]/1000000); 
         } // Loop on messages for this SNCL
+//        tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
+//        tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + 1;
         // Reality check
         if (kndx != kpts[k])
         {
