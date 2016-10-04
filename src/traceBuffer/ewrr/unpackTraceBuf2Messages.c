@@ -284,7 +284,7 @@ printf("%d %d %d\n", ir, i1, i2);
         // Reality check
         if (kndx != kpts[k])
         {
-            log_errorF("%s: Lost count\n", fcnm);
+            log_errorF("%s: Lost count %d %d\n", fcnm, kndx, kpts[k]);
             return -1;
         }
     } // Loop on pointers
