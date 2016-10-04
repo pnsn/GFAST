@@ -210,6 +210,7 @@ printf("sorting %d %d\n", i1, i2);
             tb2Data->traces[k].chunkPtr = ISCL_memory_calloc__int(nmsg[k]+1);
         }
     }
+printf("nReadPtr: %d\n", nReadPtr);
     // Unpack the traces
     for (ir=0; ir<nReadPtr; ir++)
     {
@@ -252,7 +253,6 @@ printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
             }
             // Update the points
             dt = 1.0/traceHeader.samprate;
-/*
             tb2Data->traces[k].dt = dt;
             // Is a new chunk beginning?
             if (im > i1)
@@ -273,7 +273,6 @@ printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
                 tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                                                  + (double) l*dt;
             }
-*/
             kndx = kndx + npts; 
  printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
                                 traceHeader.net, traceHeader.sta,
