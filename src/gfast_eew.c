@@ -137,6 +137,7 @@ int main(int argc, char **argv)
     }
     // Connect to the earthworm
 char configFile[PATH_MAX];
+    msgs = NULL;
     ierr = traceBuffer_ewrr_initialize(configFile,
                                        props.ew_props.gpsRingName,
                                        10,
@@ -165,6 +166,7 @@ char configFile[PATH_MAX];
         t0 = t1;
 printf("start\n");
         // Update my buffers
+        ISCL_memory_free__char(&msgs);
         msgs = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
                                                      false,
                                                      &ringInfo,
@@ -214,7 +216,6 @@ printf("end %d\n", nTracebufs2Read);
 printf("premature shut down\n");
 break;
 } 
-        ISCL_memory_free__char(&msgs);
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
         amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
@@ -269,6 +270,7 @@ break;
         }
     }
 ERROR:;
+    ISCL_memory_free__char(&msgs);
     traceBuffer_ewrr_finalize(&ringInfo);
     activeMQ_consumer_finalize(); 
     core_cmt_finalize(&props.cmt_props,

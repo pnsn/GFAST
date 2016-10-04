@@ -67,6 +67,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Nothing to do
     if (h5traces->ntraces == 0){return 0;}
     if (nRead == 0){return 0;}
+printf("%d\n", nRead);
     // Set the workspace
     msg   = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
     imap  = ISCL_memory_calloc__int(nRead+1);
@@ -168,7 +169,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             i1 = imapPtr[nReadPtr];
             i2 = imapPtr[nReadPtr+1];
             // Do a partial sort based on start times
-            nsort = i2 - i1 + 1;
+            nsort = i2 - i1;
             if (nsort > 1)
             {
 printf("sorting %d %d\n", i1, i2);
@@ -219,7 +220,7 @@ printf("sorting %d %d\n", i1, i2);
         i1 = imapPtr[ir];
         i2 = imapPtr[ir+1];
         k = imap[i1];
-printf("%d\n", ir);
+printf("%d %d %d\n", ir, i1, i2);
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
@@ -251,10 +252,12 @@ printf("%d\n", ir);
             {
                 log_errorF("%s: Error unpacking data\n", fcnm);
             }
- printf("%16.8f %s %s %s %s %d\n", traceHeader.starttime,
+            // Apply the gain
+            //
+ printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
                                 traceHeader.net, traceHeader.sta,
                                 traceHeader.chan, traceHeader.loc,
-                                traceHeader.nsamp); 
+                                traceHeader.nsamp, resp[0]/1000000); 
         }
     }
 
