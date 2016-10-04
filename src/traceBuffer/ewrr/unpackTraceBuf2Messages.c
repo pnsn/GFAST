@@ -215,7 +215,7 @@ printf("sorting %d %d\n", i1, i2);
         i1 = imapPtr[ir];
         i2 = imapPtr[ir+1];
         k = imap[i1];
-printf("%d %d %d\n", ir, i1, i2);
+//printf("%d %d %d\n", ir, i1, i2);
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
@@ -250,10 +250,12 @@ printf("%d %d %d\n", ir, i1, i2);
             }
             // Apply the gain
             //
+     /*
  printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
                                 traceHeader.net, traceHeader.sta,
                                 traceHeader.chan, traceHeader.loc,
                                 traceHeader.nsamp, resp[0]/1000000); 
+*/
         }
     }
 
