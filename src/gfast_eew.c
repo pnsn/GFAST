@@ -10,6 +10,9 @@
 
 #define MAX_MESSAGES 1024
 
+static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
+                               struct tb2Data_struct *tb2Data);
+
 /*!
  * @brief GFAST earthquake early warning driver routine
  *
@@ -22,6 +25,7 @@ int main(int argc, char **argv)
     struct GFAST_cmtResults_struct cmt;
     struct GFAST_ffResults_struct ff;
     struct h5traceBuffer_struct h5traceBuffer;
+    struct tb2Data_struct tb2Data;
     struct GFAST_offsetData_struct cmt_data, ff_data;
     struct GFAST_peakDisplacementData_struct pgd_data;
     struct GFAST_data_struct gps_data;
@@ -52,6 +56,7 @@ int main(int argc, char **argv)
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ringInfo, 0, sizeof(struct ewRing_struct)); 
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
+    memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
@@ -135,11 +140,16 @@ int main(int argc, char **argv)
         log_errorF("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
+    // Set up the SNCL's to target
+    ierr = settb2DataFromGFAST(gps_data, &tb2Data);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error setting tb2Data\n", fcnm);
+        goto ERROR;
+    }
     // Connect to the earthworm
-char configFile[PATH_MAX];
     msgs = NULL;
-    ierr = traceBuffer_ewrr_initialize(configFile,
-                                       props.ew_props.gpsRingName,
+    ierr = traceBuffer_ewrr_initialize(props.ew_props.gpsRingName,
                                        10,
                                        &ringInfo);
     // Flush the buffer
@@ -203,7 +213,7 @@ printf("start\n");
         }
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
-                                                        msgs, &h5traceBuffer);
+                                                        msgs, &tb2Data);
         if (ierr != 0)
         {
             log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
@@ -271,6 +281,7 @@ break;
     }
 ERROR:;
     ISCL_memory_free__char(&msgs);
+    traceBuffer_ewrr_freetb2Data(&tb2Data);
     traceBuffer_ewrr_finalize(&ringInfo);
     activeMQ_consumer_finalize(); 
     core_cmt_finalize(&props.cmt_props,
@@ -292,4 +303,53 @@ ERROR:;
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
+}
+//============================================================================//
+/*!
+ * @brief Sets the tb2Data structure and desired SNCL's from the input gpsData
+ *
+ * @param[in] gpsData      holds the GPS SNCL's GFAST is interested in
+ *
+ * @param[out] tb2Data     on output has space allocated and has a target
+ *                         list of SNCL's for message reading from the 
+ *                         earthworm data ring 
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
+static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
+                               struct tb2Data_struct *tb2Data)
+{
+    const char *fcnm = "settb2DataFromH5TraceBuffer\0";
+    int i, it, k;
+    if (gpsData.stream_length == 0)
+    {
+        log_errorF("%s: Error no data to copy\n", fcnm);
+        return -1;
+    }
+    if (tb2Data->linit)
+    {
+        log_errorF("%s: Error tb2Data already set\n", fcnm);
+        return -1;
+    }
+    tb2Data->ntraces = 3*gpsData.stream_length;
+    tb2Data->traces = (struct tb2Trace_struct *)
+                      calloc( (size_t) tb2Data->ntraces,
+                              sizeof(struct tb2Trace_struct) );
+    it = 0;
+    for (k=0; k<gpsData.stream_length; k++)
+    {
+        for (i=0; i<3; i++)
+        {
+            strcpy(tb2Data->traces[it].netw, gpsData.data[k].netw);
+            strcpy(tb2Data->traces[it].stnm, gpsData.data[k].stnm);
+            strcpy(tb2Data->traces[it].chan, gpsData.data[k].chan[i]);
+            strcpy(tb2Data->traces[it].loc,  gpsData.data[k].loc); 
+            it = it + 1;
+        }
+    }
+    tb2Data->linit = true;
+    return 0;
 }

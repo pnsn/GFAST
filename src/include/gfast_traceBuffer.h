@@ -69,6 +69,31 @@ struct ewRing_struct
 };
 #endif
 
+struct tb2Trace_struct
+{
+    char netw[64];      /*!< Network name */
+    char stnm[64];      /*!< Station name */
+    char chan[64];      /*!< Channel name */
+    char loc[64];       /*!< Location name */
+    double *times;      /*!< Epochal times (UTC seconds) at each point data
+                             point [npts] */
+    int *data;          /*!< Data [npts] */
+    int *chunkPtr;      /*!< Points to first index of continuous trace
+                             [nchunks+1].  The first index should be zero and 
+                             the last index should be npts. */
+    double dt;          /*!< Sampling period (s) */
+    int nchunks;        /*!< Number of chunks */
+    int npts;           /*!< Number of points in times and data */
+};
+
+struct tb2Data_struct
+{
+    struct tb2Trace_struct *traces; /*!< Concatenated traces */
+    int ntraces;                    /*!< Number of traces */
+    bool linit;                     /*!< If true thne the structure is 
+                                         initialized. */
+};
+
 struct h5trace_struct
 {
     char netw[64];        /*!< Network name for forming earthworm requests */
@@ -126,8 +151,7 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
                                             struct ewRing_struct *ringInfo,
                                             int *nRead, int *ierr);
 /* Initialize the earthworm ring reader connection */
-int traceBuffer_ewrr_initialize(const char *configFile,
-                                const char *ewRing,
+int traceBuffer_ewrr_initialize(const char *ewRing,
                                 const int msWait,
                                 struct ewRing_struct *ringInfo);
 
@@ -137,11 +161,23 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval);
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
 /* Finalize earthworm ring reader */
 int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
+/* Frees memory on the tb2data structure */
+void traceBuffer_ewrr_freetb2Data(struct tb2Data_struct *tb2data);
+/* Frees memory on the tb2data trace structure */
+void traceBfufer_ewrr_freetb2Trace(const bool clearSNCL,
+                                   struct tb2Trace_struct *trace);
+/* Set the SNCLs of messages we'll retain */
+int traceBuffer_ewrr_settb2Data(const int ntraces,
+                                const char **nets,
+                                const char **stats,
+                                const char **chans,
+                                const char **locs,
+                                struct tb2Data_struct *tb2data);
 /* Unpack messages */
 int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int nRead,
     const char *msgs,
-    struct h5traceBuffer_struct *h5traces);
+    struct tb2Data_struct *tb2Data);
 
 /* Sets data in h5 file */
 int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer);

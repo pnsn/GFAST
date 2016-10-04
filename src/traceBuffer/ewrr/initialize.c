@@ -12,17 +12,6 @@
 #include "iscl/log/log.h"
 
 
-typedef struct  
-{
-   unsigned char GetThisInstId;   /*!< Get messages from this inst id */
-   unsigned char GetThisModId;    /*!< Get messages from this module */
-   unsigned char MyInstId;        /*!< Local installation */
-   unsigned char TypeError;       /*!< Error message id */
-   unsigned char TypeHeartBeat;   /*!< Heartbeat message id */
-   unsigned char TypeHypoTWC;     /*!< Hypocenter message - TWC format*/
-   unsigned char TypeWaveform;    /*!< Earthworm waveform messages */
-} EWH;
-
 /*!
  * @brief Initializes tracebuf2 ring reader
  *
@@ -40,13 +29,11 @@ typedef struct
  * @copyright Apache 2
  *
  */
-int traceBuffer_ewrr_initialize(const char *configFile,
-                                const char *ewRing,
+int traceBuffer_ewrr_initialize(const char *ewRing,
                                 const int msWait,
                                 struct ewRing_struct *ringInfo)
 {
     const char *fcnm = "traceBuffer_ewrr_initialize\0";
-    char fullTablePath[PATH_MAX];
     // Check the inputs
     if (ringInfo == NULL)
     {
@@ -67,19 +54,6 @@ int traceBuffer_ewrr_initialize(const char *configFile,
     }
     ringInfo->msWait = 0;
     if (msWait > 0){ringInfo->msWait = (unsigned int) msWait;}
-    // Environmental parameter to read stations
-    memset(fullTablePath, 0, sizeof(fullTablePath));
-#ifdef _WINNT
-    char *paramdir = getenv("EW_PARAMS"); 
-    if (paramdir == (char *) NULL)
-    {
-        log_errorF("%s: Failed to get the environment\n", fcnm);
-        return -1;    
-    }
-    sprintf(fullTablePath, "%s\\%s", paramdir, configFile);
-#else
-    sprintf(fullTablePath, "%s", configFile);
-#endif
     // Attach to the ring
     ringInfo->ringKey = GetKey(ringInfo->ewRingName);
     if (ringInfo->ringKey ==-1)
@@ -133,6 +107,7 @@ int traceBuffer_ewrr_initialize(const char *configFile,
     return 0;
 }
 
+/*
 int GetEwh( EWH *Ewh )
 {
    if ( GetLocalInst( &Ewh->MyInstId ) != 0 )
@@ -172,3 +147,4 @@ int GetEwh( EWH *Ewh )
    }
    return 0;
 }
+*/

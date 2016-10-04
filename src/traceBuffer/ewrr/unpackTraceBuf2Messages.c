@@ -10,25 +10,25 @@
 
 static void fastUnpackI4(const int npts, const int lswap,
                          const char *__restrict__ msg,
-                         double *__restrict__ resp);
+                         int *__restrict__ resp);
 static void fastUnpackI2(const int npts, const int lswap,
                          const char *__restrict__ msg,
-                         double *__restrict__ resp);
+                         int *__restrict__ resp);
 static int fastUnpack(const int npts, const int lswap,
                       const int type,
                       const char *__restrict__ msg,
-                      double *__restrict__ resp);
+                      int *__restrict__ resp);
 
 /*!
- * @brief Unpacks the tracebuf2 message and returns the data for
- *        the desired SNCL's in the h5traces struct
+ * @brief Unpacks the tracebuf2 messages read from the ring and returns
+ *        the concatenated data for the desired SNCL's in the tb2Data struct
  *
  * @param[in] nRead          number of traces read off the ring
  * @param[in] msgs           tracebuf2 messages read off ring.  the i'th message
  *                           is given by (i-1)*MAX_TRACEBUF_SIZ for
  *                           i=1,2,...,nRead
  *
- * @param[in,out] h5traces   on input contains the desired SNCL's whose data 
+ * @param[in,out] tb2Data    on input contains the desired SNCL's whose data 
  *                           will be unpacked from the header (should it be
  *                           present).  
  *                           on output contains the data in the messages for
@@ -45,27 +45,28 @@ static int fastUnpack(const int npts, const int lswap,
 int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int nRead,
     const char *msgs,
-    struct h5traceBuffer_struct *h5traces)
+    struct tb2Data_struct *tb2Data)
 {
     const char *fcnm = "traceBuffer_ewrr_unpackTraceBuf2Messages\0";
     char *msg, netw[64], stat[64], chan[64], loc[64];
     TRACE2_HEADER traceHeader;
     //long *longData;
     //short *shortData;
-    double *resp, *times, dt;
-    int *imap, *imapPtr, *imsg, *iperm, *kpts,
+    double *times;
+    int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
         dtype, i, i1, i2, ierr, im, indx, ir, k, lswap, nReadPtr, nsamp0, npts, nsort;
-    const int maxpts = MAX_TRACEBUF_SIZ/8;
+    const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
+    const bool clearSNCL = true; 
     //------------------------------------------------------------------------//
     //
-    // Check the h5traces was initialized
-    if (!h5traces->linit)
+    // Check the tb2data was initialized
+    if (!tb2Data->linit)
     {
-        log_errorF("%s: h5traces never initialized\n", fcnm);
+        log_errorF("%s: tb2Data never initialized\n", fcnm);
         return -1;
-    } 
+    }
     // Nothing to do
-    if (h5traces->ntraces == 0){return 0;}
+    if (tb2Data->ntraces == 0){return 0;}
     if (nRead == 0){return 0;}
 printf("%d\n", nRead);
     // Set the workspace
@@ -73,23 +74,24 @@ printf("%d\n", nRead);
     imap  = ISCL_memory_calloc__int(nRead+1);
     imsg  = ISCL_memory_calloc__int(nRead);
     iperm = ISCL_memory_calloc__int(nRead);
-    kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
+    kpts  = ISCL_memory_calloc__int(tb2Data->ntraces);
+    nmsg  = ISCL_memory_calloc__int(tb2Data->ntraces);
     imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
     times = ISCL_memory_calloc__double(nRead);
-    resp  = ISCL_memory_calloc__double(maxpts);
-    for (i=0; i<nRead+1; i++){imap[i] = h5traces->ntraces + 1;}
+    resp  = ISCL_memory_calloc__int(maxpts);
+    for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
     // Loop on waveforms and get workspace count
-    for (k=0; k<h5traces->ntraces; k++)
+    for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
         memset(netw, 0, sizeof(netw));
         memset(stat, 0, sizeof(stat));
         memset(chan, 0, sizeof(chan));
         memset(loc,  0, sizeof(loc));
-        strcpy(netw, h5traces->traces[k].netw);
-        strcpy(stat, h5traces->traces[k].stnm);
-        strcpy(chan, h5traces->traces[k].chan); 
-        strcpy(loc,  h5traces->traces[k].loc);
+        strcpy(netw, tb2Data->traces[k].netw);
+        strcpy(stat, tb2Data->traces[k].stnm);
+        strcpy(chan, tb2Data->traces[k].chan); 
+        strcpy(loc,  tb2Data->traces[k].loc);
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
         {
@@ -110,7 +112,7 @@ printf("%d\n", nRead);
                 (strcasecmp(chan, traceHeader.chan) == 0) &&
                 (strcasecmp(loc,  traceHeader.loc)  == 0))
             {
-                if (imap[i] < h5traces->ntraces + 1)
+                if (imap[i] < tb2Data->ntraces + 1)
                 {
                     log_errorF("%s: Error multiply mapped wave\n", fcnm);
                     return -1;
@@ -126,14 +128,8 @@ printf("%d\n", nRead);
                 }
                 times[i] = traceHeader.starttime;
                 kpts[k] = kpts[k] + traceHeader.nsamp;
-                // Verify the sampling periods are consistent
-                dt = 1.0/traceHeader.samprate;
-//printf("match %d %d %d %d\n", i, k, nRead, h5traces->ntraces);
-                if (fabs(h5traces->traces[k].dt - dt) > 1.e-5)
-                {
-                    log_errorF("%s: Sampling period mismatch %f %f\n",
-                               fcnm, dt, h5traces->traces[k].dt);
-                }
+                nmsg[k] = nmsg[k] + 1;
+//printf("match %d %d %d %d\n", i, k, nRead, tb2Data->ntraces);
                 //longData  = (long *)  (msg + sizeof(TRACE2_HEADER));
                 //shortData = (short *) (msg + sizeof(TRACE2_HEADER));
                 break;
@@ -202,11 +198,14 @@ printf("sorting %d %d\n", i1, i2);
         }
     }
     // Now set the workspace
-    for (k=0; k<h5traces->ntraces; k++)
+    for (k=0; k<tb2Data->ntraces; k++)
     {
+        traceBfufer_ewrr_freetb2Trace(clearSNCL, &tb2Data->traces[k]);
         if (kpts[k] > 0)
         {
-            //h5traces->traces[k].data = ISCL_memory_calloc__double(kpts[k]);
+            tb2Data->traces[k].data  = ISCL_memory_calloc__int(kpts[k]);
+            tb2Data->traces[k].times = ISCL_memory_calloc__double(kpts[k]);
+            tb2Data->traces[k].chunkPtr = ISCL_memory_calloc__int(nmsg[k]+1);
         }
     }
     // Unpack the traces
@@ -248,14 +247,12 @@ printf("%d %d %d\n", ir, i1, i2);
             {
                 log_errorF("%s: Error unpacking data\n", fcnm);
             }
-            // Apply the gain
-            //
  printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
                                 traceHeader.net, traceHeader.sta,
                                 traceHeader.chan, traceHeader.loc,
-                                traceHeader.nsamp, resp[0]/1000000); 
+                                traceHeader.nsamp, (double) resp[0]/1000000); 
         }
-    }
+    } // Loop on pointers
 
     // Free space
     ISCL_memory_free__char(&msg);
@@ -263,8 +260,9 @@ printf("%d %d %d\n", ir, i1, i2);
     ISCL_memory_free__int(&imsg);
     ISCL_memory_free__int(&iperm);
     ISCL_memory_free__int(&kpts);
+    ISCL_memory_free__int(&nmsg);
+    ISCL_memory_free__int(&resp);
     ISCL_memory_free__double(&times);
-    ISCL_memory_free__double(&resp);
     ISCL_memory_free__int(&imapPtr);
     return 0;
 }
@@ -286,7 +284,7 @@ printf("%d %d %d\n", ir, i1, i2);
  */
 static void fastUnpackI4(const int npts, const int lswap,
                          const char *__restrict__ msg,
-                         double *__restrict__ resp)
+                         int *__restrict__ resp)
 {
     const int ioff = (int) (sizeof(TRACE2_HEADER));
     char c4[4];
@@ -301,7 +299,7 @@ static void fastUnpackI4(const int npts, const int lswap,
             c4[2] = msg[ioff+4*i+2]; 
             c4[3] = msg[ioff+4*i+3];
             memcpy(&i4, c4, sizeof(int));
-            resp[i] = (double) i4; 
+            resp[i] = (int) i4; 
         }
     }
     else
@@ -314,7 +312,7 @@ static void fastUnpackI4(const int npts, const int lswap,
             c4[1] = msg[ioff+4*i+2]; 
             c4[0] = msg[ioff+4*i+3];
             memcpy(&i4, c4, sizeof(int));
-            resp[i] = (double) i4;
+            resp[i] = (int) i4;
         }
     }
     return;
@@ -337,7 +335,7 @@ static void fastUnpackI4(const int npts, const int lswap,
  */
 static void fastUnpackI2(const int npts, const int lswap,
                          const char *__restrict__ msg,
-                         double *__restrict__ resp)
+                         int *__restrict__ resp)
 {
     const int ioff = (int) (sizeof(TRACE2_HEADER));
     char c2[2];
@@ -351,7 +349,7 @@ static void fastUnpackI2(const int npts, const int lswap,
             c2[0] = msg[ioff+2*i+0];
             c2[1] = msg[ioff+2*i+1];
             memcpy(&i2, c2, sizeof(short));
-            resp[i] = (double) i2;
+            resp[i] = (int) i2;
         }
     }
     else
@@ -362,7 +360,7 @@ static void fastUnpackI2(const int npts, const int lswap,
             c2[1] = msg[ioff+2*i+0];
             c2[0] = msg[ioff+2*i+1]; 
             memcpy(&i2, c2, sizeof(short));
-            resp[i] = (double) i2;
+            resp[i] = (int) i2;
         }
     }   
     return;
@@ -388,7 +386,7 @@ static void fastUnpackI2(const int npts, const int lswap,
 static int fastUnpack(const int npts, const int lswap,
                       const int dtype,
                       const char *__restrict__ msg,
-                      double *__restrict__ resp)
+                      int *__restrict__ resp)
 {
     const char *fcnm = "fastUnpack\0";
     if (npts < 1){return 0;} // Nothing to do

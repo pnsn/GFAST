@@ -2,7 +2,10 @@ add_sources(
 classifyRetval.c
 finalize.c
 flushRing.c
+freetb2Data.c
+freetb2Trace.c
 getTraceBuf2Messages.c
 initialize.c
+settb2Data.c
 unpackTraceBuf2Messages.c
 )
