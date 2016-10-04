@@ -57,7 +57,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l,
         lswap, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
-    const bool clearSNCL = true; 
+    const bool clearSNCL = false;
     //------------------------------------------------------------------------//
     //
     // Check the tb2data was initialized
@@ -141,6 +141,7 @@ printf("%d\n", nRead);
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
     // will be faster
+printf("%d\n", nRead);
     imap[nRead] =-1;
     ierr = ISCL__sorting_argsort__int(nRead, imap, ASCENDING, iperm);
     if (ierr != 0)
@@ -157,6 +158,7 @@ printf("%d\n", nRead);
     nReadPtr = 0;
     for (i=0; i<nRead; i++)
     {
+printf("%d\n", imap[i]);
         if (imap[i] == tb2Data->ntraces + 1){break;} // Out of things to do 
         // update next station
         if (imap[i+1] != imap[i])

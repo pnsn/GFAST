@@ -53,8 +53,8 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
     char *msg, *msgs, *msgWork;
     unsigned char sequenceNumber;
     long gotSize;
-    int kdx, ncopy, nwork, retval;
-    size_t nbytes, npcopy;
+    int kdx, nblock, ncopy, nwork, retval;
+    size_t nbytes; //, npcopy;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
@@ -86,6 +86,7 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
     // Set space
     msgs = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ*messageBlock);
     msg  = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
+    nblock = 1;
     // Unpack the ring
     while (true)
     {
@@ -129,21 +130,21 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
             {
                 nbytes = sizeof(short);
             }
-            npcopy = (size_t) ( sizeof(TRACE2_HEADER)*sizeof(char)
-                              + (size_t) (traceHeader.nsamp)*nbytes);
+            //npcopy = (size_t) ( sizeof(TRACE2_HEADER)*sizeof(char)
+            //                  + (size_t) (traceHeader.nsamp)*nbytes);
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
-            memcpy(&msgs[kdx], msg, npcopy); //MAX_TRACEBUF_SIZ*sizeof(char));
+            memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
             // Reallocate space 
             *nRead = *nRead + 1;
-            if (*nRead == messageBlock)
+            if (*nRead == messageBlock*nblock)
             {
                 if (showWarnings)
                 {
                     log_warnF("%s: Reallocating msgs block\n", fcnm);
                 }
                 // get workspace sizes
-                nwork = MAX_TRACEBUF_SIZ*(*nRead + messageBlock);
+                nwork = MAX_TRACEBUF_SIZ*(*nRead + nblock*messageBlock);
                 ncopy = MAX_TRACEBUF_SIZ*(*nRead);
                 // set workspace and copy old messages
                 msgWork = ISCL_memory_calloc__char(ncopy);
@@ -154,6 +155,8 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
                 // copy back and free workspace
                 memcpy(msgs, msgWork, (size_t) ncopy);
                 ISCL_memory_free__char(&msgWork);
+                // Update block alloc
+                nblock = nblock + 1;
             }
         }
         // End of ring - time to leave
