@@ -175,6 +175,7 @@ int main(int argc, char **argv)
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
 printf("start\n");
+double tbeger = ISCL_time_timeStamp();
         // Update my buffers
         ISCL_memory_free__char(&msgs);
         msgs = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
@@ -211,6 +212,8 @@ printf("start\n");
             log_warnF("%s: No data acquired - skipping\n", fcnm);
             continue;
         }
+printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
+tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
@@ -219,7 +222,7 @@ printf("start\n");
             log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
             goto ERROR;
         }
-printf("end %d\n", nTracebufs2Read);
+printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 // early quit
  if (t1 - tbeg > 5)
 {
