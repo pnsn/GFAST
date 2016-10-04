@@ -52,9 +52,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     TRACE2_HEADER traceHeader;
     //long *longData;
     //short *shortData;
-    double *times;
+    double *times, dt;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
-        dtype, i, i1, i2, ierr, im, indx, ir, k, lswap, nReadPtr, nsamp0, npts, nsort;
+        dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l,
+        lswap, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = true; 
     //------------------------------------------------------------------------//
@@ -214,6 +215,7 @@ printf("sorting %d %d\n", i1, i2);
         i1 = imapPtr[ir];
         i2 = imapPtr[ir+1];
         k = imap[i1];
+        kndx = 0;
 printf("%d %d %d\n", ir, i1, i2);
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
@@ -247,10 +249,39 @@ printf("%d %d %d\n", ir, i1, i2);
             {
                 log_errorF("%s: Error unpacking data\n", fcnm);
             }
+            // Update the points
+            dt = 1.0/traceHeader.samprate; 
+            tb2Data->traces[k].dt = dt;
+            // Is a new chunk beginning?
+            if (im > i1)
+            {
+                if (fabs( (tb2Data->traces[k].times[kndx] + dt)
+                        - traceHeader.starttime - dt ) < 1.e-6)
+                {
+                    tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] =
+                          kndx + 1;
+                }
+            }
+            // Update the points
+            #pragma omp simd
+            for (l=0; l<npts; l++)
+            {
+                tb2Data->traces[k].data[kndx+l] = resp[l]; 
+                tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
+                                                 + (double) l*dt;
+            }
+            kndx = kndx + npts; 
  printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
                                 traceHeader.net, traceHeader.sta,
                                 traceHeader.chan, traceHeader.loc,
                                 traceHeader.nsamp, (double) resp[0]/1000000); 
+        } // Loop on messages for this SNCL
+        // Reality check
+        if (kndx != kpts[k])
+        {
+            log_errorF("%s: Lost count\n", fcnm);
+            return -1;
         }
     } // Loop on pointers
 
