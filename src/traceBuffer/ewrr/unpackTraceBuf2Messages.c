@@ -53,8 +53,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //long *longData;
     //short *shortData;
     double *resp, *times, dt;
-    int *imap, *imapPtr, *imsg, *iperm, *kpts, *npts,
-        dtype, i, i1, i2, ierr, im, indx, ir, k, lswap, nReadPtr, nsamp0, nsort;
+    int *imap, *imapPtr, *imsg, *iperm, *kpts,
+        dtype, i, i1, i2, ierr, im, indx, ir, k, lswap, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/8;
     //------------------------------------------------------------------------//
     //
@@ -72,7 +72,6 @@ printf("%d\n", nRead);
     msg   = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
     imap  = ISCL_memory_calloc__int(nRead+1);
     imsg  = ISCL_memory_calloc__int(nRead);
-    npts  = ISCL_memory_calloc__int(nRead); 
     iperm = ISCL_memory_calloc__int(nRead);
     kpts  = ISCL_memory_calloc__int(h5traces->ntraces);
     imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
@@ -118,11 +117,11 @@ printf("%d\n", nRead);
                 }
                 imap[i] = k;
                 imsg[i] = i;
-                npts[i] = traceHeader.nsamp;
-                if (npts[i] < 0 || npts[i] > maxpts)
+                npts = traceHeader.nsamp;
+                if (npts < 0 || npts > maxpts)
                 {
                     log_errorF("%s: Invalid number of points %d %d\n",
-                               fcnm, npts[i], maxpts);
+                               fcnm, npts, maxpts);
                     return -1;
                 }
                 times[i] = traceHeader.starttime;
@@ -155,7 +154,6 @@ printf("%d\n", nRead);
     // Apply the permutations
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imap,  imap);
     ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imsg,  imsg);
-    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, npts,  npts);
     ierr = ISCL__sorting_applyPermutation__double(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
@@ -190,9 +188,6 @@ printf("sorting %d %d\n", i1, i2);
                     ISCL__sorting_applyPermutation__int(nsort, iperm,
                                                         &imsg[i1],
                                                         &imsg[i1]);
-                    ISCL__sorting_applyPermutation__int(nsort, iperm,
-                                                        &npts[i1],
-                                                        &npts[i1]);
                     ISCL__sorting_applyPermutation__double(nsort, iperm,
                                                            &times[i1],
                                                            &times[i1]);
@@ -247,7 +242,8 @@ printf("%d %d %d\n", ir, i1, i2);
             }
             lswap = 0;
             if (nsamp0 != traceHeader.nsamp){lswap = 1;}
-            ierr = fastUnpack(npts[i], lswap, dtype, &msgs[indx], resp);
+            npts = traceHeader.nsamp;
+            ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
             if (ierr != 0)
             {
                 log_errorF("%s: Error unpacking data\n", fcnm);
@@ -265,7 +261,6 @@ printf("%d %d %d\n", ir, i1, i2);
     ISCL_memory_free__char(&msg);
     ISCL_memory_free__int(&imap);
     ISCL_memory_free__int(&imsg);
-    ISCL_memory_free__int(&npts);
     ISCL_memory_free__int(&iperm);
     ISCL_memory_free__int(&kpts);
     ISCL_memory_free__double(&times);
