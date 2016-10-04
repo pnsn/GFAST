@@ -53,8 +53,8 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
     char *msg, *msgs, *msgWork;
     unsigned char sequenceNumber;
     long gotSize;
-    int kdx, nbytes, ncopy, nwork, retval;
-    size_t npcopy;
+    int kdx, ncopy, nwork, retval;
+    size_t nbytes, npcopy;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
@@ -123,14 +123,14 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
                 *ierr =-2;
                 return msgs;
             }
-            nbytes = 4;
+            nbytes = sizeof(int); 
             if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
                 strcasecmp(traceHeader.datatype, "i2\0") == 0)
             {
-                nbytes = 2;
+                nbytes = sizeof(short);
             }
             npcopy = (size_t) ( MAX_TRACEBUF_SIZ*sizeof(char)
-                              + (size_t) (traceHeader.nsamp*nbytes));
+                              + (size_t) (traceHeader.nsamp)*nbytes);
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
             memcpy(&msgs[kdx], msg, npcopy); //MAX_TRACEBUF_SIZ*sizeof(char));
