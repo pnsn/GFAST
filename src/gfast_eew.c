@@ -355,7 +355,7 @@ static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
     }
     if (it != tb2Data->ntraces)
     {
-        log_errorF("%s: Lost count\n", fcnm);
+        log_errorF("%s: Lost count %d %d\n", fcnm, it, tb2Data->ntraces);
         return -1;
     }
     tb2Data->linit = true;
