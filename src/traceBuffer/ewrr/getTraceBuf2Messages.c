@@ -129,7 +129,7 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
             {
                 nbytes = sizeof(short);
             }
-            npcopy = (size_t) ( MAX_TRACEBUF_SIZ*sizeof(char)
+            npcopy = (size_t) ( sizeof(TRACE2_HEADER)*sizeof(char)
                               + (size_t) (traceHeader.nsamp)*nbytes);
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
