@@ -216,7 +216,7 @@ printf("sorting %d %d\n", i1, i2);
         i2 = imapPtr[ir+1];
         k = imap[i1];
         kndx = 0;
-printf("%d %d %d\n", ir, i1, i2);
+printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
