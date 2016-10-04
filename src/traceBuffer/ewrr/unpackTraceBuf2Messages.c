@@ -157,6 +157,7 @@ printf("%d\n", nRead);
     nReadPtr = 0;
     for (i=0; i<nRead; i++)
     {
+        if (imap[i] == tb2Data->ntraces + 1){break;} // Out of things to do 
         // update next station
         if (imap[i+1] != imap[i])
         {
