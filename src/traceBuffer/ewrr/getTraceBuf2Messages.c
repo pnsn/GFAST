@@ -49,10 +49,12 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
 {
     const char *fcnm = "traceBuffer_ewrr_getgetTraceBuf2Messages\0";
     MSG_LOGO gotLogo; 
+    TRACE2_HEADER traceHeader;
     char *msg, *msgs, *msgWork;
     unsigned char sequenceNumber;
     long gotSize;
-    int kdx, ncopy, nwork, retval;
+    int kdx, nbytes, ncopy, nwork, retval;
+    size_t npcopy;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
@@ -112,9 +114,26 @@ char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
         // Verify i want this message
         if (gotLogo.type == ringInfo->traceBuffer2Type)
         {
+            // Get the header
+            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+            *ierr = WaveMsg2MakeLocal(&traceHeader);
+            if (*ierr < 0)
+            {
+                log_errorF("%s: Error flipping bytes\n", fcnm);
+                *ierr =-2;
+                return msgs;
+            }
+            nbytes = 4;
+            if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
+                strcasecmp(traceHeader.datatype, "i2\0") == 0)
+            {
+                nbytes = 2;
+            }
+            npcopy = (size_t) ( MAX_TRACEBUF_SIZ*sizeof(char)
+                              + (size_t) (traceHeader.nsamp*nbytes));
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
-            memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
+            memcpy(&msgs[kdx], msg, npcopy); //MAX_TRACEBUF_SIZ*sizeof(char));
             // Reallocate space 
             *nRead = *nRead + 1;
             if (*nRead == messageBlock)
