@@ -259,7 +259,7 @@ else()
                         ${LIBXML2_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
-   target_link_libraries(unit_tests/xcmopad cmopad_shared ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY} -lm -ldl -lpthread)
+   target_link_libraries(unit_tests/xcmopad cmopad_shared ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY} -lm -ldl -lpthread -lgfortran)
  endif(IPP_FOUND)
 endif(MKL_FOUND)
 
