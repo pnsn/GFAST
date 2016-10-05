@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
 PROJECT(GFAST C CXX)
+enable_testing()
+
 # Add modules for finding requisites
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules)
+# For testing
 find_package(MKL)
 if (MKL_FOUND)
 
@@ -96,6 +99,8 @@ add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 add_executable(gfast_playback gfast_playback.c ${SRCS_EEW} ${SRCS_H5TB})
 add_executable(gfast_eew gfast_eew.c ${SRCS_EEW} ${SRCS_H5TB})
 
+add_executable(unit_tests/xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
+
 if (MKL_FOUND)
  if (IPP_FOUND)
   message(${ISCL_LIBRARY})
@@ -184,6 +189,7 @@ if (MKL_FOUND)
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
  endif(IPP_FOUND)
+ target_link_libraries(unit_tests/xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
 else()
  if (IPP_FOUND)
   target_link_libraries(gfast_eew
@@ -253,8 +259,11 @@ else()
                         ${LIBXML2_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
+   target_link_libraries(unit_tests/xcmopad cmopad_shared ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY} -lm -ldl -lpthread)
  endif(IPP_FOUND)
 endif(MKL_FOUND)
+
+add_test(cmopadTest unit_tests/xcmopad)
 
 set(CPACK_PACKAGE_NAME "GFAST")
 set(CPACK_PACKAGE_VENDOR "PNSN")
