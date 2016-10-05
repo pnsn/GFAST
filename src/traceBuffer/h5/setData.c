@@ -1,12 +1,107 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <float.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+int traceBuffer_h5_setData(const double currentTime,
+                           struct tb2Data_struct tb2Data,
+                           struct h5traceBuffer_struct h5traceBuffer)
+{
+    const char *fcnm = "traceBuffer_h5_setData\0";
+    double *dwork;
+    int nwork;
+    int *map, i, ierr, k;
+    bool *lhaveData;
+    // Require both items are set
+    if (!tb2Data.linit || !h5traceBuffer.linit)
+    {
+        if (!tb2Data.linit){log_errorF("%s: Error tb2Data not set\n", fcnm);}
+        if (!h5traceBuffer.linit)
+        {
+            log_errorF("%s: h5traceBuffer not set\n", fcnm);
+        }
+        return -1;
+    }
+    // Nothing to do
+    if (h5traceBuffer.ntraces < 1)
+    {
+        return 0;
+    }
+    // Make a map from the HDF5 trace buffer to the tracebuffer2 data
+    map = ISCL_array_set__int(h5traceBuffer.ntraces, -1, &ierr);
+    lhaveData = ISCL_memory_calloc__bool(h5traceBuffer.ntraces);
+    for (i=0; i<h5traceBuffer.ntraces; i++)
+    {
+        // Take an educated guess
+        if (i < tb2Data.ntraces)
+        {
+            if ((strcasecmp(h5traceBuffer.traces[i].netw,
+                                  tb2Data.traces[i].netw) == 0) &&
+                (strcasecmp(h5traceBuffer.traces[i].stnm,
+                                  tb2Data.traces[i].stnm) == 0) && 
+                (strcasecmp(h5traceBuffer.traces[i].chan,
+                                  tb2Data.traces[i].chan) == 0) &&
+                (strcasecmp(h5traceBuffer.traces[i].loc,
+                                  tb2Data.traces[i].loc)  == 0))
+            {
+                map[i] = i;
+                if (tb2Data.traces[i].npts > 0)
+                {
+                    lhaveData[i] = true; 
+                }
+                goto NEXT_TRACE; 
+            }
+        }
+        // Hunt through the tracebuffers
+        for (k=0; k<tb2Data.ntraces; k++)
+        {
+            if ((strcasecmp(h5traceBuffer.traces[i].netw,
+                                  tb2Data.traces[k].netw) == 0) &&
+                (strcasecmp(h5traceBuffer.traces[i].stnm,
+                                  tb2Data.traces[k].stnm) == 0) &&  
+                (strcasecmp(h5traceBuffer.traces[i].chan,
+                                  tb2Data.traces[k].chan) == 0) &&
+                (strcasecmp(h5traceBuffer.traces[i].loc,
+                                  tb2Data.traces[k].loc)  == 0)) 
+            {   
+                map[i] = k;
+                if (tb2Data.traces[i].npts > 0)
+                {
+                    lhaveData[i] = true;
+                }
+                goto NEXT_TRACE;
+            }
+        }
+NEXT_TRACE:;
+    } 
+    // Push the current H5 archive to the current time and, if possible, add
+    // the new data
+    for (k=0; k<h5traceBuffer.ntraces; k++)
+    {
+        dwork = NULL;
+        // Get the current time
+
+        // Push the data
+        if (lhaveData[k])
+        {
+            nwork = (int) ((currentTime - tb2Data.traces[k].times[0])
+                          /h5traceBuffer.traces[i].dt + 0.5) + 1;
+            dwork = ISCL_array_set__double(nwork, (double) NAN, &ierr);
+          
+        }
+        ISCL_memory_free__double(&dwork);
+    }
+    // Free memory
+    ISCL_memory_free__int(&map);
+    ISCL_memory_free__bool(&lhaveData);
+    return 0;
+}
 /*!
  * @brief Writes the data on the h5traceBuffer to the HDF5 archive
  *
@@ -16,7 +111,7 @@
  * @result 0 indicates success
  *
  */
-int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer)
+int traceBuffer_h5_setData2(struct h5traceBuffer_struct *h5traceBuffer)
 {
     const char *fcnm = "traceBuffer_h5_setData\0";
     double dt, dt0, dtH5, t1, t2, tmaxH5, tmaxH50, tmaxIn, ts1,ts1Min, 

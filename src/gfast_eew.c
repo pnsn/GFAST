@@ -223,6 +223,15 @@ tbeger = ISCL_time_timeStamp();
             goto ERROR;
         }
 printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
+        // Update the hdf5 buffers
+        ierr = traceBuffer_h5_setData(t1,
+                                      tb2Data,
+                                      h5traceBuffer);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Error setting data in H5 file\n", fcnm);
+            goto ERROR;
+        }
 // early quit
  if (t1 - tbeg > 5)
 {

@@ -180,7 +180,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     struct tb2Data_struct *tb2Data);
 
 /* Sets data in h5 file */
-int traceBuffer_h5_setData(struct h5traceBuffer_struct *h5traceBuffer);
+int traceBuffer_h5_setData(const double currentTime,
+                           struct tb2Data_struct tb2Data,
+                           struct h5traceBuffer_struct h5traceBuffer);
 /* Copies the trace buffer to the GFAST structure */
 int traceBuffer_h5_copyTraceBufferToGFAST(
     struct h5traceBuffer_struct *traceBuffer,
