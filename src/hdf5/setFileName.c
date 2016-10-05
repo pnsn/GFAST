@@ -27,7 +27,7 @@ int hdf5_setFileName(const char *adir,
 {
     const char *fcnm = "hdf5_setFileName\0";
     int ierr;
-    unsigned long lenos;
+    size_t lenos;
     ierr = 0;
     memset(fname, 0, PATH_MAX*sizeof(char));
     if (evid == NULL)

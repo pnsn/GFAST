@@ -65,7 +65,7 @@ int hdf5_initialize(const char *adir,
     {
         ifl = fopen(propfilename, "rb");
         fseek(ifl, 0L, SEEK_END);
-        lsize = (unsigned long) (ftell(ifl));
+        lsize = (size_t) (ftell(ifl));
         rewind(ifl);
         buffer = (char *)calloc(1, (lsize+1)*sizeof(char));
         nread = fread(buffer, lsize, 1, ifl);

@@ -107,16 +107,16 @@ int eewUtils_driveGFAST(const double currentTime,
     xmlMessages->mmessages = events->nev;
     xmlMessages->nmessages = 0;
     xmlMessages->evids  = (char **)
-                          calloc((unsigned long) xmlMessages->mmessages,
+                          calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
     xmlMessages->cmtQML = (char **)
-                          calloc((unsigned long) xmlMessages->mmessages,
+                          calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
     xmlMessages->ffXML  = (char **)
-                          calloc((unsigned long) xmlMessages->mmessages,
+                          calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
     xmlMessages->pgdXML = (char **)
-                          calloc((unsigned long) xmlMessages->mmessages,
+                          calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
     // Loop on the events
     for (iev=0; iev<events->nev; iev++)
@@ -271,7 +271,7 @@ int eewUtils_driveGFAST(const double currentTime,
         cmtQML = NULL;
         ffXML = NULL;
         lfinalize = false;
-        if (currentTime - SA.time >= props.processingTime)
+        if (t2 - t1 >= props.processingTime)
         {
             lfinalize = true;
             // Make the PGD xml

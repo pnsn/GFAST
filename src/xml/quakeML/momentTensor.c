@@ -58,7 +58,7 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
     char publicID[512];
     double Mrr, Mtt, Mpp, Mrt, Mrp, Mtp;
     int ierr, rc;
-    unsigned long lenos;
+    size_t lenos;
     //------------------------------------------------------------------------//
     //
     rc = 0;

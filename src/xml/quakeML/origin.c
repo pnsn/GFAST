@@ -24,7 +24,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
     xmlTextWriterPtr writer;
     char publicID[512];
     int ierr, rc;
-    unsigned long lenos;
+    size_t lenos;
     //------------------------------------------------------------------------//
     //
     // Nothing to do

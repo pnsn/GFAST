@@ -49,7 +49,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     struct cmopad_struct src;
     double M_ned[3][3], M_use[6], naxis[3], paxis[3], taxis[3];
     int ierr, rc;
-    unsigned long lenos;
+    size_t lenos;
     //------------------------------------------------------------------------//
     //
     // Initialize

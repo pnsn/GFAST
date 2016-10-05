@@ -4,6 +4,7 @@
 #include <omp.h> 
 #include "gfast_core.h"
 #include "iscl/log/log.h"
+
 /*!
  * @brief Computes the right hand side in the peak ground displacement 
  *        estimation s.t.

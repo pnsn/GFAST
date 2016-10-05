@@ -35,7 +35,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
     i = 0;
     dt0 = (double) NAN;
     traceBuffer->traces = (struct h5trace_struct *)
-                          calloc((unsigned long) traceBuffer->ntraces,
+                          calloc((size_t) traceBuffer->ntraces,
                                  sizeof(struct h5trace_struct));
     for (k=0; k<gps_data.stream_length; k++)
     {

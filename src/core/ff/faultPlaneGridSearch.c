@@ -309,12 +309,12 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         if_off = ifp*l2; // Offset the fault plane
         io_off = ifp*l1; // Offset the observations/estimates
         // Null out G2, regularizer, and possibly R matrix
-        memset(G, 0, (unsigned long) ng*sizeof(double));
-        memset(G2, 0, (unsigned long) ng2*sizeof(double));
-        memset(T, 0, (unsigned long) nt*sizeof(double));
+        memset(G, 0, (size_t) ng*sizeof(double));
+        memset(G2, 0, (size_t) ng2*sizeof(double));
+        memset(T, 0, (size_t) nt*sizeof(double));
         if (lrmtx)
         {
-            memset(R, 0, (unsigned long) (ncolsG2*ncolsG2)*sizeof(double));
+            memset(R, 0, (size_t) (ncolsG2*ncolsG2)*sizeof(double));
         }
         // Compute the site/fault patch offsets
         for (i=0; i<l2; i++)

@@ -142,7 +142,7 @@ int core_cmt_setForwardModel(const int l1, const bool ldeviatoric,
     // General case
     else
     {
-        memset(G, 0, (unsigned long) (6*l1)*sizeof(double));
+        memset(G, 0, (size_t) (6*l1)*sizeof(double));
         return -1;
     }
     return 0;

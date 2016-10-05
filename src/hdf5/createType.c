@@ -70,8 +70,8 @@ herr_t hdf5_createType__peakDisplacementData(hid_t group_id)
         return ierr;
     }
     // Commit it
-    ierr = H5Tcommit(group_id, "peakDisplacementDataStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Tcommit2(group_id, "peakDisplacementDataStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to create pgd data structure\n", fcnm);
@@ -151,8 +151,8 @@ herr_t hdf5_createType__pgdResults(hid_t group_id)
         return ierr;
     }
     // Commit it
-    ierr = H5Tcommit(group_id, "pgdResultsStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Tcommit2(group_id, "pgdResultsStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to create pgd results structure\n", fcnm);
@@ -240,9 +240,9 @@ herr_t hdf5_createType__offsetData(hid_t group_id)
         return ierr;
     }
     // Commit it
-    ierr = H5Tcommit(group_id, "offsetDataStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    if (ierr != 0)
+    ierr = H5Tcommit2(group_id, "offsetDataStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr < 0)
     {
         log_errorF("%s: Failed to create offset data structure\n", fcnm);
         return ierr;
@@ -307,8 +307,8 @@ herr_t hdf5_createType__hypocenter(hid_t group_id)
         return ierr;
     }
     // Commit it
-    ierr = H5Tcommit(group_id, "hypocenterStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Tcommit2(group_id, "hypocenterStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to create offset data structure\n", fcnm);
@@ -419,8 +419,8 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
         return ierr;
     }
     // Commit it
-    ierr = H5Tcommit(group_id, "cmtResultsStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    ierr = H5Tcommit2(group_id, "cmtResultsStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to create cmt results structure\n", fcnm);
@@ -535,9 +535,9 @@ herr_t hdf5_createType__faultPlane(hid_t group_id)
                       HOFFSET(struct h5_faultPlane_struct, ndip),
                       H5T_NATIVE_INT);
     // Commit it
-    ierr = H5Tcommit(group_id, "faultPlaneStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    if (ierr != 0)
+    ierr = H5Tcommit2(group_id, "faultPlaneStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr < 0)
     {
         log_errorF("%s: Failed to create fault plane structure\n", fcnm);
         return ierr;
@@ -621,9 +621,9 @@ herr_t hdf5_createType__ffResults(hid_t group_id)
                       HOFFSET(struct h5_ffResults_struct, nfp),
                       H5T_NATIVE_INT);
     // Commit it
-    ierr = H5Tcommit(group_id, "finiteFaultResultsStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    if (ierr != 0)
+    ierr = H5Tcommit2(group_id, "finiteFaultResultsStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr < 0)
     {
         log_errorF("%s: Failed to create ff results structure\n", fcnm);
         return ierr;
@@ -720,9 +720,9 @@ herr_t hdf5_createType__waveform3CData(hid_t group_id)
                       HOFFSET(struct h5_waveform3CData_struct, lskip_ff),
                       H5T_NATIVE_INT);
     // Commit it
-    ierr = H5Tcommit(group_id, "waveform3CDataStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    if (ierr != 0)
+    ierr = H5Tcommit2(group_id, "waveform3CDataStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr < 0)
     {
         log_errorF("%s: Failed to create 3C data structure\n", fcnm);
         return ierr;
@@ -779,9 +779,9 @@ herr_t hdf5_createType__gpsData(hid_t group_id)
                       HOFFSET(struct h5_gpsData_struct, stream_length),
                       H5T_NATIVE_INT);
     // Commit it
-    ierr = H5Tcommit(group_id, "gpsDataStructure\0", dataType,
-                     H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-    if (ierr != 0)
+    ierr = H5Tcommit2(group_id, "gpsDataStructure\0", dataType,
+                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    if (ierr < 0)
     {
         log_errorF("%s: Failed to create gpsData structure\n", fcnm);
         return ierr;

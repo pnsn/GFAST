@@ -147,7 +147,7 @@ int main(int argc, char **argv)
         log_errorF("%s: Error setting tb2Data\n", fcnm);
         goto ERROR;
     }
-    // Connect to the earthworm
+    // Connect to the earthworm ring
     msgs = NULL;
     ierr = traceBuffer_ewrr_initialize(props.ew_props.gpsRingName,
                                        10,

@@ -2,13 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif
 #include <libxml/encoding.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/parser.h>
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 #include "gfast_eewUtils.h"
 #include "gfast_xml.h"
 #include "cmopad.h"
@@ -257,7 +261,7 @@ char *eewUtils_makeXML__ff(const int mode,
     xmlCleanupCharEncodingHandlers();
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
-    xmlmsg = (char *)calloc((unsigned long) (msglen+1), sizeof(char));
+    xmlmsg = (char *)calloc((size_t) (msglen+1), sizeof(char));
     strncpy(xmlmsg, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);
@@ -475,7 +479,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     xmlCleanupCharEncodingHandlers();
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
-    qml = (char *)calloc((unsigned long) msglen+1, sizeof(char));
+    qml = (char *)calloc((size_t) msglen+1, sizeof(char));
     strncpy(qml, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);
@@ -653,7 +657,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     xmlCleanupCharEncodingHandlers();
     // Finally copy the char * XML message
     msglen = xmlStrlen(buf->content); //strlen((const char *)buf->content);
-    xmlmsg = (char *)calloc((unsigned long) msglen+1, sizeof(char));
+    xmlmsg = (char *)calloc((size_t) msglen+1, sizeof(char));
     strncpy(xmlmsg, (const char *)buf->content, msglen);
     xmlCleanupParser();
     xmlBufferFree(buf);

@@ -98,7 +98,7 @@ int traceBuffer_ewrr_initialize(const char *ewRing,
     }
     // Hook the getLogo's up for reading tracebuffer2s
     ringInfo->nlogo = 1;
-    ringInfo->getLogo = (MSG_LOGO *) calloc((unsigned long) ringInfo->nlogo,
+    ringInfo->getLogo = (MSG_LOGO *) calloc((size_t) ringInfo->nlogo,
                                             sizeof(MSG_LOGO));
     ringInfo->getLogo[0].type = ringInfo->traceBuffer2Type;
     // Attach to the ring

@@ -81,7 +81,7 @@ bool events_removeEvent(const double maxtime,
         // Copy old events into workspace ignoring event at pop_indx 
         SAtemp.nev = nev0 - 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
-                    calloc((unsigned long) SAtemp.nev,
+                    calloc((size_t) SAtemp.nev,
                            sizeof(struct GFAST_shakeAlert_struct));
         jev = 0;
         for (iev=0; iev<nev0; iev++)
@@ -96,7 +96,7 @@ bool events_removeEvent(const double maxtime,
         GFAST_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
-                     calloc((unsigned long) events->nev,
+                     calloc((size_t) events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
         for (iev=0; iev<events->nev; iev++)

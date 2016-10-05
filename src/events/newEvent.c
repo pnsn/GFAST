@@ -41,7 +41,7 @@ bool events_newEvent(struct GFAST_shakeAlert_struct SA,
         // Copy new event into workspace
         SAtemp.nev = nev0 + 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
-                    calloc((unsigned long) SAtemp.nev,
+                    calloc((size_t) SAtemp.nev,
                            sizeof(struct GFAST_shakeAlert_struct));
         for (iev=0; iev<nev0; iev++)
         {
@@ -53,7 +53,7 @@ bool events_newEvent(struct GFAST_shakeAlert_struct SA,
         GFAST_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
-                     calloc((unsigned long) events->nev,
+                     calloc((size_t) events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
         for (iev=0; iev<events->nev; iev++)

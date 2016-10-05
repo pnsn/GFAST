@@ -16,13 +16,13 @@ int hdf5_copy__peakDisplacementData(
     const char *fcnm = "hdf5_copyPeakDisplacementData\0";
     int *lactiveTemp, *lmaskTemp, i, ierr;
     char *ctemp;
-    unsigned long nsites;
+    size_t nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
         // Make sure there is something to do
-        nsites = (unsigned long)  pgd_data->nsites;
+        nsites = (size_t)  pgd_data->nsites;
         if (nsites < 1)
         {
             log_errorF("%s: No sites!\n", fcnm);
@@ -93,14 +93,14 @@ int hdf5_copy__offsetData(const enum data2h5_enum job,
     const char *fcnm = "hdf5_copy__offsetData\0";
     char *ctemp;
     int *lactiveTemp, *lmaskTemp, i, ierr;
-    unsigned long nsites;
+    size_t nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
         memset(h5_offset_data, 0, sizeof(struct h5_offsetData_struct));
         // Make sure there is something to do
-        nsites = (unsigned long) offset_data->nsites;
+        nsites = (size_t) offset_data->nsites;
         if (nsites < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
@@ -212,15 +212,15 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
 {
     const char *fcnm = "hdf5_copyPGDResults\0";
     int *lsiteUsedTemp, i, ierr;
-    unsigned long ndeps, nsites;
+    size_t ndeps, nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
         memset(h5_pgd, 0, sizeof(struct h5_pgdResults_struct));
         // Make sure there is something to do
-        ndeps = (unsigned long) pgd->ndeps;
-        nsites = (unsigned long) pgd->nsites;
+        ndeps = (size_t) pgd->ndeps;
+        nsites = (size_t) pgd->nsites;
         if (ndeps < 1 || nsites < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
@@ -366,15 +366,15 @@ int hdf5_copy__cmtResults(const enum data2h5_enum job,
 {
     const char *fcnm = "hdf5_copy__cmtResults\0";
     int *lsiteUsedTemp, i, ierr;
-    unsigned long ndeps, nsites;
+    size_t ndeps, nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
         memset(h5_cmt, 0, sizeof(struct h5_cmtResults_struct));
         // Make sure there is something to do
-        ndeps = (unsigned long) cmt->ndeps;
-        nsites = (unsigned long) cmt->nsites;
+        ndeps = (size_t) cmt->ndeps;
+        nsites = (size_t) cmt->nsites;
         if (ndeps < 1 || nsites < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
@@ -486,16 +486,17 @@ int hdf5_copy__faultPlane(const enum data2h5_enum job,
                           struct h5_faultPlane_struct *h5_fp)
 {
     const char *fcnm = "hdf5_copy__faultPlane\0";
-    int *itemp, i, ierr, ndip, nfp, nsites, nstr;
+    int *itemp, i, ierr;
+    size_t nfp, nfp4, ndip, nsites, nstr;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
         memset(h5_fp, 0, sizeof(struct h5_faultPlane_struct));
         // Make sure there is something to do
-        nstr = fp->nstr;
-        ndip = fp->ndip;
-        nsites = fp->nsites_used;
+        nstr = (size_t) fp->nstr;
+        ndip = (size_t) fp->ndip;
+        nsites = (size_t) fp->nsites_used;
         if (ndip < 1 || nsites < 1 || nstr < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
@@ -506,108 +507,90 @@ int hdf5_copy__faultPlane(const enum data2h5_enum job,
         }
         nfp = nstr*ndip; // number of fault patches
 
-        h5_fp->lon_vtx.len = (unsigned long) (4*nfp);
-        h5_fp->lon_vtx.p = (double *)
-                           calloc((unsigned long) (4*nfp), sizeof(double));
-        cblas_dcopy(4*nfp, fp->lon_vtx, 1, h5_fp->lon_vtx.p, 1);
+        nfp4 = 4*nfp;
+        h5_fp->lon_vtx.len = nfp4;
+        h5_fp->lon_vtx.p = (double *)calloc(nfp4, sizeof(double));
+        cblas_dcopy((int) nfp4, fp->lon_vtx, 1, h5_fp->lon_vtx.p, 1);
 
-        h5_fp->lat_vtx.len = (unsigned long) (4*nfp);
-        h5_fp->lat_vtx.p = (double *)
-                           calloc((unsigned long) (4*nfp), sizeof(double));
-        cblas_dcopy(4*nfp, fp->lat_vtx, 1, h5_fp->lat_vtx.p, 1);
+        h5_fp->lat_vtx.len = nfp4;
+        h5_fp->lat_vtx.p = (double *)calloc(nfp4, sizeof(double));
+        cblas_dcopy((int) nfp4, fp->lat_vtx, 1, h5_fp->lat_vtx.p, 1);
 
-        h5_fp->dep_vtx.len = (unsigned long) (4*nfp);
-        h5_fp->dep_vtx.p = (double *)
-                           calloc((unsigned long) (4*nfp), sizeof(double));
-        cblas_dcopy(4*nfp, fp->dep_vtx, 1, h5_fp->dep_vtx.p, 1);
+        h5_fp->dep_vtx.len = (size_t) (4*nfp);
+        h5_fp->dep_vtx.p = (double *)calloc(nfp4, sizeof(double));
+        cblas_dcopy((int) nfp4, fp->dep_vtx, 1, h5_fp->dep_vtx.p, 1);
 
-        h5_fp->fault_xutm.len = (unsigned long) nfp;
-        h5_fp->fault_xutm.p = (double *)
-                              calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->fault_xutm, 1, h5_fp->fault_xutm.p, 1);
+        h5_fp->fault_xutm.len = nfp;
+        h5_fp->fault_xutm.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->fault_xutm, 1, h5_fp->fault_xutm.p, 1);
 
-        h5_fp->fault_yutm.len = (unsigned long) nfp;
-        h5_fp->fault_yutm.p = (double *)
-                              calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->fault_yutm, 1, h5_fp->fault_yutm.p, 1);
+        h5_fp->fault_yutm.len = nfp;
+        h5_fp->fault_yutm.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->fault_yutm, 1, h5_fp->fault_yutm.p, 1);
 
-        h5_fp->fault_alt.len = (unsigned long) nfp;
-        h5_fp->fault_alt.p = (double *)
-                             calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->fault_alt, 1, h5_fp->fault_alt.p, 1);
+        h5_fp->fault_alt.len = nfp;
+        h5_fp->fault_alt.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->fault_alt, 1, h5_fp->fault_alt.p, 1);
 
-        h5_fp->strike.len = (unsigned long) nfp;
-        h5_fp->strike.p = (double *)calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->strike, 1, h5_fp->strike.p, 1);
+        h5_fp->strike.len = nfp;
+        h5_fp->strike.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->strike, 1, h5_fp->strike.p, 1);
 
-        h5_fp->dip.len = (unsigned long) nfp;
-        h5_fp->dip.p = (double *)
-                       calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->dip, 1, h5_fp->dip.p, 1);
+        h5_fp->dip.len = nfp;
+        h5_fp->dip.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->dip, 1, h5_fp->dip.p, 1);
 
-        h5_fp->length.len = (unsigned long) nfp;
-        h5_fp->length.p = (double *)
-                          calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->length, 1, h5_fp->length.p, 1);
+        h5_fp->length.len = nfp;
+        h5_fp->length.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->length, 1, h5_fp->length.p, 1);
 
-        h5_fp->width.len = (unsigned long) nfp;
-        h5_fp->width.p = (double *)
-                         calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->width, 1, h5_fp->width.p, 1);
+        h5_fp->width.len = nfp;
+        h5_fp->width.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->width, 1, h5_fp->width.p, 1);
 
-        h5_fp->sslip.len = (unsigned long) nfp;
-        h5_fp->sslip.p = (double *)
-                         calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->sslip, 1, h5_fp->sslip.p, 1);
+        h5_fp->sslip.len = nfp;
+        h5_fp->sslip.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->sslip, 1, h5_fp->sslip.p, 1);
 
-        h5_fp->dslip.len = (unsigned long) nfp;
-        h5_fp->dslip.p = (double *)
-                         calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->dslip, 1, h5_fp->dslip.p, 1);
+        h5_fp->dslip.len = nfp;
+        h5_fp->dslip.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->dslip, 1, h5_fp->dslip.p, 1);
 
-        h5_fp->sslip_unc.len = (unsigned long) nfp;
-        h5_fp->sslip_unc.p = (double *)
-                             calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->sslip_unc, 1, h5_fp->sslip_unc.p, 1);
+        h5_fp->sslip_unc.len = nfp;
+        h5_fp->sslip_unc.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->sslip_unc, 1, h5_fp->sslip_unc.p, 1);
 
-        h5_fp->dslip_unc.len = (unsigned long) nfp;
-        h5_fp->dslip_unc.p = (double *)
-                             calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, fp->dslip_unc, 1, h5_fp->dslip_unc.p, 1);
+        h5_fp->dslip_unc.len = nfp;
+        h5_fp->dslip_unc.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, fp->dslip_unc, 1, h5_fp->dslip_unc.p, 1);
 
-        h5_fp->EN.len = (unsigned long) nsites;
-        h5_fp->EN.p = (double *)
-                      calloc((unsigned long) nsites, sizeof(double));
-        cblas_dcopy(nsites, fp->EN, 1, h5_fp->EN.p, 1);
+        h5_fp->EN.len = nsites;
+        h5_fp->EN.p = (double *)calloc(nsites, sizeof(double));
+        cblas_dcopy((int) nsites, fp->EN, 1, h5_fp->EN.p, 1);
 
-        h5_fp->NN.len = (unsigned long) nsites;
-        h5_fp->NN.p = (double *)
-                      calloc((unsigned long) nsites, sizeof(double));
-        cblas_dcopy(nsites, fp->NN, 1, h5_fp->NN.p, 1);
+        h5_fp->NN.len = nsites;
+        h5_fp->NN.p = (double *)calloc(nsites, sizeof(double));
+        cblas_dcopy((int) nsites, fp->NN, 1, h5_fp->NN.p, 1);
 
-        h5_fp->UN.len = (unsigned long) nsites;
-        h5_fp->UN.p = (double *)
-                      calloc((unsigned long) nsites, sizeof(double));
-        cblas_dcopy(nsites, fp->UN, 1, h5_fp->UN.p, 1);
+        h5_fp->UN.len = nsites;
+        h5_fp->UN.p = (double *)calloc(nsites, sizeof(double));
+        cblas_dcopy((int) nsites, fp->UN, 1, h5_fp->UN.p, 1);
 
-        h5_fp->Einp.len = (unsigned long) nsites;
-        h5_fp->Einp.p = (double *)
-                        calloc((unsigned long) nsites, sizeof(double));
-        cblas_dcopy(nsites, fp->Einp, 1, h5_fp->Einp.p, 1);
+        h5_fp->Einp.len = nsites;
+        h5_fp->Einp.p = (double *)calloc(nsites, sizeof(double));
+        cblas_dcopy((int) nsites, fp->Einp, 1, h5_fp->Einp.p, 1);
 
-        h5_fp->Ninp.len = (unsigned long) nsites;
-        h5_fp->Ninp.p = (double *)
-                        calloc((unsigned long) nsites, sizeof(double));
-        cblas_dcopy(nsites, fp->Ninp, 1, h5_fp->Ninp.p, 1);
+        h5_fp->Ninp.len = nsites;
+        h5_fp->Ninp.p = (double *)calloc(nsites, sizeof(double));
+        cblas_dcopy((int) nsites, fp->Ninp, 1, h5_fp->Ninp.p, 1);
 
-        h5_fp->Uinp.len = (unsigned long) (nsites);
-        h5_fp->Uinp.p = (double *)
-                        calloc((unsigned long) (nsites), sizeof(double));
-        cblas_dcopy(nsites, fp->Uinp, 1, h5_fp->Uinp.p, 1);
+        h5_fp->Uinp.len = nsites;
+        h5_fp->Uinp.p = (double *)calloc(nsites, sizeof(double));
+        cblas_dcopy((int) nsites, fp->Uinp, 1, h5_fp->Uinp.p, 1);
 
-        h5_fp->fault_ptr.len = (unsigned long) (nfp + 1);
-        itemp = (int *)calloc((unsigned long) (nfp+1), sizeof(int));
-        for (i=0; i<nfp+1; i++)
+        h5_fp->fault_ptr.len = nfp + 1;
+        itemp = (int *)calloc(nfp+1, sizeof(int));
+        for (i=0; i<(int) nfp+1; i++)
         {
             itemp[i] = fp->fault_ptr[i]; 
         } 
@@ -658,44 +641,44 @@ int hdf5_copy__ffResults(const enum data2h5_enum job,
 {
     const char *fcnm = "hdf5_copyFFResults\0";
     struct h5_faultPlane_struct *h5_fp = NULL;
-    int i, ierr, nfp;
+    int i, ierr;
+    size_t nfp;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
     {
         memset(h5_ff, 0, sizeof(struct h5_ffResults_struct));
-        nfp = ff->nfp;
-        if (nfp < 0)
+        nfp = (size_t) ff->nfp;
+        if (ff->nfp < 0)
         {
             log_errorF("%s: Error no fault planes!\n", fcnm);
             return -1;
         }
 
-        h5_ff->fp.len = (unsigned long) nfp;
+        h5_ff->fp.len = nfp;
         h5_fp = (struct h5_faultPlane_struct *)
-                calloc((unsigned long) nfp,
-                       sizeof(struct h5_faultPlane_struct));
-        for (i=0; i<nfp; i++)
+                calloc(nfp,  sizeof(struct h5_faultPlane_struct));
+        for (i=0; i<(int) nfp; i++)
         {
             ierr = GFAST_hdf5_copy__faultPlane(job, &ff->fp[i], &h5_fp[i]);
         }
         h5_ff->fp.p = h5_fp;
 
-        h5_ff->vr.len = (size_t) nfp;
-        h5_ff->vr.p = (double *)calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, ff->vr, 1, h5_ff->vr.p, 1); 
+        h5_ff->vr.len = nfp;
+        h5_ff->vr.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, ff->vr, 1, h5_ff->vr.p, 1); 
 
-        h5_ff->Mw.len = (size_t) nfp;
-        h5_ff->Mw.p = (double *)calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, ff->Mw, 1, h5_ff->Mw.p, 1);
+        h5_ff->Mw.len = nfp;
+        h5_ff->Mw.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, ff->Mw, 1, h5_ff->Mw.p, 1);
 
-        h5_ff->str.len = (size_t) nfp;
-        h5_ff->str.p = (double *)calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, ff->str, 1, h5_ff->str.p, 1);
+        h5_ff->str.len = nfp;
+        h5_ff->str.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, ff->str, 1, h5_ff->str.p, 1);
 
-        h5_ff->dip.len = (size_t) nfp;
-        h5_ff->dip.p = (double *)calloc((unsigned long) nfp, sizeof(double));
-        cblas_dcopy(nfp, ff->dip, 1, h5_ff->dip.p, 1);
+        h5_ff->dip.len = nfp;
+        h5_ff->dip.p = (double *)calloc(nfp, sizeof(double));
+        cblas_dcopy((int) nfp, ff->dip, 1, h5_ff->dip.p, 1);
 
         h5_ff->SA_lat = ff->SA_lat;
         h5_ff->SA_lon = ff->SA_lon;
@@ -755,7 +738,7 @@ int hdf5_copy__waveform3CData(const enum data2h5_enum job,
     {
         memset(h5_data, 0, sizeof(struct h5_waveform3CData_struct));
         npts = data->npts;
-        nalloc = (unsigned long) (fmax(npts, 1));
+        nalloc = (size_t) (fmax(npts, 1));
         h5_data->ubuff.p = (double *)calloc(nalloc, sizeof(double));
         h5_data->nbuff.p = (double *)calloc(nalloc, sizeof(double));
         h5_data->ebuff.p = (double *)calloc(nalloc, sizeof(double));
@@ -868,7 +851,7 @@ int hdf5_copy__gpsData(const enum data2h5_enum job,
             ierr = 1;
         }
         h5_data = (struct h5_waveform3CData_struct *)
-                  calloc((unsigned long) nstreams,
+                  calloc((size_t) nstreams,
                          sizeof(struct h5_waveform3CData_struct));
         h5_gpsData->stream_length = nstreams;
         for (k=0; k<nstreams; k++)

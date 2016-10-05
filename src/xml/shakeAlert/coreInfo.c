@@ -46,7 +46,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     const char *fcnm = "xml_shakeAlert_readCoreInfo\0";
     xmlNodePtr core_xml, core_xml_info;
     xmlAttrPtr attr;
-    xmlChar *value;
+    xmlChar *value = NULL;
     enum unpack_types_enum
     {
         UNPACK_DOUBLE = 1,
@@ -102,8 +102,13 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     if (attr)
     {
         value = xmlNodeListGetString(core_xml->doc, attr->children, 1);
-        strcpy(core->id, (char *) value);
-        free(value);
+        if (value == NULL)
+        {
+            log_errorF("%s: Error getting event ID\n", fcnm);
+            return -1;
+        }
+        strncpy(core->id, (const char *) value, strlen((const char *)value));
+        xmlFree(value);
     }
     else
     {

@@ -46,7 +46,7 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
                    fcnm, gps_data.stream_length);
     }
     // data
-    cmt_data->stnm = (char **)calloc((unsigned long) gps_data.stream_length,
+    cmt_data->stnm = (char **)calloc((size_t) gps_data.stream_length,
                                      sizeof(char *));
     cmt_data->ubuff   = ISCL_memory_calloc__double(gps_data.stream_length);
     cmt_data->nbuff   = ISCL_memory_calloc__double(gps_data.stream_length); 

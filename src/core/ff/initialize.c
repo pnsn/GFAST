@@ -43,7 +43,7 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
         return -1;
     }
     // data
-    ff_data->stnm = (char **)calloc((unsigned long) (gps_data.stream_length),
+    ff_data->stnm = (char **)calloc((size_t) (gps_data.stream_length),
                                     sizeof(char *));
     ff_data->ubuff   = ISCL_memory_calloc__double(gps_data.stream_length);
     ff_data->nbuff   = ISCL_memory_calloc__double(gps_data.stream_length); 
@@ -83,7 +83,7 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
     ff->str = ISCL_memory_calloc__double(ff->nfp);
     ff->dip = ISCL_memory_calloc__double(ff->nfp);
     ff->fp = (struct GFAST_faultPlane_struct *)
-             calloc((unsigned long) (ff->nfp),
+             calloc((size_t) ff->nfp,
                     sizeof(struct GFAST_faultPlane_struct));
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
