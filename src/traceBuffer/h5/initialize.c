@@ -41,7 +41,7 @@ int traceBuffer_h5_initialize(const int job,
     char h5name[PATH_MAX], cwork[512];
     herr_t status;
     hid_t groupID, properties;
-    double dt, slat, selev, slon, tbeg, t1, t2;
+    double dt, gain, slat, selev, slon, tbeg, t1, t2;
     int i, ierr, k, maxpts, ndtGroups;
     size_t blockSize;
     const bool lsave = true;;
@@ -206,7 +206,23 @@ int traceBuffer_h5_initialize(const int job,
             slat = h5traceBuffer->traces[i].slat;
             slon = h5traceBuffer->traces[i].slon; 
             selev = h5traceBuffer->traces[i].selev;
-
+            ierr = 0;
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "StationLatitude\0", slat);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "StationLongitude\0", slon);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "StationElevation\0", selev);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "SamplingPeriod\0", dt);
+            ierr += traceBuffer_h5_setIntegerScalar(groupID,
+                                        "SamplingPeriodGroupNumber\0",
+                                        h5traceBuffer->traces[i].dtGroupNumber);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error writing scalar metadata\n", fcnm);
+                return -1;
+            }
             status = H5Gclose(groupID);
             if (status < 0)
             {
@@ -241,17 +257,19 @@ int traceBuffer_h5_initialize(const int job,
                 }
                 ISCL_memory_free__double(&work);
             }
+            gain = h5traceBuffer->traces[i].gain;
             ierr = 0;
-            ierr += h5_write_array__double("Buffer1StartTime\0", groupID,
-                                           1, &t1);
-            ierr += h5_write_array__double("Buffer2StartTime\0", groupID,
-                                           1, &t2);
-            ierr += h5_write_array__double("Gain\0", groupID,
-                                           1, &h5traceBuffer->traces[i].gain);
-            ierr += h5_write_array__double("SamplingPeriod\0", groupID,
-                                           1, &dt);
-            ierr += h5_write_array__int("MaxNumberOfPoints\0", groupID,
-                                        1, &maxpts);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "Buffer1StartTime\0", t1);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "Buffer2StartTime\0", t2);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "Gain\0", gain);
+            ierr += traceBuffer_h5_setDoubleScalar(groupID,
+                                                   "SamplingPeriod\0", dt);
+            ierr += traceBuffer_h5_setIntegerScalar(groupID,
+                                                    "MaxNumberOfPoints\0",
+                                                    maxpts);
             if (ierr != 0)
             {
                 log_errorF("%s: Error writing scalar data\n", fcnm);
