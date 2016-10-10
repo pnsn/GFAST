@@ -45,6 +45,7 @@ int main(int argc, char **argv)
     const int rdwt = 2; // H5 file is read/write
     // Initialize 
     ierr = 0;
+    msgs = NULL;
     memset(&props,    0, sizeof(struct GFAST_props_struct));
     memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
     memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
@@ -148,7 +149,6 @@ int main(int argc, char **argv)
         goto ERROR;
     }
     // Connect to the earthworm ring
-    msgs = NULL;
     ierr = traceBuffer_ewrr_initialize(props.ew_props.gpsRingName,
                                        10,
                                        &ringInfo);
