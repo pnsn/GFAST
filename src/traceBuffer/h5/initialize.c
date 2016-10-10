@@ -112,7 +112,6 @@ int traceBuffer_h5_initialize(const int job,
         if (os_path_isfile(h5name))
         {
             log_warnF("%s: Deleting file %s\n", fcnm, h5name);
-            return -1; 
         }
         blockSize = 0;
         // Space estimate
@@ -174,7 +173,7 @@ int traceBuffer_h5_initialize(const int job,
         }
         if (ndtGroups <= 0)
         {
-            log_errorF("%s: ERror no sampling period groups\n", fcnm);
+            log_errorF("%s: Error no sampling period groups\n", fcnm);
             return -1;
         }
         for (i=0; i<ndtGroups; i++)
@@ -234,7 +233,7 @@ int traceBuffer_h5_initialize(const int job,
             status = H5Gclose(groupID);
             if (status < 0)
             {
-                log_errorF("%s: ERror creating group %s\n",
+                log_errorF("%s: Error creating group %s\n",
                            fcnm, h5traceBuffer->traces[i].groupName);
                 return -1;
             }
