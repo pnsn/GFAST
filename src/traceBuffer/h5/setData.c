@@ -115,7 +115,7 @@ NEXT_TRACE:;
         dwork = NULL;
         // Open the group for reading/writing
         groupID = H5Gopen2(h5traceBuffer.fileID,
-                           h5traceBuffer.traces[i].groupName, H5P_DEFAULT);
+                           h5traceBuffer.traces[k].groupName, H5P_DEFAULT);
         // Get the scalars describing this dataset
         ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, (double) NAN,
                                                &maxpts,
