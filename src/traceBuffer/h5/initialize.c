@@ -42,6 +42,7 @@ int traceBuffer_h5_initialize(const int job,
     double dt, slat, selev, slon, tbeg, t1, t2;
     int i, ierr, k, maxpts;
     size_t blockSize;
+    const bool lsave = true;;
     // Make sure there is data
     if (h5traceBuffer->traces == NULL || h5traceBuffer->ntraces < 1)
     {
@@ -135,15 +136,14 @@ int traceBuffer_h5_initialize(const int job,
         // add a little extra
         blockSize = (size_t) ((double) (blockSize*1.1 + 0.5));
         properties = H5Pcreate(H5P_FILE_ACCESS); 
-        status = H5Pset_fapl_core(properties, blockSize, false);
-        if (status < 0)
-        {
-            log_errorF("%s: Error setting properties list\n", fcnm);
-            return -1;
-        }
         if (linMemory)
         {
-            status = H5Pset_fapl_core(properties, blockSize, false);
+            status = H5Pset_fapl_core(properties, blockSize, lsave);
+            if (status < 0)
+            {
+                log_errorF("%s: Error setting properties list\n", fcnm);
+                return -1;
+            }
         }
         h5traceBuffer->fileID = H5Fcreate(h5name, H5F_ACC_TRUNC,
                                           H5P_DEFAULT, properties);

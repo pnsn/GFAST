@@ -13,8 +13,8 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
 {
     const char *fcnm = "traceBuffer_h5_setTraceBufferFromGFAST\0";
     char temp[1024];
-    double dt0;
-    int i, j, k;
+    double *dtGroups, dt0, dt;
+    int *ndtGroups, i, j, k, ng;
     // Count the number of traces
     traceBuffer->ntraces = 0;
     for (k=0; k<gps_data.stream_length; k++)
@@ -31,6 +31,28 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
     {
         log_errorF("%s: Error no traces to read!\n", fcnm);
         return -1;
+    }
+    // Set the sampling period group numbers
+    dtGroups = (double *)
+               calloc((size_t) gps_data.stream_length, sizeof(double));
+    ndtGroups = (int *)
+                calloc((size_t) gps_data.stream_length, sizeof(int)); 
+    ng = 0;
+    for (k=0; k<gps_data.stream_length; k++)
+    {
+        dt = gps_data.data[k].dt;
+        for (j=0; j<ng; j++)
+        {
+            if (fabs(dtGroups[j] - dt) < 1.e-8)
+            {
+                ndtGroups[k] = j + 1;
+                goto NEXT_STATION;
+            }
+        }
+        dtGroups[ng] = dt;
+        ndtGroups[k] = ng + 1;
+        ng = ng + 1;
+NEXT_STATION:;
     }
     i = 0;
     dt0 = (double) NAN;
@@ -59,6 +81,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
             strcpy(traceBuffer->traces[i].stnm, gps_data.data[k].stnm); 
             strcpy(traceBuffer->traces[i].chan, gps_data.data[k].chan[j]);
             strcpy(traceBuffer->traces[i].loc,  gps_data.data[k].loc);
+            traceBuffer->traces[i].dtGroupNumber = ndtGroups[k];
 
             memset(temp, 0, sizeof(temp));
             strcpy(temp, "/MetaData/\0");
@@ -75,7 +98,8 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
             strcpy(traceBuffer->traces[i].metaGroupName, temp);
 
             memset(temp, 0, sizeof(temp)); 
-            strcpy(temp, "/Data/\0");
+            sprintf(temp, "/Data/SamplingPeriodGroup_%d/",
+                    traceBuffer->traces[i].dtGroupNumber);
             strcat(temp, gps_data.data[k].netw);
             strcat(temp, ".\0");
             strcat(temp, gps_data.data[k].stnm);
@@ -104,5 +128,8 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
             i = i + 1; 
         }
     }
+    // free space
+    free(dtGroups);
+    free(ndtGroups);
     return 0;
 }
