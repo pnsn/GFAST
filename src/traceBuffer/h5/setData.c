@@ -122,7 +122,8 @@ NEXT_TRACE:;
                                                &dt, &gain, &ts1, &ts2);
         if (ierr != 0)
         {
-            log_errorF("%s: Error getting scalars!\n", fcnm);
+            log_errorF("%s: Error getting scalars %s!\n",
+                       fcnm, h5traceBuffer.traces[i].groupName);
             return -1;
         }
         if (dt <= 0.0 || fabs(gain) < 1.e-15 || maxpts < 1)
