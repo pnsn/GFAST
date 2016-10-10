@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
@@ -36,11 +37,11 @@ int traceBuffer_h5_initialize(const int job,
     const char *fcnm = "traceBuffer_h5_initialize\0";
     FILE *fp;
     double *work; 
-    char h5name[PATH_MAX];
+    char h5name[PATH_MAX], cwork[512];
     herr_t status;
     hid_t groupID, properties;
     double dt, slat, selev, slon, tbeg, t1, t2;
-    int i, ierr, k, maxpts;
+    int i, ierr, k, maxpts, ndtGroups;
     size_t blockSize;
     const bool lsave = true;;
     // Make sure there is data
@@ -163,6 +164,28 @@ int traceBuffer_h5_initialize(const int job,
             log_errorF("%s: Error creating /Data group\n", fcnm);
             return -1;
         }
+        ndtGroups = 0;
+        for (i=0; i<h5traceBuffer->ntraces; i++)
+        {
+            if (h5traceBuffer->traces[i].dtGroupNumber > ndtGroups)
+            {
+                ndtGroups = h5traceBuffer->traces[i].dtGroupNumber;
+            }
+        }
+        if (ndtGroups <= 0)
+        {
+            log_errorF("%s: ERror no sampling period groups\n", fcnm);
+            return -1;
+        }
+        for (i=0; i<ndtGroups; i++)
+        {
+            memset(cwork, 0, sizeof(work));
+            sprintf(cwork, "/Data/SamplingPeriodGroup_%d", i+1);
+            groupID = H5Gcreate2(h5traceBuffer->fileID,
+                                 cwork, 
+                                 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            status = H5Gclose(groupID);
+        } 
         groupID = H5Gcreate2(h5traceBuffer->fileID,
                              "/MetaData\0",
                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -172,7 +195,7 @@ int traceBuffer_h5_initialize(const int job,
             log_errorF("%s: Error creating /MetaData group\n", fcnm);
             return -1;
         }
-        // Make the groups
+        // Make the data groups
         for (i=0; i<h5traceBuffer->ntraces; i++)
         {
             // MetaData
