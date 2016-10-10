@@ -125,6 +125,7 @@ NEXT_STATION:;
             traceBuffer->traces[i].maxpts
                 = (int) (bufflen/traceBuffer->traces[i].dt + 0.5) + 1;
             traceBuffer->traces[i].dt = gps_data.data[k].dt;
+            traceBuffer->traces[i].gain = gps_data.data[k].gain[j];
             i = i + 1; 
         }
     }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_hdf5.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
@@ -230,6 +231,21 @@ int traceBuffer_h5_initialize(const int job,
                 }
                 ISCL_memory_free__double(&work);
             }
+            ierr = 0;
+            ierr += h5_write_array__double("Buffer1StartTime\0", groupID,
+                                           1, &t1);
+            ierr += h5_write_array__double("Buffer2StartTime\0", groupID,
+                                           1, &t2);
+            ierr += h5_write_array__double("Gain\0", groupID,
+                                           1, &h5traceBuffer->traces[i].gain);
+            ierr += h5_write_array__double("SamplingPeriod\0", groupID,
+                                           1, &dt);
+            ierr += h5_write_array__int("MaxNumberOfPoints\0", groupID,
+                                        1, &maxpts);
+            ierr += h5_write_array__double("dataBuffer1\0", groupID,
+                                           maxpts, work);
+            ierr += h5_write_array__double("dataBuffer2\0", groupID,
+                                           maxpts, work);
             status = H5Gclose(groupID);
             if (status < 0)
             {
