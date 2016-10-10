@@ -229,6 +229,16 @@ int traceBuffer_h5_initialize(const int job,
                 {
                     work[k] = (double) NAN;
                 }
+                ierr = 0;
+                ierr += h5_write_array__double("dataBuffer1\0", groupID,
+                                               maxpts, work);
+                ierr += h5_write_array__double("dataBuffer2\0", groupID,
+                                               maxpts, work);
+                if (ierr != 0)
+                {
+                    log_errorF("%s: Error writing databuffers\n", fcnm);
+                    return -1;
+                }
                 ISCL_memory_free__double(&work);
             }
             ierr = 0;
@@ -242,10 +252,11 @@ int traceBuffer_h5_initialize(const int job,
                                            1, &dt);
             ierr += h5_write_array__int("MaxNumberOfPoints\0", groupID,
                                         1, &maxpts);
-            ierr += h5_write_array__double("dataBuffer1\0", groupID,
-                                           maxpts, work);
-            ierr += h5_write_array__double("dataBuffer2\0", groupID,
-                                           maxpts, work);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error writing scalar data\n", fcnm);
+                return -1;
+            }
             status = H5Gclose(groupID);
             if (status < 0)
             {
