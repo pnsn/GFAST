@@ -37,10 +37,11 @@ int traceBuffer_h5_setData(const double currentTime,
                            struct h5traceBuffer_struct h5traceBuffer)
 {
     const char *fcnm = "traceBuffer_h5_setData\0";
+    char dataBuffer1[64], dataBuffer2[64];
     double *dwork;
     int maxpts, nwork;
     int *map, i, ierr, k;
-    double dt, gain, tmax, ts1, ts2;
+    double dt, gain, tmax, ts1, ts1Use, ts2, ts2Use;
     bool *lhaveData;
     hid_t groupID;
     herr_t status;
@@ -148,22 +149,41 @@ NEXT_TRACE:;
             log_errorF("%s: Packet is too old to be updated\n", fcnm);
             goto CLOSE_GROUP;
         } 
-        // Need to do a push
-        tmax = fmax(ts1, ts2) + dt*(double) (maxpts - 1);
-        if (currentTime > tmax || true)
+        // Set the databuffers and names
+        memset(dataBuffer1, 0, sizeof(dataBuffer1));
+        memset(dataBuffer2, 0, sizeof(dataBuffer2));
+        if (ts1 < ts2)
         {
+             ts1Use = ts1;
+             ts2Use = ts2;
+             strcpy(dataBuffer1, "dataBuffer1\0");
+             strcpy(dataBuffer2, "dataBuffer2\0");
+        }
+        else
+        {
+             ts1Use = ts2;
+             ts2Use = ts1;
+             strcpy(dataBuffer1, "dataBuffer2\0");
+             strcpy(dataBuffer2, "dataBuffer1\0");
+        }
+        // Need to do a push - pop the oldest dataset
+        tmax = fmax(ts1, ts2) + dt*(double) (maxpts - 1);
+        if (currentTime > tmax)
+        {
+            //dwork = ISCL_array_set__double(maxpts, (double) k, &ierr);
             dwork = ISCL_array_set__double(maxpts, (double) NAN, &ierr);
-            ierr = update_dataSet(groupID, "dataBuffer1\0", 0, maxpts-1,
+            ierr = update_dataSet(groupID, dataBuffer1, 0, maxpts-1,
                                   maxpts, dwork);
+            ISCL_memory_free__double(&dwork);
             if (ierr != 0)
             {
-                log_errorF("%s: Error setting NaN data %s\n",
-                           fcnm, h5traceBuffer.traces[k].groupName);
+                log_errorF("%s: Error setting NaN data %s %d\n",
+                           fcnm, h5traceBuffer.traces[k].groupName,
+                           dataBuffer1);
                 goto CLOSE_GROUP;
             }
-            ISCL_memory_free__double(&dwork);
         }
-        // Push the data
+        // Update the data
         if (lhaveData[k])
         {
             nwork = (int) ((currentTime - tb2Data.traces[k].times[0])
