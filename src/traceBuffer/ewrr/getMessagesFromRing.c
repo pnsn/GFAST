@@ -42,12 +42,12 @@
  * @copyright Apache 2
  *
  */
-char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
-                                            const bool showWarnings,
-                                            struct ewRing_struct *ringInfo,
-                                            int *nRead, int *ierr)
+char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
+                                           const bool showWarnings,
+                                           struct ewRing_struct *ringInfo,
+                                           int *nRead, int *ierr)
 {
-    const char *fcnm = "traceBuffer_ewrr_getgetTraceBuf2Messages\0";
+    const char *fcnm = "traceBuffer_ewrr_getMessagesFromRing\0";
     MSG_LOGO gotLogo; 
     TRACE2_HEADER traceHeader;
     char *msg, *msgs, *msgWork;

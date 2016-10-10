@@ -4,7 +4,7 @@ finalize.c
 flushRing.c
 freetb2Data.c
 freetb2Trace.c
-getTraceBuf2Messages.c
+getMessagesFromRing.c
 initialize.c
 settb2Data.c
 unpackTraceBuf2Messages.c

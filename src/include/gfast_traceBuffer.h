@@ -121,7 +121,7 @@ struct h5trace_struct
     int ncopy;            /*!< Number of points to copy from Earthworm traceBuffer
                                to HDF5 or number of points to copy from HDF5 to
                                GFAST data buffer */
-    int dtGroupName;      /*!< Sampling period group number */
+    int dtGroupNumber;    /*!< Sampling period group number */
 };
 
 struct h5traceBuffer_struct
@@ -145,11 +145,11 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval);
 int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
 /* Flush an earthworm ring */
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
-/* Read tracebuf2 messages from the ring */
-char *traceBuffer_ewrr_getTraceBuf2Messages(const int messageBlock,
-                                            const bool showWarnings,
-                                            struct ewRing_struct *ringInfo,
-                                            int *nRead, int *ierr);
+/* Read messages from the ring */
+char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
+                                           const bool showWarnings,
+                                           struct ewRing_struct *ringInfo,
+                                           int *nRead, int *ierr);
 /* Initialize the earthworm ring reader connection */
 int traceBuffer_ewrr_initialize(const char *ewRing,
                                 const int msWait,

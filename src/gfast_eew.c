@@ -176,13 +176,13 @@ int main(int argc, char **argv)
         t0 = t1;
 printf("start\n");
 double tbeger = ISCL_time_timeStamp();
-        // Update my buffers
+        // Read my messages off the ring
         ISCL_memory_free__char(&msgs);
-        msgs = traceBuffer_ewrr_getTraceBuf2Messages(MAX_MESSAGES,
-                                                     false,
-                                                     &ringInfo,
-                                                     &nTracebufs2Read,
-                                                     &ierr);
+        msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
+                                                    false,
+                                                    &ringInfo,
+                                                    &nTracebufs2Read,
+                                                    &ierr);
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
             if (ierr ==-1)
