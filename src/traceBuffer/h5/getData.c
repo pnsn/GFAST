@@ -30,7 +30,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
 {
     const char *fcnm = "traceBuffer_h5_getData\0";
     char dataBuffer1[64], dataBuffer2[64];
-    double *work, dt, ts1, ts2, ts1Use, ts2Use;
+    double *work, dt, gain, ts1, ts2, ts1Use, ts2Use;
     int i, ierr, ierrAll, i1, i2, j1, j2, maxpts, nc1, nc2, ncopy;
     hid_t groupID;
     herr_t status;
@@ -57,7 +57,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         // Get the scalars describing this dataset
         ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, (double) NAN,
                                                &maxpts,
-                                               &dt, &ts1, &ts2);
+                                               &dt, &gain, &ts1, &ts2);
         if (ierr != 0)
         {
             log_errorF("%s: Error getting scalars!\n", fcnm);
@@ -76,6 +76,11 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             ierrAll = ierrAll + 1;
             continue;
         }
+        if (gain == 0.0)
+        {
+            log_warnF("%s: Division by zero coming up\n", fcnm);
+        }
+        h5traceBuffer->traces[i].gain = gain;
         if (t1 < ts1 && t1 < ts2)
         {
             log_errorF("%s: Error time is too %16.f %16.f %16.f\n",

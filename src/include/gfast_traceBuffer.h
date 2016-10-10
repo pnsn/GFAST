@@ -210,7 +210,8 @@ int traceBuffer_h5_getScalars(const hid_t groupID,
                               const int intNaN,
                               const double doubleNaN,
                               int *maxpts,
-                              double *dt, double *ts1, double *ts2);
+                              double *dt, double *gain,
+                              double *ts1, double *ts2);
 /* Initialize the HDF5 tracebuffer structure */
 int traceBuffer_h5_initialize(const int job,
                               const bool linMemory,

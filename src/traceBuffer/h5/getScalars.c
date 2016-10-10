@@ -23,6 +23,7 @@ static int traceBuffer_h5_getIntegerScalar(const hid_t groupID,
  *
  * @param[out] maxpts    max number of data points per buffer
  * @param[out] dt        sampling period (s)
+ * @param[out] gain      channel gain
  * @param[out] ts1       epochal start time of dataBuffer1 (UTC seconds)
  * @param[out] ts2       epochal start time of dataBuffer2 (UTC seconds)
  *
@@ -33,7 +34,8 @@ int traceBuffer_h5_getScalars(const hid_t groupID,
                               const int intNaN,
                               const double doubleNaN,
                               int *maxpts,
-                              double *dt, double *ts1, double *ts2)
+                              double *dt, double *gain,
+                              double *ts1, double *ts2)
 {
     const char *fcnm = "traceBuffer_h5_getScalars\0";
     int ierr, ierr1;
@@ -45,6 +47,10 @@ int traceBuffer_h5_getScalars(const hid_t groupID,
     *dt  = traceBuffer_h5_getDoubleScalar(groupID,
                                           "SamplingPeriod\0",
                                           doubleNaN, &ierr1);
+    ierr = ierr + ierr1;
+    *gain = traceBuffer_h5_getDoubleScalar(groupID,
+                                           "Gain\0",
+                                           doubleNaN, &ierr1);
     ierr = ierr + ierr1;
     *ts1 = traceBuffer_h5_getDoubleScalar(groupID,
                                           "Buffer1StartTime\0",

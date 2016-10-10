@@ -38,9 +38,14 @@ int traceBuffer_h5_setData(const double currentTime,
 {
     const char *fcnm = "traceBuffer_h5_setData\0";
     double *dwork;
-    int nwork;
+    int maxpts, nwork;
     int *map, i, ierr, k;
+    double dt, gain, ts1, ts2;
     bool *lhaveData;
+    hid_t groupID;
+    herr_t status;
+    //------------------------------------------------------------------------//
+    //
     // Require both items are set
     if (!tb2Data.linit || !h5traceBuffer.linit)
     {
@@ -108,8 +113,42 @@ NEXT_TRACE:;
     for (k=0; k<h5traceBuffer.ntraces; k++)
     {
         dwork = NULL;
+        // Open the group for reading/writing
+        groupID = H5Gopen2(h5traceBuffer.fileID,
+                           h5traceBuffer.traces[i].groupName, H5P_DEFAULT);
+        // Get the scalars describing this dataset
+        ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, (double) NAN,
+                                               &maxpts,
+                                               &dt, &gain, &ts1, &ts2);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Error getting scalars!\n", fcnm);
+            return -1;
+        }
+        if (dt <= 0.0 || fabs(gain) < 1.e-15 || maxpts < 1)
+        {
+            if (dt <= 0.0)
+            {
+                log_errorF("%s: Sampling period is invalid\n", fcnm);
+            }
+            if (fabs(gain) < 1.e-15)
+            {
+                log_errorF("%s: Trace division by zero coming\n", fcnm);
+            }
+            if (maxpts < 1)
+            {
+                log_errorF("%s: The buffers are empty\n", fcnm);
+            }
+            goto CLOSE_GROUP;
+        }
+        // Require the time makes sense
+        if (currentTime < ts1 && currentTime < ts2)
+        {
+            log_errorF("%s: Packet is too old to be updated\n", fcnm);
+            goto CLOSE_GROUP;
+        } 
         // Get the current time
-
+      
         // Push the data
         if (lhaveData[k])
         {
@@ -119,6 +158,14 @@ NEXT_TRACE:;
 
 
             ISCL_memory_free__double(&dwork);
+        }
+        // Close the group
+CLOSE_GROUP:;
+        status = H5Gclose(groupID);
+        if (status < 0)
+        {
+            log_errorF("%s: Error closing group\n", fcnm);
+            continue;
         }
     }
     // Free memory

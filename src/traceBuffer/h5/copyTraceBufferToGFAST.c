@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <cblas.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
@@ -34,7 +35,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     struct GFAST_data_struct *gps_data)
 {
     const char *fcnm = "traceBuffer_h5_copyTraceBufferToGFAST\0";
-    double dt;
+    double dt, gain;
     int i, ierr, ierr1, j, k, l;
     bool *ltInit;
     ierr = 0;
@@ -69,6 +70,17 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 log_errorF("%s: Error copying ubuff\n", fcnm);
                 ierr = ierr + 1;
             }
+            // Apply the gain
+            gps_data->data[k].gain[j] = 1.0; // will be applied here
+            gain = traceBuffer->traces[i].gain;
+            if (fabs(gain) < 1.e-15)
+            {
+                log_errorF("%s: Division by zero\n", fcnm);
+                ierr = ierr + 1;
+            }
+            gain = 1.0/gain;
+            cblas_dscal(gps_data->data[k].npts, gain,
+                        gps_data->data[k].ubuff, 1);
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
             #pragma omp simd
             for (l=0; l<gps_data->data[k].npts; l++)
@@ -89,6 +101,17 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 log_errorF("%s: Error copying nbuff\n", fcnm);
                 ierr = ierr + 1;
             }
+            // Apply the gain
+            gps_data->data[k].gain[j] = 1.0; // will be applied here
+            gain = traceBuffer->traces[i].gain;
+            if (gain == 0.0)
+            {
+                log_errorF("%s: Division by zero\n", fcnm);
+                ierr = ierr + 1;
+            }
+            gain = 1.0/gain;
+            cblas_dscal(gps_data->data[k].npts, gain,
+                        gps_data->data[k].nbuff, 1);
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
         }
         else if (j == 2)
@@ -104,6 +127,17 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 log_errorF("%s: Error copying ebuff\n", fcnm);
                 ierr = ierr + 1;
             }
+            // Apply the gain
+            gps_data->data[k].gain[j] = 1.0; // will be applied here
+            gain = traceBuffer->traces[i].gain;
+            if (gain == 0.0)
+            {
+                log_errorF("%s: Division by zero\n", fcnm);
+                ierr = ierr + 1;
+            }
+            gain = 1.0/gain;
+            cblas_dscal(gps_data->data[k].npts, gain,
+                        gps_data->data[k].ebuff, 1);
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
         }
 //    printf("%d %d\n", k, j);
