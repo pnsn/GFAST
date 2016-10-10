@@ -209,8 +209,7 @@ double tbeger = ISCL_time_timeStamp();
         }
         if (nTracebufs2Read == 0)
         {
-            log_warnF("%s: No data acquired - skipping\n", fcnm);
-            continue;
+            log_warnF("%s: No data acquired\n", fcnm);
         }
 printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();

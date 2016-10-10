@@ -9,7 +9,7 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
-static int udpate_dataSet(const hid_t groupID,
+static int update_dataSet(const hid_t groupID,
                           const char *dataSetName, 
                           int i1, int i2, const int npts,
                           const double *__restrict__ data);
@@ -153,7 +153,7 @@ NEXT_TRACE:;
         if (currentTime > tmax || true)
         {
             dwork = ISCL_array_set__double(maxpts, (double) NAN, &ierr);
-            ierr = udpate_dataSet(groupID, "dataBuffer1\0", 0, maxpts, 
+            ierr = update_dataSet(groupID, "dataBuffer1\0", 0, maxpts-1,
                                   maxpts, dwork);
             if (ierr != 0)
             {
@@ -204,12 +204,12 @@ CLOSE_GROUP:;
  * @author Ben Baker (ISTI)
  *
  */
-static int udpate_dataSet(const hid_t groupID,
+static int update_dataSet(const hid_t groupID,
                           const char *dataSetName,  
                           int i1, int i2, const int npts,
                           const double *__restrict__ data)
 {
-    const char *fcnm = "udpate_dataSet\0";
+    const char *fcnm = "update_dataSet\0";
     hid_t dataSetID, dataSpace, memSpace;
     herr_t status;
     hsize_t count[1], chunkDims[1], dims[1], offset[1];
@@ -229,7 +229,7 @@ static int udpate_dataSet(const hid_t groupID,
         if (data == NULL){log_errorF("%s: data is NULL\n", fcnm);}
         return -1;
     }
-    if (H5Lexists(groupID, dataSetName, H5P_DEFAULT != 1))
+    if (H5Lexists(groupID, dataSetName, H5P_DEFAULT) != 1)
     {
         log_errorF("%s: Dataset %s does not exist\n", fcnm, dataSetName); 
         return -1;
