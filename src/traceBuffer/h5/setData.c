@@ -9,6 +9,29 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+static int udpate_dataSet(const hid_t groupID,
+                          const char *dataSetName, 
+                          int i1, int i2, const int npts,
+                          const double *__restrict__ data);
+
+/*!
+ * @brief Sets the data in the HDF5 file from the data on the tb2Data 
+ *        buffer.  If any data is late then it will be filled with NaN's
+ *        in the HDF5 file.
+ *
+ * @param[in] currentTime    current time (UTC seconds since epoch) to which to
+ *                           update the HDF5 data buffers. 
+ * @param[in] tb2Data        holds the tracebuffer2 data to be written to 
+ *                           disk.  the SNCLs on tb2Data should correspond
+ *                           to the SNCLs on h5TraceBuffer and the data should
+ *                           be in temporal order. 
+ * @param[in] h5traceBuffer  holds the HDF5 group names for each trace and
+ *                           HDF5 file details
+ *
+ * @author Ben Baker (ISTI)
+ *
+ * @copyright Apache 2
+ */
 int traceBuffer_h5_setData(const double currentTime,
                            struct tb2Data_struct tb2Data,
                            struct h5traceBuffer_struct h5traceBuffer)
@@ -93,136 +116,15 @@ NEXT_TRACE:;
             nwork = (int) ((currentTime - tb2Data.traces[k].times[0])
                           /h5traceBuffer.traces[i].dt + 0.5) + 1;
             dwork = ISCL_array_set__double(nwork, (double) NAN, &ierr);
-          
+
+
+            ISCL_memory_free__double(&dwork);
         }
-        ISCL_memory_free__double(&dwork);
     }
     // Free memory
     ISCL_memory_free__int(&map);
     ISCL_memory_free__bool(&lhaveData);
     return 0;
-}
-/*!
- * @brief Writes the data on the h5traceBuffer to the HDF5 archive
- *
- * @param[in] h5traceBuffer   contains the data and streams to be updated in the
- *                            HDF5 file
- *
- * @result 0 indicates success
- *
- */
-int traceBuffer_h5_setData2(struct h5traceBuffer_struct *h5traceBuffer)
-{
-    const char *fcnm = "traceBuffer_h5_setData\0";
-    double dt, dt0, dtH5, t1, t2, tmaxH5, tmaxH50, tmaxIn, ts1,ts1Min, 
-           ts2, ts2Max;
-    int i, ierr, ierrAll, maxpts, npts;
-    bool lnoData;
-    hid_t groupID;
-    herr_t status;
-    //------------------------------------------------------------------------//
-    //
-    // Never initialized
-    if (!h5traceBuffer->linit)
-    {
-        log_errorF("%s: Error h5traceBuffer not initialized\n", fcnm);
-        return -1;
-    }
-    // No data
-    if (h5traceBuffer->ntraces == 0){return 0;}
-    // Nothing to update
-    lnoData = true;
-    for (i=0; i<h5traceBuffer->ntraces; i++)
-    {
-        if (h5traceBuffer->traces[i].ncopy > 0)
-        {
-            lnoData = false;
-            break;
-        } 
-    }
-    if (lnoData){return 0;}
-    // Get the min and max times to copy
-    ierr = 0;
-    ierrAll = 0;
-    dt0 = (double) NAN;
-    ts1Min = DBL_MAX;
-    ts2Max =-DBL_MAX;
-    tmaxH50 =-DBL_MAX;
-    tmaxIn =-DBL_MAX;
-    tmaxH5 =-DBL_MAX;
-    lnoData = true;
-    for (i=0; i<h5traceBuffer->ntraces; i++)
-    {
-        // Make sure there is data worth considering
-        npts = h5traceBuffer->traces[i].ncopy;
-        if (npts < 0 || h5traceBuffer->traces[i].data == NULL){continue;}
-        lnoData = false;
-        // Get the max time on the trace
-        dt = h5traceBuffer->traces[i].dt;
-        t1 = h5traceBuffer->traces[i].t1;
-        t2 = t1 + (double) (npts - 1)*dt;
-        tmaxIn = fmax(t2, tmaxIn);
-        // Get the same information from the HDF5 buffer
-        groupID =  H5Gopen2(h5traceBuffer->fileID,
-                            h5traceBuffer->traces[i].groupName, H5P_DEFAULT);
-        ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345, (double) NAN,
-                                               &maxpts,
-                                               &dtH5, &ts1, &ts2);
-        if (fabs(dtH5 - dt)/dtH5 > 1.e-10)
-        {
-            log_errorF("%s: Error saved sampling periods from data %f %f\n",
-                       fcnm, dt, dtH5);
-            ierrAll = ierrAll + 1;
-        }
-        if (isnan(dt0)){dt0 = dt;}
-        if (fabs(dt - dt0)/dt > 1.e-10)
-        {
-            log_errorF("%s: Need constant sampling period in data\n", fcnm);
-            return -1;
-        } 
-        ts1Min = fmin(ts1Min, fmin(ts1, ts2));
-        ts2Max = fmax(ts2Max, fmax(ts1, ts2));
-        tmaxH50 = fmax(ts1, ts2) + (double) (maxpts - 1)*dtH5;
-        tmaxH5 = fmax(tmaxH5, tmaxH50);
-        if (tmaxH50 >-DBL_MAX)
-        {
-            if ((tmaxH50 - tmaxH5)/tmaxH5 > 1.e-10)
-            {
-                log_warnF("%s: All buffers should be consistent %16.f %16.f\n",
-                          fcnm, tmaxH5, tmaxH50);
-            }
-        }
-        tmaxH50 = tmaxH5;
-        status = H5Gclose(groupID);
-        if (status != 0)
-        {
-            log_errorF("%s: Error closing the group\n", fcnm);
-            ierrAll = ierrAll + 1;
-        }
-    } // Loop on traces
-    if (ierrAll != 0)
-    {
-        log_errorF("%s: Error in HDF5 IO\n", fcnm);
-        return -1;
-    }
-    if (lnoData)
-    {
-        log_warnF("%s: No data provided\n", fcnm);
-        return 0;
-    }
-    // Not updating because data is too latent 
-    if (tmaxIn < ts1Min)
-    {
-        log_warnF("%s: Skipping update - data is too latent\n", fcnm);
-        return 0;
-    }
-    // Update the buffers to the current time
-    for (i=0; i<h5traceBuffer->ntraces; i++)
-    {
-        // Get the data from the group
- 
-    }
-    return ierr;
 }
 //============================================================================//
 /*!
@@ -241,10 +143,10 @@ int traceBuffer_h5_setData2(struct h5traceBuffer_struct *h5traceBuffer)
  * @author Ben Baker (ISTI)
  *
  */
-int udpate_dataSet(const hid_t groupID,
-                   const char *dataSetName,  
-                   int i1, int i2, const int npts,
-                   const double *__restrict__ data)
+static int udpate_dataSet(const hid_t groupID,
+                          const char *dataSetName,  
+                          int i1, int i2, const int npts,
+                          const double *__restrict__ data)
 {
     const char *fcnm = "udpate_dataSet\0";
     hid_t dataSetID, dataSpace, memSpace;

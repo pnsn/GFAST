@@ -189,7 +189,7 @@ LPGL3 license.  This means that one can safely link to the shared MoPaD library 
 modifying the GFAST license.  This is reflected in the target link library of the 
 src/CMakeLists.txt  file.
 
-\subsection{Building GFAST}
+\subsection{Building G-FAST}
 
 To increase the likelihood that G-FAST can be compiled on multiple platforms (e.g. Linux, 
 Windows, OSX) and ease the burden on developers to modify cumbersome makefiles G-FAST 
@@ -266,10 +266,20 @@ detected or is not specified then the lone directory which depends on Earthworm 
 not be built and there will be no real-time acquisition capability.  This may be 
 advantageous if only building a playback facility.  
 
+\subsection{Generating the Doxygen Documentation}
+\href{http://www.stack.nl/~dimitri/doxygen/}{Doxygen}
+is a useful tool for generating a type of code documentation.  It is particularly
+useful to developers who wish to look-up variables in structures, variable meanings in 
+function calls, and program function dependencies.  Doxygen is unobtrusively used by
+decoarting preambles in source files and structures in header files.  After running
+doxygen on the Doxyfile in the root source directory, Doxygen will scan the predetermined
+source folders and autogenerate a large amount of documentation.  The output can be viewed
+with a web-browser or PDF viewer.  
+
 \clearpage
-\section{GFAST Library Overview}
-This section will outline the GFAST libraries.  Libraries are used extensively 
-to emphasize modularity, allow users to customize GFAST to their application 
+\section{G-FAST Library Overview}
+This section will outline the G-FAST libraries.  Libraries are used extensively 
+to emphasize modularity, allow users to customize G-FAST to their application 
 without incurring the cruft of another GFAST application, and promote a maintainable
 software framework whereby software fixes can efficiently propagate to all users.  
 The libraries to be introduced are
@@ -279,11 +289,11 @@ The libraries to be introduced are
 \end{itemize}
 
 \clearpage
-\subsection{GFAST Core Routines}\label{ss:gfastCore}
+\subsection{G-FAST Core Routines}\label{ss:gfastCore}
 This section outlines the libgfast\_core utilities which are essential to the expert
 earthquake-early warning driver routines.  The six primary utilities are
 \begin{itemize}
-  \item A properties reader for requisite GFAST modeling parameters.
+  \item A properties reader for requisite G-FAST modeling parameters.
   \item Waveform processing for computation of peak ground displacement or offsets
   derived from precise-point-position time series data.
   \item PGD inversion of peak ground displacement data computed in the waveform processing.
@@ -294,6 +304,67 @@ earthquake-early warning driver routines.  The six primary utilities are
             has unpredictable behavior when crossing UTM zones that could jeopardize
             program library execution in the Pacific Northwest.}.  
 \end{itemize}
+
+\subsubsection{G-FAST Properties Reader}
+The G-FAST properties directory is responsible for reading all properties from the 
+G-FAST properties file.  To mimic the functionality of G-FAST will have general
+properties, PGD scaling properties, CMT inversion properties, finite-fault inversion properties.
+and, optionally ActiveMQ properties.  The properties will be discussed at greater length in
+Section \label{S:propertiesFile}.  In this directory also exists a convenience routine for
+clearing the G-FAST properties during a finalization phase as well as displaying the properties
+to a text file or standard out.
+
+\subsubsection{G-FAST PGD Scaling}
+The G-FAST peak ground displacement inversion accepts from the waveform processor the
+largest\footnote{Largest is maximum observed Euclidean distance of the three-component offset 
+data within a valid S-wave mask.} peak ground displacements in a valid region around the
+earthquake hypocenter.  This valid region is computed from a configurable S-wave masking velocity to
+prevent offsets at different stations from contaminating the inversion.  From this PGD data, 
+G-FAST will 
+\begin{equation}
+ gm=u
+\end{equation}
+
+\subsubsection{G-FAST CMT Inversion}
+The G-FAST CMT inversion accepts from the waveform processor average static offsets for each station
+and component from the time a theoretical S-wave has passed through the station to the latest available
+data point.  Like in the PGD scaling the CMT S-wave mask velocity is configurable.  Provided the
+theoretical S-wave has passed through a configurable minimum number of stations the inversion will
+perform for each depth a linearized moment tensor inversion.  The moment tensor inversion is 
+constrained to purely deviatoric sources for stability.  
+\begin{equation}
+  G \hat{\textbf{m}} = \textbf{d}
+\end{equation}
+where 
+\begin{equation}
+   \hat{\textbf{m}} 
+ = \left \{ 
+     \begin{array}{c} 
+       m_{xy} \\ m_{xz} \\ m_{zz} \\ \frac{m_{xx} - m_{yy}}{2} \\ m_{yz} 
+     \end{array}
+   \right \}
+\end{equation}
+and 
+\begin{equation}
+  G =
+\end{equation}
+As a word of caution, observe that the output moment tensors have been converted to a
+more conventional North, East, Down \citep[e.g.][]{jostAndHerrmann} 
+$\{m_{xx}, m_{yy}, m_{zz}, m_{xy}, m_{xz}, m_{yz}\}^T$ for the HDF5 output 
+or Up, South, East
+\citep[e.g.][]{globalCMT} 
+$\{m_{rr}, m_{\theta \theta}, m_{\phi \phi}, m_{r \theta}, m_{r \phi}, m_{\theta \phi} \}^T$
+for the QuakeML output.  
+
+After the grid-search is complete a double-couple promoting penalty is applied at each depth
+$i=1,2,\cdots, n_{d}$ to the variance 
+reduction, $v_r^{(i)}$ 
+\begin{equation}
+  \hat{v_r}^{(i)} = \frac{v_r^{(i)}}{\operatorname{DCP}\{\textbf{m}^{(i)}\}}
+\end{equation}
+where $\operatorname{DCP}$ denotes the double couple percentage of the moment tensor.  
+
+\subsubsection{G-FAST Finite Fault Inversion}
 
 \clearpage
 \subsection{Data Acquisition}
@@ -343,7 +414,23 @@ expediting communication between the tsunami warning centers and NEIC.
 This section outlines the HDF5 summary files.  HDF5 is a portable and high performance 
 utility which makes it possible to easily archive the results\footnote{Since results are 
 encapsulated in data structures the HDF5 files are the data structures after each iteration.}
-of GFAST after each iteration thereby providing a snapshot of the GFAST execution and 
+of G-FAST after each iteration thereby providing a snapshot of the GFAST execution and 
+
+\section{Using G-FAST}
+This section describes the G-FAST usage in layback application and earthquake early warning.  
+There are three steps in a G-FAST.  The first step is creation of a parameter file and 
+additional data files.  The second step is running the application.  The third step is
+post-processing the resulting HDF5 summary file.
+
+\subsection{The G-FAST Base Properties File}\label{S:propertiesFile}
+This section describes the G-FAST parameters common to both playback and earthquake early warning.
+
+The most recent metadata file can be obtained at 
+\url{http://www.panga.cwu.edu/eew/readi_sites_metadata.txt}.  
+
+\subsection{The G-FAST Playback Properties File}
+
+\subsection{The G-FAST Earthquake Early Warning Properties File}
 
 \section{Acknowledgements}
 This software was developed with funds from the amazon catylyst and government grants a, b, c and d.  
@@ -355,7 +442,7 @@ i'm going to guess this software belongs to uw, ideally it is free (as in beer) 
 an academic or government setting, uw owns all modifications to the software, the software
 is provided as is, and you cannot hold uw liable.  they may settle for a gpl-3 which would 
 be a good compromise if the goal is to keep a company from touching it.  this may have
-already been decided in the amazon catalyst proposal. 
+already been decided in the amazon catalyst proposal.  
 
 \end{document}
 
