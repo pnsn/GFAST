@@ -40,7 +40,7 @@ int traceBuffer_h5_setData(const double currentTime,
     double *dwork;
     int maxpts, nwork;
     int *map, i, ierr, k;
-    double dt, gain, ts1, ts2;
+    double dt, gain, tmax, ts1, ts2;
     bool *lhaveData;
     hid_t groupID;
     herr_t status;
@@ -148,8 +148,21 @@ NEXT_TRACE:;
             log_errorF("%s: Packet is too old to be updated\n", fcnm);
             goto CLOSE_GROUP;
         } 
-        // Get the current time
-      
+        // Need to do a push
+        tmax = fmax(ts1, ts2) + dt*(double) (maxpts - 1);
+        if (currentTime > tmax || true)
+        {
+            dwork = ISCL_array_set__double(maxpts, (double) NAN, &ierr);
+            ierr = udpate_dataSet(groupID, "dataBuffer1\0", 0, maxpts, 
+                                  maxpts, dwork);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error setting NaN data %s\n",
+                           fcnm, h5traceBuffer.traces[k].groupName);
+                goto CLOSE_GROUP;
+            }
+            ISCL_memory_free__double(&dwork);
+        }
         // Push the data
         if (lhaveData[k])
         {
