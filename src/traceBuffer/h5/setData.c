@@ -185,7 +185,7 @@ NEXT_TRACE:;
             if (currentTime > tmax)
             {
                 // Update the times
-                ts1Upd = ts2Use + (double) (maxpts - 1)*dt;
+                ts1Upd = ts2Use + (double) maxpts*dt;
                 traceBuffer_h5_setDoubleScalar(groupID,
                                                dtBuffer,
                                                ts1Upd);
@@ -226,6 +226,7 @@ NEXT_TRACE:;
         if (lhaveData[k])
         {
             // Get the response as a double onto data 
+            i = map[k]; // points to tb2trace
             nchunks = tb2Data.traces[i].nchunks;
             c1 = tb2Data.traces[i].chunkPtr[0]; 
             c2 = tb2Data.traces[i].chunkPtr[nchunks];
@@ -240,6 +241,7 @@ NEXT_TRACE:;
             for (i1=0; i1<tb2Data.traces[i].npts; i1++)
             {
                 dwork[i1] = (double) tb2Data.traces[i].data[i1];
+                dwork[i1] = (double) tb2Data.traces[i].times[i1];
             }
             // Loop on the distinct messages
             for (chunk=0; chunk<nchunks; chunk++)
@@ -322,7 +324,7 @@ NEXT_TRACE:;
                 else if (i1 < 0 && i2 < 0)
                 {
                     j1 = (int) ((tb2Data.traces[i].times[c1]-ts1Use)/dt + 0.5);
-                    j2 = (int) ((tb2Data.traces[i].times[c1]-ts2Use)/dt + 0.5);
+                    j2 = (int) ((tb2Data.traces[i].times[c1]-ts1Use)/dt + 0.5);
                     k1 = c1;
                     if (j1 < 0)
                     {
@@ -335,9 +337,15 @@ NEXT_TRACE:;
                                           nwork, &dwork[k1]);
                     if (ierr != 0)
                     {
-                        log_errorF("%s: Failed previous update\n", fcnm);
+                        log_errorF("%s: Failed previous update %d %d %d\n",
+                                   fcnm, j1, j2, nwork);
                         goto CLOSE_GROUP;
                     }
+                }
+                // Unclassified case
+                else
+                {
+                    log_errorF("%s: Unclassified case %d %d\n", fcnm, i1, i2);
                 }
             } // Loop on messages 
             ISCL_memory_free__double(&dwork);
@@ -387,7 +395,7 @@ static int update_dataSet(const hid_t groupID,
     const char *fcnm = "update_dataSet\0";
     hid_t dataSetID, dataSpace, memSpace;
     herr_t status;
-    hsize_t count[1], chunkDims[1], dims[1], offset[1];
+    hsize_t block[1], count[1], dims[1], offset[1], stride[1];
     const int rank = 1; // Data is 1 dimensional
     //------------------------------------------------------------------------//
     //
@@ -432,15 +440,17 @@ static int update_dataSet(const hid_t groupID,
                    fcnm, i1, npts, (int) dims[0]);
         status =-1;
         goto ERROR1;
-    } 
-    chunkDims[0] = dims[0];
-    memSpace = H5Screate_simple(rank, chunkDims, NULL); 
+    }
+    dims[0] = npts;
+    memSpace = H5Screate_simple(rank, dims, NULL); 
     // Select HDF5 chunk
     status = 0;
     offset[0] = (hsize_t) i1;
+    stride[0] = 1;
     count[0] = (hsize_t) npts;
-    status = H5Sselect_hyperslab(dataSpace, H5S_SELECT_SET, offset, NULL,
-                                 count, NULL);
+    block[0] = 1;
+    status = H5Sselect_hyperslab(dataSpace, H5S_SELECT_SET, offset, stride,
+                                 count, block);
     if (status < 0)
     {
         log_errorF("%s: Error selecting hyperslab\n", fcnm);
@@ -449,7 +459,7 @@ static int update_dataSet(const hid_t groupID,
     }
     // Write the data to that space
     status = H5Dwrite(dataSetID, H5T_NATIVE_DOUBLE, memSpace, dataSpace,
-                      H5P_DEFAULT, data); 
+                      H5P_DEFAULT, data);
     if (status < 0)
     {
         log_errorF("%s: Error writing data\n", fcnm);

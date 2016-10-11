@@ -55,7 +55,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     double *times, dt;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
         dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l,
-        lswap, nReadPtr, nsamp0, npts, nsort;
+        lswap, nchunks, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = false;
     //------------------------------------------------------------------------//
@@ -158,7 +158,7 @@ printf("%d\n", nRead);
     nReadPtr = 0;
     for (i=0; i<nRead; i++)
     {
-printf("%d\n", imap[i]);
+//printf("%d\n", imap[i]);
         if (imap[i] == tb2Data->ntraces + 1){break;} // Out of things to do 
         // update next station
         if (imap[i+1] != imap[i])
@@ -210,6 +210,7 @@ printf("sorting %d %d\n", i1, i2);
             tb2Data->traces[k].data  = ISCL_memory_calloc__int(kpts[k]);
             tb2Data->traces[k].times = ISCL_memory_calloc__double(kpts[k]);
             tb2Data->traces[k].chunkPtr = ISCL_memory_calloc__int(nmsg[k]+1);
+            tb2Data->traces[k].npts = kpts[k];
         }
     }
 printf("nReadPtr: %d\n", nReadPtr);
@@ -220,7 +221,7 @@ printf("nReadPtr: %d\n", nReadPtr);
         i2 = imapPtr[ir+1];
         k = imap[i1];
         kndx = 0;
-printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
+//printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
@@ -260,11 +261,11 @@ printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
             if (im > i1)
             {
                 if (fabs( (tb2Data->traces[k].times[kndx] + dt)
-                        - traceHeader.starttime - dt ) < 1.e-6)
+                        - traceHeader.starttime ) < 1.e-6)
                 {
                     tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
-                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] =
-                          kndx + 1;
+                    nchunks = tb2Data->traces[k].nchunks;
+                    tb2Data->traces[k].chunkPtr[nchunks] = kndx + 1;
                 }
             }
             // Update the points
@@ -281,13 +282,28 @@ printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
                                 traceHeader.chan, traceHeader.loc,
                                 traceHeader.nsamp, (double) resp[0]/1000000); 
         } // Loop on messages for this SNCL
-//        tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
-//        tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + 1;
+        // Special case for one message
+        if (i2 - i1 == 1 && kpts[k] > 0)
+        {
+            tb2Data->traces[k].nchunks = 1;
+            tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kpts[k];
+        }
         // Reality check
         if (kndx != kpts[k])
         {
             log_errorF("%s: Lost count %d %d\n", fcnm, kndx, kpts[k]);
             return -1;
+        }
+        if (tb2Data->traces[k].nchunks > 0)
+        {
+            nchunks = tb2Data->traces[k].nchunks;
+            if (tb2Data->traces[k].chunkPtr[nchunks] != tb2Data->traces[k].npts)
+            {
+                log_errorF("%s: Inconsistent number of points %d %d\n",
+                           fcnm, tb2Data->traces[k].chunkPtr[nchunks],
+                           tb2Data->traces[k].npts);
+                return -1;
+            }
         }
     } // Loop on pointers
 

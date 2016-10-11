@@ -176,6 +176,7 @@ int main(int argc, char **argv)
         t0 = t1;
 printf("start\n");
 double tbeger = ISCL_time_timeStamp();
+double tbeger0 = tbeger;
         // Read my messages off the ring
         ISCL_memory_free__char(&msgs);
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
@@ -233,8 +234,9 @@ tbeger = ISCL_time_timeStamp();
             goto ERROR;
         }
 printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
+printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
- if (t1 - tbeg > 5)
+ if (t1 - tbeg > 620)
 {
 printf("premature shut down\n");
 break;

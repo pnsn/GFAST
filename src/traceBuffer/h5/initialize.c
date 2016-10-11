@@ -234,10 +234,11 @@ int traceBuffer_h5_initialize(const int job,
             groupID = H5Gcreate2(h5traceBuffer->fileID,
                                  h5traceBuffer->traces[i].groupName,
                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-            // Set the basic data
+            // Set the basic data.  Set the first buffer to the
+            // past so that latent data can be added during startup
             maxpts = h5traceBuffer->traces[i].maxpts;
-            t1 = tbeg;
-            t2 = tbeg + (double) (maxpts - 1)*dt;
+            t1 = tbeg - (double) maxpts*dt;
+            t2 = tbeg;
             if (maxpts > 0)
             {
                 work = ISCL_memory_calloc__double(maxpts);
