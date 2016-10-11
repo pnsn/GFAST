@@ -40,7 +40,7 @@ int traceBuffer_h5_setData(const double currentTime,
     char dataBuffer1[64], dataBuffer2[64], dtBuffer[64];
     double *dwork;
     int maxpts, nwork;
-    int *map, c1, c2, chunk, i, i1, i2, ierr, j1, j2,
+    int *map, c1, c2, chunk, i, i1, i2, ierr, ierrAll, j1, j2,
         k, k1, kupd, nchunks, npupd;
     double dt, gain, tmax, ts1, ts1Upd, ts1Use, ts2, ts2Use;
     bool *lhaveData;
@@ -49,6 +49,8 @@ int traceBuffer_h5_setData(const double currentTime,
     //------------------------------------------------------------------------//
     //
     // Require both items are set
+    ierr = 0;
+    ierrAll = 0;
     if (!tb2Data.linit || !h5traceBuffer.linit)
     {
         if (!tb2Data.linit){log_errorF("%s: Error tb2Data not set\n", fcnm);}
@@ -137,7 +139,8 @@ NEXT_TRACE:;
             {
                 log_errorF("%s: Error getting scalars %s!\n",
                            fcnm, h5traceBuffer.traces[i].groupName);
-                return -1;
+                ierrAll = ierrAll + 1;
+                goto CLOSE_GROUP; 
             }
             if (dt <= 0.0 || fabs(gain) < 1.e-15 || maxpts < 1)
             {
@@ -153,12 +156,14 @@ NEXT_TRACE:;
                 {
                     log_errorF("%s: The buffers are empty\n", fcnm);
                 }
+                ierrAll = ierrAll + 1;
                 goto CLOSE_GROUP;
             }
             // Require the time makes sense
             if (currentTime < ts1 && currentTime < ts2)
             {
                 log_errorF("%s: Packet is too old to be updated\n", fcnm);
+                ierrAll = ierrAll + 1;
                 goto CLOSE_GROUP;
             } 
             // Set the databuffers and names
@@ -182,10 +187,11 @@ NEXT_TRACE:;
             }
             // Need to do a push - pop the oldest dataset
             tmax = ts2Use + dt*(double) (maxpts - 1);
-            if (currentTime > tmax)
+            if (currentTime > tmax - dt)
             {
                 // Update the times
                 ts1Upd = ts2Use + (double) maxpts*dt;
+printf("performing push: %f %f %f\n", ts1Use, ts2Use, ts1Upd);
                 traceBuffer_h5_setDoubleScalar(groupID,
                                                dtBuffer,
                                                ts1Upd);
@@ -198,6 +204,8 @@ NEXT_TRACE:;
                     log_errorF("%s: Error updating start time %s %s\n",
                                fcnm, h5traceBuffer.traces[k].groupName,
                                dtBuffer);
+                    ierrAll = ierrAll + 1;
+                    goto CLOSE_GROUP;
                 }
                 ierr = update_dataSet(groupID, dataBuffer1, 0, maxpts-1,
                                       maxpts, dwork);
@@ -207,6 +215,7 @@ NEXT_TRACE:;
                     log_errorF("%s: Error setting NaN data %s %d\n",
                                fcnm, h5traceBuffer.traces[k].groupName,
                                dataBuffer1);
+                    ierrAll = ierrAll + 1;
                     goto CLOSE_GROUP;
                 }
             }
@@ -220,6 +229,7 @@ NEXT_TRACE:;
         if (isnan(ts1Use) || isnan(ts2Use) || fabs(dt) < 1.e-14)
         {
             log_errorF("%s: Failed to set start times\n", fcnm);
+            ierrAll = ierrAll + 1;
             goto CLOSE_GROUP;
         }
         // Update the data
@@ -234,6 +244,7 @@ NEXT_TRACE:;
             {
                 log_errorF("%s: npts to update is invalid %d %d %d\n",
                            fcnm, c1, c2, tb2Data.traces[i].npts);
+                ierrAll = ierrAll + 1;
                 goto CLOSE_GROUP;
             }
             dwork = ISCL_memory_calloc__double(tb2Data.traces[i].npts);
@@ -241,7 +252,7 @@ NEXT_TRACE:;
             for (i1=0; i1<tb2Data.traces[i].npts; i1++)
             {
                 dwork[i1] = (double) tb2Data.traces[i].data[i1];
-                dwork[i1] = (double) tb2Data.traces[i].times[i1];
+                //dwork[i1] = (double) tb2Data.traces[i].times[i1];
             }
             // Loop on the distinct messages
             for (chunk=0; chunk<nchunks; chunk++)
@@ -254,6 +265,7 @@ NEXT_TRACE:;
                 if (npupd <= 0)
                 {
                     log_errorF("%s: no points to update\n", fcnm);
+                    ierrAll = ierrAll + 1;
                     goto CLOSE_GROUP;
                 }
                 // This isn't plausible
@@ -261,12 +273,14 @@ NEXT_TRACE:;
                 {
                     log_errorF("%s: %d or %d exceeds space %d\n",
                                fcnm, i1, i2, maxpts);
+                    ierrAll = ierrAll + 1;
                     goto CLOSE_GROUP;
                 }
                 if (i1 > i2)
                 {
                     log_errorF("%s: Data is out of order %d %d\n",
                                fcnm, i1, i2);
+                    ierrAll = ierrAll + 1;
                     goto CLOSE_GROUP;
                 }
                 // Data is too old to use
@@ -284,6 +298,7 @@ NEXT_TRACE:;
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed current update\n", fcnm);
+                        ierrAll = ierrAll + 1; 
                         goto CLOSE_GROUP;
                     }
                 }
@@ -306,6 +321,7 @@ NEXT_TRACE:;
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed overlap update 1\n", fcnm);
+                        ierrAll = ierrAll + 1;
                         goto CLOSE_GROUP;
                     }
                     j1 = 0;
@@ -317,6 +333,7 @@ NEXT_TRACE:;
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed overlap update 1\n", fcnm);
+                        ierrAll = ierrAll + 1;
                         goto CLOSE_GROUP;
                     }
                 }
@@ -339,6 +356,7 @@ NEXT_TRACE:;
                     {
                         log_errorF("%s: Failed previous update %d %d %d\n",
                                    fcnm, j1, j2, nwork);
+                        ierrAll = ierrAll + 1;
                         goto CLOSE_GROUP;
                     }
                 }
@@ -346,6 +364,7 @@ NEXT_TRACE:;
                 else
                 {
                     log_errorF("%s: Unclassified case %d %d\n", fcnm, i1, i2);
+                    ierrAll = ierrAll + 1;
                 }
             } // Loop on messages 
             ISCL_memory_free__double(&dwork);
@@ -368,7 +387,7 @@ CLOSE_GROUP:;
     // Free memory
     ISCL_memory_free__int(&map);
     ISCL_memory_free__bool(&lhaveData);
-    return 0;
+    return ierrAll;
 }
 //============================================================================//
 /*!

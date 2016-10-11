@@ -35,10 +35,20 @@ int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
     }
     if (H5Lexists(groupID, citem, H5P_DEFAULT) == 1){return 0;} // Nothing to do
     scalars[0] = scalar;
-    dataSpace = H5Screate_simple(rank, dims, NULL);
-    dataSetID = H5Dcreate2(groupID, citem, H5T_NATIVE_INT,
-                           dataSpace,
-                           H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    // Update an existing scalar
+    if (H5Lexists(groupID, citem, H5P_DEFAULT) == 1)
+    {
+         dataSetID = H5Dopen(groupID, citem, H5P_DEFAULT);
+         dataSpace = H5Dget_space(dataSetID);
+    }
+    // Make a brand new scalar
+    else
+    {
+        dataSpace = H5Screate_simple(rank, dims, NULL);
+        dataSetID = H5Dcreate2(groupID, citem, H5T_NATIVE_INT,
+                               dataSpace,
+                               H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    }
     status = H5Dwrite(dataSetID, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
                       H5P_DEFAULT, scalars);
     if (status < 0)
@@ -86,12 +96,21 @@ int traceBuffer_h5_setDoubleScalar(const hid_t groupID,
         log_errorF("%s: Error citem must be defined\n", fcnm);
         return -1;
     }
-    if (H5Lexists(groupID, citem, H5P_DEFAULT) == 1){return 0;} // Nothing to do
     scalars[0] = scalar;
-    dataSpace = H5Screate_simple(rank, dims, NULL);
-    dataSetID = H5Dcreate2(groupID, citem, H5T_NATIVE_DOUBLE,
-                           dataSpace, 
-                           H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    // Update an existing scalar
+    if (H5Lexists(groupID, citem, H5P_DEFAULT) == 1)
+    {
+         dataSetID = H5Dopen(groupID, citem, H5P_DEFAULT);
+         dataSpace = H5Dget_space(dataSetID);
+    }
+    // Make a brand new scalar
+    else
+    {
+         dataSpace = H5Screate_simple(rank, dims, NULL);
+         dataSetID = H5Dcreate2(groupID, citem, H5T_NATIVE_DOUBLE,
+                                dataSpace, 
+                                H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    }
     status = H5Dwrite(dataSetID, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
                       H5P_DEFAULT, scalars);
     if (status < 0)
