@@ -441,7 +441,7 @@ static int update_dataSet(const hid_t groupID,
         status =-1;
         goto ERROR1;
     }
-    dims[0] = npts;
+    dims[0] = (hsize_t) npts;
     memSpace = H5Screate_simple(rank, dims, NULL); 
     // Select HDF5 chunk
     status = 0;
