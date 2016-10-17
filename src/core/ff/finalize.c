@@ -57,7 +57,7 @@ void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff)
     {
         core_ff_finalize__faultPlane(&ff->fp[ifp]);
     }
-    ISCL_memory_free(ff->fp);
+    if (ff->fp != NULL){free(ff->fp);}
     ISCL_memory_free__double(&ff->vr);
     ISCL_memory_free__double(&ff->Mw);
     ISCL_memory_free__double(&ff->str);

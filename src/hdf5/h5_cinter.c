@@ -236,7 +236,7 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
  *
  */
 int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
-                          const int n, const char **c)
+                          const int n, char **c)
 {
     const char *fcnm = "h5_write_array__chars\0";
     char **cout, *citem_hdf5;
@@ -305,7 +305,169 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
     free(citem_hdf5);
     return status;
 }
-
+//===========================================================================//
+/*! 
+ * @brief Reads a string array into a char** array 
+ * 
+ * @param[in] citem        name of HDF5 dataset 
+ * @param[in] file_id      HDF5 file handle
+ *
+ * @param[out] nitems      number of rows in output char ** array
+ * @param[out] ierr        0 indicates success
+ *
+ * @result char** array to be read from the HDF5 file file_id
+ *
+ */
+char **h5_read_array__string(const char *citem, const hid_t file_id,
+                             int *nitems, int *ierr)
+{
+    const char *fcnm = "h5_read_array__string\0";
+    char **cout, *citem_hdf5;
+    size_t lenos = strlen(citem);
+    hid_t dataSet, fileType, memType, space;
+    size_t sdim;
+    hsize_t dims[1];
+    herr_t status;
+    int i, ndims;
+    //------------------------------------------------------------------------//
+    cout = NULL;
+    *ierr = 0;
+    *nitems = 0;
+    citem_hdf5 = (char *)calloc(lenos+1, sizeof(char));
+    strcpy(citem_hdf5, citem);
+    dataSet = H5Dopen(file_id, citem_hdf5, H5P_DEFAULT);
+    fileType = H5Dget_type(dataSet);
+    sdim = H5Tget_size(fileType) + 1; // make space for null terminator
+    space = H5Dget_space(dataSet);
+    ndims = H5Sget_simple_extent_dims(space, dims, NULL);
+    *nitems = (int) dims[0];
+    if (*nitems < 1)
+    {
+        log_errorF("%s: Error no data to read %d\n", fcnm, *nitems);
+        *ierr = 1;
+        return cout;
+    }
+    // Allocate array of pointers to rows
+    cout = (char **)calloc((size_t) *nitems, sizeof(char *));
+    // Allocate space for integer data
+    cout[0] = (char *)calloc(dims[0], sdim*sizeof(char));
+    for (i=1; i<*nitems; i++)
+    {
+        cout[i] = cout[0] + (size_t) i*sdim;
+    }
+    memType = H5Tcopy(H5T_C_S1);
+    status = H5Tset_size(memType, sdim);
+    if (status < 0)
+    {
+        log_errorF("%s: Error setting size\n", fcnm);
+        *ierr = 1;
+        return cout;
+    }
+    status = H5Dread(dataSet, memType, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                     cout[0]);
+    if (status < 0)
+    {
+        log_errorF("%s: Error reading data\n", fcnm);
+        *ierr = 1;
+        return cout;
+    }
+    status = H5Dclose(dataSet);
+    status = H5Sclose(space);
+    status = H5Tclose(fileType);
+    status = H5Tclose(memType);
+    return cout;
+} 
+//============================================================================//
+/*! 
+ * @brief Reads a char** array 
+ * 
+ * @param[in] citem        name of HDF5 dataset 
+ * @param[in] file_id      HDF5 file handle
+ *
+ * @param[out] nitems      number of rows in output char ** array
+ * @param[out] ierr        0 indicates success
+ *
+ * @result char** array to be read from the HDF5 file file_id
+ *
+ */
+char **h5_read_array__char(const char *citem, const hid_t file_id,
+                           int *nitems, int *ierr)
+{
+    const char *fcnm = "h5_read_array__char\0";
+    char **cdata, **cwork, *citem_hdf5;
+    size_t len_item = strlen(citem);
+    size_t lens;
+    int i;
+    hid_t chr_dataset, cspace, cmtype;
+    hsize_t dims[2];
+    herr_t status;
+    //------------------------------------------------------------------------//
+    //  
+    // Set the name of the attribute while remembering a null terminator 
+    cdata = NULL;
+    *ierr = 0;
+    citem_hdf5 = (char *) calloc(len_item+1, sizeof(char));
+    strcpy(citem_hdf5, citem);
+    // Open dataset
+    chr_dataset = H5Dopen(file_id, citem_hdf5, H5P_DEFAULT);
+    // Get the datatype
+    // Get dataspace and allocate memory for read buffer.
+    cspace = H5Dget_space(chr_dataset);
+    *nitems = H5Sget_simple_extent_dims(cspace, dims, NULL);
+    *nitems = (int) dims[0]; 
+    cwork = (char **)calloc((size_t) dims[0], sizeof(char *));
+    // Create the memory datatype
+    cmtype = H5Tcopy(H5T_C_S1);
+    status = H5Tset_size(cmtype,H5T_VARIABLE);
+    if (status < 0)
+    {
+        log_errorF("%s: Error creating memory datatype\n",fcnm);
+        *ierr = 1;
+        return NULL;
+    }
+    // Read the data
+    status = H5Dread(chr_dataset, cmtype, H5S_ALL, H5S_ALL,
+                     H5P_DEFAULT, cwork);
+    if (status < 0)
+    {
+        log_errorF("%s: Error reading char data\n",fcnm);
+        *ierr = 1;
+        return NULL;
+    }
+    // Close and release resources
+    status = H5Dclose(chr_dataset);
+    if (status < 0)
+    {
+        log_errorF("%s: Error closing dataset\n",fcnm);
+        *ierr = 1;
+        return NULL;
+    }
+    status = H5Sclose(cspace);
+    if (status < 0){
+        log_errorF("%s: Error closing dataspace\n",fcnm);
+        *ierr = 1;
+        return NULL;
+    }
+    status = H5Tclose(cmtype);
+    if (status < 0)
+    {
+        log_errorF("%s: Error closing memory type\n",fcnm);
+        *ierr = 1;
+        return NULL;
+    }
+    // Copy back and free workspace
+    cdata = (char **)calloc((size_t) *nitems, sizeof(char *));
+    for (i=0; i<*nitems; i++)
+    {
+        lens = strlen(cwork[i]);
+        cdata[i] = (char *)calloc(lens+1, sizeof(char));
+        strcpy(cdata[i], cwork[i]);
+        free(cwork[i]);
+    }
+    free(cwork);
+    free(citem_hdf5);
+    return cdata;
+}
 //============================================================================//
 /*!
  * @brief Reads a double array from HDF5

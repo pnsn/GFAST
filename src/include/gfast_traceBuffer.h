@@ -122,13 +122,19 @@ struct h5trace_struct
     int ncopy;            /*!< Number of points to copy from Earthworm traceBuffer
                                to HDF5 or number of points to copy from HDF5 to
                                GFAST data buffer */
+    int traceNumber;      /*!< Trace number of H5 data block */
     int dtGroupNumber;    /*!< Sampling period group number */
 };
 
 struct h5traceBuffer_struct
 {
     struct h5trace_struct *traces; /*!< HDF5 trace data structure */
+    char **dtGroupName;            /*!< Name of sampling period groups
+                                        [ndtGroups] */
+    int *dtPtr;                    /*!< Maps from idt'th dtGroup to start index
+                                        of traces [ndtGroups+1] */
     hid_t fileID;                  /*!< HDF5 file handle */
+    int ndtGroups;                 /*!< Number of sampling period groups */
     int ntraces;                   /*!< Number of traces to collect */
     bool linit;                    /*!< True if the structure has been
                                         initialized */

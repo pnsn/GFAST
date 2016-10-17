@@ -3,6 +3,7 @@
 #include <string.h>
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * @brief Closes the HDF5 file on h5trace
@@ -43,6 +44,15 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
             }
         }
         free(h5trace->traces);
+    }
+    if (h5trace->ndtGroups > 0)
+    {
+        for (i=0; i<h5trace->ndtGroups; i++)
+        {
+            free(h5trace->dtGroupName[i]);
+        }
+        free(h5trace->dtGroupName);
+        ISCL_memory_free__int(&h5trace->dtPtr);
     }
     status = H5Fclose(h5trace->fileID);
     if (status != 0)

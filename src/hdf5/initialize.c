@@ -24,7 +24,7 @@ int hdf5_initialize(const char *adir,
 {
     FILE *ifl;
     const char *fcnm = "hdf5_initialize\0";
-    const char *bufout[1];
+    char *bufout[1];
     char fname[PATH_MAX], *buffer;
     hid_t fileID, groupID;
     int ierr;

@@ -289,13 +289,17 @@ int h5_write_array__double(const char *dset_name, const hid_t file_id,
 int h5_write_array__int(const char *dset_name, const hid_t file_id,
                         const int n, const int *x);
 int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
-                          const int n, const char **c);
+                          const int n, char **c);
 int h5_read_array__double(const char *dset_name, const hid_t file_id,
                           const int nref, double *x);
+char **h5_read_array__string(const char *citem, const hid_t file_id,
+                             int *nitems, int *ierr);
 int h5_read_array__float(const char *dset_name, const hid_t file_id,
                          const int nref, float *x);
 int h5_read_array__int(const char *dset_name, const hid_t file_id,
                        const int nref, int *x);
+char **h5_read_array__char(const char *citem, const hid_t file_id,
+                           int *nitems, int *ierr);
 int h5_write_attribute__double(const char *citem, const hid_t hdf5_id,
                                const int n, const double *attr_data);
 int h5_write_attribute__int(const char *citem, const hid_t hdf5_id,

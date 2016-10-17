@@ -65,6 +65,12 @@ int traceBuffer_h5_setData(const double currentTime,
     {
         return 0;
     }
+    // Not finished yet
+    if (h5traceBuffer.ndtGroups > 1)
+    {
+        log_errorF("%s: Multiple dt groups not yet done\n", fcnm);
+        return -1;
+    }
     // Make a map from the HDF5 trace buffer to the tracebuffer2 data
     map = ISCL_array_set__int(h5traceBuffer.ntraces, -1, &ierr);
     lhaveData = ISCL_memory_calloc__bool(h5traceBuffer.ntraces);
@@ -111,7 +117,7 @@ int traceBuffer_h5_setData(const double currentTime,
             }
         }
 NEXT_TRACE:;
-    } 
+    }
     // Push the current H5 archive to the current time and, if possible, add
     // the new data
     for (k=0; k<h5traceBuffer.ntraces; k++)

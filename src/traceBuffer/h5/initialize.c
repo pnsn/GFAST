@@ -5,6 +5,7 @@
 #include <math.h>
 #include "gfast_traceBuffer.h"
 #include "gfast_hdf5.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
@@ -38,11 +39,12 @@ int traceBuffer_h5_initialize(const int job,
     const char *fcnm = "traceBuffer_h5_initialize\0";
     FILE *fp;
     double *work; 
-    char h5name[PATH_MAX], cwork[512];
+    char **traceOut, **traces, h5name[PATH_MAX], cwork[512], temp[64];
     herr_t status;
-    hid_t groupID, properties;
-    double dt, gain, slat, selev, slon, tbeg, t1, t2;
-    int i, ierr, k, maxpts, ndtGroups;
+    hsize_t dims[2];
+    hid_t dataSet, dataSpace, groupID, properties;
+    double *dts, *selevs, *slats, *slons, tbeg, t1;
+    int i, ierr, j, k, maxpts, ndtGroups, ntraces;
     size_t blockSize;
     const bool lsave = true;;
     // Make sure there is data
@@ -92,16 +94,57 @@ int traceBuffer_h5_initialize(const int job,
             return -1;
         }
         // Verify the group is there
-        for (i=0; i<h5traceBuffer->ntraces; i++)
+        for (i=0; i<h5traceBuffer->ndtGroups; i++)
         {
             if (H5Lexists(h5traceBuffer->fileID,
-                          h5traceBuffer->traces[i].groupName,
+                          h5traceBuffer->dtGroupName[i], //traces[i].groupName,
                           H5P_DEFAULT) != 1)
             {
                 log_errorF("%s: Error couldn't find group: %s\n", fcnm,
-                           h5traceBuffer->traces[i].groupName);
+                           h5traceBuffer->dtGroupName[i]);
                 return -1;
             }
+        }
+        // Get the metaData and make a permutation
+        traces = h5_read_array__string("/MetaData/TraceNames\0",
+                                       h5traceBuffer->fileID, &ntraces, &ierr);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Couldn't read traces\n", fcnm);
+            return -1;
+        }
+        if (ntraces != h5traceBuffer->ntraces)
+        {
+            log_errorF("%s: metadata size inconsistency\n", fcnm);
+            return -1;
+        }
+        // Match those SNCLs
+        for (i=0; i<h5traceBuffer->ntraces; i++)
+        {
+            memset(temp, 0, sizeof(temp));
+            strcpy(temp, h5traceBuffer->traces[i].netw);
+            strcat(temp, ".\0");
+            strcat(temp, h5traceBuffer->traces[i].stnm);
+            strcat(temp, ".\0");
+            strcat(temp, h5traceBuffer->traces[i].chan);
+            strcat(temp, ".\0");
+            strcat(temp, h5traceBuffer->traces[i].loc);
+            for (j=0; j<h5traceBuffer->ntraces; j++)
+            {
+                if (strcasecmp(traces[j], temp) == 0)
+                {
+                    h5traceBuffer->traces[i].traceNumber = j;
+                    goto FOUND_TRACE;
+                }
+            }
+            log_errorF("%s: Failed to find trace!\n", fcnm);
+            return -1;
+FOUND_TRACE:;
+        }
+        if (ntraces > 0)
+        {
+            free(traces[0]);
+            free(traces);
         }
     }
     // Otherwise the file size must be estimated and opened for writing
@@ -114,11 +157,11 @@ int traceBuffer_h5_initialize(const int job,
         {
             log_warnF("%s: Deleting file %s\n", fcnm, h5name);
         }
-        blockSize = 0;
         // Space estimate
+        maxpts = 0;
         for (i=0; i<h5traceBuffer->ntraces; i++)
         {
-            maxpts = h5traceBuffer->traces[i].maxpts;
+            maxpts = (int) (fmax(h5traceBuffer->traces[i].maxpts, maxpts));
             if (maxpts <= 0)
             {
                 if (maxpts < 0)
@@ -132,8 +175,14 @@ int traceBuffer_h5_initialize(const int job,
                     log_warnF("%s: maxpts is 0 for trace %d\n", fcnm, i+1);
                 }
             }
-            blockSize = blockSize + 8*2*(size_t) maxpts + 8*3 + 4;
         }
+        if (maxpts == 0)
+        {
+            log_errorF("%s: There's no data in the buffers\n", fcnm);
+            return -1;
+        }
+        blockSize = (size_t)
+                    (h5traceBuffer->ntraces*(8*maxpts + 4*8 + 64 + 2*8 + 2*4));
         // add a little extra
         blockSize = (size_t) ((double) (blockSize*1.1 + 0.5));
         properties = H5Pcreate(H5P_FILE_ACCESS); 
@@ -177,15 +226,23 @@ int traceBuffer_h5_initialize(const int job,
             log_errorF("%s: Error no sampling period groups\n", fcnm);
             return -1;
         }
+        if (ndtGroups > 1)
+        {
+            log_warnF("%s: Multiple dt not tested\n", fcnm);
+            return -1;
+        }
         for (i=0; i<ndtGroups; i++)
         {
-            memset(cwork, 0, sizeof(work));
+            k = h5traceBuffer->dtPtr[i];
+            memset(cwork, 0, sizeof(cwork));
             sprintf(cwork, "/Data/SamplingPeriodGroup_%d", i+1);
             groupID = H5Gcreate2(h5traceBuffer->fileID,
                                  cwork, 
                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            h5_write_attribute__double("SamplingPeriod\0", groupID,
+                                       1, &h5traceBuffer->traces[k].dt);
             status = H5Gclose(groupID);
-        } 
+        }
         groupID = H5Gcreate2(h5traceBuffer->fileID,
                              "/MetaData\0",
                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -195,94 +252,109 @@ int traceBuffer_h5_initialize(const int job,
             log_errorF("%s: Error creating /MetaData group\n", fcnm);
             return -1;
         }
-        // Make the data groups
-        for (i=0; i<h5traceBuffer->ntraces; i++)
+        // Make the data
+        for (i=0; i<h5traceBuffer->ndtGroups; i++)
         {
-            // MetaData
-            groupID = H5Gcreate2(h5traceBuffer->fileID,
-                                 h5traceBuffer->traces[i].metaGroupName,
+            k = h5traceBuffer->dtPtr[i];
+            ntraces = h5traceBuffer->dtPtr[i+1] - h5traceBuffer->dtPtr[i];
+            memset(cwork, 0, sizeof(cwork));
+            sprintf(cwork, "/Data/SamplingPeriodGroup_%d/Data", i+1);
+            work = ISCL_array_set__double(h5traceBuffer->ntraces*maxpts,
+                                          (double) NAN, &ierr);
+            dims[0] = (hsize_t) h5traceBuffer->ntraces;
+            dims[1] = (hsize_t) maxpts;
+            dataSpace = H5Screate_simple(2, dims, NULL);
+            dataSet = H5Dcreate2(h5traceBuffer->fileID, cwork,
+                                 H5T_NATIVE_DOUBLE, dataSpace,
                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-            dt = h5traceBuffer->traces[i].dt;
-            slat = h5traceBuffer->traces[i].slat;
-            slon = h5traceBuffer->traces[i].slon; 
-            selev = h5traceBuffer->traces[i].selev;
-            ierr = 0;
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "StationLatitude\0", slat);
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "StationLongitude\0", slon);
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "StationElevation\0", selev);
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "SamplingPeriod\0", dt);
-            ierr += traceBuffer_h5_setIntegerScalar(groupID,
-                                        "SamplingPeriodGroupNumber\0",
-                                        h5traceBuffer->traces[i].dtGroupNumber);
+            status = H5Dwrite(dataSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+                              H5P_DEFAULT, work);
+            ierr = h5_write_attribute__double("SamplingPeriod\0", dataSet,
+                                              1, &h5traceBuffer->traces[k].dt);
+            t1 = tbeg - (double) (maxpts - 1)*h5traceBuffer->traces[k].dt;
+            ierr = h5_write_attribute__double("StartTime\0", dataSet,
+                                              1, &t1);
+            ierr = h5_write_attribute__int("NumberOfPoints\0", dataSet,
+                                           1, &maxpts);
+            ierr = h5_write_attribute__int("NumberOfTraces\0", dataSet,
+                                           1, &ntraces);
+            H5Sclose(dataSpace);
+            H5Dclose(dataSet);
+            // Make the gain
+            dims[0] = (hsize_t) ntraces;
+            for (k=h5traceBuffer->dtPtr[i]; k<h5traceBuffer->dtPtr[i+1]; k++)
+            {
+                work[k] = h5traceBuffer->traces[k].gain;
+            }
+            dims[0] = (hsize_t) ntraces;
+            dataSpace = H5Screate_simple(1, dims, NULL);
+            dataSet = H5Dcreate2(h5traceBuffer->fileID,
+                                 "/Data/SamplingPeriodGroup_1/Gain\0",
+                                 H5T_NATIVE_DOUBLE, dataSpace,
+                                 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            status = H5Dwrite(dataSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+                              H5P_DEFAULT, work);
+            status = H5Sclose(dataSpace);
+            status = H5Dclose(dataSet);
+            // Make the metadata
+            slats  = ISCL_memory_calloc__double(ntraces);
+            slons  = ISCL_memory_calloc__double(ntraces);
+            selevs = ISCL_memory_calloc__double(ntraces);
+            dts    = ISCL_memory_calloc__double(ntraces);
+            traceOut = (char **) calloc((size_t) ntraces, sizeof(char *));
+            for (k=h5traceBuffer->dtPtr[i]; k<h5traceBuffer->dtPtr[i+1]; k++)
+            {
+                j = k - h5traceBuffer->dtPtr[i];
+                h5traceBuffer->traces[k].traceNumber = j;
+                slats[j] = h5traceBuffer->traces[k].slat;
+                slons[j] = h5traceBuffer->traces[k].slon;
+                selevs[j] = h5traceBuffer->traces[k].selev;
+                dts[j] = h5traceBuffer->traces[k].dt;
+                traceOut[j] = (char *) calloc(64, sizeof(char));
+                strcpy(traceOut[j], h5traceBuffer->traces[k].netw); 
+                strcat(traceOut[j], ".\0");
+                strcat(traceOut[j], h5traceBuffer->traces[k].stnm);
+                strcat(traceOut[j], ".\0");
+                strcat(traceOut[j], h5traceBuffer->traces[k].chan);
+                strcat(traceOut[j], ".\0");
+                strcat(traceOut[j], h5traceBuffer->traces[k].loc);
+            }
+            memset(cwork, 0, sizeof(cwork));
+            strcpy(cwork, "/MetaData/SamplingPeriods\0");
+            ierr = h5_write_array__double(cwork, h5traceBuffer->fileID,
+                                          ntraces, dts); 
             if (ierr != 0)
             {
-                log_errorF("%s: Error writing scalar metadata\n", fcnm);
+                log_errorF("%s: Error writing dts\n", fcnm);
                 return -1;
             }
-            status = H5Gclose(groupID);
-            if (status < 0)
+            memset(cwork, 0, sizeof(cwork));
+            strcpy(cwork, "/MetaData/StationElevations\0");
+            ierr = h5_write_array__double(cwork, h5traceBuffer->fileID,
+                                          ntraces, selevs);
+            memset(cwork, 0, sizeof(cwork));
+            strcpy(cwork, "/MetaData/StationLatitudes\0");
+            ierr = h5_write_array__double(cwork, h5traceBuffer->fileID,
+                                          ntraces, slats);
+            memset(cwork, 0, sizeof(cwork));
+            strcpy(cwork, "/MetaData/StationLongitudes\0");
+            ierr = h5_write_array__double(cwork, h5traceBuffer->fileID,
+                                          ntraces, slons);
+            memset(cwork, 0, sizeof(cwork));
+            strcpy(cwork, "/MetaData/TraceNames\0");
+            ierr = h5_write_array__chars(cwork, h5traceBuffer->fileID,
+                                         ntraces, traceOut);
+            // Free workspace
+            ISCL_memory_free__double(&dts);
+            ISCL_memory_free__double(&selevs);
+            ISCL_memory_free__double(&slons);
+            ISCL_memory_free__double(&slats);
+            ISCL_memory_free__double(&work);
+            for (j=0; j<ntraces; j++)
             {
-                log_errorF("%s: Error creating group %s\n",
-                           fcnm, h5traceBuffer->traces[i].metaGroupName);
-                return -1;
+                free(traceOut[j]);
             }
-            // Data
-            groupID = H5Gcreate2(h5traceBuffer->fileID,
-                                 h5traceBuffer->traces[i].groupName,
-                                 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-            // Set the basic data.  Set the first buffer to the
-            // past so that latent data can be added during startup
-            maxpts = h5traceBuffer->traces[i].maxpts;
-            t1 = tbeg - (double) maxpts*dt;
-            t2 = tbeg;
-            if (maxpts > 0)
-            {
-                work = ISCL_memory_calloc__double(maxpts);
-                for (k=0; k<maxpts; k++)
-                {
-                    work[k] = (double) NAN;
-                }
-                ierr = 0;
-                ierr += h5_write_array__double("dataBuffer1\0", groupID,
-                                               maxpts, work);
-                ierr += h5_write_array__double("dataBuffer2\0", groupID,
-                                               maxpts, work);
-                if (ierr != 0)
-                {
-                    log_errorF("%s: Error writing databuffers\n", fcnm);
-                    return -1;
-                }
-                ISCL_memory_free__double(&work);
-            }
-            gain = h5traceBuffer->traces[i].gain;
-            ierr = 0;
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "Buffer1StartTime\0", t1);
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "Buffer2StartTime\0", t2);
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "Gain\0", gain);
-            ierr += traceBuffer_h5_setDoubleScalar(groupID,
-                                                   "SamplingPeriod\0", dt);
-            ierr += traceBuffer_h5_setIntegerScalar(groupID,
-                                                    "MaxNumberOfPoints\0",
-                                                    maxpts);
-            if (ierr != 0)
-            {
-                log_errorF("%s: Error writing scalar data\n", fcnm);
-                return -1;
-            }
-            status = H5Gclose(groupID);
-            if (status < 0)
-            {
-                log_errorF("%s: Error creating group %s\n",
-                           fcnm, h5traceBuffer->traces[i].groupName);
-                return -1;
-            }
+            free(traceOut);
         }
     }
     h5traceBuffer->linit = true;
