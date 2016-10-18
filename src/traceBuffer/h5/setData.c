@@ -46,7 +46,7 @@ int traceBuffer_h5_setData(const double currentTime,
     double dt, ts1, ts2;
     bool *lhaveData;
     hsize_t dims[2];
-    hid_t groupID, dataSet, dataSpace;
+    hid_t attribute, groupID, dataSet, dataSpace;
     herr_t status;
     //------------------------------------------------------------------------//
     //
@@ -212,8 +212,19 @@ printf("%d\n", ishift);
         dataSet = H5Dopen(groupID, "Data\0", H5P_DEFAULT); 
         status = H5Dwrite(dataSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
                           H5P_DEFAULT, work);
-        ierr = h5_write_attribute__double("StartTime\0", dataSet,
-                                          1, &ts1);
+        if (status < 0)
+        {
+            log_errorF("%s: Error writing data chunk\n", fcnm);
+            return -1;
+        }
+        attribute = H5Aopen(dataSet, "StartTime\0", H5P_DEFAULT);
+        status = H5Awrite(attribute, H5T_NATIVE_DOUBLE, &ts1);
+        if (status < 0)
+        {
+            log_errorF("%s: Error updating start time\n", fcnm);
+            return -1;
+        }
+        status = H5Aclose(attribute);
         status = H5Sclose(dataSpace);
         status = H5Dclose(dataSet);
         status = H5Gclose(groupID);
