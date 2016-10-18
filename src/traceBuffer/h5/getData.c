@@ -8,17 +8,34 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+/*!
+ * @brief Returns the data on for the stations and channels in the
+ *        h5traceBuffer from epochal times t1 to t2
+ *
+ * @param[in] t1                 epochal start time of traces (UTC seconds)
+ * @param[in] t2                 epochal end time of traces (UTC seconds)
+ *
+ * @param[in,out] h5traceBuffer  on input contains the desired traces (SNCLs)
+ *                               to query the HDF5 file.
+ *                               on successful exit contains the traces for
+ *                               each SNCL from times t1 to t2.  any unknown
+ *                               data points must be detected by the user as
+ *                               they were defined in the HDF5 write step.
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
 int traceBuffer_h5_getData(const double t1, const double t2,
                            struct h5traceBuffer_struct *h5traceBuffer)
 {
     const char *fcnm = "traceBuffer_h5_getData\0";
     double *gain, *work, dt, ts1, ts2;
     int i1, i2, ibeg, idt, iend, ierr, j1, j2, k, k1, k2,
-        lenGain, maxpts, ncopy, ntraces, nwork, rankIn;
-    hsize_t dims[2];
-    hid_t attribute, dataSet, dataSpace, groupID, memSpace;
+        maxpts, ncopy, ntraces;
+    hid_t groupID;
     herr_t status;
-    const int rank = 2;
     //------------------------------------------------------------------------//
     for (idt=0; idt<h5traceBuffer->ndtGroups; idt++)
     {
@@ -26,72 +43,17 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         work = NULL;
         k1 = h5traceBuffer->dtPtr[idt];
         k2 = h5traceBuffer->dtPtr[idt+1];
-        lenGain = k2 - k1;
+        ntraces = k2 - k1;
+        if (ntraces == 0){continue;}
         // Open + read the data and attributes for this dataset 
         groupID = H5Gopen2(h5traceBuffer->fileID,
                            h5traceBuffer->dtGroupName[idt], H5P_DEFAULT);
-        dataSet = H5Dopen2(groupID, "Data\0", H5P_DEFAULT);
-        dataSpace = H5Dget_space(dataSet);
-        rankIn = H5Sget_simple_extent_ndims(dataSpace);
-        if (rankIn != 2)
-        {
-            log_errorF("%s: Invalid number of dimensions %d\n", fcnm, rankIn);
-            return -1;
-        }
-        status = H5Sget_simple_extent_dims(dataSpace, dims, NULL);
-        nwork = (int) (dims[0]*dims[1]);
-        memSpace = H5Screate_simple(rank, dims, NULL);
-        work = ISCL_memory_calloc__double(nwork);
-        status = H5Dread(dataSet, H5T_NATIVE_DOUBLE, memSpace, dataSpace,
-                         H5P_DEFAULT, work);
-        if (status < 0)
-        {
-            log_errorF("%s: Error loading data\n", fcnm);
-            return -1;
-        }
-        // Pick off the attributes while the dataset is open
-        attribute = H5Aopen(dataSet, "SamplingPeriod\0", H5P_DEFAULT);
-        status = H5Aread(attribute, H5T_NATIVE_DOUBLE, &dt);
-        status = H5Aclose(attribute);
-        attribute = H5Aopen(dataSet, "StartTime\0", H5P_DEFAULT);
-        status = H5Aread(attribute, H5T_NATIVE_DOUBLE, &ts1);
-        status = H5Aclose(attribute);
-        attribute = H5Aopen(dataSet, "NumberOfTraces\0", H5P_DEFAULT);
-        status = H5Aread(attribute, H5T_NATIVE_INT, &ntraces);
-        status = H5Aclose(attribute);
-        attribute = H5Aopen(dataSet, "NumberOfPoints\0", H5P_DEFAULT);
-        status = H5Aread(attribute, H5T_NATIVE_INT, &maxpts);
-        status = H5Aclose(attribute);
-        ts2 = ts1 + (double) (maxpts - 1)*dt;
-        // close Data dataset 
-        status  = H5Sclose(memSpace);
-        status += H5Sclose(dataSpace);
-        status += H5Dclose(dataSet);
-        if (status < 0)
-        {
-            log_errorF("%s: Error closing data dataset\n", fcnm);
-            return -1;
-        }
-        // Likewise get the gain for each channel
-        dataSet = H5Dopen2(groupID, "Gain\0", H5P_DEFAULT);
-        dataSpace = H5Dget_space(dataSet);
-        dims[0] = (hsize_t) ntraces;
-        memSpace = H5Screate_simple(1, dims, NULL);
         gain = ISCL_memory_calloc__double(ntraces);
-        status = H5Dread(dataSet, H5T_NATIVE_DOUBLE, memSpace, dataSpace,
-                         H5P_DEFAULT, gain);
-        if (status < 0)
+        work = traceBuffer_h5_readData(groupID, ntraces,
+                                       &maxpts, &dt, &ts1, &ts2, gain, &ierr);
+        if (ierr != 0)
         {
-            log_errorF("%s: Error loading gain\n", fcnm);
-            return -1;
-        }
-        // close Gain dataset
-        status  = H5Sclose(memSpace);
-        status += H5Sclose(dataSpace);
-        status += H5Dclose(dataSet);
-        if (status < 0)
-        {
-            log_errorF("%s: Error closing data dataset\n", fcnm);
+            log_errorF("%s: Error reading data\n", fcnm);
             return -1;
         }
         // This concludes the fileIO
@@ -112,12 +74,6 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         {
             log_errorF("%s: Invalid number of points %d\n", fcnm, maxpts);
             return -1; 
-        }
-        if (ntraces != k2 - k1)
-        {
-            log_errorF("%s: Inconsistent number of traces %d %d\n",
-                       fcnm, k2 - k1);
-            return -1;
         }
         // Check what I just read
         if (t1 > ts2)
@@ -206,6 +162,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
  * @author Ben Baker (ISTI)
  *
  */
+/*
 int traceBuffer_h5_getData2(const double t1, const double t2,
                             struct h5traceBuffer_struct *h5traceBuffer)
 {
@@ -393,3 +350,4 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
     }
     return ierrAll;
 }
+*/

@@ -5,6 +5,7 @@ getData.c
 getDoubleArray.c
 getScalars.c
 initialize.c
+readData.c
 setData.c
 setFileName.c
 setScalars.c

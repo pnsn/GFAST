@@ -375,6 +375,7 @@ char **h5_read_array__string(const char *citem, const hid_t file_id,
     status = H5Sclose(space);
     status = H5Tclose(fileType);
     status = H5Tclose(memType);
+    free(citem_hdf5);
     return cout;
 } 
 //============================================================================//

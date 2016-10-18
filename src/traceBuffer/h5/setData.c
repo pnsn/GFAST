@@ -5,14 +5,17 @@
 #include <float.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_hdf5.h"
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+/*
 static int update_dataSet(const hid_t groupID,
                           const char *dataSetName, 
                           int i1, int i2, const int npts,
                           const double *__restrict__ data);
+*/
 
 /*!
  * @brief Sets the data in the HDF5 file from the data on the tb2Data 
@@ -37,14 +40,13 @@ int traceBuffer_h5_setData(const double currentTime,
                            struct h5traceBuffer_struct h5traceBuffer)
 {
     const char *fcnm = "traceBuffer_h5_setData\0";
-    char dataBuffer1[64], dataBuffer2[64], dtBuffer[64];
-    double *dwork;
-    int maxpts, nwork;
-    int *map, c1, c2, chunk, i, i1, i2, ierr, ierrAll, j1, j2,
-        k, k1, kupd, nchunks, npupd;
-    double dt, gain, tmax, ts1, ts1Upd, ts1Use, ts2, ts2Use;
+    double *dwork, *gains, *work;
+    int *map, c1, c2, chunk, i, i1, i2, idt, ierr, ierrAll,
+        indx, is, ishift, jndx, k, k1, k2, maxpts, nchunks, ncopy, ntraces;
+    double dt, ts1, ts2;
     bool *lhaveData;
-    hid_t groupID;
+    hsize_t dims[2];
+    hid_t groupID, dataSet, dataSpace;
     herr_t status;
     //------------------------------------------------------------------------//
     //
@@ -118,130 +120,66 @@ int traceBuffer_h5_setData(const double currentTime,
         }
 NEXT_TRACE:;
     }
-    // Push the current H5 archive to the current time and, if possible, add
-    // the new data
-    for (k=0; k<h5traceBuffer.ntraces; k++)
+    for (idt=0; idt<h5traceBuffer.ndtGroups; idt++)
     {
-        dt = 0.0; 
-        maxpts = 0;
-        ts1Use = (double) NAN;
-        ts2Use = (double) NAN;
-        memset(dataBuffer1, 0, sizeof(dataBuffer1));
-        memset(dataBuffer2, 0, sizeof(dataBuffer2));
-        dwork = NULL;
-        // Open the group for reading/writing
+        gains = NULL;
+        work = NULL;
+        k1 = h5traceBuffer.dtPtr[idt];
+        k2 = h5traceBuffer.dtPtr[idt+1];
+        ntraces = k2 - k1;
+        if (ntraces == 0){continue;}
+        // Open + read the data and attributes for this dataset 
         groupID = H5Gopen2(h5traceBuffer.fileID,
-                           h5traceBuffer.traces[k].groupName, H5P_DEFAULT);
-        // Loop in case I have to do an update - in which case ts1 and ts2
-        // would be reset
-        for (kupd=0; kupd<2; kupd++)
+                           h5traceBuffer.dtGroupName[idt], H5P_DEFAULT);
+        gains = ISCL_memory_calloc__double(ntraces);
+        work = traceBuffer_h5_readData(groupID, ntraces,
+                                       &maxpts, &dt, &ts1, &ts2, gains, &ierr);
+        if (ierr != 0)
         {
-            // Get the scalars describing this dataset
-            ierr = GFAST_traceBuffer_h5_getScalars(groupID, -12345,
-                                                   (double) NAN,
-                                                   &maxpts,
-                                                   &dt, &gain, &ts1, &ts2);
+            log_errorF("%s: Error reading data\n", fcnm);
+            return -1; 
+        }
+        // Check what i just read
+        if (dt <= 0.0)
+        {
+            log_errorF("%s: Invalid sampling period %f\n", fcnm, dt);
+            return -1; 
+        }
+        if (maxpts < 1)
+        {
+            log_errorF("%s: Invalid number of points %d\n", fcnm, maxpts);
+            return -1; 
+        }
+        if (currentTime < ts2)
+        {
+            log_errorF("%s: Update time is less than most recent time %f %f\n",
+                       fcnm, currentTime, ts2);
+            return -1;
+        }
+        // Copy the old traces onto the new traces
+        dwork = ISCL_array_set__double(maxpts*ntraces, (double) NAN, &ierr);
+        ishift = (int) ((currentTime - ts2)/dt + 0.5);
+        ncopy = maxpts - ishift;
+printf("%d\n", ishift);
+        for (k=0; k<ntraces; k++)
+        {
+            indx = k*maxpts + ishift;
+            jndx = k*maxpts;
+            ierr = ISCL__array_copy__double(ncopy, &work[indx], &dwork[jndx]);
             if (ierr != 0)
             {
-                log_errorF("%s: Error getting scalars %s!\n",
-                           fcnm, h5traceBuffer.traces[i].groupName);
-                ierrAll = ierrAll + 1;
-                goto CLOSE_GROUP; 
+                log_errorF("%s: Error copying trace %d %d\n",
+                           fcnm, k+1, ntraces);
+                return -1;
             }
-            if (dt <= 0.0 || fabs(gain) < 1.e-15 || maxpts < 1)
-            {
-                if (dt <= 0.0)
-                {
-                    log_errorF("%s: Sampling period is invalid\n", fcnm);
-                }
-                if (fabs(gain) < 1.e-15)
-                {
-                    log_errorF("%s: Trace division by zero coming\n", fcnm);
-                }
-                if (maxpts < 1)
-                {
-                    log_errorF("%s: The buffers are empty\n", fcnm);
-                }
-                ierrAll = ierrAll + 1;
-                goto CLOSE_GROUP;
-            }
-            // Require the time makes sense
-            if (currentTime < ts1 && currentTime < ts2)
-            {
-                log_errorF("%s: Packet is too old to be updated\n", fcnm);
-                ierrAll = ierrAll + 1;
-                goto CLOSE_GROUP;
-            } 
-            // Set the databuffers and names
-            memset(dataBuffer1, 0, sizeof(dataBuffer1));
-            memset(dataBuffer2, 0, sizeof(dataBuffer2));
-            if (ts1 < ts2)
-            {
-                ts1Use = ts1;
-                ts2Use = ts2;
-                strcpy(dtBuffer, "Buffer1StartTime\0");
-                strcpy(dataBuffer1, "dataBuffer1\0");
-                strcpy(dataBuffer2, "dataBuffer2\0");
-            }
-            else
-            {
-                ts1Use = ts2;
-                ts2Use = ts1;
-                strcpy(dtBuffer, "Buffer2StartTime\0");
-                strcpy(dataBuffer1, "dataBuffer2\0");
-                strcpy(dataBuffer2, "dataBuffer1\0");
-            }
-            // Need to do a push - pop the oldest dataset
-            tmax = ts2Use + dt*(double) (maxpts - 1);
-            if (currentTime > tmax - dt)
-            {
-                // Update the times
-                ts1Upd = ts2Use + (double) maxpts*dt;
-printf("performing push: %f %f %f\n", ts1Use, ts2Use, ts1Upd);
-                traceBuffer_h5_setDoubleScalar(groupID,
-                                               dtBuffer,
-                                               ts1Upd);
-                //dwork = ISCL_array_set__double(maxpts, (double) k, &ierr);
-                dwork = ISCL_array_set__double(maxpts, (double) NAN, &ierr);
-                ierr = traceBuffer_h5_setDoubleScalar(groupID, dtBuffer,
-                                                      ts1Upd);
-                if (ierr != 0)
-                {
-                    log_errorF("%s: Error updating start time %s %s\n",
-                               fcnm, h5traceBuffer.traces[k].groupName,
-                               dtBuffer);
-                    ierrAll = ierrAll + 1;
-                    goto CLOSE_GROUP;
-                }
-                ierr = update_dataSet(groupID, dataBuffer1, 0, maxpts-1,
-                                      maxpts, dwork);
-                ISCL_memory_free__double(&dwork);
-                if (ierr != 0)
-                {
-                    log_errorF("%s: Error setting NaN data %s %d\n",
-                               fcnm, h5traceBuffer.traces[k].groupName,
-                               dataBuffer1);
-                    ierrAll = ierrAll + 1;
-                    goto CLOSE_GROUP;
-                }
-            }
-            // no push - done with this loop
-            else
-            {
-                break;
-            }
-        } // Loop on start times
-        // verify i've succeeded in getting my times straight
-        if (isnan(ts1Use) || isnan(ts2Use) || fabs(dt) < 1.e-14)
-        {
-            log_errorF("%s: Failed to set start times\n", fcnm);
-            ierrAll = ierrAll + 1;
-            goto CLOSE_GROUP;
         }
-        // Update the data
-        if (lhaveData[k])
+        // Update the times
+        ts2 = currentTime;
+        ts1 = currentTime - (double) (maxpts - 1)*dt;
+        // Insert the new data
+        for (k=k1; k<k2; k++)
         {
-            // Get the response as a double onto data 
+            if (!lhaveData[k]){continue;}
             i = map[k]; // points to tb2trace
             nchunks = tb2Data.traces[i].nchunks;
             c1 = tb2Data.traces[i].chunkPtr[0]; 
@@ -250,145 +188,45 @@ printf("performing push: %f %f %f\n", ts1Use, ts2Use, ts1Upd);
             {
                 log_errorF("%s: npts to update is invalid %d %d %d\n",
                            fcnm, c1, c2, tb2Data.traces[i].npts);
-                ierrAll = ierrAll + 1;
-                goto CLOSE_GROUP;
+                return -1;
             }
-            dwork = ISCL_memory_calloc__double(tb2Data.traces[i].npts);
-            #pragma omp simd
-            for (i1=0; i1<tb2Data.traces[i].npts; i1++)
-            {
-                dwork[i1] = (double) tb2Data.traces[i].data[i1];
-                //dwork[i1] = (double) tb2Data.traces[i].times[i1];
-            }
-            // Loop on the distinct messages
             for (chunk=0; chunk<nchunks; chunk++)
             {
-                c1 = tb2Data.traces[i].chunkPtr[chunk];
-                c2 = tb2Data.traces[i].chunkPtr[chunk+1] - 1;
-                i1 = (int) ((tb2Data.traces[i].times[c1] - ts2Use)/dt + 0.5);
-                i2 = (int) ((tb2Data.traces[i].times[c2] - ts2Use)/dt + 0.5);
-                npupd = c2 - c1 + 1;
-                if (npupd <= 0)
+                i1 = tb2Data.traces[i].chunkPtr[chunk];
+                i2 = tb2Data.traces[i].chunkPtr[chunk];
+                for (is=i1; is<i2; is++)
                 {
-                    log_errorF("%s: no points to update\n", fcnm);
-                    ierrAll = ierrAll + 1;
-                    goto CLOSE_GROUP;
+                    // data expired
+                    if (tb2Data.traces[i].times[is] < ts1){continue;}
+                    // insert it
+                    indx = k*maxpts
+                         + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
+                    dwork[indx] = (double) tb2Data.traces[i].data[is];
                 }
-                // This isn't plausible
-                if (i1 >= maxpts || i2 >= maxpts)
-                {
-                    log_errorF("%s: %d or %d exceeds space %d\n",
-                               fcnm, i1, i2, maxpts);
-                    ierrAll = ierrAll + 1;
-                    goto CLOSE_GROUP;
-                }
-                if (i1 > i2)
-                {
-                    log_errorF("%s: Data is out of order %d %d\n",
-                               fcnm, i1, i2);
-                    ierrAll = ierrAll + 1;
-                    goto CLOSE_GROUP;
-                }
-                // Data is too old to use
-                if (tb2Data.traces[i].times[c2] < ts1Use)
-                {
-                    log_warnF("%s: Data is too old - skipping\n", fcnm);
-                    continue;
-                }
-                // Update is entirely in second buffer
-                if (i1 >= 0)
-                {
-                    nwork = i2 - i1 + 1;
-                    ierr = update_dataSet(groupID, dataBuffer2, i1, i2,
-                                          nwork, &dwork[c1]);
-                    if (ierr != 0)
-                    {
-                        log_errorF("%s: Failed current update\n", fcnm);
-                        ierrAll = ierrAll + 1; 
-                        goto CLOSE_GROUP;
-                    }
-                }
-                // Update starts in previous buffer and carries into this one
-                else if (i1 < 0 && i2 >= 0)
-                {
-                    // Update is pretty old - but parts of it are valid
-                    j1 = (int) ((tb2Data.traces[i].times[c1]-ts1Use)/dt + 0.5);
-                    j2 = maxpts - 1;
-                    k1 = 0;
-                    if (j1 < 0)
-                    {
-                        j1 = 0;
-                        k1 = c1 - j1; //- a negaitve is a positive
-                        log_warnF("%s: This isn't checked", fcnm);
-                    }
-                    nwork = j2 - j1 + 1;
-                    ierr = update_dataSet(groupID, dataBuffer1, j1, j2,
-                                          nwork, &dwork[k1]);
-                    if (ierr != 0)
-                    {
-                        log_errorF("%s: Failed overlap update 1\n", fcnm);
-                        ierrAll = ierrAll + 1;
-                        goto CLOSE_GROUP;
-                    }
-                    j1 = 0;
-                    j2 = (int) ((tb2Data.traces[i].times[c2]-ts2Use)/dt + 0.5);
-                    k1 = k1 + nwork;
-                    nwork = j2 - j1 + 1;
-                    ierr = update_dataSet(groupID, dataBuffer2, j1, j2,
-                                          nwork, &dwork[k1]);
-                    if (ierr != 0)
-                    {
-                        log_errorF("%s: Failed overlap update 1\n", fcnm);
-                        ierrAll = ierrAll + 1;
-                        goto CLOSE_GROUP;
-                    }
-                }
-                // Update is entirely in previous buffer
-                else if (i1 < 0 && i2 < 0)
-                {
-                    j1 = (int) ((tb2Data.traces[i].times[c1]-ts1Use)/dt + 0.5);
-                    j2 = (int) ((tb2Data.traces[i].times[c1]-ts1Use)/dt + 0.5);
-                    k1 = c1;
-                    if (j1 < 0)
-                    {
-                        j1 = 0;
-                        k1 = c1 - j1; //- a negative is a positive
-                        log_warnF("%s: This isn't checked either\n", fcnm);
-                    }
-                    nwork = j2 - j1 + 1;
-                    ierr = update_dataSet(groupID, dataBuffer1, j1, j2,
-                                          nwork, &dwork[k1]);
-                    if (ierr != 0)
-                    {
-                        log_errorF("%s: Failed previous update %d %d %d\n",
-                                   fcnm, j1, j2, nwork);
-                        ierrAll = ierrAll + 1;
-                        goto CLOSE_GROUP;
-                    }
-                }
-                // Unclassified case
-                else
-                {
-                    log_errorF("%s: Unclassified case %d %d\n", fcnm, i1, i2);
-                    ierrAll = ierrAll + 1;
-                }
-            } // Loop on messages 
-            ISCL_memory_free__double(&dwork);
-/*
-            nwork = (int) ((currentTime - tb2Data.traces[k].times[0])
-                          /h5traceBuffer.traces[i].dt + 0.5) + 1;
-            dwork = ISCL_array_set__double(nwork, (double) NAN, &ierr);
-            ISCL_memory_free__double(&dwork);
-*/
-        }
-        // Close the group
-CLOSE_GROUP:;
+            } // Loop on data chunks 
+        } // Loop on waveforms in this group
+        // Write the new dataset
+        dims[0] = (hsize_t) ntraces;
+        dims[1] = (hsize_t) maxpts;
+        dataSpace = H5Screate_simple(2, dims, NULL);
+        dataSet = H5Dopen(groupID, "Data\0", H5P_DEFAULT); 
+        status = H5Dwrite(dataSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+                          H5P_DEFAULT, work);
+        ierr = h5_write_attribute__double("StartTime\0", dataSet,
+                                          1, &ts1);
+        status = H5Sclose(dataSpace);
+        status = H5Dclose(dataSet);
         status = H5Gclose(groupID);
         if (status < 0)
         {
-            log_errorF("%s: Error closing group\n", fcnm);
-            continue;
+            log_errorF("%s: Error closing group %s\n",
+                       fcnm, h5traceBuffer.dtGroupName[idt]);
+            return -1; 
         }
+        // free memory
+        ISCL_memory_free__double(&gains);
+        ISCL_memory_free__double(&work); 
+        ISCL_memory_free__double(&dwork);
     }
     // Free memory
     ISCL_memory_free__int(&map);
@@ -412,6 +250,7 @@ CLOSE_GROUP:;
  * @author Ben Baker (ISTI)
  *
  */
+/*
 static int update_dataSet(const hid_t groupID,
                           const char *dataSetName,  
                           int i1, int i2, const int npts,
@@ -498,3 +337,4 @@ ERROR1:;
     status = H5Dclose(dataSetID);
     return status;
 }
+*/

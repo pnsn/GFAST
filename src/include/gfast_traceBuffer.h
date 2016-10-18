@@ -185,7 +185,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int nRead,
     const char *msgs,
     struct tb2Data_struct *tb2Data);
-
+/* Reads a chunk of data from a Data group */
+double *traceBuffer_h5_readData(const hid_t groupID,
+                                const int ntraces,
+                                int *maxpts,
+                                double *dt, double *ts1, double *ts2,
+                                double *gain, int *ierr);
 /* Sets data in h5 file */
 int traceBuffer_h5_setData(const double currentTime,
                            struct tb2Data_struct tb2Data,
