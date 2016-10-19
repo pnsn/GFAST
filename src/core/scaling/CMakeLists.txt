@@ -2,6 +2,7 @@ add_sources(
 pgd_depthGridSearch.c
 pgd_finalize.c
 pgd_initialize.c
+pgd_gridSearch.c
 pgd_setDiagonalWeightMatrix.c
 pgd_setForwardModel.c
 pgd_setRHS.c

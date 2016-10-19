@@ -104,11 +104,11 @@ int core_cmt_gridSearch(const int l1,
     {
         if (utmSrcEastings == NULL)
         {
-            log_errorF("%s: utmSrcNorthings is NULL!\n", fcnm);
+            log_errorF("%s: utmSrcEastings is NULL!\n", fcnm);
         }
         if (utmSrcNorthings == NULL)
         {
-            log_errorF("%s: utmSrcEastings is NULL!\n", fcnm);
+            log_errorF("%s: utmSrcNorthings is NULL!\n", fcnm);
         } 
         if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
         if (utmRecvEasting == NULL)
@@ -130,8 +130,12 @@ int core_cmt_gridSearch(const int l1,
         return -1;
     }
     // Verify the sizes
-    if (ndeps < 1 || nlats < 1 || nlons < 1)
+    if (l1 < 1 || ndeps < 1 || nlats < 1 || nlons < 1)
     {
+        if (l1 < 1)
+        {
+            log_errorF("%s: Error no observations %d\n", fcnm, l1);
+        }
         if (ndeps < 1)
         {
             log_errorF("%s: Error invalid number of source depths: %d\n",
@@ -184,9 +188,9 @@ int core_cmt_gridSearch(const int l1,
                                              nWts,
                                              eWts,
                                              uWts,
-                                             &nEst[ilatLon*ndeps],
-                                             &eEst[ilatLon*ndeps],
-                                             &uEst[ilatLon*ndeps],
+                                             &nEst[ilatLon*ndeps*l1],
+                                             &eEst[ilatLon*ndeps*l1],
+                                             &uEst[ilatLon*ndeps*l1],
                                              &mts[6*ilatLon*ndeps]);
             if (ierr1 != 0)
             {

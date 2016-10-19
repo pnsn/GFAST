@@ -2,6 +2,7 @@ add_sources(
 decomposeMomentTensor.c
 depthGridSearch.c
 finalize.c
+gridSearch.c
 initialize.c
 setDiagonalWeightMatrix.c
 setForwardModel.c
