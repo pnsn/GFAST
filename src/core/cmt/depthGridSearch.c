@@ -48,7 +48,7 @@
  *                             the i'th site at the idep'th depth is given by
  *                             idep*l1 + i
  * @param[out] uEst            estimate offset in the vertical component (m)
- *                             for the i'th site at all depth s[l1*ndeps]
+ *                             for the i'th site at all depths [l1*ndeps]
  *                             the i'th site at the idep'th depth is given by
  *                             idep*l1 + i
  * @param[out] mts             the moment tensor terms (Nm) inverted for in

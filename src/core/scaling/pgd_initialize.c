@@ -27,9 +27,25 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     const char *fcnm = "core_scaling_pgd_initialize\0";
     int i;
     pgd->ndeps = pgd_props.ngridSearch_deps;
-    if (pgd->ndeps < 1)
+    pgd->nlats = pgd_props.ngridSearch_lats;
+    pgd->nlons = pgd_props.ngridSearch_lons;
+    if (pgd->ndeps < 1 || pgd->nlats < 1 || pgd->nlons < 1)
     {
-        log_errorF("%s: No depths in PGD grid search\n", fcnm);
+        if (pgd->ndeps < 1)
+        {
+            log_errorF("%s: No depths in PGD grid search %d\n",
+                       fcnm, pgd_props.ngridSearch_deps);
+        }
+        if (pgd->nlats < 1)
+        {
+            log_errorF("%s: No lats in PGD grid search %d\n",
+                       fcnm, pgd_props.ngridSearch_lats);
+        }
+        if (pgd->nlats < 1)
+        {
+            log_errorF("%s: No lons in PGD grid search %d\n",
+                       fcnm, pgd_props.ngridSearch_lons);
+        }
         return -1;
     }
     pgd->nsites = gps_data.stream_length;

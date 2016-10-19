@@ -309,9 +309,42 @@ int core_properties_initialize(const char *propfilename,
                    fcnm, props->pgd_props.disp_def);
         goto ERROR;
     }
+    props->pgd_props.dLat
+         = iniparser_getdouble(ini, "PGD:deltaLatitude\0", 0.1);
+    if (props->pgd_props.dLat < 0.0)
+    {
+        log_errorF("%s: Error PGD latitude serach %f must be positive\n",
+                   fcnm, props->pgd_props.dLat);
+        goto ERROR;
+    }
+    props->pgd_props.dLon
+         = iniparser_getdouble(ini, "PGD:deltaLongitude\0", 0.1);
+    if (props->pgd_props.dLon < 0.0)
+    {
+        log_errorF("%s: Error PGD longitudes %f must be positive\n",
+                   fcnm, props->pgd_props.dLon);
+        goto ERROR;
+    }
+    props->pgd_props.ngridSearch_lats
+         = iniparser_getint(ini, "PGD:nlats_in_pgd_gridSearch\0", 1);
+    if (props->pgd_props.ngridSearch_lats < 1)
+    {
+        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
+                   fcnm, props->pgd_props.ngridSearch_lats);
+        goto ERROR;
+    }
+    props->pgd_props.ngridSearch_lons
+         = iniparser_getint(ini, "PGD:nlons_in_pgd_gridSearch\0", 1);
+    if (props->pgd_props.ngridSearch_lons < 1)
+    {
+        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
+                   fcnm, props->pgd_props.ngridSearch_lons);
+        goto ERROR;
+    }
     props->pgd_props.ngridSearch_deps
          = iniparser_getint(ini, "PGD:ndepths_in_pgd_gridSearch\0", 100);
-    if (props->pgd_props.ngridSearch_deps < 1){
+    if (props->pgd_props.ngridSearch_deps < 1)
+    {
         log_errorF("%s: Error PGD grid search depths %d must be positive\n",
                    fcnm, props->pgd_props.ngridSearch_deps);
         goto ERROR;
@@ -324,7 +357,8 @@ int core_properties_initialize(const char *propfilename,
     }
     props->pgd_props.min_sites = iniparser_getint(ini, "PGD:pgd_min_sites\0",
                                                   4);
-    if (props->pgd_props.min_sites < 1){
+    if (props->pgd_props.min_sites < 1)
+    {
         log_errorF("%s: Error at least one site needed to estimate PGD!\n", 
                    fcnm);
         goto ERROR;
@@ -332,6 +366,38 @@ int core_properties_initialize(const char *propfilename,
     //----------------------------CMT Parameters------------------------------//
     props->cmt_props.verbose = props->verbose;
     props->cmt_props.utm_zone = props->utm_zone;
+    props->cmt_props.dLat
+         = iniparser_getdouble(ini, "CMT:deltaLatitude\0", 0.1);
+    if (props->cmt_props.dLat < 0.0)
+    {   
+        log_errorF("%s: Error CMT latitude serach %f must be positive\n",
+                   fcnm, props->cmt_props.dLat);
+        goto ERROR;
+    }   
+    props->cmt_props.dLon
+         = iniparser_getdouble(ini, "CMT:deltaLongitude\0", 0.1);
+    if (props->cmt_props.dLon < 0.0)
+    {   
+        log_errorF("%s: Error CMT longitudes %f must be positive\n",
+                   fcnm, props->cmt_props.dLon);
+        goto ERROR;
+    }
+    props->cmt_props.ngridSearch_lats
+         = iniparser_getint(ini, "CMT:nlats_in_cmt_gridSearch\0", 1);
+    if (props->cmt_props.ngridSearch_lats < 1)
+    {
+        log_errorF("%s: Error CMT grid search lats %d must be positive\n",
+                   fcnm, props->cmt_props.ngridSearch_lats);
+        goto ERROR;
+    }
+    props->cmt_props.ngridSearch_lons
+         = iniparser_getint(ini, "CMT:nlons_in_cmt_gridSearch\0", 1);
+    if (props->cmt_props.ngridSearch_lons < 1)
+    {
+        log_errorF("%s: Error CMT grid search lons %d must be positive\n",
+                   fcnm, props->cmt_props.ngridSearch_lons);
+        goto ERROR;
+    }
     props->cmt_props.ngridSearch_deps
          = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);
     if (props->cmt_props.ngridSearch_deps < 1)

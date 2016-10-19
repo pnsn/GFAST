@@ -12,7 +12,7 @@
 #include "iscl/time/time.h"
 
 /*!
- * @brief Computes the predicted mangitude using PGD and Pd from
+ * @brief Computes the predicted magnitude using PGD and Pd from
  *        the geodetic data by solving the overdetermined system:
  *         \f[ 
  *            W \left [B + C \log_{10}(r) \right ] \textbf{m}

@@ -22,6 +22,10 @@ struct GFAST_pgd_props_struct
     double disp_def;      /*!< If the source receiver epicentral distance
                                is less than dist_tol this is the value assigned
                                to the PGD observation (cm) */
+    double dLat;          /*!< Latitude perturbation (degrees) in epicentral
+                               grid search */
+    double dLon;          /*!< Longitude perturbation (degrees) in epicentral
+                               grid search */
     int min_sites;        /*!< Minimum number of sites required to
                                proceed with PGD inversion */
     int verbose;          /*!< Controls verbosity - errors will always
@@ -35,6 +39,8 @@ struct GFAST_pgd_props_struct
     int utm_zone;         /*!< UTM zone.  If this is -12345 then will 
                                extract the UTM zone from the event
                                origin. */
+    int ngridSearch_lats; /*!< Number of latitudes in epicentral grid-search */
+    int ngridSearch_lons; /*!< Number of longitudes in epicentral grid-search */
     int ngridSearch_deps; /*!< Number of depths in PGD grid-search */
 };
 
@@ -46,6 +52,10 @@ struct GFAST_cmt_props_struct
     double window_avg;    /*!< Amount of time (s) required after S wave
                                has passed through for averaging
                                the offset */
+    double dLat;          /*!< Latitude perturbation (degrees) in epicentral
+                               grid search */
+    double dLon;          /*!< Longitude perturbation (degrees) in epicentral
+                               grid search */
     int min_sites;        /*!< Minimum number of sites required to
                                proceed with CMT inversion */
     int verbose;          /*!< Controls verbosity - errors will always
@@ -59,6 +69,8 @@ struct GFAST_cmt_props_struct
     int utm_zone;         /*!< UTM zone.  If this is -12345 then will 
                                extract the UTM zone from the event
                                origin. */
+    int ngridSearch_lats; /*!< Number of latitudes in epicenter grid-search */
+    int ngridSearch_lons; /*!< Number of longitudes in epicenter grid-search */
     int ngridSearch_deps; /*!< Number of depths in CMT grid-search */
     bool ldeviatoric;     /*!< If true then the CMT inversion is 
                                constrained to purely deviatoric sources.
@@ -328,6 +340,8 @@ struct GFAST_cmtResults_struct
     bool *lsiteUsed;   /*!< If true then the isite'th site from the
                             site list was used in the CMT estimation [nsite] */ 
     int opt_indx;      /*!< Optimal index in depth grid search [0, ndeps) */
+    int nlats;         /*!< Number of latitudes in grid search */
+    int nlons;         /*!< Number of longitudes in grid serach */
     int ndeps;         /*!< Number of depths in grid search */
     int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
 };
@@ -341,12 +355,16 @@ struct GFAST_pgdResults_struct
     double *UP;        /*!< PGD estimates for each source depth
                             [nsites*ndeps] */
     double *UPinp;     /*!< PGD observations for each site [nsites] */
+    double *srcLats;   /*!< Source latitudes in grid search (degrees) [nlats] */
+    double *srcLons;   /*!< Source longitudes in grid search (degrees) [nlons] */
     double *srcDepths; /*!< PGD source depths in grid search (km) [ndeps] */
     double *srdist;    /*!< Source receiver distance (km) [ndeps*nsites] */
     double *iqr;       /*!< interquartile range (75 - 25) of the weighted
                             residuals at each depth [ndeps] */
     bool *lsiteUsed;   /*!< If true then the isite'th site from the 
                             site list was used in the PGD estimation [nsites] */
+    int nlats;         /*!< Number of latitudes in grid search */
+    int nlons;         /*!< Number of longitudes in grid serach */
     int ndeps;         /*!< Number of depths in PGD estimation */ 
     int nsites;        /*!< Should equal GFAST_data_struct's stream_length */
 };

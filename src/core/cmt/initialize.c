@@ -33,10 +33,25 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     int i;
     //------------------------------------------------------------------------//
     cmt->ndeps = props.ngridSearch_deps;
-    if (cmt->ndeps < 1)
+    cmt->nlats = props.ngridSearch_lats;
+    cmt->nlons = props.ngridSearch_lons;
+    if (cmt->ndeps < 1 || cmt->nlats < 1 || cmt->nlons < 1)
     {
-        log_errorF("%s: No depths in CMT grid search %d\n",
-                   fcnm, props.ngridSearch_deps);
+        if (cmt->ndeps < 1)
+        {
+            log_errorF("%s: No depths in CMT grid search %d\n",
+                       fcnm, props.ngridSearch_deps);
+        }
+        if (cmt->nlats < 1)
+        {
+            log_errorF("%s: No lats in CMT grid search %d\n",
+                       fcnm, props.ngridSearch_lats);
+        }
+        if (cmt->nlats < 1)
+        {
+            log_errorF("%s: No lons in CMT grid search %d\n",
+                       fcnm, props.ngridSearch_lons);
+        }
         return -1;
     }
     cmt->nsites = gps_data.stream_length;

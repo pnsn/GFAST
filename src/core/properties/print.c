@@ -136,14 +136,32 @@ void core_properties_print(struct GFAST_props_struct props)
                lspace, props.pgd_props.dist_tol);
     log_debugF("%s GFAST PGD default distance %f (cm)\n",
                lspace, props.pgd_props.disp_def);
+    log_debugF("%s GFAST Number of latitudes in grid search %d\n",
+               lspace, props.pgd_props.ngridSearch_lats);
+    log_debugF("%s GFAST Number of longitudes in grid search %d\n",
+               lspace, props.pgd_props.ngridSearch_lons);
     log_debugF("%s GFAST Number of PGD grid search depths is %d\n",
                lspace, props.pgd_props.ngridSearch_deps);
     log_debugF("%s GFAST PGD data selection velocity is %f (km/s)\n",
                lspace, props.pgd_props.window_vel);
     log_debugF("%s GFAST Number of sites required to compute PGD is %d\n",
                lspace, props.pgd_props.min_sites);
+    if (props.pgd_props.ngridSearch_lats > 1)
+    {
+        log_debugF("%s GFAST PGD latitude grid spacing %f\n",
+                   lspace, props.pgd_props.dLat); 
+    }
+    if (props.pgd_props.ngridSearch_lons > 1)
+    {
+        log_debugF("%s GFAST PGD longitude grid spacing %f\n",
+                   lspace, props.pgd_props.dLon);
+    }
     //--------------------------------cmt-------------------------------------//
-    log_debugF("%s GFAST Number of CMT grid search depths is %d\n",
+    log_debugF("%s GFAST Number of latitudes in CMT grid search %d\n",
+               lspace, props.cmt_props.ngridSearch_lats);
+    log_debugF("%s GFAST Number of longitudes in CMT grid search %d\n",
+               lspace, props.cmt_props.ngridSearch_lons);
+    log_debugF("%s GFAST Number of depths in CMT grid search  %d\n",
                lspace, props.cmt_props.ngridSearch_deps);
     log_debugF("%s GFAST CMT data selection velocity is %f (km/s)\n",
                lspace, props.cmt_props.window_vel);
@@ -159,6 +177,16 @@ void core_properties_print(struct GFAST_props_struct props)
     else
     {
         log_debugF("%s GFAST will invert for all 6 MT terms\n", lspace);
+    }
+    if (props.cmt_props.ngridSearch_lats > 1)
+    {   
+        log_debugF("%s GFAST CMT latitude grid spacing %f\n",
+                   lspace, props.cmt_props.dLat); 
+    }   
+    if (props.cmt_props.ngridSearch_lons > 1)
+    {   
+        log_debugF("%s GFAST CMT longitude grid spacing %f\n",
+                   lspace, props.cmt_props.dLon);
     }
     //--------------------------------ff--------------------------------------//
     log_debugF("%s GFAST will use %d fault patches along strike\n",
