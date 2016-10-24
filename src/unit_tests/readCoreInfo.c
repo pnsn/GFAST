@@ -40,7 +40,6 @@ int readCoreInfo_test()
     FILE *xmlfl;
     struct GFAST_shakeAlert_struct SA;
     char *message = NULL;
-    double SA_NAN = -12345.0;
     long fsize;
     int ierr;
     // Read the message into memory
