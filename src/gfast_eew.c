@@ -3,9 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
 #include "iscl/iscl/iscl.h"
+#include "iscl/log/log.h"
+#include "iscl/log/logfiles.h"
 #include "iscl/memory/memory.h"
+#include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
 #define MAX_MESSAGES 1024
@@ -32,6 +34,7 @@ int main(int argc, char **argv)
     struct GFAST_pgdResults_struct pgd;
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
+    struct GFAST_xmlMessages_struct xmlMessages;
     struct ewRing_struct ringInfo;
     char *msgs;
     char *amqMessage;
@@ -40,7 +43,7 @@ int main(int argc, char **argv)
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
-    int ierr, iev, msWait, nTracebufs2Read;
+    int ierr, im, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent;
     const int rdwt = 2; // H5 file is read/write
     // Initialize 
@@ -56,6 +59,7 @@ int main(int argc, char **argv)
     memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&ringInfo, 0, sizeof(struct ewRing_struct)); 
+    memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
     memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
     ISCL_iscl_init(); // Fire up the computational library
@@ -236,19 +240,21 @@ tbeger = ISCL_time_timeStamp();
 printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
 printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
- if (t1 - tbeg > 6200)
+ if (t1 - tbeg > 6200 && false)
 {
 printf("premature shut down\n");
 break;
 } 
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
+printf("%d\n", msWait);
         amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
         if (ierr != 0)
         {
             log_errorF("%s: Internal error when getting message\n", fcnm);
             goto ERROR;
         }
+//continue;
         // If there's a message then process it
         if (amqMessage != NULL)
         {
@@ -261,15 +267,38 @@ break;
                 log_errorF("%s\n", amqMessage);
                 goto ERROR;
             }
-            free(amqMessage);
-            amqMessage = NULL;
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_events_newEvent(SA, &events);
             if (lnewEvent)
             {
+                // And the logs
+                if (props.verbose > 0)
+                {
+                    log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
+                    if (props.verbose > 2){GFAST_events_printEvents(SA);}
+                }
+                // Set the log file names
+                eewUtils_setLogFileNames(SA.eventid);
+                if (ISCL_os_path_isfile(errorLogFileName))
+                {
+                    remove(errorLogFileName);
+                }
+                if (ISCL_os_path_isfile(infoLogFileName))
+                {
+                    remove(infoLogFileName);
+                }
+                if (ISCL_os_path_isfile(debugLogFileName))
+                {
+                   remove(debugLogFileName);
+                }
+                if (ISCL_os_path_isfile(warnLogFileName))
+                {
+                   remove(warnLogFileName);
+                }
+                // Initialize the HDF5 file
                 ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                              SA.eventid,
-                                             propfilename);
+                                             props.propfilename);
                 if (ierr != 0)
                 {
                     log_errorF("%s: Error initializing the archive file\n",
@@ -277,22 +306,62 @@ break;
                     goto ERROR;
                 }
             }
-        }
-        // Are there events to process? 
-        for (iev=0; iev<events.nev; iev++)
+            free(amqMessage);
+            amqMessage = NULL;
+        } // End check on ActiveMQ message
+        // Are there events to process?
+        if (events.nev < 1){continue;} 
+        if (props.verbose > 2)
         {
-            if (props.verbose > 2)
-            {
-                log_debugF("%s: Processing event %s\n", fcnm,
-                           events.SA[iev].eventid);
-            }
-            // Read the data from the buffers
-
-            // Apply the waveform processors
-
-            // Update the HDF5 archive
-
+            log_debugF("%s: Processing events...\n", fcnm);
         }
+        ierr = eewUtils_driveGFAST(t1, //currentTime,
+                                   props,
+                                   events,
+                                   &gps_data,
+                                   &h5traceBuffer,
+                                   &pgd_data,
+                                   &cmt_data,
+                                   &ff_data,
+                                   &pgd,
+                                   &cmt,
+                                   &ff,
+                                   &xmlMessages);
+         if (ierr != 0)
+         {
+             log_errorF("%s: Error calling GFAST driver!\n", fcnm);
+             goto ERROR; 
+         }
+         // Send the messages where they need to go
+         if (xmlMessages.mmessages > 0)
+         {
+             for (im=0; im<xmlMessages.nmessages; im++)
+             {
+                 if (xmlMessages.evids[im] != NULL)
+                 {
+                     free(xmlMessages.evids[im]);
+                 }
+                 if (xmlMessages.cmtQML[im] != NULL)
+                 {
+                     free(xmlMessages.cmtQML[im]);
+                 }
+                 if (xmlMessages.pgdXML[im] != NULL)
+                 {
+                     free(xmlMessages.pgdXML[im]);
+                 }
+                 if (xmlMessages.ffXML[im] != NULL)
+                 {
+                     free(xmlMessages.ffXML[im]);
+                 }
+             }
+             if (xmlMessages.evids != NULL){free(xmlMessages.evids);}
+             if (xmlMessages.cmtQML != NULL){free(xmlMessages.cmtQML);}
+             if (xmlMessages.ffXML  != NULL){free(xmlMessages.ffXML);}
+             if (xmlMessages.pgdXML != NULL){free(xmlMessages.pgdXML);}
+             memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
+printf("early exit\n");
+break;
+         }
     }
 ERROR:;
     ISCL_memory_free__char(&msgs);
