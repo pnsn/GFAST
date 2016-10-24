@@ -164,7 +164,7 @@ int core_cmt_gridSearch(const int l1,
 #ifdef PARALLEL_CMT
     #pragma omp parallel for collapse(2) \
      private(ilatLon, ilat, ilon) \
-     reduction(+:ierr), shared(nEst, eEst, uEst, mts) \  
+     reduction(+:ierr), shared(nEst, eEst, uEst, mts) \
      default(none)
 #endif
     for (ilon=0; ilon<nlons; ilon++)
