@@ -23,7 +23,7 @@
  *        origin time, latitude, longitude, depth, and magnitude
  *
  * @param[in] message    null terminated XML shakeAlert message to parse
- * @param[in] SA_NAN     if a value does not exist in the message it will
+ * @param[in] saNaN      if a value does not exist in the message it will
  *                       be given this default value
  *
  * @param[out] SA        shake alert structure  
@@ -32,7 +32,7 @@
  *
  */
 int eewUtils_parseCoreXML(const char *message,
-                          const double SA_NAN,
+                          const double saNaN,
                           struct GFAST_shakeAlert_struct *SA)
 {
     const char *fcnm = "GFAST_eewUtils_parseCoreXML\0";
@@ -84,7 +84,7 @@ int eewUtils_parseCoreXML(const char *message,
             lfound = true;
             // Parse it
             ierr = GFAST_xml_shakeAlert_readCoreInfo((void *) core_xml,
-                                                     SA_NAN, &core);
+                                                     saNaN, &core);
             if (ierr != 0)
             {
                  log_errorF("%s: Error reading core info!\n", fcnm);

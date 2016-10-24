@@ -8,6 +8,8 @@ extern "C"
 {
 #endif
 
+#define SA_NAN -12345.0 /* NaN for shakeAlert event lat/lon/depth */
+
 /* Drive the CMT computation */
 int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                       const double SA_lat,
@@ -23,14 +25,13 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                      struct GFAST_ffResults_struct *ff);
 /* Drive GFAST */
 int eewUtils_driveGFAST(const double currentTime,
-                        const char *xmlMessage,
+                        struct GFAST_props_struct props,
+                        struct GFAST_activeEvents_struct events,
                         struct GFAST_data_struct *gps_data,
                         struct h5traceBuffer_struct *h5traceBuffer,
-                        struct GFAST_props_struct props,
                         struct GFAST_peakDisplacementData_struct *pgd_data,
                         struct GFAST_offsetData_struct *cmt_data,
                         struct GFAST_offsetData_struct *ff_data,
-                        struct GFAST_activeEvents_struct *events,
                         struct GFAST_pgdResults_struct *pgd,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_ffResults_struct *ff,
@@ -91,8 +92,10 @@ char *eewUtils_makeXML__pgd(const int mode,
                             int *ierr);
 /* Parses the core XML message */
 int eewUtils_parseCoreXML(const char *message,
-                          const double SA_NAN,
+                          const double saNaN,
                           struct GFAST_shakeAlert_struct *SA);
+/* Make the EEW log file names */
+void eewUtils_setLogFileNames(const char *eventid);
 
 #define GFAST_eewUtils_driveCMT(...)       \
               eewUtils_driveCMT(__VA_ARGS__)
@@ -106,6 +109,8 @@ int eewUtils_parseCoreXML(const char *message,
               eewUtils_makeXML__quakeML(__VA_ARGS__)
 #define GFAST_eewUtils_parseCoreXML(...)       \
               eewUtils_parseCoreXML(__VA_ARGS__)
+#define GFAST_eewUtils_setLogFileNames(...)       \
+              eewUtils_setLogFileNames(__VA_ARGS__)
 
 #ifdef __cplusplus
 }

@@ -136,9 +136,9 @@ void core_properties_print(struct GFAST_props_struct props)
                lspace, props.pgd_props.dist_tol);
     log_debugF("%s GFAST PGD default distance %f (cm)\n",
                lspace, props.pgd_props.disp_def);
-    log_debugF("%s GFAST Number of latitudes in grid search %d\n",
+    log_debugF("%s GFAST Number of PGD grid search latitudes %d\n",
                lspace, props.pgd_props.ngridSearch_lats);
-    log_debugF("%s GFAST Number of longitudes in grid search %d\n",
+    log_debugF("%s GFAST Number of PGD grid search longitudes %d\n",
                lspace, props.pgd_props.ngridSearch_lons);
     log_debugF("%s GFAST Number of PGD grid search depths is %d\n",
                lspace, props.pgd_props.ngridSearch_deps);

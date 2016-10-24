@@ -53,7 +53,7 @@ int GFAST_properties_initialize(const char *propfilename,
                                 struct GFAST_props_struct *props);
 void GFAST_properties_print(struct GFAST_props_struct props);
 /* Reads the ElarmS file */
-int GFAST_readElarmS__xml(const char *message, double SA_NAN,
+int GFAST_readElarmS__xml(const char *message, double saNaN,
                           struct GFAST_shakeAlert_struct *SA);
 int GFAST_readElarmS(struct GFAST_props_struct props,
                      struct GFAST_shakeAlert_struct *SA);

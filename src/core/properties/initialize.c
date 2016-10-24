@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdocumentation"
@@ -333,6 +334,12 @@ int core_properties_initialize(const char *propfilename,
                    fcnm, props->pgd_props.ngridSearch_lats);
         goto ERROR;
     }
+    if ((int) (fmod((double) props->pgd_props.ngridSearch_lats, 2.0)) == 0)
+    {
+        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
+        props->pgd_props.ngridSearch_lats
+           = props->pgd_props.ngridSearch_lats + 1;
+    }
     props->pgd_props.ngridSearch_lons
          = iniparser_getint(ini, "PGD:nlons_in_pgd_gridSearch\0", 1);
     if (props->pgd_props.ngridSearch_lons < 1)
@@ -340,6 +347,12 @@ int core_properties_initialize(const char *propfilename,
         log_errorF("%s: Error PGD grid search depths %d must be positive\n",
                    fcnm, props->pgd_props.ngridSearch_lons);
         goto ERROR;
+    }
+    if ((int) (fmod((double) props->pgd_props.ngridSearch_lons, 2.0)) == 0)
+    {
+        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
+        props->pgd_props.ngridSearch_lons
+           = props->pgd_props.ngridSearch_lons + 1;
     }
     props->pgd_props.ngridSearch_deps
          = iniparser_getint(ini, "PGD:ndepths_in_pgd_gridSearch\0", 100);
@@ -373,7 +386,7 @@ int core_properties_initialize(const char *propfilename,
         log_errorF("%s: Error CMT latitude serach %f must be positive\n",
                    fcnm, props->cmt_props.dLat);
         goto ERROR;
-    }   
+    }
     props->cmt_props.dLon
          = iniparser_getdouble(ini, "CMT:deltaLongitude\0", 0.1);
     if (props->cmt_props.dLon < 0.0)
@@ -390,6 +403,12 @@ int core_properties_initialize(const char *propfilename,
                    fcnm, props->cmt_props.ngridSearch_lats);
         goto ERROR;
     }
+    if ((int) (fmod((double) props->cmt_props.ngridSearch_lats, 2.0)) == 0)
+    {   
+        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
+        props->cmt_props.ngridSearch_lats
+           = props->cmt_props.ngridSearch_lats + 1;
+    }
     props->cmt_props.ngridSearch_lons
          = iniparser_getint(ini, "CMT:nlons_in_cmt_gridSearch\0", 1);
     if (props->cmt_props.ngridSearch_lons < 1)
@@ -397,6 +416,12 @@ int core_properties_initialize(const char *propfilename,
         log_errorF("%s: Error CMT grid search lons %d must be positive\n",
                    fcnm, props->cmt_props.ngridSearch_lons);
         goto ERROR;
+    }
+    if ((int) (fmod((double) props->cmt_props.ngridSearch_lons, 2.0)) == 0)
+    {
+        log_warnF("%s: Adding 1 point to CMT lon gridsearch\n", fcnm);
+        props->cmt_props.ngridSearch_lons
+           = props->cmt_props.ngridSearch_lons + 1;
     }
     props->cmt_props.ngridSearch_deps
          = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);

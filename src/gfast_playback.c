@@ -4,8 +4,10 @@
 #include <string.h>
 #include <math.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
+#include "gfast_eewUtils.h"
 #include "iscl/iscl/iscl.h"
+#include "iscl/log/log.h"
+#include "iscl/log/logfiles.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
@@ -29,6 +31,7 @@ int main(int argc, char *argv[])
     double currentTime, dtmax, t0sim, tbeg;
     const enum opmode_type opmode = OFFLINE;
     int ierr, im, k, kt, ntsim;
+    bool lnewEvent;
     size_t message_length;
     //------------------------------------------------------------------------//
     //
@@ -160,17 +163,65 @@ int main(int argc, char *argv[])
     // Loop on time steps in simulation
     for (kt=0; kt<ntsim; kt++)
     {
+        // Parse the XML message
+        if (elarms_xml_message != NULL)
+        {
+            ierr = GFAST_eewUtils_parseCoreXML(elarms_xml_message, SA_NAN, &SA);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error parsing XML message\n", fcnm);
+                return ierr;
+            }
+            // If this is a new event we have some file handling to do
+            lnewEvent = GFAST_events_newEvent(SA, &events);
+            if (lnewEvent)
+            {
+                // And the logs
+                if (props.verbose > 0)
+                {
+                    log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
+                    if (props.verbose > 2){GFAST_events_printEvents(SA);}
+                }
+                // Set the log file names
+                eewUtils_setLogFileNames(SA.eventid);
+                if (ISCL_os_path_isfile(errorLogFileName))
+                {
+                    remove(errorLogFileName);
+                }
+                if (ISCL_os_path_isfile(infoLogFileName))
+                {
+                    remove(infoLogFileName);
+                }
+                if (ISCL_os_path_isfile(debugLogFileName))
+                {
+                   remove(debugLogFileName);
+                }
+                if (ISCL_os_path_isfile(warnLogFileName))
+                {
+                   remove(warnLogFileName);
+                }
+                // Initialize the HDF5 file
+                ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
+                                             SA.eventid,
+                                             props.propfilename);
+                if (ierr != 0)    
+                {
+                    log_errorF("%s: Error initializing the archive file\n",
+                               fcnm);
+                    return -1;
+                }
+            }
+        }
         // Compute the current time
         currentTime = t0sim + (double) kt*dtmax;
         ierr = eewUtils_driveGFAST(currentTime,
-                                   elarms_xml_message,
+                                   props,
+                                   events,
                                    &gps_data,
                                    &h5traceBuffer,
-                                   props,
                                    &pgd_data,
                                    &cmt_data,
                                    &ff_data,
-                                   &events,
                                    &pgd,
                                    &cmt,
                                    &ff,

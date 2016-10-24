@@ -230,7 +230,7 @@ int xml_quakeML_writeTime(const double time,
 //----------------------------------------------------------------------------//
 /* Read shakeAlert coreInfo */
 int xml_shakeAlert_readCoreInfo(void *xml_reader,
-                                const double SA_NAN,
+                                const double saNaN,
                                 struct coreInfo_struct *core);
 /* Write shakeAlert coreInfo */
 int xml_shakeAlert_writeCoreInfo(const struct coreInfo_struct core,

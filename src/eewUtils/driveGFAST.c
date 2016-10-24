@@ -14,23 +14,45 @@
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
-static void setFileNames(const char *eventid);
+//static void setFileNames(const char *eventid);
 
 /*!
  * @brief Expert earthquake early warning GFAST driver
  *
- * @param[in] currentTime     current epochal time
- * @param[in] xmlMessage      shakeAlert XML message
+ * @param[in] currentTime        current epochal time (UTC seconds)
+ * @param[in] props              holds the GFAST properties
+ * @param[in] events             the input event list.  if there are no
+ *                               events this function will immediately return.
+ * @param[in,out] gps_data       holds the GPS streams to be used in the
+ *                               inversions.
+ * @param[in,out] h5traceBuffer  holds the requisite information for reading
+ * @param[in,out] pgd_data       workspace for the PGD data in the PGD inversion
+ * @param[in,out] cmt_data       workspace for the offset data in the CMT 
+ *                               inversion
+ * @param[in,out] ff_data        workspace for the offset data in the finite
+ *                               fault inversion 
+ * @param[in,out] pgd            workspace for the PGD inversion
+ * @param[in,out] cmt            workspace for the CMT inversion
+ * @param[in,out] ff             workspace for the finite fault inversion
+ *
+ * @param[out] xmlMessages       contains the XML messages for all events for
+ *                               the PGD and finite fault for activeMQ to
+ *                               forward onto shakeAlert as well as the CMT
+ *                               quakeML [events.nev].
+ * 
+ * @result 0 indicates success
+ *
+ * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
+ * 
  */
 int eewUtils_driveGFAST(const double currentTime,
-                        const char *xmlMessage,
+                        struct GFAST_props_struct props,
+                        struct GFAST_activeEvents_struct events,
                         struct GFAST_data_struct *gps_data,
                         struct h5traceBuffer_struct *h5traceBuffer,
-                        struct GFAST_props_struct props,
                         struct GFAST_peakDisplacementData_struct *pgd_data,
                         struct GFAST_offsetData_struct *cmt_data,
                         struct GFAST_offsetData_struct *ff_data,
-                        struct GFAST_activeEvents_struct *events,
                         struct GFAST_pgdResults_struct *pgd,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_ffResults_struct *ff,
@@ -44,67 +66,17 @@ int eewUtils_driveGFAST(const double currentTime,
     double t1, t2;
     int h5k, ierr, iev, ipf, nsites_cmt, nsites_ff, nsites_pgd, nstrdip,
         pgdOpt, shakeAlertMode;
-    bool lcmtSuccess, lffSuccess, lfinalize, lnewEvent, lpgdSuccess;
-    const double SA_NAN =-12345.0; 
+    bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
     //------------------------------------------------------------------------//
     //
-    // Initialize
+    // Nothing to do 
     ierr = 0;
-    // Parse the core XML for the hypocenter information 
-    if (xmlMessage != NULL)
-    { 
-        ierr = GFAST_eewUtils_parseCoreXML(xmlMessage, SA_NAN, &SA);
-        if (ierr != 0)
-        {
-            log_errorF("%s: Error parsing XML message\n", fcnm);
-            return ierr;
-        }
-        // If this is a new event we have some file handling to do
-        lnewEvent = GFAST_events_newEvent(SA, events);
-        if (lnewEvent)
-        {
-            // And the logs
-            if (props.verbose > 0)
-            {   
-                log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
-                if (props.verbose > 2){GFAST_events_printEvents(SA);}
-            }
-            // Set the log file names
-            setFileNames(SA.eventid);
-            if (ISCL_os_path_isfile(errorLogFileName))
-            {
-                remove(errorLogFileName);
-            }
-            if (ISCL_os_path_isfile(infoLogFileName))
-            {
-                remove(infoLogFileName);
-            }
-            if (ISCL_os_path_isfile(debugLogFileName))
-            {
-                remove(debugLogFileName);
-            }
-            if (ISCL_os_path_isfile(warnLogFileName))
-            {
-                remove(warnLogFileName);
-            }
-            // Initialize the HDF5 file
-            ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
-                                         SA.eventid,
-                                         props.propfilename);
-            if (ierr != 0)
-            {
-                log_errorF("%s: Error initializing the archive file\n", fcnm);
-                return -1;
-            }
-        }
-    }
+    if (events.nev <= 0){return 0;}
     // Figure out the mode for generating shakeAlert messages
     shakeAlertMode = 1;
     if (props.opmode == PLAYBACK){shakeAlertMode = 2;}
-    // Nothing to do
-    if (events->nev <= 0){return 0;}
     // Set memory for XML messages
-    xmlMessages->mmessages = events->nev;
+    xmlMessages->mmessages = events.nev;
     xmlMessages->nmessages = 0;
     xmlMessages->evids  = (char **)
                           calloc((size_t) xmlMessages->mmessages,
@@ -119,10 +91,10 @@ int eewUtils_driveGFAST(const double currentTime,
                           calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
     // Loop on the events
-    for (iev=0; iev<events->nev; iev++)
+    for (iev=0; iev<events.nev; iev++)
     {
         // Get the streams for this event
-        memcpy(&SA, &events->SA[iev], sizeof(struct GFAST_shakeAlert_struct));
+        memcpy(&SA, &events.SA[iev], sizeof(struct GFAST_shakeAlert_struct));
         t1 = SA.time;     // Origin time
         t2 = currentTime;
         if (t1 > t2)
@@ -132,7 +104,7 @@ int eewUtils_driveGFAST(const double currentTime,
             continue;
         }
         // Set the log file names
-        setFileNames(SA.eventid);
+        eewUtils_setLogFileNames(SA.eventid);
         log_initErrorLog(&__errorToLog);
         log_initInfoLog(&__infoToLog);
         log_initDebugLog(&__debugToLog);
@@ -161,7 +133,7 @@ int eewUtils_driveGFAST(const double currentTime,
                                     SA.lon,
                                     SA.dep,
                                     SA.time,
-                                    *gps_data, //tempData,
+                                    *gps_data,
                                     pgd_data,
                                     &ierr);
         if (ierr != 0)
@@ -247,8 +219,8 @@ int eewUtils_driveGFAST(const double currentTime,
             {
                 log_infoF("%s: Estimating finite fault...\n", fcnm);
             }
-            ff->SA_lat = events->SA[iev].lat;
-            ff->SA_lon = events->SA[iev].lon;
+            ff->SA_lat = events.SA[iev].lat;
+            ff->SA_lon = events.SA[iev].lon;
             ff->SA_dep = cmt->srcDepths[cmt->opt_indx];
             ff->SA_mag = cmt->Mw[cmt->opt_indx];
             ff->str[0] = cmt->str1[cmt->opt_indx];
@@ -407,7 +379,7 @@ int eewUtils_driveGFAST(const double currentTime,
                                              h5k,
                                              *ff);
             }
-            // Write the XML to the HDF5 file
+            // TODO: Write the XML to the HDF5 file
             if (lfinalize && cmtQML)
             {
 
@@ -427,20 +399,3 @@ int eewUtils_driveGFAST(const double currentTime,
     return ierr;
 }
 
-static void setFileNames(const char *eventid)
-{
-    // Set the log file names
-    memset(errorLogFileName, 0, PATH_MAX*sizeof(char));
-    strcpy(errorLogFileName, eventid);
-    strcat(errorLogFileName, "_error.log\0");
-    memset(infoLogFileName, 0, PATH_MAX*sizeof(char));
-    strcpy(infoLogFileName, eventid);
-    strcat(infoLogFileName, "_info.log\0");
-    memset(debugLogFileName, 0, PATH_MAX*sizeof(char));
-    strcpy(debugLogFileName, eventid);
-    strcat(debugLogFileName, "_debug.log\0");
-    memset(warnLogFileName, 0, PATH_MAX*sizeof(char));
-    strcpy(warnLogFileName, eventid);
-    strcat(warnLogFileName, "_debug.log\0");
-    return;
-}
