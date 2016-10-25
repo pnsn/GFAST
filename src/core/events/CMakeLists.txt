@@ -3,6 +3,7 @@ freeEvents.c
 getMinOriginTime.c
 newEvent.c
 printEvent.c
-removeEvent.c
+removeCancelledEvent.c
+removeExpiredEvent.c
 updateEvent.c
 )

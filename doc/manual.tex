@@ -85,24 +85,24 @@ OpenMP-4 support is realized in GCCv5 and above or Clang 3.9 and above though GF
 been successfully built with GCCv4.4.  If using GCCv4 then it is
 recommend one set the ``-Wno-unknown-pragmas'' C compiler flag.
 
-\subsubsection{CMake} CMake is used because GFAST is decomposed into many smaller libraries with 
+\subsubsection{CMake} CMake is used because G-FAST is decomposed into many smaller libraries with 
 varying dependencies.  This dependency ambiguity is implicitly handled by this automatic 
 makefile generator. In addition to generation of makefiles also CMake provides for automatic generation
 and execution of unit tests. As with any makefile creation step the correct 
 specification of dependencies can be quite painful but, upon successful generation of a
-CMakeCache.txt file this activity need not be repeated and subsequent pulls from the git
+CMakeCache.txt, file this activity need not be repeated and subsequent pulls from the git
 repository should build without hassle.  CMake is likely available through a package manager
 or can be obtained from \url{https://cmake.org/}.  GFAST has been successfully built with
 Version 2.6 and above.  
 
-\subsubsection{LAPACK and BLAS} GFAST ultimately aims to solve matrix-vector
+\subsubsection{LAPACK and BLAS} G-FAST ultimately aims to solve matrix-vector
 equations of the form $\Vert G \textbf{m} = \textbf{d}\Vert_2 $ (LAPACK) or estimate 
 data by computing matrix-vector multiplies of the form $\textbf{u} = G \textbf{m}$ (BLAS).  
 Moreover, profiling shows that computation of the least-squares problem, particularly in the
 finite fault inversion, is the greatest contributor to program execution time.  
 Necessarily, one can easily achieve better performance
-by using high-performance (commercial) LAPACK and BLAS libraries.  Consequently, it is recommended one
-follow the strategy of 
+by using high-performance vendor LAPACK and BLAS library implementations.  
+Consequently, it is recommended one follow the strategy of 
 \begin{enumerate}
   \item Check for an existing vendor LAPACK/BLAS implementation.  
   \item If using an Intel processor obtain Intel's Math Kernel Library (MKL) 
@@ -209,6 +209,8 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
       -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED  -D_USE_PTHREADS" \
       -DCMAKE_CXX_FLAGS="-g3 -O2" \
+      -DUSE_AMQ=TRUE \
+      -DUSE_EW=TRUE \      
       -DAPR_INCLUDE_DIR=path_to_include_apr-1 \
       -DLIBAMQ_INCLUDE_DIR=path_to_include_activemq-cpp-3.8.2 \
       -DLIBAMQ_LIBRARY=path_to_libactivemq-cpp \
@@ -242,6 +244,9 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall" \
       -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED  -D_USE_PTHREADS" \
       -DCMAKE_CXX_FLAGS="-g3 -O2" \
+      -DUSE_INTEL=TRUE \
+      -DUSE_AMQ=TRUE \
+      -DUSE_EW=TRUE \      
       -DAPR_INCLUDE_DIR=path_to_apr \
       -DLIBAMQ_LIBRARY=path_to_libactivemq-cpp \
       -DLSSL_LIBRARY=path_to_libssl \
@@ -261,10 +266,13 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DLIBXML2_LIBRARY=path_to_libxml2
 \end{verbatim}
 In both instances the Earthworm pre-processor flags were obtained from the appropriate
-${GLOBALVARS}$ as to be consistent with Earthworm headers.  If Earthworm cannot be
-detected or is not specified then the lone directory which depends on Earthworm will
-not be built and there will be no real-time acquisition capability.  This may be 
-advantageous if only building a playback facility.  
+${GLOBALVARS}$ as to be consistent with Earthworm headers. 
+
+Note, the above examples provide the option of building with ActiveMQ and Earthworm.  This
+behavior is controlled through the DUSE\_AMQ and DUSE\_EW flags respectively.  If either flag
+is not set then the default behavior should be to false.  This may be advantageous when
+building GFAST in a pure playback mode of operation.  In this case one would not need to 
+specify the corresponding ActiveMQ and Earthworm library and include directories.  
 
 \subsection{Generating the Doxygen Documentation}
 \href{http://www.stack.nl/~dimitri/doxygen/}{Doxygen}
@@ -278,15 +286,24 @@ with a web-browser or PDF viewer.
 
 \clearpage
 \section{G-FAST Library Overview}
-This section will outline the G-FAST libraries.  Libraries are used extensively 
+This section will outline the G-FAST libraries as summarized in Figure \ref{F:gfastOverview}.  
+Libraries are used extensively 
 to emphasize modularity, allow users to customize G-FAST to their application 
-without incurring the cruft of another GFAST application, and promote a maintainable
+without incurring the cruft of another G-FAST application, and promote a maintainable
 software framework whereby software fixes can efficiently propagate to all users.  
 The libraries to be introduced are
-\begin{itemize}
- \item Subsection \ref{ss:gfastCore}: libgfast\_core for core GFAST modeling and inversion  
- \item add the rest
+\begin{itemize} 
+ \item Subsection \ref{ss:gfastCore}: libgfast\_core for core G-FAST modeling and inversion  
+ \item Subsection \ref{ss:gfastActiveMQ}: libgfast\_activeMQ for G-FAST communication in ShakeAlert
+ \item Subsection \ref{ss:gfastMopad}: libcmopad for moment tensor decompositions 
 \end{itemize}
+
+\begin{center}
+\begin{figure}
+\includegraphics[scale=0.45]{Figs/gfast_eew_overview.jpg}
+\caption{Overview of G-FAST and its libraries.}
+\end{figure}\label{F:gfastOverview}
+\end{center}
 
 \clearpage
 \subsection{G-FAST Core Routines}\label{ss:gfastCore}
@@ -302,14 +319,16 @@ earthquake-early warning driver routines.  The six primary utilities are
   \item Coordinate utilities for converting latitude and longitude to and from 
   UTMs\footnote{This directory supersedes the libGeographic ISCL interface as libGeographic 
             has unpredictable behavior when crossing UTM zones that could jeopardize
-            program library execution in the Pacific Northwest.}.  
+            program library execution in the Pacific Northwest.}.   
+  \item An event list handler for handling multiple events.
 \end{itemize}
 
 \subsubsection{G-FAST Properties Reader}
 The G-FAST properties directory is responsible for reading all properties from the 
 G-FAST properties file.  To mimic the functionality of G-FAST will have general
 properties, PGD scaling properties, CMT inversion properties, finite-fault inversion properties.
-and, optionally ActiveMQ properties.  The properties will be discussed at greater length in
+and, optionally, ActiveMQ properties and Earthworm properties.  
+The properties will be discussed at greater length in
 Section \label{S:propertiesFile}.  In this directory also exists a convenience routine for
 clearing the G-FAST properties during a finalization phase as well as displaying the properties
 to a text file or standard out.
@@ -351,20 +370,51 @@ and
 As a word of caution, observe that the output moment tensors have been converted to a
 more conventional North, East, Down \citep[e.g.][]{jostAndHerrmann} 
 $\{m_{xx}, m_{yy}, m_{zz}, m_{xy}, m_{xz}, m_{yz}\}^T$ for the HDF5 output 
-or Up, South, East
+and Up, South, East
 \citep[e.g.][]{globalCMT} 
 $\{m_{rr}, m_{\theta \theta}, m_{\phi \phi}, m_{r \theta}, m_{r \phi}, m_{\theta \phi} \}^T$
 for the QuakeML output.  
 
-After the grid-search is complete a double-couple promoting penalty is applied at each depth
-$i=1,2,\cdots, n_{d}$ to the variance 
-reduction, $v_r^{(i)}$ 
+After the grid-search is complete a double-couple promoting penalty is applied at each depth,
+$i=1,2,\cdots, n_{d}$, to the variance reduction, $v_r^{(i)}$ 
 \begin{equation}
   \hat{v_r}^{(i)} = \frac{v_r^{(i)}}{\operatorname{DCP}\{\textbf{m}^{(i)}\}}
 \end{equation}
 where $\operatorname{DCP}$ denotes the double couple percentage of the moment tensor.  
 
 \subsubsection{G-FAST Finite Fault Inversion}
+
+\subsubsection{G-FAST Event Handler}
+In real-time applications it is possible multiple events can occur within a modeling window.  
+To accomodate this G-FAST has a small facility for event bookkeeping that
+relies on the assumption that all events have unique event IDs.  
+These functions can add a new event to the processing list or remove an event if it has surpassed
+its maximum modeling time (expired), or remove an event if its event ID was cancelled.
+
+\subsection{G-FAST ActiveMQ Messaging}\label{ss:gfastActiveMQ}
+The ShakeAlert framework requires a flexible message service to allow different modules to
+communicate.  This is realized with the ActiveMQ library.  G-FAST makes very limited use of
+ActiveMQ for EEW ShakeAlert compliance.  G-FAST can subscribe to a message queue whereby it
+consumes XML messages from the decision module.  
+G-FAST can also subscribe to a message queue to which it produces XML messages for future 
+ShakeAlert use.  To use both features one mess correctly enter the credentials specified
+in the properties file. 
+
+\subsection{Moment Tensor Decompositions with cMoPaD}\label{ss:gfastMopad}
+At the time of writing G-FAST is the only proposed ShakeAlert module which can perform
+moment tensor inversions.  A common feature in CMT inversions is the ability to decompose
+the inverted moment tensor into isotropic, compensated linear vector dipole, and double
+couple parts \citep[e.g.][]{jostAndHerrmann1989}.  Towards this end a flexible Python 
+package was introduced by \citet{krieger} in \href{https://github.com/geophysics/MoPaD}{MoPaD}.  
+ISTI has reimplemented the very general decomposition component of MoPaD in C for 
+computational efficiency.  The primary utility of such a decomposition library in G-FAST is 
+in the CMT gridsearch double-couple percentage weighting.  This library is also used in 
+generation of a more complete QuakeML which describes a moment tensor in terms of fault planes 
+as well as it's eigenvectors. 
+
+One should observe ISTI's cMoPaD is by definition derivative work.  Consequently, this library
+must be distributed under the L-GPL license.  The consequence is that any software statically
+linking to this library must have a license which is L-GPL compatible.
 
 \clearpage
 \subsection{Data Acquisition}
@@ -395,13 +445,15 @@ fetcher API.  The API is very simple in that G-FAST specifies two times, for exa
 the event origin time and the current time, and the data is returned with the understanding
 some data may be latent or non-existent and have a predetermined value indicating its absence. 
 For real-time scenarios the Earthworm acquisition must be configured 
-and running prior to launching a G-FAST application.  However, the GPS ring is 
-accessed directly by a G-FAST function.  In addition to a playback, a real-time application 
-must call the G-FAST ring reader function periodically, say every second, as to refresh the 
-HDF5 archive.
+and running prior to launching a G-FAST application.   The GPS data ring will be accessed
+directly by a G-FAST function that relies on libew.a.  Real-time applications 
+must additionally call the G-FAST ring reader function periodically, say every second, 
+to refresh the HDF5 archive.
 }\label{F:gfastDataIO}
 \end{figure}
 \end{center}
+
+
 
 \clearpage
 \subsection{XML Output}
