@@ -1,6 +1,7 @@
 add_subdirectory(cmt)
 add_subdirectory(coordtools)
 add_subdirectory(data)
+add_subdirectory(events)
 add_subdirectory(ff)
 add_subdirectory(properties)
 add_subdirectory(scaling)

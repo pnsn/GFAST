@@ -132,6 +132,32 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
                                struct GFAST_data_struct *gps_data);
 
 //----------------------------------------------------------------------------//
+//                          GFAST event handler                               //
+//----------------------------------------------------------------------------//
+/* Frees memory on an event structure */
+void core_events_freeEvents(struct GFAST_activeEvents_struct *events);
+/* Convenience function to find min origin time in event list */
+double core_events_getMinOriginTime(struct GFAST_props_struct props,
+                                    struct GFAST_activeEvents_struct events,
+                                    bool *lnoEvents);
+/* Adds a new event to the event list */
+bool core_events_newEvent(struct GFAST_shakeAlert_struct SA, 
+                          struct GFAST_activeEvents_struct *events);
+/* Print the events in the event list */
+void core_events_printEvents(struct GFAST_shakeAlert_struct SA);
+/* Remove an event from the events list */
+bool core_events_removeEvent(const double maxtime,
+                             const double currentTime,
+                             const int verbose,
+                             struct GFAST_shakeAlert_struct SA, 
+                             struct GFAST_activeEvents_struct *events);
+/* Potentially add the shakeAlert event to the event list */
+bool core_events_updateEvent(struct GFAST_shakeAlert_struct SA, 
+                             struct GFAST_activeEvents_struct *events,
+                             int *ierr);
+
+
+//----------------------------------------------------------------------------//
 //                              finite fault                                  //
 //----------------------------------------------------------------------------//
 /* Gridsearch on fault planes */
@@ -404,6 +430,19 @@ int core_waveformProcessor_peakDisplacement(
               core_data_readMetaDataFile(__VA_ARGS__)
 #define GFAST_core_data_readSiteMaskFile(...)       \
               core_data_readSiteMaskFile(__VA_ARGS__)
+
+#define GFAST_core_events_freeEvents(...)       \
+              core_events_freeEvents(__VA_ARGS__)
+#define GFAST_core_events_getMinOriginTime(...)       \
+              core_events_getMinOriginTime(__VA_ARGS__)
+#define GFAST_core_events_newEvent(...)       \
+              core_events_newEvent(__VA_ARGS__)
+#define GFAST_core_events_printEvents(...)       \
+              core_events_printEvents(__VA_ARGS__)
+#define GFAST_core_events_removeEvent(...)       \
+              core_events_removeEvent(__VA_ARGS__)
+#define GFAST_core_events_updateEvent(...)       \
+              core_events_updateEvent(__VA_ARGS__)
 
 #define GFAST_core_ff_faultPlaneGridSearch(...)       \
               core_ff_faultPlaneGridSearch(__VA_ARGS__)

@@ -173,14 +173,14 @@ int main(int argc, char *argv[])
                 return ierr;
             }
             // If this is a new event we have some file handling to do
-            lnewEvent = GFAST_events_newEvent(SA, &events);
+            lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
             {
                 // And the logs
                 if (props.verbose > 0)
                 {
                     log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
-                    if (props.verbose > 2){GFAST_events_printEvents(SA);}
+                    if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
                 eewUtils_setLogFileNames(SA.eventid);
@@ -274,7 +274,7 @@ ERROR:;
     core_data_finalize(&gps_data);
     core_properties_finalize(&props);
     core_data_finalize(&gps_data);
-    events_freeEvents(&events);
+    core_events_freeEvents(&events);
     traceBuffer_h5_finalize(&h5traceBuffer);
     ISCL_iscl_finalize();
     if (ierr != 0)

@@ -6,7 +6,6 @@
 #include "gfast_core.h"
 #include "gfast_eewUtils.h"
 #include "gfast_enum.h"
-#include "gfast_events.h"
 #include "gfast_hdf5.h"
 #include "gfast_struct.h"
 #include "gfast_traceBuffer.h"

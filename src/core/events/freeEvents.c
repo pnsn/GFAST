@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gfast_events.h"
+#include "gfast_core.h"
 /*!
  * @brief Frees memory on the active events structure
  *
@@ -10,7 +10,7 @@
  * @author Ben Baker, ISTI
  *
  */
-void events_freeEvents(struct GFAST_activeEvents_struct *events)
+void core_events_freeEvents(struct GFAST_activeEvents_struct *events)
 {
     if (events->nev > 0)
     {

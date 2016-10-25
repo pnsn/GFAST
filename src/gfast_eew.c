@@ -268,14 +268,14 @@ printf("%d\n", msWait);
                 goto ERROR;
             }
             // If this is a new event we have some file handling to do
-            lnewEvent = GFAST_events_newEvent(SA, &events);
+            lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
             {
                 // And the logs
                 if (props.verbose > 0)
                 {
                     log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
-                    if (props.verbose > 2){GFAST_events_printEvents(SA);}
+                    if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
                 eewUtils_setLogFileNames(SA.eventid);

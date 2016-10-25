@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "gfast_events.h"
+#include "gfast_core.h"
 /*!
  * @brief Alarms to a new event and adds it to the working events list
  *
@@ -19,8 +19,8 @@
  * @author Ben Baker, ISTI
  *
  */
-bool events_newEvent(struct GFAST_shakeAlert_struct SA,
-                     struct GFAST_activeEvents_struct *events)
+bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
+                          struct GFAST_activeEvents_struct *events)
 {
     struct GFAST_activeEvents_struct SAtemp;
     int iev, nev0;
@@ -50,7 +50,7 @@ bool events_newEvent(struct GFAST_shakeAlert_struct SA,
         }
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
-        GFAST_events_freeEvents(events);
+        core_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
                      calloc((size_t) events->nev,
@@ -62,7 +62,7 @@ bool events_newEvent(struct GFAST_shakeAlert_struct SA,
                    sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
-        GFAST_events_freeEvents(&SAtemp);
+        core_events_freeEvents(&SAtemp);
     }
     return lnewEvent;
 }

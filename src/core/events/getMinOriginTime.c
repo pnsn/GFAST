@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <float.h>
 #include <math.h>
-#include "gfast_events.h"
+#include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Finds the minimum origin time (s) 
@@ -19,11 +19,11 @@
  * @author Ben Baker, ISTI
  *
  */
-double events_getMinOriginTime(struct GFAST_props_struct props,
-                               struct GFAST_activeEvents_struct events,
-                               bool *lnoEvents)
+double core_events_getMinOriginTime(struct GFAST_props_struct props,
+                                    struct GFAST_activeEvents_struct events,
+                                    bool *lnoEvents)
 {
-    const char *fcnm = "GFAST_events_getMinOriginTime\0";
+    const char *fcnm = "GFAST_core_getMinOriginTime\0";
     double t0; 
     int iev;
     *lnoEvents = true;

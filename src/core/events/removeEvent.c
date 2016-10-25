@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gfast_events.h"
+#include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Removes an event from the active event list if 
@@ -21,19 +21,21 @@
  * @author Ben Baker (ISTI)
  *
  */
-bool events_removeEvent(const double maxtime,
-                        const double currentTime,
-                        const int verbose,
-                        struct GFAST_shakeAlert_struct SA,
-                        struct GFAST_activeEvents_struct *events)
+bool core_events_removeEvent(const double maxtime,
+                             const double currentTime,
+                             const int verbose,
+                             struct GFAST_shakeAlert_struct SA,
+                             struct GFAST_activeEvents_struct *events)
 {
-    const char *fcnm = "GFAST_events_removeEvent\0";
+    const char *fcnm = "core_events_removeEvent\0";
     struct GFAST_activeEvents_struct SAtemp;
     int iev, jev, nev0, pop_indx;
     bool lpopped;
     lpopped = false;
-    if (events == NULL){
-        if (verbose > 0){
+    if (events == NULL)
+    {
+        if (verbose > 0)
+        {
             log_warnF("%s: Warning no events in list\n", fcnm);
         }
         return lpopped;         
@@ -74,7 +76,7 @@ bool events_removeEvent(const double maxtime,
         // Only event - good bye
         if (nev0 == 1)
         {
-            GFAST_events_freeEvents(events);
+            core_events_freeEvents(events);
             events->nev = 0;
             return lpopped;
         }
@@ -93,7 +95,7 @@ bool events_removeEvent(const double maxtime,
         }
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
-        GFAST_events_freeEvents(events);
+        core_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
                      calloc((size_t) events->nev,
@@ -105,7 +107,7 @@ bool events_removeEvent(const double maxtime,
                    sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
-        GFAST_events_freeEvents(&SAtemp);
+        core_events_freeEvents(&SAtemp);
     }
     return lpopped;
 }

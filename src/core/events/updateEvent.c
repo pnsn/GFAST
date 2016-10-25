@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "gfast_events.h"
+#include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Checks if the shakeAlert event differs from the version in the 
@@ -27,11 +27,11 @@
  * @author Ben Baker, ISTI
  * 
  */
-bool events_updateEvent(struct GFAST_shakeAlert_struct SA,
-                        struct GFAST_activeEvents_struct *events,
-                        int *ierr)
+bool core_events_updateEvent(struct GFAST_shakeAlert_struct SA,
+                             struct GFAST_activeEvents_struct *events,
+                             int *ierr)
 {
-    const char *fcnm = "GFAST_events_updateEvent\0";
+    const char *fcnm = "core_events_updateEvent\0";
     bool lfound, lmodified, lnew_event;
     int iev;
     *ierr = 0;
@@ -61,7 +61,7 @@ bool events_updateEvent(struct GFAST_shakeAlert_struct SA,
     {
         log_warnF("%s: Warning will try to append event %s to list\n",
                   fcnm, SA.eventid);
-        lnew_event = GFAST_events_newEvent(SA, events);
+        lnew_event = core_events_newEvent(SA, events);
         if (!lnew_event)
         {
             log_warnF("%s: This is really weird\n", fcnm);
