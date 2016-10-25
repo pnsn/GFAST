@@ -295,6 +295,9 @@ The libraries to be introduced are
 \begin{itemize} 
  \item Subsection \ref{ss:gfastCore}: libgfast\_core for core G-FAST modeling and inversion  
  \item Subsection \ref{ss:gfastActiveMQ}: libgfast\_activeMQ for G-FAST communication in ShakeAlert
+ \item Subsection \ref{ss:gfastHDF5}: libgfast\_hdf5 for G-FAST archival of heavy data
+ \item Subsection \ref{ss:gfastXML}: libgfast\_xml for parsing and generating QuakeML and ShakeAlert XML
+ \item Subsection \ref{ss:gfastTraceBuffer}: libgfast\_traceBuffer for data IO from Earthworm and HDF5
  \item Subsection \ref{ss:gfastMopad}: libcmopad for moment tensor decompositions 
 \end{itemize}
 
@@ -400,6 +403,31 @@ G-FAST can also subscribe to a message queue to which it produces XML messages f
 ShakeAlert use.  To use both features one mess correctly enter the credentials specified
 in the properties file. 
 
+\subsection{G-FAST HDF5 Archive}\label{ss:gfastHDF5}
+Presently there exists a framework for creation and dissemination of ShakeAlert products via
+XML.  However, as an algorithm's products and complexity increasses it becomes important to consider
+frameworks for saving the heavy data in the applications highspeed memory to disk.  This is
+accomplished in a portable and flexible way with self-describing binary HDF5 file format.  Using
+HDF5 can copy then write to disk each application data structure for every G-FAST iteration.
+
+\subsection{G-FAST XML Creation and Parsing}\label{ss:gfastXML}
+The eXtensible Markup Language format is a portable human and machine readable file format
+used by ShakeAlert for communication of core data products (e.g., hypocenter, origin time, magnitude).  
+G-FAST and the other geodetic algorithms will extend the core products to include magnitudes from
+PGD inversion and fault slip inversions.  Additionally, because G-FAST computes CMTs, G-FAST
+will offer an XML based earthQuake Markup Language (quakeML) CMT summary which may be of use to
+NEIC earthquake contributors.  
+
+\subsection{G-FAST Trace Buffers}\label{ss:gfastTraceBuffer}
+G-FAST is intended for use in both real-time and purely playback scenarios with the underlying
+assumption that it was not to be an Earthworm module.  To achieve this flexibility a common HDF5 
+data file format serves as an application middleware.  This library is responsible for accessing
+the common H5 file format.  Additionally, when using G-FAST in a real-time scenario, this library
+has the necessary functionality for reading the Earthworm rings and and updating the HDF5 data file.
+Note, the CMake has been designed so that the Earthworm can quickly be ejected if it one only 
+desires to use G-FAST in a playback mode or implement another datasource such as SeedLink.   
+This library is summarized at a high level in a real-time application by Figure \ref{F:gfastDataIO}.  
+
 \subsection{Moment Tensor Decompositions with cMoPaD}\label{ss:gfastMopad}
 At the time of writing G-FAST is the only proposed ShakeAlert module which can perform
 moment tensor inversions.  A common feature in CMT inversions is the ability to decompose
@@ -490,11 +518,11 @@ This software was developed with funds from the amazon catylyst and government g
 \appendix
 \section{License}\label{s:license}
 brendan, you have to email the comotion (tech transfer) and see what they want.  
-i'm going to guess this software belongs to uw, ideally it is free (as in beer) in
-an academic or government setting, uw owns all modifications to the software, the software
-is provided as is, and you cannot hold uw liable.  they may settle for a gpl-3 which would 
-be a good compromise if the goal is to keep a company from touching it.  this may have
-already been decided in the amazon catalyst proposal.  
+i'm going to guess this software belongs to uw, ideally it is free (as in beer) 
+for academics and government organizations, uw owns all modifications to the software, the software
+is provided as is, and you cannot hold uw liable.  i don't think gpl will be a good license
+choice.  if this library is to exist in the shakealert framework gpl licensing can very easily 
+find itself conflicting with caltech licensed software.  but that's the usgs's problem and not yours.   
 
 \end{document}
 
