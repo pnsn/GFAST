@@ -55,7 +55,7 @@ void core_scaling_pgd_finalize__pgdResults(
     ISCL_memory_free__double(&pgd->UPinp);
     ISCL_memory_free__double(&pgd->srcDepths);
     ISCL_memory_free__double(&pgd->srdist);
-    ISCL_memory_free(pgd->lsiteUsed);
+    ISCL_memory_free__bool(&pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     return;
 }
