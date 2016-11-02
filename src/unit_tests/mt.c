@@ -4,14 +4,9 @@
 #include <math.h>
 #include <cblas.h>
 #include "cmopad.h"
-#include "iscl/log/log.h"
-/*
-#include <seismic/momentTensor/utils/mopad.h>
-#include <seismic/utils/math/lapack_extern.h>
-#include <seismic/utils/log/log.h>
-*/
 
-struct mt_t{
+struct mt_t
+{
     double mt[6];
     double tax[3];
     double bax[3];
@@ -23,6 +18,10 @@ struct mt_t{
 };
 
 int decompose(int, struct mt_t);
+int compareEV(double tol, double e, double *xe, double *xref);
+int compareSDR(double tol, double *sdr1, double *sdr2, 
+               double *sdr1ref, double *sdr2ref);
+int cmopad_test(int verb);
  
 int cmopad_test(int verb)
 {
@@ -36,7 +35,7 @@ int cmopad_test(int verb)
     //double mt[5];
     double xscal;
     //-----------------------------------1------------------------------------//
-    if (verb > 0){log_infoF("Testing source 1...\n");}
+    if (verb > 0){printf("Testing source 1...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 5.1;
     mt.mt[0] =-4.360;
@@ -63,16 +62,18 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){
-        log_errorF("Error decomposing 1\n");
+    if (ierr != 0)
+    {
+        printf("Error decomposing 1\n");
         return EXIT_FAILURE;
     }
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 1\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 1\n");
         return EXIT_FAILURE;
     }   
     //--------------------------------------2----------------------------------//
-    if (verb > 0){log_infoF("Testing source 1...\n");}
+    if (verb > 0){printf("Testing source 1...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 5.0;
     mt.mt[0] =-4.480;
@@ -99,12 +100,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 2\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 2\n");
         return EXIT_FAILURE;
     }   
     //------------------------------------3-----------------------------------//
-    if (verb > 0){log_infoF("Testing source 3...\n");}
+    if (verb > 0){printf("Testing source 3...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 4.9;
     mt.mt[0] =-2.460;
@@ -131,12 +133,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 3\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 3\n");
         return EXIT_FAILURE;
     }   
     //-----------------------------------4------------------------------------//
-    if (verb > 0){log_infoF("Testing source 4...\n");}
+    if (verb > 0){printf("Testing source 4...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 4.9;
     mt.mt[0] =-2.270;
@@ -163,12 +166,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 4\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 4\n");
         return EXIT_FAILURE;
     }   
     //-----------------------------------5------------------------------------//
-    if (verb > 0){log_infoF("Testing source 5...\n");}
+    if (verb > 0){printf("Testing source 5...\n");}
     mt.exp = 26.0 - 7.0;
     mt.mag = 6.5;
     mt.mt[0] = 0.745;
@@ -195,12 +199,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 5\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 5\n");
         return EXIT_FAILURE;
     }   
     //-----------------------------------6------------------------------------//
-    if (verb > 0){log_infoF("Testing source 6...\n");}
+    if (verb > 0){printf("Testing source 6...\n");}
     mt.exp = 24.0 - 7.0;
     mt.mag = 5.3;
     mt.mt[0] = 0.700;
@@ -227,12 +232,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 6\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 6\n");
         return EXIT_FAILURE;
     }   
     //-----------------------------------7------------------------------------//
-    if (verb > 0){log_infoF("Testing source 7...\n");}
+    if (verb > 0){printf("Testing source 7...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 5.0;
     mt.mt[0] = 3.150;
@@ -259,12 +265,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 7\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 7\n");
         return EXIT_FAILURE;
     }   
     //-----------------------------------8------------------------------------//
-    if (verb > 0){log_infoF("Testing source 8...\n");}
+    if (verb > 0){printf("Testing source 8...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 4.8;
     mt.mt[0] =-1.870;
@@ -291,12 +298,13 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){ 
-        log_errorF("mopad failed test 8\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 8\n");
         return EXIT_FAILURE;
     }   
     //-----------------------------------9------------------------------------//
-    if (verb > 0){log_infoF("Testing source 9...\n");}
+    if (verb > 0){printf("Testing source 9...\n");}
     mt.exp = 23.0 - 7.0;
     mt.mag = 5.0;
     mt.mt[0] =-3.540;
@@ -323,11 +331,12 @@ int cmopad_test(int verb)
     xscal = pow(10.0,mt.exp);
     cblas_dscal(n6, xscal, mt.mt, incx);
     ierr = decompose(0,mt);
-    if (ierr != 0){
-        log_errorF("mopad failed test 9\n");
+    if (ierr != 0)
+    {
+        printf("mopad failed test 9\n");
         return EXIT_FAILURE;
     }
-    log_infoF("cmopad_test: Success!\n");
+    printf("cmopad_test: Success!\n");
     return EXIT_SUCCESS;
 }
 
@@ -335,14 +344,19 @@ int cmopad_test(int verb)
 
 int compareEV(double tol, double e, double *xe, double *xref)
 {
-    if (fabs(xe[2]/pow(10.0,e) - xref[0]) > tol){
-        log_errorF("Error on eigenvalue %f %f\n",xe[2]/pow(10.0,e),xref[0]);
+    if (fabs(xe[2]/pow(10.0,e) - xref[0]) > tol)
+    {
+        printf("Error on eigenvalue %f %f\n",xe[2]/pow(10.0,e),xref[0]);
         return -1;
-    }else if (fabs(round(xe[1]) - xref[1]) > tol){
-        log_errorF("Error on plunge %f %f\n",xe[1], xref[1]);
+    }
+    else if (fabs(round(xe[1]) - xref[1]) > tol)
+    {
+        printf("Error on plunge %f %f\n",xe[1], xref[1]);
         return -1;
-    }else if (fabs(round(xe[0]) - xref[2]) > tol){
-        log_errorF("Error on the azimuth %f %f\n",xe[2],xref[0]);
+    }
+    else if (fabs(round(xe[0]) - xref[2]) > tol)
+    {
+        printf("Error on the azimuth %f %f\n",xe[2],xref[0]);
         return -1;
     }
     return 0;
@@ -357,30 +371,40 @@ int compareSDR(double tol, double *sdr1, double *sdr2,
     
     // Fault plane 1 may be fault plane 2, so leave the option to reverse
     lpass = 0; //Hope for the worst
-    for (lrev=0; lrev < 2; lrev++){
+    for (lrev=0; lrev < 2; lrev++)
+    {
         lfail = 0;
-        for (i=0; i<3; i++){
-            if (lrev == 0){ 
-                if (fabs(sdr1[i] - sdr1ref[i]) > tol){
+        for (i=0; i<3; i++)
+        {
+            if (lrev == 0)
+            {
+                if (fabs(sdr1[i] - sdr1ref[i]) > tol)
+                {
                     lfail = 1;
                     break;
                 } 
-                if (fabs(sdr2[i] - sdr2ref[i]) > tol){
+                if (fabs(sdr2[i] - sdr2ref[i]) > tol)
+                {
                     lfail = 1;
                     break;
                 }
-            }else{
-                if (fabs(sdr2[i] - sdr1ref[i]) > tol){
+            }
+            else
+            {
+                if (fabs(sdr2[i] - sdr1ref[i]) > tol)
+                {
                     lfail = 1;
                     break;
                 } 
-                if (fabs(sdr1[i] - sdr2ref[i]) > tol){
+                if (fabs(sdr1[i] - sdr2ref[i]) > tol)
+                {
                     lfail = 1;
                     break;
                 } 
             } // End check on reversal
         }
-        if (lfail == 1){
+        if (lfail == 1)
+        {
             lpass = 1;
             break;
         } 
@@ -408,56 +432,65 @@ int decompose(int iverb, struct mt_t mt)
     cmopad_basis_transformMatrixM33(M, cin, cloc); //USE -> NED
     // Compute the isotropic, CLVD, DC decomposition 
     ierr = cmopad_standardDecomposition(M, &src); 
-    if (ierr != 0){ 
-        log_errorF("%s: Error in decomposition!\n", fcnm);
+    if (ierr != 0)
+    {
+        printf("%s: Error in decomposition!\n", fcnm);
         return -1; 
     }  
     // Compute the princple axes with corresponding strikes, dips, and rakes 
     ierr = cmopad_MT2PrincipalAxisSystem(iverb, &src);
-    if (ierr != 0){
-        log_errorF("%s: Error computing principal axis\n",fcnm);
+    if (ierr != 0)
+    {
+        printf("%s: Error computing principal axis\n",fcnm);
         return -1;
     }
     // Compute the pressure, null, and, tension principal axes as len,az,plunge
     cin = NED; //MoPaD is in north, east, down 
     ierr = cmopad_Eigenvector2PrincipalAxis(cin, src.eig_pnt[0],
                                             src.p_axis,    pax);
-    if (ierr != 0){
-        log_errorF("%s: Error converting pax\n",fcnm);
+    if (ierr != 0)
+    {
+        printf("%s: Error converting pax\n",fcnm);
         return -1;
     }   
     ierr = cmopad_Eigenvector2PrincipalAxis(cin, src.eig_pnt[1],
                                             src.null_axis, bax);
     if (ierr != 0){
-        log_errorF("%s: Error converting bax\n",fcnm);
+        printf("%s: Error converting bax\n",fcnm);
         return -1;
     }
     ierr = cmopad_Eigenvector2PrincipalAxis(cin, src.eig_pnt[2],
                                             src.t_axis,    tax);
-    if (ierr != 0){
-        log_errorF("%s: Error converting tax\n",fcnm);
+    if (ierr != 0)
+    {
+        printf("%s: Error converting tax\n",fcnm);
         return -1;
     }
     // Check the strike/dip/rake
-    if (compareSDR(1.0, src.fp1, src.fp2, mt.sdr1, mt.sdr2) != 1){
-        log_errorF("%s: Error computing strike/dip/rake\n",fcnm);
+    if (compareSDR(1.0, src.fp1, src.fp2, mt.sdr1, mt.sdr2) != 1)
+    {
+        printf("%s: Error computing strike/dip/rake\n",fcnm);
         return -1;
     }
     //printf("%f\n",src.seismic_moment/(pow(10.0,mt.exp)));
-    if (fabs(src.moment_magnitude - mt.mag) > 0.1){
-        log_errorF("%s: Error on magnitude\n");
+    if (fabs(src.moment_magnitude - mt.mag) > 0.1)
+    {
+        printf("%s: Error on magnitude\n", fcnm);
         return -1;
     }
-    if (compareEV(0.01, mt.exp, tax, mt.tax) != 0){
-        log_errorF("%s: Error in tax\n",fcnm);
+    if (compareEV(0.01, mt.exp, tax, mt.tax) != 0)
+    {
+        printf("%s: Error in tax\n",fcnm);
         return -1;
     }
-    if (compareEV(0.01, mt.exp, bax, mt.bax) != 0){
-        log_errorF("%s: Error in bax\n",fcnm);
+    if (compareEV(0.01, mt.exp, bax, mt.bax) != 0)
+    {
+        printf("%s: Error in bax\n",fcnm);
         return -1;
     }
-    if (compareEV(0.01, mt.exp, pax, mt.pax) != 0){
-        log_errorF("%s: Error in pax\n");
+    if (compareEV(0.01, mt.exp, pax, mt.pax) != 0)
+    {
+        printf("%s: Error in pax\n", fcnm);
         return -1;
     }
 /*

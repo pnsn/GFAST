@@ -145,12 +145,18 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
                           struct GFAST_activeEvents_struct *events);
 /* Print the events in the event list */
 void core_events_printEvents(struct GFAST_shakeAlert_struct SA);
-/* Remove an event from the events list */
-bool core_events_removeEvent(const double maxtime,
-                             const double currentTime,
-                             const int verbose,
-                             struct GFAST_shakeAlert_struct SA, 
-                             struct GFAST_activeEvents_struct *events);
+/* Remove a cancelled event from the events list */
+bool core_events_removeCancelledEvent(const char *evid,
+                                      const double currentTime,
+                                      const int verbose,
+                                      struct GFAST_shakeAlert_struct SA,
+                                      struct GFAST_activeEvents_struct *events);
+/* Remove an expired event from the events list */
+bool core_events_removeExpiredEvent(const double maxtime,
+                                    const double currentTime,
+                                    const int verbose,
+                                    struct GFAST_shakeAlert_struct SA,
+                                    struct GFAST_activeEvents_struct *events);
 /* Potentially add the shakeAlert event to the event list */
 bool core_events_updateEvent(struct GFAST_shakeAlert_struct SA, 
                              struct GFAST_activeEvents_struct *events,
@@ -439,8 +445,10 @@ int core_waveformProcessor_peakDisplacement(
               core_events_newEvent(__VA_ARGS__)
 #define GFAST_core_events_printEvents(...)       \
               core_events_printEvents(__VA_ARGS__)
-#define GFAST_core_events_removeEvent(...)       \
-              core_events_removeEvent(__VA_ARGS__)
+#define GFAST_core_events_removeCancelledEvent(...)       \
+              core_events_removeCancelledEvent(__VA_ARGS__)
+#define GFAST_core_events_removeExpiredEvent(...)       \
+              core_events_removeExpiredEvent(__VA_ARGS__)
 #define GFAST_core_events_updateEvent(...)       \
               core_events_updateEvent(__VA_ARGS__)
 

@@ -7,6 +7,20 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+int ff_meshPlane_test(void);
+int ff_greens_test(void);
+int ff_regularizer_test(void);
+double *__read_grns(const char *fname, int *nrows, int *ncols, int *ierr);
+struct sparseMatrix_coo_struct __read_treg(const char *fname, int *ierr);
+int ff_inversion_test(void);
+double *__read_xyz(const char *fname, int *l1, int *l2, int *ierr);
+int __read_faultPlane(const char *fname,
+                      int *utm_zone,
+                      double *SA_lat, double *SA_lon, double *SA_dep,
+                      double *flen_pct, double *fwid_pct,
+                      double *Mw, double *strike, double *dip,
+                      struct GFAST_faultPlane_struct *ff);
+
 struct sparseMatrix_coo_struct
 {
     double *A;  /*!< Values of sparse matrix [nnz] */
@@ -66,8 +80,8 @@ ERROR:;
 static int read_results(const char *fname,
                         struct GFAST_ff_props_struct *ff_props,
                         struct GFAST_offsetData_struct *ff_data,
-                        struct GFAST_ffResults_struct *ff,
-                        double *SA_lat, double *SA_lon, double *SA_dep)
+                        struct GFAST_ffResults_struct *ff)
+                        //double *SA_lat, double *SA_lon, double *SA_dep)
 {
     FILE *infl;
     char cline[128];
@@ -91,7 +105,7 @@ static int read_results(const char *fname,
     // line 3
     ff->nfp = ff_props->nfp;
     ff->fp  = (struct GFAST_faultPlane_struct *)
-              calloc(ff->nfp, sizeof(struct GFAST_faultPlane_struct)); 
+              calloc((size_t) ff->nfp, sizeof(struct GFAST_faultPlane_struct)); 
     ff->vr  = ISCL_memory_calloc__double(ff->nfp);
     ff->Mw  = ISCL_memory_calloc__double(ff->nfp);
     ff->str = ISCL_memory_calloc__double(ff->nfp);
@@ -165,13 +179,14 @@ struct sparseMatrix_coo_struct __read_treg(const char *fname, int *ierr)
     struct sparseMatrix_coo_struct coo;
     int i;
     *ierr = 1;
+    memset(&coo, 0, sizeof(struct sparseMatrix_coo_struct));
     infl = fopen(fname, "r");
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){return coo;}
     sscanf(cline, "%d\n", &coo.nnz);
-    coo.A = (double *)calloc(coo.nnz, sizeof(double));
-    coo.irn = (int *)calloc(coo.nnz, sizeof(double));
-    coo.jcn = (int *)calloc(coo.nnz, sizeof(double));
+    coo.A = (double *)calloc((size_t) coo.nnz, sizeof(double));
+    coo.irn = (int *)calloc((size_t) coo.nnz, sizeof(double));
+    coo.jcn = (int *)calloc((size_t) coo.nnz, sizeof(double));
     for (i=0; i<coo.nnz; i++)
     {
         memset(cline, 0, sizeof(cline));
@@ -194,7 +209,7 @@ double *__read_xyz(const char *fname, int *l1, int *l2, int *ierr)
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){return NULL;}
     sscanf(cline, "%d %d\n", l1, l2); 
-    pos = (double *)calloc(*l1**l2, sizeof(double));
+    pos = (double *)calloc((size_t) (*l1**l2), sizeof(double));
     indx = 0;
     for (i=0; i<*l2; i++)
     {
@@ -222,7 +237,7 @@ double *__read_grns(const char *fname, int *nrows, int *ncols, int *ierr)
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){return NULL;}
     sscanf(cline, "%d %d\n", nrows, ncols); 
-    grns = (double *)calloc(*nrows**ncols, sizeof(double));
+    grns = (double *)calloc((size_t) (*nrows**ncols), sizeof(double));
     indx = 0;
     for (i=0; i<*nrows; i++)
     {
@@ -246,7 +261,7 @@ double *__read_grns(const char *fname, int *nrows, int *ncols, int *ierr)
  * @result EXIT_SUCCESS indicates success
  *
  */
-int ff_regularizer_test()
+int ff_regularizer_test(void)
 {
     const char *fcnm = "ff_regularizer_test\0";
     const char *fname = "files/treg.txt\0";
@@ -266,8 +281,8 @@ int ff_regularizer_test()
     }
     // Set lengths and widths
     l2 = nstr*ndip;
-    length = (double *)calloc(l2, sizeof(double));
-    width  = (double *)calloc(l2, sizeof(double));
+    length = (double *)calloc((size_t) l2, sizeof(double));
+    width  = (double *)calloc((size_t) l2, sizeof(double));
     for (i=0; i<l2; i++)
     {
         length[i] = len;
@@ -277,7 +292,7 @@ int ff_regularizer_test()
     mrowsT = 2*ndip*nstr + 2*(2*ndip + nstr - 2); 
     ncolsT = 2*l2;
     nt = mrowsT*ncolsT;
-    T = (double *)calloc(nt, sizeof(double));
+    T = (double *)calloc((size_t) nt, sizeof(double));
     ierr = GFAST_core_ff_setRegularizer(l2, nstr, ndip, nt,
                                         width, length, T);
     if (ierr != 0)
@@ -334,7 +349,7 @@ COMPARE:;
  * @result EXIT_SUCCESS indicates success
  *
  */ 
-int ff_greens_test()
+int ff_greens_test(void)
 {
     const char *fcnm = "ff_greens_test\0";
     const char *xrsfl = "files/xrs.txt\0";
@@ -371,11 +386,11 @@ int ff_greens_test()
         return EXIT_FAILURE;
     }
     // Set the strike, dip, width, and length 
-    strike = (double *)calloc(l1*l2, sizeof(double));
-    dip = (double *)calloc(l1*l2, sizeof(double));
-    width = (double *)calloc(l1*l2, sizeof(double));
-    length = (double *)calloc(l1*l2, sizeof(double));
-    Gmat = (double *)calloc(nrows*ncols, sizeof(double));
+    strike = (double *)calloc((size_t) (l1*l2), sizeof(double));
+    dip = (double *)calloc((size_t) (l1*l2), sizeof(double));
+    width = (double *)calloc((size_t) (l1*l2), sizeof(double));
+    length = (double *)calloc((size_t) (l1*l2), sizeof(double));
+    Gmat = (double *)calloc((size_t) (nrows*ncols), sizeof(double));
     for (i=0; i<l1*l2; i++)
     {
         strike[i] = str;
@@ -443,7 +458,7 @@ int ff_greens_test()
     return EXIT_SUCCESS;
 }
 //============================================================================//
-int ff_meshPlane_test()
+int ff_meshPlane_test(void)
 {
     const char *fcnm = "ff_meshPlane_test\0";
     const char *fname[2] = {"files/final_fp1.maule.txt\0",
@@ -557,7 +572,7 @@ int ff_meshPlane_test()
 }
 //============================================================================//
 
-int ff_inversion_test()
+int ff_inversion_test(void)
 {
     const char *fcnm = "ff_inversion_test\0";
     const char *fname = "files/final_ff.maule.txt\0";
@@ -574,8 +589,8 @@ int ff_inversion_test()
     ierr = read_results(fname,
                         &ff_props,
                         &ff_data,
-                        &ff_ref,
-                        &SA_lat, &SA_lon, &SA_dep);
+                        &ff_ref);
+                        //&SA_lat, &SA_lon, &SA_dep);
     if (ierr != 0)
     {
         log_errorF("%s: Error reading results\n", fcnm);
@@ -584,7 +599,7 @@ int ff_inversion_test()
     // allocate space for fault
     ff.nfp = ff_ref.nfp;
     ff.fp = (struct GFAST_faultPlane_struct *)
-              calloc(ff.nfp, sizeof(struct GFAST_faultPlane_struct)); 
+              calloc((size_t) ff.nfp, sizeof(struct GFAST_faultPlane_struct)); 
     ff.SA_lat = ff_ref.SA_lat;
     ff.SA_lon = ff_ref.SA_lon;
     ff.SA_dep = ff_ref.SA_dep;

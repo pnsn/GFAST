@@ -7,6 +7,9 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+int pgd_inversion_test(void);
+int pgd_inversion_test2(void);
+
 static bool lequal(double a, double b, double tol)
 {
     if (a == 0.0 && b == 0.0){return true;}
@@ -14,7 +17,7 @@ static bool lequal(double a, double b, double tol)
     return true;
 }
 
-int pgd_inversion_test()
+int pgd_inversion_test(void)
 {
     const char *fcnm = "pgd_inversion_test\0";
     int verbose = 4;
@@ -172,7 +175,7 @@ ERROR:;
 /*!
  * @brief Benchmark against the final result in Brendan's python scripts
  */
-int pgd_inversion_test2()
+int pgd_inversion_test2(void)
 {
     const char *fcnm = "pgd_inversion_test2\0";
     const char *filenm = "files/final_pgd.maule.txt\0";

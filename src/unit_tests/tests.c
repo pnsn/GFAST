@@ -3,17 +3,17 @@
 #include "iscl/log/log.h"
 
 int numpy_lstsq_test();
-int coord_test_ll2utm();
-int pgd_inversion_test();
-int pgd_inversion_test2();
+int coord_test_ll2utm(void);
+int pgd_inversion_test(void);
+int pgd_inversion_test2(void);
 int cmopad_test(int verb);
-int readCoreInfo_test();
-int cmt_greens_test();
-int cmt_inversion_test();
-int ff_greens_test();
-int ff_meshPlane_test();
-int ff_regularizer_test();
-int ff_inversion_test();
+int readCoreInfo_test(void);
+int cmt_greens_test(void);
+int cmt_inversion_test(void);
+int ff_greens_test(void);
+int ff_meshPlane_test(void);
+int ff_regularizer_test(void);
+int ff_inversion_test(void);
 
 int main()
 {

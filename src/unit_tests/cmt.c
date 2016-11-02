@@ -7,6 +7,9 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+int cmt_greens_test(void);
+int cmt_inversion_test(void);
+
 static bool lequal(double a, double b, double tol)
 {
     if (a == 0.0 && b == 0.0){return true;}
@@ -14,7 +17,7 @@ static bool lequal(double a, double b, double tol)
     return true;
 }
 
-int cmt_greens_test()
+int cmt_greens_test(void)
 {
     const char *fcnm = "cmt_greens_test\0";
     const int l1 = 4;
@@ -181,7 +184,7 @@ ERROR:;
     return ierr;
 }
 //============================================================================//
-int cmt_inversion_test()
+int cmt_inversion_test(void)
 {
     const char *fcnm = "cmt_inversion_test\0";
     const char *filenm = "files/final_cmt.maule.txt\0";

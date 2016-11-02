@@ -5,7 +5,9 @@
 #include "gfast.h"
 #include "iscl/log/log.h"
 
-int coord_test_ll2utm()
+int coord_test_ll2utm(void);
+
+int coord_test_ll2utm(void)
 {
     const char *fcnm = "coord_test_ll2utm\0";
     double lat, lat0, lon, lon0,utmEast0, utmEast1, utmEastReference,

@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "gfast.h"
 #include "iscl/log/log.h"
+
+int readCoreInfo_test(void);
 /*
 int GFAST_alert__parse__shakeAlertXML(const char *message, double SA_NAN,
                                       struct GFAST_shakeAlert_struct *SA)
@@ -34,7 +37,7 @@ int GFAST_alert__parse__shakeAlertXML(const char *message, double SA_NAN,
 }
 */
 
-int readCoreInfo_test()
+int readCoreInfo_test(void)
 {
     const char *fcnm = "readCoreInfo_test\0";
     FILE *xmlfl;
@@ -47,8 +50,8 @@ int readCoreInfo_test()
     fseek(xmlfl, 0, SEEK_END);
     fsize = ftell(xmlfl);
     rewind(xmlfl);
-    message = (char *)calloc(fsize + 1, sizeof(char)); // +1 to null terminate
-    if (fread(message, fsize, 1, xmlfl) == 0){
+    message = (char *)calloc((size_t) (fsize + 1), sizeof(char)); // +1 to null terminate
+    if (fread(message, (size_t) fsize, 1, xmlfl) == 0){
         printf("%s: Nothing read\n", fcnm);
         return EXIT_FAILURE;
     }
@@ -66,23 +69,25 @@ int readCoreInfo_test()
         printf("%s: Couldn't parse ID\n", fcnm);
         return EXIT_FAILURE;
     }
-    if (SA.time != 1313104867.753000){
+    if (fabs(SA.time - 1313104867.753000) > 1.e-4){
         printf("%s: Couldn't parse time\n", fcnm);
         return EXIT_FAILURE;
     }
-    if (SA.mag != 3.4){
+    if (fabs(SA.mag - 3.4) > 1.e-4){
         printf("%s: Couldn't parse magnitude\n", fcnm);
         return EXIT_FAILURE;
     }
-    if (SA.lat != 38.8){
+    if (fabs(SA.lat - 38.8) > 1.e-4){
         printf("%s: Couldn't parse latitude\n", fcnm);
         return EXIT_FAILURE;
     }
-    if (!(SA.lon == -122.82 || SA.lon == -122.82 + 360.0)){
+
+    if (!(fabs(SA.lon - -122.82) < 1.e-4 || fabs(SA.lon - (-122.82 + 360.0)) < 1.e-4))
+    {
         printf("%s: Couldn't parse longitude %f %f\n", fcnm, SA.lon, -122.82);
         return EXIT_FAILURE;
     }
-    if (SA.dep != 8.0){
+    if (fabs(SA.dep - 8.0) > 1.e-4){
         printf("%s: Couldn't parse depth\n", fcnm);
         return EXIT_FAILURE;
     }

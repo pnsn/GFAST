@@ -21,13 +21,13 @@
  * @author Ben Baker (ISTI)
  *
  */
-bool core_events_removeEvent(const double maxtime,
-                             const double currentTime,
-                             const int verbose,
-                             struct GFAST_shakeAlert_struct SA,
-                             struct GFAST_activeEvents_struct *events)
+bool core_events_removeExpiredEvent(const double maxtime,
+                                    const double currentTime,
+                                    const int verbose,
+                                    struct GFAST_shakeAlert_struct SA,
+                                    struct GFAST_activeEvents_struct *events)
 {
-    const char *fcnm = "core_events_removeEvent\0";
+    const char *fcnm = "core_events_removeExpiredEvent\0";
     struct GFAST_activeEvents_struct SAtemp;
     int iev, jev, nev0, pop_indx;
     bool lpopped;
