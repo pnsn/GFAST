@@ -37,6 +37,7 @@ struct cmopad_struct
 
     int plot_clr_order;           /*!< Pertinent to ordering the nodal plane
                                         ordering with regards to plotting */
+    char pad[4];
 };
 
 enum cmopad_basis_enum
@@ -44,7 +45,7 @@ enum cmopad_basis_enum
     NED = 1,   /*!< North, East, Down - like in Jost and Herrmann */
     USE = 2,   /*!< Up, South, East - like in Global CMT */
     XYZ = 3,   /*!< North, Esat, Up */
-    NWU = 4,   /*!< North, West, Up */
+    NWU = 4    /*!< North, West, Up */
 };
 
 #ifdef __cplusplus

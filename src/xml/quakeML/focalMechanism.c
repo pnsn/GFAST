@@ -92,11 +92,11 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
         return -1;
     }
     // Convert pressure, null, and tension principal axes to az, plunge, length
-    ierr += cmopad_Eigenvector2PrincipalAxis(USE, src.eig_pnt[0],
+    ierr += cmopad_Eigenvector2PrincipalAxis(NED, src.eig_pnt[0],
                                              src.p_axis,    paxis);
-    ierr += cmopad_Eigenvector2PrincipalAxis(USE, src.eig_pnt[0],
+    ierr += cmopad_Eigenvector2PrincipalAxis(NED, src.eig_pnt[1],
                                              src.null_axis, naxis);
-    ierr += cmopad_Eigenvector2PrincipalAxis(USE, src.eig_pnt[0],
+    ierr += cmopad_Eigenvector2PrincipalAxis(NED, src.eig_pnt[2],
                                              src.t_axis,    taxis);
     if (ierr != 0)
     {
@@ -104,6 +104,10 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                    fcnm);
         return -1;
     }
+    // Switch basis from NED to USE 
+    cmopad_basis_transformVector(paxis, NED, USE);
+    cmopad_basis_transformVector(naxis, NED, USE); 
+    cmopad_basis_transformVector(taxis, NED, USE);
     // From the NED mt get the moment tensor in USE to write to QuakeML
     memcpy(M_use, mt, 6*sizeof(double));
     ierr = cmopad_basis_transformMatrixM6(M_use, NED, USE);

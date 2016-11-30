@@ -51,7 +51,9 @@ static double __cmopad_determinant3x3(double A[3][3]);
 static double __cmopad_trace3(double M[3][3]);
 static int __cmopad_Eigs3x3(double a[3][3], int job, double eigs[3]);
 static void __cmopad_swap8(double *a, double *b);
-static void array_cross3(double *u, double *v, double *n);
+static void array_cross3(const double *__restrict__ u,
+                         const double *__restrict__ v,
+                         double *__restrict__ n);
 
 //============================================================================//
 /*!
@@ -322,7 +324,9 @@ int cmopad_basis_transformVector(double v[3],
  * @param[out] n   normal vector n = u x v [3]
  *
  */
-static void array_cross3(double *u, double *v, double *n)
+static void array_cross3(const double *__restrict__ u,
+                         const double *__restrict__ v,
+                         double *__restrict__ n)
 {
     n[0] = u[1]*v[2] - u[2]*v[1];
     n[1] = u[2]*v[0] - u[0]*v[2]; 
