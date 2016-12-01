@@ -947,8 +947,11 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
         symmetry_around_tension = 0;
         clr = -1;
     }
-    //explosive src with all neg evals?
-    if (EW3 < 0.0 && trace_M >= 0.0)
+    //explosive src with all neg evals? - TODO: email lars.  an edge
+    //case is (-1,-1,-1, 0,0,0) which has trace_M == 0.0 and is a pure
+    //implosion.  in this case there is a breakdown of the code because
+    //trace_M == 0.0
+    if (EW3 < 0.0 && trace_M > 0.0)
     {
         printf("%s: Critical error!\n", fcnm);
         return -1;
@@ -1067,7 +1070,7 @@ int cmopad_MT2PrincipalAxisSystem(int iverb, struct cmopad_struct *src)
         //src->t_axis[i] = EV1[i];
         //src->null_axis[i] = EVn[i];
         //src->p_axis[i] = EV3[i];
-    } 
+    }
     src->eig_pnt[0] = EW1_devi;
     src->eig_pnt[1] = EW2_devi;
     src->eig_pnt[2] = EW3_devi;  
