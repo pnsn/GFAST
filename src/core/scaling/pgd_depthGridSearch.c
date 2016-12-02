@@ -248,9 +248,9 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
             ierr = ierr + 1;
         }
         // Solve the weighted least squares problem (M = lstsq(W*G,W*b)[0])
-        ierr1 = __linalg_lstsq_qr__double(LAPACK_COL_MAJOR,
-                                          l1, 1, 1, false, WG, Wb,
-                                          M1, NULL);
+        ierr1 = linalg_lstsq_qr64f_work(LAPACK_COL_MAJOR,
+                                        l1, 1, 1, false, WG, Wb,
+                                        M1, NULL);
         if (ierr1 != 0)
         {
             log_errorF("%s: Error solving the least-squares problem\n", fcnm);
