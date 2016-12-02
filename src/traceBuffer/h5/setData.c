@@ -165,7 +165,7 @@ printf("%d\n", ishift);
         {
             indx = k*maxpts + ishift;
             jndx = k*maxpts;
-            ierr = ISCL__array_copy__double(ncopy, &work[indx], &dwork[jndx]);
+            ierr = ISCL_array_copy64f_work(ncopy, &work[indx], &dwork[jndx]);
             if (ierr != 0)
             {
                 log_errorF("%s: Error copying trace %d %d\n",
