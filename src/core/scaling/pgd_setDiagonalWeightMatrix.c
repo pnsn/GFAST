@@ -44,7 +44,7 @@ int core_scaling_pgd_setDiagonalWeightMatrix(const int l1,
         return -1;
     }
     // Get the min epicentral distance
-    repi_min = array_min__double(l1, repi);
+    repi_min = array_min64f(l1, repi);
     repi_min2 = pow(repi_min, 2);
     // Set standard weights 
     for (i=0; i<l1; i++)
