@@ -291,7 +291,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         ierr = CMT_COMPUTE_ERROR;
     }
     // Get the optimimum index
-    cmt->opt_indx = array_argmin__double(cmt->ndeps, cmt->objfn);
+    cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn);
 ERROR:;
     ISCL_memory_free__bool(&luse);
     ISCL_memory_free__double(&utmRecvNorthing);

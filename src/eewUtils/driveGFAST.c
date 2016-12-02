@@ -248,7 +248,7 @@ int eewUtils_driveGFAST(const double currentTime,
             // Make the PGD xml
             if (lpgdSuccess)
             {
-                pgdOpt = ISCL_array_argmax__double(pgd->ndeps, pgd->dep_vr_pgd);
+                pgdOpt = ISCL_array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd);
                 pgdXML = eewUtils_makeXML__pgd(shakeAlertMode,
                                                "GFAST\0",
                                                GFAST_ALGORITHM_VERSION,
