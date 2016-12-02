@@ -272,8 +272,8 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
             xden = xden + sqrt(pow(W[i]*d[i], 2));
         }
         // Compute the interquartile range which will later be used as a penalty
-        ierr1 = __statistics_percentile__double(l1, wres, nq, q,
-                                                STATS_PERCENTILE_LINEAR, pct);
+        ierr1 = statistics_percentile64f_work(l1, wres, nq, q,
+                                              STATS_PERCENTILE_LINEAR, pct);
         iqr[idep] = pct[1] - pct[0];
         if (ierr1 != 0)
         {   
