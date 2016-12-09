@@ -50,10 +50,10 @@ int core_data_initialize(struct GFAST_props_struct props,
     {
         mpts = (int) (props.bufflen/gps_data->data[k].dt + 0.5) + 1;
         gps_data->data[k].maxpts = mpts;
-        gps_data->data[k].ubuff = ISCL_memory_calloc__double(mpts);
-        gps_data->data[k].nbuff = ISCL_memory_calloc__double(mpts);
-        gps_data->data[k].ebuff = ISCL_memory_calloc__double(mpts);
-        gps_data->data[k].tbuff = ISCL_memory_calloc__double(mpts);
+        gps_data->data[k].ubuff = memory_calloc64f(mpts);
+        gps_data->data[k].nbuff = memory_calloc64f(mpts);
+        gps_data->data[k].ebuff = memory_calloc64f(mpts);
+        gps_data->data[k].tbuff = memory_calloc64f(mpts);
     }
     return 0;
 }

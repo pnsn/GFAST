@@ -15,25 +15,25 @@
 void core_cmt_finalize__cmtResults(struct GFAST_cmtResults_struct *cmt)
 {
     if (cmt == NULL){return;}
-    ISCL_memory_free__double(&cmt->l2);
-    ISCL_memory_free__double(&cmt->pct_dc);
-    ISCL_memory_free__double(&cmt->objfn);
-    ISCL_memory_free__double(&cmt->mts);
-    ISCL_memory_free__double(&cmt->str1);
-    ISCL_memory_free__double(&cmt->str2);
-    ISCL_memory_free__double(&cmt->dip1);
-    ISCL_memory_free__double(&cmt->dip2);
-    ISCL_memory_free__double(&cmt->rak1);
-    ISCL_memory_free__double(&cmt->rak2);
-    ISCL_memory_free__double(&cmt->Mw);
-    ISCL_memory_free__double(&cmt->srcDepths);
-    ISCL_memory_free__double(&cmt->EN);
-    ISCL_memory_free__double(&cmt->NN);
-    ISCL_memory_free__double(&cmt->UN);
-    ISCL_memory_free__double(&cmt->Einp);
-    ISCL_memory_free__double(&cmt->Ninp);
-    ISCL_memory_free__double(&cmt->Uinp);
-    ISCL_memory_free__bool(&cmt->lsiteUsed);
+    memory_free64f(&cmt->l2);
+    memory_free64f(&cmt->pct_dc);
+    memory_free64f(&cmt->objfn);
+    memory_free64f(&cmt->mts);
+    memory_free64f(&cmt->str1);
+    memory_free64f(&cmt->str2);
+    memory_free64f(&cmt->dip1);
+    memory_free64f(&cmt->dip2);
+    memory_free64f(&cmt->rak1);
+    memory_free64f(&cmt->rak2);
+    memory_free64f(&cmt->Mw);
+    memory_free64f(&cmt->srcDepths);
+    memory_free64f(&cmt->EN);
+    memory_free64f(&cmt->NN);
+    memory_free64f(&cmt->UN);
+    memory_free64f(&cmt->Einp);
+    memory_free64f(&cmt->Ninp);
+    memory_free64f(&cmt->Uinp);
+    memory_free8l(&cmt->lsiteUsed);
     memset(cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     return;
 }

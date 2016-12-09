@@ -74,7 +74,7 @@ int traceBuffer_h5_setData(const double currentTime,
         return -1;
     }
     // Make a map from the HDF5 trace buffer to the tracebuffer2 data
-    map = ISCL_array_set__int(h5traceBuffer.ntraces, -1, &ierr);
+    map = ISCL_array_set32i(h5traceBuffer.ntraces, -1, &ierr);
     lhaveData = ISCL_memory_calloc__bool(h5traceBuffer.ntraces);
     for (i=0; i<h5traceBuffer.ntraces; i++)
     {
@@ -157,7 +157,7 @@ NEXT_TRACE:;
             return -1;
         }
         // Copy the old traces onto the new traces
-        dwork = ISCL_array_set__double(maxpts*ntraces, (double) NAN, &ierr);
+        dwork = ISCL_array_set64f(maxpts*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("%d\n", ishift);

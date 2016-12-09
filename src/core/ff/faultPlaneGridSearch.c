@@ -207,18 +207,18 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     ng = mrowsG*ncolsG;
     ng2 = mrowsG2*ncolsG2;
     // Set space
-    xrs = ISCL_memory_calloc__double(l1*l2);
-    yrs = ISCL_memory_calloc__double(l1*l2);
-    zrs = ISCL_memory_calloc__double(l1*l2);
-    G  = ISCL_memory_calloc__double(ng);
-    G2 = ISCL_memory_calloc__double(ng2);
-    WUD = ISCL_memory_calloc__double(mrowsG2);
-    UD = ISCL_memory_calloc__double(mrowsG);
-    UP = ISCL_memory_calloc__double(mrowsG);
-    T  = ISCL_memory_calloc__double(nt);
-    S  = ISCL_memory_calloc__double(ncolsG2);
-    diagWt = ISCL_memory_calloc__double(mrowsG);
-    if (lrmtx){R = ISCL_memory_calloc__double(ncolsG2*ncolsG2);}
+    xrs = memory_calloc64f(l1*l2);
+    yrs = memory_calloc64f(l1*l2);
+    zrs = memory_calloc64f(l1*l2);
+    G  = memory_calloc64f(ng);
+    G2 = memory_calloc64f(ng2);
+    WUD = memory_calloc64f(mrowsG2);
+    UD = memory_calloc64f(mrowsG);
+    UP = memory_calloc64f(mrowsG);
+    T  = memory_calloc64f(nt);
+    S  = memory_calloc64f(ncolsG2);
+    diagWt = memory_calloc64f(mrowsG);
+    if (lrmtx){R = memory_calloc64f(ncolsG2*ncolsG2);}
     if (xrs == NULL || yrs == NULL || zrs == NULL || G == NULL ||
         G2 == NULL || UD == NULL || WUD == NULL || UP == NULL ||
         T == NULL || S == NULL ||
@@ -493,17 +493,17 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     }
 ERROR:;
     // Clean up
-    ISCL_memory_free__double(&xrs);
-    ISCL_memory_free__double(&yrs);
-    ISCL_memory_free__double(&zrs);
-    ISCL_memory_free__double(&G);
-    ISCL_memory_free__double(&G2);
-    ISCL_memory_free__double(&WUD);
-    ISCL_memory_free__double(&UD);
-    ISCL_memory_free__double(&UP);
-    ISCL_memory_free__double(&T);
-    ISCL_memory_free__double(&S);
-    ISCL_memory_free__double(&R);
-    ISCL_memory_free__double(&diagWt);
+    memory_free64f(&xrs);
+    memory_free64f(&yrs);
+    memory_free64f(&zrs);
+    memory_free64f(&G);
+    memory_free64f(&G2);
+    memory_free64f(&WUD);
+    memory_free64f(&UD);
+    memory_free64f(&UP);
+    memory_free64f(&T);
+    memory_free64f(&S);
+    memory_free64f(&R);
+    memory_free64f(&diagWt);
     return ierr;
 }

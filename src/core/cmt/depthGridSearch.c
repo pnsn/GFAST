@@ -170,15 +170,15 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     if (deviatoric){ncols = 5;}
     mrows = 3*l1;
     ldg = ncols;  // In row major format
-    diagWt       = ISCL_memory_calloc__double(mrows);
-    G            = ISCL_memory_calloc__double(mrows*ncols);
-    WG           = ISCL_memory_calloc__double(mrows*ncols);
-    WU           = ISCL_memory_calloc__double(mrows);
-    U            = ISCL_memory_calloc__double(mrows);
-    UP           = ISCL_memory_calloc__double(mrows);
-    xrs          = ISCL_memory_calloc__double(l1);
-    yrs          = ISCL_memory_calloc__double(l1);
-    zrs_negative = ISCL_memory_calloc__double(l1);
+    diagWt       = memory_calloc64f(mrows);
+    G            = memory_calloc64f(mrows*ncols);
+    WG           = memory_calloc64f(mrows*ncols);
+    WU           = memory_calloc64f(mrows);
+    U            = memory_calloc64f(mrows);
+    UP           = memory_calloc64f(mrows);
+    xrs          = memory_calloc64f(l1);
+    yrs          = memory_calloc64f(l1);
+    zrs_negative = memory_calloc64f(l1);
     // Compute the source-receiver offsets in (x, y) cartesian
     #pragma omp simd
     for (i=0; i<l1; i++)
@@ -311,15 +311,15 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         }
     }
 ERROR:;
-    ISCL_memory_free__double(&diagWt);
-    ISCL_memory_free__double(&WG);
-    ISCL_memory_free__double(&G);
-    ISCL_memory_free__double(&WU);
-    ISCL_memory_free__double(&U);
-    ISCL_memory_free__double(&UP);
-    ISCL_memory_free__double(&xrs);
-    ISCL_memory_free__double(&yrs);
-    ISCL_memory_free__double(&zrs_negative);
+    memory_free64f(&diagWt);
+    memory_free64f(&WG);
+    memory_free64f(&G);
+    memory_free64f(&WU);
+    memory_free64f(&U);
+    memory_free64f(&UP);
+    memory_free64f(&xrs);
+    memory_free64f(&yrs);
+    memory_free64f(&zrs_negative);
     return ierr;
 }
  

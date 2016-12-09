@@ -143,16 +143,16 @@ printf("%d\n", nRead);
     // will be faster
 printf("%d\n", nRead);
     imap[nRead] =-1;
-    ierr = ISCL__sorting_argsort__int(nRead, imap, ASCENDING, iperm);
+    ierr = ISCL_sorting_argsort32i_work(nRead, imap, ASCENDING, iperm);
     if (ierr != 0)
     {
         log_errorF("%s: Error sorting messages\n", fcnm);
         return -1;
     }
     // Apply the permutations
-    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imap,  imap);
-    ierr = ISCL__sorting_applyPermutation__int(nRead,    iperm, imsg,  imsg);
-    ierr = ISCL__sorting_applyPermutation__double(nRead, iperm, times, times);
+    ierr = ISCL_sorting_applyPermutation32i_work(nRead,    iperm, imap,  imap);
+    ierr = ISCL_sorting_applyPermutation32i_work(nRead,    iperm, imsg,  imsg);
+    ierr = ISCL_sorting_applyPermutation64f_work(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
@@ -172,25 +172,25 @@ printf("%d\n", nRead);
             {
 printf("sorting %d %d\n", i1, i2);
                 // Verify sort is necessary (benefit of stable sort) 
-                if (!ISCL_sorting_issorted__double(nsort, &times[i1],
-                                                   ASCENDING))
+                if (!ISCL_sorting_issorted64f(nsort, &times[i1],
+                                              ASCENDING))
                 {
-                    ierr = ISCL__sorting_argsort__double(nsort, &times[i1],
-                                                         ASCENDING, iperm);
+                    ierr = ISCL_sorting_argsort64f_work(nsort, &times[i1],
+                                                        ASCENDING, iperm);
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed partial sort\n", fcnm);
                         return -1;
                     }
-                    ISCL__sorting_applyPermutation__int(nsort, iperm,
-                                                        &imap[i1],
-                                                        &imap[i1]);
-                    ISCL__sorting_applyPermutation__int(nsort, iperm,
-                                                        &imsg[i1],
-                                                        &imsg[i1]);
-                    ISCL__sorting_applyPermutation__double(nsort, iperm,
-                                                           &times[i1],
-                                                           &times[i1]);
+                    ISCL_sorting_applyPermutation32i_work(nsort, iperm,
+                                                          &imap[i1],
+                                                          &imap[i1]);
+                    ISCL_sorting_applyPermutation32i_work(nsort, iperm,
+                                                          &imsg[i1],
+                                                          &imsg[i1]);
+                    ISCL_sorting_applyPermutation64f_work(nsort, iperm,
+                                                          &times[i1],
+                                                          &times[i1]);
                 }
             }
             else if (nsort == 0)

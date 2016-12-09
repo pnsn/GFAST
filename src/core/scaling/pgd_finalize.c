@@ -25,13 +25,13 @@ void core_scaling_pgd_finalize__pgdData(
         }
         free(pgd_data->stnm);
     }   
-    ISCL_memory_free__double(&pgd_data->pd);
-    ISCL_memory_free__double(&pgd_data->wt);
-    ISCL_memory_free__double(&pgd_data->sta_lat);
-    ISCL_memory_free__double(&pgd_data->sta_lon);
-    ISCL_memory_free__double(&pgd_data->sta_alt);
-    ISCL_memory_free__bool(&pgd_data->lmask);
-    ISCL_memory_free__bool(&pgd_data->lactive);
+    memory_free64f(&pgd_data->pd);
+    memory_free64f(&pgd_data->wt);
+    memory_free64f(&pgd_data->sta_lat);
+    memory_free64f(&pgd_data->sta_lon);
+    memory_free64f(&pgd_data->sta_alt);
+    memory_free8l(&pgd_data->lmask);
+    memory_free8l(&pgd_data->lactive);
     memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
     return;
 }
@@ -47,15 +47,15 @@ void core_scaling_pgd_finalize__pgdData(
 void core_scaling_pgd_finalize__pgdResults(
     struct GFAST_pgdResults_struct *pgd)
 {
-    ISCL_memory_free__double(&pgd->mpgd);
-    ISCL_memory_free__double(&pgd->mpgd_vr);
-    ISCL_memory_free__double(&pgd->dep_vr_pgd);
-    ISCL_memory_free__double(&pgd->iqr);
-    ISCL_memory_free__double(&pgd->UP);
-    ISCL_memory_free__double(&pgd->UPinp);
-    ISCL_memory_free__double(&pgd->srcDepths);
-    ISCL_memory_free__double(&pgd->srdist);
-    ISCL_memory_free__bool(&pgd->lsiteUsed);
+    memory_free64f(&pgd->mpgd);
+    memory_free64f(&pgd->mpgd_vr);
+    memory_free64f(&pgd->dep_vr_pgd);
+    memory_free64f(&pgd->iqr);
+    memory_free64f(&pgd->UP);
+    memory_free64f(&pgd->UPinp);
+    memory_free64f(&pgd->srcDepths);
+    memory_free64f(&pgd->srdist);
+    memory_free8l(&pgd->lsiteUsed);
     memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     return;
 }

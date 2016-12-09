@@ -15,27 +15,27 @@
 void core_ff_finalize__faultPlane(struct GFAST_faultPlane_struct *fp)
 {
     if (fp == NULL){return;}
-    ISCL_memory_free__double(&fp->lon_vtx);
-    ISCL_memory_free__double(&fp->lat_vtx);
-    ISCL_memory_free__double(&fp->dep_vtx);
-    ISCL_memory_free__double(&fp->fault_xutm);
-    ISCL_memory_free__double(&fp->fault_yutm);
-    ISCL_memory_free__double(&fp->fault_alt);
-    ISCL_memory_free__double(&fp->strike);
-    ISCL_memory_free__double(&fp->dip);
-    ISCL_memory_free__double(&fp->length);
-    ISCL_memory_free__double(&fp->width);
-    ISCL_memory_free__double(&fp->sslip);
-    ISCL_memory_free__double(&fp->dslip);
-    ISCL_memory_free__double(&fp->sslip_unc);
-    ISCL_memory_free__double(&fp->dslip_unc);
-    ISCL_memory_free__double(&fp->EN);
-    ISCL_memory_free__double(&fp->NN);
-    ISCL_memory_free__double(&fp->UN);
-    ISCL_memory_free__double(&fp->Einp);
-    ISCL_memory_free__double(&fp->Ninp);
-    ISCL_memory_free__double(&fp->Uinp);
-    ISCL_memory_free__int(&fp->fault_ptr);
+    memory_free64f(&fp->lon_vtx);
+    memory_free64f(&fp->lat_vtx);
+    memory_free64f(&fp->dep_vtx);
+    memory_free64f(&fp->fault_xutm);
+    memory_free64f(&fp->fault_yutm);
+    memory_free64f(&fp->fault_alt);
+    memory_free64f(&fp->strike);
+    memory_free64f(&fp->dip);
+    memory_free64f(&fp->length);
+    memory_free64f(&fp->width);
+    memory_free64f(&fp->sslip);
+    memory_free64f(&fp->dslip);
+    memory_free64f(&fp->sslip_unc);
+    memory_free64f(&fp->dslip_unc);
+    memory_free64f(&fp->EN);
+    memory_free64f(&fp->NN);
+    memory_free64f(&fp->UN);
+    memory_free64f(&fp->Einp);
+    memory_free64f(&fp->Ninp);
+    memory_free64f(&fp->Uinp);
+    memory_free32i(&fp->fault_ptr);
     memset(fp, 0, sizeof(struct GFAST_faultPlane_struct));
     return;
 }
@@ -58,10 +58,10 @@ void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff)
         core_ff_finalize__faultPlane(&ff->fp[ifp]);
     }
     if (ff->fp != NULL){free(ff->fp);}
-    ISCL_memory_free__double(&ff->vr);
-    ISCL_memory_free__double(&ff->Mw);
-    ISCL_memory_free__double(&ff->str);
-    ISCL_memory_free__double(&ff->dip);
+    memory_free64f(&ff->vr);
+    memory_free64f(&ff->Mw);
+    memory_free64f(&ff->str);
+    memory_free64f(&ff->dip);
     memset(ff, 0, sizeof(struct GFAST_ffResults_struct));
     return;
 }
@@ -85,17 +85,17 @@ void core_ff_finalize__offsetData(struct GFAST_offsetData_struct *offset_data)
         }
         free(offset_data->stnm);
     }
-    ISCL_memory_free__double(&offset_data->ubuff);
-    ISCL_memory_free__double(&offset_data->nbuff);
-    ISCL_memory_free__double(&offset_data->ebuff);
-    ISCL_memory_free__double(&offset_data->wtu);
-    ISCL_memory_free__double(&offset_data->wtn);
-    ISCL_memory_free__double(&offset_data->wte);
-    ISCL_memory_free__double(&offset_data->sta_lat);
-    ISCL_memory_free__double(&offset_data->sta_lon);
-    ISCL_memory_free__double(&offset_data->sta_alt);
-    ISCL_memory_free__bool(&offset_data->lmask);
-    ISCL_memory_free__bool(&offset_data->lactive);
+    memory_free64f(&offset_data->ubuff);
+    memory_free64f(&offset_data->nbuff);
+    memory_free64f(&offset_data->ebuff);
+    memory_free64f(&offset_data->wtu);
+    memory_free64f(&offset_data->wtn);
+    memory_free64f(&offset_data->wte);
+    memory_free64f(&offset_data->sta_lat);
+    memory_free64f(&offset_data->sta_lon);
+    memory_free64f(&offset_data->sta_alt);
+    memory_free8l(&offset_data->lmask);
+    memory_free8l(&offset_data->lactive);
     memset(offset_data, 0, sizeof(struct GFAST_offsetData_struct));
     return;
 }

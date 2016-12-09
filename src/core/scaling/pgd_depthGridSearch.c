@@ -155,15 +155,15 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         Uest[i] = 0.0;
     }
     // Set space
-    G    = ISCL_memory_calloc__double(l1*1);
-    b    = ISCL_memory_calloc__double(l1);
-    r    = ISCL_memory_calloc__double(l1);
-    W    = ISCL_memory_calloc__double(l1);
-    WG   = ISCL_memory_calloc__double(l1*1);
-    Wb   = ISCL_memory_calloc__double(l1);
-    UP   = ISCL_memory_calloc__double(l1);
-    repi = ISCL_memory_calloc__double(l1);
-    wres = ISCL_memory_calloc__double(l1);
+    G    = memory_calloc64f(l1*1);
+    b    = memory_calloc64f(l1);
+    r    = memory_calloc64f(l1);
+    W    = memory_calloc64f(l1);
+    WG   = memory_calloc64f(l1*1);
+    Wb   = memory_calloc64f(l1);
+    UP   = memory_calloc64f(l1);
+    repi = memory_calloc64f(l1);
+    wres = memory_calloc64f(l1);
     // Compute the epicentral distances (km)
     for (i=0; i<l1; i++)
     {
@@ -298,14 +298,14 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     }
 ERROR:; // An error was encountered
     // Free space
-    ISCL_memory_free__double(&repi);
-    ISCL_memory_free__double(&r);
-    ISCL_memory_free__double(&wres);
-    ISCL_memory_free__double(&b);
-    ISCL_memory_free__double(&G);
-    ISCL_memory_free__double(&UP);
-    ISCL_memory_free__double(&W);
-    ISCL_memory_free__double(&Wb);
-    ISCL_memory_free__double(&WG);
+    memory_free64f(&repi);
+    memory_free64f(&r);
+    memory_free64f(&wres);
+    memory_free64f(&b);
+    memory_free64f(&G);
+    memory_free64f(&UP);
+    memory_free64f(&W);
+    memory_free64f(&Wb);
+    memory_free64f(&WG);
     return ierr;
 }

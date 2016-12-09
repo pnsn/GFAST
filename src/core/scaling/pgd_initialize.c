@@ -57,13 +57,13 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     // data
     pgd_data->stnm = (char **)calloc((size_t) gps_data.stream_length,
                                      sizeof(char *));
-    pgd_data->pd = ISCL_memory_calloc__double(gps_data.stream_length);
-    pgd_data->wt = ISCL_memory_calloc__double(gps_data.stream_length);
-    pgd_data->sta_lat = ISCL_memory_calloc__double(gps_data.stream_length);
-    pgd_data->sta_lon = ISCL_memory_calloc__double(gps_data.stream_length);
-    pgd_data->sta_alt = ISCL_memory_calloc__double(gps_data.stream_length);
-    pgd_data->lmask   = ISCL_memory_calloc__bool(gps_data.stream_length);
-    pgd_data->lactive = ISCL_memory_calloc__bool(gps_data.stream_length);
+    pgd_data->pd      = memory_calloc64f(gps_data.stream_length);
+    pgd_data->wt      = memory_calloc64f(gps_data.stream_length);
+    pgd_data->sta_lat = memory_calloc64f(gps_data.stream_length);
+    pgd_data->sta_lon = memory_calloc64f(gps_data.stream_length);
+    pgd_data->sta_alt = memory_calloc64f(gps_data.stream_length);
+    pgd_data->lmask   = memory_calloc8l(gps_data.stream_length);
+    pgd_data->lactive = memory_calloc8l(gps_data.stream_length);
     pgd_data->nsites = gps_data.stream_length;
     for (i=0; i<pgd_data->nsites; i++)
     {
@@ -83,15 +83,15 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         }
         if (gps_data.data[i].lskip_pgd){pgd_data->lmask[i] = true;}
     }
-    pgd->mpgd = ISCL_memory_calloc__double(pgd->ndeps);
-    pgd->mpgd_vr = ISCL_memory_calloc__double(pgd->ndeps);
-    pgd->dep_vr_pgd = ISCL_memory_calloc__double(pgd->ndeps);
-    pgd->srcDepths = ISCL_memory_calloc__double(pgd->ndeps);
-    pgd->iqr = ISCL_memory_calloc__double(pgd->ndeps);
-    pgd->UP = ISCL_memory_calloc__double(pgd->nsites*pgd->ndeps);
-    pgd->srdist = ISCL_memory_calloc__double(pgd->nsites*pgd->ndeps);
-    pgd->UPinp = ISCL_memory_calloc__double(pgd->nsites);
-    pgd->lsiteUsed = ISCL_memory_calloc__bool(pgd->nsites);
+    pgd->mpgd       = memory_calloc64f(pgd->ndeps);
+    pgd->mpgd_vr    = memory_calloc64f(pgd->ndeps);
+    pgd->dep_vr_pgd = memory_calloc64f(pgd->ndeps);
+    pgd->srcDepths  = memory_calloc64f(pgd->ndeps);
+    pgd->iqr        = memory_calloc64f(pgd->ndeps);
+    pgd->UP         = memory_calloc64f(pgd->nsites*pgd->ndeps);
+    pgd->srdist     = memory_calloc64f(pgd->nsites*pgd->ndeps);
+    pgd->UPinp      = memory_calloc64f(pgd->nsites);
+    pgd->lsiteUsed  = memory_calloc8l(pgd->nsites);
     // TODO: fix me and make customizable!
     for (i=0; i<pgd->ndeps; i++)
     {

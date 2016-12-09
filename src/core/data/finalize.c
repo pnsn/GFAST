@@ -19,10 +19,10 @@ void core_data_finalize(struct GFAST_data_struct *gps_data)
     {
        for (k=0; k<gps_data->stream_length; k++)
        {
-           ISCL_memory_free__double(&gps_data->data[k].ubuff);
-           ISCL_memory_free__double(&gps_data->data[k].nbuff);
-           ISCL_memory_free__double(&gps_data->data[k].ebuff);
-           ISCL_memory_free__double(&gps_data->data[k].tbuff);
+           memory_free64f(&gps_data->data[k].ubuff);
+           memory_free64f(&gps_data->data[k].nbuff);
+           memory_free64f(&gps_data->data[k].ebuff);
+           memory_free64f(&gps_data->data[k].tbuff);
        }
        free(gps_data->data);
     }

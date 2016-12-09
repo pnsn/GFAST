@@ -45,17 +45,17 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
     // data
     ff_data->stnm = (char **)calloc((size_t) (gps_data.stream_length),
                                     sizeof(char *));
-    ff_data->ubuff   = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->nbuff   = ISCL_memory_calloc__double(gps_data.stream_length); 
-    ff_data->ebuff   = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->wtu     = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->wtn     = ISCL_memory_calloc__double(gps_data.stream_length); 
-    ff_data->wte     = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->sta_lat = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->sta_lon = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->sta_alt = ISCL_memory_calloc__double(gps_data.stream_length);
-    ff_data->lmask   = ISCL_memory_calloc__bool(gps_data.stream_length);
-    ff_data->lactive = ISCL_memory_calloc__bool(gps_data.stream_length);
+    ff_data->ubuff   = memory_calloc64f(gps_data.stream_length);
+    ff_data->nbuff   = memory_calloc64f(gps_data.stream_length); 
+    ff_data->ebuff   = memory_calloc64f(gps_data.stream_length);
+    ff_data->wtu     = memory_calloc64f(gps_data.stream_length);
+    ff_data->wtn     = memory_calloc64f(gps_data.stream_length); 
+    ff_data->wte     = memory_calloc64f(gps_data.stream_length);
+    ff_data->sta_lat = memory_calloc64f(gps_data.stream_length);
+    ff_data->sta_lon = memory_calloc64f(gps_data.stream_length);
+    ff_data->sta_alt = memory_calloc64f(gps_data.stream_length);
+    ff_data->lmask   = memory_calloc8l(gps_data.stream_length);
+    ff_data->lactive = memory_calloc8l(gps_data.stream_length);
     ff_data->nsites = gps_data.stream_length;
     for (i=0; i<ff_data->nsites; i++)
     {
@@ -78,10 +78,10 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
     // ff inversion structure
     ff->preferred_fault_plane = 0;
     ff->nfp = props.nfp;
-    ff->vr = ISCL_memory_calloc__double(ff->nfp);
-    ff->Mw = ISCL_memory_calloc__double(ff->nfp);
-    ff->str = ISCL_memory_calloc__double(ff->nfp);
-    ff->dip = ISCL_memory_calloc__double(ff->nfp);
+    ff->vr = memory_calloc64f(ff->nfp);
+    ff->Mw = memory_calloc64f(ff->nfp);
+    ff->str = memory_calloc64f(ff->nfp);
+    ff->dip = memory_calloc64f(ff->nfp);
     ff->fp = (struct GFAST_faultPlane_struct *)
              calloc((size_t) ff->nfp,
                     sizeof(struct GFAST_faultPlane_struct));
@@ -91,27 +91,27 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
         ff->fp[ifp].nsites_used = 0;
         ff->fp[ifp].nstr = props.nstr;
         ff->fp[ifp].ndip = props.ndip;
-        ff->fp[ifp].lon_vtx = ISCL_memory_calloc__double(4*nstr_ndip);
-        ff->fp[ifp].lat_vtx = ISCL_memory_calloc__double(4*nstr_ndip);
-        ff->fp[ifp].dep_vtx = ISCL_memory_calloc__double(4*nstr_ndip);
-        ff->fp[ifp].fault_xutm = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].fault_yutm = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].fault_alt = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].strike = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].dip = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].length = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].width = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].sslip = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].dslip = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].sslip_unc = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].dslip_unc = ISCL_memory_calloc__double(nstr_ndip);
-        ff->fp[ifp].EN = ISCL_memory_calloc__double(maxobs);
-        ff->fp[ifp].NN = ISCL_memory_calloc__double(maxobs);
-        ff->fp[ifp].UN = ISCL_memory_calloc__double(maxobs);
-        ff->fp[ifp].Einp = ISCL_memory_calloc__double(maxobs);
-        ff->fp[ifp].Ninp = ISCL_memory_calloc__double(maxobs);
-        ff->fp[ifp].Uinp = ISCL_memory_calloc__double(maxobs);
-        ff->fp[ifp].fault_ptr = ISCL_memory_calloc__int(nstr_ndip + 1);
+        ff->fp[ifp].lon_vtx    = memory_calloc64f(4*nstr_ndip);
+        ff->fp[ifp].lat_vtx    = memory_calloc64f(4*nstr_ndip);
+        ff->fp[ifp].dep_vtx    = memory_calloc64f(4*nstr_ndip);
+        ff->fp[ifp].fault_xutm = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].fault_yutm = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].fault_alt  = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].strike     = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].dip        = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].length     = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].width      = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].sslip      = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].dslip      = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].sslip_unc  = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].dslip_unc  = memory_calloc64f(nstr_ndip);
+        ff->fp[ifp].EN         = memory_calloc64f(maxobs);
+        ff->fp[ifp].NN         = memory_calloc64f(maxobs);
+        ff->fp[ifp].UN         = memory_calloc64f(maxobs);
+        ff->fp[ifp].Einp       = memory_calloc64f(maxobs);
+        ff->fp[ifp].Ninp       = memory_calloc64f(maxobs);
+        ff->fp[ifp].Uinp       = memory_calloc64f(maxobs);
+        ff->fp[ifp].fault_ptr  = memory_calloc32i(nstr_ndip + 1);
     }
     return 0;
 } 

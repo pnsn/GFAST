@@ -63,17 +63,17 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     // data
     cmt_data->stnm = (char **)calloc((size_t) gps_data.stream_length,
                                      sizeof(char *));
-    cmt_data->ubuff   = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->nbuff   = ISCL_memory_calloc__double(gps_data.stream_length); 
-    cmt_data->ebuff   = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->wtu     = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->wtn     = ISCL_memory_calloc__double(gps_data.stream_length); 
-    cmt_data->wte     = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->sta_lat = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->sta_lon = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->sta_alt = ISCL_memory_calloc__double(gps_data.stream_length);
-    cmt_data->lmask   = ISCL_memory_calloc__bool(gps_data.stream_length);
-    cmt_data->lactive = ISCL_memory_calloc__bool(gps_data.stream_length);
+    cmt_data->ubuff   = memory_calloc64f(gps_data.stream_length);
+    cmt_data->nbuff   = memory_calloc64f(gps_data.stream_length); 
+    cmt_data->ebuff   = memory_calloc64f(gps_data.stream_length);
+    cmt_data->wtu     = memory_calloc64f(gps_data.stream_length);
+    cmt_data->wtn     = memory_calloc64f(gps_data.stream_length); 
+    cmt_data->wte     = memory_calloc64f(gps_data.stream_length);
+    cmt_data->sta_lat = memory_calloc64f(gps_data.stream_length);
+    cmt_data->sta_lon = memory_calloc64f(gps_data.stream_length);
+    cmt_data->sta_alt = memory_calloc64f(gps_data.stream_length);
+    cmt_data->lmask   = memory_calloc8l(gps_data.stream_length);
+    cmt_data->lactive = memory_calloc8l(gps_data.stream_length);
     cmt_data->nsites = gps_data.stream_length;
     for (i=0; i<cmt_data->nsites; i++)
     {
@@ -94,25 +94,25 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
         if (gps_data.data[i].lskip_cmt){cmt_data->lmask[i] = true;}
     }
     // cmt structure
-    cmt->l2        = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->pct_dc    = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->objfn     = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->mts       = ISCL_memory_calloc__double(6*cmt->ndeps);
-    cmt->str1      = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->str2      = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->dip1      = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->dip2      = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->rak1      = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->rak2      = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->Mw        = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->srcDepths = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->EN        = ISCL_memory_calloc__double(cmt->ndeps*cmt->nsites);
-    cmt->NN        = ISCL_memory_calloc__double(cmt->ndeps*cmt->nsites);
-    cmt->UN        = ISCL_memory_calloc__double(cmt->ndeps*cmt->nsites);
-    cmt->Einp      = ISCL_memory_calloc__double(cmt->nsites);
-    cmt->Ninp      = ISCL_memory_calloc__double(cmt->nsites);
-    cmt->Uinp      = ISCL_memory_calloc__double(cmt->nsites);
-    cmt->lsiteUsed = ISCL_memory_calloc__bool(cmt->nsites);
+    cmt->l2        = memory_calloc64f(cmt->ndeps);
+    cmt->pct_dc    = memory_calloc64f(cmt->ndeps);
+    cmt->objfn     = memory_calloc64f(cmt->ndeps);
+    cmt->mts       = memory_calloc64f(6*cmt->ndeps);
+    cmt->str1      = memory_calloc64f(cmt->ndeps);
+    cmt->str2      = memory_calloc64f(cmt->ndeps);
+    cmt->dip1      = memory_calloc64f(cmt->ndeps);
+    cmt->dip2      = memory_calloc64f(cmt->ndeps);
+    cmt->rak1      = memory_calloc64f(cmt->ndeps);
+    cmt->rak2      = memory_calloc64f(cmt->ndeps);
+    cmt->Mw        = memory_calloc64f(cmt->ndeps);
+    cmt->srcDepths = memory_calloc64f(cmt->ndeps);
+    cmt->EN        = memory_calloc64f(cmt->ndeps*cmt->nsites);
+    cmt->NN        = memory_calloc64f(cmt->ndeps*cmt->nsites);
+    cmt->UN        = memory_calloc64f(cmt->ndeps*cmt->nsites);
+    cmt->Einp      = memory_calloc64f(cmt->nsites);
+    cmt->Ninp      = memory_calloc64f(cmt->nsites);
+    cmt->Uinp      = memory_calloc64f(cmt->nsites);
+    cmt->lsiteUsed = memory_calloc8l(cmt->nsites);
     /* TODO fix me */
     for (i=0; i<cmt->ndeps; i++)
     {

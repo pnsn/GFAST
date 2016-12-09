@@ -259,8 +259,8 @@ FOUND_TRACE:;
             ntraces = h5traceBuffer->dtPtr[i+1] - h5traceBuffer->dtPtr[i];
             memset(cwork, 0, sizeof(cwork));
             sprintf(cwork, "/Data/SamplingPeriodGroup_%d/Data", i+1);
-            work = ISCL_array_set__double(h5traceBuffer->ntraces*maxpts,
-                                          (double) NAN, &ierr);
+            work = ISCL_array_set64f(h5traceBuffer->ntraces*maxpts,
+                                     (double) NAN, &ierr);
             dims[0] = (hsize_t) h5traceBuffer->ntraces;
             dims[1] = (hsize_t) maxpts;
             dataSpace = H5Screate_simple(2, dims, NULL);

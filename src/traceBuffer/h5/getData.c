@@ -124,7 +124,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             h5traceBuffer->traces[k].ncopy = ncopy;
             h5traceBuffer->traces[k].gain = gain[k-k1];
             h5traceBuffer->traces[k].data
-                = ISCL_array_set__double(ncopy, (double) NAN, &ierr);
+                = ISCL_array_set64f(ncopy, (double) NAN, &ierr);
             // copy it
             ibeg = h5traceBuffer->traces[k].traceNumber*maxpts + i1;
             iend = ibeg + i2;
