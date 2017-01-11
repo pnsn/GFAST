@@ -143,7 +143,7 @@ printf("%d\n", nRead);
     // will be faster
 printf("%d\n", nRead);
     imap[nRead] =-1;
-    ierr = ISCL_sorting_argsort32i_work(nRead, imap, ASCENDING, iperm);
+    ierr = ISCL_sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
     if (ierr != 0)
     {
         log_errorF("%s: Error sorting messages\n", fcnm);
@@ -173,10 +173,10 @@ printf("%d\n", nRead);
 printf("sorting %d %d\n", i1, i2);
                 // Verify sort is necessary (benefit of stable sort) 
                 if (!ISCL_sorting_issorted64f(nsort, &times[i1],
-                                              ASCENDING))
+                                              SORT_ASCENDING))
                 {
                     ierr = ISCL_sorting_argsort64f_work(nsort, &times[i1],
-                                                        ASCENDING, iperm);
+                                                        SORT_ASCENDING, iperm);
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed partial sort\n", fcnm);
