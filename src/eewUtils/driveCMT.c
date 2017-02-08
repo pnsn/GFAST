@@ -4,7 +4,6 @@
 #include <lapacke.h>
 #include <cblas.h>
 #include <stdbool.h>
-#include <omp.h>
 #include <lapacke.h>
 #include "gfast_eewUtils.h"
 #include "gfast_core.h"
