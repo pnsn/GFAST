@@ -21,7 +21,7 @@
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
-
+#include "gfast_config.h"
 #ifdef GFAST_USE_EW
 #ifdef __clang__
 #pragma clang diagnostic push

@@ -269,7 +269,9 @@ printf("nReadPtr: %d\n", nReadPtr);
                 }
             }
             // Update the points
+#ifdef _OPENMP
             #pragma omp simd
+#endif
             for (l=0; l<npts; l++)
             {
                 tb2Data->traces[k].data[kndx+l] = resp[l];
@@ -344,7 +346,7 @@ static void fastUnpackI4(const int npts, const int lswap,
     int i, i4;
     if (lswap == 0)
     {
-        #pragma omp simd
+        //#pragma omp simd
         for (i=0; i<npts; i++)
         {
             c4[0] = msg[ioff+4*i+0];
@@ -357,7 +359,7 @@ static void fastUnpackI4(const int npts, const int lswap,
     }
     else
     {
-        #pragma omp simd
+        //#pragma omp simd
         for (i=0; i<npts; i++)
         {
             c4[3] = msg[ioff+4*i+0];
@@ -396,7 +398,7 @@ static void fastUnpackI2(const int npts, const int lswap,
     short i2;
     if (lswap == 0)
     {
-        #pragma omp simd
+        //#pragma omp simd
         for (i=0; i<npts; i++)
         {
             c2[0] = msg[ioff+2*i+0];
@@ -407,7 +409,7 @@ static void fastUnpackI2(const int npts, const int lswap,
     }
     else
     {
-        #pragma omp simd
+        //#pragma omp simd
         for (i=0; i<npts; i++)
         {
             c2[1] = msg[ioff+2*i+0];

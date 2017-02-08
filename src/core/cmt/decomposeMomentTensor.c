@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include "gfast_core.h"
 #include "cmopad.h"
 #include "iscl/log/log.h"

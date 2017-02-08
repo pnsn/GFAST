@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <cblas.h>
 #include <math.h>
 #include <lapacke.h>
@@ -148,7 +147,9 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         goto ERROR;
     }
     // Initialize results to nothing
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (idep=0; idep<ndeps; idep++)
     {
         mts[6*idep+0] = 0.0;
@@ -158,7 +159,9 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         mts[6*idep+4] = 0.0;
         mts[6*idep+5] = 0.0;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<ndeps*l1; i++)
     {
         uEst[i] = 0.0;
@@ -180,7 +183,9 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     yrs          = memory_calloc64f(l1);
     zrs_negative = memory_calloc64f(l1);
     // Compute the source-receiver offsets in (x, y) cartesian
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<l1; i++)
     {
         xrs[i] = utmRecvEasting[i] - utmSrcEasting;
@@ -237,7 +242,9 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     {
         // Get the z source receiver offset
         eq_alt = srcDepths[idep]*1.e3;
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l1; i++)
         {
             zrs_negative[i] =-(staAlt[i] + eq_alt);
@@ -291,7 +298,9 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         cblas_dgemv(CblasRowMajor, CblasNoTrans,
                     mrows, ncols, 1.0, G, ldg, S, 1, 0.0, UP, 1);
         // Copy estimates back
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l1; i++)
         {
             nEst[idep*l1+i] = UP[3*i+0];

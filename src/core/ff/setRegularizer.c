@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
@@ -81,7 +80,9 @@ int core_ff_setRegularizer(const int l2, const int nstr,
         return -1;
     }
     // Null out regularizer
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<nt; i++)
     {
         T[i] = 0.0;

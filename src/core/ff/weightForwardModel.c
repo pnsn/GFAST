@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <cblas.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
@@ -61,7 +60,9 @@ int core_ff_weightForwardModel(const int mrows, const int ncols,
         return 1;
     }
     // Compute \tilde{G} = diag\{W\}*G
+#ifdef _OPENMP
     #pragma omp simd collapse(2)
+#endif
     for (i=0; i<mrows; i++)
     {
         for (j=0; j<ncols; j++)

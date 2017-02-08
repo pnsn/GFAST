@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <cblas.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
@@ -61,7 +60,9 @@ int core_cmt_weightForwardModel(const int mrows, const int ncols,
     // Compute \tilde{G} = diag\{W\}*G - most likely a deviatoric source
     if (ncols == 5)
     {
+#ifdef _OPENMP
         #pragma omp simd collapse(2)
+#endif
         for (i=0; i<mrows; i++)
         {
             for (j=0; j<5; j++)
@@ -73,7 +74,9 @@ int core_cmt_weightForwardModel(const int mrows, const int ncols,
     // Full blown moment tensor
     else if (ncols == 6)
     {
+#ifdef _OPENMP
         #pragma omp simd collapse(2)
+#endif
         for (i=0; i<mrows; i++)
         {   
             for (j=0; j<6; j++)
@@ -86,7 +89,9 @@ int core_cmt_weightForwardModel(const int mrows, const int ncols,
     else
     {
         log_warnF("%s: Strange number of columns\n", fcnm); 
+#ifdef _OPENMP
         #pragma omp simd collapse(2)
+#endif
         for (i=0; i<mrows; i++)
         {   
             for (j=0; j<ncols; j++)

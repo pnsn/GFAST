@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <omp.h>
 #include <string.h>
 #include <lapacke.h>
 #include <cblas.h>
@@ -442,7 +441,9 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         // Compute the variance reduction
         xnum = 0.0;
         xden = 0.0;
+#ifdef _OPENMP
         #pragma omp simd reduction(+:xnum, xden)
+#endif
         for (i=0; i<mrowsG; i++)
         {
             res = diagWt[i]*(UP[i] - UD[i]);
@@ -451,7 +452,9 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         }
         vr[ifp] = (1.0 - xnum/xden)*100.0;
         // Extract the estimates
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l1; i++)
         {
             EN[io_off+i] = UP[3*i+0];
@@ -462,7 +465,9 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
             //Uinp[io_off+i] = UD[3*i+2];
         }
         // Extract the slip
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l2; i++)
         {
             sslip[if_off+i] = S[2*i+0];

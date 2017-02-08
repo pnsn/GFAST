@@ -3,7 +3,6 @@
 #include <math.h>
 #include <lapacke.h>
 #include <cblas.h>
-#include <omp.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"
@@ -133,7 +132,7 @@ int core_scaling_pgd_gridSearch(const int l1, const int ndeps,
     }
     // Loop on the longitudes (eastings)
     ierr = 0;
-#ifdef PARALLEL_CMT
+#ifdef PARALLEL_PGD
     #pragma omp parallel for collapse(2) \
      private(ilatLon, ilat, ilon) \
      reduction(+:ierr), shared(srdist, M, VR, iqr, Uest) \

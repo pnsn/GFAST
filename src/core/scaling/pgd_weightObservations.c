@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <cblas.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
@@ -47,7 +46,9 @@ int core_scaling_pgd_weightObservations(const int l1,
         cblas_dcopy(l1, b, 1, Wb, 1);
         return 1;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<l1; i++)
     {
         Wb[i] = W[i]*b[i];

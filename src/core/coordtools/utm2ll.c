@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <omp.h>
 #include "gfast_core.h"
 /*!
  * @brief Takes UTM easting and northing with a central meridian and converts
@@ -19,7 +18,9 @@
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  * 
  */
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 void core_coordtools_utm2ll(const int zone, const bool lnorthp,
                             const double UTMNorthing, const double UTMEasting,
                             double *lat_deg, double *lon_deg)

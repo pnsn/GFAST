@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include <omp.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"

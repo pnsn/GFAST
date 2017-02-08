@@ -149,19 +149,25 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
     }
     // Null out results
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (k=0; k<pgd->nsites; k++)
     {
         pgd->UPinp[k] = 0.0;
         pgd->lsiteUsed[k] = true;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<pgd->ndeps; i++)
     {
         pgd->mpgd[i] = 0.0;
         pgd->mpgd_vr[i] = 0.0;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<pgd->ndeps*pgd->nsites; i++)
     {
         pgd->UP[i] = 0.0;

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <omp.h> 
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
@@ -45,7 +44,9 @@ int core_ff_setDiagonalWeightMatrix(const int n,
         if (nWts == NULL && eWts == NULL && uWts == NULL)
         {
             log_warnF("%s: Setting diagonal weight matrix to unity\n", fcnm);
+#ifdef _OPENMP
             #pragma omp simd
+#endif
             for (i=0; i<3*n; i++)
             {
                 diagWt[i] = 1.0;
@@ -74,7 +75,9 @@ int core_ff_setDiagonalWeightMatrix(const int n,
             i3 = 0;
             if (lnWts && leWts && luWts)
             {
+#ifdef _OPENMP
                 #pragma omp simd
+#endif
                 for (i=0; i<n; i++)
                 {
                     i3 = 3*i;
@@ -100,7 +103,9 @@ int core_ff_setDiagonalWeightMatrix(const int n,
         return 0;
     }
     i3 = 0;
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<n; i++)
     {
         i3 = 3*i;

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <omp.h>
 #include "gfast_core.h"
 
 /*!
@@ -23,7 +22,9 @@
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  */
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 void core_coordtools_ll2utm(const double lat_deg, const double lon_deg,
                             double *UTMNorthing, double *UTMEasting,
                             bool *lnorthp, int *zone)

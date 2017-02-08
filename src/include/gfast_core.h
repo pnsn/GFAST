@@ -1,6 +1,8 @@
 #ifndef _gfast_core_h__
 #define _gfast_core_h__ 1
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include "gfast_struct.h"
 #ifdef __cplusplus
 extern "C"
@@ -106,12 +108,16 @@ int core_cmt_weightObservations(const int mrows,
 //                              coordtools                                    //
 //----------------------------------------------------------------------------//
 /* Convert lat/lon to UTM */
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 void core_coordtools_ll2utm(const double lat_deg, const double lon_deg,
                             double *UTMNorthing, double *UTMEasting,
                             bool *lnorthp, int *zone);
 /* Convert UTM to lat/lon */
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 void core_coordtools_utm2ll(const int zone, const bool lnorthp,
                             const double UTMNorthing, const double UTMEasting,
                             double *lat_deg, double *lon_deg);

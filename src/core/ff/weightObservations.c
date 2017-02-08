@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <cblas.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
@@ -48,7 +47,9 @@ int core_ff_weightObservations(const int mrows,
         return 1;
     }
     // Apply diagonal data weights to observations
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<mrows; i++)
     {
         diagWb[i] = diagWt[i]*b[i];

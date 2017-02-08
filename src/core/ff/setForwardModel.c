@@ -12,18 +12,24 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 static inline void __ss_ds(const double cos_dip, const double sin_dip,
                            const double xi, const double eta, const double q,
                            double *ux_ss, double *uy_ss, double *uz_ss,
                            double *ux_ds, double *uy_ds, double *uz_ds);
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 static inline void __ss_ds_zeroDip(const double sin_dip,
                                    const double xi, const double eta,
                                    const double q,
                                    double *ux_ss, double *uy_ss, double *uz_ss,
                                    double *ux_ds, double *uy_ds, double *uz_ds);
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 static inline void __ss_ds_withDip(const double cos_dip, const double sin_dip,
                                    const double xi, const double eta,
                                    const double q,
@@ -326,7 +332,9 @@ int core_ff_setForwardModel__okadagreenF(const int l1, const int l2,
     return 0;
 }
 
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 static inline void __ss_ds(const double cos_dip, const double sin_dip,
                            const double xi, const double eta, const double q,
                            double *ux_ss, double *uy_ss, double *uz_ss,
@@ -380,7 +388,9 @@ static inline void __ss_ds(const double cos_dip, const double sin_dip,
     return;
 }
 
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 static inline void __ss_ds_zeroDip(const double sin_dip,
                                    const double xi, const double eta,
                                    const double q,
@@ -419,7 +429,9 @@ static inline void __ss_ds_zeroDip(const double sin_dip,
     return;
 }
 
+#ifdef _OPENMP
 #pragma omp declare simd
+#endif
 static inline void __ss_ds_withDip(const double cos_dip, const double sin_dip,
                                    const double xi, const double eta,
                                    const double q,

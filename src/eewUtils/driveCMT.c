@@ -84,21 +84,27 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     }
     // Initialize result
     cmt->opt_indx =-1;
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<cmt->nsites*cmt->ndeps; i++)
     {
         cmt->EN[i] = 0.0;
         cmt->NN[i] = 0.0;
         cmt->UN[i] = 0.0;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<cmt->nsites; i++)
     {
         cmt->Einp[i] = 0.0;
         cmt->Ninp[i] = 0.0;
         cmt->Uinp[i] = 0.0;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<cmt->ndeps; i++)
     {
         cmt->objfn[i] = 0.0;
@@ -112,7 +118,9 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         cmt->rak2[i] = 0.0;
         cmt->Mw[i] = 0.0;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<6*cmt->ndeps; i++)
     {
         cmt->mts[i] = 0.0;
@@ -239,7 +247,9 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     {
         // Compute the L2 norm
         sum_res2 = 0.0;
+#ifdef _OPENMP
         #pragma omp simd reduction(+:sum_res2)
+#endif
         for (i=0; i<l1; i++)
         {
             nres = nOffset[i] - nEst[idep*l1+i];

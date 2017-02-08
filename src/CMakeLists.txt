@@ -76,19 +76,19 @@ add_subdirectory(eewUtils)
 add_subdirectory(traceBuffer)
 add_subdirectory(xml)
 add_subdirectory(hdf5)
+add_subdirectory(unit_tests)
 
 if (USE_AMQ)
   include_directories(${LIBAMQ_INCLUDE_DIR} ${APR_INCLUDE_DIR})
   add_subdirectory(activeMQ)
 endif (USE_AMQ)
 
-if (USE_EW)
-  set(GFAST_USE_EW ON)
+if (GFAST_USE_EW)
   add_definitions(-DUSE_EW=1)
   include_directories(${EW_INCLUDE_DIR})
 else()
   set(GFAST_USE_EW OFF)
-endif (USE_EW)
+endif (GFAST_USE_EW)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EW_BUILD_FLAGS}" CACHE STRING "" FORCE)
 
@@ -98,7 +98,8 @@ add_library(gfast_xml_shared SHARED ${SRCS_XML})
 add_library(gfast_xml_static STATIC ${SRCS_XML})
 add_library(cmopad_shared SHARED ${SRCS_CMOPAD})
 #add_library(cmopad_static STATIC ${SRCS_CMOPAD}) # Need a license agreement from pnsn
-#add_library(gfast_traceBuffer SHARED ${SRCS_ 
+add_library(gfast_traceBuffer_shared SHARED ${SRCS_H5TB})
+add_library(gfast_traceBuffer_static STATIC ${SRCS_H5TB})
 if (USE_AMQ)
   add_library(gfast_activeMQ_shared SHARED ${SRCS_AMQ})
   #add_library(gfast_activeMQ_static STATIC ${SRCS_AMQ})
@@ -106,10 +107,11 @@ endif (USE_AMQ)
 add_library(gfast_hdf5_shared SHARED ${SRCS_HDF5})
 add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
-add_executable(gfast_playback gfast_playback.c ${SRCS_EEW} ${SRCS_H5TB})
-add_executable(gfast_eew gfast_eew.c ${SRCS_EEW} ${SRCS_H5TB})
+add_executable(gfast_playback gfast_playback.c ${SRCS_EEW})
+add_executable(gfast_eew gfast_eew.c ${SRCS_EEW})
 
 add_executable(unit_tests/xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
+add_executable(unit_tests/xcoreTests ${SRCS_UT})
 
 if (USE_INTEL)
   message(${ISCL_LIBRARY})
@@ -133,6 +135,7 @@ if (USE_INTEL)
                         gfast_hdf5_static
                         gfast_core_static
                         gfast_activeMQ_shared
+                        gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
                         -Wl,--start-group
@@ -150,6 +153,7 @@ if (USE_INTEL)
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
+                        gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
                         -Wl,--start-group
@@ -164,12 +168,31 @@ if (USE_INTEL)
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
  target_link_libraries(unit_tests/xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
+ target_link_libraries(unit_tests/xcoreTests
+                       gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        gfast_traceBuffer_static
+                        cmopad_shared
+                        ${ISCL_LIBRARY}
+                        -Wl,--start-group
+                        ${MKL_LIBRARY}
+                        -Wl,--end-group
+                        ${IPP_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
+                        ${LIBXML2_LIBRARY}
+                        ${EW_LIBRARY}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARY}
+                        -lm -ldl -lpthread)
 else()
   target_link_libraries(gfast_eew
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
                         gfast_activeMQ_shared
+                        gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
@@ -186,6 +209,7 @@ else()
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
+                        gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
@@ -198,9 +222,30 @@ else()
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
    target_link_libraries(unit_tests/xcmopad cmopad_shared ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY} -lm -ldl -lpthread -lgfortran)
+ target_link_libraries(unit_tests/xcoreTests
+                       gfast_xml_static
+                        gfast_hdf5_static
+                        gfast_core_static
+                        gfast_traceBuffer_static
+                        cmopad_shared
+                        ${ISCL_LIBRARY}
+                        -Wl,--start-group
+                        ${MKL_LIBRARY}
+                        -Wl,--end-group
+                        ${IPP_LIBRARY}
+                        ${GEOLIB_LIBRARY}
+                        ${H5_LIBRARY}
+                        ${LIBXML2_LIBRARY}
+                        ${EW_LIBRARY}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${INIPARSER_LIBRARY}
+                        -lm -ldl -lpthread)
 endif(USE_INTEL)
 
 add_test(cmopadTest unit_tests/xcmopad)
+add_test(NAME coreTest 
+         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/unit_tests
+         COMMAND xcoreTests)
 
 set(CPACK_PACKAGE_NAME "GFAST")
 set(CPACK_PACKAGE_VENDOR "PNSN")

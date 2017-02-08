@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <omp.h>
 #include <string.h>
 #include <lapacke.h>
 #include <cblas.h>
@@ -99,7 +98,9 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     {
         if_off = ifp*l2;
         // Faults plane info
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l2; i++)
         {
             ff->fp[ifp].fault_xutm[i] = 0.0;
@@ -115,7 +116,9 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
             ff->fp[ifp].dslip_unc[i] = 0.0;
         }
         // Plotting information
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<4*l2; i++)
         {
             ff->fp[ifp].lon_vtx[i] = 0.0;
@@ -123,7 +126,9 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
             ff->fp[ifp].dep_vtx[i] = 0.0;
         }
         // Observations
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<ff->fp[ifp].maxobs; i++)
         {
             ff->fp[ifp].EN[i] = 0.0;
@@ -266,7 +271,9 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     for (ifp=0; ifp<nfp; ifp++)
     {   
         if_off = ifp*l2;
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l2; i++)
         {
             fault_xutm[if_off+i] = ff->fp[ifp].fault_xutm[i];
@@ -311,7 +318,9 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     {
         if_off = ifp*l2;
         io_off = ifp*l1;
+#ifdef _OPENMP
         #pragma omp simd
+#endif
         for (i=0; i<l2; i++)
         {
             ff->fp[ifp].sslip[i] = sslip[if_off+i];

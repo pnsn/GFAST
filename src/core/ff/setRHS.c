@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h> 
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
@@ -36,7 +35,9 @@ int core_ff_setRHS(const int n,
         return -1; 
     }   
     i3 = 0;
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<n; i++)
     {
         i3 = 3*i;

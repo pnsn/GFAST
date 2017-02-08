@@ -3,7 +3,6 @@
 #include <math.h>
 #include <lapacke.h>
 #include <cblas.h>
-#include <omp.h>
 #include "gfast_core.h"
 #include "iscl/linalg/linalg.h"
 #include "iscl/log/log.h"
@@ -143,13 +142,17 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         goto ERROR;
     }
     // Initialize result to nothing
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (idep=0; idep<ndeps; idep++)
     {
         M[idep] = 0.0;
         VR[idep] = 0.0;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<l1*ndeps; i++)
     {
         Uest[i] = 0.0;

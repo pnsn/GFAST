@@ -82,7 +82,9 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
+#ifdef _OPENMP
             #pragma omp simd
+#endif
             for (l=0; l<gps_data->data[k].npts; l++)
             {
                 gps_data->data[k].tbuff[l] = traceBuffer->traces[i].t1 + l*dt;
@@ -193,12 +195,16 @@ static int copyTrace(const int npts,
         log_errorF("%s: origin is NULL\n", fcnm);
         return 1;
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=0; i<npts; i++)
     {
         dest[i] = origin[i];
     }
+#ifdef _OPENMP
     #pragma omp simd
+#endif
     for (i=npts; i<ndest; i++)
     {
         dest[i] = (double) NAN;
