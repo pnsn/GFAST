@@ -5,6 +5,8 @@ enable_testing()
 
 # Add modules for finding requisites
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules)
+SET(CMAKE_TESTING_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests)
+
 # For testing
 if (USE_INTEL)
   MESSAGE("Using Intel Libraries")
@@ -110,8 +112,12 @@ add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 add_executable(gfast_playback gfast_playback.c ${SRCS_EEW})
 add_executable(gfast_eew gfast_eew.c ${SRCS_EEW})
 
-add_executable(unit_tests/xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
-add_executable(unit_tests/xcoreTests ${SRCS_UT})
+add_executable(xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
+SET_TARGET_PROPERTIES(xcmopad PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
+IF (USE_INTEL)
+ADD_EXECUTABLE(xcoreTests ${SRCS_UT})
+SET_TARGET_PROPERTIES(xcoreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
+ENDIF ()
 
 if (USE_INTEL)
   message(${ISCL_LIBRARY})
@@ -167,25 +173,25 @@ if (USE_INTEL)
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
- target_link_libraries(unit_tests/xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
- target_link_libraries(unit_tests/xcoreTests
+ target_link_libraries(xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
+ target_link_libraries(xcoreTests
                        gfast_xml_static
-                        gfast_hdf5_static
-                        gfast_core_static
-                        gfast_traceBuffer_static
-                        cmopad_shared
-                        ${ISCL_LIBRARY}
-                        -Wl,--start-group
-                        ${MKL_LIBRARY}
-                        -Wl,--end-group
-                        ${IPP_LIBRARY}
-                        ${GEOLIB_LIBRARY}
-                        ${H5_LIBRARY}
-                        ${LIBXML2_LIBRARY}
-                        ${EW_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARY}
-                        -lm -ldl -lpthread)
+                       gfast_hdf5_static
+                       gfast_core_static
+                       gfast_traceBuffer_static
+                       cmopad_shared
+                       ${ISCL_LIBRARY}
+                       -Wl,--start-group
+                       ${MKL_LIBRARY}
+                       -Wl,--end-group
+                       ${IPP_LIBRARY}
+                       ${GEOLIB_LIBRARY}
+                       ${H5_LIBRARY}
+                       ${LIBXML2_LIBRARY}
+                       ${EW_LIBRARY}
+                       ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                       ${INIPARSER_LIBRARY}
+                       -lm -ldl -lpthread)
 else()
   target_link_libraries(gfast_eew
                         gfast_xml_static
@@ -221,31 +227,35 @@ else()
                         ${LIBXML2_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
-   target_link_libraries(unit_tests/xcmopad cmopad_shared ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY} -lm -ldl -lpthread -lgfortran)
- target_link_libraries(unit_tests/xcoreTests
-                       gfast_xml_static
-                        gfast_hdf5_static
-                        gfast_core_static
-                        gfast_traceBuffer_static
+  target_link_libraries(xcmopad
                         cmopad_shared
                         ${ISCL_LIBRARY}
-                        -Wl,--start-group
-                        ${MKL_LIBRARY}
-                        -Wl,--end-group
-                        ${IPP_LIBRARY}
-                        ${GEOLIB_LIBRARY}
-                        ${H5_LIBRARY}
-                        ${LIBXML2_LIBRARY}
-                        ${EW_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARY}
-                        -lm -ldl -lpthread)
+                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+                        ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
+                        -lm -ldl -lpthread -lgfortran)
+  #target_link_libraries(xcoreTests
+  #                      gfast_xml_shared
+  #                      gfast_hdf5_shared
+  #                      gfast_core_shared
+  #                      cmopad_shared
+  #                      ${ISCL_LIBRARY}
+  #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+  #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
+  #                      ${ISCL_LIBRARY}
+  #                      ${LIBXML2_LIBRARY}
+  #                      ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+  #                      ${INIPARSER_LIBRARY}
+  #                      -lm -ldl -lpthread -lgfortran)
 endif(USE_INTEL)
 
-add_test(cmopadTest unit_tests/xcmopad)
+add_test(NAME cmopadTest
+         WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
+         COMMAND xcmopad)
+IF (USE_INTEL)
 add_test(NAME coreTest 
-         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/unit_tests
+         WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
          COMMAND xcoreTests)
+ENDIF ()
 
 set(CPACK_PACKAGE_NAME "GFAST")
 set(CPACK_PACKAGE_VENDOR "PNSN")
