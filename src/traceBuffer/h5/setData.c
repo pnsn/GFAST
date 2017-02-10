@@ -211,7 +211,7 @@ printf("%d\n", ishift);
         dataSpace = H5Screate_simple(2, dims, NULL);
         dataSet = H5Dopen(groupID, "Data\0", H5P_DEFAULT); 
         status = H5Dwrite(dataSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-                          H5P_DEFAULT, work);
+                          H5P_DEFAULT, dwork);
         if (status < 0)
         {
             log_errorF("%s: Error writing data chunk\n", fcnm);
