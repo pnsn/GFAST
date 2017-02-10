@@ -193,7 +193,7 @@ printf("%d\n", ishift);
             for (chunk=0; chunk<nchunks; chunk++)
             {
                 i1 = tb2Data.traces[i].chunkPtr[chunk];
-                i2 = tb2Data.traces[i].chunkPtr[chunk];
+                i2 = tb2Data.traces[i].chunkPtr[chunk+1];
                 for (is=i1; is<i2; is++)
                 {
                     // data expired
