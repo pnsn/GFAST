@@ -80,7 +80,7 @@ NEXT_STATION:;
         log_warnF("%s: argsort the ndtGroups and fill in order\n", fcnm);
     }
     dt0 = (double) NAN;
-    traceBuffer->dtPtr = ISCL_memory_calloc__int(ng + 1);
+    traceBuffer->dtPtr = memory_calloc32i(ng + 1);
     traceBuffer->dtGroupName = (char **)
                                calloc((size_t) ng, sizeof(char *));
     traceBuffer->ndtGroups = ng;

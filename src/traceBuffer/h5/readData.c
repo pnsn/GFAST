@@ -60,7 +60,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
     status = H5Sget_simple_extent_dims(dataSpace, dims, NULL);
     nwork = (int) (dims[0]*dims[1]);
     memSpace = H5Screate_simple(rank, dims, NULL);
-    work = ISCL_memory_calloc__double(nwork);
+    work = memory_calloc64f(nwork);
     status = H5Dread(dataSet, H5T_NATIVE_DOUBLE, memSpace, dataSpace,
                      H5P_DEFAULT, work);
     if (status < 0)

@@ -44,7 +44,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     {
         log_warnF("%s: Expecting multiple of 3 traces\n", fcnm);
     }
-    ltInit = ISCL_memory_calloc__bool((int) (fmax(traceBuffer->ntraces/3, 1)));
+    ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/3, 1)));
     // Copy the data back
     for (i=0; i<traceBuffer->ntraces; i++)
     {
@@ -64,7 +64,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                               traceBuffer->traces[i].data, 
                               gps_data->data[k].maxpts,
                               gps_data->data[k].ubuff);
-            ISCL_memory_free__double(&traceBuffer->traces[i].data);
+            memory_free64f(&traceBuffer->traces[i].data);
             if (ierr1 != 0)
             {
                 log_errorF("%s: Error copying ubuff\n", fcnm);
@@ -97,7 +97,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                               traceBuffer->traces[i].data, 
                               gps_data->data[k].maxpts,
                               gps_data->data[k].nbuff);
-            ISCL_memory_free__double(&traceBuffer->traces[i].data);
+            memory_free64f(&traceBuffer->traces[i].data);
             if (ierr1 != 0)
             {
                 log_errorF("%s: Error copying nbuff\n", fcnm);
@@ -123,7 +123,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                               traceBuffer->traces[i].data, 
                               gps_data->data[k].maxpts,
                               gps_data->data[k].ebuff);
-            ISCL_memory_free__double(&traceBuffer->traces[i].data);
+            memory_free64f(&traceBuffer->traces[i].data);
             if (ierr1 != 0)
             {
                 log_errorF("%s: Error copying ebuff\n", fcnm);
@@ -144,7 +144,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
         }
 //    printf("%d %d\n", k, j);
     }
-    ISCL_memory_free__bool(&ltInit);
+    memory_free8l(&ltInit);
     return ierr;
 }
 //============================================================================//
@@ -178,11 +178,11 @@ static int copyTrace(const int npts,
         return 1;
     }
 /*
-    ierr = ISCL__array_copy__double(npts, origin, dest);
+    ierr = array_copy64f_work(npts, origin, dest);
     nc = npts - ndest + 1;
     if (nc > 0)
     {
-        ierr = ISCL__array_set__double(nc, NAN, &dest[npts]);
+        ierr = array_set64f_work(nc, NAN, &dest[npts]);
     }
 */
     if (ndest > 0 && dest == NULL)

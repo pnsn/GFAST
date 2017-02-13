@@ -74,8 +74,8 @@ int traceBuffer_h5_setData(const double currentTime,
         return -1;
     }
     // Make a map from the HDF5 trace buffer to the tracebuffer2 data
-    map = ISCL_array_set32i(h5traceBuffer.ntraces, -1, &ierr);
-    lhaveData = ISCL_memory_calloc__bool(h5traceBuffer.ntraces);
+    map = array_set32i(h5traceBuffer.ntraces, -1, &ierr);
+    lhaveData = memory_calloc8l(h5traceBuffer.ntraces);
     for (i=0; i<h5traceBuffer.ntraces; i++)
     {
         // Take an educated guess
@@ -131,7 +131,7 @@ NEXT_TRACE:;
         // Open + read the data and attributes for this dataset 
         groupID = H5Gopen2(h5traceBuffer.fileID,
                            h5traceBuffer.dtGroupName[idt], H5P_DEFAULT);
-        gains = ISCL_memory_calloc__double(ntraces);
+        gains = memory_calloc64f(ntraces);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gains, &ierr);
         if (ierr != 0)
@@ -157,7 +157,7 @@ NEXT_TRACE:;
             return -1;
         }
         // Copy the old traces onto the new traces
-        dwork = ISCL_array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+        dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("%d\n", ishift);
@@ -165,7 +165,7 @@ printf("%d\n", ishift);
         {
             indx = k*maxpts + ishift;
             jndx = k*maxpts;
-            ierr = ISCL_array_copy64f_work(ncopy, &work[indx], &dwork[jndx]);
+            ierr = array_copy64f_work(ncopy, &work[indx], &dwork[jndx]);
             if (ierr != 0)
             {
                 log_errorF("%s: Error copying trace %d %d\n",
@@ -235,13 +235,13 @@ printf("%d\n", ishift);
             return -1; 
         }
         // free memory
-        ISCL_memory_free__double(&gains);
-        ISCL_memory_free__double(&work); 
-        ISCL_memory_free__double(&dwork);
+        memory_free64f(&gains);
+        memory_free64f(&work); 
+        memory_free64f(&dwork);
     }
     // Free memory
-    ISCL_memory_free__int(&map);
-    ISCL_memory_free__bool(&lhaveData);
+    memory_free32i(&map);
+    memory_free8l(&lhaveData);
     return ierrAll;
 }
 //============================================================================//

@@ -259,8 +259,8 @@ FOUND_TRACE:;
             ntraces = h5traceBuffer->dtPtr[i+1] - h5traceBuffer->dtPtr[i];
             memset(cwork, 0, sizeof(cwork));
             sprintf(cwork, "/Data/SamplingPeriodGroup_%d/Data", i+1);
-            work = ISCL_array_set64f(h5traceBuffer->ntraces*maxpts,
-                                     (double) NAN, &ierr);
+            work = array_set64f(h5traceBuffer->ntraces*maxpts,
+                                (double) NAN, &ierr);
             dims[0] = (hsize_t) h5traceBuffer->ntraces;
             dims[1] = (hsize_t) maxpts;
             dataSpace = H5Screate_simple(2, dims, NULL);
@@ -297,10 +297,10 @@ FOUND_TRACE:;
             status = H5Sclose(dataSpace);
             status = H5Dclose(dataSet);
             // Make the metadata
-            slats  = ISCL_memory_calloc__double(ntraces);
-            slons  = ISCL_memory_calloc__double(ntraces);
-            selevs = ISCL_memory_calloc__double(ntraces);
-            dts    = ISCL_memory_calloc__double(ntraces);
+            slats  = memory_calloc64f(ntraces);
+            slons  = memory_calloc64f(ntraces);
+            selevs = memory_calloc64f(ntraces);
+            dts    = memory_calloc64f(ntraces);
             traceOut = (char **) calloc((size_t) ntraces, sizeof(char *));
             for (k=h5traceBuffer->dtPtr[i]; k<h5traceBuffer->dtPtr[i+1]; k++)
             {
@@ -345,11 +345,11 @@ FOUND_TRACE:;
             ierr = h5_write_array__chars(cwork, h5traceBuffer->fileID,
                                          ntraces, traceOut);
             // Free workspace
-            ISCL_memory_free__double(&dts);
-            ISCL_memory_free__double(&selevs);
-            ISCL_memory_free__double(&slons);
-            ISCL_memory_free__double(&slats);
-            ISCL_memory_free__double(&work);
+            memory_free64f(&dts);
+            memory_free64f(&selevs);
+            memory_free64f(&slons);
+            memory_free64f(&slats);
+            memory_free64f(&work);
             for (j=0; j<ntraces; j++)
             {
                 free(traceOut[j]);

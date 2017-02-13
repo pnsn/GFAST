@@ -52,7 +52,7 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
             free(h5trace->dtGroupName[i]);
         }
         free(h5trace->dtGroupName);
-        ISCL_memory_free__int(&h5trace->dtPtr);
+        memory_free32i(&h5trace->dtPtr);
     }
     status = H5Fclose(h5trace->fileID);
     if (status != 0)

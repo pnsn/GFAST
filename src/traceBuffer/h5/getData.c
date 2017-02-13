@@ -124,7 +124,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             h5traceBuffer->traces[k].ncopy = ncopy;
             h5traceBuffer->traces[k].gain = gain[k-k1];
             h5traceBuffer->traces[k].data
-                = ISCL_array_set64f(ncopy, (double) NAN, &ierr);
+                = array_set64f(ncopy, (double) NAN, &ierr);
             // copy it
             ibeg = h5traceBuffer->traces[k].traceNumber*maxpts + i1;
             iend = ibeg + i2;
@@ -138,8 +138,8 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                    (size_t) (ncopy)*sizeof(double)); 
         } // Loop on streams in this group
         // Release temporary memory 
-        ISCL_memory_free__double(&work);
-        ISCL_memory_free__double(&gain);
+        memory_free64f(&work);
+        memory_free64f(&gain);
     } // Loop on sampling period groups
     return 0;
 }
@@ -186,7 +186,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
     for (i=0; i<h5traceBuffer->ntraces; i++)
     {
         // Set the trace to a fail
-        ISCL_memory_free__double(&h5traceBuffer->traces[i].data);
+        memory_free64f(&h5traceBuffer->traces[i].data);
         h5traceBuffer->traces[i].t1 = 0.0;
         h5traceBuffer->traces[i].ncopy = 0;
         // Open the group for reading 
@@ -234,7 +234,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
             continue;
         }
         ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
-        work = ISCL_memory_alloc__double(ncopy);
+        work = memory_calloc64f(ncopy);
         // Set the databuffers and names
         memset(dataBuffer1, 0, sizeof(dataBuffer1));
         memset(dataBuffer2, 0, sizeof(dataBuffer2));
