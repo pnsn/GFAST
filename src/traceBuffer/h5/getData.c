@@ -48,7 +48,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         // Open + read the data and attributes for this dataset 
         groupID = H5Gopen2(h5traceBuffer->fileID,
                            h5traceBuffer->dtGroupName[idt], H5P_DEFAULT);
-        gain = ISCL_memory_calloc__double(ntraces);
+        gain = memory_calloc64f(ntraces);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gain, &ierr);
         if (ierr != 0)
@@ -119,7 +119,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         for (k=k1; k<k2; k++)
         {
             // set info for this trace
-            ISCL_memory_free__double(&h5traceBuffer->traces[k].data);
+            memory_free64f(&h5traceBuffer->traces[k].data);
             h5traceBuffer->traces[k].t1 = t1;
             h5traceBuffer->traces[k].ncopy = ncopy;
             h5traceBuffer->traces[k].gain = gain[k-k1];
