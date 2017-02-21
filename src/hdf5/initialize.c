@@ -49,15 +49,15 @@ int hdf5_initialize(const char *adir,
     // Create a directory for the types and write them 
     ierr = ierr + h5_create_group(fileID, "/DataStructures\0");
     groupID = H5Gopen2(fileID, "/DataStructures\0", H5P_DEFAULT);
-    ierr = ierr + GFAST_hdf5_createType__peakDisplacementData(groupID);
-    ierr = ierr + GFAST_hdf5_createType__pgdResults(groupID);
-    ierr = ierr + GFAST_hdf5_createType__cmtResults(groupID);
-    ierr = ierr + GFAST_hdf5_createType__faultPlane(groupID);
-    ierr = ierr + GFAST_hdf5_createType__ffResults(groupID);
-    ierr = ierr + GFAST_hdf5_createType__hypocenter(groupID);
-    ierr = ierr + GFAST_hdf5_createType__offsetData(groupID);
-    ierr = ierr + GFAST_hdf5_createType__waveform3CData(groupID);
-    ierr = ierr + GFAST_hdf5_createType__gpsData(groupID);
+    ierr = ierr + GFAST_hdf5_createType_peakDisplacementData(groupID);
+    ierr = ierr + GFAST_hdf5_createType_pgdResults(groupID);
+    ierr = ierr + GFAST_hdf5_createType_cmtResults(groupID);
+    ierr = ierr + GFAST_hdf5_createType_faultPlane(groupID);
+    ierr = ierr + GFAST_hdf5_createType_ffResults(groupID);
+    ierr = ierr + GFAST_hdf5_createType_hypocenter(groupID);
+    ierr = ierr + GFAST_hdf5_createType_offsetData(groupID);
+    ierr = ierr + GFAST_hdf5_createType_waveform3CData(groupID);
+    ierr = ierr + GFAST_hdf5_createType_gpsData(groupID);
     ierr = ierr + H5Gclose(groupID);
     // Save the ini file
     ierr = ierr + h5_create_group(fileID, "/InitializationFile\0");
