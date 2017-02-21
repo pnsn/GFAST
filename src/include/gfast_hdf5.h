@@ -85,6 +85,8 @@ struct h5_pgdResults_struct
     hvl_t lsiteUsed;
     int ndeps;
     int nsites;
+    int nlats;
+    int nlons;
 };
 
 struct h5_cmtResults_struct

@@ -212,8 +212,8 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
                           struct h5_pgdResults_struct *h5_pgd)
 {
     const char *fcnm = "hdf5_copyPGDResults\0";
-    int *lsiteUsedTemp, i, ierr;
-    size_t ndeps, nsites;
+    int *lsiteUsedTemp, i, ierr, nlld;
+    size_t ndeps, nlats, nlons, nloc, nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
@@ -222,33 +222,38 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
         // Make sure there is something to do
         ndeps = (size_t) pgd->ndeps;
         nsites = (size_t) pgd->nsites;
-        if (ndeps < 1 || nsites < 1)
+        nlats = (size_t) pgd->nlats;
+        nlons = (size_t) pgd->nlons;
+        if (ndeps < 1 || nsites < 1 || nlats < 1 || nlons < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
             if (ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            if (nlats < 1){log_errorF("%s: No lats!\n", fcnm);}
+            if (nlons < 1){log_errorF("%s: No lons!\n", fcnm);}
             ierr = 1;
             return ierr;
         }
+        nloc = ndeps*nlats*nlons;
 
-        h5_pgd->mpgd.len = ndeps;
-        h5_pgd->mpgd.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(pgd->ndeps, pgd->mpgd, 1, h5_pgd->mpgd.p, 1);
+        h5_pgd->mpgd.len = nloc;
+        h5_pgd->mpgd.p = (double *)calloc(nloc, sizeof(double));
+        cblas_dcopy((int) nloc, pgd->mpgd, 1, h5_pgd->mpgd.p, 1);
 
-        h5_pgd->mpgd_vr.len = ndeps;
-        h5_pgd->mpgd_vr.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(pgd->ndeps, pgd->mpgd_vr, 1, h5_pgd->mpgd_vr.p, 1);
+        h5_pgd->mpgd_vr.len = nloc;
+        h5_pgd->mpgd_vr.p = (double *)calloc(nloc, sizeof(double));
+        cblas_dcopy((int) nloc, pgd->mpgd_vr, 1, h5_pgd->mpgd_vr.p, 1);
 
-        h5_pgd->dep_vr_pgd.len = ndeps;
+        h5_pgd->dep_vr_pgd.len = nloc;
         h5_pgd->dep_vr_pgd.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(pgd->ndeps, pgd->dep_vr_pgd, 1, h5_pgd->dep_vr_pgd.p, 1);
+        cblas_dcopy((int) nloc, pgd->dep_vr_pgd, 1, h5_pgd->dep_vr_pgd.p, 1);
 
-        h5_pgd->UP.len = nsites*ndeps;
-        h5_pgd->UP.p = (double *)calloc(nsites*ndeps, sizeof(double));
-        cblas_dcopy(pgd->nsites*pgd->ndeps, pgd->UP, 1, h5_pgd->UP.p, 1);
+        h5_pgd->UP.len = nsites*nloc; //ndeps;
+        h5_pgd->UP.p = (double *)calloc(nsites*nloc, sizeof(double));
+        cblas_dcopy((int) (nsites*nloc), pgd->UP, 1, h5_pgd->UP.p, 1);
 
-        h5_pgd->srdist.len = nsites*ndeps;
-        h5_pgd->srdist.p = (double *)calloc(nsites*ndeps, sizeof(double));
-        cblas_dcopy(pgd->nsites*pgd->ndeps, pgd->srdist, 1,
+        h5_pgd->srdist.len = nsites*nloc; //ndeps;
+        h5_pgd->srdist.p = (double *)calloc(nsites*nloc, sizeof(double));
+        cblas_dcopy((int) (nsites*nloc), pgd->srdist, 1,
                     h5_pgd->srdist.p, 1);
 
         h5_pgd->UPinp.len = nsites;
@@ -259,9 +264,9 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
         h5_pgd->srcDepths.p = (double *)calloc(ndeps, sizeof(double)); 
         cblas_dcopy(pgd->ndeps, pgd->srcDepths, 1, h5_pgd->srcDepths.p, 1);
 
-        h5_pgd->iqr.len = ndeps;
-        h5_pgd->iqr.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(pgd->ndeps, pgd->iqr, 1, h5_pgd->iqr.p, 1);
+        h5_pgd->iqr.len = nloc; //ndeps;
+        h5_pgd->iqr.p = (double *)calloc(nloc, sizeof(double));
+        cblas_dcopy((int) nloc, pgd->iqr, 1, h5_pgd->iqr.p, 1);
 
         h5_pgd->lsiteUsed.len = nsites;
         lsiteUsedTemp = (int *)calloc(nsites, sizeof(int));
@@ -273,37 +278,43 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
 
         h5_pgd->ndeps = (int) ndeps;
         h5_pgd->nsites = (int) nsites; 
+        h5_pgd->nlats = pgd->nlats;
+        h5_pgd->nlons = pgd->nlons;
     }
     else if (job == COPY_H5_TO_DATA)
     {
         memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
         // Make sure there is something to do
-        ndeps = (size_t) h5_pgd->ndeps;
-        nsites = (size_t) h5_pgd->nsites;
-        if (ndeps < 1 || nsites < 1)
+        pgd->ndeps = h5_pgd->ndeps;
+        pgd->nsites = h5_pgd->nsites;
+        pgd->nlats = h5_pgd->nlats;
+        pgd->nlons = h5_pgd->nlons;
+        if (pgd->ndeps < 1 || pgd->nsites < 1 ||
+            pgd->nlats < 1 || pgd->nlons < 1)
         {
-            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            if (pgd->nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
+            if (pgd->ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            if (pgd->nlats < 1){log_errorF("%s: No lats!\n", fcnm);}
+            if (pgd->nlons < 1){log_errorF("%s: No lons!\n", fcnm);}
             ierr = 1;
             return ierr;
         }
-        pgd->ndeps = h5_pgd->ndeps;
-        pgd->nsites = h5_pgd->nsites;
-       
-        pgd->mpgd = memory_calloc64f(pgd->ndeps); 
-        cblas_dcopy(pgd->ndeps, h5_pgd->mpgd.p, 1, pgd->mpgd, 1);
+        nlld = pgd->nlats*pgd->nlons*pgd->ndeps;
 
-        pgd->mpgd_vr = memory_calloc64f(pgd->ndeps);
-        cblas_dcopy(pgd->ndeps, h5_pgd->mpgd_vr.p, 1, pgd->mpgd_vr, 1);
+        pgd->mpgd = memory_calloc64f(nlld);
+        cblas_dcopy(nlld, h5_pgd->mpgd.p, 1, pgd->mpgd, 1);
 
-        pgd->dep_vr_pgd = memory_calloc64f(pgd->ndeps);
-        cblas_dcopy(pgd->ndeps, h5_pgd->dep_vr_pgd.p, 1, pgd->dep_vr_pgd, 1);
+        pgd->mpgd_vr = memory_calloc64f(nlld);
+        cblas_dcopy(nlld, h5_pgd->mpgd_vr.p, 1, pgd->mpgd_vr, 1);
 
-        pgd->UP = memory_calloc64f(pgd->nsites*pgd->ndeps);
-        cblas_dcopy(pgd->nsites*pgd->ndeps, h5_pgd->UP.p, 1, pgd->UP, 1);
+        pgd->dep_vr_pgd = memory_calloc64f(nlld);
+        cblas_dcopy(nlld, h5_pgd->dep_vr_pgd.p, 1, pgd->dep_vr_pgd, 1);
 
-        pgd->srdist = memory_calloc64f(pgd->nsites*pgd->ndeps);
-        cblas_dcopy(pgd->nsites*pgd->ndeps, h5_pgd->srdist.p, 1,
+        pgd->UP = memory_calloc64f(pgd->nsites*nlld);
+        cblas_dcopy(pgd->nsites*nlld, h5_pgd->UP.p, 1, pgd->UP, 1);
+
+        pgd->srdist = memory_calloc64f(pgd->nsites*nlld);
+        cblas_dcopy(pgd->nsites*nlld, h5_pgd->srdist.p, 1,
                     pgd->srdist, 1);
 
         pgd->UPinp = memory_calloc64f(pgd->nsites);
@@ -312,12 +323,12 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
         pgd->srcDepths = memory_calloc64f(pgd->ndeps);
         cblas_dcopy(pgd->ndeps, h5_pgd->srcDepths.p, 1, pgd->srcDepths, 1);
 
-        pgd->iqr = memory_calloc64f(pgd->ndeps);
-        cblas_dcopy(pgd->ndeps, h5_pgd->iqr.p, 1, pgd->iqr, 1);
+        pgd->iqr = memory_calloc64f(nlld);
+        cblas_dcopy(nlld, h5_pgd->iqr.p, 1, pgd->iqr, 1);
 
         lsiteUsedTemp = (int *) h5_pgd->lsiteUsed.p;
         pgd->lsiteUsed = memory_calloc8l(pgd->nsites);
-        for (i=0; i<(int) nsites; i++)
+        for (i=0; i<pgd->nsites; i++)
         {
             pgd->lsiteUsed[i] = (bool) lsiteUsedTemp[i];
         }

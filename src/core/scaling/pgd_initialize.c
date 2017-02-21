@@ -25,7 +25,7 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
                                 struct GFAST_peakDisplacementData_struct *pgd_data)
 {
     const char *fcnm = "core_scaling_pgd_initialize\0";
-    int i;
+    int i, nloc;
     pgd->ndeps = pgd_props.ngridSearch_deps;
     pgd->nlats = pgd_props.ngridSearch_lats;
     pgd->nlons = pgd_props.ngridSearch_lons;
@@ -83,13 +83,14 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         }
         if (gps_data.data[i].lskip_pgd){pgd_data->lmask[i] = true;}
     }
-    pgd->mpgd       = memory_calloc64f(pgd->ndeps);
-    pgd->mpgd_vr    = memory_calloc64f(pgd->ndeps);
-    pgd->dep_vr_pgd = memory_calloc64f(pgd->ndeps);
+    nloc = pgd->ndeps*pgd->nlats*pgd->nlons;
+    pgd->mpgd       = memory_calloc64f(nloc);
+    pgd->mpgd_vr    = memory_calloc64f(nloc);
+    pgd->dep_vr_pgd = memory_calloc64f(nloc);
     pgd->srcDepths  = memory_calloc64f(pgd->ndeps);
-    pgd->iqr        = memory_calloc64f(pgd->ndeps);
-    pgd->UP         = memory_calloc64f(pgd->nsites*pgd->ndeps);
-    pgd->srdist     = memory_calloc64f(pgd->nsites*pgd->ndeps);
+    pgd->iqr        = memory_calloc64f(nloc);
+    pgd->UP         = memory_calloc64f(pgd->nsites*nloc);
+    pgd->srdist     = memory_calloc64f(pgd->nsites*nloc);
     pgd->UPinp      = memory_calloc64f(pgd->nsites);
     pgd->lsiteUsed  = memory_calloc8l(pgd->nsites);
     // TODO: fix me and make customizable!
