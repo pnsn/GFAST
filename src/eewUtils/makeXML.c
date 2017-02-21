@@ -115,7 +115,7 @@ char *eewUtils_makeXML__ff(const int mode,
     }
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
                                      BAD_CAST cmode);
-    now = ISCL_time_timeStamp();
+    now = time_timeStamp();
     rc = xml_epoch2string(now, cnow);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp\0",
                                       BAD_CAST cnow);
@@ -565,7 +565,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     }
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
                                      BAD_CAST cmode);
-    now = ISCL_time_timeStamp();
+    now = time_timeStamp();
     rc = xml_epoch2string(now, cnow);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp\0",
                                       BAD_CAST cnow);

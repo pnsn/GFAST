@@ -51,7 +51,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
            *uOffset, *uEst, *uWts,
            DC_pct, eres, nres, sum_res2, ures,
            utmSrcEasting, utmSrcNorthing, wte, wtn, wtu, x1, y1, x2, y2;
-    int i, idep, ierr, ierr1, k, l1, zone_loc;
+    int i, idep, ierr, ierr1, ilat, ilon, k, l1, zone_loc;
     bool *luse, lnorthp;
     //------------------------------------------------------------------------//
     //
@@ -75,6 +75,12 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     if (ierr != CMT_SUCCESS)
     {
         log_errorF("%s: Error failed to verify data structures\n", fcnm);
+    }
+    if (cmt->nlats > 1 || cmt->nlons > 1)
+    {
+        log_errorF("%s: Error nlats > 1 | nlons > 1 not done\n", fcnm);
+        ierr = 1;
+        return ierr;
     }
     // Warn in case hypocenter is outside of grid-search
     if (cmt_props.verbose > 1 &&
@@ -126,7 +132,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         cmt->mts[i] = 0.0;
     }
     // Require there is a sufficient amount of data to invert
-    luse = ISCL_memory_calloc__bool(cmt_data.nsites);
+    luse = memory_calloc8l(cmt_data.nsites);
     l1 = 0;
     for (k=0; k<cmt_data.nsites; k++)
     {
@@ -151,18 +157,18 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         goto ERROR;
     }
     // Set space
-    utmRecvNorthing = ISCL_memory_calloc__double(l1);
-    utmRecvEasting  = ISCL_memory_calloc__double(l1);
-    staAlt  = ISCL_memory_calloc__double(l1);
-    uOffset = ISCL_memory_calloc__double(l1);
-    nOffset = ISCL_memory_calloc__double(l1);
-    eOffset = ISCL_memory_calloc__double(l1);
-    uWts    = ISCL_memory_calloc__double(l1);
-    nWts    = ISCL_memory_calloc__double(l1);
-    eWts    = ISCL_memory_calloc__double(l1);
-    nEst    = ISCL_memory_calloc__double(l1*cmt->ndeps);
-    eEst    = ISCL_memory_calloc__double(l1*cmt->ndeps);
-    uEst    = ISCL_memory_calloc__double(l1*cmt->ndeps);
+    utmRecvNorthing = memory_calloc64f(l1);
+    utmRecvEasting  = memory_calloc64f(l1);
+    staAlt  = memory_calloc64f(l1);
+    uOffset = memory_calloc64f(l1);
+    nOffset = memory_calloc64f(l1);
+    eOffset = memory_calloc64f(l1);
+    uWts    = memory_calloc64f(l1);
+    nWts    = memory_calloc64f(l1);
+    eWts    = memory_calloc64f(l1);
+    nEst    = memory_calloc64f(l1*cmt->ndeps);
+    eEst    = memory_calloc64f(l1*cmt->ndeps);
+    uEst    = memory_calloc64f(l1*cmt->ndeps);
     // Get the source location
     zone_loc = cmt_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
@@ -198,6 +204,27 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     { 
         log_debugF("%s: Inverting for CMT with %d sites\n", fcnm, l1);
     }
+    ierr = core_cmt_gridSearch(l1,
+                               cmt->ndeps, cmt->nlats, cmt->nlons,
+                               cmt_props.verbose,
+                               cmt_props.ldeviatoric,
+                               &utmSrcEasting,
+                               &utmSrcNorthing,
+                               cmt->srcDepths,
+                               utmRecvEasting,
+                               utmRecvNorthing,
+                               staAlt,
+                               nOffset,
+                               eOffset,
+                               uOffset,
+                               nWts,
+                               eWts,
+                               uWts,
+                               nEst,
+                               eEst,
+                               uEst,
+                               cmt->mts);
+/*
     ierr = core_cmt_depthGridSearch(l1, cmt->ndeps,
                                     cmt_props.verbose,
                                     cmt_props.ldeviatoric,
@@ -217,6 +244,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                                     eEst,
                                     uEst,
                                     cmt->mts);
+*/
     if (ierr != 0)
     {   
         log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
@@ -238,62 +266,68 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     // Extract results and weight objective fn by percent double couple
     ierr = 0;
 #ifdef PARALLEL_CMT
-    #pragma omp parallel for \
-     private(DC_pct, eres, i, idep, ierr1, k, sum_res2, nres, ures) \
+    #pragma omp parallel for collapse(3) \
+     private(DC_pct, eres, i, idep, ierr1, ilat, ilon, k, sum_res2, nres, ures) \
      shared(cmt, eOffset, eEst, fcnm, l1, luse, nOffset, nEst, uOffset, uEst) \
      reduction(+:ierr), default(none) 
 #endif
-    for (idep=0; idep<cmt->ndeps; idep++)
+    for (ilon=0; ilon<cmt->nlons; ilon++)
     {
-        // Compute the L2 norm
-        sum_res2 = 0.0;
-#ifdef _OPENMP
-        #pragma omp simd reduction(+:sum_res2)
-#endif
-        for (i=0; i<l1; i++)
+        for (ilat=0; ilat<cmt->nlats; ilat++)
         {
-            nres = nOffset[i] - nEst[idep*l1+i];
-            eres = eOffset[i] - eEst[idep*l1+i];
-            ures = uOffset[i] - uEst[idep*l1+i];
-            sum_res2 = sum_res2 + nres*nres + eres*eres + ures*ures;
-        }
-        sum_res2 = sqrt(sum_res2);
-        // Decompose the moment tensor
-        ierr1 = core_cmt_decomposeMomentTensor(1, &cmt->mts[6*idep],
-                                               &DC_pct,
-                                               &cmt->Mw[idep],
-                                               &cmt->str1[idep],
-                                               &cmt->str2[idep],
-                                               &cmt->dip1[idep],
-                                               &cmt->dip2[idep],
-                                               &cmt->rak1[idep],
-                                               &cmt->rak2[idep]);
-        if (ierr1 != 0)
-        {
-            log_errorF("%s: Error decomposing mt\n", fcnm);
-            ierr = ierr + 1;
-            continue;
-        }
-        // Prefer results with larger double couple percentages
-        cmt->l2[idep] = 0.5*sqrt(sum_res2);
-        cmt->pct_dc[idep] = DC_pct;
-        cmt->objfn[idep] = sum_res2/DC_pct;
-        // Save the data
-        i = 0;
-        for (k=0; k<cmt->nsites; k++)
-        {
-            cmt->NN[idep*cmt->nsites+k] = 0.0;
-            cmt->EN[idep*cmt->nsites+k] = 0.0;
-            cmt->UN[idep*cmt->nsites+k] = 0.0;
-            if (luse[k])
+            for (idep=0; idep<cmt->ndeps; idep++)
             {
-                cmt->NN[idep*cmt->nsites+k] = nEst[idep*l1+i];
-                cmt->EN[idep*cmt->nsites+k] = eEst[idep*l1+i];
-                cmt->UN[idep*cmt->nsites+k] = uEst[idep*l1+i];
-                i = i + 1;
-            }
-        }
-    } // Loop on depths
+                // Compute the L2 norm
+                sum_res2 = 0.0;
+#ifdef _OPENMP
+                #pragma omp simd reduction(+:sum_res2)
+#endif
+                for (i=0; i<l1; i++)
+                {
+                    nres = nOffset[i] - nEst[idep*l1+i];
+                    eres = eOffset[i] - eEst[idep*l1+i];
+                    ures = uOffset[i] - uEst[idep*l1+i];
+                    sum_res2 = sum_res2 + nres*nres + eres*eres + ures*ures;
+                }
+                sum_res2 = sqrt(sum_res2);
+                // Decompose the moment tensor
+                ierr1 = core_cmt_decomposeMomentTensor(1, &cmt->mts[6*idep],
+                                                       &DC_pct,
+                                                       &cmt->Mw[idep],
+                                                       &cmt->str1[idep],
+                                                       &cmt->str2[idep],
+                                                       &cmt->dip1[idep],
+                                                       &cmt->dip2[idep],
+                                                       &cmt->rak1[idep],
+                                                       &cmt->rak2[idep]);
+                if (ierr1 != 0)
+                {
+                    log_errorF("%s: Error decomposing mt\n", fcnm);
+                    ierr = ierr + 1;
+                    continue;
+                }
+                // Prefer results with larger double couple percentages
+                cmt->l2[idep] = 0.5*sqrt(sum_res2);
+                cmt->pct_dc[idep] = DC_pct;
+                cmt->objfn[idep] = sum_res2/DC_pct;
+                // Save the data
+                i = 0;
+                for (k=0; k<cmt->nsites; k++)
+                {
+                    cmt->NN[idep*cmt->nsites+k] = 0.0;
+                    cmt->EN[idep*cmt->nsites+k] = 0.0;
+                    cmt->UN[idep*cmt->nsites+k] = 0.0;
+                    if (luse[k])
+                    {
+                        cmt->NN[idep*cmt->nsites+k] = nEst[idep*l1+i];
+                        cmt->EN[idep*cmt->nsites+k] = eEst[idep*l1+i];
+                        cmt->UN[idep*cmt->nsites+k] = uEst[idep*l1+i];
+                        i = i + 1;
+                    }
+               }
+           } // Loop on depths
+       } // loop on latiudes
+    } // loop on longitudes
     if (ierr != 0)
     {
         log_errorF("%s: Error decomposing moment tensor\n", fcnm);
@@ -302,19 +336,19 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     // Get the optimimum index
     cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn);
 ERROR:;
-    ISCL_memory_free__bool(&luse);
-    ISCL_memory_free__double(&utmRecvNorthing);
-    ISCL_memory_free__double(&utmRecvEasting);
-    ISCL_memory_free__double(&staAlt);
-    ISCL_memory_free__double(&uOffset);
-    ISCL_memory_free__double(&nOffset);
-    ISCL_memory_free__double(&eOffset);
-    ISCL_memory_free__double(&nEst);
-    ISCL_memory_free__double(&eEst);
-    ISCL_memory_free__double(&uEst);
-    ISCL_memory_free__double(&nWts);
-    ISCL_memory_free__double(&eWts);
-    ISCL_memory_free__double(&uWts);
+    memory_free8l(&luse);
+    memory_free64f(&utmRecvNorthing);
+    memory_free64f(&utmRecvEasting);
+    memory_free64f(&staAlt);
+    memory_free64f(&uOffset);
+    memory_free64f(&nOffset);
+    memory_free64f(&eOffset);
+    memory_free64f(&nEst);
+    memory_free64f(&eEst);
+    memory_free64f(&uEst);
+    memory_free64f(&nWts);
+    memory_free64f(&eWts);
+    memory_free64f(&uWts);
     return ierr;
 }
 //============================================================================//

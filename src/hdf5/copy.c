@@ -6,6 +6,7 @@
 #include <cblas.h>
 #include "gfast_hdf5.h"
 #include "iscl/log/log.h"
+#include "iscl/memory/memory.h"
 
 //============================================================================//
 int hdf5_copy__peakDisplacementData(
@@ -275,8 +276,52 @@ int hdf5_copy__pgdResults(const enum data2h5_enum job,
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: Error not yet done\n", fcnm);
-        ierr = 1;
+        memset(pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+        // Make sure there is something to do
+        ndeps = (size_t) h5_pgd->ndeps;
+        nsites = (size_t) h5_pgd->nsites;
+        if (ndeps < 1 || nsites < 1)
+        {
+            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
+            if (ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            ierr = 1;
+            return ierr;
+        }
+        pgd->ndeps = h5_pgd->ndeps;
+        pgd->nsites = h5_pgd->nsites;
+       
+        pgd->mpgd = memory_calloc64f(pgd->ndeps); 
+        cblas_dcopy(pgd->ndeps, h5_pgd->mpgd.p, 1, pgd->mpgd, 1);
+
+        pgd->mpgd_vr = memory_calloc64f(pgd->ndeps);
+        cblas_dcopy(pgd->ndeps, h5_pgd->mpgd_vr.p, 1, pgd->mpgd_vr, 1);
+
+        pgd->dep_vr_pgd = memory_calloc64f(pgd->ndeps);
+        cblas_dcopy(pgd->ndeps, h5_pgd->dep_vr_pgd.p, 1, pgd->dep_vr_pgd, 1);
+
+        pgd->UP = memory_calloc64f(pgd->nsites*pgd->ndeps);
+        cblas_dcopy(pgd->nsites*pgd->ndeps, h5_pgd->UP.p, 1, pgd->UP, 1);
+
+        pgd->srdist = memory_calloc64f(pgd->nsites*pgd->ndeps);
+        cblas_dcopy(pgd->nsites*pgd->ndeps, h5_pgd->srdist.p, 1,
+                    pgd->srdist, 1);
+
+        pgd->UPinp = memory_calloc64f(pgd->nsites);
+        cblas_dcopy(pgd->nsites, h5_pgd->UPinp.p, 1, pgd->UPinp, 1);
+
+        pgd->srcDepths = memory_calloc64f(pgd->ndeps);
+        cblas_dcopy(pgd->ndeps, h5_pgd->srcDepths.p, 1, pgd->srcDepths, 1);
+
+        pgd->iqr = memory_calloc64f(pgd->ndeps);
+        cblas_dcopy(pgd->ndeps, h5_pgd->iqr.p, 1, pgd->iqr, 1);
+
+        lsiteUsedTemp = (int *) h5_pgd->lsiteUsed.p;
+        pgd->lsiteUsed = memory_calloc8l(pgd->nsites);
+        for (i=0; i<(int) nsites; i++)
+        {
+            pgd->lsiteUsed[i] = (bool) lsiteUsedTemp[i];
+        }
+        lsiteUsedTemp = NULL;
     }
     else
     {
@@ -315,7 +360,7 @@ int hdf5_copy__hypocenter(const enum data2h5_enum job,
     if (job == COPY_DATA_TO_H5)
     {
         memset(h5_hypo, 0, sizeof(struct h5_hypocenter_struct));
-        strncpy(h5_hypo->eventid, hypo->eventid, 128);
+        strncpy(h5_hypo->eventid, hypo->eventid, 128*sizeof(char));
         h5_hypo->lat = hypo->lat;
         h5_hypo->lon = hypo->lon;
         h5_hypo->dep = hypo->dep;
@@ -325,7 +370,7 @@ int hdf5_copy__hypocenter(const enum data2h5_enum job,
     else if (job == COPY_H5_TO_DATA)
     {
         memset(hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
-        memcpy(hypo->eventid, h5_hypo->eventid, 128);
+        memcpy(hypo->eventid, h5_hypo->eventid, 128*sizeof(char));
         hypo->lat = h5_hypo->lat;
         hypo->lon = h5_hypo->lon;
         hypo->dep = h5_hypo->dep;
@@ -365,8 +410,8 @@ int hdf5_copy__cmtResults(const enum data2h5_enum job,
                           struct h5_cmtResults_struct *h5_cmt)
 {
     const char *fcnm = "hdf5_copy__cmtResults\0";
-    int *lsiteUsedTemp, i, ierr;
-    size_t ndeps, nsites;
+    int *lsiteUsedTemp, i, ierr, ncopy;
+    size_t ndeps, nlats, nlons, nlld, nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (job == COPY_DATA_TO_H5)
@@ -375,84 +420,90 @@ int hdf5_copy__cmtResults(const enum data2h5_enum job,
         // Make sure there is something to do
         ndeps = (size_t) cmt->ndeps;
         nsites = (size_t) cmt->nsites;
-        if (ndeps < 1 || nsites < 1)
+        nlats = (size_t) cmt->nlats;
+        nlons = (size_t) cmt->nlons;
+        nlld = ndeps*nlats*nlons;
+        ncopy = cmt->ndeps*cmt->nlats*cmt->nlons;
+        if (ndeps < 1 || nsites < 1 || nlats < 1 || nlons < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
             if (ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            if (nlats < 1){log_errorF("%s: No lats!\n", fcnm);}
+            if (nlons < 1){log_errorF("%s: No lons!\n", fcnm);}
             ierr = 1;
             return ierr;
         }
-        h5_cmt->l2.len = ndeps;
-        h5_cmt->l2.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->l2, 1, h5_cmt->l2.p, 1);
+        h5_cmt->l2.len = nlld; //ndeps;
+        h5_cmt->l2.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->l2, 1, h5_cmt->l2.p, 1);
 
-        h5_cmt->pct_dc.len = ndeps;
-        h5_cmt->pct_dc.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->pct_dc, 1, h5_cmt->pct_dc.p, 1);
+        h5_cmt->pct_dc.len = nlld; //ndeps;
+        h5_cmt->pct_dc.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->pct_dc, 1, h5_cmt->pct_dc.p, 1);
 
-        h5_cmt->objfn.len = ndeps;
-        h5_cmt->objfn.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->objfn, 1, h5_cmt->objfn.p, 1);
+        h5_cmt->objfn.len = nlld; //ndeps;
+        h5_cmt->objfn.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->objfn, 1, h5_cmt->objfn.p, 1);
 
-        h5_cmt->mts.len = 6*ndeps;
-        h5_cmt->mts.p = (double *)calloc(6*ndeps, sizeof(double));
-        cblas_dcopy(6*cmt->ndeps, cmt->mts, 1, h5_cmt->mts.p, 1);
+        h5_cmt->mts.len = 6*nlld; //ndeps;
+        h5_cmt->mts.p = (double *)calloc(6*nlld, sizeof(double));
+        cblas_dcopy((int) (6*nlld), cmt->mts, 1, h5_cmt->mts.p, 1);
 
-        h5_cmt->str1.len = ndeps;
-        h5_cmt->str1.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->str1, 1, h5_cmt->str1.p, 1);
+        h5_cmt->str1.len = nlld; //ndeps;
+        h5_cmt->str1.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->str1, 1, h5_cmt->str1.p, 1);
 
-        h5_cmt->str2.len = ndeps;
-        h5_cmt->str2.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->str2, 1, h5_cmt->str2.p, 1);
+        h5_cmt->str2.len = nlld; //ndeps;
+        h5_cmt->str2.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->str2, 1, h5_cmt->str2.p, 1);
 
-        h5_cmt->dip1.len = ndeps;
-        h5_cmt->dip1.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->dip1, 1, h5_cmt->dip1.p, 1);
+        h5_cmt->dip1.len = nlld; //ndeps;
+        h5_cmt->dip1.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->dip1, 1, h5_cmt->dip1.p, 1);
 
-        h5_cmt->dip2.len = ndeps;
-        h5_cmt->dip2.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->dip2, 1, h5_cmt->dip2.p, 1);
+        h5_cmt->dip2.len = nlld; //ndeps;
+        h5_cmt->dip2.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->dip2, 1, h5_cmt->dip2.p, 1);
 
-        h5_cmt->rak1.len = ndeps;
-        h5_cmt->rak1.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->rak1, 1, h5_cmt->rak1.p, 1);
+        h5_cmt->rak1.len = nlld; //ndeps;
+        h5_cmt->rak1.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->rak1, 1, h5_cmt->rak1.p, 1);
 
-        h5_cmt->rak2.len = ndeps;
-        h5_cmt->rak2.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->rak2, 1, h5_cmt->rak2.p, 1);
+        h5_cmt->rak2.len = nlld; //ndeps;
+        h5_cmt->rak2.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->rak2, 1, h5_cmt->rak2.p, 1);
 
-        h5_cmt->Mw.len = ndeps;
-        h5_cmt->Mw.p = (double *)calloc(ndeps, sizeof(double));
-        cblas_dcopy(cmt->ndeps, cmt->Mw, 1, h5_cmt->Mw.p, 1);
+        h5_cmt->Mw.len = nlld; //ndeps;
+        h5_cmt->Mw.p = (double *)calloc(nlld, sizeof(double));
+        cblas_dcopy((int) nlld, cmt->Mw, 1, h5_cmt->Mw.p, 1);
 
         h5_cmt->srcDepths.len = ndeps;
         h5_cmt->srcDepths.p = (double *)calloc(ndeps, sizeof(double));
         cblas_dcopy(cmt->ndeps, cmt->srcDepths, 1, h5_cmt->srcDepths.p, 1); 
 
-        h5_cmt->EN.len = nsites*ndeps;
-        h5_cmt->EN.p = (double *)calloc(nsites*ndeps, sizeof(double));
-        cblas_dcopy(cmt->nsites*cmt->ndeps, cmt->EN, 1, h5_cmt->EN.p, 1); 
+        h5_cmt->EN.len = nsites*nlld;
+        h5_cmt->EN.p = (double *)calloc(nsites*nlld, sizeof(double));
+        cblas_dcopy(cmt->nsites*ncopy, cmt->EN, 1, h5_cmt->EN.p, 1); 
 
-        h5_cmt->NN.len = nsites*ndeps;
-        h5_cmt->NN.p = (double *)calloc(nsites*ndeps, sizeof(double));
-        cblas_dcopy(cmt->nsites*cmt->ndeps, cmt->NN, 1, h5_cmt->NN.p, 1);
+        h5_cmt->NN.len = nsites*nlld;
+        h5_cmt->NN.p = (double *)calloc(nsites*nlld, sizeof(double));
+        cblas_dcopy(cmt->nsites*ncopy, cmt->NN, 1, h5_cmt->NN.p, 1);
 
-        h5_cmt->UN.len = nsites*ndeps;
-        h5_cmt->UN.p = (double *)calloc(nsites*ndeps, sizeof(double));
-        cblas_dcopy(cmt->nsites*cmt->ndeps, cmt->UN, 1, h5_cmt->UN.p, 1);
+        h5_cmt->UN.len = nsites*nlld;
+        h5_cmt->UN.p = (double *)calloc(nsites*nlld, sizeof(double));
+        cblas_dcopy(cmt->nsites*ncopy, cmt->UN, 1, h5_cmt->UN.p, 1);
 
         h5_cmt->Einp.len = nsites;
         h5_cmt->Einp.p = (double *)calloc(nsites, sizeof(double));
-        cblas_dcopy(cmt->nsites, cmt->EN, 1, h5_cmt->Einp.p, 1); 
+        cblas_dcopy(cmt->nsites, cmt->Einp, 1, h5_cmt->Einp.p, 1); 
 
         h5_cmt->Ninp.len = nsites;
         h5_cmt->Ninp.p = (double *)calloc(nsites, sizeof(double));
-        cblas_dcopy(cmt->nsites, cmt->NN, 1, h5_cmt->Ninp.p, 1); 
+        cblas_dcopy(cmt->nsites, cmt->Ninp, 1, h5_cmt->Ninp.p, 1); 
 
         h5_cmt->Uinp.len = nsites;
         h5_cmt->Uinp.p = (double *)calloc(nsites, sizeof(double));
-        cblas_dcopy(cmt->nsites, cmt->UN, 1, h5_cmt->Uinp.p, 1);
+        cblas_dcopy(cmt->nsites, cmt->Uinp, 1, h5_cmt->Uinp.p, 1);
 
         h5_cmt->lsiteUsed.len = nsites;
         lsiteUsedTemp = (int *)calloc(nsites, sizeof(int));
@@ -466,11 +517,89 @@ int hdf5_copy__cmtResults(const enum data2h5_enum job,
         h5_cmt->opt_indx = cmt->opt_indx;
         h5_cmt->ndeps = (int) ndeps;
         h5_cmt->nsites = (int) nsites;
+        h5_cmt->nlats = (int) nlats;
+        h5_cmt->nlons = (int) nlons;
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: Error not yet done\n", fcnm);
-        ierr = 1;
+        memset(cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+        // Make sure there is something to do
+        cmt->ndeps = h5_cmt->ndeps;
+        cmt->nsites = h5_cmt->nsites;
+        cmt->nlats = h5_cmt->nlats;
+        cmt->nlons = h5_cmt->nlons;
+        if (cmt->ndeps < 1 || cmt->nsites < 1)
+        {
+            if (cmt->nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
+            if (cmt->ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            ierr = 1;
+            return ierr;
+        }
+        ncopy = cmt->ndeps*cmt->nlats*cmt->nlons;
+        cmt->l2 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->l2.p, 1, cmt->l2, 1);
+
+        cmt->pct_dc = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->pct_dc.p, 1, cmt->pct_dc, 1);
+
+        cmt->objfn = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->objfn.p, 1, cmt->objfn, 1);
+
+        cmt->mts = memory_calloc64f(6*ncopy);
+        cblas_dcopy(6*ncopy, h5_cmt->mts.p, 1, cmt->mts, 1);
+
+        cmt->str1 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->str1.p, 1, cmt->str1, 1);
+
+        cmt->str2 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->str2.p, 1, cmt->str2, 1);
+
+        cmt->dip1 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->dip1.p, 1, cmt->dip1, 1);
+
+        cmt->dip2 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->dip2.p, 1, cmt->dip2, 1);
+
+        cmt->rak1 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->rak1.p, 1, cmt->rak1, 1);
+
+        cmt->rak2 = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->rak2.p, 1, cmt->rak2, 1);
+
+        cmt->Mw = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->Mw.p, 1, cmt->Mw, 1);
+
+        cmt->srcDepths = memory_calloc64f(ncopy);
+        cblas_dcopy(ncopy, h5_cmt->srcDepths.p, 1, cmt->srcDepths, 1);
+
+        cmt->srcDepths = memory_calloc64f(cmt->ndeps);
+        cblas_dcopy(cmt->ndeps, h5_cmt->srcDepths.p, 1, cmt->srcDepths, 1); 
+
+        cmt->EN = memory_calloc64f(cmt->nsites*ncopy);
+        cblas_dcopy(cmt->nsites*ncopy, h5_cmt->EN.p, 1, cmt->EN, 1); 
+
+        cmt->NN = memory_calloc64f(cmt->nsites*ncopy);
+        cblas_dcopy(cmt->nsites*ncopy, h5_cmt->NN.p, 1, cmt->NN, 1); 
+
+        cmt->UN = memory_calloc64f(cmt->nsites*ncopy);
+        cblas_dcopy(cmt->nsites*ncopy, h5_cmt->UN.p, 1, cmt->UN, 1); 
+
+        cmt->Einp = memory_calloc64f(cmt->nsites);
+        cblas_dcopy(cmt->nsites, h5_cmt->Einp.p, 1, cmt->Einp, 1); 
+
+        cmt->Ninp = memory_calloc64f(cmt->nsites);
+        cblas_dcopy(cmt->nsites, h5_cmt->Ninp.p, 1, cmt->Ninp, 1); 
+
+        cmt->Uinp = memory_calloc64f(cmt->nsites);
+        cblas_dcopy(cmt->nsites, h5_cmt->Uinp.p, 1, cmt->Uinp, 1); 
+
+        lsiteUsedTemp = (int *) h5_cmt->lsiteUsed.p;
+        cmt->lsiteUsed = memory_calloc8l(cmt->nsites);
+        for (i=0; i<cmt->nsites; i++)
+        {
+            cmt->lsiteUsed[i] = (bool) lsiteUsedTemp[i];
+        }
+        lsiteUsedTemp = NULL;
     }
     else
     {

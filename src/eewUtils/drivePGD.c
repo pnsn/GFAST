@@ -173,7 +173,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         pgd->UP[i] = 0.0;
     }
     // Require there is a sufficient amount of data to invert
-    luse = ISCL_memory_calloc__bool(pgd_data.nsites);
+    luse = memory_calloc8l(pgd_data.nsites);
     l1 = 0;
     for (k=0; k<pgd_data.nsites; k++)
     {
@@ -192,13 +192,13 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         goto ERROR;
     }
     // Allocate space
-    d               = ISCL_memory_calloc__double(l1);
-    utmRecvNorthing = ISCL_memory_calloc__double(l1);
-    utmRecvEasting  = ISCL_memory_calloc__double(l1);
-    staAlt          = ISCL_memory_calloc__double(l1);
-    wts             = ISCL_memory_calloc__double(l1);
-    Uest            = ISCL_memory_calloc__double(l1*pgd->ndeps);
-    srdist          = ISCL_memory_calloc__double(l1*pgd->ndeps);
+    d               = memory_calloc64f(l1);
+    utmRecvNorthing = memory_calloc64f(l1);
+    utmRecvEasting  = memory_calloc64f(l1);
+    staAlt          = memory_calloc64f(l1);
+    wts             = memory_calloc64f(l1);
+    Uest            = memory_calloc64f(l1*pgd->ndeps);
+    srdist          = memory_calloc64f(l1*pgd->ndeps);
     // Get the source location
     zone_loc = pgd_props.utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Estimate UTM zone from source lon
@@ -283,14 +283,14 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         }
     }
 ERROR:;
-    ISCL_memory_free__double(&d);
-    ISCL_memory_free__double(&utmRecvNorthing);
-    ISCL_memory_free__double(&utmRecvEasting);
-    ISCL_memory_free__double(&staAlt);
-    ISCL_memory_free__double(&wts);
-    ISCL_memory_free__double(&Uest);
-    ISCL_memory_free__double(&srdist);
-    ISCL_memory_free__bool(&luse);
+    memory_free64f(&d);
+    memory_free64f(&utmRecvNorthing);
+    memory_free64f(&utmRecvEasting);
+    memory_free64f(&staAlt);
+    memory_free64f(&wts);
+    memory_free64f(&Uest);
+    memory_free64f(&srdist);
+    memory_free8l(&luse);
     return ierr;
 }
 

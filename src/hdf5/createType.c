@@ -413,6 +413,12 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
     ierr += H5Tinsert(dataType, "numberOfSites\0",
                       HOFFSET(struct h5_cmtResults_struct, nsites),
                       H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfLatitudes\0",
+                      HOFFSET(struct h5_cmtResults_struct, nlats),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfLongitudes\0",
+                      HOFFSET(struct h5_cmtResults_struct, nlons),
+                      H5T_NATIVE_INT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to pack type\n", fcnm);

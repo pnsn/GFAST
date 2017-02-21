@@ -37,7 +37,7 @@ int hdf5_update__getIteration(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!ISCL_os_path_isfile(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -96,7 +96,7 @@ int hdf5_update__hypocenter(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!ISCL_os_path_isfile(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -175,7 +175,7 @@ int hdf5_update__pgd(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!ISCL_os_path_isfile(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -271,7 +271,7 @@ int hdf5_update__cmt(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!ISCL_os_path_isfile(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;
@@ -366,7 +366,7 @@ int hdf5_update__ff(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1; 
     }   
-    if (!ISCL_os_path_isfile(h5fl))
+    if (!os_path_isfile(h5fl))
     {   
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1; 
@@ -462,7 +462,7 @@ int hdf5_update__gpsData(const char *adir,
         log_errorF("%s: Error setting filename\n", fcnm);
         return -1;
     }
-    if (!ISCL_os_path_isfile(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         log_errorF("%s: Error file %s does not exist!\n", fcnm);
         return -1;

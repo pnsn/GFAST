@@ -111,6 +111,8 @@ struct h5_cmtResults_struct
     int opt_indx;
     int ndeps;
     int nsites;
+    int nlats;
+    int nlons;
 };
 
 struct h5_offsetData_struct
@@ -189,6 +191,7 @@ extern "C"
 {
 #endif
 
+
 int hdf5_copy__cmtResults(const enum data2h5_enum job,
                           struct GFAST_cmtResults_struct *cmt,
                           struct h5_cmtResults_struct *h5_cmt);
@@ -227,6 +230,8 @@ herr_t hdf5_createType__offsetData(hid_t group_id);
 herr_t hdf5_createType__peakDisplacementData(hid_t group_id);
 herr_t hdf5_createType__pgdResults(hid_t group_id);
 herr_t hdf5_createType__waveform3CData(hid_t group_id);
+
+int hdf5_getMaxGroupNumber(const hid_t h5fl);
 
 int hdf5_initialize(const char *adir,
                     const char *evid,
