@@ -240,7 +240,7 @@ tbeger = ISCL_time_timeStamp();
 printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
 printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
- if (t1 - tbeg > 6200 && false)
+ if (t1 - tbeg > 6200)// && false)
 {
 printf("premature shut down\n");
 break;
