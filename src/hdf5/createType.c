@@ -15,9 +15,9 @@
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__peakDisplacementData(hid_t group_id)
+herr_t hdf5_createType_peakDisplacementData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__peakDisplacementData\0";
+    const char *fcnm = "hdf5_createType_peakDisplacementData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -95,9 +95,9 @@ herr_t hdf5_createType__peakDisplacementData(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__pgdResults(hid_t group_id)
+herr_t hdf5_createType_pgdResults(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__pgdResults\0";
+    const char *fcnm = "hdf5_createType_pgdResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -145,6 +145,12 @@ herr_t hdf5_createType__pgdResults(hid_t group_id)
     ierr += H5Tinsert(dataType, "numberOfSites\0",
                       HOFFSET(struct h5_pgdResults_struct, nsites),
                       H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfLatitudes\0",
+                      HOFFSET(struct h5_pgdResults_struct, nlats),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfLongitudes\0",
+                      HOFFSET(struct h5_pgdResults_struct, nlons),
+                      H5T_NATIVE_INT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to pack type\n", fcnm);
@@ -174,9 +180,9 @@ herr_t hdf5_createType__pgdResults(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__offsetData(hid_t group_id)
+herr_t hdf5_createType_offsetData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__offsetData\0";
+    const char *fcnm = "hdf5_createType_offsetData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -265,9 +271,9 @@ herr_t hdf5_createType__offsetData(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__hypocenter(hid_t group_id)
+herr_t hdf5_createType_hypocenter(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__hypocenter\0";
+    const char *fcnm = "hdf5_createType_hypocenter\0";
     hid_t dataType, string128Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -329,9 +335,9 @@ herr_t hdf5_createType__hypocenter(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__cmtResults(hid_t group_id)
+herr_t hdf5_createType_cmtResults(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__cmtResults\0";
+    const char *fcnm = "hdf5_createType_cmtResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -413,6 +419,12 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
     ierr += H5Tinsert(dataType, "numberOfSites\0",
                       HOFFSET(struct h5_cmtResults_struct, nsites),
                       H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfLatitudes\0",
+                      HOFFSET(struct h5_cmtResults_struct, nlats),
+                      H5T_NATIVE_INT);
+    ierr += H5Tinsert(dataType, "numberOfLongitudes\0",
+                      HOFFSET(struct h5_cmtResults_struct, nlons),
+                      H5T_NATIVE_INT);
     if (ierr != 0)
     {
         log_errorF("%s: Failed to pack type\n", fcnm);
@@ -442,9 +454,9 @@ herr_t hdf5_createType__cmtResults(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__faultPlane(hid_t group_id)
+herr_t hdf5_createType_faultPlane(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__faultPlane\0";
+    const char *fcnm = "hdf5_createType_faultPlane\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -558,9 +570,9 @@ herr_t hdf5_createType__faultPlane(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__ffResults(hid_t group_id)
+herr_t hdf5_createType_ffResults(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__ffResults\0";
+    const char *fcnm = "hdf5_createType_ffResults\0";
     hid_t dataType, faultType, vlenDData, vlenFault;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -573,7 +585,7 @@ herr_t hdf5_createType__ffResults(hid_t group_id)
     if (H5Lexists(group_id, "faultPlaneStructure\0", H5P_DEFAULT) == 0)
     {
         log_warnF("%s: Making fault plane structure\n", fcnm);
-        ierr = GFAST_hdf5_createType__faultPlane(group_id);
+        ierr = GFAST_hdf5_createType_faultPlane(group_id);
         if (ierr != 0)
         {
             log_errorF("%s: ERror making fault plane structure\n", fcnm);
@@ -645,9 +657,9 @@ herr_t hdf5_createType__ffResults(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__waveform3CData(hid_t group_id)
+herr_t hdf5_createType_waveform3CData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__waveform3CData\0";
+    const char *fcnm = "hdf5_createType_waveform3CData\0";
     hid_t dataType, string64Type, vlenCData, vlenDData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -744,9 +756,9 @@ herr_t hdf5_createType__waveform3CData(hid_t group_id)
  * @author Ben Baker, ISTI
  *
  */
-herr_t hdf5_createType__gpsData(hid_t group_id)
+herr_t hdf5_createType_gpsData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType__gpsData\0";
+    const char *fcnm = "hdf5_createType_gpsData\0";
     hid_t dataType, threeCdataType, vlen3CData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -759,7 +771,7 @@ herr_t hdf5_createType__gpsData(hid_t group_id)
     if (H5Lexists(group_id, "waveform3CDataStructure\0", H5P_DEFAULT) == 0)
     {
         log_warnF("%s: Making 3C data structure\n", fcnm);
-        ierr = GFAST_hdf5_createType__waveform3CData(group_id);
+        ierr = GFAST_hdf5_createType_waveform3CData(group_id);
         if (ierr != 0)
         {
             log_errorF("%s: ERror making 3C data structure\n", fcnm);

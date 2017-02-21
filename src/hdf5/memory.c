@@ -4,7 +4,7 @@
 #include "gfast_hdf5.h"
 #include "iscl/log/log.h"
 
-int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd)
+int hdf5_memory_freePGDResults(struct h5_pgdResults_struct *pgd)
 {
     if (pgd->mpgd.p       != NULL){free(pgd->mpgd.p);}
     if (pgd->mpgd_vr.p    != NULL){free(pgd->mpgd_vr.p);}
@@ -19,7 +19,7 @@ int hdf5_memory__freePGDResults(struct h5_pgdResults_struct *pgd)
     return 0;
 }
 
-int hdf5_memory__freeCMTResults(struct h5_cmtResults_struct *cmt)
+int hdf5_memory_freeCMTResults(struct h5_cmtResults_struct *cmt)
 {
     if (cmt->l2.p        != NULL){free(cmt->l2.p);}
     if (cmt->pct_dc.p    != NULL){free(cmt->pct_dc.p);}
@@ -44,7 +44,7 @@ int hdf5_memory__freeCMTResults(struct h5_cmtResults_struct *cmt)
     return 0;
 }
 
-int hdf5_memory__freeFaultPlane(struct h5_faultPlane_struct *fp)
+int hdf5_memory_freeFaultPlane(struct h5_faultPlane_struct *fp)
 {
     if (fp->lon_vtx.p    != NULL){free(fp->lon_vtx.p);}
     if (fp->lat_vtx.p    != NULL){free(fp->lat_vtx.p);}
@@ -71,7 +71,7 @@ int hdf5_memory__freeFaultPlane(struct h5_faultPlane_struct *fp)
     return 0;
 }
 
-int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff)
+int hdf5_memory_freeFFResults(struct h5_ffResults_struct *ff)
 {
     struct h5_faultPlane_struct *fp = NULL;
     int i;
@@ -80,7 +80,7 @@ int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff)
         fp = (struct h5_faultPlane_struct *) ff->fp.p;
         for (i=0; i<(int) ff->fp.len; i++)
         {
-            GFAST_hdf5_memory__freeFaultPlane(&fp[i]);
+            GFAST_hdf5_memory_freeFaultPlane(&fp[i]);
         }
         free(ff->fp.p);
         fp = NULL;
@@ -93,7 +93,7 @@ int hdf5_memory__freeFFResults(struct h5_ffResults_struct *ff)
     return 0;
 }
 
-int hdf5_memory__freePGDData(
+int hdf5_memory_freePGDData(
     struct h5_peakDisplacementData_struct *h5_pgd_data)
 {
     if (h5_pgd_data->pd.p      != NULL){free(h5_pgd_data->pd.p);}
@@ -108,7 +108,7 @@ int hdf5_memory__freePGDData(
     return 0;
 }
 
-int hdf5_memory__freeOffsetData(
+int hdf5_memory_freeOffsetData(
     struct h5_offsetData_struct *h5_offset_data)
 {
     if (h5_offset_data->ubuff.p    != NULL){free(h5_offset_data->ubuff.p);}
@@ -127,7 +127,7 @@ int hdf5_memory__freeOffsetData(
     return 0;
 }
 
-int hdf5_memory__freeWaveform3CData(struct h5_waveform3CData_struct *data)
+int hdf5_memory_freeWaveform3CData(struct h5_waveform3CData_struct *data)
 {
     if (data->netw.p  != NULL){free(data->netw.p);}
     if (data->stnm.p  != NULL){free(data->stnm.p);}
@@ -142,7 +142,7 @@ int hdf5_memory__freeWaveform3CData(struct h5_waveform3CData_struct *data)
     return 0;
 }
 
-int hdf5_memory__freeGPSData(struct h5_gpsData_struct *gpsData)
+int hdf5_memory_freeGPSData(struct h5_gpsData_struct *gpsData)
 {
     struct h5_waveform3CData_struct *data;
     int k;
@@ -151,7 +151,7 @@ int hdf5_memory__freeGPSData(struct h5_gpsData_struct *gpsData)
     {
         for (k=0; k<gpsData->stream_length; k++)
         {
-            GFAST_hdf5_memory__freeWaveform3CData(&data[k]);
+            GFAST_hdf5_memory_freeWaveform3CData(&data[k]);
         }
         free(data);
     }

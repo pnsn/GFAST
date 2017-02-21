@@ -30,7 +30,7 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
                         struct GFAST_offsetData_struct *cmt_data)
 {
     const char *fcnm = "core_cmt_initialize\0";
-    int i;
+    int i, nlld;
     //------------------------------------------------------------------------//
     cmt->ndeps = props.ngridSearch_deps;
     cmt->nlats = props.ngridSearch_lats;
@@ -54,6 +54,7 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
         }
         return -1;
     }
+    nlld = cmt->nlats*cmt->nlons*cmt->ndeps;
     cmt->nsites = gps_data.stream_length;
     if (gps_data.stream_length < 1)
     {
@@ -94,21 +95,21 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
         if (gps_data.data[i].lskip_cmt){cmt_data->lmask[i] = true;}
     }
     // cmt structure
-    cmt->l2        = memory_calloc64f(cmt->ndeps);
-    cmt->pct_dc    = memory_calloc64f(cmt->ndeps);
-    cmt->objfn     = memory_calloc64f(cmt->ndeps);
-    cmt->mts       = memory_calloc64f(6*cmt->ndeps);
-    cmt->str1      = memory_calloc64f(cmt->ndeps);
-    cmt->str2      = memory_calloc64f(cmt->ndeps);
-    cmt->dip1      = memory_calloc64f(cmt->ndeps);
-    cmt->dip2      = memory_calloc64f(cmt->ndeps);
-    cmt->rak1      = memory_calloc64f(cmt->ndeps);
-    cmt->rak2      = memory_calloc64f(cmt->ndeps);
-    cmt->Mw        = memory_calloc64f(cmt->ndeps);
-    cmt->srcDepths = memory_calloc64f(cmt->ndeps);
-    cmt->EN        = memory_calloc64f(cmt->ndeps*cmt->nsites);
-    cmt->NN        = memory_calloc64f(cmt->ndeps*cmt->nsites);
-    cmt->UN        = memory_calloc64f(cmt->ndeps*cmt->nsites);
+    cmt->l2        = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->pct_dc    = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->objfn     = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->mts       = memory_calloc64f(6*nlld); //6*cmt->ndeps);
+    cmt->str1      = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->str2      = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->dip1      = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->dip2      = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->rak1      = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->rak2      = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->Mw        = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->srcDepths = memory_calloc64f(nlld); //cmt->ndeps);
+    cmt->EN        = memory_calloc64f(cmt->ndeps*nlld); //cmt->nsites);
+    cmt->NN        = memory_calloc64f(cmt->ndeps*nlld); //cmt->nsites);
+    cmt->UN        = memory_calloc64f(cmt->ndeps*nlld); //cmt->nsites);
     cmt->Einp      = memory_calloc64f(cmt->nsites);
     cmt->Ninp      = memory_calloc64f(cmt->nsites);
     cmt->Uinp      = memory_calloc64f(cmt->nsites);

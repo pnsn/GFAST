@@ -143,7 +143,7 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
         ff->vr[ifp] = 0.0;
     } // Loop on fault planes 
     // Require there is a sufficient amount of data to invert
-    luse = ISCL_memory_calloc__bool(ff_data.nsites);
+    luse = memory_calloc8l(ff_data.nsites);
     l1 = 0;
     for (k=0; k<ff_data.nsites; k++)
     {
@@ -168,31 +168,31 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
         goto ERROR;
     }
     // Set space
-    uOffset = ISCL_memory_calloc__double(l1);
-    nOffset = ISCL_memory_calloc__double(l1);
-    eOffset = ISCL_memory_calloc__double(l1);
-    utmRecvEasting  = ISCL_memory_calloc__double(l1);
-    utmRecvNorthing = ISCL_memory_calloc__double(l1);
-    staAlt = ISCL_memory_calloc__double(l1);
-    uWts = ISCL_memory_calloc__double(l1);
-    nWts = ISCL_memory_calloc__double(l1);
-    eWts = ISCL_memory_calloc__double(l1);
-    fault_xutm = ISCL_memory_calloc__double(l2*nfp);
-    fault_yutm = ISCL_memory_calloc__double(l2*nfp);
-    fault_alt  = ISCL_memory_calloc__double(l2*nfp);
-    length     = ISCL_memory_calloc__double(l2*nfp);
-    width      = ISCL_memory_calloc__double(l2*nfp);
-    strike     = ISCL_memory_calloc__double(l2*nfp);
-    dip        = ISCL_memory_calloc__double(l2*nfp);
-    sslip      = ISCL_memory_calloc__double(l2*nfp);
-    dslip      = ISCL_memory_calloc__double(l2*nfp);
-    Mw         = ISCL_memory_calloc__double(nfp);
-    vr         = ISCL_memory_calloc__double(nfp);
-    NN         = ISCL_memory_calloc__double(l1*nfp);
-    EN         = ISCL_memory_calloc__double(l1*nfp);
-    UN         = ISCL_memory_calloc__double(l1*nfp);
-    sslip_unc  = ISCL_memory_calloc__double(l2*nfp);
-    dslip_unc  = ISCL_memory_calloc__double(l2*nfp);
+    uOffset = memory_calloc64f(l1);
+    nOffset = memory_calloc64f(l1);
+    eOffset = memory_calloc64f(l1);
+    utmRecvEasting  = memory_calloc64f(l1);
+    utmRecvNorthing = memory_calloc64f(l1);
+    staAlt = memory_calloc64f(l1);
+    uWts = memory_calloc64f(l1);
+    nWts = memory_calloc64f(l1);
+    eWts = memory_calloc64f(l1);
+    fault_xutm = memory_calloc64f(l2*nfp);
+    fault_yutm = memory_calloc64f(l2*nfp);
+    fault_alt  = memory_calloc64f(l2*nfp);
+    length     = memory_calloc64f(l2*nfp);
+    width      = memory_calloc64f(l2*nfp);
+    strike     = memory_calloc64f(l2*nfp);
+    dip        = memory_calloc64f(l2*nfp);
+    sslip      = memory_calloc64f(l2*nfp);
+    dslip      = memory_calloc64f(l2*nfp);
+    Mw         = memory_calloc64f(nfp);
+    vr         = memory_calloc64f(nfp);
+    NN         = memory_calloc64f(l1*nfp);
+    EN         = memory_calloc64f(l1*nfp);
+    UN         = memory_calloc64f(l1*nfp);
+    sslip_unc  = memory_calloc64f(l2*nfp);
+    dslip_unc  = memory_calloc64f(l2*nfp);
     // Get the source location
     zone_loc = ff_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
@@ -353,32 +353,32 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
         }
     } // Loop on fault planes
 ERROR:;
-    ISCL_memory_free__bool(&luse);
-    ISCL_memory_free__double(&uOffset);
-    ISCL_memory_free__double(&nOffset);
-    ISCL_memory_free__double(&eOffset);
-    ISCL_memory_free__double(&utmRecvEasting);
-    ISCL_memory_free__double(&utmRecvNorthing);
-    ISCL_memory_free__double(&staAlt);
-    ISCL_memory_free__double(&nWts);
-    ISCL_memory_free__double(&eWts);
-    ISCL_memory_free__double(&uWts);
-    ISCL_memory_free__double(&fault_xutm);
-    ISCL_memory_free__double(&fault_yutm);
-    ISCL_memory_free__double(&fault_alt);
-    ISCL_memory_free__double(&length);
-    ISCL_memory_free__double(&width);
-    ISCL_memory_free__double(&strike);
-    ISCL_memory_free__double(&dip);
-    ISCL_memory_free__double(&sslip);
-    ISCL_memory_free__double(&dslip);
-    ISCL_memory_free__double(&Mw);
-    ISCL_memory_free__double(&vr);
-    ISCL_memory_free__double(&NN);
-    ISCL_memory_free__double(&EN);
-    ISCL_memory_free__double(&UN);
-    ISCL_memory_free__double(&sslip_unc);
-    ISCL_memory_free__double(&dslip_unc);
+    memory_free8l(&luse);
+    memory_free64f(&uOffset);
+    memory_free64f(&nOffset);
+    memory_free64f(&eOffset);
+    memory_free64f(&utmRecvEasting);
+    memory_free64f(&utmRecvNorthing);
+    memory_free64f(&staAlt);
+    memory_free64f(&nWts);
+    memory_free64f(&eWts);
+    memory_free64f(&uWts);
+    memory_free64f(&fault_xutm);
+    memory_free64f(&fault_yutm);
+    memory_free64f(&fault_alt);
+    memory_free64f(&length);
+    memory_free64f(&width);
+    memory_free64f(&strike);
+    memory_free64f(&dip);
+    memory_free64f(&sslip);
+    memory_free64f(&dslip);
+    memory_free64f(&Mw);
+    memory_free64f(&vr);
+    memory_free64f(&NN);
+    memory_free64f(&EN);
+    memory_free64f(&UN);
+    memory_free64f(&sslip_unc);
+    memory_free64f(&dslip_unc);
     return ierr;
 }
 //============================================================================//

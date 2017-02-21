@@ -17,6 +17,7 @@
 #include <activemq/transport/DefaultTransportListener.h>
 #include <activemq/library/ActiveMQCPP.h>
 #include <activemq/util/Config.h>
+#include <activemq/commands/ActiveMQBlobMessage.h>
 #include <cms/Connection.h>
 #include <cms/Session.h>
 #include <cms/TextMessage.h>
@@ -232,11 +233,30 @@ class ShakeAlertProducer
                 return -1;
             }
             string msg = string(message);
-            TextMessage *textMessage =  __session->createTextMessage(msg);
-            __producer->send(textMessage);
-            delete message;
+            TextMessage *amqMessage = __session->createTextMessage(msg);
+            __producer->send(amqMessage);
+            delete amqMessage;
             return 0;
         }
+        //====================================================================//
+        /*!
+         * @brief Sends a blob file message
+         *
+         * @param[in] location    location of blob message (e.g. /scratch/gfast)
+         *
+         * @result 0 indicates success
+         *
+         */
+/*
+        int sendBlobFileMessage(const char *location)
+        {
+            string loc = string(location);
+            //BlobMessage message = __session->createBlobMessage(new File(loc));
+            //__producer->send(message);
+            //delete message;
+            return 0;
+        }
+*/
     //---------------------------End public functions-------------------------//
 
     //------------------------------------------------------------------------//

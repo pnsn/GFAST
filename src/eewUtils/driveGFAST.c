@@ -344,39 +344,39 @@ int eewUtils_driveGFAST(const double currentTime,
         {
             // Get the iteration number in the H5 file
             h5k = 0;
-            h5k = GFAST_hdf5_update__getIteration(props.h5ArchiveDir,
-                                                  SA.eventid,
-                                                  currentTime);
+            h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
+                                                SA.eventid,
+                                                currentTime);
             ierr = GFAST_hdf5_update__gpsData(props.h5ArchiveDir,
                                               SA.eventid,
                                               h5k,
                                               *gps_data);
-            ierr = GFAST_hdf5_update__hypocenter(props.h5ArchiveDir,
-                                                 SA.eventid,
-                                                 h5k,
-                                                 SA);
+            ierr = GFAST_hdf5_updateHypocenter(props.h5ArchiveDir,
+                                               SA.eventid,
+                                               h5k,
+                                               SA);
             if (lpgdSuccess)
             {
-                ierr = GFAST_hdf5_update__pgd(props.h5ArchiveDir,
-                                              SA.eventid,
-                                              h5k,
-                                              *pgd_data,
-                                              *pgd);
+                ierr = GFAST_hdf5_updatePGD(props.h5ArchiveDir,
+                                            SA.eventid,
+                                            h5k,
+                                            *pgd_data,
+                                            *pgd);
             }
             if (lcmtSuccess)
             {
-                ierr = GFAST_hdf5_update__cmt(props.h5ArchiveDir,
-                                              SA.eventid,
-                                              h5k,
-                                              *cmt_data,
-                                              *cmt);
+                ierr = GFAST_hdf5_updateCMT(props.h5ArchiveDir,
+                                            SA.eventid,
+                                            h5k,
+                                            *cmt_data,
+                                            *cmt);
             }
             if (lffSuccess)
             {
-                ierr = GFAST_hdf5_update__ff(props.h5ArchiveDir,
-                                             SA.eventid,
-                                             h5k,
-                                             *ff);
+                ierr = GFAST_hdf5_updateFF(props.h5ArchiveDir,
+                                           SA.eventid,
+                                           h5k,
+                                           *ff);
             }
             // TODO: Write the XML to the HDF5 file
             if (lfinalize && cmtQML)

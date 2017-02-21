@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct)); 
-    ISCL_iscl_init(); // Fire up the computational library
+    iscl_init(); // Fire up the computational library
     // Read the properties file
     log_infoF("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
@@ -184,19 +184,19 @@ int main(int argc, char *argv[])
                 }
                 // Set the log file names
                 eewUtils_setLogFileNames(SA.eventid);
-                if (ISCL_os_path_isfile(errorLogFileName))
+                if (os_path_isfile(errorLogFileName))
                 {
                     remove(errorLogFileName);
                 }
-                if (ISCL_os_path_isfile(infoLogFileName))
+                if (os_path_isfile(infoLogFileName))
                 {
                     remove(infoLogFileName);
                 }
-                if (ISCL_os_path_isfile(debugLogFileName))
+                if (os_path_isfile(debugLogFileName))
                 {
                    remove(debugLogFileName);
                 }
-                if (ISCL_os_path_isfile(warnLogFileName))
+                if (os_path_isfile(warnLogFileName))
                 {
                    remove(warnLogFileName);
                 }
@@ -276,7 +276,7 @@ ERROR:;
     core_data_finalize(&gps_data);
     core_events_freeEvents(&events);
     traceBuffer_h5_finalize(&h5traceBuffer);
-    ISCL_iscl_finalize();
+    iscl_finalize();
     if (ierr != 0)
     {   
         printf("%s: Terminating with error\n", fcnm);
