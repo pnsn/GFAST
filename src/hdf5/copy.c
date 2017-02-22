@@ -643,7 +643,7 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
         // Make sure there is something to do
         nstr = (size_t) fp->nstr;
         ndip = (size_t) fp->ndip;
-        nsites = (size_t) fp->nsites_used;
+        nsites = (size_t) fp->maxobs; //(size_t) fp->nsites_used;
         if (nstr < 1 || ndip < 1 || nsites < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
@@ -758,7 +758,7 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
         // Make sure there is something to do
         nstr = (size_t) fp->nstr;
         ndip = (size_t) fp->ndip;
-        nsites = (size_t) fp->nsites_used;
+        nsites = (size_t) fp->maxobs; //(size_t) fp->nsites_used;
         if (nstr < 1 || ndip < 1 || nsites < 1) 
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
@@ -1048,7 +1048,7 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
         h5_data->netw.p = netw;
 
         stnm = (char *)calloc(64, sizeof(char));
-        strcpy(netw, data->stnm);
+        strcpy(stnm, data->stnm);
         h5_data->stnm.len = 1;
         h5_data->stnm.p = stnm;
 
