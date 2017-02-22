@@ -246,9 +246,9 @@ int pgd_inversion_test2(void)
         }
     }
     // Clean up
-    core_scaling_pgd_finalize__pgdData(&pgd_data);
-    core_scaling_pgd_finalize__pgdResults(&pgd);
-    core_scaling_pgd_finalize__pgdResults(&pgd_ref);
+    core_scaling_pgd_finalizeData(&pgd_data);
+    core_scaling_pgd_finalizeResults(&pgd);
+    core_scaling_pgd_finalizeResults(&pgd_ref);
     log_infoF("%s: Success!\n", fcnm);
     return EXIT_SUCCESS;
 }

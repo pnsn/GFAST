@@ -44,8 +44,8 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                              double *__restrict__ uEst,
                              double *__restrict__ mts);
 /* Frees memory on the CMT structures */
-void core_cmt_finalize__cmtResults(struct GFAST_cmtResults_struct *cmt);
-void core_cmt_finalize__offsetData(struct GFAST_offsetData_struct *offset_data);
+void core_cmt_finalizeResults(struct GFAST_cmtResults_struct *cmt);
+void core_cmt_finalizeOffsetData(struct GFAST_offsetData_struct *offset_data);
 void core_cmt_finalize(struct GFAST_cmt_props_struct *cmt_props,
                        struct GFAST_offsetData_struct *offset_data,
                        struct GFAST_cmtResults_struct *cmt);
@@ -203,9 +203,9 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                  double *__restrict__ dslip_unc
                                  );
 /* Frees finite fault structures */
-void core_ff_finalize__faultPlane(struct GFAST_faultPlane_struct *fp);
-void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff);
-void core_ff_finalize__offsetData(struct GFAST_offsetData_struct *offset_data);
+void core_ff_finalizeFaultPlane(struct GFAST_faultPlane_struct *fp);
+void core_ff_finalizeResults(struct GFAST_ffResults_struct *ff);
+void core_ff_finalizeOffsetData(struct GFAST_offsetData_struct *offset_data);
 void core_ff_finalize(struct GFAST_ff_props_struct *ff_props,
                       struct GFAST_offsetData_struct *ff_data,
                       struct GFAST_ffResults_struct *ff);
@@ -278,13 +278,13 @@ int core_ff_weightObservations(const int mrows,
 //                          Properties/initialization                         //
 //----------------------------------------------------------------------------//
 /* Finalize/free properties */
-void core_properties_finalize__pgdProperties(
+void core_properties_finalizePGDProperties(
    struct GFAST_pgd_props_struct *pgd_props);
-void core_properties_finalize__cmtProperties(
+void core_properties_finalizeCMTProperties(
    struct GFAST_cmt_props_struct *cmt_props);
-void core_properties_finalize__ffProperties(
+void core_properties_finalizeFFProperties(
     struct GFAST_ff_props_struct *ff_props);
-void core_properties_finalize__activeMQProperties(
+void core_properties_finalizeActiveMQProperties(
     struct GFAST_activeMQ_struct *activeMQ_props);
 void core_properties_finalize(struct GFAST_props_struct *props);
 /* Initialize the properties from an ini file */
@@ -317,9 +317,9 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
 /* Finalize the PGD data structures */
-void core_scaling_pgd_finalize__pgdData(
+void core_scaling_pgd_finalizeData(
      struct GFAST_peakDisplacementData_struct *pgd_data);
-void core_scaling_pgd_finalize__pgdResults(
+void core_scaling_pgd_finalizeResults(
     struct GFAST_pgdResults_struct *pgd);
 void core_scaling_pgd_finalize(
     struct GFAST_pgd_props_struct *pgd_props,
@@ -406,10 +406,10 @@ int core_waveformProcessor_peakDisplacement(
               core_cmt_decomposeMomentTensor(__VA_ARGS__)
 #define GFAST_core_cmt_depthGridSearch(...)       \
               core_cmt_depthGridSearch(__VA_ARGS__)
-#define GFAST_core_cmt_finalize__cmtResults(...)       \
-              core_cmt_finalize__cmtResults(__VA_ARGS__)
-#define GFAST_core_cmt_finalize__offsetData(...)       \
-              core_cmt_finalize__offsetData(__VA_ARGS__)
+#define GFAST_core_cmt_finalizeResults(...)       \
+              core_cmt_finalizeResults(__VA_ARGS__)
+#define GFAST_core_cmt_finalizeOffsetData(...)       \
+              core_cmt_finalizeOffsetData(__VA_ARGS__)
 #define GFAST_core_cmt_finalize(...)       \
               core_cmt_finalize(__VA_ARGS__)
 #define GFAST_core_cmt_initialize(...)       \
@@ -460,22 +460,22 @@ int core_waveformProcessor_peakDisplacement(
 
 #define GFAST_core_ff_faultPlaneGridSearch(...)       \
               core_ff_faultPlaneGridSearch(__VA_ARGS__)
-#define GFAST_core_ff_finalize__ffResults(...)       \
-              core_ff_finalize__ffResults(__VA_ARGS__)
-#define GFAST_core_ff_finalize__faultPlane(...)       \
-              core_ff_finalize__faultPlane(__VA_ARGS__)
-#define GFAST_core_ff_finalize__offsetData(...)       \
-              core_ff_finalize__offsetData(__VA_ARGS__)
+#define GFAST_core_ff_finalizeResults(...)       \
+              core_ff_finalizeResults(__VA_ARGS__)
+#define GFAST_core_ff_finalizeFaultPlane(...)       \
+              core_ff_finalizeFaultPlane(__VA_ARGS__)
+#define GFAST_core_ff_finalizeOffsetData(...)       \
+              core_ff_finalizeOffsetData(__VA_ARGS__)
 #define GFAST_core_ff_finalize(...)       \
               core_ff_finalize(__VA_ARGS__)
 #define GFAST_core_ff_initialize(...)       \
               core_ff_initialize(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_finalize__props(...)       \
               core_scaling_pgd_finalize__props(__VA_ARGS__)
-#define GFAST_core_scaling_pgd_finalize__pgdData(...)       \
-              core_scaling_pgd_finalize__pgdData(__VA_ARGS__)
-#define GFAST_core_scaling_pgd_finalize__pgdResults(...)       \
-              core_scaling_pgd_finalize__pgdResults(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_finalizeData(...)       \
+              core_scaling_pgd_finalizeData(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_finalizeResults(...)       \
+              core_scaling_pgd_finalizeResults(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_finalize(...)       \
               core_scaling_pgd_finalize(__VA_ARGS__)
 #define GFAST_core_ff_meshFaultPlane(...)       \
@@ -493,14 +493,14 @@ int core_waveformProcessor_peakDisplacement(
 #define GFAST_core_ff_weightObservations(...)       \
               core_ff_weightObservations(__VA_ARGS__)
 
-#define GFAST_core_properties_finalize__pgdProperties(...)       \
-              core_properties_finalize__pgdProperties(__VA_ARGS__)
-#define GFAST_core_properties_finalize__cmtProperties(...)       \
-              core_properties_finalize__cmtProperties(__VA_ARGS__)
-#define GFAST_core_properties_finalize__ffProperties(...)       \
-              core_properties_finalize__ffProperties(__VA_ARGS__) 
-#define GFAST_core_properties_finalize__activeMQProperties(...)       \
-              core_properties_finalize__activeMQProperties(__VA_ARGS__)
+#define GFAST_core_properties_finalizePGDProperties(...)       \
+              core_properties_finalizePGDProperties(__VA_ARGS__)
+#define GFAST_core_properties_finalizeCMTProperties(...)       \
+              core_properties_finalizeCMTProperties(__VA_ARGS__)
+#define GFAST_core_properties_finalizeFFProperties(...)       \
+              core_properties_finalizeFFProperties(__VA_ARGS__) 
+#define GFAST_core_properties_finalizeActiveMQProperties(...)       \
+              core_properties_finalizeActiveMQProperties(__VA_ARGS__)
 #define GFAST_core_properties_finalize(...)       \
               core_properties_finalize(__VA_ARGS__)
 #define GFAST_core_properties_initialize(...)       \

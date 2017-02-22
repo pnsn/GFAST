@@ -565,8 +565,8 @@ int ff_meshPlane_test(void)
                 return EXIT_FAILURE;
             }
         }
-        GFAST_core_ff_finalize__faultPlane(&ff_ref);
-        GFAST_core_ff_finalize__faultPlane(&ff);
+        GFAST_core_ff_finalizeFaultPlane(&ff_ref);
+        GFAST_core_ff_finalizeFaultPlane(&ff);
     }
     return EXIT_SUCCESS;
 }
@@ -681,9 +681,9 @@ int ff_inversion_test(void)
            }
         }
     }
-    GFAST_core_ff_finalize__offsetData(&ff_data);
-    GFAST_core_ff_finalize__ffResults(&ff_ref);
-    GFAST_core_ff_finalize__ffResults(&ff);
+    GFAST_core_ff_finalizeOffsetData(&ff_data);
+    GFAST_core_ff_finalizeResults(&ff_ref);
+    GFAST_core_ff_finalizeResults(&ff);
     log_infoF("%s: Success!\n", fcnm);
     return EXIT_SUCCESS;
 }

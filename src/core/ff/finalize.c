@@ -12,7 +12,7 @@
  * @author Ben Baker (ISTI)
  *
  */
-void core_ff_finalize__faultPlane(struct GFAST_faultPlane_struct *fp)
+void core_ff_finalizeFaultPlane(struct GFAST_faultPlane_struct *fp)
 {
     if (fp == NULL){return;}
     memory_free64f(&fp->lon_vtx);
@@ -48,14 +48,14 @@ void core_ff_finalize__faultPlane(struct GFAST_faultPlane_struct *fp)
  * @author Ben Baker, ISTI
  *
  */
-void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff)
+void core_ff_finalizeResults(struct GFAST_ffResults_struct *ff)
 {
     int ifp;
     if (ff == NULL){return;}
     if (ff->nfp < 1){return;}
     for (ifp=0; ifp<ff->nfp; ifp++)
     {
-        core_ff_finalize__faultPlane(&ff->fp[ifp]);
+        core_ff_finalizeFaultPlane(&ff->fp[ifp]);
     }
     if (ff->fp != NULL){free(ff->fp);}
     memory_free64f(&ff->vr);
@@ -74,7 +74,7 @@ void core_ff_finalize__ffResults(struct GFAST_ffResults_struct *ff)
  * @author Ben Baker (ISTI)
  *
  */
-void core_ff_finalize__offsetData(struct GFAST_offsetData_struct *offset_data)
+void core_ff_finalizeOffsetData(struct GFAST_offsetData_struct *offset_data)
 {
     int i;
     if (offset_data->stnm != NULL)
@@ -116,9 +116,9 @@ void core_ff_finalize(struct GFAST_ff_props_struct *ff_props,
                       struct GFAST_offsetData_struct *offset_data,
                       struct GFAST_ffResults_struct *ff)
 {
-    core_properties_finalize__ffProperties(ff_props);
-    core_ff_finalize__offsetData(offset_data);
-    core_ff_finalize__ffResults(ff);
+    core_properties_finalizeFFProperties(ff_props);
+    core_ff_finalizeOffsetData(offset_data);
+    core_ff_finalizeResults(ff);
     return;
 }
 

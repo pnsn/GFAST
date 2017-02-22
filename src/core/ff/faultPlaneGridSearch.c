@@ -244,9 +244,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         ierr = 5;
         goto ERROR;
     }
-    if (verbose > 2){
-        log_debugF("%s: Setting RHS...\n", fcnm);
-    }
+    if (verbose > 2){log_debugF("%s: Setting RHS...\n", fcnm);}
     // Set the RHS
     ierr = core_ff_setRHS(l1,
                           nObsOffset,

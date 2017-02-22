@@ -12,7 +12,7 @@
  * @author Ben Baker (ISTI)
  *
  */
-void core_properties_finalize__pgdProperties(
+void core_properties_finalizePGDProperties(
    struct GFAST_pgd_props_struct *pgd_props)
 {
     memset(pgd_props, 0, sizeof(struct GFAST_pgd_props_struct));
@@ -27,7 +27,7 @@ void core_properties_finalize__pgdProperties(
  * @author Ben Baker (ISTI)
  *
  */
-void core_properties_finalize__cmtProperties(
+void core_properties_finalizeCMTProperties(
    struct GFAST_cmt_props_struct *cmt_props)
 {
     memset(cmt_props, 0, sizeof(struct GFAST_cmt_props_struct));
@@ -43,7 +43,7 @@ void core_properties_finalize__cmtProperties(
  * @author Ben Baker (ISTI)
  *
  */
-void core_properties_finalize__ffProperties(
+void core_properties_finalizeFFProperties(
     struct GFAST_ff_props_struct *ff_props)
 {
     memset(ff_props, 0, sizeof(struct GFAST_ff_props_struct));
@@ -59,7 +59,7 @@ void core_properties_finalize__ffProperties(
  * @author Ben Baker (ISTI)
  *
  */ 
-void core_properties_finalize__activeMQProperties(
+void core_properties_finalizeActiveMQProperties(
     struct GFAST_activeMQ_struct *activeMQ_props)
 {
     memset(activeMQ_props, 0, sizeof(struct GFAST_activeMQ_struct));
@@ -76,10 +76,10 @@ void core_properties_finalize__activeMQProperties(
  */
 void core_properties_finalize(struct GFAST_props_struct *props)
 {
-    GFAST_core_properties_finalize__pgdProperties(&props->pgd_props);
-    GFAST_core_properties_finalize__cmtProperties(&props->cmt_props);
-    GFAST_core_properties_finalize__ffProperties(&props->ff_props);
-    GFAST_core_properties_finalize__activeMQProperties(&props->activeMQ_props);
+    GFAST_core_properties_finalizePGDProperties(&props->pgd_props);
+    GFAST_core_properties_finalizeCMTProperties(&props->cmt_props);
+    GFAST_core_properties_finalizeFFProperties(&props->ff_props);
+    GFAST_core_properties_finalizeActiveMQProperties(&props->activeMQ_props);
     memset(props, 0, sizeof(struct GFAST_props_struct)); 
     return;
 }
