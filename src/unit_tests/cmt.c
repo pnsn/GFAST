@@ -94,8 +94,9 @@ static int read_results(const char *filenm,
     // line 1
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){goto ERROR;}
-    sscanf(cline, "%d %d %d %d %d %lf %lf\n",
+    sscanf(cline, "%d %d %d %d %d %d %d %lf %lf\n",
            &cmt_data->nsites, &cmt_props->ngridSearch_deps,
+           &cmt_props->ngridSearch_lats, &cmt_props->ngridSearch_lons,
            &cmt_props->utm_zone, &cmt_props->min_sites, 
            &ldevi, &cmt_props->window_vel,
            &cmt_props->window_avg);
@@ -105,15 +106,15 @@ static int read_results(const char *filenm,
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){goto ERROR;}
     sscanf(cline, "%lf %lf %lf\n", SA_lat, SA_lon, SA_dep);
-    cmt_data->ubuff = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->ebuff = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->nbuff = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->wtu = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->wte = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->wtn = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->sta_lat = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->sta_lon = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt_data->sta_alt = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt_data->ubuff = memory_calloc64f(cmt_data->nsites);
+    cmt_data->ebuff = memory_calloc64f(cmt_data->nsites);
+    cmt_data->nbuff = memory_calloc64f(cmt_data->nsites);
+    cmt_data->wtu = memory_calloc64f(cmt_data->nsites);
+    cmt_data->wte = memory_calloc64f(cmt_data->nsites);
+    cmt_data->wtn = memory_calloc64f(cmt_data->nsites);
+    cmt_data->sta_lat = memory_calloc64f(cmt_data->nsites);
+    cmt_data->sta_lon = memory_calloc64f(cmt_data->nsites);
+    cmt_data->sta_alt = memory_calloc64f(cmt_data->nsites);
     cmt_data->lactive = ISCL_memory_calloc__bool(cmt_data->nsites);
     cmt_data->lmask = ISCL_memory_calloc__bool(cmt_data->nsites);
     // cmt data
@@ -133,24 +134,26 @@ static int read_results(const char *filenm,
     // Results + depths in grid search
     cmt->nsites = cmt_data->nsites;
     cmt->ndeps = cmt_props->ngridSearch_deps;
-    cmt->l2 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->pct_dc = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->objfn = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->mts = ISCL_memory_calloc__double(cmt->ndeps*6);
-    cmt->str1 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->str2 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->dip1 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->dip2 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->rak1 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->rak2 = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->Mw = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->srcDepths = ISCL_memory_calloc__double(cmt->ndeps);
-    cmt->EN = ISCL_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
-    cmt->NN = ISCL_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
-    cmt->UN = ISCL_memory_calloc__double(cmt->ndeps*cmt_data->nsites);
-    cmt->Einp = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt->Ninp = ISCL_memory_calloc__double(cmt_data->nsites);
-    cmt->Uinp = ISCL_memory_calloc__double(cmt_data->nsites);
+    cmt->nlats = cmt_props->ngridSearch_lats;
+    cmt->nlons = cmt_props->ngridSearch_lons;
+    cmt->l2 = memory_calloc64f(cmt->ndeps);
+    cmt->pct_dc = memory_calloc64f(cmt->ndeps);
+    cmt->objfn = memory_calloc64f(cmt->ndeps);
+    cmt->mts = memory_calloc64f(cmt->ndeps*6);
+    cmt->str1 = memory_calloc64f(cmt->ndeps);
+    cmt->str2 = memory_calloc64f(cmt->ndeps);
+    cmt->dip1 = memory_calloc64f(cmt->ndeps);
+    cmt->dip2 = memory_calloc64f(cmt->ndeps);
+    cmt->rak1 = memory_calloc64f(cmt->ndeps);
+    cmt->rak2 = memory_calloc64f(cmt->ndeps);
+    cmt->Mw = memory_calloc64f(cmt->ndeps);
+    cmt->srcDepths = memory_calloc64f(cmt->ndeps);
+    cmt->EN = memory_calloc64f(cmt->ndeps*cmt_data->nsites);
+    cmt->NN = memory_calloc64f(cmt->ndeps*cmt_data->nsites);
+    cmt->UN = memory_calloc64f(cmt->ndeps*cmt_data->nsites);
+    cmt->Einp = memory_calloc64f(cmt_data->nsites);
+    cmt->Ninp = memory_calloc64f(cmt_data->nsites);
+    cmt->Uinp = memory_calloc64f(cmt_data->nsites);
     for (idep=0; idep<cmt->ndeps; idep++)
     {
         // depth
@@ -210,25 +213,27 @@ int cmt_inversion_test(void)
     // Set space
     cmt.nsites = cmt_ref.nsites;
     cmt.ndeps = cmt_ref.ndeps;
-    cmt.l2 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.pct_dc = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.objfn = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.mts = ISCL_memory_calloc__double(cmt.ndeps*6);
-    cmt.str1 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.str2 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.dip1 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.dip2 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.rak1 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.rak2 = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.Mw = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.srcDepths = ISCL_memory_calloc__double(cmt.ndeps);
-    cmt.EN = ISCL_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
-    cmt.NN = ISCL_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
-    cmt.UN = ISCL_memory_calloc__double(cmt.ndeps*cmt_data.nsites);
-    cmt.Einp = ISCL_memory_calloc__double(cmt_data.nsites);
-    cmt.Ninp = ISCL_memory_calloc__double(cmt_data.nsites);
-    cmt.Uinp = ISCL_memory_calloc__double(cmt_data.nsites);
-    cmt.lsiteUsed = ISCL_memory_calloc__bool(cmt_data.nsites);
+    cmt.nlats = cmt_ref.nlats;
+    cmt.nlons = cmt_ref.nlons;
+    cmt.l2 = memory_calloc64f(cmt.ndeps);
+    cmt.pct_dc = memory_calloc64f(cmt.ndeps);
+    cmt.objfn = memory_calloc64f(cmt.ndeps);
+    cmt.mts = memory_calloc64f(cmt.ndeps*6);
+    cmt.str1 = memory_calloc64f(cmt.ndeps);
+    cmt.str2 = memory_calloc64f(cmt.ndeps);
+    cmt.dip1 = memory_calloc64f(cmt.ndeps);
+    cmt.dip2 = memory_calloc64f(cmt.ndeps);
+    cmt.rak1 = memory_calloc64f(cmt.ndeps);
+    cmt.rak2 = memory_calloc64f(cmt.ndeps);
+    cmt.Mw = memory_calloc64f(cmt.ndeps);
+    cmt.srcDepths = memory_calloc64f(cmt.ndeps);
+    cmt.EN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
+    cmt.NN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
+    cmt.UN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
+    cmt.Einp = memory_calloc64f(cmt_data.nsites);
+    cmt.Ninp = memory_calloc64f(cmt_data.nsites);
+    cmt.Uinp = memory_calloc64f(cmt_data.nsites);
+    cmt.lsiteUsed = memory_calloc8l(cmt_data.nsites);
     for (i=0; i<cmt.ndeps; i++)
     {
         cmt.srcDepths[i] = cmt_ref.srcDepths[i];
@@ -322,9 +327,9 @@ int cmt_inversion_test(void)
         }
     }
     // Clean up
-    GFAST_core_cmt_finalize__offsetData(&cmt_data);
-    GFAST_core_cmt_finalize__cmtResults(&cmt);
-    GFAST_core_cmt_finalize__cmtResults(&cmt_ref);
+    GFAST_core_cmt_finalizeOffsetData(&cmt_data);
+    GFAST_core_cmt_finalizeResults(&cmt);
+    GFAST_core_cmt_finalizeResults(&cmt_ref);
     log_infoF("%s: Success!\n", fcnm);
     return EXIT_SUCCESS; 
 }

@@ -12,7 +12,7 @@
  * @author Ben Baker (ISTI)
  *
  */
-void core_scaling_pgd_finalize__pgdData(
+void core_scaling_pgd_finalizeData(
      struct GFAST_peakDisplacementData_struct *pgd_data)
 {
     int i;
@@ -44,7 +44,7 @@ void core_scaling_pgd_finalize__pgdData(
  * @author Ben Baker (ISTI)
  *
  */
-void core_scaling_pgd_finalize__pgdResults(
+void core_scaling_pgd_finalizeResults(
     struct GFAST_pgdResults_struct *pgd)
 {
     memory_free64f(&pgd->mpgd);
@@ -75,8 +75,8 @@ void core_scaling_pgd_finalize(
     struct GFAST_peakDisplacementData_struct *pgd_data,
     struct GFAST_pgdResults_struct *pgd)
 {
-    core_properties_finalize__pgdProperties(pgd_props);
-    core_scaling_pgd_finalize__pgdData(pgd_data);
-    core_scaling_pgd_finalize__pgdResults(pgd);
+    core_properties_finalizePGDProperties(pgd_props);
+    core_scaling_pgd_finalizeData(pgd_data);
+    core_scaling_pgd_finalizeResults(pgd);
     return;
 }

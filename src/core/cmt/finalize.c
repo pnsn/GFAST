@@ -12,7 +12,7 @@
  * @author Ben Baker, ISTI
  *
  */
-void core_cmt_finalize__cmtResults(struct GFAST_cmtResults_struct *cmt)
+void core_cmt_finalizeResults(struct GFAST_cmtResults_struct *cmt)
 {
     if (cmt == NULL){return;}
     memory_free64f(&cmt->l2);
@@ -46,9 +46,9 @@ void core_cmt_finalize__cmtResults(struct GFAST_cmtResults_struct *cmt)
  * @author Ben Baker (ISTI)
  *
  */
-void core_cmt_finalize__offsetData(struct GFAST_offsetData_struct *offset_data)
+void core_cmt_finalizeOffsetData(struct GFAST_offsetData_struct *offset_data)
 {
-    GFAST_core_ff_finalize__offsetData(offset_data);
+    GFAST_core_ff_finalizeOffsetData(offset_data);
     return;
 }
 //============================================================================//
@@ -66,9 +66,9 @@ void core_cmt_finalize(struct GFAST_cmt_props_struct *cmt_props,
                        struct GFAST_offsetData_struct *offset_data,
                        struct GFAST_cmtResults_struct *cmt)
 {
-    core_properties_finalize__cmtProperties(cmt_props);
-    core_cmt_finalize__offsetData(offset_data);
-    core_cmt_finalize__cmtResults(cmt);
+    core_properties_finalizeCMTProperties(cmt_props);
+    core_cmt_finalizeOffsetData(offset_data);
+    core_cmt_finalizeResults(cmt);
     return;
 }
 

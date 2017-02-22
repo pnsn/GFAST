@@ -8,6 +8,10 @@
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
+#ifndef MAX
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#endif
+
 //============================================================================//
 int hdf5_copyPeakDisplacementData(
     const enum data2h5_enum job,
@@ -640,7 +644,7 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
         nstr = (size_t) fp->nstr;
         ndip = (size_t) fp->ndip;
         nsites = (size_t) fp->nsites_used;
-        if (ndip < 1 || nsites < 1 || nstr < 1)
+        if (nstr < 1 || ndip < 1 || nsites < 1)
         {
             if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
             if (ndip < 1){log_errorF("%s: No faults down dip!\n", fcnm);}
@@ -746,8 +750,92 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: Error not yet done\n", fcnm);
-        ierr = 1;
+        memset(fp, 0, sizeof(struct GFAST_faultPlane_struct));
+        fp->maxobs = h5_fp->maxobs;
+        fp->nsites_used = h5_fp->nsites_used;
+        fp->nstr = h5_fp->nstr;
+        fp->ndip = h5_fp->ndip;
+        // Make sure there is something to do
+        nstr = (size_t) fp->nstr;
+        ndip = (size_t) fp->ndip;
+        nsites = (size_t) fp->nsites_used;
+        if (nstr < 1 || ndip < 1 || nsites < 1) 
+        {
+            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
+            if (ndip < 1){log_errorF("%s: No faults down dip!\n", fcnm);}
+            if (nstr < 1){log_errorF("%s: No faults along strike!\n", fcnm);}
+            ierr = 1;
+            return ierr;
+        }
+        nfp = nstr*ndip; // number of fault patches
+        nfp4 = 4*nfp;
+        fp->lon_vtx = memory_calloc64f((int) nfp4);
+        cblas_dcopy((int) nfp4, h5_fp->lon_vtx.p, 1, fp->lon_vtx, 1);
+
+        fp->lat_vtx = memory_calloc64f((int) nfp4);
+        cblas_dcopy((int) nfp4, h5_fp->lat_vtx.p, 1, fp->lat_vtx, 1);
+
+        fp->dep_vtx = memory_calloc64f((int) nfp4);
+        cblas_dcopy((int) nfp4, h5_fp->dep_vtx.p, 1, fp->dep_vtx, 1);
+
+        fp->fault_xutm = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->fault_xutm.p, 1, fp->fault_xutm, 1);
+
+        fp->fault_yutm = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->fault_yutm.p, 1, fp->fault_yutm, 1);
+
+        fp->fault_alt = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->fault_alt.p, 1, fp->fault_alt, 1);
+
+        fp->strike = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->strike.p, 1, fp->strike, 1);
+
+        fp->dip = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->dip.p, 1, fp->dip, 1);
+
+        fp->length = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->length.p, 1, fp->length, 1);
+
+        fp->width = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->width.p, 1, fp->width, 1);
+
+        fp->sslip = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->sslip.p, 1, fp->sslip, 1);
+
+        fp->dslip = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->dslip.p, 1, fp->dslip, 1);
+
+        fp->sslip_unc = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->sslip_unc.p, 1, fp->sslip_unc, 1);
+
+        fp->dslip_unc = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_fp->dslip_unc.p, 1, fp->dslip_unc, 1);
+
+        fp->EN = memory_calloc64f((int) nsites);
+        cblas_dcopy((int) nsites, h5_fp->EN.p, 1, fp->EN, 1);
+
+        fp->NN = memory_calloc64f((int) nsites);
+        cblas_dcopy((int) nsites, h5_fp->NN.p, 1, fp->NN, 1);
+
+        fp->UN = memory_calloc64f((int) nsites);
+        cblas_dcopy((int) nsites, h5_fp->UN.p, 1, fp->UN, 1);
+
+        fp->Einp = memory_calloc64f((int) nsites);
+        cblas_dcopy((int) nsites, h5_fp->Einp.p, 1, fp->Einp, 1);
+
+        fp->Ninp = memory_calloc64f((int) nsites);
+        cblas_dcopy((int) nsites, h5_fp->Ninp.p, 1, fp->Ninp, 1);
+
+        fp->Uinp = memory_calloc64f((int) nsites);
+        cblas_dcopy((int) nsites, h5_fp->Uinp.p, 1, fp->Uinp, 1);
+
+        itemp = h5_fp->fault_ptr.p;
+        fp->fault_ptr = memory_calloc32i((int) nfp+1);
+        for (i=0; i<(int) nfp+1; i++) 
+        {
+            fp->fault_ptr[i] = itemp[i];
+        }
+        itemp = NULL;
     }
     else
     {
@@ -773,9 +861,9 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
  *                        if job = COPY_DATA_TO_H5 then on input this is the
  *                        structure to copy to ff.
  *
- * @author Ben Baker, ISTI
+ * @result 0 indicates success
  *
- * @bug COPY_H5_TO_DATA not yet done
+ * @author Ben Baker, ISTI
  *
  */
 int hdf5_copyFFResults(const enum data2h5_enum job,
@@ -792,7 +880,7 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
     {
         memset(h5_ff, 0, sizeof(struct h5_ffResults_struct));
         nfp = (size_t) ff->nfp;
-        if (ff->nfp < 0)
+        if (ff->nfp <= 0)
         {
             log_errorF("%s: Error no fault planes!\n", fcnm);
             return -1;
@@ -833,8 +921,45 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
     }   
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: not yet done\n", fcnm);
-        ierr = 1;
+        nfp = (size_t) h5_ff->nfp;
+        if (nfp <= 0)
+        {
+            log_errorF("%s: Error no fault planes!\n", fcnm);
+            return -1;
+        }
+
+        ff->SA_lat = h5_ff->SA_lat;
+        ff->SA_lon = h5_ff->SA_lon;
+        ff->SA_dep = h5_ff->SA_dep;
+        ff->SA_mag = h5_ff->SA_mag;
+        ff->preferred_fault_plane = h5_ff->preferred_fault_plane;
+        ff->nfp = h5_ff->nfp;
+
+        ff->fp = (struct GFAST_faultPlane_struct *)
+                 calloc(nfp,  sizeof(struct GFAST_faultPlane_struct));
+        h5_fp = h5_ff->fp.p;
+        for (i=0; i<(int) nfp; i++)
+        {   
+            ierr = GFAST_hdf5_copyFaultPlane(job, &ff->fp[i], &h5_fp[i]);
+            if (ierr != 0)
+            {
+                log_errorF("%s: Error copying fault plane %d\n", fcnm, i+1);
+                return -1;
+            }
+        }
+        h5_fp = NULL;
+
+        ff->vr = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_ff->vr.p, 1, ff->vr, 1);  
+
+        ff->Mw = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_ff->Mw.p, 1, ff->Mw, 1);
+
+        ff->str = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_ff->str.p, 1, ff->str, 1);
+
+        ff->dip = memory_calloc64f((int) nfp);
+        cblas_dcopy((int) nfp, h5_ff->dip.p, 1, ff->dip, 1);
     }
     else
     {
@@ -881,7 +1006,7 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
     {
         memset(h5_data, 0, sizeof(struct h5_waveform3CData_struct));
         npts = data->npts;
-        nalloc = (size_t) (fmax(npts, 1));
+        nalloc = (size_t) (MAX(npts, 1));
         h5_data->ubuff.p = (double *)calloc(nalloc, sizeof(double));
         h5_data->nbuff.p = (double *)calloc(nalloc, sizeof(double));
         h5_data->ebuff.p = (double *)calloc(nalloc, sizeof(double));
@@ -942,8 +1067,57 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: not yet done\n", fcnm);
-        ierr = 1;
+
+        memset(data, 0, sizeof(struct GFAST_waveform3CData_struct));
+        npts = h5_data->npts;
+        nalloc = (size_t) (MAX(npts, 1)); 
+        data->ubuff = memory_calloc64f((int) nalloc);
+        data->nbuff = memory_calloc64f((int) nalloc);
+        data->ebuff = memory_calloc64f((int) nalloc);
+        data->tbuff = memory_calloc64f((int) nalloc);
+        if (npts > 0) 
+        {
+            cblas_dcopy(npts, h5_data->ubuff.p, 1, data->ubuff, 1);
+            cblas_dcopy(npts, h5_data->nbuff.p, 1, data->nbuff, 1);
+            cblas_dcopy(npts, h5_data->ebuff.p, 1, data->ebuff, 1);
+            cblas_dcopy(npts, h5_data->tbuff.p, 1, data->tbuff, 1);
+        }
+        else
+        {
+            cblas_dcopy(1, nanv, 1, data->ubuff, 1);
+            cblas_dcopy(1, nanv, 1, data->nbuff, 1);
+            cblas_dcopy(1, nanv, 1, data->ebuff, 1);
+            cblas_dcopy(1, nanv, 1, data->tbuff, 1);
+        }
+
+        cblas_dcopy(3, h5_data->gain.p, 1, data->gain, 1);
+        data->dt = h5_data->dt;
+        data->sta_lat = h5_data->sta_lat;
+        data->sta_lon = h5_data->sta_lon;
+        data->sta_alt = h5_data->sta_alt;
+        data->maxpts = h5_data->maxpts;
+        data->npts   = h5_data->npts;
+        data->lskip_pgd = h5_data->lskip_pgd;
+        data->lskip_cmt = h5_data->lskip_cmt;
+        data->lskip_ff  = h5_data->lskip_ff;
+
+        netw = (char *) h5_data->netw.p;
+        strcpy(data->netw, netw);
+        netw = NULL;
+
+        stnm = (char *) h5_data->stnm.p;
+        strcpy(data->stnm, stnm);
+        stnm = NULL;
+
+        chan = h5_data->chan.p; 
+        strcpy(data->chan[0], &chan[0]);
+        strcpy(data->chan[1], &chan[64]);
+        strcpy(data->chan[2], &chan[128]);
+        chan = NULL;
+
+        loc = (char *) h5_data->loc.p;
+        strcpy(data->loc, loc);
+        loc = NULL; 
     }
     else
     {
@@ -970,9 +1144,9 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
  *                             if job = COPY_DATA_TO_H5 then on input this is
  *                             the structure to copy to gps_data.
  *
- * @author Ben Baker, ISTI
+ * @result 0 indicates success 
  *
- * @bug COPY_H5_TO_DATA not yet done
+ * @author Ben Baker, ISTI
  *
  */
 int hdf5_copyGPSData(const enum data2h5_enum job,
@@ -1013,8 +1187,25 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: not yet done\n", fcnm);
-        ierr = 1;
+        memset(gps_data, 0, sizeof(struct GFAST_data_struct));
+        nstreams = h5_gpsData->stream_length;
+        gps_data->stream_length = nstreams;
+        if (nstreams < 1)
+        {
+            log_errorF("%s: Error no streams to copy!\n", fcnm);
+            ierr = 1;
+        }
+        gps_data->data = (struct GFAST_waveform3CData_struct *)
+                         calloc((size_t) nstreams,
+                                sizeof(struct GFAST_waveform3CData_struct));
+        h5_data = (struct h5_waveform3CData_struct *) h5_gpsData->data.p;
+        for (k=0; k<nstreams; k++)
+        {
+            ierr = GFAST_hdf5_copyWaveform3CData(job,
+                                                 &gps_data->data[k],
+                                                 &h5_data[k]);
+        }
+        h5_data = NULL;
     }
     else
     {
