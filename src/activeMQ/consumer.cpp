@@ -389,7 +389,7 @@ class ShakeAlertConsumer : public ExceptionListener,
                 //charMessage = (char *)
                 //              calloc(strlen(text.c_str()+1), sizeof(char));
                 lenos = strlen(text.c_str());
-                charMessage =  new char[lenos+1];
+                charMessage =  (char *) calloc(lenos+1, sizeof(char));//new char[lenos+1];
                 memset(charMessage, 0, lenos+1);
                 strcpy(charMessage, text.c_str());
                 text = "";
