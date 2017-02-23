@@ -6,6 +6,19 @@ extern "C"
 {
 #endif
 
+/* Helps C start and stop the ActiveMQ library */
+void activeMQ_start(void);
+void activeMQ_stop(void);
+/* Private stuff - really not for general use */
+void activeMQ_setInit(void);
+void activeMQ_setUninit(void);
+bool activeMQ_isInit(void);
+
+/* Initialize and finalize activeMQ library */
+void activeMQ_initialize(void);
+bool activeMQ_isInitialized(void);
+void activeMQ_finalize(void);
+
 /* Initialize activeMQ parameters */
 int activeMQ_consumer_initialize(const char AMQuser[],
                                  const char AMQpassword[],
@@ -33,6 +46,18 @@ char *activeMQ_setTcpURIRequest(const char *host,
                                 const int port,
                                 const int msReconnect,
                                 const int maxAttempts);
+
+/* Convenience function to set the tcp URI for the producer */
+char *activeMQ_producer_setTcpURI(const char *host, const int port);
+/* Initialize the ActiveMQ producer */
+int activeMQ_producer_initialize(const char AMQuser[],
+                                 const char AMQpassword[],
+                                 const char AMQdestination[],
+                                 const char AMQhostname[],
+                                 const int port,
+                                 const bool useTopic,
+                                 const bool clientAck,
+                                 const int verbose);
 
 #ifndef __cplusplus
 #define GFAST_activeMQ_consumer_initialize(...)       \

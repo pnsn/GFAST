@@ -1,4 +1,6 @@
 add_sources(
+activeMQ.c
+activeMQ.cpp
 consumer.cpp
 producer.cpp
 )
