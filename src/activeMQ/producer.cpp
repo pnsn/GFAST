@@ -26,6 +26,7 @@
 #include <cms/MapMessage.h>
 #include <cms/ExceptionListener.h>
 #include <cms/MessageListener.h>
+#include <decaf/lang/Runnable.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -35,6 +36,7 @@
 #include <iostream>
 #include "gfast_activeMQ.h"
 
+using namespace decaf::lang;
 using namespace activemq::core;
 using namespace activemq::transport;
 using namespace cms;
@@ -43,7 +45,7 @@ using namespace std;
 //============================================================================//
 //                                 ShakeAlert Producer                        //
 //============================================================================//
-class ShakeAlertProducer 
+class ShakeAlertProducer
 {
     private:
         // AMQ private variables
@@ -64,6 +66,7 @@ class ShakeAlertProducer
         bool __lconnected;
         bool __lhaveMessage;
         char __pad[7];
+
     public:
         void initialize(const string username,
                         const string password,
@@ -192,6 +195,11 @@ class ShakeAlertProducer
                     __session
                     = __connection->createSession(Session::SESSION_TRANSACTED);
                 }
+                if (__session == NULL)
+                {
+                    printf("%s: Error session not made\n", fcnm);
+                    return;
+                }
                 // Create the destination (topic or queue)
                 if (__useTopic)
                 {
@@ -244,6 +252,16 @@ class ShakeAlertProducer
         int sendMessage(const char *message)
         {
             const char *fcnm = "ShakeAlertSender sendMessage\0";
+            if (!__isInitialized)
+            {
+                printf("%s: Producer not yet initialized\n", fcnm);
+                return -1;
+            }
+            if (!__lconnected)
+            {
+                printf("%s: Producer not yet connected\n", fcnm);
+                return -1;
+            }
             if (message == NULL)
             {
                 printf("%s: NULL message!\n", fcnm);
@@ -472,6 +490,7 @@ extern "C" int activeMQ_producer_initialize(const char AMQuser[],
     }
     producer.initialize(username, password, destination, brokerURI,
                         useTopic, clientAck, verbose);
+    producer.startMessageSender();
     return 0;
 }
 /*!
@@ -501,7 +520,7 @@ extern "C" int activeMQ_producer_sendMessage(const char *message)
     ierr = producer.sendMessage(message);
     if (ierr != 0)
     {
-        printf("%s: Error getting message\n", fcnm);
+        printf("%s: Error sending message\n", fcnm);
     }
     return ierr;
 }
