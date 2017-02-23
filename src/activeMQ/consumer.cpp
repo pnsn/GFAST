@@ -11,6 +11,7 @@
 #pragma clang diagnostic ignored "-Wextra-semi"
 #pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
 #pragma clang diagnostic ignored "-Wpadded"
+#pragma clang diagnostic ignored "-Weverything"
 #endif
 #include <activemq/core/ActiveMQConnectionFactory.h>
 #include <activemq/core/ActiveMQConnection.h>
@@ -61,6 +62,7 @@ class ShakeAlertConsumer : public ExceptionListener,
         bool __isInitialized;
         bool __lconnected;
         bool __lhaveMessage;
+        char __pad[6];
     //------------------------------------------------------------------------//
     //                              Public Functions                          //
     //------------------------------------------------------------------------//
@@ -126,6 +128,7 @@ class ShakeAlertConsumer : public ExceptionListener,
             __lconnected = false;
             __lhaveMessage = false;
             __textMessage = "";
+            memset(__pad, 0, sizeof(__pad));
             return;
         }
         //====================================================================//
@@ -549,24 +552,57 @@ extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
                                             const int verbose)
 {
     const char *fcnm = "activeMQ_consumer_initialize\0";
-    string username = AMQuser;
-    string password = AMQpassword;
-    string hostname = AMQhostname;
-    string destination = AMQdestination;
-    // Set the URI 
-    string brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
-                                                 msReconnect, maxAttempts);
-    // Make sure the library is initialized
-    //if (!linit_amqlib)
-    if (!consumer.isInitialized())
+    string brokerURI, destination, hostname, password, username;
+    if (AMQuser != NULL)
     {
-        if (verbose > 0)
-        {
-            printf("%s: Initializing ActiveMQ library...\n", fcnm);
-        }
-        activemq::library::ActiveMQCPP::initializeLibrary();
-        //linit_amqlib = true;
+        username = AMQuser;
     }
+    else
+    {
+        username = "";
+    }
+    if (AMQpassword != NULL)
+    {
+        password = AMQpassword;
+    }
+    else
+    {
+        password = "";
+    }
+    if (AMQhostname != NULL)
+    {
+        hostname = AMQhostname;
+    }
+    else
+    {
+        hostname = "";
+    }
+    if (AMQdestination != NULL)
+    {
+        destination = AMQdestination;
+    }
+    else
+    {
+        destination = "";
+    }
+    // Set the URI 
+    brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
+                                          msReconnect, maxAttempts);
+    // Make sure the library is initialized
+    if (!activeMQ_isInit())
+    {
+        activeMQ_start();
+    }
+    ////if (!linit_amqlib)
+    //if (!consumer.isInitialized())
+    //{
+    //    if (verbose > 0)
+    //    {
+    //        printf("%s: Initializing ActiveMQ library...\n", fcnm);
+    //    }
+    //    //activemq::library::ActiveMQCPP::initializeLibrary();
+    //    //linit_amqlib = true;
+    //}
     if (verbose > 0)
     {
         printf("%s: Initializing the consumer...\n", fcnm);
@@ -584,7 +620,8 @@ extern "C" void activeMQ_consumer_finalize(void)
 {
     //ShakeAlertConsumerClass consumer;
     consumer.destroy();
-    activemq::library::ActiveMQCPP::shutdownLibrary();
+    if (activeMQ_isInit()){activeMQ_stop();}
+    //activemq::library::ActiveMQCPP::shutdownLibrary();
     //linit_amqlib = false;
     return;
 }
