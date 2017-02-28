@@ -99,10 +99,13 @@ int hdf5_initialize(const char *adir,
 
 static void obscureVariable(char *buffer, const char *variable)
 {
-    char s[2];
+    char s[2], *temp;
+    bool *ldel;
     size_t i, j, k, len, lenv;
     if (variable == NULL){return;}
     len = strlen(buffer);
+    if (len == 0){return;}
+    ldel = (bool *) calloc(len, sizeof(bool));
     lenv = strlen(variable);
     memset(s, 0, 2*sizeof(char));
     for (i=0; i<len; i++)
@@ -121,7 +124,7 @@ static void obscureVariable(char *buffer, const char *variable)
                             i = k;
                             goto NEXT;
                         }
-                        buffer[k] = ' ';
+                        ldel[k] = true;//buffer[k] = ' ';
                     }
                 }
                 if (buffer[j] == '\n')
@@ -133,5 +136,20 @@ static void obscureVariable(char *buffer, const char *variable)
         }
         NEXT:;
     }
+    // copy masked array
+    temp = (char *) calloc(len+1, sizeof(char));
+    strcpy(temp, buffer);
+    memset(buffer, 0, len*sizeof(char));
+    j = 0;
+    for (i=0; i<len; i++)
+    {
+        if (!ldel[i])
+        {
+            buffer[j] = temp[i];
+            j = j + 1;
+        }
+    }
+    free(ldel);
+    free(temp);
     return;
 }
