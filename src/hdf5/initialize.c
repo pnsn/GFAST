@@ -99,7 +99,7 @@ int hdf5_initialize(const char *adir,
 
 static void obscureVariable(char *buffer, const char *variable)
 {
-    char s[2], *temp;
+    char *temp;
     bool *ldel;
     size_t i, j, k, len, lenv;
     if (variable == NULL){return;}
@@ -107,12 +107,10 @@ static void obscureVariable(char *buffer, const char *variable)
     if (len == 0){return;}
     ldel = (bool *) calloc(len, sizeof(bool));
     lenv = strlen(variable);
-    memset(s, 0, 2*sizeof(char));
     for (i=0; i<len; i++)
     {
         if (strncasecmp(&buffer[i], variable, lenv) == 0)
         {
-            strncpy(s, &buffer[i], 1);
             for (j=i; j<len; j++)
             {
                 if (buffer[j] == '=')
