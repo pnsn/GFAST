@@ -19,6 +19,7 @@
 #include <activemq/library/ActiveMQCPP.h>
 #include <activemq/util/Config.h>
 #include <activemq/commands/ActiveMQBlobMessage.h>
+#include <activemq/util/IdGenerator.h>
 #include <cms/Connection.h>
 #include <cms/Session.h>
 #include <cms/TextMessage.h>
@@ -26,6 +27,7 @@
 #include <cms/MapMessage.h>
 #include <cms/ExceptionListener.h>
 #include <cms/MessageListener.h>
+#include <decaf/lang/Runnable.h>
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -35,15 +37,17 @@
 #include <iostream>
 #include "gfast_activeMQ.h"
 
+using namespace decaf::lang;
 using namespace activemq::core;
 using namespace activemq::transport;
+using namespace activemq::util;
 using namespace cms;
 using namespace std;
 
 //============================================================================//
 //                                 ShakeAlert Producer                        //
 //============================================================================//
-class ShakeAlertProducer 
+class ShakeAlertProducer
 {
     private:
         // AMQ private variables
@@ -64,6 +68,7 @@ class ShakeAlertProducer
         bool __lconnected;
         bool __lhaveMessage;
         char __pad[7];
+
     public:
         void initialize(const string username,
                         const string password,
@@ -87,7 +92,6 @@ class ShakeAlertProducer
     
             __useTopic = useTopic;
             __sessionTransacted = sessionTransacted;
-            //__luseListener = luseListener;
             __verbose = verbose;
             __isInitialized = true;
             __lconnected = false;
@@ -192,6 +196,11 @@ class ShakeAlertProducer
                     __session
                     = __connection->createSession(Session::SESSION_TRANSACTED);
                 }
+                if (__session == NULL)
+                {
+                    printf("%s: Error session not made\n", fcnm);
+                    return;
+                }
                 // Create the destination (topic or queue)
                 if (__useTopic)
                 {
@@ -244,6 +253,16 @@ class ShakeAlertProducer
         int sendMessage(const char *message)
         {
             const char *fcnm = "ShakeAlertSender sendMessage\0";
+            if (!__isInitialized)
+            {
+                printf("%s: Producer not yet initialized\n", fcnm);
+                return -1;
+            }
+            if (!__lconnected)
+            {
+                printf("%s: Producer not yet connected\n", fcnm);
+                return -1;
+            }
             if (message == NULL)
             {
                 printf("%s: NULL message!\n", fcnm);
@@ -360,7 +379,8 @@ class ShakeAlertProducer
 //----------------------------------------------------------------------------//
 //                 End the listener class. Begin the C interface              //
 //----------------------------------------------------------------------------//
-static ShakeAlertProducer producer;
+static vector<class ShakeAlertProducer> producer(0);// = 0;
+//static ShakeAlertProducer producer;
 //static bool linit_amqlib = false;
 
 /*!
@@ -406,7 +426,7 @@ extern "C" char *activeMQ_producer_setTcpURI(const char *host, const int port)
  *                            handled internally.
  * @param[in] verbose         controls verobosity
  *
- * @result 0 indicates success
+ * @result session ID number
  *
  * @author Ben Baker, ISTI
  *
@@ -454,35 +474,36 @@ extern "C" int activeMQ_producer_initialize(const char AMQuser[],
     {
         destination = "";
     }
+    // Give the producer a unique name
+    //string prodID = IdGenerator().generateId();
     // Set the URI
     brokerURI = activeMQ_producer_setTcpURI(AMQhostname, port);
     // Make sure the library is initialized
     if (!activeMQ_isInit()){activeMQ_start();}
-    //if (!producer.isInitialized())
-    //{
-    //    if (verbose > 0)
-    //    {
-    //        printf("%s: Initializing ActiveMQ library...\n", fcnm);
-    //    }
-    //    activemq::library::ActiveMQCPP::initializeLibrary();
-    //}
     if (verbose > 0)
     {
         printf("%s: Initializing the producer...\n", fcnm);
     }
-    producer.initialize(username, password, destination, brokerURI,
-                        useTopic, clientAck, verbose);
-    return 0;
+    size_t len = producer.size();
+    producer.resize(len+1);
+    producer[len].initialize(username, password, destination, brokerURI,
+                             useTopic, clientAck, verbose);
+    producer[len].startMessageSender();
+    return static_cast<int>(len);
 }
 /*!
  * @brief C interface function to destroy the ActiveMQ producer 
  */
 extern "C" void activeMQ_producer_finalize(void)
 {
-    producer.destroy();
+    size_t len;
+    len = producer.size();
+    for (size_t i=0; i<len; i++)
+    {
+        producer[i].destroy();
+    }
+    producer.resize(0);
     if (activeMQ_isInit()){activeMQ_stop();}
-    //activemq::library::ActiveMQCPP::shutdownLibrary();
-    //linit_amqlib = false;
     return;
 }
 //============================================================================//
@@ -494,14 +515,21 @@ extern "C" void activeMQ_producer_finalize(void)
  * @result 0 indicates success
  *
  */
-extern "C" int activeMQ_producer_sendMessage(const char *message)
+extern "C" int activeMQ_producer_sendMessage(const int id, const char *message)
 {
     const char *fcnm = "activeMQ_producer_sendMessage\0";
     int ierr;
-    ierr = producer.sendMessage(message);
+    size_t idl;
+    idl = static_cast<size_t>(id);
+    if (id < 0 || idl > producer.size())
+    {
+        printf("%s: Invalid session ID: %d\n", fcnm, id);
+        return -1;
+    }
+    ierr = producer[idl].sendMessage(message);
     if (ierr != 0)
     {
-        printf("%s: Error getting message\n", fcnm);
+        printf("%s: Error sending message\n", fcnm);
     }
     return ierr;
 }

@@ -590,9 +590,6 @@ int hdf5_copyCMTResults(const enum data2h5_enum job,
         cmt->srcDepths = memory_calloc64f(ncopy);
         cblas_dcopy(ncopy, h5_cmt->srcDepths.p, 1, cmt->srcDepths, 1);
 
-        cmt->srcDepths = memory_calloc64f(cmt->ndeps);
-        cblas_dcopy(cmt->ndeps, h5_cmt->srcDepths.p, 1, cmt->srcDepths, 1); 
-
         cmt->EN = memory_calloc64f(cmt->nsites*ncopy);
         cblas_dcopy(cmt->nsites*ncopy, h5_cmt->EN.p, 1, cmt->EN, 1); 
 

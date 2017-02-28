@@ -40,7 +40,7 @@ void activeMQ_consumer_finalize(void);
 /* Shut down activeMQ producer */
 void activeMQ_producer_finalize(void);
 /* Send a text message */
-int activeMQ_producer_sendMessage(const char *message);
+int activeMQ_producer_sendMessage(const int id, const char *message);
 /* Convenience function to set the tcp URI request */
 char *activeMQ_setTcpURIRequest(const char *host,
                                 const int port,

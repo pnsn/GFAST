@@ -7,6 +7,8 @@
 #include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
+static void obscureVariable(char *buffer, const char *variable);
+
 /*!
  * @brief Initializes the archive for the given event
  *
@@ -76,6 +78,8 @@ int hdf5_initialize(const char *adir,
         fclose(ifl);
         if (nread > 0 && buffer != NULL)
         {
+            obscureVariable(buffer, "user\0");
+            obscureVariable(buffer, "password\0");
             bufout[0] = buffer;
             ierr = ierr + h5_write_array__chars("/InitializationFile/IniFile\0",
                                                 fileID, 1, bufout);
@@ -91,4 +95,61 @@ int hdf5_initialize(const char *adir,
     // Close the archive
     ierr = ierr + H5Fclose(fileID); 
     return ierr;
+}
+
+static void obscureVariable(char *buffer, const char *variable)
+{
+    char s[2], *temp;
+    bool *ldel;
+    size_t i, j, k, len, lenv;
+    if (variable == NULL){return;}
+    len = strlen(buffer);
+    if (len == 0){return;}
+    ldel = (bool *) calloc(len, sizeof(bool));
+    lenv = strlen(variable);
+    memset(s, 0, 2*sizeof(char));
+    for (i=0; i<len; i++)
+    {
+        if (strncasecmp(&buffer[i], variable, lenv) == 0)
+        {
+            strncpy(s, &buffer[i], 1);
+            for (j=i; j<len; j++)
+            {
+                if (buffer[j] == '=')
+                {
+                    for (k=j+1; k<len; k++)
+                    {
+                        if (buffer[k] == '\n')
+                        {
+                            i = k;
+                            goto NEXT;
+                        }
+                        ldel[k] = true;//buffer[k] = ' ';
+                    }
+                }
+                if (buffer[j] == '\n')
+                {
+                    i = j;
+                    goto NEXT;
+                }
+            }
+        }
+        NEXT:;
+    }
+    // copy masked array
+    temp = (char *) calloc(len+1, sizeof(char));
+    strcpy(temp, buffer);
+    memset(buffer, 0, len*sizeof(char));
+    j = 0;
+    for (i=0; i<len; i++)
+    {
+        if (!ldel[i])
+        {
+            buffer[j] = temp[i];
+            j = j + 1;
+        }
+    }
+    free(ldel);
+    free(temp);
+    return;
 }
