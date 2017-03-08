@@ -142,7 +142,7 @@ int core_ff_setRegularizer(const int l2, const int nstr,
         return -1;
     }
     // Now apply boundary conditions s.t. the fault ends excluding 
-    // the free service are penalized if they slip 
+    // the free surface are penalized if they slip 
     k = 2*ndip*nstr; // Begin row counter at end
     for (j=0; j<ndip; j++)
     {
