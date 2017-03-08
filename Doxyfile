@@ -753,18 +753,21 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ./src \
-                         ./src/include \
+INPUT                  = ./src/include \
                          ./src/core/scaling \
                          ./src/core/cmt \
                          ./src/core/ff \
                          ./src/core/coordtools \
                          ./src/events \
-                         ./src/xml \
+                         ./src/xml/shakeAlert \
                          ./src/core/waveformProcessor \
                          ./src/hdf5 \
                          ./src/activeMQ \
-                         ./src/eewUtils
+                         ./src/eewUtils \
+                         ./src/core/properties \
+                         ./src/core/data \
+                         ./src/xml/quakeML \
+                         ./src/cmopad
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
