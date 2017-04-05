@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <lapacke.h>
-#include <cblas.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"

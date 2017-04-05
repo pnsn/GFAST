@@ -71,6 +71,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     int dom, hour, ierr, item, item0, minute, month, nzmsec, nzmusec,
         nzsec, year;
     bool lfound, lunpack;
+    size_t lenos;
     const double tol = 1.e-14;
     //------------------------------------------------------------------------//
     //
@@ -107,7 +108,8 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
             log_errorF("%s: Error getting event ID\n", fcnm);
             return -1;
         }
-        strncpy(core->id, (const char *) value, strlen((const char *)value));
+        lenos = MIN(128, xmlStrlen(value)); //strlen((const char *) value));
+        strncpy(core->id, (const char *) value, lenos);
         xmlFree(value);
     }
     else

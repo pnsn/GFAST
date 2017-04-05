@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cblas.h>
 #include <math.h>
-#include <lapacke.h>
 #include "gfast_core.h"
+#ifdef GFAST_USE_ISCL
+#include <mkl_lapacke.h>
+#include <mkl_cblas.h>
+#else
+#include <lapacke.h>
+#include <cblas.h>
+#endif
 #include "iscl/linalg/linalg.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
@@ -174,14 +179,10 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     mrows = 3*l1;
     ldg = ncols;  // In row major format
     diagWt       = memory_calloc64f(mrows);
-    G            = memory_calloc64f(mrows*ncols);
-    WG           = memory_calloc64f(mrows*ncols);
     WU           = memory_calloc64f(mrows);
     U            = memory_calloc64f(mrows);
-    UP           = memory_calloc64f(mrows);
     xrs          = memory_calloc64f(l1);
     yrs          = memory_calloc64f(l1);
-    zrs_negative = memory_calloc64f(l1);
     // Compute the source-receiver offsets in (x, y) cartesian
 #ifdef _OPENMP
     #pragma omp simd
@@ -224,19 +225,26 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         return -1;
     }
     // Grid search on source depths
-    ISCL_time_tic();
+    time_tic();
     if (verbose > 2)
     {
         log_debugF("%s: Beginning search on depths...\n", fcnm);
     }
 #ifdef PARALLEL_CMT
-    #pragma omp parallel for \
-     firstprivate(G, UP, WG, zrs_negative) \
+    #pragma omp parallel \
+     private (G, UP, WG, zrs_negative) \
      private (i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, S ) \
      shared (diagWt, eEst, fcnm, ldg, mts, mrows, \
              ncols, nEst, srcDepths, staAlt, \
-             uEst, U, WU, xrs, yrs) \
-     reduction(+:ierr) default(none)
+             uEst, U, WU, xrs, yrs) reduction(+:ierr) default (none)
+    {
+#endif
+    G            = memory_calloc64f(mrows*ncols);
+    WG           = memory_calloc64f(mrows*ncols);
+    UP           = memory_calloc64f(mrows);
+    zrs_negative = memory_calloc64f(l1);
+#ifdef PARALLEL_CMT
+    #pragma omp for
 #endif
     for (idep=0; idep<ndeps; idep++)
     {
@@ -308,6 +316,13 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
             uEst[idep*l1+i] =-UP[3*i+2];
         }
     } // Loop on source depths
+    memory_free64f(&G);
+    memory_free64f(&WG);
+    memory_free64f(&UP);
+    memory_free64f(&zrs_negative);
+#ifdef PARALLEL_CMT
+    } // End the parallel region
+#endif
     if (ierr != 0)
     {
         log_errorF("%s: Errors were detect during the grid search\n", fcnm);
@@ -316,19 +331,15 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     {
         if (verbose > 2)
         {
-            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, ISCL_time_toc());
+            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, time_toc());
         }
     }
 ERROR:;
     memory_free64f(&diagWt);
-    memory_free64f(&WG);
-    memory_free64f(&G);
     memory_free64f(&WU);
     memory_free64f(&U);
-    memory_free64f(&UP);
     memory_free64f(&xrs);
     memory_free64f(&yrs);
-    memory_free64f(&zrs_negative);
     return ierr;
 }
  

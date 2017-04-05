@@ -3,8 +3,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include "gfast_config.h"
+#ifdef GFAST_USE_INTEL
+#include <mkl_lapacke.h>
+#include <mkl_cblas.h>
+#else
 #include <lapacke.h>
 #include <cblas.h>
+#endif
 #include "cmopad.h"
 
 /*

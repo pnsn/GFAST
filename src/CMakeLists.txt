@@ -8,8 +8,9 @@ SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules)
 SET(CMAKE_TESTING_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/unit_tests)
 
 # For testing
-if (USE_INTEL)
+if (GFAST_USE_INTEL)
   MESSAGE("Using Intel Libraries")
+  #ADD_DEFINITIONS(-DGFAST_USE_INTEL=1)
   find_package(MKL REQUIRED)
   find_package(IPP REQUIRED)
   find_path(CBLAS_INCLUDE_DIR
@@ -24,7 +25,7 @@ else()
   find_package(CBLAS REQUIRED)
   find_package(LAPACKE REQUIRED)
   find_package(FFTW3 REQUIRED)
-endif (USE_INTEL)
+endif (GFAST_USE_INTEL)
 if (USE_AMQ)
   MESSAGE("Will build GFAST ActiveMQ library")
   find_package(AMQ REQUIRED)
@@ -33,6 +34,10 @@ if (GFAST_USE_EW)
   MESSAGE("Will use Earthworm")
   find_package(EW REQUIRED)
 endif (GFAST_USE_EW)
+if (UW_AMAZON)
+  MESSAGE("Will use Jansson and libpng for UW/Amazon output")
+  find_package(JANSSON REQUIRED)
+endif (UW_AMAZON)
 find_package(IniParser REQUIRED)
 find_package(ISCL REQUIRED)
 find_package(GEOLIB REQUIRED)
@@ -52,6 +57,11 @@ include_directories(
   ${INIPARSER_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR}
 )
+IF (GFAST_USE_INTEL)
+INCLUDE_DIRECTORIES(
+  ${MKL_INCLUDE_DIR}
+)
+ENDIF()
 
 #macro for adding sources
 set(SRCS "")
@@ -92,6 +102,11 @@ else()
   set(GFAST_USE_EW OFF)
 endif (GFAST_USE_EW)
 
+IF (UW_AMAZON)
+   ADD_SUBDIRECTORY(uw)
+   INCLUDE_DIRECTORIES(${JANSSON_INCLUDE_DIR})
+ENDIF (UW_AMAZON)
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EW_BUILD_FLAGS}" CACHE STRING "" FORCE)
 
 add_library(gfast_core_shared SHARED ${SRCS_CORE})
@@ -112,14 +127,18 @@ add_library(gfast_hdf5_static STATIC ${SRCS_HDF5})
 add_executable(gfast_playback gfast_playback.c ${SRCS_EEW})
 add_executable(gfast_eew gfast_eew.c ${SRCS_EEW})
 
+IF (UW_AMAZON)
+add_executable(gfast2web uw/gfast2web.c uw/beachball.c uw/gfast2json.c)
+ENDIF (UW_AMAZON)
+
 add_executable(xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
 SET_TARGET_PROPERTIES(xcmopad PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
-IF (USE_INTEL)
+IF (GFAST_USE_INTEL)
 ADD_EXECUTABLE(xcoreTests ${SRCS_UT})
 SET_TARGET_PROPERTIES(xcoreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
 ENDIF ()
 
-if (USE_INTEL)
+if (GFAST_USE_INTEL)
   message(${ISCL_LIBRARY})
   if (GFAST_USE_EW)
     set (LIB_BASE ${ISCL_LIBARARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
@@ -246,12 +265,30 @@ else()
   #                      ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
   #                      ${INIPARSER_LIBRARY}
   #                      -lm -ldl -lpthread -lgfortran)
-endif(USE_INTEL)
+endif(GFAST_USE_INTEL)
+
+IF (UW_AMAZON)
+ IF (GFAST_USE_INTEL)
+  TARGET_LINK_LIBRARIES(gfast2web
+                        gfast_core_shared
+                        gfast_traceBuffer_shared
+                        gfast_xml_shared
+                        gfast_activeMQ_shared
+                        gfast_hdf5_shared
+                        cmopad_shared
+                        ${ISCL_LIBRARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng)
+ ELSE ()
+
+ ENDIF (GFAST_USE_INTEL)
+ENDIF (UW_AMAZON)
 
 add_test(NAME cmopadTest
          WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
          COMMAND xcmopad)
-IF (USE_INTEL)
+IF (GFAST_USE_INTEL)
 add_test(NAME coreTest 
          WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
          COMMAND xcoreTests)

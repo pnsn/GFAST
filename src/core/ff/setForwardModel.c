@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include <cblas.h>
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 // Small number to test cos(90) = 0 
