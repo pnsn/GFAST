@@ -136,7 +136,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     const char *fcnm = "core_ff_faultPlaneGridSearch\0";
     double *diagWt, *G, *G2, *R, *S, *T, *UD, *UP, *WUD, *xrs, *yrs, *zrs,
            asum, ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
-    int i, ierr, ierr1, if_off, ifp, ij, ig, io_off, j,
+    int i, ierr, ierr1, if_off, ifp, ij, io_off, j,
         mrowsG, mrowsG2, mrowsT, ncolsG, ncolsG2, ncolsT, ng, ng2, nt;
     bool lrmtx, lsslip_unc, ldslip_unc;
     //------------------------------------------------------------------------//
@@ -271,7 +271,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     }
 #ifdef PARALLEL_FF
     #pragma omp parallel \
-     private(asum, ds_unc, G, G2, i, ierr1, ifp, if_off, ij, ig, io_off, j, \
+     private(asum, ds_unc, G, G2, i, ierr1, ifp, if_off, ij, io_off, j, \
              lampred, len0, M0, R, res, S, ss_unc, st, T, UP, wid0, \
              xrs, xden, xnum, yrs, zrs) \
      shared(diagWt, dip, dslip, dslip_unc, EN, fault_alt, \
