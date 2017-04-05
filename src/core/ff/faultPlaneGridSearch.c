@@ -3,9 +3,15 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
+#include "gfast_core.h"
+#ifdef GFAST_USE_INTEL
+#include <mkl.h>
+#include <mkl_lapacke.h>
+#include <mkl_cblas.h>
+#else
 #include <lapacke.h>
 #include <cblas.h>
-#include "gfast_core.h"
+#endif
 #include "iscl/linalg/linalg.h"
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"
@@ -129,8 +135,8 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
 {
     const char *fcnm = "core_ff_faultPlaneGridSearch\0";
     double *diagWt, *G, *G2, *R, *S, *T, *UD, *UP, *WUD, *xrs, *yrs, *zrs,
-           ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
-    int i, ierr, ierr1, if_off, ifp, ij, io_off, j,
+           asum, ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
+    int i, ierr, ierr1, if_off, ifp, ij, ig, io_off, j,
         mrowsG, mrowsG2, mrowsT, ncolsG, ncolsG2, ncolsT, ng, ng2, nt;
     bool lrmtx, lsslip_unc, ldslip_unc;
     //------------------------------------------------------------------------//
@@ -206,40 +212,16 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     ng = mrowsG*ncolsG;
     ng2 = mrowsG2*ncolsG2;
     // Set space
-    xrs = memory_calloc64f(l1*l2);
-    yrs = memory_calloc64f(l1*l2);
-    zrs = memory_calloc64f(l1*l2);
-    G  = memory_calloc64f(ng);
-    G2 = memory_calloc64f(ng2);
     WUD = memory_calloc64f(mrowsG2);
     UD = memory_calloc64f(mrowsG);
-    UP = memory_calloc64f(mrowsG);
-    T  = memory_calloc64f(nt);
-    S  = memory_calloc64f(ncolsG2);
     diagWt = memory_calloc64f(mrowsG);
-    if (lrmtx){R = memory_calloc64f(ncolsG2*ncolsG2);}
-    if (xrs == NULL || yrs == NULL || zrs == NULL || G == NULL ||
-        G2 == NULL || UD == NULL || WUD == NULL || UP == NULL ||
-        T == NULL || S == NULL ||
-        diagWt == NULL || (lrmtx && R == NULL) )
+    if (WUD == NULL || UD == NULL || diagWt == NULL)
     {
-        if (xrs == NULL){log_errorF("%s: Error setting space for xrs\n", fcnm);}
-        if (yrs == NULL){log_errorF("%s: Error setting space for yrs\n", fcnm);}
-        if (zrs == NULL){log_errorF("%s: Error setting space for zrs\n", fcnm);}
-        if (G == NULL){log_errorF("%s: Error setting space for G\n", fcnm);}
-        if (G2 == NULL){log_errorF("%s: Error setting space for G2\n", fcnm);}
         if (WUD == NULL){log_errorF("%s: Error setting space for WUD\n", fcnm);}
         if (UD == NULL){log_errorF("%s: Error setting space for UP\n", fcnm);}
-        if (UP == NULL){log_errorF("%s: Error setting space for UP\n", fcnm);}
-        if (T  == NULL){log_errorF("%s: Error setting space for T\n",  fcnm);}
-        if (S  == NULL){log_errorF("%s: Error setting space for S\n",  fcnm);}
         if (diagWt == NULL)
         {
             log_errorF("%s: Error setting space for diagWt\n", fcnm);
-        }
-        if (lrmtx && R == NULL)
-        {
-            log_errorF("%s: Error setting space for R\n", fcnm);
         }
         ierr = 5;
         goto ERROR;
@@ -288,16 +270,30 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         log_debugF("%s: Beginning search on fault planes...\n", fcnm);
     }
 #ifdef PARALLEL_FF
-    #pragma omp parallel for \
-     firstprivate(G, G2, R, S, T, UP, xrs, yrs, zrs) \
-     private(ds_unc, i, ierr1, ifp, if_off, ij, io_off, j, \
-             lampred, len0, M0, res, ss_unc, st, wid0, xden, xnum) \
+    #pragma omp parallel \
+     private(asum, ds_unc, G, G2, i, ierr1, ifp, if_off, ij, ig, io_off, j, \
+             lampred, len0, M0, R, res, S, ss_unc, st, T, UP, wid0, \
+             xrs, xden, xnum, yrs, zrs) \
      shared(diagWt, dip, dslip, dslip_unc, EN, fault_alt, \
             fault_xutm, fault_yutm, fcnm, ldslip_unc, length, \
             lrmtx, lsslip_unc, Mw, mrowsG, mrowsG2, ncolsG, ncolsG2, \
             ng, ng2, NN, nt, sslip, sslip_unc, staAlt, strike, \
             vr, WUD, UD, UN, utmRecvEasting, utmRecvNorthing, width) \
      reduction(+:ierr) default(none)
+    {
+#endif
+    R = NULL;
+    G  = memory_calloc64f(ng);
+    G2 = memory_calloc64f(ng2);
+    S  = memory_calloc64f(ncolsG2);
+    T  = memory_calloc64f(nt);
+    UP = memory_calloc64f(mrowsG);
+    xrs = memory_calloc64f(l1*l2);
+    yrs = memory_calloc64f(l1*l2);
+    zrs = memory_calloc64f(l1*l2);
+    if (lrmtx){R = memory_calloc64f(ncolsG2*ncolsG2);}
+#ifdef PARALLEL_FF
+    #pragma omp for
 #endif
     // Loop on fault planes
     for (ifp=0; ifp<nfp; ifp++)
@@ -364,10 +360,11 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
             continue;
         }
         // Compute scale factor for regularizer
+        asum = cblas_dasum(ng, G2, 1);
         len0 = length[if_off];
         wid0 = width[if_off];
         lampred = 1.0/pow( (double) l2*2.0, 2);
-        lampred = lampred/(cblas_dasum(ng, G2, 1)/(double) ng);
+        lampred = lampred/(asum/(double) ng);
         lampred = lampred/4.0*len0*wid0/1.e6;
         // Append lampred*T to G2
         cblas_daxpy(nt, lampred, T, 1, &G2[ng], 1);
@@ -481,6 +478,18 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         Mw[ifp] = 0.0;
         if (M0 > 0.0){Mw[ifp] = (log10(M0*1.e7) - 16.1)/1.5;}
     } // Loop on fault planes 
+    memory_free64f(&G);
+    memory_free64f(&G2);
+    memory_free64f(&S);
+    memory_free64f(&T);
+    memory_free64f(&UP);
+    memory_free64f(&xrs);
+    memory_free64f(&yrs);
+    memory_free64f(&zrs);
+    memory_free64f(&R);
+#ifdef PARALLEL_FF
+    }
+#endif
     if (ierr != 0)
     {
         log_errorF("%s: There was an error in the fault plane grid-search\n",
@@ -496,17 +505,8 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     }
 ERROR:;
     // Clean up
-    memory_free64f(&xrs);
-    memory_free64f(&yrs);
-    memory_free64f(&zrs);
-    memory_free64f(&G);
-    memory_free64f(&G2);
     memory_free64f(&WUD);
     memory_free64f(&UD);
-    memory_free64f(&UP);
-    memory_free64f(&T);
-    memory_free64f(&S);
-    memory_free64f(&R);
     memory_free64f(&diagWt);
     return ierr;
 }

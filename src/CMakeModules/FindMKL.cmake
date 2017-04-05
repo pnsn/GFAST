@@ -27,6 +27,11 @@ IF (MKL_LIBRARY)
     SET(MKL_FOUND "YES")
 ENDIF (MKL_LIBRARY)
 
+FIND_PATH(MKL_INCLUDE_DIR
+  NAMES mkl.h
+  HINTS /usr/include /usr/local/include $ENV{MKLDIR}/include /opt/intel/mkl/include
+)
+
 IF (MKL_FOUND)
     IF (NOT MKL_FIND_QUIETLY)
 	MESSAGE(STATUS "Found MKL: ${MKL_LIBRARY}")
@@ -38,5 +43,5 @@ ELSE (MKL_FOUND)
     ENDIF (MKL_FIND_REQUIRED)
 ENDIF (MKL_FOUND)
 include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (MKL DEFAULT_MSG MKL_LIBRARY)
+find_package_handle_standard_args (MKL DEFAULT_MSG MKL_LIBRARY MKL_INCLUDE_DIR)
 mark_as_advanced(MKL_LIBRARY)

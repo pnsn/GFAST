@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cblas.h>
 #include "gfast_core.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Applies the diagonal data weight matrix to the observations
@@ -43,7 +43,7 @@ int core_cmt_weightObservations(const int mrows,
     if (diagWt == NULL)
     {
         log_warnF("%s: Warning diagWt is NULL - assuming identity\n", fcnm);
-        cblas_dcopy(mrows, b, 1, diagWb, 1);
+        array_copy64f_work(mrows, b, diagWb);
         return 1;
     }
     // Apply diagonal data weights to observations

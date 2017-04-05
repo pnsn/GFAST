@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cblas.h>
 #include "gfast_core.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Weights a forward modeling matrix by the diagonal data weights
@@ -56,7 +56,7 @@ int core_ff_weightForwardModel(const int mrows, const int ncols,
     {
         log_warnF("%s: Warning diagWt is NULL; G will not be weighted\n",
                   fcnm);
-        cblas_dcopy(mrows*ncols, G, 1, diagWtG, 1);
+        array_copy64f_work(mrows*ncols, G, diagWtG);
         return 1;
     }
     // Compute \tilde{G} = diag\{W\}*G

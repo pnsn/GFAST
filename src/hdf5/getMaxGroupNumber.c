@@ -5,6 +5,19 @@
 #include "iscl/log/log.h"
 
 #define MAX_GROUP 10000000
+/*!
+ * @brief Determines the max inversion group number present in the archive
+ *        file.
+ *
+ * @param[in] h5fl    handle to HDF5 file
+ *
+ * @result the max group number (starts counting at 0).
+ *         if negative then there are no groups present in the archive
+ *         file.
+ *
+ * @author Ben Baker (ISTI)
+ *
+ */
 int hdf5_getMaxGroupNumber(const hid_t h5fl)
 {
     const char *fcnm = "hdf5_getMaxGroupNumber\0";

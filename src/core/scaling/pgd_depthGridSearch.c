@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "gfast_core.h"
+#ifdef GFAST_USE_INTEL
+#include <mkl_lapacke.h>
+#include <mkl_cblas.h>
+#else
 #include <lapacke.h>
 #include <cblas.h>
-#include "gfast_core.h"
+#endif
 #include "iscl/linalg/linalg.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
@@ -158,15 +163,10 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         Uest[i] = 0.0;
     }
     // Set space
-    G    = memory_calloc64f(l1*1);
     b    = memory_calloc64f(l1);
-    r    = memory_calloc64f(l1);
     W    = memory_calloc64f(l1);
-    WG   = memory_calloc64f(l1*1);
     Wb   = memory_calloc64f(l1);
-    UP   = memory_calloc64f(l1);
     repi = memory_calloc64f(l1);
-    wres = memory_calloc64f(l1);
     // Compute the epicentral distances (km)
     for (i=0; i<l1; i++)
     {
@@ -211,13 +211,23 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         log_debugF("%s: Beginning search on depths...\n", fcnm);
     }
 #ifdef PARALLEL_PGD
-    #pragma omp parallel for \
-     firstprivate(A, B, C, G, r, UP, verbose, WG, wres) \
-     private(i, idep, ierr1, est, M1, pct, srcDepth, xden, xnum) \
-     shared(b, d, iqr, fcnm, M, repi, srdist, \
+    #pragma omp parallel \
+     firstprivate(A, B, C) \
+     private(i, idep, ierr1, est, G, M1, pct, r, srcDepth, UP, WG) \
+     private(wres, xden, xnum) \
+     shared(b, d, iqr, fcnm, M, q, repi, srdist, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
-            Uest, VR, W, Wb) \
+            Uest, verbose, VR, W, Wb) \
      reduction(+:ierr) default(none)
+    {
+#endif
+    G    = memory_calloc64f(l1*1);
+    r    = memory_calloc64f(l1);
+    UP   = memory_calloc64f(l1);
+    WG   = memory_calloc64f(l1*1);
+    wres = memory_calloc64f(l1);
+#ifdef PARALLEL_PGD
+    #pragma omp for 
 #endif
     for (idep=0; idep<ndeps; idep++)
     {
@@ -287,6 +297,14 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         M[idep] = M1[0];
         VR[idep] = (1.0 - xnum/xden)*100.0;
     } // Loop on depths
+    memory_free(&G);
+    memory_free(&r);
+    memory_free(&UP);
+    memory_free(&WG);
+    memory_free(&wres);
+#ifdef PARALLEL_PGD
+    }
+#endif
     if (ierr != 0)
     {
         log_errorF("%s: Errors detected during grid search\n", fcnm);
@@ -302,13 +320,8 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
 ERROR:; // An error was encountered
     // Free space
     memory_free64f(&repi);
-    memory_free64f(&r);
-    memory_free64f(&wres);
     memory_free64f(&b);
-    memory_free64f(&G);
-    memory_free64f(&UP);
     memory_free64f(&W);
     memory_free64f(&Wb);
-    memory_free64f(&WG);
     return ierr;
 }

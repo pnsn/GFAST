@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cblas.h>
 #include "gfast_core.h"
+#include "iscl/array/array.h"
 #include "iscl/log/log.h"
 /*!
  * @brief Applies the diagonal data weight matrix to the observations
@@ -43,7 +43,7 @@ int core_scaling_pgd_weightObservations(const int l1,
     if (W == NULL)
     {
         log_warnF("%s: Warning W is NULL - assuming identity\n", fcnm);
-        cblas_dcopy(l1, b, 1, Wb, 1);
+        array_copy64f_work(l1, b, Wb);
         return 1;
     }
 #ifdef _OPENMP
