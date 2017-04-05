@@ -155,6 +155,6 @@ int hdf5_memory_freeGPSData(struct h5_gpsData_struct *gpsData)
         }
         free(data);
     }
-    memset(gpsData, 0, sizeof(struct h5_waveform3CData_struct));
+    memset(gpsData, 0, sizeof(struct h5_gpsData_struct));
     return 0; 
 }

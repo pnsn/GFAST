@@ -181,7 +181,7 @@ int hdf5_updatePGD(const char *adir,
     }
     fileID = h5_open_rdwt(h5fl);
     // Have HDF5 count the group members as to compute the iteration number 
-    memset(pgdGroup, 0, sizeof(pgdGroup));
+    memset(pgdGroup, 0, 256*sizeof(char));
     sprintf(pgdGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, pgdGroup))
     {
@@ -277,7 +277,7 @@ int hdf5_updateCMT(const char *adir,
     }
     fileID = h5_open_rdwt(h5fl);
     // Have HDF5 count the group members as to compute the iteration number 
-    memset(cmtGroup, 0, sizeof(cmtGroup));
+    memset(cmtGroup, 0, 256*sizeof(char));
     sprintf(cmtGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, cmtGroup))
     {
@@ -372,7 +372,7 @@ int hdf5_updateFF(const char *adir,
     }
     fileID = h5_open_rdwt(h5fl);
     // Have HDF5 count the group members as to compute the iteration number 
-    memset(ffGroup, 0, sizeof(ffGroup));
+    memset(ffGroup, 0, 256*sizeof(char));
     sprintf(ffGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, ffGroup))
     {
@@ -411,7 +411,7 @@ int hdf5_updateFF(const char *adir,
     /* TODO: this is a kludge for h5py - retry with newer version */
     for (i=0; i<ff.nfp; i++)
     {
-        memset(dataName, 0, sizeof(dataName));
+        memset(dataName, 0, 256*sizeof(char));
         sprintf(dataName, "faultPlane_%d", i+1);
         dataSet = H5Dcreate(groupID, dataName, dataType,
                             dataSpace,
@@ -435,12 +435,12 @@ int hdf5_updateFF(const char *adir,
     return ierr;
 }
 //============================================================================//
-int hdf5_update__gpsData(const char *adir,
-                         const char *evid,
-                         const int h5k,
-                         struct GFAST_data_struct data)
+int hdf5_update_gpsData(const char *adir,
+                        const char *evid,
+                        const int h5k,
+                        struct GFAST_data_struct data)
 {
-    const char *fcnm = "hdf5_update__gpsData\0";
+    const char *fcnm = "hdf5_update_gpsData\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_gpsData_struct h5_gpsData;
@@ -468,7 +468,7 @@ int hdf5_update__gpsData(const char *adir,
     }
     fileID = h5_open_rdwt(h5fl);
     // Have HDF5 count the group members as to compute the iteration number 
-    memset(gpsGroup, 0, sizeof(gpsGroup));
+    memset(gpsGroup, 0, 256*sizeof(char));
     sprintf(gpsGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, gpsGroup))
     {
@@ -487,6 +487,12 @@ int hdf5_update__gpsData(const char *adir,
         h5_close(fileID);
         return -1;
     }
+    if (!h5_item_exists(groupID, "/DataStructures/gpsDataStructure\0"))
+    {
+        log_errorF("%s: Error gps data type does not exist\n", fcnm);
+        ierr = h5_close(fileID);
+        return -1;
+    }
     dataType = H5Topen(groupID, "/DataStructures/gpsDataStructure\0",
                        H5P_DEFAULT);
     dataSpace = H5Screate_simple(rank, dimInfo, NULL);
@@ -499,15 +505,15 @@ int hdf5_update__gpsData(const char *adir,
     {
         log_errorF("%s: Error writing Greens functions\n", fcnm);
     }
-    ierr = hdf5_memory_freeGPSData(&h5_gpsData);
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
     ierr = ierr + H5Tclose(dataType);
+    ierr = ierr + hdf5_memory_freeGPSData(&h5_gpsData);
+    ierr = ierr + H5Gclose(groupID);
     if (ierr != 0)
     {
         log_errorF("%s: Error closing HDF5 data items\n", fcnm);
     }
-
     ierr = h5_close(fileID);
     return ierr;
 }

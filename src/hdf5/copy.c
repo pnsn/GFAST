@@ -1159,7 +1159,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
     {   
         memset(h5_gpsData, 0, sizeof(struct h5_gpsData_struct));
         nstreams = gps_data->stream_length;
-        if (nstreams < 1)
+        if (nstreams < 1 || gps_data->data == NULL)
         {
             log_errorF("%s: Error no streams to copy!\n", fcnm);
             ierr = 1;
