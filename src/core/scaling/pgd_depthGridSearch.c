@@ -297,11 +297,11 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         M[idep] = M1[0];
         VR[idep] = (1.0 - xnum/xden)*100.0;
     } // Loop on depths
-    memory_free(&G);
-    memory_free(&r);
-    memory_free(&UP);
-    memory_free(&WG);
-    memory_free(&wres);
+    memory_free64f(&G);
+    memory_free64f(&r);
+    memory_free64f(&UP);
+    memory_free64f(&WG);
+    memory_free64f(&wres);
 #ifdef PARALLEL_PGD
     }
 #endif
