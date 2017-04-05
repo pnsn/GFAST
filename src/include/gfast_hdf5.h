@@ -264,10 +264,10 @@ int hdf5_updateFF(const char *adir,
                   const char *evid,
                   const int h5k,
                   struct GFAST_ffResults_struct ff);
-int hdf5_update__gpsData(const char *adir,
-                         const char *evid,
-                         const int h5k, 
-                         struct GFAST_data_struct data);
+int hdf5_update_gpsData(const char *adir,
+                        const char *evid,
+                        const int h5k, 
+                        struct GFAST_data_struct data);
 int hdf5_updateHypocenter(const char *adir,
                           const char *evid,
                           const int h5k,
@@ -383,8 +383,8 @@ herr_t h5_create_group(const hid_t file_id, const char *cgroup);
               hdf5_updateFF(__VA_ARGS__)
 #define GFAST_hdf5_updateGetIteration(...)            \
               hdf5_updateGetIteration(__VA_ARGS__)
-#define GFAST_hdf5_update__gpsData(...)       \
-              hdf5_update__gpsData(__VA_ARGS__)
+#define GFAST_hdf5_update_gpsData(...)       \
+              hdf5_update_gpsData(__VA_ARGS__)
 #define GFAST_hdf5_updateHypocenter(...)       \
               hdf5_updateHypocenter(__VA_ARGS__)
 #define GFAST_hdf5_updatePGD(...)            \

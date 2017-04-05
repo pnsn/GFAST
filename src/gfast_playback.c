@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     //------------------------------------------------------------------------//
     //
     // Read the input file
+    iscl_init();
     if (argc != 2)
     {
         printf("Usage: %s property_file_name\n", fcnm);
@@ -64,7 +65,6 @@ int main(int argc, char *argv[])
     memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
     memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct)); 
-    iscl_init(); // Fire up the computational library
     // Read the properties file
     log_infoF("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);

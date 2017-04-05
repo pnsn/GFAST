@@ -347,10 +347,10 @@ int eewUtils_driveGFAST(const double currentTime,
             h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
                                                 SA.eventid,
                                                 currentTime);
-            ierr = GFAST_hdf5_update__gpsData(props.h5ArchiveDir,
-                                              SA.eventid,
-                                              h5k,
-                                              *gps_data);
+            ierr = GFAST_hdf5_update_gpsData(props.h5ArchiveDir,
+                                             SA.eventid,
+                                             h5k,
+                                             *gps_data);
             ierr = GFAST_hdf5_updateHypocenter(props.h5ArchiveDir,
                                                SA.eventid,
                                                h5k,
