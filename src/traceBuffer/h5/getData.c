@@ -99,22 +99,27 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         // Indices in chunk to read from
         i1 = (int) ((t1 - ts1)/dt + 0.5);
         i2 = (int) ((t2 - ts1)/dt + 0.5);
-        if (i1 < 0){i1 = 0;}
-        if (i2 > maxpts - 1){i2 = maxpts - 1;}
+        i1 = MAX(i1, 0);          //if (i1 < 0){i1 = 0;}
+        i2 = MIN(i2, maxpts - 1); //if (i2 > maxpts - 1){i2 = maxpts - 1;}
         // Indices to set (if i were more clever i could make this span a
         // superset of the times in memory - but then i'd fill it with NaNs
         // and risk messing up the offset computation - particularly at the
         // beginning where we have to know the position at the origin time)
         j1 = i1;
         j2 = i2;
-        if (j1 < 0){j1 = 0;} 
-        if (j2 > maxpts - 1){j2 = maxpts - 1;}
+        j1 = MAX(j1, 0);          //if (j1 < 0){j1 = 0;} 
+        j2 = MIN(j2, maxpts - 1); //if (j2 > maxpts - 1){j2 = maxpts - 1;}
         if (i2 - i1 > j2 - j1)
         {
             log_errorF("%s: Error source array larger than dest array\n", fcnm);
-            return - 1;
+            return -1;
         }
         ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
+        /*
+        ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
+        j1 = 0;
+        j2 = j1 + ncopy;
+        */
         // Get the data onto the buffers
         for (k=k1; k<k2; k++)
         {
@@ -123,19 +128,28 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             h5traceBuffer->traces[k].t1 = t1;
             h5traceBuffer->traces[k].ncopy = ncopy;
             h5traceBuffer->traces[k].gain = gain[k-k1];
+            // Set the data to NaN's
             h5traceBuffer->traces[k].data
                 = array_set64f(ncopy, (double) NAN, &ierr);
             // copy it
             ibeg = h5traceBuffer->traces[k].traceNumber*maxpts + i1;
-            iend = ibeg + i2;
+            iend = ibeg + ncopy - 1; //i2;
             if (iend - ibeg + 1 != ncopy)
             {
                 log_errorF("%s: Inconsistent copy size %d %d %d\n",
                            fcnm, ibeg, iend, ncopy);
                 return -1;
             }
-            memcpy(&h5traceBuffer->traces[k].data[j1], &work[ibeg],
-                   (size_t) (ncopy)*sizeof(double)); 
+            if (iend >= maxpts*ntraces)
+            {
+                log_errorF("%s: Critical error - work bounds exceeded\n",
+                           fcnm);
+                return -1;
+            } 
+            //memcpy(&h5traceBuffer->traces[k].data[j1], &work[ibeg],
+            //       (size_t) (ncopy)*sizeof(double)); 
+            ierr = array_copy64f_work(ncopy, &work[ibeg],
+                                      &h5traceBuffer->traces[k].data[j1]);
         } // Loop on streams in this group
         // Release temporary memory 
         memory_free64f(&work);
