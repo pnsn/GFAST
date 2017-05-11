@@ -7,6 +7,12 @@
 #include "iscl/log/log.h"
 
 #define PD_MAX_NAN -DBL_MAX
+#ifndef MAX
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#endif
+#ifndef MIN
+#define MIN(x,y) (((x) < (y)) ? (x) : (y))
+#endif
 
 static double __getPeakDisplacement(const int npts,
                                     const double dt,
@@ -184,8 +190,8 @@ static double __getPeakDisplacement(const int npts,
     n0 = 0.0;
     e0 = 0.0;
     diffT = ev_time - epoch;
-    indx0 = (int) (fmax(0, (int) (diffT/dt + 0.5)));
-    indx0 = (int) (fmin(npts-1, indx0));
+    indx0 = MAX(0, (int) (diffT/dt + 0.5));
+    indx0 = MIN(npts-1, indx0);
     // Compute the offset
     diffT = ev_time - epoch;
     u0 = ubuff[indx0];

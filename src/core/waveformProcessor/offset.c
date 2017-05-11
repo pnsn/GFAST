@@ -5,6 +5,13 @@
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 
+#ifndef MAX
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#endif
+#ifndef MIN
+#define MIN(x,y) (((x) < (y)) ? (x) : (y))
+#endif
+
 static bool __getAverageOffset(const int npts,
                                const double dt, 
                                const double ev_time,
@@ -90,6 +97,14 @@ int core_waveformProcessor_offset(const int utm_zone,
     // Error handling
     *ierr = 0;
     nsites = 0;
+    if (offset_data->ubuff == NULL || offset_data->nbuff == NULL ||
+        offset_data->ebuff == NULL || offset_data->wtu == NULL ||
+        offset_data->wtn == NULL || offset_data->wte == NULL ||
+        offset_data->lactive == NULL)
+    {
+        log_errorF("%s: Error offset_data pointers not initialized\n", fcnm);
+        return -1;
+    }
     if (gps_data.stream_length != offset_data->nsites)
     {
         log_errorF("%s: Inconsistent structure sizes %d %d\n",
@@ -247,8 +262,8 @@ static bool __getAverageOffset(const int npts,
     // Estimate the origin time index
     diffT = ev_time - epoch;
     if (diffT < 0.0){return luse;} // This will be a disaster
-    indx0 = (int) (fmax(0, (int) (diffT/dt + 0.5)));
-    indx0 = (int) (fmin(npts-1, indx0));
+    indx0 = MAX(0, (int) (diffT/dt + 0.5));
+    indx0 = MIN(npts-1, indx0);
     u0 = ubuff[indx0];
     n0 = nbuff[indx0];
     e0 = ebuff[indx0];
@@ -257,8 +272,8 @@ static bool __getAverageOffset(const int npts,
     // Estimate the S wave arrival time index
     diffT = swave_time - epoch;
     if (diffT < 0.0){return luse;}
-    indx0 = (int) (fmax(0, (int) (diffT/dt + 0.5)));
-    indx0 = (int) (fmin(npts-1, indx0));
+    indx0 = MAX(0, (int) (diffT/dt + 0.5));
+    indx0 = MIN(npts-1, indx0);
     // Compute the average from the S wave arrival to the end of the data
     uOffsetNan = 0.0;
     nOffsetNan = 0.0;
