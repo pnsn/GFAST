@@ -84,8 +84,8 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         return msgs;
     }
     // Set space
-    msgs = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ*messageBlock);
-    msg  = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
+    msgs = memory_calloc8c(MAX_TRACEBUF_SIZ*messageBlock);
+    msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
     nblock = 1;
     // Unpack the ring
     while (true)
@@ -147,14 +147,14 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                 nwork = MAX_TRACEBUF_SIZ*(*nRead + nblock*messageBlock);
                 ncopy = MAX_TRACEBUF_SIZ*(*nRead);
                 // set workspace and copy old messages
-                msgWork = ISCL_memory_calloc__char(ncopy);
+                msgWork = memory_calloc8c(ncopy);
                 memcpy(msgWork, msgs, (size_t) ncopy);
                 // resize msgs
-                ISCL_memory_free__char(&msgs);
-                msgs = ISCL_memory_calloc__char(nwork);
+                memory_free8c(&msgs);
+                msgs = memory_calloc8c(nwork);
                 // copy back and free workspace
                 memcpy(msgs, msgWork, (size_t) ncopy);
-                ISCL_memory_free__char(&msgWork);
+                memory_free8c(&msgWork);
                 // Update block alloc
                 nblock = nblock + 1;
             }
@@ -162,7 +162,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         // End of ring - time to leave
         if (retval == GET_NONE){break;}
     }
-    ISCL_memory_free__char(&msg);
+    memory_free8c(&msg);
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
     return msgs;
 }

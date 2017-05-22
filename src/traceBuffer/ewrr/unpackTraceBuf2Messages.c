@@ -150,8 +150,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         return -1;
     }
     // Apply the permutations
-    ierr = sorting_applyPermutation32i_work(nRead,    iperm, imap,  imap);
-    ierr = sorting_applyPermutation32i_work(nRead,    iperm, imsg,  imsg);
+    ierr = sorting_applyPermutation32i_work(nRead, iperm, imap,  imap);
+    ierr = sorting_applyPermutation32i_work(nRead, iperm, imsg,  imsg);
     ierr = sorting_applyPermutation64f_work(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
@@ -183,14 +183,14 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                         return -1;
                     }
                     sorting_applyPermutation32i_work(nsort, iperm,
-                                                          &imap[i1],
-                                                          &imap[i1]);
+                                                     &imap[i1],
+                                                     &imap[i1]);
                     sorting_applyPermutation32i_work(nsort, iperm,
-                                                          &imsg[i1],
-                                                          &imsg[i1]);
+                                                     &imsg[i1],
+                                                     &imsg[i1]);
                     sorting_applyPermutation64f_work(nsort, iperm,
-                                                          &times[i1],
-                                                          &times[i1]);
+                                                     &times[i1],
+                                                     &times[i1]);
                 }
             }
             else if (nsort == 0)
