@@ -24,18 +24,9 @@
 void traceBfufer_ewrr_freetb2Trace(const bool clearSNCL,
                                    struct tb2Trace_struct *trace)
 {
-    if (trace->data != NULL)
-    {
-        ISCL_memory_free__int(&trace->data);
-    }
-    if (trace->times != NULL)
-    {
-        ISCL_memory_free__double(&trace->times);
-    }
-    if (trace->chunkPtr != NULL)
-    {
-        ISCL_memory_free__int(&trace->chunkPtr);
-    }
+    memory_free32i(&trace->data);
+    memory_free64f(&trace->times);
+    memory_free32i(&trace->chunkPtr);
     trace->nchunks = 0;
     trace->npts = 0;
     trace->dt = 0.0;
