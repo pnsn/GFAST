@@ -69,17 +69,17 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Nothing to do
     if (tb2Data->ntraces == 0){return 0;}
     if (nRead == 0){return 0;}
-printf("%d\n", nRead);
+//printf("%d\n", nRead);
     // Set the workspace
-    msg   = ISCL_memory_calloc__char(MAX_TRACEBUF_SIZ);
-    imap  = ISCL_memory_calloc__int(nRead+1);
-    imsg  = ISCL_memory_calloc__int(nRead);
-    iperm = ISCL_memory_calloc__int(nRead);
-    kpts  = ISCL_memory_calloc__int(tb2Data->ntraces);
-    nmsg  = ISCL_memory_calloc__int(tb2Data->ntraces);
-    imapPtr = ISCL_memory_calloc__int(nRead + 1); // worst case size
-    times = ISCL_memory_calloc__double(nRead);
-    resp  = ISCL_memory_calloc__int(maxpts);
+    msg   = memory_calloc8c(MAX_TRACEBUF_SIZ);
+    imap  = memory_calloc32i(nRead+1);
+    imsg  = memory_calloc32i(nRead);
+    iperm = memory_calloc32i(nRead);
+    kpts  = memory_calloc32i(tb2Data->ntraces);
+    nmsg  = memory_calloc32i(tb2Data->ntraces);
+    imapPtr = memory_calloc32i(nRead + 1); // worst case size
+    times = memory_calloc64f(nRead);
+    resp  = memory_calloc32i(maxpts);
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
     // Loop on waveforms and get workspace count
     for (k=0; k<tb2Data->ntraces; k++)
@@ -141,18 +141,18 @@ printf("%d\n", nRead);
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
     // will be faster
-printf("%d\n", nRead);
+//printf("%d\n", nRead);
     imap[nRead] =-1;
-    ierr = ISCL_sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
+    ierr = sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
     if (ierr != 0)
     {
         log_errorF("%s: Error sorting messages\n", fcnm);
         return -1;
     }
     // Apply the permutations
-    ierr = ISCL_sorting_applyPermutation32i_work(nRead,    iperm, imap,  imap);
-    ierr = ISCL_sorting_applyPermutation32i_work(nRead,    iperm, imsg,  imsg);
-    ierr = ISCL_sorting_applyPermutation64f_work(nRead, iperm, times, times);
+    ierr = sorting_applyPermutation32i_work(nRead,    iperm, imap,  imap);
+    ierr = sorting_applyPermutation32i_work(nRead,    iperm, imsg,  imsg);
+    ierr = sorting_applyPermutation64f_work(nRead, iperm, times, times);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
@@ -170,25 +170,25 @@ printf("%d\n", nRead);
             nsort = i2 - i1;
             if (nsort > 1)
             {
-printf("sorting %d %d\n", i1, i2);
+//printf("sorting %d %d\n", i1, i2);
                 // Verify sort is necessary (benefit of stable sort) 
-                if (!ISCL_sorting_issorted64f(nsort, &times[i1],
+                if (!sorting_issorted64f(nsort, &times[i1],
                                               SORT_ASCENDING))
                 {
-                    ierr = ISCL_sorting_argsort64f_work(nsort, &times[i1],
+                    ierr = sorting_argsort64f_work(nsort, &times[i1],
                                                         SORT_ASCENDING, iperm);
                     if (ierr != 0)
                     {
                         log_errorF("%s: Failed partial sort\n", fcnm);
                         return -1;
                     }
-                    ISCL_sorting_applyPermutation32i_work(nsort, iperm,
+                    sorting_applyPermutation32i_work(nsort, iperm,
                                                           &imap[i1],
                                                           &imap[i1]);
-                    ISCL_sorting_applyPermutation32i_work(nsort, iperm,
+                    sorting_applyPermutation32i_work(nsort, iperm,
                                                           &imsg[i1],
                                                           &imsg[i1]);
-                    ISCL_sorting_applyPermutation64f_work(nsort, iperm,
+                    sorting_applyPermutation64f_work(nsort, iperm,
                                                           &times[i1],
                                                           &times[i1]);
                 }
@@ -207,13 +207,13 @@ printf("sorting %d %d\n", i1, i2);
         traceBfufer_ewrr_freetb2Trace(clearSNCL, &tb2Data->traces[k]);
         if (kpts[k] > 0)
         {
-            tb2Data->traces[k].data  = ISCL_memory_calloc__int(kpts[k]);
-            tb2Data->traces[k].times = ISCL_memory_calloc__double(kpts[k]);
-            tb2Data->traces[k].chunkPtr = ISCL_memory_calloc__int(nmsg[k]+1);
+            tb2Data->traces[k].data  = memory_calloc32i(kpts[k]);
+            tb2Data->traces[k].times = memory_calloc64f(kpts[k]);
+            tb2Data->traces[k].chunkPtr = memory_calloc32i(nmsg[k]+1);
             tb2Data->traces[k].npts = kpts[k];
         }
     }
-printf("nReadPtr: %d\n", nReadPtr);
+//printf("nReadPtr: %d\n", nReadPtr);
     // Unpack the traces
     for (ir=0; ir<nReadPtr; ir++)
     {
@@ -279,10 +279,10 @@ printf("nReadPtr: %d\n", nReadPtr);
                                                  + (double) l*dt;
             }
             kndx = kndx + npts; 
- printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
-                                traceHeader.net, traceHeader.sta,
-                                traceHeader.chan, traceHeader.loc,
-                                traceHeader.nsamp, (double) resp[0]/1000000); 
+// printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
+//                                traceHeader.net, traceHeader.sta,
+//                                traceHeader.chan, traceHeader.loc,
+//                                traceHeader.nsamp, (double) resp[0]/1000000); 
         } // Loop on messages for this SNCL
         // Special case for one message
         if (i2 - i1 == 1 && kpts[k] > 0)
@@ -310,15 +310,15 @@ printf("nReadPtr: %d\n", nReadPtr);
     } // Loop on pointers
 
     // Free space
-    ISCL_memory_free__char(&msg);
-    ISCL_memory_free__int(&imap);
-    ISCL_memory_free__int(&imsg);
-    ISCL_memory_free__int(&iperm);
-    ISCL_memory_free__int(&kpts);
-    ISCL_memory_free__int(&nmsg);
-    ISCL_memory_free__int(&resp);
-    ISCL_memory_free__double(&times);
-    ISCL_memory_free__int(&imapPtr);
+    memory_free8c(&msg);
+    memory_free32i(&imap);
+    memory_free32i(&imsg);
+    memory_free32i(&iperm);
+    memory_free32i(&kpts);
+    memory_free32i(&nmsg);
+    memory_free32i(&resp);
+    memory_free64f(&times);
+    memory_free32i(&imapPtr);
     return 0;
 }
 //============================================================================//
