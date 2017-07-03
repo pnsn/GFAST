@@ -2,7 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "gfast.h"
+#ifdef GFAST_USE_INTEL
+#include <mkl_cblas.h>
+#else
 #include <cblas.h>
+#endif
 #include "cmopad.h"
 
 struct mt_t

@@ -13,14 +13,6 @@ if (GFAST_USE_INTEL)
   #ADD_DEFINITIONS(-DGFAST_USE_INTEL=1)
   find_package(MKL REQUIRED)
   find_package(IPP REQUIRED)
-  find_path(CBLAS_INCLUDE_DIR
-            NAMES cblas.h
-            HINTS /usr/include /usr/local/include $ENV{CBLASDIR}/include
-  )
-  find_path(LAPACKE_INCLUDE_DIR
-            NAMES lapacke.h
-            HINTS /usr/include /usr/local/include $ENV{LAPACKEDIR}/include 
-  )
 else()
   find_package(CBLAS REQUIRED)
   find_package(LAPACKE REQUIRED)
@@ -50,16 +42,20 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   cmopad
   ${CBLAS_INCLUDE_DIR}
-  ${LAPACKE_INCLUDE_DIR}
-  ${CBLAS_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${H5_C_INCLUDE_DIR}
   ${INIPARSER_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR}
 )
+
 IF (GFAST_USE_INTEL)
 INCLUDE_DIRECTORIES(
   ${MKL_INCLUDE_DIR}
+)
+ELSE ()
+INCLUDE_DIRECTORIES(
+  ${CBLAS_INCLUDE_DIR}
+  ${LAPACKE_INCLUDE_DIR}
 )
 ENDIF()
 
@@ -299,4 +295,3 @@ set(CPACK_PACKAGE_VENDOR "PNSN")
 set(CPACK_PACKAGE_CONTACT "crowellb@uw.edu")
 set(CPACK_PACKAGE_LICENSE "GNU Public License 3")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Geodetic first approximation of earthquake size and timing")
-

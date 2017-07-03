@@ -3,8 +3,12 @@
 #include <string.h>
 #include <math.h>
 #include <float.h>
-#include <cblas.h>
 #include "gfast_hdf5.h"
+#ifdef GFAST_USE_INTEL
+#include <mkl_cblas.h>
+#else
+#include <cblas.h>
+#endif
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
