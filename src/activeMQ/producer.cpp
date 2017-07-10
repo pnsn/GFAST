@@ -103,9 +103,9 @@ class ShakeAlertProducer
         //====================================================================//
         /*!
          * @brief Convenience function to determine if the class was
-         *        initialized
+         *        initialized.
          *
-         * @result if true then the class was initialized
+         * @result If true then the class was initialized.
          *
          * @author Ben Baker (ISTI)
          *
@@ -243,11 +243,11 @@ class ShakeAlertProducer
         }
         //====================================================================//
         /*!
-         * @brief Sends a text message
+         * @brief Sends a text message.
          *
-         * @param[in] message    message to send
+         * @param[in] message    Message to send.
          *
-         * @result 0 indicates success
+         * @result 0 indicates success.
          *
          */
         int sendMessage(const char *message)
@@ -276,11 +276,11 @@ class ShakeAlertProducer
         }
         //====================================================================//
         /*!
-         * @brief Sends a blob file message
+         * @brief Sends a blob file message.
          *
-         * @param[in] location    location of blob message (e.g. /scratch/gfast)
+         * @param[in] location   Location of blob message (e.g. /scratch/gfast).
          *
-         * @result 0 indicates success
+         * @result 0 indicates success.
          *
          */
 /*
@@ -384,12 +384,14 @@ static vector<class ShakeAlertProducer> producer(0);// = 0;
 //static bool linit_amqlib = false;
 
 /*!
- * @brief Sets the tcp URI for the producer
+ * @brief Sets the tcp URI for the producer.
  *
- * @param[in] host       host name (e.g. mycomputer.abc.def.edu)
- * @param[in] port       port number
+ * @param[in] host       Host name (e.g. mycomputer.abc.def.edu).
+ * @param[in] port       Port number.
  *
- * @result tcp URI request for ActiveMQ connection
+ * @result tcp URI request for ActiveMQ connection.
+ *
+ * @author Ben Baker, ISTI
  *
  */
 extern "C" char *activeMQ_producer_setTcpURI(const char *host, const int port)
@@ -403,30 +405,30 @@ extern "C" char *activeMQ_producer_setTcpURI(const char *host, const int port)
  *        This function must be called prior to any other functions in this
  *        class.
  *
- * @param[in] AMQuser         authenticating username
- * @param[in] AMQpassword     authenticating password 
- * @param[in] AMQdestination  queue or topic name on the broker
+ * @param[in] AMQuser         Authenticating username.
+ * @param[in] AMQpassword     Authenticating password.
+ * @param[in] AMQdestination  Queue or topic name on the broker.
  * @param[in] AMQhostname     URL of host computer (e.g. computer.abc.def.edu)
  * @param[in] port            port number which is accepting connections on
- *                            host computer
- * @param[in] useTopic        if true then the message receiver connects
+ *                            host computer.
+ * @param[in] useTopic        If true then the message receiver connects
  *                            to a topic (default).
- *                            if false then the message receiver connects
+ *                            If false then the message receiver connects
  *                            to a queue.
- * @param[in] clientAck       if true then the session will acknowledge
+ * @param[in] clientAck       If true then the session will acknowledge
  *                            a message has been received.
- *                            if false then the session automatically 
+ *                            If false then the session automatically 
  *                            acknowledges a client's receipt of a message
  *                            either when the session has successfully
  *                            returned from a call to receive or when the
  *                            session's message listener has successfully
  *                            processed the message (default).
- *                            if true then the session is transacted
+ *                            If true then the session is transacted
  *                            and the acknowledgement of messages is 
  *                            handled internally.
- * @param[in] verbose         controls verobosity
+ * @param[in] verbose         Controls verobosity.  0 is quiet.
  *
- * @result session ID number
+ * @result Session ID number.
  *
  * @author Ben Baker, ISTI
  *
@@ -492,7 +494,10 @@ extern "C" int activeMQ_producer_initialize(const char AMQuser[],
     return static_cast<int>(len);
 }
 /*!
- * @brief C interface function to destroy the ActiveMQ producer 
+ * @brief C interface function to destroy the ActiveMQ producer.
+ *
+ * @author Ben Baker, ISTI
+ *
  */
 extern "C" void activeMQ_producer_finalize(void)
 {
@@ -508,11 +513,13 @@ extern "C" void activeMQ_producer_finalize(void)
 }
 //============================================================================//
 /*!
- * @brief Sends a message
+ * @brief C interface function to send a message.
  *
- * @param[in] message   message to send
+ * @param[in] message   Message to send.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
+ *
+ * @author Ben Baker, ISTI
  *
  */
 extern "C" int activeMQ_producer_sendMessage(const int id, const char *message)
