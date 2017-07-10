@@ -18,21 +18,25 @@
 /*!
  * @brief Writes the focal mechanism and derived quantities such as the 
  *        scalar moment, double couple and CLVD percentage, nodal planes,
- *        and principal axes to QuakeML
+ *        and principal axes to QuakeML.
  *
  * @param[in] publicIDroot    QuakeML public ID root
- *                            (e.g. quakeml:us.anss.org/)
- * @param[in] evid            event ID
- * @param[in] method          method (for this project use gps)
- * @param[in] mt              moment tensor in NED format with units of
- *                            Newton-meters.   the moment tensor is packed
+ *                            (e.g. quakeml:us.anss.org/).
+ * @param[in] evid            Event ID.
+ * @param[in] method          Method by which the focal mechanism was 
+ *                            computed (for this project use gps).
+ * @param[in] mt              Moment tensor in NED format with units of
+ *                            Newton-meters.   The moment tensor is packed
  *                            \f$ \{ m_{xx}, m_{yy}, m_{zz},
  *                                   m_{xy}, m_{xz}, m_{yz} \} \f$.
  *
- * @param[in,out] xml_writer  handle to XML writer to which moment tensor
- *                            and derived quantities are to be written. 
+ * @param[in,out] xml_writer  On input this is a pointer to the
+ *                            xmlTextWriterPtr. 
+ *                            On successful output the focal mechanism has been
+ *                            appended to the xml_writer as a QuakeML
+ *                            focal mechanism.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Ben Baker (ISTI)
  *
@@ -57,7 +61,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     ierr = 0;
     writer = (xmlTextWriterPtr ) xml_writer;
     // Set the publicID
-    memset(publicID, 0, sizeof(publicID));
+    memset(publicID, 0, 512*sizeof(char));
     if (publicIDroot != NULL){strcat(publicID, publicIDroot);} 
     lenos = strlen(publicID);
     if (lenos > 0)

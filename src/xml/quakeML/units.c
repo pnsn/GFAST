@@ -4,12 +4,12 @@
 #include "gfast_xml.h"
 
 /*!
- * @brief Converts the enumerated units a string 
+ * @brief Converts the enumerated units a string.
  *
- * @param[in] enum_units      enumerated units defined in alert_units_enum
+ * @param[in] enum_units      Enumerated units defined in alert_units_enum.
  *
- * @param[out] char_units     corresponding string representation of the
- *                            enum_units
+ * @param[out] char_units     Corresponding string representation of the
+ *                            enum_units.
  *
  * @author Ben Baker, ISTI
  *
@@ -18,7 +18,7 @@ void __xml_units__enum2string(enum alert_units_enum enum_units,
                               char char_units[128])
 {
     const char *fcnm = "__alert_units__units2string\0";
-    memset(char_units, 0, 128);
+    memset(char_units, 0, 128*sizeof(char));
     if (enum_units == DEGREES)
     {
         strcpy(char_units, "deg\0");

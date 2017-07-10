@@ -14,6 +14,24 @@
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 
+/*!
+ * @brief Writes an origin to the xml_writer
+ *
+ * @param[in] publicIDroot    QuakeML public ID root
+ *                            (e.g. quakeml:us.anss.org/).
+ * @param[in] evid            Event ID.
+ * @param[in] method          Method by which the origin was computed.
+ * @param[in] origin          Contains the event origin information.
+ *
+ * @param[in,out] xml_writer  On input this is a pointer to the
+ *                            xmlTextWriterPtr. 
+ *                            On successful output the origin has been
+ *                            appended to the xml_writer as a QuakeML origin.
+ * @result 0 indicates success.
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
 int xml_quakeML_writeOrigin(const char *publicIDroot,
                             const char *evid,
                             const char *method,
@@ -42,7 +60,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
     ierr = 0;
     writer = (xmlTextWriterPtr ) xml_writer;
     // Set the publicID
-    memset(publicID, 0, sizeof(publicID));
+    memset(publicID, 0, 512*sizeof(char));
     if (publicIDroot != NULL){strcat(publicID, publicIDroot);}
     lenos = strlen(publicID);
     if (lenos > 0)
