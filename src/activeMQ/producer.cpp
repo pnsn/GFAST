@@ -515,6 +515,9 @@ extern "C" void activeMQ_producer_finalize(void)
 /*!
  * @brief C interface function to send a message.
  *
+ * @param[in] id        Message broker ID index.  This is a C indexed number
+ *                      that starts at 0 and is less than the number of
+ *                      producers.
  * @param[in] message   Message to send.
  *
  * @result 0 indicates success.
@@ -528,7 +531,7 @@ extern "C" int activeMQ_producer_sendMessage(const int id, const char *message)
     int ierr;
     size_t idl;
     idl = static_cast<size_t>(id);
-    if (id < 0 || idl > producer.size())
+    if (id < 0 || idl >= producer.size())
     {
         printf("%s: Invalid session ID: %d\n", fcnm, id);
         return -1;

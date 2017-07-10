@@ -71,33 +71,33 @@ class ShakeAlertConsumer : public ExceptionListener,
          * @brief Initializes the internal variables for the ActiveMQ message
          *        listener.
          *
-         * @param[in] username      authenticating user name
-         * @param[in] password      authenticating user password
-         * @param[in] destination   queue or topic name on the broker
-         * @param[in] brokerURI     URI of message broker
-         * @param[in] useTopic      if true then the message receiver connects
+         * @param[in] username      Authenticating user name.
+         * @param[in] password      Authenticating user password.
+         * @param[in] destination   Queue or topic name on the broker.
+         * @param[in] brokerURI     URI of message broker.
+         * @param[in] useTopic      If true then the message receiver connects
          *                          to a topic (default).
-         *                          if false then the message receiver connects
+         *                          If false then the message receiver connects
          *                          to a queue.
-         * @param[in] clientAck     if true then the session will acknowledge
+         * @param[in] clientAck     If true then the session will acknowledge
          *                          a message has been received.
-         *                          if false then the session automatically 
+         *                          If false then the session automatically 
          *                          acknowledges a client's receipt of a message
          *                          either when the session has successfully
          *                          returned from a call to receive or when the
          *                          session's message listener has successfully
          *                          processed the message (default).
-         *                          if true then the session is transacted
+         *                          If true then the session is transacted
          *                          and the acknowledgement of messages is 
          *                          handled internally.
-         * @param[in] luseListener  if false then you must actively check your
+         * @param[in] luseListener  If false then you must actively check your
          *                          messages (default).
-         *                          if true then use a message listener - 
+         *                          If true then use a message listener - 
          *                          this is useful when the driving program
          *                          language is threaded and/or uses triggers.
          *                         
-         * @param[in] verbose       controls the verbosity - use 0 for reporting
-         *                          of errors only
+         * @param[in] verbose       Controls the verbosity - use 0 for reporting
+         *                          of errors only.
          *
          */
         void initialize(const string username,
@@ -259,7 +259,7 @@ class ShakeAlertConsumer : public ExceptionListener,
          *        __textMessage and __lhaveMessage will indicate that it is
          *        available to be copied. 
          *
-         * @param[in] message   ActiveMQ Message type which can be NULL
+         * @param[in] message   ActiveMQ Message type which can be NULL.
          * 
          */
         virtual void onMessage(const Message *message)
@@ -296,9 +296,9 @@ class ShakeAlertConsumer : public ExceptionListener,
         //====================================================================//
         /*!
          * @brief Convenience function to determine if the class was
-         *        initialized
+         *        initialized.
          *
-         * @result if true then the class was initialized
+         * @result If true then the class was initialized.
          *
          * @author Ben Baker (ISTI)
          *
@@ -309,11 +309,11 @@ class ShakeAlertConsumer : public ExceptionListener,
         }
         //====================================================================//
         /*!
-         * @brief Checks if a message exists, and if yes, returns the message
+         * @brief Checks if a message exists, and if yes, returns the message.
          *
-         * @param[out] ierr    0 indicates success
+         * @param[out] ierr    0 indicates success.
          *
-         * @result If NULL there is no message.  Otherwise, this is the NULL
+         * @result If NULL there is no message.  Otherwise, this is the null
          *         terminated char * message from the AMQ listener.
          *
          */
@@ -345,13 +345,13 @@ class ShakeAlertConsumer : public ExceptionListener,
         }
         //====================================================================//
         /*!
-         * @brief Checks if a message exists, and if yes, returns the message
+         * @brief Checks if a message exists, and if yes, returns the message.
          *
-         * @param[in] ms_wait  number of milliseconds to wait for a message
-         *                     prior to returning.  if 0 then the function will
+         * @param[in] ms_wait  Number of milliseconds to wait for a message
+         *                     prior to returning.  If 0 then the function will
          *                     not wait.
          *
-         * @param[out] ierr    0 indicates success
+         * @param[out] ierr    0 indicates success.
          *
          * @result If NULL there is no message.  Otherwise, this is the NULL
          *         terminated char * message from the AMQ listener.
@@ -401,7 +401,7 @@ class ShakeAlertConsumer : public ExceptionListener,
         /*!
          * @brief If something bad happens you see it here as this class 
          *        is also registered as an ExceptionListener (see above
-         *        public ExceptionListener) with the connection
+         *        public ExceptionListener) with the connection.
          */ 
         virtual void onException(const CMSException& ex AMQCPP_UNUSED)
         {
@@ -501,40 +501,41 @@ static ShakeAlertConsumer consumer;
  * @brief C interface function to initialize the ActiveMQ shakeAlert
  *        decision module message listener.  This function must be called
  *        first.
- * @param[in] AMQuser         authenticating username
- * @param[in] AMQpassword     authenticating password 
- * @param[in] AMQdestination  queue or topic name on the broker
- * @param[in] AMQhostname     URL of host computer (e.g. computer.abc.def.edu)
- * @param[in] port            port number which is accepting connections on
- *                            host computer
- * @param[in] msReconnect     number of milliseconds to wait for a reconnect
- *                            attempt.  if 0 or if maxAttempts is 0 then this
- *                            command will be ignored
- * @param[in] maxAttempts     number of attempts to connect before giving up
- *                            if 0 this command will be ignored.
- * @param[in] useTopic        if true then the message receiver connects
+ *
+ * @param[in] AMQuser         Authenticating username.
+ * @param[in] AMQpassword     Authenticating password.
+ * @param[in] AMQdestination  Queue or topic name on the broker.
+ * @param[in] AMQhostname     URL of host computer (e.g. computer.abc.def.edu).
+ * @param[in] port            Port number which is accepting connections on
+ *                            host computer.
+ * @param[in] msReconnect     Number of milliseconds to wait for a reconnect
+ *                            attempt.  If 0 or if maxAttempts is 0 then this
+ *                            command will be ignored.
+ * @param[in] maxAttempts     Number of attempts to connect before giving up.
+ *                            If 0 this command will be ignored.
+ * @param[in] useTopic        If true then the message receiver connects
  *                            to a topic (default).
- *                            if false then the message receiver connects
+ *                            If false then the message receiver connects
  *                            to a queue.
- * @param[in] clientAck       if true then the session will acknowledge
+ * @param[in] clientAck       If true then the session will acknowledge
  *                            a message has been received.
- *                            if false then the session automatically 
+ *                            If false then the session automatically 
  *                            acknowledges a client's receipt of a message
  *                            either when the session has successfully
  *                            returned from a call to receive or when the
  *                            session's message listener has successfully
  *                            processed the message (default).
- *                            if true then the session is transacted
+ *                            If true then the session is transacted
  *                            and the acknowledgement of messages is 
  *                            handled internally.
- * @param[in] luseListener    if false then you must actively check your
+ * @param[in] luseListener    If false then you must actively check your
  *                            messages (default).
- *                            if true then use a message listener - 
+ *                            If true then use a message listener - 
  *                            this is useful when the driving program
  *                            language is threaded and/or uses triggers.
- * @param[in] verbose         controls verobosity
+ * @param[in] verbose         controls verobosity.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Ben Baker, ISTI
  *
@@ -614,7 +615,10 @@ extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
 }
 //============================================================================//
 /*!
- * @brief C interface function to destroy the ActiveMQ listener
+ * @brief C interface function to destroy the ActiveMQ listener.
+ *
+ * @author Ben Baker, ISTI
+ *
  */
 extern "C" void activeMQ_consumer_finalize(void)
 {
@@ -630,16 +634,16 @@ extern "C" void activeMQ_consumer_finalize(void)
  * @brief Checks for the presence of a message from ActiveMQ and, if a message
  *        was received, returns it.
  *
- * @param[in] ms_wait  number of milliseconds to wait for a message. if 0
+ * @param[in] ms_wait  Number of milliseconds to wait for a message. If 0
  *                     then it will not wait.
  *
  * @param[out] ierr    0 indicates success (note a successful call can return
- *                     no message)
+ *                     no message). \n
  *                     1 indicates an internal error has occurred.
  *
- * @result on successful exit either is NULL to indicate there are no messages
+ * @result On successful exit either is NULL to indicate there are no messages
  *         or contains a null terminated char * shakeAlert decision module
- *         message
+ *         message.
  */
 extern "C" char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr)
 {
@@ -665,12 +669,12 @@ extern "C" char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr)
  *        was received, returns it.
  *
  * @param[out] ierr    0 indicates success (note a successful call can return
- *                     no message)
+ *                     no message). \n
  *                     1 indicates an internal error has occurred.
  *
- * @result on successful exit either is NULL to indicate there are no messages
+ * @result On successful exit either is NULL to indicate there are no messages
  *         or contains a null terminated char * shakeAlert decision module
- *         message
+ *         message.
  */
 extern "C" char *activeMQ_consumer_getMessageFromListener(int *ierr)
 {
@@ -693,17 +697,17 @@ extern "C" char *activeMQ_consumer_getMessageFromListener(int *ierr)
 //============================================================================//
 /*!
  * @brief Sets the tcp URI from the host name, port number, max milliseconds
- *        for a reconnect, and max number of attempts to connect
+ *        for a reconnect, and max number of attempts to connect.
  *
- * @param[in] host         host name (e.g. mycomputer.abc.def.edu)
- * @param[in] port         port number
- * @param[in] msReconnect  number of milliseconds to wait for a reconnect
- *                         attempt.  if 0 or if maxAttempts is 0 then this
- *                         command will be ignored
- * @param[in] maxAttempts  number of attempts to connect before giving up
+ * @param[in] host         Host name (e.g. mycomputer.abc.def.edu).
+ * @param[in] port         Port number.
+ * @param[in] msReconnect  Number of milliseconds to wait for a reconnect
+ *                         attempt.  If 0 or if maxAttempts is 0 then this
+ *                         command will be ignored.
+ * @param[in] maxAttempts  Number of attempts to connect before giving up
  *                         if 0 this command will be ignored.
  *
- * @result tcp URI request for ActiveMQ connection
+ * @result tcp URI request for ActiveMQ connection.
  *
  */
 extern "C" char *activeMQ_setTcpURIRequest(const char *host,
