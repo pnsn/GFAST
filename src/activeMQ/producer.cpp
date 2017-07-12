@@ -484,7 +484,10 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
     // Give the producer a unique name
     //string prodID = IdGenerator().generateId();
     // Set the URI
-    brokerURI = activeMQ_producer_setTcpURI(AMQhostname, port);
+    char *brokerURIchar;
+    brokerURIchar = activeMQ_producer_setTcpURI(AMQhostname, port);
+    brokerURI = string(brokerURIchar);
+    delete[] brokerURIchar;
     // Make sure the library is initialized
     if (!activeMQ_isInit()){activeMQ_start();}
     if (verbose > 0)
@@ -495,6 +498,12 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
     producer->initialize(username, password, destination, brokerURI,
                          useTopic, clientAck, verbose); 
     producer->startMessageSender();
+    if (!producer->isInitialized())
+    {
+        printf("%s: Failed to initialize the producer\n", fcnm);
+        *ierr = 1;
+    }
+    brokerURI = "";
     return static_cast<void *> (producer);
 /*
     size_t len = producer.size();

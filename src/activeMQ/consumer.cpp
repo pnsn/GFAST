@@ -592,8 +592,11 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
         destination = "";
     }
     // Set the URI 
-    brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
-                                          msReconnect, maxAttempts);
+    char *brokerURIchar;
+    brokerURIchar = activeMQ_setTcpURIRequest(AMQhostname, port,
+                                                 msReconnect, maxAttempts);
+    brokerURI = string(brokerURIchar);
+    delete[] brokerURIchar;
     // Make sure the library is initialized
     if (!activeMQ_isInit())
     {
@@ -623,7 +626,8 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
         *ierr = 1;
         delete consumer;
         consumer = NULL;
-    } 
+    }
+    brokerURI = "";
     return static_cast<void *> (consumer);
 /*
     consumer.initialize(username, password, destination, brokerURI,
