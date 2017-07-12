@@ -239,7 +239,7 @@ class ShakeAlertConsumer : public ExceptionListener,
                     printf("%s: Creating message consumer...\n", fcnm);
                 }
                 __consumer = __session->createConsumer(__destination);
-                if (__luseListener){__consumer->setMessageListener(this);}
+                if (__luseListener){printf("do this\n"); __consumer->setMessageListener(this);}
                 if (__verbose > 2)
                 {
                     printf("%s: ActiveMQ listener running...\n", fcnm);
@@ -303,7 +303,7 @@ class ShakeAlertConsumer : public ExceptionListener,
          * @author Ben Baker (ISTI)
          *
          */
-        bool isInitialized(void)
+        bool isInitialized()
         {
             return __isInitialized;
         }
@@ -495,7 +495,9 @@ class ShakeAlertConsumer : public ExceptionListener,
 //----------------------------------------------------------------------------//
 //                 End the listener class. Begin the C interface              //
 //----------------------------------------------------------------------------//
+/*
 static ShakeAlertConsumer consumer;
+*/
 //static bool linit_amqlib = false;
 /*!
  * @brief C interface function to initialize the ActiveMQ shakeAlert
@@ -540,20 +542,23 @@ static ShakeAlertConsumer consumer;
  * @author Ben Baker, ISTI
  *
  */
-extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
-                                            const char AMQpassword[],
-                                            const char AMQdestination[],
-                                            const char AMQhostname[],
-                                            const int port,
-                                            const int msReconnect,
-                                            const int maxAttempts,
-                                            const bool useTopic,
-                                            const bool clientAck,
-                                            const bool luseListener,
-                                            const int verbose)
+extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
+                                              const char AMQpassword[],
+                                              const char AMQdestination[],
+                                              const char AMQhostname[],
+                                              const int port,
+                                              const int msReconnect,
+                                              const int maxAttempts,
+                                              const bool useTopic,
+                                              const bool clientAck,
+                                              const bool luseListener,
+                                              const int verbose,
+                                              int *ierr)
 {
     const char *fcnm = "activeMQ_consumer_initialize\0";
+    ShakeAlertConsumer *consumer = NULL;
     string brokerURI, destination, hostname, password, username;
+    *ierr = 0;
     if (AMQuser != NULL)
     {
         username = AMQuser;
@@ -608,10 +613,24 @@ extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
     {
         printf("%s: Initializing the consumer...\n", fcnm);
     }
+    consumer = new ShakeAlertConsumer;
+    consumer->initialize(username, password, destination, brokerURI,
+                         useTopic, clientAck, luseListener, verbose);
+    consumer->startMessageListener();
+    if (!consumer->isInitialized())
+    {
+        printf("%s: Failed to initialize consumer\n", fcnm);
+        *ierr = 1;
+        delete consumer;
+        consumer = NULL;
+    } 
+    return static_cast<void *> (consumer);
+/*
     consumer.initialize(username, password, destination, brokerURI,
                         useTopic, clientAck, luseListener, verbose);
     consumer.startMessageListener();
     return 0;
+*/
 }
 //============================================================================//
 /*!
@@ -620,13 +639,19 @@ extern "C" int activeMQ_consumer_initialize(const char AMQuser[],
  * @author Ben Baker, ISTI
  *
  */
-extern "C" void activeMQ_consumer_finalize(void)
+extern "C" void activeMQ_consumer_finalize(void *consumerIn)
 {
+    ShakeAlertConsumer *consumer = NULL;
+    consumer = static_cast<ShakeAlertConsumer *> (consumerIn);
+    consumer->destroy();
+    delete consumer; 
+/*
     //ShakeAlertConsumerClass consumer;
     consumer.destroy();
     if (activeMQ_isInit()){activeMQ_stop();}
     //activemq::library::ActiveMQCPP::shutdownLibrary();
     //linit_amqlib = false;
+*/
     return;
 }
 //============================================================================//
@@ -645,22 +670,27 @@ extern "C" void activeMQ_consumer_finalize(void)
  *         or contains a null terminated char * shakeAlert decision module
  *         message.
  */
-extern "C" char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr)
+extern "C" char *activeMQ_consumer_getMessage(void *consumerIn,
+                                              const int ms_wait, int *ierr)
 {
     const char *fcnm = "activeMQ_consumer_getMessage\0";
     char *message = NULL;
+    ShakeAlertConsumer *consumer = NULL;
     *ierr = 0;
-    if (!consumer.isInitialized())
+    consumer = static_cast<ShakeAlertConsumer *> (consumerIn);
+    if (!consumer->isInitialized())
     {
         *ierr = 1;
         printf("%s: Error consumer never initialized\n", fcnm);
+        consumer = NULL;
         return message;
     }
-    message = consumer.getMessage(ms_wait, ierr);
+    message = consumer->getMessage(ms_wait, ierr);
     if (*ierr != 0)
     {
         printf("%s: Error getting message\n", fcnm);
     }
+    consumer = NULL;
     return message;
 }
 //============================================================================//
@@ -676,18 +706,21 @@ extern "C" char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr)
  *         or contains a null terminated char * shakeAlert decision module
  *         message.
  */
-extern "C" char *activeMQ_consumer_getMessageFromListener(int *ierr)
+extern "C" char *activeMQ_consumer_getMessageFromListener(void *consumerIn,
+                                                         int *ierr)
 {
     const char *fcnm = "activeMQ_consumer_getMessageFromListener\0";
     char *message = NULL;
+    ShakeAlertConsumer *consumer = NULL;
     *ierr = 0;
-    if (!consumer.isInitialized())
+    consumer = static_cast<ShakeAlertConsumer *> (consumerIn);
+    if (!consumer->isInitialized())
     {
         *ierr = 1;
         printf("%s: Error consumer never initialized\n", fcnm);
         return message;
     }
-    message = consumer.getMessageFromListener(ierr);
+    message = consumer->getMessageFromListener(ierr);
     if (*ierr != 0)
     {   
         printf("%s: Error getting message\n", fcnm);

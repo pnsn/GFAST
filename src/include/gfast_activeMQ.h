@@ -20,27 +20,31 @@ bool activeMQ_isInitialized(void);
 void activeMQ_finalize(void);
 
 /* Initialize activeMQ parameters */
-int activeMQ_consumer_initialize(const char AMQuser[],
-                                 const char AMQpassword[],
-                                 const char AMQdestination[],
-                                 const char AMQhostname[],
-                                 const int port,
-                                 const int msReconnect,
-                                 const int maxAttempts,
-                                 const bool useTopic,
-                                 const bool clientAck,
-                                 const bool luseListener,
-                                 const int verbose);
+void *activeMQ_consumer_initialize(const char AMQuser[],
+                                   const char AMQpassword[],
+                                   const char AMQdestination[],
+                                   const char AMQhostname[],
+                                   const int port,
+                                   const int msReconnect,
+                                   const int maxAttempts,
+                                   const bool useTopic,
+                                   const bool clientAck,
+                                   const bool luseListener,
+                                   const int verbose,
+                                   int *ierr);
 /* Get a message from activeMQ */
-char *activeMQ_consumer_getMessage(const int ms_wait, int *ierr);
+char *activeMQ_consumer_getMessage(void *consumer,
+                                   const int ms_wait, int *ierr);
 /* Get a message from activeMQ listener */
-char *activeMQ_consumer_getMessageFromListener(int *ierr);
+char *activeMQ_consumer_getMessageFromListener(void *consumer,
+                                               int *ierr);
 /* Shut down activeMQ consumer */
-void activeMQ_consumer_finalize(void);
+void activeMQ_consumer_finalize(void *consumerIn);
 /* Shut down activeMQ producer */
-void activeMQ_producer_finalize(void);
+void activeMQ_producer_finalize(void *producerIn);
 /* Send a text message */
-int activeMQ_producer_sendMessage(const int id, const char *message);
+int activeMQ_producer_sendMessage(void *producerIn,
+                                  const char *message);
 /* Convenience function to set the tcp URI request */
 char *activeMQ_setTcpURIRequest(const char *host,
                                 const int port,
@@ -50,14 +54,15 @@ char *activeMQ_setTcpURIRequest(const char *host,
 /* Convenience function to set the tcp URI for the producer */
 char *activeMQ_producer_setTcpURI(const char *host, const int port);
 /* Initialize the ActiveMQ producer */
-int activeMQ_producer_initialize(const char AMQuser[],
-                                 const char AMQpassword[],
-                                 const char AMQdestination[],
-                                 const char AMQhostname[],
-                                 const int port,
-                                 const bool useTopic,
-                                 const bool clientAck,
-                                 const int verbose);
+void *activeMQ_producer_initialize(const char AMQuser[],
+                                   const char AMQpassword[],
+                                   const char AMQdestination[],
+                                   const char AMQhostname[],
+                                   const int port,
+                                   const bool useTopic,
+                                   const bool clientAck,
+                                   const int verbose,
+                                   int *ierr);
 
 #ifndef __cplusplus
 #define GFAST_activeMQ_consumer_initialize(...)       \

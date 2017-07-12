@@ -379,7 +379,9 @@ class ShakeAlertProducer
 //----------------------------------------------------------------------------//
 //                 End the listener class. Begin the C interface              //
 //----------------------------------------------------------------------------//
+/*
 static vector<class ShakeAlertProducer> producer(0);// = 0;
+*/
 //static ShakeAlertProducer producer;
 //static bool linit_amqlib = false;
 
@@ -433,17 +435,20 @@ extern "C" char *activeMQ_producer_setTcpURI(const char *host, const int port)
  * @author Ben Baker, ISTI
  *
  */
-extern "C" int activeMQ_producer_initialize(const char AMQuser[],
-                                            const char AMQpassword[],
-                                            const char AMQdestination[],
-                                            const char AMQhostname[],
-                                            const int port,
-                                            const bool useTopic,
-                                            const bool clientAck,
-                                            const int verbose)
+extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
+                                              const char AMQpassword[],
+                                              const char AMQdestination[],
+                                              const char AMQhostname[],
+                                              const int port,
+                                              const bool useTopic,
+                                              const bool clientAck,
+                                              const int verbose,
+                                              int *ierr)
 {
     const char *fcnm = "activeMQ_producer_initialize\0";
+    ShakeAlertProducer *producer = NULL;
     string brokerURI, destination, hostname, password, username;
+    *ierr = 0;
     if (AMQuser != NULL)
     {
         username = AMQuser;
@@ -486,12 +491,19 @@ extern "C" int activeMQ_producer_initialize(const char AMQuser[],
     {
         printf("%s: Initializing the producer...\n", fcnm);
     }
+    producer = new ShakeAlertProducer;
+    producer->initialize(username, password, destination, brokerURI,
+                         useTopic, clientAck, verbose); 
+    producer->startMessageSender();
+    return static_cast<void *> (producer);
+/*
     size_t len = producer.size();
     producer.resize(len+1);
     producer[len].initialize(username, password, destination, brokerURI,
                              useTopic, clientAck, verbose);
     producer[len].startMessageSender();
     return static_cast<int>(len);
+*/
 }
 /*!
  * @brief C interface function to destroy the ActiveMQ producer.
@@ -499,8 +511,13 @@ extern "C" int activeMQ_producer_initialize(const char AMQuser[],
  * @author Ben Baker, ISTI
  *
  */
-extern "C" void activeMQ_producer_finalize(void)
+extern "C" void activeMQ_producer_finalize(void *producerIn)
 {
+    ShakeAlertProducer *producer = NULL;
+    producer = static_cast<ShakeAlertProducer *> (producerIn); 
+    producer->destroy();
+    delete producer;
+/*
     size_t len;
     len = producer.size();
     for (size_t i=0; i<len; i++)
@@ -509,28 +526,37 @@ extern "C" void activeMQ_producer_finalize(void)
     }
     producer.resize(0);
     if (activeMQ_isInit()){activeMQ_stop();}
+*/
     return;
 }
 //============================================================================//
 /*!
  * @brief C interface function to send a message.
  *
- * @param[in] id        Message broker ID index.  This is a C indexed number
- *                      that starts at 0 and is less than the number of
- *                      producers.
- * @param[in] message   Message to send.
+ * @param[in] producerIn   Handle to the ActiveMQ message broker.
+ * @param[in] message      Message to send.
  *
  * @result 0 indicates success.
  *
  * @author Ben Baker, ISTI
  *
  */
-extern "C" int activeMQ_producer_sendMessage(const int id, const char *message)
+extern "C" int activeMQ_producer_sendMessage(void *producerIn,
+                                             const char *message)
 {
     const char *fcnm = "activeMQ_producer_sendMessage\0";
+    ShakeAlertProducer *producer = NULL;
     int ierr;
-    size_t idl;
-    idl = static_cast<size_t>(id);
+    producer = static_cast<ShakeAlertProducer *> (producerIn); 
+    ierr = producer->sendMessage(message);
+    producer = NULL;
+    if (ierr != 0)
+    {
+        printf("%s: Error sending message\n", fcnm);
+    }
+    return ierr;
+/*
+    size_t idl = static_cast<size_t>(id);
     if (id < 0 || idl >= producer.size())
     {
         printf("%s: Invalid session ID: %d\n", fcnm, id);
@@ -542,4 +568,5 @@ extern "C" int activeMQ_producer_sendMessage(const int id, const char *message)
         printf("%s: Error sending message\n", fcnm);
     }
     return ierr;
+*/
 }

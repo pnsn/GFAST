@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
+    void *messageQueue = NULL;
     int ierr, im, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent;
     const int rdwt = 2; // H5 file is read/write
@@ -104,7 +105,7 @@ int main(int argc, char **argv)
     {
         log_infoF("%s: Initializing trigger listener...\n", fcnm);
     }
-    ierr = activeMQ_consumer_initialize(props.activeMQ_props.user,
+    messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
                                         props.activeMQ_props.password,
                                         props.activeMQ_props.originTopic,
                                         props.activeMQ_props.host,
@@ -114,7 +115,8 @@ int main(int argc, char **argv)
                                         useTopic,
                                         clientAck,
                                         luseListener,
-                                        props.verbose);
+                                        props.verbose,
+                                        &ierr);
     if (ierr != 0)
     {
         log_errorF("%s: Error connecting to upstream message queue\n", fcnm);
@@ -248,7 +250,8 @@ break;
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
 printf("%d\n", msWait);
-        amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
+        amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
+                                                        msWait, &ierr);
         if (ierr != 0)
         {
             log_errorF("%s: Internal error when getting message\n", fcnm);
@@ -367,7 +370,7 @@ ERROR:;
     memory_free8c(&msgs);
     traceBuffer_ewrr_freetb2Data(&tb2Data);
     traceBuffer_ewrr_finalize(&ringInfo);
-    activeMQ_consumer_finalize(); 
+    activeMQ_consumer_finalize(messageQueue); 
     core_cmt_finalize(&props.cmt_props,
                       &cmt_data,
                       &cmt);
