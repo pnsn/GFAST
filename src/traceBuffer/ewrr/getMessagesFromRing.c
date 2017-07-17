@@ -7,39 +7,39 @@
 #include "iscl/memory/memory.h"
 
 /*!
- * @brief Reads the tracebuffer2 messages off the earthworm ring specified
- *        on ringInfo
+ * @brief Reads the tracebuffer2 messages from the Earthworm ring specified
+ *        on ringInfo.
  *
- * @param[in] messageBlock   block allocator size.  instead of reallocating
+ * @param[in] messageBlock   Block allocator size.  Instead of reallocating
  *                           memory every loop iteration in the acquisition
  *                           one can allocate in a chunk of messages (e.g.
  *                           200 messages at a time i.e. messageBlock = 200).
- *                           if this number is too small there will be 
+ *                           If this number is too small there will be 
  *                           overhead in memory reallocation, if this number
  *                           is too big a lot of unnecessary space will be
  *                           allocated. 
- * @param[in] showWarnings   if true the print warnings about having read
- *                           maximum number of messages
- * @param[in] ringInfo       Earthworm ring reader structure
+ * @param[in] showWarnings   If true then the print warnings about having read
+ *                           maximum number of messages.
+ * @param[in] ringInfo       Earthworm ring reader structure.
  *
- * @param[out] nRead         number of traceBuffer2 messages read
+ * @param[out] nRead         Number of traceBuffer2 messages read.
  *
- * @param[out] ierr          0 indicates success.
- *                          -1 indicates a terminate signal from the ring.
+ * @param[out] ierr          0 Indicates success. \n
+ *                          -1 Indicates a terminate signal from the ring. \n
  *                             the user should call traceBuffer_ewrr_finalize
- *                             and quit.
- *                          -2 indicates a read error on the ring.
- *                          -3 indicates the ringInfo structure was not
- *                             initalized.
- *                          -4 indicates tracebuf2 type is unknown.
+ *                             and quit. \n
+ *                          -2 Indicates a read error on the ring. \n
+ *                          -3 Indicates the ringInfo structure was not
+ *                             initalized. \n
+ *                          -4 Indicates tracebuf2 type is unknown.
  *
- * @result traceBuffer2 nRead messages read from the earthworm ring.
- *         the k'th message start index (for k=1,2,...,nRead) is given
+ * @result An array of [nRead] traceBuffer2 messages read from the Earthworm
+ *         ring.  The k'th message start index (for k=1,2,...,nRead) is given
  *         by: (k - 1)*MAX_TRACEBUF_SIZE [nRead*MAX_TRACEBUF_SIZE]
  *
- * @author Ben Baker (ISTI)
+ * @author Ben Baker
  *
- * @copyright Apache 2
+ * @copyright ISTI distribted under Apache 2.
  *
  */
 char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,

@@ -5,18 +5,19 @@
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Classifies return value from an earthworm get transport activity 
+ * @brief Classifies return value from an earthworm get transport activity.
  *
- * @param[in] retval    earthworm return code to classify
+ * @param[in] retval    Earthworm return code to classify.
  *
- * @result  1 the requested message was received.
- *          0 there are no more messages
- *         -1 messages were received but there may be a loss of information
- *         -2 an error occurred and no messages were received
+ * @result  1 -> The requested message was received. \n
+ *          0 -> There are no more messages. \n
+ *         -1 -> Messages were received but there may be a loss of \n
+ *               information.
+ *         -2 -> An error occurred and no messages were received.
  *
- * @author Ben Baker (ISTI)
+ * @author Ben Baker
  *
- * @copyright Apache 2
+ * @copyright ISTI distribted under Apache 2.
  *
  */
 int traceBuffer_ewrr_classifyGetRetval(const int retval)
