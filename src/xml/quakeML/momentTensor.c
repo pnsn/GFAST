@@ -23,21 +23,25 @@
  *
  * @param[in] publicIDroot    QuakeML public ID root
  *                            (e.g. quakeml:us.anss.org/)
- * @param[in] evid            event ID
- * @param[in] method          method (for this project use gps)
+ * @param[in] evid            Event ID.
+ * @param[in] method          Method by which the moment tensor was computed
+ *                            (for this project use gps).
  * @param[in] M_use           The moment tensor terms (Nm) in USE coordinates
  *                            packed:
  *                            \f$ \{ m_{rr},
  *                                    m_{\theta \theta},
  *                                    m_{\phi \phi},
  *                                    m_{r \theta}, m_{r \phi},
- *                                    m_{\theta \phi} \} \f$
- * @param[in] M0              scalar moment (Nm)
- * @param[in] dc_pct          percent double couple [0,100]
- * @param[in] clvd_pct        percent CLVD [0,100]
+ *                                    m_{\theta \phi} \} \f$.
+ * @param[in] M0              Scalar moment (Nm).
+ * @param[in] dc_pct          Percent double couple [0,100].
+ * @param[in] clvd_pct        Percent CLVD [0,100].
  *
- * @param[in,out] xml_writer  XML handle to which to write the moment
- *                            tensor
+ * @param[in,out] xml_writer  On input this is a pointer to the
+ *                            xmlTextWriterPtr. 
+ *                            On successful output the moment tensor has been
+ *                            appended to the xml_writer as a QuakeML moment
+ *                            tensor.
  *
  * @result 0 indicates success
  *
@@ -64,7 +68,7 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
     rc = 0;
     writer = (xmlTextWriterPtr ) xml_writer;
     // Set the publicID
-    memset(publicID, 0, sizeof(publicID));
+    memset(publicID, 0, 512*sizeof(char));
     if (publicIDroot != NULL){strcat(publicID, publicIDroot);} 
     lenos = strlen(publicID);
     if (lenos > 0)

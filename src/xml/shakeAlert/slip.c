@@ -19,18 +19,18 @@
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Unpacks the vertex's latitude, longitude, and depth 
+ * @brief Unpacks the vertex's latitude, longitude, and depth.
  *
- * @param[in] xml_reader  corresponds to the children of the xmlNodePtr
- *                        segment node pointer
- * @param[in] VTX_NAN     default value for element 
+ * @param[in] xml_reader  Corresponds to the children of the xmlNodePtr
+ *                        segment node pointer.
+ * @param[in] VTX_NAN     Default value for element if it cannot be read.
  *
- * @param[out] ss         slip along strike (m)
- * @param[out] ss_uncer   uncertainty in the slip along strike (m)
- * @param[out] ds         slip down dip (m)
- * @param[out] ds_uncer   uncertainty in slip down dip (m)
+ * @param[out] ss         Slip along strike (m).
+ * @param[out] ss_uncer   Uncertainty in the slip along strike (m).
+ * @param[out] ds         Slip down dip (m).
+ * @param[out] ds_uncer   Uncertainty in slip down dip (m).
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Ben Baker (ISTI)
  *
@@ -172,27 +172,27 @@ ERROR:;
 }
 //============================================================================//
 /*!
- * @brief Writes the slip on a fault patch in the finite fault 
+ * @brief Writes the slip on a fault patch in the finite fault.
  *
- * @param[in] ss               slip in strike
- * @param[in] ss_units         units for slip in strike direction on segment
- *                             (e.g. METERS)
- * @param[in] ds               slip in dip direction
- * @param[in] ds_units         units for slip in dip direction on segment
- *                             (e.g. METERS)
- * @param[in] ss_uncer         uncertainty on slip in strike direction for this
- *                             segment with units given by ss_unc_units.  if
+ * @param[in] ss               Slip along strike.
+ * @param[in] ss_units         Units for slip in strike direction on segment
+ *                             (e.g. METERS).
+ * @param[in] ds               Slip along dip direction.
+ * @param[in] ds_units         Units for slip in dip direction on segment
+ *                             (e.g. METERS).
+ * @param[in] ss_uncer         Uncertainty on slip in strike direction for this
+ *                             segment with units given by ss_unc_units.  If
  *                             negative this value is ignored.
- * @param[in] ss_uncer_units   units for uncertainty for slip in strike
- *                             direction (e.g. METERS)
- * @param[in] ds_uncer         uncertainty on slip in strike direction for this
- *                             segment with units given by ds_unc_units.  if
+ * @param[in] ss_uncer_units   Units for uncertainty for slip in strike
+ *                             direction (e.g. METERS).
+ * @param[in] ds_uncer         Uncertainty on slip in strike direction for this
+ *                             segment with units given by ds_unc_units.  If
  *                             negative this value is ignored. 
- * @param[in] ds_uncer_units   units for ucnertainty for slip in
- *                             dip direction (e.g. METERS)
+ * @param[in] ds_uncer_units   Units for ucnertainty for slip in
+ *                             dip direction (e.g. METERS).
  *
- * @param[in,out] xml_writer   pointer to xmlTExtWriterPtr to which the slip
- *                             is to be written
+ * @param[in,out] xml_writer   Pointer to xmlTExtWriterPtr to which the slip
+ *                             is to be written.
  * 
  * @author Ben Baker (ISTI)
  *
@@ -223,7 +223,7 @@ int xml_shakeAlert_writeSlip(const double ss,
     __xml_units__enum2string(ss_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                       BAD_CAST units);
-    memset(var, 0, sizeof(var));
+    memset(var, 0, 128*sizeof(char));
     sprintf(var, "%f", ss);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
@@ -232,7 +232,7 @@ int xml_shakeAlert_writeSlip(const double ss,
     __xml_units__enum2string(ss_uncer_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                       BAD_CAST units);
-    memset(var, 0, sizeof(var));
+    memset(var, 0, 128*sizeof(char));
     sprintf(var, "%f", ss_uncer);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
@@ -241,7 +241,7 @@ int xml_shakeAlert_writeSlip(const double ss,
     __xml_units__enum2string(ds_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                       BAD_CAST units);
-    memset(var, 0, sizeof(var));
+    memset(var, 0, 128*sizeof(char));
     sprintf(var, "%f", ds);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);
@@ -250,7 +250,7 @@ int xml_shakeAlert_writeSlip(const double ss,
     __xml_units__enum2string(ds_uncer_units, units);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                       BAD_CAST units);
-    memset(var, 0, sizeof(var));
+    memset(var, 0, 128*sizeof(char));
     sprintf(var, "%f", ds_uncer);
     rc += xmlTextWriterWriteString(writer, BAD_CAST var);
     rc += xmlTextWriterEndElement(writer);

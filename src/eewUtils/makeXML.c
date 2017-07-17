@@ -99,7 +99,7 @@ char *eewUtils_makeXML__ff(const int mode,
         *ierr = 1;
         return xmlmsg;
     }
-    memset(cmode, 0, sizeof(cmode));
+    memset(cmode, 0, 64*sizeof(char));
     if (mode == 1)
     {
         strcpy(cmode, "live\0");
@@ -271,30 +271,29 @@ char *eewUtils_makeXML__ff(const int mode,
 }
 //============================================================================//
 /*!
- * @brief Generates a CMT QuakeML message
+ * @brief Generates a CMT QuakeML message.
  *
- * @param[in] network    ANSS network code
+ * @param[in] network    ANSS network code.
  * @param[in] domain     ANSS's network's main web page domain
  *                       (e.g. anss.org, tsunami.gov,
  *                        www.ldeo.columbia.edu, etc.)
- * @param[in] evid       event ID
- * @param[in] evla       centroid latitude (degrees)
- * @param[in] evlo       centroid longitude (degrees)
- * @param[in] evdp       centroid depth (km)
- * @param[in] t0         origin time (seconds since epoch)
- * @param[in] mt         moment tensor in NED format with units of
+ * @param[in] evid       event ID.
+ * @param[in] evla       Centroid latitude (degrees).
+ * @param[in] evlo       Centroid longitude (degrees).
+ * @param[in] evdp       Centroid depth (km).
+ * @param[in] t0         Origin time (seconds since epoch).
+ * @param[in] mt         Moment tensor in NED format with units of
  *                       Newton-meters.   the moment tensor is packed
  *                       \f$ \{ m_{xx}, m_{yy}, m_{zz},
  *                              m_{xy}, m_{xz}, m_{yz} \} \f$.
  *
- * @param[out] ierr      0 indicates success
+ * @param[out] ierr      0 indicates success.
  *
  * @note https://github.com/usgs/Quakeml/wiki/ANSS-Quakeml-ID-Standards
  *
- * @bug <q:quakeml> results in no-prefix error
- *
  * @author Ben Baker (ISTI)
  *
+ * @bug <q:quakeml> results in no-prefix error.
  * @bug memory leak --show-leak-kinds=all: xmlNewRMutex
  *
  */
@@ -330,7 +329,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     //                  Set some stuff to facilitate QML generation           //
     //------------------------------------------------------------------------//
     // Set the network code (all lower case)
-    memset(networkLower, 0, sizeof(networkLower));
+    memset(networkLower, 0, 64*sizeof(char));
     strcpy(networkLower, network);
     lenos = (int) (strlen(network)); 
     for (i=0; i<lenos; i++)
@@ -339,22 +338,22 @@ char *eewUtils_makeXML__quakeML(const char *network,
     }
     // Make the root part of the publicID:
     //   quakeml:<network>.<domain>/<type>/<code>
-    memset(publicIDroot, 0, sizeof(publicIDroot));
+    memset(publicIDroot, 0, 512*sizeof(char));
     strcpy(publicIDroot, "quakeml:\0");
     strcat(publicIDroot, networkLower);
     strcat(publicIDroot, ".\0");
     strcat(publicIDroot, domain);
     strcat(publicIDroot, "/\0");
     // Make the event
-    memset(publicID, 0, sizeof(publicID));
+    memset(publicID, 0, 512*sizeof(char));
     strcpy(publicID, publicIDroot);  
     strcat(publicID, "event/\0");
     strcat(publicID, evid);
     // Make the data source
-    memset(datasource, 0, sizeof(datasource));
+    memset(datasource, 0, 512*sizeof(char));
     strcpy(datasource, networkLower);
     // Make the dataid
-    memset(dataid, 0, sizeof(dataid));
+    memset(dataid, 0, 512*sizeof(char));
     strcpy(dataid, networkLower);
     strcat(dataid, evid);
     //------------------------------------------------------------------------//
@@ -395,7 +394,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
                                      BAD_CAST xmlns_cat);
     // <eventParameters>
     rc = xmlTextWriterStartElement(writer, BAD_CAST "eventParameters\0");
-    memset(publicID, 0, sizeof(publicID));
+    memset(publicID, 0, 512*sizeof(char));
     strcpy(publicID, publicIDroot);
     strcat(publicID, "eventparameters/");
     strcat(publicID, evid);
@@ -549,7 +548,7 @@ char *eewUtils_makeXML__pgd(const int mode,
         *ierr = 1;
         return xmlmsg;
     }
-    memset(cmode, 0, sizeof(cmode));
+    memset(cmode, 0, 64*sizeof(char));
     if (mode == 1)
     {
         strcpy(cmode, "live\0");

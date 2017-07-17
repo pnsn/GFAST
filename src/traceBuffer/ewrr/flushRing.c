@@ -4,16 +4,16 @@
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Flushes the ring on ringInfo
+ * @brief Flushes the ring on ringInfo.
  *
- * @param[in] ringInfo    structure with earthworm ring information to 
- *                        flush
+ * @param[in] ringInfo    Structure with earthworm ring information to 
+ *                        flush.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
- * @author Ben Baker (ISTI)
+ * @author Ben Baker
  *
- * @copyright Apache 2
+ * @copyright ISTI distributed under Apache 2.
  *
  */
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo)

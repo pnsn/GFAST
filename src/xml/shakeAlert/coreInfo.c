@@ -25,19 +25,20 @@
 /*!
  * @brief Reads from the input shakeAlert XML message into the core structure
  *
- * @param[in] xml_reader  pointer to core_info xmlNodePtr
- * @param[in] SA_NAN      if an item is not found then this is it's default
- *                        value
+ * @param[in] xml_reader  Pointer to core_info xmlNodePtr.
+ * @param[in] SA_NAN      If an item is not found then this will be its default
+ *                        value.
  *
- * @param[out] core       on successful exit contains the event ID, magnitude,
+ * @param[out] core       On successful exit contains the event ID, magnitude,
  *                        magnitude uncertainty, latitude, latitude uncertainty,
  *                        longitude, longitude uncertainty, depth, depth
  *                        uncertainty, origin time, origin time uncertainty,
- *                        with accompanying units as well as likelihood
+ *                        with accompanying units as well as likelihood.
  * 
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
- * @author Ben Baker 
+ * @author Ben Baker, ISTI
+ *
  */
 int xml_shakeAlert_readCoreInfo(void *xml_reader,
                                 const double SA_NAN,
@@ -298,19 +299,19 @@ ERROR:;
 }
 //============================================================================//
 /*!
- * @brief Writes the shakeAlert core info to the xmlTextWriter xml_writer
+ * @brief Writes the shakeAlert core info to the xmlTextWriter xml_writer.
  *
- * @param[in] core            contains the core information which is the 
+ * @param[in] core            Contains the core information which is the 
  *                            event ID, magnitude, magnitude uncertainty,
  *                            latitude, latitude uncertainty, longitude, 
  *                            longitude uncertainty, depth, depth uncertainty,
  *                            origin time, origin time uncertainty, all with
- *                            accompanying units and the likelihood
+ *                            accompanying units and the likelihood.
  *
- * @param[in,out] xml_writer  pointer to xmlTextWriterPtr which is updated
- *                            with the shakeAlert core_info
+ * @param[in,out] xml_writer  Pointer to xmlTextWriterPtr which is updated
+ *                            with the shakeAlert core_info.
  * 
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Ben Baker, ISTI
  *
@@ -339,7 +340,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.mag);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -354,7 +355,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.magUncer);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -369,7 +370,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.lat);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -384,7 +385,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.latUncer);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -399,7 +400,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.lon);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -414,7 +415,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.lonUncer);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -429,7 +430,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.depth);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -444,7 +445,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
             rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                               BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.depthUncer);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -473,7 +474,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
              rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "units\0",
                                                BAD_CAST units);
         }
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.origTimeUncer);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer);
@@ -482,7 +483,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
     if (core.lhaveLikelihood)
     {
         rc += xmlTextWriterStartElement(writer, BAD_CAST "likelihood\0");
-        memset(var, 0, sizeof(var));
+        memset(var, 0, 128*sizeof(char));
         sprintf(var, "%f", core.likelihood);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer); 
