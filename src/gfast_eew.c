@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
     const bool luseListener = false; // C can't trigger so turn this off
+    double tstatus, tstatus0, tstatus1;
     int ierr, im, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent;
     const int rdwt = 2; // H5 file is read/write
@@ -169,6 +170,8 @@ int main(int argc, char **argv)
     amqMessage = NULL;
     t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
     tbeg = t0; 
+    tstatus = t0;
+    tstatus0 = t0;
     lacquire = true;
     while(lacquire)
     {
@@ -178,7 +181,14 @@ int main(int argc, char **argv)
         t1 = (double) (long) (ISCL_time_timeStamp() + 0.5);
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
-printf("start\n");
+        tstatus1 = t0;
+        if (tstatus1 - tstatus0 > 3600.0)
+        {
+            log_debugF("%s: GFAST has been running for %d hours\n",
+                       fcnm, (int) ((tstatus1 - tstatus)/3600.0));
+            tstatus0 = tstatus1;
+        } 
+//printf("start\n");
 double tbeger = ISCL_time_timeStamp();
 double tbeger0 = tbeger;
         // Read my messages off the ring
@@ -214,10 +224,10 @@ double tbeger0 = tbeger;
         }
         if (nTracebufs2Read == 0)
         {
-            log_warnF("%s: No data acquired\n", fcnm);
+            //log_warnF("%s: No data acquired\n", fcnm);
         }
-printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
-tbeger = ISCL_time_timeStamp();
+//printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
+//tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
@@ -226,8 +236,8 @@ tbeger = ISCL_time_timeStamp();
             log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
             goto ERROR;
         }
-printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
-tbeger = ISCL_time_timeStamp();
+//printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
+//tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
@@ -237,17 +247,16 @@ tbeger = ISCL_time_timeStamp();
             log_errorF("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
-printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
-printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
+//printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
+//printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
- if (t1 - tbeg > 6200)// && false)
+ if (t1 - tbeg > 6200 && false)
 {
 printf("premature shut down\n");
 break;
 } 
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
-printf("%d\n", msWait);
         amqMessage = GFAST_activeMQ_consumer_getMessage(msWait, &ierr);
         if (ierr != 0)
         {
@@ -267,6 +276,8 @@ printf("%d\n", msWait);
                 log_errorF("%s\n", amqMessage);
                 goto ERROR;
             }
+printf("got one:\n");
+printf("%s\n", amqMessage);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
@@ -359,8 +370,8 @@ printf("%d\n", msWait);
              if (xmlMessages.ffXML  != NULL){free(xmlMessages.ffXML);}
              if (xmlMessages.pgdXML != NULL){free(xmlMessages.pgdXML);}
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
-printf("early exit\n");
-break;
+//printf("early exit\n");
+//break;
          }
     }
 ERROR:;
