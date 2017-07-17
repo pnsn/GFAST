@@ -5,18 +5,18 @@
 #include "gfast_traceBuffer.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Disconnects from the ring and clears the earthworm ring structure
+ * @brief Disconnects from the ring and clears the earthworm ring structure.
  *
- * @param[in,out] ringInfo   on input contains the initialized earthworm ring
+ * @param[in,out] ringInfo   On input contains the initialized earthworm ring
  *                           information.
- *                           on output contains the cleared earthworm ring
+ *                           On output contains the cleared earthworm ring
  *                           information.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
- * @author Ben Baker (ISTI)
+ * @author Ben Baker
  *
- * @copyright Apache 2
+ * @copyright ISTI distributed under Apache 2.
  *
  */
 int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo)

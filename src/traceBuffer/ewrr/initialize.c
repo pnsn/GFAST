@@ -13,20 +13,21 @@
 
 
 /*!
- * @brief Initializes tracebuf2 ring reader
+ * @brief Initializes tracebuf2 ring reader.
  *
- * @param[in] ewRing     null terminated earthworm data ring name
- * @param[in] msWait     number of milliseconds to wait after reading
- *                       earthworm ring.  will be attached to ringInfo
+ * @param[in] ewRing     Null terminated Earthworm data ring name.
+ * @param[in] msWait     Number of milliseconds to wait after reading
+ *                       Earthworm ring.  This will be attached to the
+ *                       ringInfo structure.
  *
- * @param[out] ringInfo  requisite information for reading the tracebuf2's
- *                       off the ewRing earthworm ring
+ * @param[out] ringInfo  Requisite information for reading the tracebuf2's
+ *                       off the ewRing Earthworm ring.
  *                         
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
- * @author Ben Baker (ISTI)
+ * @author Ben Baker
  *
- * @copyright Apache 2
+ * @copyright ISTI distribted under Apache 2
  *
  */
 int traceBuffer_ewrr_initialize(const char *ewRing,
