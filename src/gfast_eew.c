@@ -184,7 +184,7 @@ printf("start\n");
 double tbeger = ISCL_time_timeStamp();
 double tbeger0 = tbeger;
         // Read my messages off the ring
-        ISCL_memory_free__char(&msgs);
+        memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
                                                     &ringInfo,
@@ -228,6 +228,7 @@ tbeger = ISCL_time_timeStamp();
             log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
             goto ERROR;
         }
+        memory_free8c(&msgs);
 printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
