@@ -19,15 +19,17 @@
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
  *
- * @param[in] propfilename   name of properties file
- * @param[in] opmode         GFAST operational mode
+ * @param[in] propfilename   Name of properties file.
+ * @param[in] opmode         GFAST operational mode.  Can be OFFLINE
+ *                           for playback or REAL_TIME_EEW for real-time
+ *                           earthquake early warning.
  *
- * @param[out] props         on successful exit holds the GFAST properties
- *                           structure
+ * @param[out] props         On successful exit holds the GFAST properties
+ *                           structure.
+ *
+ * @result 0 indicates success.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
- *
- * @result 0 indicates success
  *
  */
 int core_properties_initialize(const char *propfilename,
