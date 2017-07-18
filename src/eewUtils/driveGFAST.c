@@ -16,30 +16,31 @@
 //static void setFileNames(const char *eventid);
 
 /*!
- * @brief Expert earthquake early warning GFAST driver
+ * @brief Expert earthquake early warning GFAST driver.
  *
- * @param[in] currentTime        current epochal time (UTC seconds)
- * @param[in] props              holds the GFAST properties
- * @param[in] events             the input event list.  if there are no
+ * @param[in] currentTime        Current epochal time (UTC seconds)
+ * @param[in] props              Holds the GFAST properties.
+ * @param[in] events             The input event list.  If there are no
  *                               events this function will immediately return.
- * @param[in,out] gps_data       holds the GPS streams to be used in the
+ * @param[in,out] gps_data       Holds the GPS streams to be used in the
  *                               inversions.
- * @param[in,out] h5traceBuffer  holds the requisite information for reading
- * @param[in,out] pgd_data       workspace for the PGD data in the PGD inversion
- * @param[in,out] cmt_data       workspace for the offset data in the CMT 
- *                               inversion
- * @param[in,out] ff_data        workspace for the offset data in the finite
- *                               fault inversion 
- * @param[in,out] pgd            workspace for the PGD inversion
- * @param[in,out] cmt            workspace for the CMT inversion
- * @param[in,out] ff             workspace for the finite fault inversion
+ * @param[in,out] h5traceBuffer  Holds the requisite information for reading.
+ * @param[in,out] pgd_data       Workspace for the PGD data in the PGD
+ *                               inversion.
+ * @param[in,out] cmt_data       Workspace for the offset data in the CMT 
+ *                               inversion.
+ * @param[in,out] ff_data        Workspace for the offset data in the finite
+ *                               fault inversion.
+ * @param[in,out] pgd            Workspace for the PGD inversion.
+ * @param[in,out] cmt            Workspace for the CMT inversion.
+ * @param[in,out] ff             Workspace for the finite fault inversion.
  *
- * @param[out] xmlMessages       contains the XML messages for all events for
+ * @param[out] xmlMessages       Contains the XML messages for all events for
  *                               the PGD and finite fault for activeMQ to
  *                               forward onto shakeAlert as well as the CMT
- *                               quakeML [events.nev].
+ *                               quakeML.
  * 
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  * 

@@ -6,48 +6,61 @@
 #include "iscl/time/time.h"
 
 /*!
- * @brief PGD scaling full grid search (lat, lon, depth) driver
+ * @brief PGD scaling full grid search (lat, lon, depth) driver.
  *
- * @param[in] l1               number of sites
- * @param[in] ndeps            number of source depths
- * @param[in] verbose          controls verbosity (< 2 is quiet)
- * @param[in] dist_tol         displacement tolerance (cm).  if the displacment
- *                             is less than dist_tol it would be set to dist_tol
- * @param[in] disp_def         displacement default (cm) if d < dist_tol
- * @param[in] utmSrcNorthings  source UTM northing positions (m) [nlat*nlon]
- * @param[in] utmSrcEastings   source UTM easting positions (m) [nlat*nlon]
- * @param[in] srcDepths        source depth in grid search (km) [ndeps]
- * @param[in] utmRecvNorthing  receiver UTM northing position (m) [l1]
- * @param[in] utmRecvEasting   receiver UTM easting position (m) [l1]
- * @param[in] staAlt           station elevation (m) [l1]
- * @param[in] d                site peak ground displacements (cm) [l1]
- * @param[in] wts              data weights on each observation [l1].
+ * @param[in] l1               Number of sites.
+ * @param[in] ndeps            Number of source depths.
+ * @param[in] verbose          Controls verbosity (< 2 is quiet).
+ * @param[in] dist_tol         Displacement tolerance (cm).  If the displacment
+ *                             is less than dist_tol it will be set to dist_tol.
+ * @param[in] disp_def         Displacement default (cm) if d < dist_tol.
+ * @param[in] utmSrcNorthings  Source UTM northing positions (m).  This is an 
+ *                             array of dimension [nlat*nlon] with leading
+ *                             dimension nlats.
+ * @param[in] utmSrcEastings   Source UTM easting positions (m).  This is an 
+ *                             array of dimension [nlat*nlon] with leading
+ *                             dimension nlats..
+ * @param[in] srcDepths        Source depth in grid search (km).  This is
+ *                             an array of dimension [ndeps].
+ * @param[in] utmRecvNorthing  Receiver UTM northing position (m).  This is
+ *                             an array of dimension [l1].
+ * @param[in] utmRecvEasting   Receiver UTM easting position (m).  This is
+ *                             an array of dimension [l1].
+ * @param[in] staAlt           Station elevation (m).  This is an array of
+ *                             dimension [l1].
+ * @param[in] d                Site peak ground displacements (cm).  This is
+ *                             an array of dimension [l1].
+ * @param[in] wts              Data weights on each observation.  Nominally,
+ *                             this is an array of dimension [l1].  However,
  *                             if NULL or if each weight is the same then
  *                             this array will be ignored.
  *
- * @param[out] srdist          source receiver distance between the
- *                             idep'th source and k'th receiver
- *                             [l1*ndeps*nlat*nlon].
- *                             the i'th site at the idep'th depth is given by
+ * @param[out] srdist          Source receiver distance between the
+ *                             idep'th source and k'th receiver.  This is 
+ *                             an array of length [l1*ndeps*nlat*nlon].
+ *                             The i'th site at the idep'th depth is given by
  *                             ilon*nlats*ndeps*l1 + ilat*ndeps*l1 + idep*l1 + i
- * @param[out] M               magnitude at each depth [ndeps*nlat*nlon].
- *                             the (ilat,ilon,idep)'th is given by 
- *                             ilon*nlats*ndeps + ilat*ndeps + idep
- * @param[out] VR              variance reduction (percentage) at each
- *                             depth [ndeps*nlat*nlon].
- *                             the (ilat,ilon,idep)'th is given by 
- *                             ilon*nlats*ndeps + ilat*ndeps + idep
- * @param[out] iqr             the interquartile range computed from the
+ * @param[out] M               Magnitude at each depth.  This is an array of
+ *                             length [ndeps*nlat*nlon].
+ *                             The (ilat,ilon,idep)'th is given by 
+ *                             ilon*nlats*ndeps + ilat*ndeps + idep.
+ * @param[out] VR              Variance reduction (percentage) at each
+ *                             depth.  This is an array of length
+ *                             [ndeps*nlat*nlon].
+ *                             The (ilat,ilon,idep)'th is given by 
+ *                             ilon*nlats*ndeps + ilat*ndeps + idep.
+ * @param[out] iqr             The interquartile range computed from the
  *                             difference of the 75th percentile of the 
  *                             weighted residuals and the 25th percentile
  *                             of the weighted residuals at each depth [ndeps].
- *                             the (ilat,ilon,idepth)idep'th is given by 
- *                             ilon*nlats*ndeps + ilat*ndeps + idep
- * @param[out] Uest            the PGD estimate peak ground displacements.
-*                              the i'th estimate at the idep'th depth is given by
- *                             ilon*nlats*ndeps*l1 + ilat*ndeps*l1 + idep*l1 + i
+ *                             The (ilat,ilon,idepth)idep'th is given by 
+ *                             ilon*nlats*ndeps + ilat*ndeps + idep.
+ * @param[out] Uest            The PGD estimate peak ground displacements.  This
+ *                             is an array of dimension [nlons*nlats*ndeps*l1].
+ *                             The i'th estimate at the idep'th depth is given by
+ *                             ilon*nlats*ndeps*l1 + ilat*ndeps*l1 + idep*l1 + i.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
