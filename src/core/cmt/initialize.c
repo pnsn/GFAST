@@ -107,9 +107,9 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     cmt->rak2      = memory_calloc64f(nlld); //cmt->ndeps);
     cmt->Mw        = memory_calloc64f(nlld); //cmt->ndeps);
     cmt->srcDepths = memory_calloc64f(nlld); //cmt->ndeps);
-    cmt->EN        = memory_calloc64f(cmt->ndeps*nlld); //cmt->nsites);
-    cmt->NN        = memory_calloc64f(cmt->ndeps*nlld); //cmt->nsites);
-    cmt->UN        = memory_calloc64f(cmt->ndeps*nlld); //cmt->nsites);
+    cmt->EN        = memory_calloc64f(cmt->nsites*nlld); //cmt->nsites);
+    cmt->NN        = memory_calloc64f(cmt->nsites*nlld); //cmt->nsites);
+    cmt->UN        = memory_calloc64f(cmt->nsites*nlld); //cmt->nsites);
     cmt->Einp      = memory_calloc64f(cmt->nsites);
     cmt->Ninp      = memory_calloc64f(cmt->nsites);
     cmt->Uinp      = memory_calloc64f(cmt->nsites);
