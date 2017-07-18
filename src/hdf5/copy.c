@@ -848,21 +848,21 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
 //============================================================================//
 /*!
  * @brief Copies finite fault results structure to/from HDF5 finite fault
- *        results structure
+ *        results structure.
  *
- * @param[in] job         if job = COPY_DATA_TO_H5 then copy ff -> h5_ff.
- *                        if job = COPY_H5_TO_DATA then copy h5_ff -> ff.
+ * @param[in] job         If job = COPY_DATA_TO_H5 then copy ff -> h5_ff. \n
+ *                        If job = COPY_H5_TO_DATA then copy h5_ff -> ff.
  *
- * @param[in,out] ff      if job = COPY_DATA_TO_H5 then on input this is the
+ * @param[in,out] ff      If job = COPY_DATA_TO_H5 then on input this is the
  *                        structure to copy to h5_ff.
- *                        if job = COPY_H5_TO_DATA then on output this is the
+ *                        If job = COPY_H5_TO_DATA then on output this is the
  *                        copied h5_ff structure.
- * @param[in,out] h5_ff   if job = COPY_DATA_TO_H5 then on output this is the
- *                        HDF5 version of ff.
- *                        if job = COPY_DATA_TO_H5 then on input this is the
+ * @param[in,out] h5_ff   If job = COPY_DATA_TO_H5 then on output this is the
+ *                        HDF5 version of ff. \n
+ *                        If job = COPY_DATA_TO_H5 then on input this is the
  *                        structure to copy to ff.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Ben Baker, ISTI
  *
@@ -973,23 +973,24 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
 //============================================================================//
 /*!
  * @brief Copies three component waveform data structure to/from HDF5
- *        three component waveform structure 
+ *        three component waveform structure.
  *
- * @param[in] job           if job = COPY_DATA_TO_H5 then copy data -> h5_data.
- *                          if job = COPY_H5_TO_DATA then copy h5_data -> data
+ * @param[in] job           If job = COPY_DATA_TO_H5 then copy 
+ *                          data -> h5_data. \n
+ *                          If job = COPY_H5_TO_DATA then copy h5_data -> data.
  *
  * @param[in,out] data      if job = COPY_DATA_TO_H5 then on input this is the
- *                          structure to copy to h5_data.
+ *                          structure to copy to h5_data. \n
  *                          if job = COPY_H5_TO_DATA then on output this is the
  *                          copied h5_data structure.
- * @param[in,out] h5_data   if job = COPY_DATA_TO_H5 then on output this is the
- *                          HDF5 version of data.
- *                          if job = COPY_DATA_TO_H5 then on input this is the
+ * @param[in,out] h5_data   If job = COPY_DATA_TO_H5 then on output this is the
+ *                          HDF5 version of data. \n
+ *                          If job = COPY_DATA_TO_H5 then on input this is the
  *                          structure to copy to data.
  *
- * @author Ben Baker, ISTI
+ * @result 0 indicates success.
  *
- * @bug COPY_H5_TO_DATA not yet done
+ * @author Ben Baker, ISTI
  *
  */
 int hdf5_copyWaveform3CData(const enum data2h5_enum job,
