@@ -109,6 +109,7 @@ int eewUtils_driveGFAST(const double currentTime,
         log_initDebugLog(&__debugToLog);
         log_initWarnLog(&__warnToLog);
         // Get the data for this event
+printf("getting data\n");
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
         if (ierr != 0)
         {
@@ -116,6 +117,7 @@ int eewUtils_driveGFAST(const double currentTime,
                        fcnm, SA.eventid);
             continue; 
         }
+printf("copying data\n");
         // Copy the data onto the buffer
         ierr = GFAST_traceBuffer_h5_copyTraceBufferToGFAST(h5traceBuffer,
                                                            gps_data);
@@ -124,6 +126,7 @@ int eewUtils_driveGFAST(const double currentTime,
             log_errorF("%s: Error copying trace buffer\n", fcnm);
             continue;
         }
+printf("waveform processing\n");
         // Extract the peak displacement from the waveform buffer
         nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
                                     props.pgd_props.utm_zone,
@@ -140,6 +143,7 @@ int eewUtils_driveGFAST(const double currentTime,
             log_errorF("%s: Error processing peak displacement\n", fcnm);
             continue;
         }
+printf("waveform prcoessing 2\n");
         // Extract the offset for the CMT inversion from the buffer 
         nsites_cmt = GFAST_core_waveformProcessor_offset(
                                     props.cmt_props.utm_zone,
@@ -156,6 +160,7 @@ int eewUtils_driveGFAST(const double currentTime,
             log_errorF("%s: Error processing CMT offset\n", fcnm);
             continue;
         }
+printf("waveform processing 3\n");
         // Extract the offset for the FF inversion from the buffer 
         nsites_ff = GFAST_core_waveformProcessor_offset(
                                     props.ff_props.utm_zone,
@@ -172,6 +177,7 @@ int eewUtils_driveGFAST(const double currentTime,
             log_errorF("%s: Error processing FF offset\n", fcnm);
             continue;
         }
+printf("pgd scaling..\n");
         // Run the PGD scaling
         lpgdSuccess = false;
         if (nsites_pgd >= props.pgd_props.min_sites)
