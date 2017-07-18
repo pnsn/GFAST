@@ -233,6 +233,7 @@ double tbeger0 = tbeger;
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
+        memory_free8c(&msgs);
         if (ierr != 0)
         {
             log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
@@ -240,8 +241,7 @@ double tbeger0 = tbeger;
         }
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 //tbeger = ISCL_time_timeStamp();
-        memory_free8c(&msgs);
-printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
+//printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
         ierr = traceBuffer_h5_setData(t1,
@@ -262,7 +262,6 @@ break;
 } 
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
-printf("%d\n", msWait);
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
         if (ierr != 0)
