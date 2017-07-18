@@ -180,7 +180,7 @@ int main(int argc, char **argv)
         t1 = (double) (long) (ISCL_time_timeStamp() + 0.5);
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
-printf("start\n");
+//printf("start\n");
 double tbeger = ISCL_time_timeStamp();
 double tbeger0 = tbeger;
         // Read my messages off the ring
@@ -218,18 +218,18 @@ double tbeger0 = tbeger;
         {
             log_warnF("%s: No data acquired\n", fcnm);
         }
-printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
+//printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
+        memory_free8c(&msgs);
         if (ierr != 0)
         {
             log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
             goto ERROR;
         }
-        memory_free8c(&msgs);
-printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
+//printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
         ierr = traceBuffer_h5_setData(t1,
@@ -240,8 +240,8 @@ tbeger = ISCL_time_timeStamp();
             log_errorF("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
-printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
-printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
+//printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
+//printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
  if (t1 - tbeg > 6200)// && false)
 {
@@ -250,7 +250,6 @@ break;
 } 
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
-printf("%d\n", msWait);
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
         if (ierr != 0)
@@ -321,7 +320,7 @@ printf("%d\n", msWait);
         }
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
-                                   events,
+                                   &events,
                                    &gps_data,
                                    &h5traceBuffer,
                                    &pgd_data,
@@ -363,8 +362,8 @@ printf("%d\n", msWait);
              if (xmlMessages.ffXML  != NULL){free(xmlMessages.ffXML);}
              if (xmlMessages.pgdXML != NULL){free(xmlMessages.pgdXML);}
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
-printf("early exit\n");
-break;
+//printf("early exit\n");
+//break;
          }
     }
 ERROR:;

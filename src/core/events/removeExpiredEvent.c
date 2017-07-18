@@ -7,16 +7,16 @@
  * @brief Removes an event from the active event list if 
  *        (currentTime - SA.time) > maxtime.
  *
- * @param[in] maxtime      maximum amount of time (s) after the origin
- *                         time which the event can be retained
- * @param[in] currentTime  current time
- * @param[in] SA           shakeAlert event information to possibly remove
- * @param[in] verbose      controls verbosity
+ * @param[in] maxtime      Maximum amount of time (s) after the origin
+ *                         time which the event can be retained.
+ * @param[in] currentTime  Current time (UTC seconds since epoch).
+ * @param[in] SA           shakeAlert event information to possibly remove.
+ * @param[in] verbose      Controls verbosity.
  *
- * @param[in,out] events   on input contains all events.
- *                         on output may contain the removed SA event
+ * @param[in,out] events   On input contains all events. \n
+ *                         On output may contain the removed SA event.
  *
- * @result true if the event SA was removed from the events list
+ * @result If true then the event SA was removed from the events list.
  *
  * @author Ben Baker (ISTI)
  *
@@ -71,6 +71,7 @@ bool core_events_removeExpiredEvent(const double maxtime,
         return lpopped;
     }
     // Remove the event?
+    lpopped = true;
     if (pop_indx >-1)
     {
         // Only event - good bye

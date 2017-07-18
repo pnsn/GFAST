@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
         currentTime = t0sim + (double) kt*dtmax;
         ierr = eewUtils_driveGFAST(currentTime,
                                    props,
-                                   events,
+                                   &events,
                                    &gps_data,
                                    &h5traceBuffer,
                                    &pgd_data,
