@@ -17,61 +17,61 @@ struct GFAST_pgd_props_struct
 {
     double window_vel;    /*!< Velocity (km/s) used in determining if enough
                                data has arrived at a station in PGD
-                               inversion */
-    double dist_tol;      /*!< Source-receiver distance tolerance (km) */
+                               inversion. */
+    double dist_tol;      /*!< Source-receiver distance tolerance (km). */
     double disp_def;      /*!< If the source receiver epicentral distance
                                is less than dist_tol this is the value assigned
-                               to the PGD observation (cm) */
+                               to the PGD observation (cm). */
     double dLat;          /*!< Latitude perturbation (degrees) in epicentral
-                               grid search */
+                               grid search. */
     double dLon;          /*!< Longitude perturbation (degrees) in epicentral
-                               grid search */
+                               grid search. */
     int min_sites;        /*!< Minimum number of sites required to
-                               proceed with PGD inversion */
+                               proceed with PGD inversion. */
     int verbose;          /*!< Controls verbosity - errors will always
-                                be output.
-                               = 1 -> Output generic information.
+                                be output. \n
+                               = 1 -> Output generic information. \n
                                = 2 -> Output generic information and
-                                      warnings.
+                                      warnings. \n
                                = 3 -> Output generic information,
                                       warnings, and debug information
                                       and debug information. */
     int utm_zone;         /*!< UTM zone.  If this is -12345 then will 
                                extract the UTM zone from the event
                                origin. */
-    int ngridSearch_lats; /*!< Number of latitudes in epicentral grid-search */
-    int ngridSearch_lons; /*!< Number of longitudes in epicentral grid-search */
-    int ngridSearch_deps; /*!< Number of depths in PGD grid-search */
+    int ngridSearch_lats; /*!< Number of latitudes in epicentral grid-search. */
+    int ngridSearch_lons; /*!< Number of longitudes in epicentral grid-search.*/
+    int ngridSearch_deps; /*!< Number of depths in PGD grid-search. */
 };
 
 struct GFAST_cmt_props_struct
 {
     double window_vel;    /*!< Velocity (km/s) used in determining if S wave
                                has passed through the station in CMT
-                               inversion */
+                               inversion. */
     double window_avg;    /*!< Amount of time (s) required after S wave
                                has passed through for averaging
-                               the offset */
+                               the offset. */
     double dLat;          /*!< Latitude perturbation (degrees) in epicentral
-                               grid search */
+                               grid search. */
     double dLon;          /*!< Longitude perturbation (degrees) in epicentral
-                               grid search */
+                               grid search. */
     int min_sites;        /*!< Minimum number of sites required to
-                               proceed with CMT inversion */
+                               proceed with CMT inversion. */
     int verbose;          /*!< Controls verbosity - errors will always
-                                be output.
-                               = 1 -> Output generic information.
+                                be output. \n
+                               = 1 -> Output generic information. \n
                                = 2 -> Output generic information and
-                                      warnings.
+                                      warnings. \n
                                = 3 -> Output generic information,
                                       warnings, and debug information
                                       and debug information. */
     int utm_zone;         /*!< UTM zone.  If this is -12345 then will 
                                extract the UTM zone from the event
                                origin. */
-    int ngridSearch_lats; /*!< Number of latitudes in epicenter grid-search */
-    int ngridSearch_lons; /*!< Number of longitudes in epicenter grid-search */
-    int ngridSearch_deps; /*!< Number of depths in CMT grid-search */
+    int ngridSearch_lats; /*!< Number of latitudes in epicenter grid-search. */
+    int ngridSearch_lons; /*!< Number of longitudes in epicenter grid-search. */
+    int ngridSearch_deps; /*!< Number of depths in CMT grid-search. */
     bool ldeviatoric;     /*!< If true then the CMT inversion is 
                                constrained to purely deviatoric sources.
                                Otherwise, all 6 moment tensor terms
@@ -82,17 +82,17 @@ struct GFAST_ff_props_struct
 {
     double window_vel;   /*!< Velocity (km/s) used in determining if S wave
                               has passed through the station in FF 
-                              inversion */
+                              inversion. */
     double window_avg;   /*!< Amount of time (s) required after S wave
                               has passed through for averaging
-                              the offset */
-    double flen_pct;     /*!< Fault length safety factor */
-    double fwid_pct;     /*!< Fault width safety factor */
+                              the offset. */
+    double flen_pct;     /*!< Fault length safety factor. */
+    double fwid_pct;     /*!< Fault width safety factor. */
     int verbose;         /*!< Controls verbosity - errors will always
-                              be output.
-                              = 1 -> Output generic information.
+                              be output. \n
+                              = 1 -> Output generic information. \n
                               = 2 -> Output generic information and
-                                     warnings.
+                                     warnings. \n
                               = 3 -> Output generic information,
                                      warnings, and debug information
                                      and debug information. */
@@ -100,57 +100,57 @@ struct GFAST_ff_props_struct
                               extract the UTM zone from the event
                               origin. */
     int min_sites;       /*!< Minimum number of sites to proceed with
-                              FF estimation */
-    int nstr;            /*!< Number of fault patches along strike */
-    int ndip;            /*!< Number of fault patches down dip */
+                              FF estimation. */
+    int nstr;            /*!< Number of fault patches along strike. */
+    int ndip;            /*!< Number of fault patches down dip. */
     int nfp;             /*!< Number of fault planes considered in
-                              inversion (should be 2) */
+                              inversion (should be 2). */
 };
 
 struct GFAST_activeMQ_struct
 {
     char host[512];             /*!< Earthquake early warning ActiveMQ
-                                     host name */
-    char user[512];             /*!< Username for ActiveMQ host computer */
-    char password[512];         /*!< Password to ActiveMQ host computer */
+                                     host name. */
+    char user[512];             /*!< Username for ActiveMQ host computer. */
+    char password[512];         /*!< Password to ActiveMQ host computer. */
     char originTopic[512];      /*!< This is the topic (ActiveMQ destination)
                                      that the decision module sends messages
-                                     to and GFAST  */
+                                     to and GFAST.  */
     char destinationTopic[512]; /*!< This is the topic (ActiveMQ destination)
-                                     that GFAST will send messages to */
-    int port;                   /*!< Port number of host machine */
+                                     that GFAST will send messages to. */
+    int port;                   /*!< Port number of host machine. */
     int msReconnect;            /*!< milliseconds to wait before reconnect
-                                     (default is 500) */
+                                     (default is 500). */
     int maxAttempts;            /*!< Max number of attempts before declaring
                                      inability to connect to the host
-                                     (default is 5) */
+                                     (default is 5). */
     int msWaitForMessage;       /*!< Milliseconds to wait for a message
-                                     (default is 0) */
+                                     (default is 0). */
 };
 
 struct GFAST_ew_struct
 {
-    char gpsRingName[256];      /*!< Name of earthworm ring with GPS data */
-    char moduleName[256];       /*!< Earthworm module name */ 
+    char gpsRingName[256];      /*!< Name of earthworm ring with GPS data. */
+    char moduleName[256];       /*!< Earthworm module name. */ 
 };
 
 struct GFAST_props_struct
 {
     struct GFAST_pgd_props_struct
-           pgd_props;            /*!< PGD properties structure */
+           pgd_props;            /*!< PGD properties structure. */
     struct GFAST_cmt_props_struct
-           cmt_props;            /*!< CMT properties structure */
+           cmt_props;            /*!< CMT properties structure. */
     struct GFAST_ff_props_struct
-           ff_props;             /*!< FF properties structure */
+           ff_props;             /*!< FF properties structure. */
     struct GFAST_activeMQ_struct
            activeMQ_props;       /*!< ActiveMQ properties (required for 
-                                      earthquake early warning) */
+                                      earthquake early warning). */
     struct GFAST_ew_struct
-           ew_props;             /*!< Earthworm properties */
+           ew_props;             /*!< Earthworm properties. */
     char metaDataFile[PATH_MAX]; /*!< Contains the GPS metadata file 
                                       which defines the sites, locations,
                                       sampling periods, etc. to be used
-                                      by GFAST */
+                                      by GFAST. */
     char siteMaskFile[PATH_MAX]; /*!< Contains a list of sites to mask from
                                       the inversions.  If not specified then
                                       all sites will be read. */
@@ -159,13 +159,13 @@ struct GFAST_props_struct
 //                                       used by GFAST. */
     char eewsfile[PATH_MAX];     /*!< In playback mode this XML decision
                                       module style module has the event
-                                      hypocenter and origin time */ 
-    char obsdataDir[PATH_MAX];   /*!< Observed data file directory */
-    char obsdataFile[PATH_MAX];  /*!< Observed (archived) data file */
-    char h5ArchiveDir[PATH_MAX]; /*!< HDF5 archive directory */ 
-    char propfilename[PATH_MAX]; /*!< Name of GFAST properties file */
+                                      hypocenter and origin time. */ 
+    char obsdataDir[PATH_MAX];   /*!< Observed data file directory. */
+    char obsdataFile[PATH_MAX];  /*!< Observed (archived) data file. */
+    char h5ArchiveDir[PATH_MAX]; /*!< HDF5 archive directory. */ 
+    char propfilename[PATH_MAX]; /*!< Name of GFAST properties file. */
     char anssNetwork[512];       /*!< ANSS network when writing quakeML
-                                      (e.g. UW, PM, etc.) */
+                                      (e.g. UW, PM, etc.). */
     char anssDomain[512];        /*!< ANSS domain when writing quake ML
                                       (e.g. anss.org, tsunami.gov, etc) */
 //    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
@@ -189,41 +189,41 @@ struct GFAST_props_struct
 //    char RMQexchange[512];      /*!< RabbitMQ exchange to access processed GPS
 //                                     positions (nev-cor) */
     double dt_default;          /*!< Default sampling period (s) for GPS
-                                     stations */
+                                     stations. */
     double bufflen;             /*!< The number of seconds to keep in the data
-                                     buffers */
+                                     buffers. */
     double processingTime;      /*!< Max processing time (s) after origin time
                                      which GFAST module will declare an event 
                                      done. This must be less than bufflen
                                      less than or equal to the synthetic
-                                     runtime */
+                                     runtime. */
     double eqDefaultDepth;      /*!< Default earthquake depth (km) to be applied
                                      to shakeAlert structure */
-    double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode */
+    double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode. */
     double waitTime;            /*!< Number of seconds to wait before running
-                                     another iteration of the realtime code */
+                                     another iteration of the realtime code. */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
-    int RMQport;                /*!< RabbitMQ port to access processed GPS
-                                     positions (5672) */
+    //int RMQport;                /*!< RabbitMQ port to access processed GPS
+    //                                 positions (5672). */
     int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
                                      extract the UTM zone from the event
                                      origin. */
     int verbose;                /*!< Controls verbosity - errors will always
-                                     be output.
-                                      = 1 -> Output generic information.
+                                     be output. \n
+                                      = 1 -> Output generic information. \n
                                       = 2 -> Output generic information and
-                                             warnings.
+                                             warnings. \n
                                       = 3 -> Output generic information,
                                              warnings, and debug information
                                              and debug information. */
     bool lh5SummaryOnly;        /*!< If true then only the HDF5 summary
-                                     will be written */
+                                     will be written. */
     enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
-                                     playback, offline) */
+                                     playback, offline). */
     enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
-                                     period */
-    enum locinit_type loc_init; /*!< Defines how to initialize GPS locations */
+                                     period. */
+    enum locinit_type loc_init; /*!< Defines how to initialize GPS locations. */
 };
 
 
@@ -456,26 +456,28 @@ struct GFAST_waveform3CData_struct
 
 struct GFAST_data_struct
 {
-    struct GFAST_waveform3CData_struct *data;  /*!< Collocated data structure
-                                                   [stream_length] */
-    int stream_length;                       /*!< Number of streams */
+    struct GFAST_waveform3CData_struct *data;  /*!< Collocated data structure.
+                                                    This is an array with
+                                                    dimension [stream_length] */
+    int stream_length;                       /*!< Number of streams. */
 };
 
 struct GFAST_shakeAlert_struct
 {
-    char eventid[128];  /*!< Event ID */
-    double lat;         /*!< Event latitude (degrees) */
-    double lon;         /*!< Event longitude (degrees) */
-    double dep;         /*!< Event depth (kilometers) */ 
-    double mag;         /*!< Event magnitude */
-    double time;        /*!< Event epochal time (s) */
+    char eventid[128];  /*!< Event ID. */
+    double lat;         /*!< Event latitude (degrees). */
+    double lon;         /*!< Event longitude (degrees). */
+    double dep;         /*!< Event depth (kilometers). */ 
+    double mag;         /*!< Event magnitude. */
+    double time;        /*!< Event epochal time (s). */
 };
 
 struct GFAST_activeEvents_struct
 {
     struct GFAST_shakeAlert_struct *SA; /*!< Shake alert structure with 
-                                             requisite event info [nev] */
-    int nev;                            /*!< Number of events */ 
+                                             requisite event info.  This
+                                             an array with dimension [nev]. */
+    int nev;                            /*!< Number of events. */ 
     char pad1[4];
 };
 
@@ -555,12 +557,12 @@ struct coreInfo_struct
 
 struct GFAST_xmlMessages_struct
 {
-    char **evids;  /*!< Event IDs */
-    char **cmtQML; /*!< CMT quakeML message */
-    char **ffXML;  /*!< Finite fault shakeAlert XML message */
-    char **pgdXML; /*!< PGD shakeAlert XML message */
-    int nmessages; /*!< Number of XML messages */
-    int mmessages; /*!< Max number of XML messages */
+    char **evids;  /*!< Event IDs. */
+    char **cmtQML; /*!< CMT quakeML message. */
+    char **ffXML;  /*!< Finite fault shakeAlert XML message. */
+    char **pgdXML; /*!< PGD shakeAlert XML message. */
+    int nmessages; /*!< Number of XML messages. */
+    int mmessages; /*!< Max number of XML messages. */
 };
 
 #endif /* _gfast_struct_h__ */
