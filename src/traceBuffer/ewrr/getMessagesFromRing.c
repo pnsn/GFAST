@@ -84,6 +84,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         return msgs;
     }
     // Set space
+    memset(&gotLogo, 0, sizeof(MSG_LOGO));
     msgs = memory_calloc8c(MAX_TRACEBUF_SIZ*messageBlock);
     msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
     nblock = 1;
