@@ -7,14 +7,18 @@
  *        side for the i'th site is packed 
  *        \f$ \{ n_{avg}^{(i)}, e_{avg}^{(i)}, -u_{avg}^{(i)} \} \f$.
  *
- * @param[in] n         number of observations 
- * @param[in] nOffset   offset measured on north channel [n]
- * @param[in] eOffset   offset measured on east channel [n]
- * @param[in] uOffset   offset measured on vertical channel [n]
+ * @param[in] n         Number of observations.
+ * @param[in] nOffset   Offset measured on north channel.  This is
+ *                      an array of dimension [n].
+ * @param[in] eOffset   offset measured on east channel.  This is
+ *                      an array of dimension [n].
+ * @param[in] uOffset   offset measured on vertical channel.  This is
+ *                      an array of dimension [n].
  *
- * @param[out] U        right hand side in Gm = U [3*n]
+ * @param[out] U        Right hand side in Gm = U.  This is an array
+ *                      of dimension [3*n].
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Ben Baker (ISTI)
  *
@@ -25,7 +29,7 @@ int core_cmt_setRHS(const int n,
                     const double *__restrict__ uOffset,
                     double *__restrict__ U)
 {
-    const char *fcnm = "core_setRHS__cmt\0";
+    const char *fcnm = "core_cmt_setRHS\0";
     int i, i3;
     if (n < 1)
     {

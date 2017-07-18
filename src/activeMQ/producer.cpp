@@ -337,7 +337,10 @@ class ShakeAlertProducer
             // Close the session
             try
             {
-                if (__session != NULL){__session->close();}
+                if (__session != NULL)
+                {
+                    __session->close();
+                }
             }
             catch (CMSException &e)
             {

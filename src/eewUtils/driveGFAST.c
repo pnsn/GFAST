@@ -10,43 +10,47 @@
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
 #include "iscl/log/logfiles.h"
+#include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
 //static void setFileNames(const char *eventid);
 
 /*!
- * @brief Expert earthquake early warning GFAST driver
+ * @brief Expert earthquake early warning GFAST driver.
  *
- * @param[in] currentTime        current epochal time (UTC seconds)
- * @param[in] props              holds the GFAST properties
- * @param[in] events             the input event list.  if there are no
+ * @param[in] currentTime        Current epochal time (UTC seconds)
+ * @param[in] props              Holds the GFAST properties.
+ * @param[in,out] events         The input event list.  If there are no
  *                               events this function will immediately return.
- * @param[in,out] gps_data       holds the GPS streams to be used in the
+ *                               On output, if an event has expired then it
+ *                               will be popped from the list.
+ * @param[in,out] gps_data       Holds the GPS streams to be used in the
  *                               inversions.
- * @param[in,out] h5traceBuffer  holds the requisite information for reading
- * @param[in,out] pgd_data       workspace for the PGD data in the PGD inversion
- * @param[in,out] cmt_data       workspace for the offset data in the CMT 
- *                               inversion
- * @param[in,out] ff_data        workspace for the offset data in the finite
- *                               fault inversion 
- * @param[in,out] pgd            workspace for the PGD inversion
- * @param[in,out] cmt            workspace for the CMT inversion
- * @param[in,out] ff             workspace for the finite fault inversion
+ * @param[in,out] h5traceBuffer  Holds the requisite information for reading.
+ * @param[in,out] pgd_data       Workspace for the PGD data in the PGD
+ *                               inversion.
+ * @param[in,out] cmt_data       Workspace for the offset data in the CMT 
+ *                               inversion.
+ * @param[in,out] ff_data        Workspace for the offset data in the finite
+ *                               fault inversion.
+ * @param[in,out] pgd            Workspace for the PGD inversion.
+ * @param[in,out] cmt            Workspace for the CMT inversion.
+ * @param[in,out] ff             Workspace for the finite fault inversion.
  *
- * @param[out] xmlMessages       contains the XML messages for all events for
+ * @param[out] xmlMessages       Contains the XML messages for all events for
  *                               the PGD and finite fault for activeMQ to
  *                               forward onto shakeAlert as well as the CMT
- *                               quakeML [events.nev].
+ *                               quakeML.
  * 
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  * 
  */
 int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_props_struct props,
-                        struct GFAST_activeEvents_struct events,
+                        struct GFAST_activeEvents_struct *events,
                         struct GFAST_data_struct *gps_data,
                         struct h5traceBuffer_struct *h5traceBuffer,
                         struct GFAST_peakDisplacementData_struct *pgd_data,
@@ -58,24 +62,24 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_xmlMessages_struct *xmlMessages)
 {
     const char *fcnm = "eewUtils_driveGFAST\0";
-    struct GFAST_shakeAlert_struct SA;
+    struct GFAST_shakeAlert_struct *SAall, SA;
     //char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
     //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2;
-    int h5k, ierr, iev, ipf, nsites_cmt, nsites_ff, nsites_pgd, nstrdip,
-        pgdOpt, shakeAlertMode;
-    bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
+    int h5k, ierr, iev, ipf, nev0, nPop, nsites_cmt, nsites_ff, nsites_pgd,
+        nstrdip, pgdOpt, shakeAlertMode;
+    bool *ldownDate, lcmtSuccess, lffSuccess, lfinalize, lgone, lpgdSuccess;
     //------------------------------------------------------------------------//
     //
     // Nothing to do 
     ierr = 0;
-    if (events.nev <= 0){return 0;}
+    if (events->nev <= 0){return 0;}
     // Figure out the mode for generating shakeAlert messages
     shakeAlertMode = 1;
     if (props.opmode == PLAYBACK){shakeAlertMode = 2;}
     // Set memory for XML messages
-    xmlMessages->mmessages = events.nev;
+    xmlMessages->mmessages = events->nev;
     xmlMessages->nmessages = 0;
     xmlMessages->evids  = (char **)
                           calloc((size_t) xmlMessages->mmessages,
@@ -89,11 +93,13 @@ int eewUtils_driveGFAST(const double currentTime,
     xmlMessages->pgdXML = (char **)
                           calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
+    ldownDate = memory_calloc8l(events->nev);
+    nPop = 0;
     // Loop on the events
-    for (iev=0; iev<events.nev; iev++)
+    for (iev=0; iev<events->nev; iev++)
     {
         // Get the streams for this event
-        memcpy(&SA, &events.SA[iev], sizeof(struct GFAST_shakeAlert_struct));
+        memcpy(&SA, &events->SA[iev], sizeof(struct GFAST_shakeAlert_struct));
         t1 = SA.time;     // Origin time
         t2 = currentTime;
         if (t1 > t2)
@@ -224,8 +230,8 @@ printf("pgd scaling..\n");
             {
                 log_infoF("%s: Estimating finite fault...\n", fcnm);
             }
-            ff->SA_lat = events.SA[iev].lat;
-            ff->SA_lon = events.SA[iev].lon;
+            ff->SA_lat = events->SA[iev].lat;
+            ff->SA_lon = events->SA[iev].lon;
             ff->SA_dep = cmt->srcDepths[cmt->opt_indx];
             ff->SA_mag = cmt->Mw[cmt->opt_indx];
             ff->str[0] = cmt->str1[cmt->opt_indx];
@@ -248,6 +254,7 @@ printf("pgd scaling..\n");
         cmtQML = NULL;
         ffXML = NULL;
         lfinalize = false;
+        //printf("%lf %lf %lf %lf\n", t1, t2, t2 - t1, props.processingTime);
         if (t2 - t1 >= props.processingTime)
         {
             lfinalize = true;
@@ -397,10 +404,61 @@ printf("pgd scaling..\n");
             {
 
             }
+            if (lfinalize)
+            {
+                ldownDate[iev] = true;
+                nPop = nPop + 1;
+            }
         } // End check on updating archive or finalizing event
         // Close the logs
         log_closeLogs();
     } // Loop on the events
+    // Need to down-date the events should any have expired
+    if (nPop > 0 && events->nev > 0)
+    {
+        nev0 = events->nev;
+        SAall = (struct GFAST_shakeAlert_struct *)
+                calloc((size_t) nev0, sizeof(struct GFAST_shakeAlert_struct));
+        for (iev=0; iev<events->nev; iev++)
+        {
+            memcpy(&SAall[iev], &events->SA[iev],
+                   sizeof(struct GFAST_shakeAlert_struct));
+        }
+        for (iev=0; iev<nev0; iev++)
+        {
+            if (ldownDate[iev])
+            {
+                lgone = core_events_removeExpiredEvent(props.processingTime,
+                                                       currentTime,
+                                                       props.verbose,
+                                                       SAall[iev], events);
+                if (!lgone)
+                {
+                    log_warnF("%s: Strange - but keeping %s\n",
+                              fcnm, SAall[iev].eventid);
+                }
+            }
+         }
+         free(SAall);
+     }
+        
+/*
+        t1 = SA.time;     // Origin time
+        t2 = currentTime;
+        core_events_removeExpiredEvent(props.processingTime, currentTime, 
+*/
+/*
+    while (iev < events->nev)
+    {
+bool core_events_removeExpiredEvent(const double maxtime,
+                                    const double currentTime,
+                                    const int verbose,
+                                    struct GFAST_shakeAlert_struct SA, 
+                                    struct GFAST_activeEvents_struct *events)
+        
+    }
+*/
+    memory_free8l(&ldownDate);
     return ierr;
 }
 

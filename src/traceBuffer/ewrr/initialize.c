@@ -27,7 +27,7 @@
  *
  * @author Ben Baker
  *
- * @copyright ISTI distribted under Apache 2
+ * @copyright ISTI distribted under Apache 2.
  *
  */
 int traceBuffer_ewrr_initialize(const char *ewRing,

@@ -5,11 +5,11 @@
   endif (ISCL_INCLUDE_DIR AND ISCL_LIBRARY)
   find_path(ISCL_INCLUDE_DIR
     NAMES iscl
-    HINTS /usr/include /usr/local/include $ENV{ISCLDIR}/include
+    HINTS /usr/include /usr/local/include $ENV{ISCL_DIR}/include
   )
   find_library(ISCL_LIBRARY
     NAMES iscl
-    HINTS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 $ENV{ISCLDIR}/lib
+    HINTS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 $ENV{ISCL_DIR}/lib
   )
   if (ISCL_INCLUDE_DIR)
     message("Found ISCL include")

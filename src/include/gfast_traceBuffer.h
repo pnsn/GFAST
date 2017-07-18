@@ -45,7 +45,7 @@ struct ewRing_struct
     short nlogo;           /*!< Number of logos */
     bool linit;            /*!< True if the structure is initialized.
                                 False if the structure is not initialized. */
-    unsigned msWait;       /*!< microseconds to wait after reading ring */
+    unsigned msWait;       /*!< milliseconds to wait after reading ring */
     unsigned char
        traceBuffer2Type;   /*!< traceBuffer2type earthworm type */ 
     unsigned char

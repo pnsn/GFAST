@@ -229,7 +229,7 @@ double tbeger0 = tbeger;
             //log_warnF("%s: No data acquired\n", fcnm);
         }
 //printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
-//tbeger = ISCL_time_timeStamp();
+tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
@@ -334,7 +334,7 @@ printf("%s\n", amqMessage);
         }
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
-                                   events,
+                                   &events,
                                    &gps_data,
                                    &h5traceBuffer,
                                    &pgd_data,
