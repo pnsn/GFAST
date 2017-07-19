@@ -157,6 +157,11 @@ bool core_events_removeCancelledEvent(const char *evid,
                                       const int verbose,
                                       struct GFAST_shakeAlert_struct SA,
                                       struct GFAST_activeEvents_struct *events);
+/* Look through the events list and remove expired events */
+int core_events_removeExpiredEvents(const double maxTime, 
+                                    const double currenTime,
+                                    const int verbose,
+                                    struct GFAST_activeEvents_struct *events);
 /* Remove an expired event from the events list */
 bool core_events_removeExpiredEvent(const double maxtime,
                                     const double currentTime,
@@ -316,6 +321,10 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      double *__restrict__ VR,
                                      double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
+/* Read ini file for PGD properties */
+int core_scaling_pgd_readIni(const char *propfilename,
+                             const int verbose, const int utm_zone,
+                             struct GFAST_pgd_props_struct *pgd_props);
 /* Finalize the PGD data structures */
 void core_scaling_pgd_finalizeData(
      struct GFAST_peakDisplacementData_struct *pgd_data);
