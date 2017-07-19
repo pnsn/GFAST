@@ -17,6 +17,7 @@ static void setVarName(const char *group, const char *variable,
  * @brief Reads the PGD properties from the initialization file.
  *
  * @param[in] profilename    Name of properties file.
+ * @param[in] group          Group in ini file.  Likely "PGD".
  * @param[in] verbose        This is the verbosity from the general
  *                           parameters.
  * @param[in] utm_zone       This is the default UTM zone from the
@@ -30,11 +31,11 @@ static void setVarName(const char *group, const char *variable,
  *
  */
 int core_scaling_pgd_readIni(const char *propfilename,
+                             const char *group,
                              const int verbose, const int utm_zone,
                              struct GFAST_pgd_props_struct *pgd_props)
 {
     const char *fcnm = "core_scaling_pgd_readIni\0";
-    const char *group = "PGD\0";
     char var[256];
     int ierr;
     dictionary *ini;

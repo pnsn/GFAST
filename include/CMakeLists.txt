@@ -5,7 +5,6 @@ gfast_config.h
 gfast_core.h
 gfast_eewUtils.h
 gfast_enum.h
-gfast_events.h
 gfast.h
 gfast_hdf5.h
 gfast_struct.h

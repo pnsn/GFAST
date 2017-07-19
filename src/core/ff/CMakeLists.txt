@@ -3,6 +3,7 @@ faultPlaneGridSearch.c
 finalize.c
 initialize.c
 meshFaultPlane.c
+readIni.c
 setDiagonalWeightMatrix.c
 setForwardModel.c
 setRegularizer.c

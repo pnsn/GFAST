@@ -4,6 +4,7 @@ depthGridSearch.c
 finalize.c
 gridSearch.c
 initialize.c
+readIni.c
 setDiagonalWeightMatrix.c
 setForwardModel.c
 setRHS.c

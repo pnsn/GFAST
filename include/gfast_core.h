@@ -75,6 +75,11 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
                         struct GFAST_data_struct gps_data,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_offsetData_struct *cmt_data);
+/* Reads the initialization parameters from the ini file */
+int core_cmt_readIni(const char *propfilename,
+                    const char *group,
+                    const int verbose, const int utm_zone,
+                    struct GFAST_cmt_props_struct *cmt_props);
 /* Set diagonal weight matrix in CMT inversion */
 int core_cmt_setDiagonalWeightMatrix(const int n,
                                      const double *__restrict__ nWts,
@@ -240,6 +245,12 @@ int core_ff_meshFaultPlane(const double ev_lat,
                            double *__restrict__ dip,
                            double *__restrict__ length,
                            double *__restrict__ width);
+/* Reads the finite fault parameters from the ini file */
+int core_ff_readIni(const char *propfilename,
+                    const char *group,
+                    const int verbose, const int utm_zone,
+                    const int cmtMinSites,
+                    struct GFAST_ff_props_struct *ff_props);
 /* Set the diagonal data weight matrix */
 int core_ff_setDiagonalWeightMatrix(const int n,
                                     const double *__restrict__ nWts,
@@ -321,10 +332,6 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      double *__restrict__ VR,
                                      double *__restrict__ iqt75_25,
                                      double *__restrict__ Uest);
-/* Read ini file for PGD properties */
-int core_scaling_pgd_readIni(const char *propfilename,
-                             const int verbose, const int utm_zone,
-                             struct GFAST_pgd_props_struct *pgd_props);
 /* Finalize the PGD data structures */
 void core_scaling_pgd_finalizeData(
      struct GFAST_peakDisplacementData_struct *pgd_data);
@@ -358,6 +365,11 @@ int core_scaling_pgd_gridSearch(const int l1, const int ndeps,
                                 double *__restrict__ VR, 
                                 double *__restrict__ iqr,
                                 double *__restrict__ Uest);
+/* Read ini file for PGD properties */
+int core_scaling_pgd_readIni(const char *propfilename,
+                             const char *group,
+                             const int verbose, const int utm_zone,
+                             struct GFAST_pgd_props_struct *pgd_props);
 /* Set the diagonal data weighting matrix */
 int core_scaling_pgd_setDiagonalWeightMatrix(const int l1, 
                                              const double *__restrict__ repi,

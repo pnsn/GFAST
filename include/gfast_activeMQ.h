@@ -1,5 +1,6 @@
 #ifndef gfast_activemq_h
 #define gfast_activemq_h 1
+#include "gfast_struct.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -18,6 +19,11 @@ bool activeMQ_isInit(void);
 void activeMQ_initialize(void);
 bool activeMQ_isInitialized(void);
 void activeMQ_finalize(void);
+
+/* Read parmaeters from the ini file */
+int activeMQ_readIni(const char *propfilename,
+                     const char *group,
+                     struct GFAST_activeMQ_struct *activeMQ_props);
 
 /* Initialize activeMQ parameters */
 void *activeMQ_consumer_initialize(const char AMQuser[],
