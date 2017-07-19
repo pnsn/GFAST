@@ -4,20 +4,21 @@
 #include "gfast_core.h"
 
 /*!
- * @brief This takes lat and lon values and converts to UTM northing and easting
+ * @brief This takes lat and lon values and converts to UTM northing and 
+ *        easting.
  *
- * @param[in] lon_deg       longitude to convert to UTM easting (degrees)
- * @param[in] lat_deg       latitude to convert to UTM northing (degrees)
- * @param[out] UTMNorthing  corresponding northing UTM coordinate (m)
- * @param[out] UTMEasting   corresponding easting UTM coordinate (m)
- * @param[out] lnorthp      if true then this UTM point is in the northern
- *                          hemistphere.  
- *                          if false then this UTM point is in the southern
- *                          hermisphere
- * @param[inout] zone       if ==-1 then choose the central meridian from the 
- *                          input longitude.
- *                          otherwise set the desired zone in range [0,60]
- *                          from the input longitude
+ * @param[in] lon_deg       Longitude to convert to UTM easting (degrees).
+ * @param[in] lat_deg       Latitude to convert to UTM northing (degrees).
+ * @param[out] UTMNorthing  Corresponding northing UTM coordinate (m).
+ * @param[out] UTMEasting   Corresponding easting UTM coordinate (m).
+ * @param[out] lnorthp      If true then this UTM point is in the northern
+ *                          hemisphere.  \n
+ *                          If false then this UTM point is in the southern
+ *                          hemisphere.
+ * @param[inout] zone       If ==-1 then choose the central meridian from the 
+ *                          input longitude. \n
+ *                          Otherwise set the desired zone in range [0,60]
+ *                          from the input longitude.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
