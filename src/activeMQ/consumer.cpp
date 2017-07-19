@@ -561,7 +561,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     *ierr = 0;
     if (AMQuser != NULL)
     {
-        username = AMQuser;
+        username = string(AMQuser);
     }
     else
     {
@@ -569,7 +569,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     }
     if (AMQpassword != NULL)
     {
-        password = AMQpassword;
+        password = string(AMQpassword);
     }
     else
     {
@@ -577,7 +577,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     }
     if (AMQhostname != NULL)
     {
-        hostname = AMQhostname;
+        hostname = string(AMQhostname);
     }
     else
     {
@@ -585,7 +585,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     }
     if (AMQdestination != NULL)
     {
-        destination = AMQdestination;
+        destination = string(AMQdestination);
     }
     else
     {
@@ -628,6 +628,10 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
         consumer = NULL;
     }
     brokerURI = "";
+    destination = "";
+    hostname = "";
+    password = "";
+    username = "";
     return static_cast<void *> (consumer);
 /*
     consumer.initialize(username, password, destination, brokerURI,

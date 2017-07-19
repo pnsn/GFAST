@@ -67,9 +67,10 @@ int eewUtils_driveGFAST(const double currentTime,
     //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2;
-    int h5k, ierr, iev, ipf, nev0, nPop, nsites_cmt, nsites_ff, nsites_pgd,
+    int h5k, ierr, iev, ipf, nev0, nPop, nRemoved,
+        nsites_cmt, nsites_ff, nsites_pgd,
         nstrdip, pgdOpt, shakeAlertMode;
-    bool *ldownDate, lcmtSuccess, lffSuccess, lfinalize, lgone, lpgdSuccess;
+    bool lcmtSuccess, lffSuccess, lfinalize, lgone, lpgdSuccess;
     //------------------------------------------------------------------------//
     //
     // Nothing to do 
@@ -93,7 +94,7 @@ int eewUtils_driveGFAST(const double currentTime,
     xmlMessages->pgdXML = (char **)
                           calloc((size_t) xmlMessages->mmessages,
                                  sizeof(char *));
-    ldownDate = memory_calloc8l(events->nev);
+    //ldownDate = memory_calloc8l(events->nev);
     nPop = 0;
     // Loop on the events
     for (iev=0; iev<events->nev; iev++)
@@ -400,7 +401,7 @@ int eewUtils_driveGFAST(const double currentTime,
             }
             if (lfinalize)
             {
-                ldownDate[iev] = true;
+                //ldownDate[iev] = true;
                 nPop = nPop + 1;
             }
         } // End check on updating archive or finalizing event
@@ -408,51 +409,17 @@ int eewUtils_driveGFAST(const double currentTime,
         log_closeLogs();
     } // Loop on the events
     // Need to down-date the events should any have expired
-    if (nPop > 0 && events->nev > 0)
+    if (nPop > 0)
     {
-        nev0 = events->nev;
-        SAall = (struct GFAST_shakeAlert_struct *)
-                calloc((size_t) nev0, sizeof(struct GFAST_shakeAlert_struct));
-        for (iev=0; iev<events->nev; iev++)
+        nRemoved = core_events_removeExpiredEvents(props.processingTime,
+                                                   currentTime,
+                                                   props.verbose,
+                                                   events);
+        if (nRemoved != nPop)
         {
-            memcpy(&SAall[iev], &events->SA[iev],
-                   sizeof(struct GFAST_shakeAlert_struct));
+            log_warnF("%s: Strange - check removeExpiredEvents\n", fcnm);
         }
-        for (iev=0; iev<nev0; iev++)
-        {
-            if (ldownDate[iev])
-            {
-                lgone = core_events_removeExpiredEvent(props.processingTime,
-                                                       currentTime,
-                                                       props.verbose,
-                                                       SAall[iev], events);
-                if (!lgone)
-                {
-                    log_warnF("%s: Strange - but keeping %s\n",
-                              fcnm, SAall[iev].eventid);
-                }
-            }
-         }
-         free(SAall);
-     }
-        
-/*
-        t1 = SA.time;     // Origin time
-        t2 = currentTime;
-        core_events_removeExpiredEvent(props.processingTime, currentTime, 
-*/
-/*
-    while (iev < events->nev)
-    {
-bool core_events_removeExpiredEvent(const double maxtime,
-                                    const double currentTime,
-                                    const int verbose,
-                                    struct GFAST_shakeAlert_struct SA, 
-                                    struct GFAST_activeEvents_struct *events)
-        
     }
-*/
-    memory_free8l(&ldownDate);
     return ierr;
 }
 
