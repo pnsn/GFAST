@@ -6,14 +6,14 @@
  * @brief Takes UTM easting and northing with a central meridian and converts
  *        to lat and lon.  This is the inverse function for ll2utm.
  *
- * @param[in] zone         UTM zone
- * @param[in] lnorthp      if true then we are in the northern hemistphere
- *                         if false then we are in the southern hemisphere
- * @param[in] UTMNorthing  UTM north coordinate to convert to latitude (m)
- * @param[in] UTMEasting   UTM east coordinate to convert to longitude (m)
+ * @param[in] zone         UTM zone.
+ * @param[in] lnorthp      If true then we are in the northern hemistphere. \n
+ *                         If false then we are in the southern hemisphere.
+ * @param[in] UTMNorthing  UTM north coordinate to convert to latitude (m).
+ * @param[in] UTMEasting   UTM east coordinate to convert to longitude (m).
  *
- * @param[out] lat_deg     corresponding latitude (degrees)
- * @param[out] lon_deg     corresponding longitude (degrees)
+ * @param[out] lat_deg     Corresponding latitude (degrees).
+ * @param[out] lon_deg     Corresponding longitude (degrees).
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  * 
