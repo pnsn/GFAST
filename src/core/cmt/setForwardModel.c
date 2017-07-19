@@ -28,29 +28,33 @@
  *        observation, the 3*l+1'th row corresponds to the east observation,
  *        and 3*l+2'th row corresponds to the negative vertical observation.
  *
- * @param[in] l1           length of arrays
- * @param[in] ldeviatoric  if true then compute the Green's functions matrix
+ * @param[in] l1           Length of arrays.
+ * @param[in] ldeviatoric  If true then compute the Green's functions matrix
  *                         G with the deviatoric constraint.
- *                         otherwise compute the general Green's functions
+ *                         Otherwise compute the general Green's functions
  *                         matrix for all six moment tensor terms.
- * @param[in] x1           x (North) receiver-source distance (meters) [l1]
- * @param[in] y1           y (East) receiver-source distance (meters) [l1]
- * @param[in] z1           z receiver-source distance (meters) [l1].
+ * @param[in] x1           x (North) receiver-source distance (meters).
+ *                         This is an array of dimension [l1].
+ * @param[in] y1           y (East) receiver-source distance (meters).
+ *                         This is an array of dimension [l1].
+ * @param[in] z1           z receiver-source distance (meters).
+ *                         This is an array of dimension [l1].
  *                         Note, that z increases up from the free
  *                         surface in the observation frame, hence, for most
  *                         applications z will be negative.
  *
- * @param[out] G           matrix of Green's functions stored in row major
- *                         format [3*l1 x ncol].  if ldeviatoric is true then
- *                         ncol is 5, otherwise, ncol is 6.
+ * @param[out] G           Matrix of Green's functions stored in row major
+ *                         format with dimension [3*l1 x ncol].  If 
+ *                         ldeviatoric is true then ncol is 5, otherwise,
+ *                         ncol is 6.
  *
- * @result 0 indicates success
+ * @result 0 indicates success.
  *
  * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
  *
  * @date April, 2016
  *
- * @bug General case not programmed
+ * @bug General case, ncols = 6, not yet programmed.
  *
  */
 int core_cmt_setForwardModel(const int l1, const bool ldeviatoric, 

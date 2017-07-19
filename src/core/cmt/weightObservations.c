@@ -4,20 +4,22 @@
 #include "iscl/array/array.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Applies the diagonal data weight matrix to the observations
+ * @brief Applies the diagonal data weight matrix to the observations.
  *
- * @param[in] mrows      number of rows (observations - should be 3 x number
- *                       of sites)
- * @param[in] diagWt     diagonal matrix of data weights [mrows]
- * @param[in] b          observations [mrows]
+ * @param[in] mrows      Number of rows (observations).  This should be
+ *                       3 x number of sites.
+ * @param[in] diagWt     Diagonal matrix of data weights.  This is an array
+ *                       of dimension [mrows].
+ * @param[in] b          Observations.  This is an array of dimensoin [mrows].
  *
- * @param[out] diagWb    weighted observations such that
- *                       \f$ \tilde{b} = diag \{W\} b \f$ [mrows]
+ * @param[out] diagWb    Weighted observations such that
+ *                       \f$ \tilde{b} = diag \{W\} b \f$.
+ *                       This is an array of dimension [mrows].
  *
- * @result -1 indicates an error
- *          0 indicates success
+ * @result -1 indicates an error. \n
+ *          0 indicates success. \n
  *          1 indicates that diagWt is NULL and it is assumed that diagWt
- *            is identity
+ *            is identity.
  *
  * @author Ben Baker (ISTI)
  *

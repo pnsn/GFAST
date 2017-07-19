@@ -1,7 +1,0 @@
-#ifndef GFAST_CONFIG_H__
-#define GFAST_CONFIG_H__ 1
-
-#cmakedefine GFAST_USE_EW 1
-#cmakedefine GFAST_USE_INTEL 1
-
-#endif /* _gfast_config_h__ */
