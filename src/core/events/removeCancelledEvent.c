@@ -7,15 +7,15 @@
  * @brief Removes an event ID from the active event list in the case that is
  *        was cancelled. 
  *
- * @param[in] evid         event ID to remove from events list
- * @param[in] currentTime  current epochal time
- * @param[in] SA           shakeAlert event information to possibly remove
- * @param[in] verbose      controls verbosity
+ * @param[in] evid         Event ID to remove from events list.
+ * @param[in] currentTime  Current epochal time (UTC seconds).
+ * @param[in] SA           shakeAlert event information to possibly remove.
+ * @param[in] verbose      Controls verbosity.  Less than 1 is quiet.
  *
- * @param[in,out] events   on input contains all events.
- *                         on output may contain the removed SA event
+ * @param[in,out] events   On input contains all events. \n
+ *                         On output the event list sans the SA event.
  *
- * @result true if the event SA was removed from the events list
+ * @result If true then the event SA was removed from the events list.
  *
  * @author Ben Baker (ISTI)
  *

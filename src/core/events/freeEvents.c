@@ -3,9 +3,9 @@
 #include <string.h>
 #include "gfast_core.h"
 /*!
- * @brief Frees memory on the active events structure
+ * @brief Frees memory on the active events structure.
  *
- * @param[in,out] events     active event list with data to be freed
+ * @param[out] events     Active event list with data to be freed.
  *
  * @author Ben Baker, ISTI
  *

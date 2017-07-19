@@ -4,17 +4,17 @@
 #include <string.h>
 #include "gfast_core.h"
 /*!
- * @brief Alarms to a new event and adds it to the working events list
+ * @brief Adds a new event to the working events list.
  *
- * @param[in] SA          this is the shakeAlert event which is checked for in
- *                        the events structure.  if it does not exist in events
- *                        then it is added to events
+ * @param[in] SA          This is the shakeAlert event whose existence is
+ *                        checked for in events struture.  If it does not
+ *                        exist in events then it is added. 
  * 
- * @param[in,out] events  on input holds the current active list of events.
- *                        on output holds the new event in SA provided that 
+ * @param[in,out] events  On input holds the current active list of events. \n
+ *                        On output holds the new event in SA provided that 
  *                        SA does not already exist.
  *
- * @result if true then the new event in SA has been added to the events list
+ * @result If true then the new event in SA has been added to the events list.
  *
  * @author Ben Baker, ISTI
  *

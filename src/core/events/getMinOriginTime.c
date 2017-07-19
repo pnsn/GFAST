@@ -6,15 +6,16 @@
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Finds the minimum origin time (s) 
+ * @brief Finds the minimum origin time (UTC epochal seconds) in the
+ *        events list.
  *
- * @param[in] props          controls verboseness
- * @param[in] events         holds the current events in processing
+ * @param[in] props          Controls verboseness.  Less than 1 is quiet.
+ * @param[in] events         A list of the current events in processing.
  *
- * @param[out] lnoEvents     if true then there are no events in the events
- *                           structure or there are no valid origin times
+ * @param[out] lnoEvents     If true then there are no events in the events
+ *                           structure or there are no valid origin times.
  *
- * @result the minimum origin time in the events structure
+ * @result The minimum origin time in the events structure.
  *
  * @author Ben Baker, ISTI
  *
