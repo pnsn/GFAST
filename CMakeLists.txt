@@ -254,6 +254,7 @@ else()
                         ${ZLIB_LIBRARY}
                         ${EW_LIBRARY}
                         ${LIBXML2_LIBRARY}
+                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
   target_link_libraries(xcmopad
