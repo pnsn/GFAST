@@ -5,9 +5,9 @@
 #include "iscl/memory/memory.h"
 
 /*!
- * @brief Free the CMT results structure
+ * @brief Free the CMT results structure.
  *
- * @param[in,out] cmt       CMT results structure with memory to be freed
+ * @param[out] cmt   CMT results structure with memory to be freed.
  *
  * @author Ben Baker, ISTI
  *
@@ -39,9 +39,9 @@ void core_cmt_finalizeResults(struct GFAST_cmtResults_struct *cmt)
 }
 //============================================================================//
 /*!
- * @brief Frees memory associated with the offset data 
+ * @brief Frees memory associated with the offset data.
  *
- * @param[in,out] offset_data     offset data structure with memory to be freed
+ * @param[out] offset_data     Offset data structure with memory to be freed.
  *
  * @author Ben Baker (ISTI)
  *
@@ -53,11 +53,13 @@ void core_cmt_finalizeOffsetData(struct GFAST_offsetData_struct *offset_data)
 }
 //============================================================================//
 /*!
- * @brief Convenience function for freeing the CMT data structures and data
+ * @brief Convenience function for freeing the CMT data structures and data.
  *
- * @param[out] cmt_props      nulled out CMT properties
- * @param[out] offset_data    offset data structure with memory to be freed
- * @param[out] cmt            cmt results structure with memory to be freed
+ * @param[out] cmt_props      Nulled out CMT properties.
+ * @param[out] offset_data    Offset data structure whose memory has been
+ *                            freed and variables set to 0.
+ * @param[out] cmt            CMT results structure whose memory hsa been
+ *                            freed and variables set to 0.
  *
  * @author Ben Baker (ISTI)
  *

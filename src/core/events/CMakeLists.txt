@@ -5,5 +5,6 @@ newEvent.c
 printEvent.c
 removeCancelledEvent.c
 removeExpiredEvent.c
+removeExpiredEvents.c
 updateEvent.c
 )

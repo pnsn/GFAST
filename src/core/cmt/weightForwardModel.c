@@ -5,23 +5,24 @@
 #include "iscl/log/log.h"
 
 /*!
- * @brief Weights a forward modeling matrix by the diagonal data weights
+ * @brief Weights a forward modeling matrix by the diagonal data weights.
  *
- * @param[in] mrows     number of rows in forward modeling matrix (should
- *                      be 3*number_of_observations)
- * @param[in] ncols     number of columns in forward modeling matrix
- *                      (should be 5 or 6)
- * @param[in] diagWt    diagonal of data weight matrix [mrows]
- * @param[in] G         unweighted forward modeling matrix.  This is
- *                      in row major format and is of size [mrows x ncols]
+ * @param[in] mrows     Number of rows in forward modeling matrix.  This
+ *                      should be 3 x number of observations.
+ * @param[in] ncols     Number of columns in forward modeling matrix.
+ *                      This should be 5 or 6.
+ * @param[in] diagWt    Diagonal of data weight matrix.  This is an array
+ *                      of dimension [mrows].
+ * @param[in] G         Unweighted forward modeling matrix.  This is
+ *                      in row major format and has dimension [mrows x ncols].
  *
- * @param[out] diagWtG  weighted forward modeling matrix obtained by
+ * @param[out] diagWtG  Weighted forward modeling matrix obtained by
  *                      computing \f$ \tilde{G} \leftarrow diag\{W\} G \f$.
- *                      This is in row major format and is of size
+ *                      This is in row major format and has of dimension 
  *                      [mrows x ncols]
  *
- * @result -1 indicates an input error
- *          0 indicates success
+ * @result -1 indicates an input error. \n
+ *          0 indicates success. \n
  *          1 indicates the diagonal weight matrix is NULL.  G will
  *            not be modified in this instance.
  *

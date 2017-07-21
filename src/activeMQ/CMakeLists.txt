@@ -1,5 +1,6 @@
 add_sources(
 activeMQ.c
+readIni.c
 activeMQ.cpp
 consumer.cpp
 producer.cpp

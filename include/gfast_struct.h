@@ -1,5 +1,5 @@
-#ifndef _gfast_struct_h__
-#define _gfast_struct_h__ 1
+#ifndef GFAST_STRUCT_H__
+#define GFAST_STRUCT_H__ 1
 #if defined WINNT || defined WIN32 || defined WIN64
 #include <windows.h>
 #include <limits.h>
@@ -11,6 +11,7 @@
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
+#include "gfast_config.h"
 
 
 struct GFAST_pgd_props_struct

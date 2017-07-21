@@ -3,5 +3,6 @@
 
 #cmakedefine GFAST_USE_EW 1
 #cmakedefine GFAST_USE_INTEL 1
+#cmakedefine USE_AMQ 1
 
 #endif /* _gfast_config_h__ */

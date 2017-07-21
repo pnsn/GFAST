@@ -3,9 +3,9 @@
 #include "gfast_core.h"
 #include "iscl/log/log.h"
 /*!
- * @brief Convenience function that prints the details of an event to debug
+ * @brief Convenience function that prints the details of an event to debug.
  *
- * @param[in] SA     shakeAlert event information structure to print
+ * @param[in] SA     shakeAlert event information structure to print.
  *
  * @author Ben Baker, ISTI
  */

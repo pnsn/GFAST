@@ -15,6 +15,9 @@
 #include "gfast_core.h"
 #include "iscl/os/os.h"
 #include "iscl/log/log.h"
+#ifdef USE_AMQ
+#include "gfast_activeMQ.h"
+#endif
 
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
@@ -293,315 +296,6 @@ int core_properties_initialize(const char *propfilename,
 #endif
     s = iniparser_getstring(ini, "general:anssDomain\0", "anss.org\0"); 
     strcpy(props->anssDomain, s);
-    //------------------------------PGD Parameters----------------------------//
-    props->pgd_props.verbose = props->verbose;
-    props->pgd_props.utm_zone = props->utm_zone;
-    props->pgd_props.dist_tol = iniparser_getdouble(ini, "PGD:dist_tolerance\0",
-                                                    6.0);
-    if (props->pgd_props.dist_tol < 0.0)
-    {
-        log_errorF("%s: Error ndistance tolerance %f cannot be negative\n",
-                   fcnm, props->pgd_props.dist_tol);
-        goto ERROR;
-    }
-    props->pgd_props.disp_def = iniparser_getdouble(ini, "PGD:disp_default\0",
-                                                    0.01);
-    if (props->pgd_props.disp_def <= 0.0)
-    {
-        log_errorF("%s: Error PGD distance default %f must be positive\n",
-                   fcnm, props->pgd_props.disp_def);
-        goto ERROR;
-    }
-    props->pgd_props.dLat
-         = iniparser_getdouble(ini, "PGD:deltaLatitude\0", 0.1);
-    if (props->pgd_props.dLat < 0.0)
-    {
-        log_errorF("%s: Error PGD latitude serach %f must be positive\n",
-                   fcnm, props->pgd_props.dLat);
-        goto ERROR;
-    }
-    props->pgd_props.dLon
-         = iniparser_getdouble(ini, "PGD:deltaLongitude\0", 0.1);
-    if (props->pgd_props.dLon < 0.0)
-    {
-        log_errorF("%s: Error PGD longitudes %f must be positive\n",
-                   fcnm, props->pgd_props.dLon);
-        goto ERROR;
-    }
-    props->pgd_props.ngridSearch_lats
-         = iniparser_getint(ini, "PGD:nlats_in_pgd_gridSearch\0", 1);
-    if (props->pgd_props.ngridSearch_lats < 1)
-    {
-        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, props->pgd_props.ngridSearch_lats);
-        goto ERROR;
-    }
-    if ((int) (fmod((double) props->pgd_props.ngridSearch_lats, 2.0)) == 0)
-    {
-        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
-        props->pgd_props.ngridSearch_lats
-           = props->pgd_props.ngridSearch_lats + 1;
-    }
-    props->pgd_props.ngridSearch_lons
-         = iniparser_getint(ini, "PGD:nlons_in_pgd_gridSearch\0", 1);
-    if (props->pgd_props.ngridSearch_lons < 1)
-    {
-        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, props->pgd_props.ngridSearch_lons);
-        goto ERROR;
-    }
-    if ((int) (fmod((double) props->pgd_props.ngridSearch_lons, 2.0)) == 0)
-    {
-        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
-        props->pgd_props.ngridSearch_lons
-           = props->pgd_props.ngridSearch_lons + 1;
-    }
-    props->pgd_props.ngridSearch_deps
-         = iniparser_getint(ini, "PGD:ndepths_in_pgd_gridSearch\0", 100);
-    if (props->pgd_props.ngridSearch_deps < 1)
-    {
-        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, props->pgd_props.ngridSearch_deps);
-        goto ERROR;
-    } 
-    props->pgd_props.window_vel = iniparser_getdouble(ini,
-                                                "PGD:pgd_window_vel\0", 3.0);
-    if (props->pgd_props.window_vel <= 0.0){
-        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
-        goto ERROR;
-    }
-    props->pgd_props.min_sites = iniparser_getint(ini, "PGD:pgd_min_sites\0",
-                                                  4);
-    if (props->pgd_props.min_sites < 1)
-    {
-        log_errorF("%s: Error at least one site needed to estimate PGD!\n", 
-                   fcnm);
-        goto ERROR;
-    }
-    //----------------------------CMT Parameters------------------------------//
-    props->cmt_props.verbose = props->verbose;
-    props->cmt_props.utm_zone = props->utm_zone;
-    props->cmt_props.dLat
-         = iniparser_getdouble(ini, "CMT:deltaLatitude\0", 0.1);
-    if (props->cmt_props.dLat < 0.0)
-    {   
-        log_errorF("%s: Error CMT latitude serach %f must be positive\n",
-                   fcnm, props->cmt_props.dLat);
-        goto ERROR;
-    }
-    props->cmt_props.dLon
-         = iniparser_getdouble(ini, "CMT:deltaLongitude\0", 0.1);
-    if (props->cmt_props.dLon < 0.0)
-    {   
-        log_errorF("%s: Error CMT longitudes %f must be positive\n",
-                   fcnm, props->cmt_props.dLon);
-        goto ERROR;
-    }
-    props->cmt_props.ngridSearch_lats
-         = iniparser_getint(ini, "CMT:nlats_in_cmt_gridSearch\0", 1);
-    if (props->cmt_props.ngridSearch_lats < 1)
-    {
-        log_errorF("%s: Error CMT grid search lats %d must be positive\n",
-                   fcnm, props->cmt_props.ngridSearch_lats);
-        goto ERROR;
-    }
-    if ((int) (fmod((double) props->cmt_props.ngridSearch_lats, 2.0)) == 0)
-    {   
-        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
-        props->cmt_props.ngridSearch_lats
-           = props->cmt_props.ngridSearch_lats + 1;
-    }
-    props->cmt_props.ngridSearch_lons
-         = iniparser_getint(ini, "CMT:nlons_in_cmt_gridSearch\0", 1);
-    if (props->cmt_props.ngridSearch_lons < 1)
-    {
-        log_errorF("%s: Error CMT grid search lons %d must be positive\n",
-                   fcnm, props->cmt_props.ngridSearch_lons);
-        goto ERROR;
-    }
-    if ((int) (fmod((double) props->cmt_props.ngridSearch_lons, 2.0)) == 0)
-    {
-        log_warnF("%s: Adding 1 point to CMT lon gridsearch\n", fcnm);
-        props->cmt_props.ngridSearch_lons
-           = props->cmt_props.ngridSearch_lons + 1;
-    }
-    props->cmt_props.ngridSearch_deps
-         = iniparser_getint(ini, "CMT:ndepths_in_cmt_gridSearch\0", 100);
-    if (props->cmt_props.ngridSearch_deps < 1)
-    {
-        log_errorF("%s: Error CMT grid search depths %d must be positive\n",
-                   fcnm, props->cmt_props.ngridSearch_deps);
-        goto ERROR;
-    }
-    props->cmt_props.min_sites
-        = iniparser_getint(ini, "CMT:cmt_min_sites\0", 4);
-    if (props->cmt_props.min_sites < 3)
-    {
-        log_errorF("%s: Error at least two sites needed to estimate CMT!\n",
-                   fcnm);
-        goto ERROR;
-    }
-    props->cmt_props.window_vel
-        = iniparser_getdouble(ini, "CMT:cmt_window_vel\0", 2.0);
-    if (props->cmt_props.window_vel <= 0.0)
-    {
-        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
-        goto ERROR;
-    }
-    props->cmt_props.window_avg
-        = iniparser_getdouble(ini, "CMT:cmt_window_avg\0", 0.0);
-    if (props->cmt_props.window_avg < 0.0)
-    {   
-        log_errorF("%s: Error window average time must be positive!\n", fcnm);
-        goto ERROR;
-    }
-    props->cmt_props.ldeviatoric
-        = iniparser_getboolean(ini, "CMT:ldeviatoric_cmt\0", true);
-    if (!props->cmt_props.ldeviatoric)
-    {
-        log_errorF("%s: Error general CMT inversions not yet programmed\n",
-                   fcnm);
-        goto ERROR;
-    }
-    //------------------------------FF Parameters-----------------------------//
-    props->ff_props.verbose = props->verbose;
-    props->ff_props.utm_zone = props->utm_zone;
-    props->ff_props.nfp
-        = iniparser_getint(ini, "FF:ff_number_of_faultplanes\0", 2);
-    if (props->ff_props.nfp != 2)
-    {
-        log_errorF("%s: Error only 2 fault planes considered in ff\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.nstr = iniparser_getint(ini, "FF:ff_nstr\0", 10);
-    if (props->ff_props.nstr < 1)
-    {
-        log_errorF("%s: Error no fault patches along strike!\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.ndip = iniparser_getint(ini, "FF:ff_ndip\0", 5);
-    if (props->ff_props.ndip < 1)
-    {
-        log_errorF("%s: Error no fault patches down dip!\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.min_sites = iniparser_getint(ini, "FF:ff_min_sites\0", 4);
-    if (props->ff_props.min_sites < props->cmt_props.min_sites)
-    {
-        log_errorF("%s: Error FF needs at least as many sites as CMT\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.window_vel
-        = iniparser_getdouble(ini, "FF:ff_window_vel\0", 3.0);
-    if (props->ff_props.window_vel <= 0.0)
-    {
-        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.window_avg
-        = iniparser_getdouble(ini, "FF:ff_window_avg\0", 10.0);
-    if (props->ff_props.window_avg <= 0.0)
-    {
-        log_errorF("%s: Error window average time must be positive!\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.flen_pct
-        = iniparser_getdouble(ini, "FF:ff_flen_pct\0", 10.0);
-    if (props->ff_props.flen_pct < 0.0)
-    {
-        log_errorF("%s: Error cannot shrink fault length\n", fcnm);
-        goto ERROR;
-    }
-    props->ff_props.fwid_pct
-        = iniparser_getdouble(ini, "FF:ff_fwid_pct\0", 10.0);
-    if (props->ff_props.fwid_pct < 0.0)
-    {
-        log_errorF("%s: Error cannot shrink fault width\n", fcnm);
-        goto ERROR;
-    }
-    //---------------------------ActiveMQ Parameters--------------------------//
-    if (props->opmode == REAL_TIME_EEW) 
-    {
-        s = iniparser_getstring(ini, "ActiveMQ:host\0", NULL);
-        if (s == NULL)
-        {
-            log_errorF("%s: Could not find ActiveMQ host!\n", fcnm);
-            goto ERROR;
-        }
-        else
-        {
-            strcpy(props->activeMQ_props.host, s);
-        }
-        s = iniparser_getstring(ini, "ActiveMQ:user\0", NULL);
-        if (s == NULL)
-        {
-            log_errorF("%s: Could not find ActiveMQ user!\n", fcnm);
-            goto ERROR;
-        }
-        else
-        {
-            strcpy(props->activeMQ_props.user, s);
-        }
-        s = iniparser_getstring(ini, "ActiveMQ:password\0", NULL);
-        if (s == NULL)
-        {
-            log_errorF("%s: Could not find password!\n", fcnm);
-            goto ERROR;
-        }
-        else
-        {
-             strcpy(props->activeMQ_props.password, s);
-        }
-        s = iniparser_getstring(ini, "ActiveMQ:originTopic\0", NULL);
-        if (s == NULL)
-        {
-            log_errorF("%s: Could not find activeMQ originTopic\n", fcnm);
-            goto ERROR;
-        }
-        else
-        {
-            strcpy(props->activeMQ_props.originTopic, s);
-        }
-        s = iniparser_getstring(ini, "ActiveMQ:destinationTopic\0", NULL);
-        if (s == NULL)
-        {
-            log_errorF("%s: Could not find ActiveMQ destinationTopic!\n", fcnm);
-            goto ERROR;
-        }
-        else
-        {
-            strcpy(props->activeMQ_props.destinationTopic, s); 
-        }
-        props->activeMQ_props.port = iniparser_getint(ini, "ActiveMQ:port\0",
-                                                      -12345);
-        if (props->activeMQ_props.port ==-12345)
-        {
-            log_errorF("%s: Could not find activeMQ port\n", fcnm);
-            goto ERROR;
-        }
-        props->activeMQ_props.msReconnect
-             = iniparser_getint(ini, "ActiveMQ:msReconnect\0", 500);
-        if (props->activeMQ_props.msReconnect < 0)
-        {
-            log_warnF("%s: Overriding msReconnect to 500\n", fcnm);
-            props->activeMQ_props.msReconnect = 500;
-        }
-        props->activeMQ_props.maxAttempts
-             = iniparser_getint(ini, "ActiveMQ:maxAttempts\0", 5);
-        if (props->activeMQ_props.maxAttempts < 0)
-        {
-            log_warnF("%s: Overriding maxAttempts to 5\n", fcnm);
-            props->activeMQ_props.maxAttempts = 5;
-        }
-        props->activeMQ_props.msWaitForMessage 
-             = iniparser_getint(ini, "ActiveMQ:msWaitForMessage\0", 1);
-        if (props->activeMQ_props.msWaitForMessage < 0)
-        {
-            log_warnF("%s: ActiveMQ could hang indefinitely, overriding to 1\n",
-                      fcnm);
-            props->activeMQ_props.msWaitForMessage = 1;
-        }
-    } // End check on need for ActiveMQ
     //---------------------------Earthworm parameters-------------------------//
     if (props->opmode == REAL_TIME_EEW)
     {
@@ -619,53 +313,52 @@ int core_properties_initialize(const char *propfilename,
             goto ERROR;
         }
     }
-    //----------------------------RabbitMQ Parameters-------------------------//
-/*
-    s = iniparser_getstring(ini, "RabbitMQ:RMQhost\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find RMQhost!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->RMQhost, s); 
-    }   
-    props->RMQport = iniparser_getint(ini, "RabbitMQ:RMQport\0", -12345);
-    if (props->RMQport ==-12345){
-        log_errorF("%s: Could not find RMQport\n", fcnm);
-        goto ERROR;
-    }   
-    s = iniparser_getstring(ini, "RabbitMQ:RMQtopic\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find RMQtopic!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->RMQtopic, s); 
-    }   
-    s = iniparser_getstring(ini, "RabbitMQ:RMQuser\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find RMQuser!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->RMQuser, s); 
-    }   
-    s = iniparser_getstring(ini, "RabbitMQ:RMQpassword\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find RMQpassword!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->RMQpassword, s); 
-    }
-    s = iniparser_getstring(ini, "RabbitMQ:RMQexchange\0", NULL);
-    if (s == NULL){
-        log_errorF("%s: Could not find RMQexchange!\n", fcnm);
-        goto ERROR;
-    }else{
-        strcpy(props->RMQexchange, s);
-    }
-*/
-    // Success!
-    ierr = 0;
-ERROR:;
     // Free the ini file
     iniparser_freedict(ini);
+    //------------------------------PGD Parameters----------------------------//
+    ierr = core_scaling_pgd_readIni(propfilename, "PGD\0",
+                                    props->verbose, props->utm_zone,
+                                    &props->pgd_props);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error reading PGD parameters\n", fcnm);
+        goto ERROR;
+    }
+    //----------------------------CMT Parameters------------------------------//
+    ierr = core_cmt_readIni(propfilename, "CMT\0",
+                            props->verbose, props->utm_zone,
+                            &props->cmt_props); 
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error reading CMT parameters\n", fcnm);
+        goto ERROR;
+    } 
+    //------------------------------FF Parameters-----------------------------//
+    ierr = core_ff_readIni(propfilename, "FF\0",
+                           props->verbose, props->utm_zone,
+                           props->cmt_props.min_sites,
+                           &props->ff_props);
+    if (ierr != 0)
+    {
+        log_errorF("%s: Error reading FF parameters\n", fcnm);
+        goto ERROR; 
+    }
+    //---------------------------ActiveMQ Parameters--------------------------//
+#ifdef USE_AMQ
+    if (props->opmode == REAL_TIME_EEW) 
+    {
+        ierr = activeMQ_readIni(propfilename, "ActiveMQ",
+                                &props->activeMQ_props);
+        if (ierr != 0)
+        {
+            log_errorF("%s: Error reading FF parameters\n", fcnm);
+            goto ERROR; 
+        }
+    } // End check on need for ActiveMQ
+#endif
+    // Success!
+    ierr = 0;
+    return ierr;
+ERROR:;
     return ierr;
 }
