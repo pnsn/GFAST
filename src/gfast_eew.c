@@ -364,6 +364,7 @@ break;
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
 //printf("early exit\n");
 //break;
+if (events.nev == 0){break;}
          }
     }
 ERROR:;

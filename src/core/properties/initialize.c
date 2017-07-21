@@ -360,7 +360,5 @@ int core_properties_initialize(const char *propfilename,
     ierr = 0;
     return ierr;
 ERROR:;
-    // Free the ini file
-    iniparser_freedict(ini);
     return ierr;
 }

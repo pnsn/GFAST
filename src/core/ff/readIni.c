@@ -43,12 +43,13 @@ int core_ff_readIni(const char *propfilename,
     dictionary *ini;
     ierr = 1;
     memset(ff_props, 0, sizeof(struct  GFAST_ff_props_struct));
-    if (os_path_isfile(propfilename))
+    if (!os_path_isfile(propfilename))
     {
         log_errorF("%s: Properties file: %s does not exist\n",
                    fcnm, propfilename);
         return ierr;
     }
+    ini = iniparser_load(propfilename);
     // Read the properties
     ff_props->verbose = verbose;
     ff_props->utm_zone = utm_zone;

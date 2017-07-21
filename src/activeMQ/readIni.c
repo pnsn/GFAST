@@ -37,12 +37,13 @@ int activeMQ_readIni(const char *propfilename,
     dictionary *ini;
     ierr = 1;
     memset(activeMQ_props, 0, sizeof(struct  GFAST_activeMQ_struct));
-    if (os_path_isfile(propfilename))
+    if (!os_path_isfile(propfilename))
     {
         log_errorF("%s: Properties file: %s does not exist\n",
                    fcnm, propfilename);
         return ierr;
     }
+    ini = iniparser_load(propfilename);
     // Read the properties
     setVarName(group, "host\0", var);
     s = iniparser_getstring(ini, var, NULL);

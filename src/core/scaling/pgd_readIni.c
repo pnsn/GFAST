@@ -41,12 +41,13 @@ int core_scaling_pgd_readIni(const char *propfilename,
     dictionary *ini;
     ierr = 1;
     memset(pgd_props, 0, sizeof(struct  GFAST_pgd_props_struct));
-    if (os_path_isfile(propfilename))
+    if (!os_path_isfile(propfilename))
     {   
         log_errorF("%s: Properties file: %s does not exist\n",
                    fcnm, propfilename);
         return ierr;
     }
+    ini = iniparser_load(propfilename);
     // Read the properties
     pgd_props->verbose = verbose;
     pgd_props->utm_zone = utm_zone;
