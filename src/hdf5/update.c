@@ -57,6 +57,10 @@ int hdf5_updateGetIteration(const char *adir,
     // Write the epochal time as an attribute
     groupID = H5Gopen2(fileID, iterGroup, H5P_DEFAULT);
     status = h5_write_attribute__double("epoch\0", groupID, 1, &epoch);
+    if (status < 0)
+    {
+        log_errorF("%s: Error writing attribute\n", fcnm);
+    }
     status = H5Gclose(groupID);
     status = h5_close(fileID);
     return k;

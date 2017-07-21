@@ -54,7 +54,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     unsigned char sequenceNumber;
     long gotSize;
     int kdx, nblock, ncopy, nwork, retval;
-    size_t nbytes; //, npcopy;
+    //size_t nbytes; //, npcopy;
     //------------------------------------------------------------------------//
     //  
     // Make sure this is initialized
@@ -125,12 +125,12 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                 *ierr =-2;
                 return msgs;
             }
-            nbytes = sizeof(int); 
-            if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
-                strcasecmp(traceHeader.datatype, "i2\0") == 0)
-            {
-                nbytes = sizeof(short);
-            }
+            //nbytes = sizeof(int); 
+            //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
+            //    strcasecmp(traceHeader.datatype, "i2\0") == 0)
+            //{
+            //    nbytes = sizeof(short);
+            //}
             //npcopy = (size_t) ( sizeof(TRACE2_HEADER)*sizeof(char)
             //                  + (size_t) (traceHeader.nsamp)*nbytes);
             // Copy the message

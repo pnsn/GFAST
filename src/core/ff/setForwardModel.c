@@ -396,18 +396,18 @@ static inline void __ss_ds_zeroDip(const double sin_dip,
                                    double *ux_ss, double *uy_ss, double *uz_ss,
                                    double *ux_ds, double *uy_ds, double *uz_ds)
 {
-    double atan_xeqr, db, I1, I2, I3, I4, I5, log_rpeta, pow_rpdb2,
-           R, Rpdb, X, yb; 
+    double atan_xeqr, db, I1, I2, I3, I4, log_rpeta, pow_rpdb2,
+           R, Rpdb, yb; 
     R = sqrt(xi*xi + eta*eta + q*q);
     yb = q*sin_dip;
     db = eta*sin_dip;
-    X = sqrt(xi*xi + q*q);
+    //X = sqrt(xi*xi + q*q);
     log_rpeta = log(R + eta);
     Rpdb = R + db;
     pow_rpdb2 = Rpdb*Rpdb; //pow(R + db, 2); 
     atan_xeqr = atan(xi*eta/(q*R));
 
-    I5 =-(1.0 - 2.0*nu)*xi*sin_dip/(R + db);
+    //I5 =-(1.0 - 2.0*nu)*xi*sin_dip/(R + db);
     I4 =-(1.0 - 2.0*nu)*q/(R + db);
     I3 = (1.0 - 2.0*nu)/2.0*( eta/(R+db) + yb*q/pow_rpdb2 - log_rpeta );
     I2 = (1.0 - 2.0*nu)*(-log_rpeta) - I3; 
@@ -437,15 +437,15 @@ static inline void __ss_ds_withDip(const double cos_dip, const double sin_dip,
                                    double *ux_ss, double *uy_ss, double *uz_ss,
                                    double *ux_ds, double *uy_ds, double *uz_ds)
 {
-    double atan_xeqr, db, I1, I2, I3, I4, I5, log_rpeta, pow_rpdb2, R,
-           Rpdb, X, yb;
+    double atan_xeqr, db, I1, I2, I3, I4, I5, log_rpeta, R,
+           X, yb;
     R = sqrt(xi*xi + eta*eta + q*q);
     yb = eta*cos_dip + q*sin_dip;
     db = eta*sin_dip - q*cos_dip;
     X = sqrt(xi*xi + q*q);
     log_rpeta = log(R + eta);
-    Rpdb = R + db;
-    pow_rpdb2 = Rpdb*Rpdb; //pow(R + db, 2);
+    //Rpdb = R + db;
+    //pow_rpdb2 = Rpdb*Rpdb; //pow(R + db, 2);
     atan_xeqr = atan(xi*eta/(q*R));
  
     I5 = (1.0 - 2.0*nu)*2.0/cos_dip
