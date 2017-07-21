@@ -243,6 +243,7 @@ else()
                         gfast_xml_static
                         gfast_hdf5_static
                         gfast_core_static
+                        gfast_activeMQ_shared
                         gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
