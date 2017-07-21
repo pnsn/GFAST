@@ -340,6 +340,10 @@ char **h5_read_array__string(const char *citem, const hid_t file_id,
     sdim = H5Tget_size(fileType) + 1; // make space for null terminator
     space = H5Dget_space(dataSet);
     ndims = H5Sget_simple_extent_dims(space, dims, NULL);
+    if (ndims < 1)
+    {
+        log_errorF("%s: Error invalid number of dimensions\n", fcnm);
+    }
     *nitems = (int) dims[0];
     if (*nitems < 1)
     {

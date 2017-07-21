@@ -166,7 +166,7 @@ int core_properties_initialize(const char *propfilename,
     {
         if (props->dt_init != INIT_DT_FROM_TRACEBUF){
             log_warnF("%s: Obtaining sampling period from tracebuf\n", fcnm);
-            props->dt_init = 3;
+            props->dt_init = INIT_DT_FROM_TRACEBUF; //3;
         }
     }
     if (props->opmode == OFFLINE)
