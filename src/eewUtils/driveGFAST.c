@@ -62,15 +62,15 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_xmlMessages_struct *xmlMessages)
 {
     const char *fcnm = "eewUtils_driveGFAST\0";
-    struct GFAST_shakeAlert_struct *SAall, SA;
+    struct GFAST_shakeAlert_struct SA;
     //char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
     //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2;
-    int h5k, ierr, iev, ipf, nev0, nPop, nRemoved,
+    int h5k, ierr, iev, ipf, nPop, nRemoved,
         nsites_cmt, nsites_ff, nsites_pgd,
         nstrdip, pgdOpt, shakeAlertMode;
-    bool lcmtSuccess, lffSuccess, lfinalize, lgone, lpgdSuccess;
+    bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
     //------------------------------------------------------------------------//
     //
     // Nothing to do 
