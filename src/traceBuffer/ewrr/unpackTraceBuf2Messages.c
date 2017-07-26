@@ -173,7 +173,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 //printf("sorting %d %d\n", i1, i2);
                 // Verify sort is necessary (benefit of stable sort) 
                 if (!sorting_issorted64f(nsort, &times[i1],
-                                              SORT_ASCENDING))
+                                              SORT_ASCENDING, &ierr))
                 {
                     ierr = sorting_argsort64f_work(nsort, &times[i1],
                                                         SORT_ASCENDING, iperm);
