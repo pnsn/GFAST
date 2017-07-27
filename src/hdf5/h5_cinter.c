@@ -240,7 +240,7 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
 {
     const char *fcnm = "h5_write_array__chars\0";
     char **cout, *citem_hdf5;
-    int len_item = (int) strlen(citem_chr);
+    size_t len_item = strlen(citem_chr);
     hid_t chr_dataset_id, chr_dataspace_id, cftype, cmtype;
     hsize_t dims[1];
     herr_t status;
@@ -248,7 +248,7 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
     //------------------------------------------------------------------------//
     //  
     // Set the name of the attribute while remembering a null terminator 
-    citem_hdf5 = (char *)calloc((size_t) (len_item+1), sizeof(char));
+    citem_hdf5 = (char *)calloc(len_item+1, sizeof(char));
     strncpy(citem_hdf5, citem_chr, len_item);
     // Create dataspace
     dims[0] = (hsize_t) n;
@@ -702,14 +702,14 @@ int h5_write_attribute__double(const char *citem, const hid_t hdf5_id,
 {
     const char *fcnm = "h5_write_attribute__double\0";
     char *citem_hdf5;
-    int len_item = (int) (strlen(citem));
+    size_t len_item = strlen(citem);
     hid_t attr_dataspace_id, attribute_id;
     hsize_t dims[1];
     herr_t status;
     //------------------------------------------------------------------------//
     //
     // Set item name
-    citem_hdf5 = (char *)calloc((size_t) (len_item+1), sizeof(char));
+    citem_hdf5 = (char *) calloc(len_item+1, sizeof(char));
     strncpy(citem_hdf5, citem, len_item);
     // Create a dataspace for the attribute
     dims[0] = (hsize_t) n;
@@ -749,14 +749,14 @@ int h5_write_attribute__int(const char *citem, const hid_t hdf5_id,
 {
     const char *fcnm = "h5_write_attribute__int\0";
     char *citem_hdf5;
-    int len_item = (int) strlen(citem);
+    size_t len_item = strlen(citem);
     hid_t attr_dataspace_id, attribute_id;
     hsize_t dims[1];
     herr_t status;
     //------------------------------------------------------------------------//
     //  
     // Set item name
-    citem_hdf5 = (char *)calloc((size_t) (len_item+1), sizeof(char));
+    citem_hdf5 = (char *) calloc(len_item+1, sizeof(char));
     strncpy(citem_hdf5, citem, len_item);
     // Create a dataspace for the attribute
     dims[0] = (hsize_t) n;
@@ -796,7 +796,7 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
 {
     const char *fcnm = "h5_write_attribute__char\0";
     char **cout, *citem_hdf5;
-    int len_item = (int) (strlen(citem));
+    size_t len_item = strlen(citem);
     int i, lens;
     hid_t attr_dataspace_id, attribute_id, cftype, cmtype;
     hsize_t dims[1];
@@ -804,7 +804,7 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
     //------------------------------------------------------------------------//
     //
     // Set item name
-    citem_hdf5 = (char *)calloc((size_t) (len_item+1),sizeof(char));
+    citem_hdf5 = (char *)calloc(len_item+1, sizeof(char));
     strncpy(citem_hdf5, citem, len_item);
     // Create a dataspace 
     dims[0] = (hsize_t) n;
@@ -990,14 +990,14 @@ herr_t h5_create_group(const hid_t file_id, const char *cgroup)
 {
     const char *fcnm = "h5_create_group\0";
     char *cgroup_hdf5;
-    int len_item = (int) (strlen(cgroup));
+    size_t len_item = strlen(cgroup);
     hid_t group_id;
     herr_t status;
     int lexist;
     //------------------------------------------------------------------------//
     //  
     // Set group name 
-    cgroup_hdf5 = (char *)calloc((size_t) (len_item+1), sizeof(char));
+    cgroup_hdf5 = (char *)calloc(len_item+1, sizeof(char));
     strncpy(cgroup_hdf5, cgroup, len_item);
     // Make sure group does not exist 
     lexist = H5Lexists(file_id, cgroup, H5P_DEFAULT);
