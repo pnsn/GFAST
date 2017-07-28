@@ -55,7 +55,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
            *uOffset, *uEst, *uWts,
            DC_pct, eres, nres, sum_res2, ures,
            utmSrcEasting, utmSrcNorthing, wte, wtn, wtu, x1, y1, x2, y2;
-    int i, idep, ierr, ierr1, ilat, ilon, k, l1, zone_loc;
+    int i, idep, ierr, ierr1, ilat, ilon, indx, k, l1, nlld, zone_loc;
     bool *luse, lnorthp;
     //------------------------------------------------------------------------//
     //
@@ -93,48 +93,29 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
     }
     // Initialize result
+    nlld = cmt->nlats*cmt->nlons*cmt->ndeps;
     cmt->opt_indx =-1;
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<cmt->nsites*cmt->ndeps; i++)
-    {
-        cmt->EN[i] = 0.0;
-        cmt->NN[i] = 0.0;
-        cmt->UN[i] = 0.0;
-    }
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<cmt->nsites; i++)
-    {
-        cmt->Einp[i] = 0.0;
-        cmt->Ninp[i] = 0.0;
-        cmt->Uinp[i] = 0.0;
-    }
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<cmt->ndeps; i++)
-    {
-        cmt->objfn[i] = 0.0;
-        cmt->l2[i] = 0.0;
-        cmt->pct_dc[i] = 0.0;
-        cmt->str1[i] = 0.0;
-        cmt->str2[i] = 0.0;
-        cmt->dip1[i] = 0.0;
-        cmt->dip2[i] = 0.0;
-        cmt->rak1[i] = 0.0;
-        cmt->rak2[i] = 0.0;
-        cmt->Mw[i] = 0.0;
-    }
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<6*cmt->ndeps; i++)
-    {
-        cmt->mts[i] = 0.0;
-    }
+    // Synthetics as a function of depth
+    array_zeros64f_work(cmt->nsites*nlld, cmt->EN);
+    array_zeros64f_work(cmt->nsites*nlld, cmt->NN);
+    array_zeros64f_work(cmt->nsites*nlld, cmt->UN);
+    // Observations
+    array_zeros64f_work(cmt->nsites, cmt->Einp);
+    array_zeros64f_work(cmt->nsites, cmt->Ninp);
+    array_zeros64f_work(cmt->nsites, cmt->Uinp);
+    // MT optimizaiton information as a function of depth 
+    nlld = cmt->nlats*cmt->nlons*cmt->ndeps;
+    array_zeros64f_work(nlld, cmt->l2);
+    array_zeros64f_work(nlld, cmt->pct_dc);
+    array_zeros64f_work(nlld, cmt->objfn);
+    array_zeros64f_work(6*nlld, cmt->mts);
+    array_zeros64f_work(nlld, cmt->str1);
+    array_zeros64f_work(nlld, cmt->str2);
+    array_zeros64f_work(nlld, cmt->dip1);
+    array_zeros64f_work(nlld, cmt->dip2);
+    array_zeros64f_work(nlld, cmt->rak1);
+    array_zeros64f_work(nlld, cmt->rak2);
+    array_zeros64f_work(nlld, cmt->Mw);
     // Require there is a sufficient amount of data to invert
     luse = memory_calloc8l(cmt_data.nsites);
     l1 = 0;
@@ -271,7 +252,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     ierr = 0;
 #ifdef PARALLEL_CMT
     #pragma omp parallel for collapse(3) \
-     private(DC_pct, eres, i, idep, ierr1, ilat, ilon, k, sum_res2, nres, ures) \
+     private(DC_pct, eres, i, idep, ierr1, ilat, ilon, indx, k, sum_res2, nres, ures) \
      shared(cmt, eOffset, eEst, fcnm, l1, luse, nOffset, nEst, uOffset, uEst) \
      reduction(+:ierr), default(none) 
 #endif
@@ -281,6 +262,10 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         {
             for (idep=0; idep<cmt->ndeps; idep++)
             {
+                // Get location in arrays
+                indx = ilon*cmt->ndeps*cmt->nlats
+                     + ilat*cmt->ndeps 
+                     + idep;
                 // Compute the L2 norm
                 sum_res2 = 0.0;
 #ifdef _OPENMP
@@ -288,9 +273,9 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
 #endif
                 for (i=0; i<l1; i++)
                 {
-                    nres = nOffset[i] - nEst[idep*l1+i];
-                    eres = eOffset[i] - eEst[idep*l1+i];
-                    ures = uOffset[i] - uEst[idep*l1+i];
+                    nres = nOffset[i] - nEst[indx*l1+i];
+                    eres = eOffset[i] - eEst[indx*l1+i];
+                    ures = uOffset[i] - uEst[indx*l1+i];
                     sum_res2 = sum_res2 + nres*nres + eres*eres + ures*ures;
                 }
                 sum_res2 = sqrt(sum_res2);
@@ -311,21 +296,21 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                     continue;
                 }
                 // Prefer results with larger double couple percentages
-                cmt->l2[idep] = 0.5*sqrt(sum_res2);
-                cmt->pct_dc[idep] = DC_pct;
-                cmt->objfn[idep] = sum_res2/DC_pct;
+                cmt->l2[indx] = 0.5*sqrt(sum_res2);
+                cmt->pct_dc[indx] = DC_pct;
+                cmt->objfn[indx] = sum_res2/DC_pct;
                 // Save the data
                 i = 0;
                 for (k=0; k<cmt->nsites; k++)
                 {
-                    cmt->NN[idep*cmt->nsites+k] = 0.0;
-                    cmt->EN[idep*cmt->nsites+k] = 0.0;
-                    cmt->UN[idep*cmt->nsites+k] = 0.0;
+                    cmt->NN[indx*cmt->nsites+k] = 0.0;
+                    cmt->EN[indx*cmt->nsites+k] = 0.0;
+                    cmt->UN[indx*cmt->nsites+k] = 0.0;
                     if (luse[k])
                     {
-                        cmt->NN[idep*cmt->nsites+k] = nEst[idep*l1+i];
-                        cmt->EN[idep*cmt->nsites+k] = eEst[idep*l1+i];
-                        cmt->UN[idep*cmt->nsites+k] = uEst[idep*l1+i];
+                        cmt->NN[indx*cmt->nsites+k] = nEst[indx*l1+i];
+                        cmt->EN[indx*cmt->nsites+k] = eEst[indx*l1+i];
+                        cmt->UN[indx*cmt->nsites+k] = uEst[indx*l1+i];
                         i = i + 1;
                     }
                }
