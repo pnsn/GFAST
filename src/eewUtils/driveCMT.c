@@ -323,7 +323,12 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         ierr = CMT_COMPUTE_ERROR;
     }
     // Get the optimimum index
-    cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn);
+    cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn); // TODO: cmt->ndeps = nlld
+    if (cmt->ndeps < nlld)
+    {
+        log_warnF("%s: NEED to unpack opt_indx and make a cmt->opt_dep\n",
+                  fcnm);
+    }
 ERROR:;
     memory_free8l(&luse);
     memory_free64f(&utmRecvNorthing);

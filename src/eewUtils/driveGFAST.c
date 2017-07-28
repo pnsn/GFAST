@@ -217,7 +217,7 @@ printf("pgd scaling..\n");
                                      SA.lat, SA.lon, SA.dep,
                                      *cmt_data,
                                      cmt);
-            if (ierr != CMT_SUCCESS)
+            if (ierr != CMT_SUCCESS || cmt->opt_indx < 0)
             {
                 log_errorF("%s: Error computing CMT\n", fcnm);
                 lcmtSuccess = false;
@@ -233,7 +233,7 @@ printf("pgd scaling..\n");
             }
             ff->SA_lat = events->SA[iev].lat;
             ff->SA_lon = events->SA[iev].lon;
-            ff->SA_dep = cmt->srcDepths[cmt->opt_indx];
+            ff->SA_dep = cmt->srcDepths[cmt->opt_indx]; // TODO make cmt->opt_dep
             ff->SA_mag = cmt->Mw[cmt->opt_indx];
             ff->str[0] = cmt->str1[cmt->opt_indx];
             ff->str[1] = cmt->str2[cmt->opt_indx];
