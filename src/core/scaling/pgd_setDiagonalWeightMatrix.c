@@ -32,6 +32,7 @@ int core_scaling_pgd_setDiagonalWeightMatrix(const int l1,
     const char *fcnm = "core_scaling_pgd_setDiagonalWeightMatrix\0";
     double repi_min, repi_min2;
     int i;
+    enum isclError_enum isclError;
     if (l1 < 1)
     {
         log_errorF("%s: Error no observations\n", fcnm);
@@ -44,7 +45,7 @@ int core_scaling_pgd_setDiagonalWeightMatrix(const int l1,
         return -1;
     }
     // Get the min epicentral distance
-    repi_min = array_min64f(l1, repi);
+    repi_min = array_min64f(l1, repi, &isclError);
     repi_min2 = pow(repi_min, 2);
     // Set standard weights 
     for (i=0; i<l1; i++)
