@@ -1,5 +1,8 @@
 #ifndef _gfast_core_h__
 #define _gfast_core_h__ 1
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -290,6 +293,34 @@ int core_ff_weightObservations(const int mrows,
                                const double *__restrict__ b,
                                double *__restrict__ diagWb);
 
+//----------------------------------------------------------------------------//
+//                                 Logging                                    //
+//----------------------------------------------------------------------------//
+#ifndef ERRMSG
+#define ERRMSG(msg, fmt, ...) \
+{ \
+     va_list arg_ptr; \
+     memset(msg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+     va_start(arg_ptr, fmt); \
+     sprintf(msg, "[ERROR] (file-%s:functions%s:line=%d): ",  \
+             __FILE__, __func__, __LINE__); \
+     vsprintf(&msg[strlen(msg)], fmt, arg_ptr); \
+     va_end(arg_ptr); \
+}
+#endif
+
+#ifndef WARNMSG
+#define WARNMSG(msg) \
+{ \
+     memset(msg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+     sprintf(msg, "[WARNING] (file=%s:function%s:line=%d): %s", \
+            __FILE__, __func__, __LINE__, msg); \
+}
+#endif
+void core_log_logErrorMessage(const char *msg);
+void core_log_logWarningMessage(const char *msg);
+void core_log_logDebugMessage(const char *msg);
+void core_log_logInfoMessage(const char *msg);
 //----------------------------------------------------------------------------//
 //                          Properties/initialization                         //
 //----------------------------------------------------------------------------//
