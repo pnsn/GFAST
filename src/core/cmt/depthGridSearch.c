@@ -9,6 +9,7 @@
 #include <lapacke.h>
 #include <cblas.h>
 #endif
+#include "iscl/array/array.h"
 #include "iscl/linalg/linalg.h"
 #include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
@@ -152,37 +153,20 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         goto ERROR;
     }
     // Initialize results to nothing
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (idep=0; idep<ndeps; idep++)
-    {
-        mts[6*idep+0] = 0.0;
-        mts[6*idep+1] = 0.0;
-        mts[6*idep+2] = 0.0;
-        mts[6*idep+3] = 0.0;
-        mts[6*idep+4] = 0.0;
-        mts[6*idep+5] = 0.0;
-    }
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<ndeps*l1; i++)
-    {
-        uEst[i] = 0.0;
-        nEst[i] = 0.0;
-        eEst[i] = 0.0;
-    }
+    array_zeros64f_work(6*ndeps, mts);
+    array_zeros64f_work(l1*ndeps, uEst);
+    array_zeros64f_work(l1*ndeps, nEst);
+    array_zeros64f_work(l1*ndeps, eEst);
     // Set space
     ncols = 6;
     if (deviatoric){ncols = 5;}
     mrows = 3*l1;
     ldg = ncols;  // In row major format
-    diagWt       = memory_calloc64f(mrows);
-    WU           = memory_calloc64f(mrows);
-    U            = memory_calloc64f(mrows);
-    xrs          = memory_calloc64f(l1);
-    yrs          = memory_calloc64f(l1);
+    diagWt = memory_calloc64f(mrows);
+    WU     = memory_calloc64f(mrows);
+    U      = memory_calloc64f(mrows);
+    xrs    = memory_calloc64f(l1);
+    yrs    = memory_calloc64f(l1);
     // Compute the source-receiver offsets in (x, y) cartesian
 #ifdef _OPENMP
     #pragma omp simd
