@@ -25,3 +25,15 @@ void core_log_logWarningMessage(const char *msg)
     fprintf(stdout, msg); 
     return;
 }
+
+/*!
+ * @brief Writes an info message to the info log.
+ *
+ * @param[in] msg    Message to write to the info log file.
+ *
+ */
+void core_log_logInfoMessage(const char *msg)
+{
+    fprintf(stdout, msg); 
+    return;
+}
