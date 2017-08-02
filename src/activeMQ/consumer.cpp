@@ -405,7 +405,8 @@ class ShakeAlertConsumer : public ExceptionListener,
          */ 
         virtual void onException(const CMSException& ex AMQCPP_UNUSED)
         {
-            printf("CMS Exception occurred.  Shutting down client.\n");
+            fprintf(stderr, "%s",
+                    "CMS Exception occurred.  Shutting down client.\n");
             ex.printStackTrace();
             exit(1); // This looks dangerous
         }
@@ -622,7 +623,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     consumer->startMessageListener();
     if (!consumer->isInitialized())
     {
-        printf("%s: Failed to initialize consumer\n", fcnm);
+        fprintf(stderr, "%s: Failed to initialize consumer\n", fcnm);
         *ierr = 1;
         delete consumer;
         consumer = NULL;
@@ -689,14 +690,14 @@ extern "C" char *activeMQ_consumer_getMessage(void *consumerIn,
     if (!consumer->isInitialized())
     {
         *ierr = 1;
-        printf("%s: Error consumer never initialized\n", fcnm);
+        fprintf(stderr, "%s: Error consumer never initialized\n", fcnm);
         consumer = NULL;
         return message;
     }
     message = consumer->getMessage(ms_wait, ierr);
     if (*ierr != 0)
     {
-        printf("%s: Error getting message\n", fcnm);
+        fprintf(stderr, "%s: Error getting message\n", fcnm);
     }
     consumer = NULL;
     return message;
@@ -725,13 +726,13 @@ extern "C" char *activeMQ_consumer_getMessageFromListener(void *consumerIn,
     if (!consumer->isInitialized())
     {
         *ierr = 1;
-        printf("%s: Error consumer never initialized\n", fcnm);
+        fprintf(stderr, "%s: Error consumer never initialized\n", fcnm);
         return message;
     }
     message = consumer->getMessageFromListener(ierr);
     if (*ierr != 0)
     {   
-        printf("%s: Error getting message\n", fcnm);
+        fprintf(stderr, "%s: Error getting message\n", fcnm);
     }
     return message;
 }

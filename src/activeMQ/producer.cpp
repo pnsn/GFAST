@@ -172,7 +172,7 @@ class ShakeAlertProducer
                 //__connection->setExceptionListener(this); 
                 if (__connection == NULL)
                 {
-                    printf("%s: Failed to start connection!\n", fcnm);
+                    fprintf(stderr, "%s: Failed to start connection!\n", fcnm);
                     return;
                 }
                 if (__verbose > 2){printf("%s: Connection set\n", fcnm);}
@@ -198,7 +198,7 @@ class ShakeAlertProducer
                 }
                 if (__session == NULL)
                 {
-                    printf("%s: Error session not made\n", fcnm);
+                    fprintf(stderr, "%s: Error session not made\n", fcnm);
                     return;
                 }
                 // Create the destination (topic or queue)
@@ -255,17 +255,17 @@ class ShakeAlertProducer
             const char *fcnm = "ShakeAlertSender sendMessage\0";
             if (!__isInitialized)
             {
-                printf("%s: Producer not yet initialized\n", fcnm);
+                fprintf(stderr, "%s: Producer not yet initialized\n", fcnm);
                 return -1;
             }
             if (!__lconnected)
             {
-                printf("%s: Producer not yet connected\n", fcnm);
+                fprintf(stderr, "%s: Producer not yet connected\n", fcnm);
                 return -1;
             }
             if (message == NULL)
             {
-                printf("%s: NULL message!\n", fcnm);
+                fprintf(stderr, "%s: NULL message!\n", fcnm);
                 return -1;
             }
             string msg = string(message);
@@ -312,7 +312,7 @@ class ShakeAlertProducer
             }
             if (!__isInitialized)
             {
-                printf("%s: Program was never initialized\n", fcnm);
+                fprintf(stderr, "%s: Program was never initialized\n", fcnm);
             }
             // Free destination 
             try
