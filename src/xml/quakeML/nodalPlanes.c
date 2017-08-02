@@ -12,7 +12,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 /*!
  * @brief Writes the nodal planes defined by their strike, dip, and rake.
  *        The strike is measured clockwise north [0,360].  The dip is 
@@ -90,7 +90,7 @@ int xml_quakeML_writeNodalPlanes(const double np1[3],
     rc += xmlTextWriterEndElement(writer); // </nodalPlanes>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing nodal planes\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing nodal planes");
         return -1;
     } 
     return 0;
@@ -110,7 +110,7 @@ int xml_quakeML_readNodalPlanes(const void *xml_reader,
                                 double dip[2])
 {
     const char *fcnm = "xml_quakeML_readNodalPlanes\0";
-    log_errorF("%s: Error this isn't programmed yet\n", fcnm);
+    LOG_ERRMSG("%s", "Error this isn't programmed yet");
     return -1;
 }
 */

@@ -12,6 +12,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
+#include "gfast_core.h"
 #include "cmopad.h"
 #include "iscl/log/log.h"
 
@@ -47,7 +48,6 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                     const double mt[6],
                                     void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeFocalMechanism\0";
     xmlTextWriterPtr writer;
     char publicID[512];
     struct cmopad_struct src;
@@ -86,13 +86,13 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     ierr = cmopad_standardDecomposition(M_ned, &src);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing standard decomposition\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing standard decomposition");
         return -1;
     }
     ierr = cmopad_MT2PrincipalAxisSystem(0, &src);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing principal axes\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing principal axes");
         return -1;
     }
     // Convert pressure, null, and tension principal axes to az, plunge, length
@@ -104,8 +104,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                              src.t_axis,    taxis);
     if (ierr != 0)
     {
-        log_errorF("%s: Error converting eigenvector to principal axis!\n",
-                   fcnm);
+        LOG_ERRMSG("%s", "Error converting eigenvector to principal axis!");
         return -1;
     }
     // Switch basis from NED to USE 
@@ -117,7 +116,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     ierr = cmopad_basis_transformMatrixM6(M_use, NED, USE);
     if (ierr != 0)
     {
-        log_errorF("%s: Error converting NED to USE moment tensor\n", fcnm);
+        LOG_ERRMSG("%s", "Error converting NED to USE moment tensor");
         return -1;
     }
     // <focalMechanism>
@@ -133,7 +132,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                          (void *) xml_writer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing momentTensor!\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing momentTensor!");
         return -1;
     }
     // Write the nodal planes
@@ -141,7 +140,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                         (void *) writer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing nodal planes\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing nodal planes");
         return -1;
     }
     // Write the principal axes
@@ -151,14 +150,14 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                           (void *) writer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing principal axes\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing principal axes");
         return -1;
     }
     // </focalMechanism>
     rc += xmlTextWriterEndElement(writer); // </focalMechanism>
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing focalMechanism!\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing focalMechanism!");
         return -1;
     }
     return 0;
@@ -174,7 +173,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
 int xml_quakeML_readFocalMechanism()
 {
     const char *fcnm = "xml_quakeML_readFocalMechanism\0";
-    log_errorF("%s: Error not yet programmed\n", fcnm);
+    LOG_ERRMSG("%s", "Error not yet programmed");
     return -1;
 } 
 */

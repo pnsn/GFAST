@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/time/time.h"
 /*!
  * @brief Converts the epochal time (s) to YYYY-MM-DDThh:mm:ss.sssZ
@@ -19,7 +19,6 @@
  */
 int xml_epoch2string(double epoch, char cepoch[128])
 {
-    const char *fcnm = "xml_epoch2string\0";
     double sec;
     int ierr, mday, month, nzhour, nzjday, nzmin, nzmusec, nzsec, nzyear;
     memset(cepoch, 0, 128*sizeof(char));
@@ -28,7 +27,7 @@ int xml_epoch2string(double epoch, char cepoch[128])
                                 &nzhour, &nzmin, &nzsec, &nzmusec);
     if (ierr != 0)
     {
-        log_errorF("%s: Error converting epochal time\n", fcnm);
+        LOG_ERRMSG("%s", "Error converting epochal time");
         return -1;
     }
     sec = (double) nzsec + (double) nzmusec*1.e-6;

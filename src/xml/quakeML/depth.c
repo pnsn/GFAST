@@ -16,6 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
+#include "gfast_core.h"
 #include "iscl/log/log.h"
 
 int xml_quakeML_writeDepth(const double depth,
@@ -28,7 +29,6 @@ int xml_quakeML_writeDepth(const double depth,
                            const bool lhaveConfidence,
                            void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeDepth\0";
     xmlTextWriterPtr writer;
     char units[128];
     int rc; 
@@ -43,7 +43,7 @@ int xml_quakeML_writeDepth(const double depth,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "depth\0");
     if (rc < 0)
     {
-        log_errorF("%s: Error starting element\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting element");
         return -1;
     }
     if (lhaveDepth)
@@ -72,7 +72,7 @@ int xml_quakeML_writeDepth(const double depth,
     rc += xmlTextWriterEndElement(writer); // </depth>
     if (rc < 0)
     {   
-        log_errorF("%s: Error writing depth\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing depth");
         return -1; 
     }
     return 0;

@@ -12,7 +12,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Writes an origin to the xml_writer
@@ -38,7 +38,6 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
                             struct qmlOrigin_struct origin,
                             void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeOrigin\0";
     xmlTextWriterPtr writer;
     char publicID[512];
     int ierr, rc;
@@ -81,12 +80,12 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
     // <ellipse>
     if (origin.lhaveEllipse)
     {
-        log_errorF("%s: Error ellipse not yet done\n", fcnm);
+        LOG_ERRMSG("%s", "Error ellipse not yet done");
     }
     // <originUncertainty>
     if (origin.lhaveOriUnc)
     {
-        log_errorF("%s: Error origin uncertainty not yet done\n", fcnm);
+        LOG_ERRMSG("%s", "Error origin uncertainty not yet done");
     }
     // <time>
     if (origin.lhaveOriginTime)
@@ -102,7 +101,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
                                      (void *) writer);
         if (ierr != 0)
         {   
-            log_errorF("%s: Error writing time!\n", fcnm);
+            LOG_ERRMSG("%s", "Error writing time!");
             return -1; 
         }
     }
@@ -120,7 +119,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
                                          (void *) writer);
         if (ierr != 0)
         {
-            log_errorF("%s: Error writing longitude!\n", fcnm);
+            LOG_ERRMSG("%s", "Error writing longitude!");
             return -1; 
         }
     }
@@ -138,7 +137,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
                                           (void *) writer);
         if (ierr != 0)
         {
-            log_errorF("%s: Error writing longitude!\n", fcnm);
+            LOG_ERRMSG("%s", "Error writing longitude!");
             return -1;
         }
     }
@@ -156,7 +155,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
                                       (void *) writer);
         if (ierr != 0)
         {
-            log_errorF("%s: Error writing longitude!\n", fcnm);
+            LOG_ERRMSG("%s", "Error writing longitude!");
             return -1; 
         }
     }
@@ -164,7 +163,7 @@ int xml_quakeML_writeOrigin(const char *publicIDroot,
     rc += xmlTextWriterEndElement(writer); // </origin>
     if (ierr != 0)
     {   
-        log_errorF("%s: Error writing focalMechanism!\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing focalMechanism!");
         return -1; 
     }
     return 0;

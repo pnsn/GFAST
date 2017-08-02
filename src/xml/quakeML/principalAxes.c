@@ -12,7 +12,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 /*!
  * @brief Writes the tension, pressure, and null principal axes. 
  *
@@ -39,7 +39,6 @@ int xml_quakeML_writePrincipalAxes(const double taxis[3],
                                    const double naxis[3],
                                    void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writePrincipalAxes\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -111,7 +110,7 @@ int xml_quakeML_writePrincipalAxes(const double taxis[3],
     rc += xmlTextWriterEndElement(writer); // </principalAxes>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing principal axes\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing principal axes");
         return -1;
     } 
     return 0;
@@ -131,7 +130,7 @@ int xml_quakeML_readPrincipalAxes(const void *xml_reader,
                                   double naxis[3])
 {
     const char *fcnm = "xml_quakeML_readPrincipalAxes\0";
-    log_errorF("%s: Error this isn't programmed yet\n", fcnm);
+    LOG_ERRMSG("%s", "Error this isn't programmed yet");
     return -1; 
 }
 */

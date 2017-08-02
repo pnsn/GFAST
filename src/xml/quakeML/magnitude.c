@@ -16,7 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * TODO: need to make a write <mag> function because this is all wrong
@@ -29,7 +29,6 @@ int xml_quakeML_writeMagnitude(const double magnitude,
                                const bool lhaveType,
                                void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeMagnitude\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -43,7 +42,7 @@ int xml_quakeML_writeMagnitude(const double magnitude,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "magnitude\0");
     if (rc < 0)
     {
-        log_errorF("%s: Error starting element\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting element");
         return -1;
     }
     if (lhaveMag)
@@ -67,7 +66,7 @@ int xml_quakeML_writeMagnitude(const double magnitude,
     rc += xmlTextWriterEndElement(writer); // </magnitude>
     if (rc < 0)
     {   
-        log_errorF("%s: Error writing latitude\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing latitude");
         return -1; 
     }
     return 0;

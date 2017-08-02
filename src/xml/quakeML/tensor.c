@@ -12,7 +12,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Writes the moment tensor terms in Up, South, East coordinates
@@ -47,7 +47,6 @@ int xml_quakeML_writeTensor(const double Mrr, const double Mtt,
                             const double Mrp, const double Mtp,
                             void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeTensor\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -91,7 +90,7 @@ int xml_quakeML_writeTensor(const double Mrr, const double Mtt,
     rc += xmlTextWriterEndElement(writer); // </tensor>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing tensor!\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing tensor!");
         return -1;
     }
     return 0;

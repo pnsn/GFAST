@@ -16,7 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 int xml_quakeML_writeTime(const double time,
                           const enum alert_units_enum time_units,
@@ -28,7 +28,6 @@ int xml_quakeML_writeTime(const double time,
                           const bool lhaveConfidence,
                           void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeTime\0";
     xmlTextWriterPtr writer;
     char units[128];
     int rc; 
@@ -43,7 +42,7 @@ int xml_quakeML_writeTime(const double time,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "time\0");
     if (rc < 0)
     {
-        log_errorF("%s: Error starting element\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting element");
         return -1;
     }
     if (lhaveTime)
@@ -72,7 +71,7 @@ int xml_quakeML_writeTime(const double time,
     rc += xmlTextWriterEndElement(writer); // </time>
     if (rc < 0)
     {   
-        log_errorF("%s: Error writing time\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing time");
         return -1; 
     }
     return 0;

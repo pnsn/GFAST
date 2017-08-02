@@ -16,7 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 int xml_quakeML_writeLatitude(const double latitude,
                               const enum alert_units_enum lat_units,
@@ -28,7 +28,6 @@ int xml_quakeML_writeLatitude(const double latitude,
                               const bool lhaveConfidence,
                               void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeLatitude\0";
     xmlTextWriterPtr writer;
     char units[128];
     int rc; 
@@ -43,7 +42,7 @@ int xml_quakeML_writeLatitude(const double latitude,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "latitude\0");
     if (rc < 0)
     {
-        log_errorF("%s: Error starting element\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting element");
         return -1;
     }
     if (lhaveLat)
@@ -72,7 +71,7 @@ int xml_quakeML_writeLatitude(const double latitude,
     rc += xmlTextWriterEndElement(writer); // </latitude>
     if (rc < 0)
     {   
-        log_errorF("%s: Error writing latitude\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing latitude");
         return -1; 
     }
     return 0;

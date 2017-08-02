@@ -16,7 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 /*!
  * @brief Writes the moment tensor, scalar moment, double couple percentage,
  *        and CLVD percentage.
@@ -57,7 +57,6 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
                                   const double clvd_pct,
                                   void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeMomentTensor\0";
     xmlTextWriterPtr writer;
     char publicID[512];
     double Mrr, Mtt, Mpp, Mrt, Mrp, Mtp;
@@ -102,7 +101,7 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
                                    (void *) writer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing tensor\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing tensor");
         return -1;
     }
     // <doubleCouple>
@@ -119,7 +118,7 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
     rc += xmlTextWriterEndElement(writer); // </momentTensor>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing momentTensor\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing momentTensor");
         return -1;
     }
     return 0;

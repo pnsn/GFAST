@@ -16,7 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 int xml_quakeML_writeLongitude(const double longitude,
                                const enum alert_units_enum lon_units,
@@ -28,7 +28,6 @@ int xml_quakeML_writeLongitude(const double longitude,
                                const bool lhaveConfidence,
                                void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeLongitude\0";
     xmlTextWriterPtr writer;
     char units[128];
     int rc; 
@@ -43,7 +42,7 @@ int xml_quakeML_writeLongitude(const double longitude,
     rc += xmlTextWriterStartElement(writer, BAD_CAST "longitude\0");
     if (rc < 0)
     {
-        log_errorF("%s: Error starting element\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting element");
         return -1;
     }
     if (lhaveLon)
@@ -72,7 +71,7 @@ int xml_quakeML_writeLongitude(const double longitude,
     rc += xmlTextWriterEndElement(writer); // </longitude>
     if (rc < 0)
     {   
-        log_errorF("%s: Error writing longitude\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing longitude");
         return -1; 
     }
     return 0;
