@@ -1,16 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "gfast_core.h"
 
 /*!
  * @brief Writes an error message to the error log.
  *
- * @param[i] msg    Message to write to the error log file.
+ * @param[in] msg    Message to write to the error log file.
  *
  */
 void core_log_logErrorMessage(const char *msg)
 {
-    fprintf(stderr, msg);
+    fprintf(stderr, "%s\n", msg);
     return;
 }
 
@@ -22,7 +23,7 @@ void core_log_logErrorMessage(const char *msg)
  */
 void core_log_logWarningMessage(const char *msg)
 {
-    fprintf(stdout, msg); 
+    fprintf(stdout, "%s\n", msg); 
     return;
 }
 
@@ -34,6 +35,6 @@ void core_log_logWarningMessage(const char *msg)
  */
 void core_log_logInfoMessage(const char *msg)
 {
-    fprintf(stdout, msg); 
+    fprintf(stdout, "%s\n", msg); 
     return;
 }

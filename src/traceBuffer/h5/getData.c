@@ -148,8 +148,10 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             } 
             //memcpy(&h5traceBuffer->traces[k].data[j1], &work[ibeg],
             //       (size_t) (ncopy)*sizeof(double)); 
+            //ierr = array_copy64f_work(ncopy, &work[ibeg],
+            //                          &h5traceBuffer->traces[k].data[j1]);
             ierr = array_copy64f_work(ncopy, &work[ibeg],
-                                      &h5traceBuffer->traces[k].data[j1]);
+                                      &h5traceBuffer->traces[k].data[0]);
         } // Loop on streams in this group
         // Release temporary memory 
         memory_free64f(&work);

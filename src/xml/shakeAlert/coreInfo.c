@@ -109,7 +109,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
             log_errorF("%s: Error getting event ID\n", fcnm);
             return -1;
         }
-        lenos = MIN(128, xmlStrlen(value)); //strlen((const char *) value));
+        lenos = MIN(128, (size_t) xmlStrlen(value)); //strlen((const char *) value));
         strncpy(core->id, (const char *) value, lenos);
         xmlFree(value);
     }

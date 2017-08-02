@@ -5,7 +5,6 @@
 #include <string.h>
 #include "gfast_core.h"
 #ifdef GFAST_USE_INTEL
-#include <mkl.h>
 #include <mkl_lapacke.h>
 #include <mkl_cblas.h>
 #else

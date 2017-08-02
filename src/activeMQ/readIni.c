@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation"
+#endif
 #include <iniparser.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include "gfast_activeMQ.h"
 #include "iscl/log/log.h"
 #include "iscl/os/os.h"
@@ -16,7 +23,7 @@ static void setVarName(const char *group, const char *variable,
 /*!
  * @brief Reads the ActiveMQ properties from the initialization file.
  *
- * @param[in] profilename      Name of properties file.
+ * @param[in] propfilename     Name of properties file.
  * @param[in] group            Group in ini file.  Likely "ActiveMQ".
  *
  * @param[out] activeMQ_props  ActiveMQ properties.
