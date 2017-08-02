@@ -3,3 +3,4 @@ Makefile.inc
 *.[oa]
 *.so
 *.pyc
+html
