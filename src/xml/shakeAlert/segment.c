@@ -12,7 +12,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Writes a segment (fault patch) of the finite fault.  A segment
@@ -76,7 +76,6 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
                                 const enum alert_units_enum ds_uncer_units,
                                 void *xml_writer)
 {
-    const char *fcnm = "xml_shakeAlert_writeSegment\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -84,14 +83,14 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
     writer = (xmlTextWriterPtr) xml_writer;
     if (shape != LINE && shape != TRIANGLE && shape != RECTANGLE)
     {
-        log_errorF("%s: Invalid shape %d\n", fcnm, shape);
+        LOG_ERRMSG("Invalid shape %d\n", shape);
         return -1;
     } 
     // Begin <segment>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "segment\0");
     if (rc < 0)
     {
-        log_errorF("%s: Error starting element\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting element");
         return -1;
     }
     // Write the vertices
@@ -102,7 +101,7 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
                                       (void *)writer);
     if (rc < 0)
     {
-        log_errorF("%s: Error writing vertices %d\n", fcnm, rc);
+        LOG_ERRMSG("Error writing vertices %d",rc);
         return -1;
     }
     // Write the slip
@@ -113,14 +112,14 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
                                   (void *)writer);
     if (rc < 0)
     {
-        log_errorF("%s: Error writing slip\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing slip");
         return -1;
     }
     // </segment>
     rc += xmlTextWriterEndElement(writer); // </segment>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing segment\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing segment");
         return -1;
     }
     return 0;

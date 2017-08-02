@@ -19,7 +19,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/time/time.h"
 
 /*!
@@ -44,7 +44,6 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
                                 const double SA_NAN,
                                 struct coreInfo_struct *core)
 {
-    const char *fcnm = "xml_shakeAlert_readCoreInfo\0";
     xmlNodePtr core_xml, core_xml_info;
     xmlAttrPtr attr;
     xmlChar *value = NULL;
@@ -88,15 +87,15 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     // Require there be something to read
     if (xml_reader == NULL)
     {
-        log_errorF("%s: Error xml reader is NULL\n", fcnm);
+        LOG_ERRMSG("%s", "Error xml reader is NULL");
         return -1;
     }
     core_xml = (xmlNodePtr )xml_reader;
     // Make sure we're in the right spot
     if ((xmlStrcmp(core_xml->name, BAD_CAST "core_info\0") != 0))
     {
-        log_errorF("%s: Error xml_reader does not start at core_info %s!\n",
-                   fcnm, core_xml->name);
+        LOG_ERRMSG("Error xml_reader does not start at core_info %s!",
+                   core_xml->name);
         return -1;
     }
     // Get the eventID
@@ -106,7 +105,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
         value = xmlNodeListGetString(core_xml->doc, attr->children, 1);
         if (value == NULL)
         {
-            log_errorF("%s: Error getting event ID\n", fcnm);
+            LOG_ERRMSG("%s", "Error getting event ID");
             return -1;
         }
         lenos = MIN(128, (size_t) xmlStrlen(value)); //strlen((const char *) value));
@@ -115,7 +114,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     }
     else
     {
-        log_warnF("%s: Warning couldn't lift the event ID\n", fcnm);
+        LOG_WARNMSG("%s", "Warning couldn't lift the event ID");
     }
     // Now parse the core info
     item0 =-1;
@@ -154,18 +153,16 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
         // I didn't find this value in citems - weird - continue 
         if (!lunpack)
         {
-            log_warnF("%s: Warning couldn't find item %s\n",
-                      fcnm, core_xml_info->name);
+            LOG_WARNMSG("Warning couldn't find item %s", core_xml_info->name);
             goto NEXT_CORE_XML_INFO;
         }
         // Check on item index to avoid a segfault
         if (item0 < 0 || item0 > nitems - 1)
         {
-            log_errorF("%s: Invalid index %s %d\n",
-                       fcnm, core_xml_info->name, item0);
-           ierr = 1;
-           lfound = false;
-           goto ERROR;
+            LOG_ERRMSG("Invalid index %s %d", core_xml_info->name, item0);
+            ierr = 1;
+            lfound = false;
+            goto ERROR;
         }
         // Are there units associated with a double to unpack?
         attr = xmlHasProp(core_xml_info, BAD_CAST "units\0");
@@ -196,7 +193,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
              }
              else
              {
-                 log_warnF("%s: Unknown type %d\n", fcnm, types[item0]); 
+                 LOG_WARNMSG("Unknown type %d\n", types[item0]); 
              }
              free(value);
         }
@@ -205,8 +202,7 @@ NEXT_CORE_XML_INFO:;
     } // End loop on core_xml_info
     if (!lfound)
     {
-        log_errorF("%s: Error I couldn't find any elements in core_info\n",
-                   fcnm);
+        LOG_ERRMSG("%s", "Error I couldn't find any elements in core_info");
         ierr = 1;
     }
 ERROR:;
@@ -319,7 +315,6 @@ ERROR:;
 int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
                                  void *xml_writer)
 {
-    const char *fcnm = "xml_shakeAlert_writeCoreInfo\0";
     xmlTextWriterPtr writer;
     char units[128], var[128], cevtime[128];
     int rc;
@@ -492,7 +487,7 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
     rc = xmlTextWriterEndElement(writer); // </core_info>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing core info\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing core info");
     }
     return rc;
 }

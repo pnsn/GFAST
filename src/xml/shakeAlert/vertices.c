@@ -16,6 +16,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
+#include "gfast_core.h"
 #include "iscl/log/log.h"
 
 /*!
@@ -47,7 +48,6 @@ int xml_shakeAlert_readVertices(void *xml_reader,
                                 double *__restrict__ lon,
                                 double *__restrict__ depth)
 {
-    const char *fcnm = "xml_shakeAlert_readVertices\0";
     xmlNodePtr vertices_xml, vertex_xml;
     int ierr, nv, nvref;
     //------------------------------------------------------------------------//
@@ -57,15 +57,16 @@ int xml_shakeAlert_readVertices(void *xml_reader,
     nvref = shape;
     if (nvref < 2 || nvref > 4)
     {
-        log_errorF("%s: Invalid shape %d\n", fcnm, shape);
+        LOG_ERRMSG("Invalid shape %d\n", shape);
         return -1;
     }
     if (lat == NULL || lon == NULL || depth == NULL)
     {
-        if (lat == NULL){log_errorF("%s: Error lat pointer is NULL\n", fcnm);}
-        if (lon == NULL){log_errorF("%s: Error lon pointer is NULL\n", fcnm);}
-        if (depth == NULL){
-            log_errorF("%s: Error depth pointer is NULL\n", fcnm);
+        if (lat == NULL){LOG_ERRMSG("%s", "Error lat pointer is NULL");}
+        if (lon == NULL){LOG_ERRMSG("%s", "Error lon pointer is NULL");}
+        if (depth == NULL)
+        {
+            LOG_ERRMSG("%s", "Error depth pointer is NULL");
         }
         return -1;
     }
@@ -79,14 +80,14 @@ int xml_shakeAlert_readVertices(void *xml_reader,
     // Check for null pointer
     if (xml_reader == NULL)
     {   
-        log_errorF("%s: Error NULL pointer\n", fcnm);
+        LOG_ERRMSG("%s", "Error NULL pointer");
         return -1;
     }
     // Get vertices_xml pointer
     vertices_xml = (xmlNodePtr )xml_reader;
     if (xmlStrcmp(vertices_xml->name, BAD_CAST "vertices\0") != 0)
     {
-        log_errorF("%s: Error reader must start at <vertices>\n", fcnm);
+        LOG_ERRMSG("%s", "Error reader must start at <vertices>");
         return -1;
     }
     // Get the group length
@@ -106,7 +107,7 @@ int xml_shakeAlert_readVertices(void *xml_reader,
                                                 &lat[nv], &lon[nv], &depth[nv]);
         if (ierr != 0)
         {
-            log_errorF("%s Error unpacking vertex %d\n", fcnm, nv + 1);
+            LOG_ERRMSG("Error unpacking vertex %d\n", nv + 1);
             ierr = ierr + 1;
         }
 NEXT_VERTICES_XML:;
@@ -117,22 +118,21 @@ NEXT_VERTICES_XML:;
     {
         if (shape == LINE)
         {
-            log_errorF("%s: Failed to get all vertices on line\n", fcnm);
+            LOG_ERRMSG("%s", "Failed to get all vertices on line");
         }
         if (shape == TRIANGLE)
         {
-            log_errorF("%s: Failed to get all vertices on triangle \n", fcnm);
+            LOG_ERRMSG("%s", "Failed to get all vertices on triangle");
         }
         if (shape == RECTANGLE)
         {
-            log_errorF("%s: Error failed to get all vertices on rectangle\n",
-                       fcnm);
+            LOG_ERRMSG("%s", "Error failed to get all vertices on rectangle");
         }
         ierr = ierr + 1;
     }
     if (ierr != 0)
     {
-        log_errorF("%s: Errors detect in unpacking vertices\n", fcnm);
+        LOG_ERRMSG("%s", "Errors detect in unpacking vertices");
     }
     return ierr;
 }
@@ -175,7 +175,6 @@ int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
                                  const enum alert_units_enum depth_units,
                                  void *xml_writer)
 {
-    const char *fcnm = "xml_shakeAlert_writeVertices\0";
     xmlTextWriterPtr writer;
     int i, npts, rc; 
     //------------------------------------------------------------------------//
@@ -186,7 +185,7 @@ int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
     npts = shape;
     if (shape < 2 || shape > 4)
     {
-        log_errorF("%s: Invalid shape %d\n", fcnm, shape);
+        LOG_ERRMSG("Invalid shape %d", shape);
         return -1;
     }
     // Begin <vertices>
@@ -200,7 +199,7 @@ int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
                                         (void *)writer);
         if (rc < 0)
         {
-            log_errorF("%s: Error writing vertex\n", fcnm);
+            LOG_ERRMSG("%s", "Error writing vertex");
             return -1;
         }
     }
@@ -208,7 +207,7 @@ int xml_shakeAlert_writeVertices(const enum xml_segmentShape_enum shape,
     rc = xmlTextWriterEndElement(writer); // </vertices>
     if (rc < 0)
     {
-        log_errorF("%s: Error closing vertices %d\n", fcnm, rc);
+        LOG_ERRMSG("Error closing vertices %d", rc);
         return -1;
     } 
     return 0;

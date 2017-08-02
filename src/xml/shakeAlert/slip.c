@@ -17,7 +17,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 /*!
  * @brief Unpacks the vertex's latitude, longitude, and depth.
  *
@@ -44,7 +44,6 @@ int xml_shakeAlert_readSlip(void *xml_reader, const double VTX_NAN,
                             double *ss, double *ss_uncer,
                             double *ds, double *ds_uncer)
 {
-    const char *fcnm = "xml_shakeAlert_readSlip\0";
     xmlNodePtr slip_xml;
     xmlChar *value;
     enum unpack_types_enum
@@ -74,13 +73,13 @@ int xml_shakeAlert_readSlip(void *xml_reader, const double VTX_NAN,
     }   
     if (xml_reader == NULL)
     {
-        log_errorF("%s: Error NULL poitner\n", fcnm);
+        LOG_ERRMSG("%s", "Error NULL poitner");
         goto ERROR;
     }
     slip_xml = (xmlNodePtr) (xml_reader);
     if ((xmlStrcmp(slip_xml->name, (const xmlChar *) "slip\0")))
     {
-        log_errorF("%s: Error reader must start at <slip>\n", fcnm);
+        LOG_ERRMSG("%s", "Error reader must start at <slip>");
         ierr = 1;
         goto ERROR;
     }
@@ -114,15 +113,13 @@ int xml_shakeAlert_readSlip(void *xml_reader, const double VTX_NAN,
         // I didn't find this value in citems - weird - continue
         if (!lunpack)
         {
-            log_warnF("%s: Warning couldn't find item %s\n", fcnm,
-                      slip_xml->name);
+            LOG_WARNMSG("Warning couldn't find item %s\n", slip_xml->name);
             goto NEXT_SLIP_XML;
         }
         // Check on item index to avoid a segfault
         if (item0 < 0 || item0 > nitems - 1)
         {
-            log_errorF("%s: Invalid index %s %d\n",
-                        fcnm, slip_xml->name, item0);
+            LOG_ERRMSG("Invalid index %s %d\n", slip_xml->name, item0);
             ierr = 1;
             goto ERROR;
         }
@@ -138,7 +135,7 @@ int xml_shakeAlert_readSlip(void *xml_reader, const double VTX_NAN,
             }
             else
             {
-                log_errorF("%s: Invalid type %d!\n", fcnm, types[item0]);
+                LOG_ERRMSG("Invalid type %d!", types[item0]);
                 goto ERROR;
             }
             nfound = nfound + 1;
@@ -159,13 +156,13 @@ ERROR:;
         {
             for (item=0; item<nitems; item++)
             {
-                log_warnF("%s: Couldn't find: %s\n", fcnm, citems[item]);
+                LOG_WARNMSG("Couldn't find: %s", citems[item]);
             }
         }
     }
     else
     {
-        log_errorF("%s: Internal error\n", fcnm);
+        LOG_ERRMSG("%s", "Internal error");
         ierr = 1;
     }
     return ierr;
@@ -209,7 +206,6 @@ int xml_shakeAlert_writeSlip(const double ss,
                              const enum alert_units_enum ds_uncer_units,
                              void *xml_writer)
 {
-    const char *fcnm = "xml_shakeAlert_writeSlip\0";
     xmlTextWriterPtr writer;
     char units[128], var[128];
     int rc;
@@ -258,7 +254,7 @@ int xml_shakeAlert_writeSlip(const double ss,
     rc += xmlTextWriterEndElement(writer); // </slip>
     if (rc < 0)
     {
-        log_errorF("%s: Error writing slip\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing slip");
         return -1;
     }
     return 0;
