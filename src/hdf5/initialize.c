@@ -4,7 +4,7 @@
 #include <limits.h>
 #include <math.h>
 #include "gfast_hdf5.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/os/os.h"
 
 static void obscureVariable(char *buffer, const char *variable);
@@ -25,7 +25,6 @@ int hdf5_initialize(const char *adir,
                     const char *propfilename)
 {
     FILE *ifl;
-    const char *fcnm = "hdf5_initialize\0";
     char *bufout[1];
     char fname[PATH_MAX], *buffer;
     hid_t fileID, groupID;
@@ -38,13 +37,13 @@ int hdf5_initialize(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, fname);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
     // If file exists then let user know it is about to be deleted
     if (os_path_isfile(fname))
     {
-        log_warnF("%s: H5 archive file %s will be overwritten\n", fcnm, fname);
+        LOG_WARNMSG("H5 archive file %s will be overwritten", fname);
     }
     // Set the filename and open it
     fileID = H5Fcreate(fname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
@@ -73,7 +72,7 @@ int hdf5_initialize(const char *adir,
         nread = fread(buffer, lsize, 1, ifl);
         if (nread < 1)
         {
-            log_errorF("%s: Failed to read text file!\n", fcnm);
+            LOG_ERRMSG("%s", "Failed to read text file!");
         }
         fclose(ifl);
         if (nread > 0 && buffer != NULL)

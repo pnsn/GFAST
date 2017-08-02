@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_hdf5.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 #define MAX_GROUP 10000000
 /*!
@@ -20,7 +20,6 @@
  */
 int hdf5_getMaxGroupNumber(const hid_t h5fl)
 {
-    const char *fcnm = "hdf5_getMaxGroupNumber\0";
     char groupName[512];
     int kg, kgroup;
     kgroup =-1;
@@ -36,7 +35,7 @@ int hdf5_getMaxGroupNumber(const hid_t h5fl)
     }
     if (kgroup ==-1)
     {
-        log_errorF("%s: No output groups\n", fcnm);
+        LOG_ERRMSG("%s", "No output groups");
     }
     return kgroup;
 }

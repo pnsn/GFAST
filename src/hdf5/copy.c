@@ -4,12 +4,12 @@
 #include <math.h>
 #include <float.h>
 #include "gfast_hdf5.h"
+#include "gfast_core.h"
 #ifdef GFAST_USE_INTEL
 #include <mkl_cblas.h>
 #else
 #include <cblas.h>
 #endif
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 #ifndef MAX
@@ -22,7 +22,6 @@ int hdf5_copyPeakDisplacementData(
     struct GFAST_peakDisplacementData_struct *pgd_data,
     struct h5_peakDisplacementData_struct *h5_pgd_data)
 {
-    const char *fcnm = "hdf5_copyPeakDisplacementData\0";
     int *lactiveTemp, *lmaskTemp, i, ierr;
     char *ctemp;
     size_t nsites;
@@ -34,7 +33,7 @@ int hdf5_copyPeakDisplacementData(
         nsites = (size_t)  pgd_data->nsites;
         if (nsites < 1)
         {
-            log_errorF("%s: No sites!\n", fcnm);
+            LOG_ERRMSG("%s", "No sites!");
             ierr = 1;
             return ierr;
         }
@@ -84,12 +83,12 @@ int hdf5_copyPeakDisplacementData(
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        printf("%s: Not yet done\n", fcnm);
+        LOG_ERRMSG("job = %d not yet done\n", job);
         ierr = 1;
     }
     else
     {
-        printf("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("Invalid job=%d", job);
         ierr = 1;
     }
     return ierr;
@@ -99,7 +98,6 @@ int hdf5_copyOffsetData(const enum data2h5_enum job,
                         struct GFAST_offsetData_struct *offset_data,
                         struct h5_offsetData_struct *h5_offset_data)
 {
-    const char *fcnm = "hdf5_copyOffsetData\0";
     char *ctemp;
     int *lactiveTemp, *lmaskTemp, i, ierr;
     size_t nsites;
@@ -112,7 +110,7 @@ int hdf5_copyOffsetData(const enum data2h5_enum job,
         nsites = (size_t) offset_data->nsites;
         if (nsites < 1)
         {
-            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
+            if (nsites < 1){LOG_ERRMSG("%s", "No sites!");}
             ierr = 1;
             return ierr;
         }
@@ -184,12 +182,12 @@ int hdf5_copyOffsetData(const enum data2h5_enum job,
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        log_errorF("%s: Error not yet done\n", fcnm);
+        LOG_ERRMSG("%s", "Error not yet done");
         ierr = 1;
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid job");
         ierr = 1;
     }
     return ierr;
@@ -219,7 +217,6 @@ int hdf5_copyPGDResults(const enum data2h5_enum job,
                         struct GFAST_pgdResults_struct *pgd,
                         struct h5_pgdResults_struct *h5_pgd)
 {
-    const char *fcnm = "hdf5_copyPGDResults\0";
     int *lsiteUsedTemp, i, ierr, nlld;
     size_t ndeps, nlats, nlons, nloc, nsites;
     //------------------------------------------------------------------------//
@@ -234,10 +231,10 @@ int hdf5_copyPGDResults(const enum data2h5_enum job,
         nlons = (size_t) pgd->nlons;
         if (ndeps < 1 || nsites < 1 || nlats < 1 || nlons < 1)
         {
-            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
-            if (nlats < 1){log_errorF("%s: No lats!\n", fcnm);}
-            if (nlons < 1){log_errorF("%s: No lons!\n", fcnm);}
+            if (nsites < 1){LOG_ERRMSG("%s", "No sites!");}
+            if (ndeps < 1){LOG_ERRMSG("%s", "No depths!");}
+            if (nlats < 1){LOG_ERRMSG("%s", "No lats!");}
+            if (nlons < 1){LOG_ERRMSG("%s", "No lons!");}
             ierr = 1;
             return ierr;
         }
@@ -300,10 +297,10 @@ int hdf5_copyPGDResults(const enum data2h5_enum job,
         if (pgd->ndeps < 1 || pgd->nsites < 1 ||
             pgd->nlats < 1 || pgd->nlons < 1)
         {
-            if (pgd->nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (pgd->ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
-            if (pgd->nlats < 1){log_errorF("%s: No lats!\n", fcnm);}
-            if (pgd->nlons < 1){log_errorF("%s: No lons!\n", fcnm);}
+            if (pgd->nsites < 1){LOG_ERRMSG("%s", "No sites!");}
+            if (pgd->ndeps < 1){LOG_ERRMSG("%s", "No depths!");}
+            if (pgd->nlats < 1){LOG_ERRMSG("%s", "No lats!");}
+            if (pgd->nlons < 1){LOG_ERRMSG("%s", "No lons!");}
             ierr = 1;
             return ierr;
         }
@@ -344,7 +341,7 @@ int hdf5_copyPGDResults(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("Invalid job=%d\n", job);
         ierr = 1;
     }
     return ierr;
@@ -374,7 +371,6 @@ int hdf5_copyHypocenter(const enum data2h5_enum job,
                         struct GFAST_shakeAlert_struct *hypo,
                         struct h5_hypocenter_struct *h5_hypo)
 {
-    const char *fcnm = "hdf5_copyHypocenter\0";
     int ierr;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -400,7 +396,7 @@ int hdf5_copyHypocenter(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid job");
         ierr = 1;
     }
     return ierr;
@@ -431,7 +427,6 @@ int hdf5_copyCMTResults(const enum data2h5_enum job,
                         struct GFAST_cmtResults_struct *cmt,
                         struct h5_cmtResults_struct *h5_cmt)
 {
-    const char *fcnm = "hdf5_copyCMTResults\0";
     int *lsiteUsedTemp, i, ierr, ncopy;
     size_t ndeps, nlats, nlons, nlld, nsites;
     //------------------------------------------------------------------------//
@@ -448,10 +443,10 @@ int hdf5_copyCMTResults(const enum data2h5_enum job,
         ncopy = cmt->ndeps*cmt->nlats*cmt->nlons;
         if (ndeps < 1 || nsites < 1 || nlats < 1 || nlons < 1)
         {
-            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
-            if (nlats < 1){log_errorF("%s: No lats!\n", fcnm);}
-            if (nlons < 1){log_errorF("%s: No lons!\n", fcnm);}
+            if (nsites < 1){LOG_ERRMSG("%s", "No sites!");}
+            if (ndeps < 1){LOG_ERRMSG("%s", "No depths!");}
+            if (nlats < 1){LOG_ERRMSG("%s", "No lats!");}
+            if (nlons < 1){LOG_ERRMSG("%s", "No lons!");}
             ierr = 1;
             return ierr;
         }
@@ -552,8 +547,8 @@ int hdf5_copyCMTResults(const enum data2h5_enum job,
         cmt->nlons = h5_cmt->nlons;
         if (cmt->ndeps < 1 || cmt->nsites < 1)
         {
-            if (cmt->nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (cmt->ndeps < 1){log_errorF("%s: No depths!\n", fcnm);}
+            if (cmt->nsites < 1){LOG_ERRMSG("%s", "No sites!");}
+            if (cmt->ndeps < 1){LOG_ERRMSG("%s", "No depths!");}
             ierr = 1;
             return ierr;
         }
@@ -622,7 +617,7 @@ int hdf5_copyCMTResults(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid job");
         ierr = 1;
     }
     return ierr;
@@ -633,7 +628,6 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
                         struct GFAST_faultPlane_struct *fp,
                         struct h5_faultPlane_struct *h5_fp)
 {
-    const char *fcnm = "hdf5_copyFaultPlane\0";
     int *itemp, i, ierr;
     size_t nfp, nfp4, ndip, nsites, nstr;
     //------------------------------------------------------------------------//
@@ -647,9 +641,9 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
         nsites = (size_t) fp->maxobs; //(size_t) fp->nsites_used;
         if (nstr < 1 || ndip < 1 || nsites < 1)
         {
-            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (ndip < 1){log_errorF("%s: No faults down dip!\n", fcnm);}
-            if (nstr < 1){log_errorF("%s: No faults along strike!\n", fcnm);}
+            if (nsites < 1){LOG_ERRMSG("%s", "No sites!");}
+            if (ndip < 1){LOG_ERRMSG("%s", "No faults down dip!");}
+            if (nstr < 1){LOG_ERRMSG("%s", "No faults along strike!");}
             ierr = 1;
             return ierr;
         }
@@ -762,9 +756,9 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
         nsites = (size_t) fp->maxobs; //(size_t) fp->nsites_used;
         if (nstr < 1 || ndip < 1 || nsites < 1) 
         {
-            if (nsites < 1){log_errorF("%s: No sites!\n", fcnm);}
-            if (ndip < 1){log_errorF("%s: No faults down dip!\n", fcnm);}
-            if (nstr < 1){log_errorF("%s: No faults along strike!\n", fcnm);}
+            if (nsites < 1){LOG_ERRMSG("%s", "No sites!");}
+            if (ndip < 1){LOG_ERRMSG("%s", "No faults down dip!");}
+            if (nstr < 1){LOG_ERRMSG("%s", "No faults along strike!");}
             ierr = 1;
             return ierr;
         }
@@ -840,7 +834,7 @@ int hdf5_copyFaultPlane(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid job");
         ierr = 1;
     }
     return ierr;
@@ -871,7 +865,6 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
                        struct GFAST_ffResults_struct *ff,
                        struct h5_ffResults_struct *h5_ff)
 {
-    const char *fcnm = "hdf5_copyFFResults\0";
     struct h5_faultPlane_struct *h5_fp = NULL;
     int i, ierr;
     size_t nfp;
@@ -883,7 +876,7 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
         nfp = (size_t) ff->nfp;
         if (ff->nfp <= 0)
         {
-            log_errorF("%s: Error no fault planes!\n", fcnm);
+            LOG_ERRMSG("%s", "Error no fault planes!");
             return -1;
         }
 
@@ -925,7 +918,7 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
         nfp = (size_t) h5_ff->nfp;
         if (nfp <= 0)
         {
-            log_errorF("%s: Error no fault planes!\n", fcnm);
+            LOG_ERRMSG("%s", "Error no fault planes!");
             return -1;
         }
 
@@ -944,7 +937,7 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
             ierr = GFAST_hdf5_copyFaultPlane(job, &ff->fp[i], &h5_fp[i]);
             if (ierr != 0)
             {
-                log_errorF("%s: Error copying fault plane %d\n", fcnm, i+1);
+                LOG_ERRMSG("Error copying fault plane %d\n", i+1);
                 return -1;
             }
         }
@@ -964,7 +957,7 @@ int hdf5_copyFFResults(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("Invalid job=%d", job);
         ierr = 1;
     }
     return ierr;
@@ -997,7 +990,6 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
                             struct GFAST_waveform3CData_struct *data,
                             struct h5_waveform3CData_struct *h5_data)
 {
-    const char *fcnm = "hdf5_copyWaveform3CData\0";
     char *netw, *stnm, *chan, *loc;
     double nanv[1] = {(double) NAN};
     int ierr, npts;
@@ -1123,7 +1115,7 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("Invalid job=%d\n", job);
         ierr = 1;
     }
     return ierr;
@@ -1155,7 +1147,6 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
                      struct GFAST_data_struct *gps_data,
                      struct h5_gpsData_struct *h5_gpsData)
 {
-    const char *fcnm = "hdf5_copyGPSData\0";
     struct h5_waveform3CData_struct *h5_data;
     int ierr, k, nstreams;
     //------------------------------------------------------------------------//
@@ -1166,7 +1157,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
         nstreams = gps_data->stream_length;
         if (nstreams < 1 || gps_data->data == NULL)
         {
-            log_errorF("%s: Error no streams to copy!\n", fcnm);
+            LOG_ERRMSG("%s", "Error no streams to copy!");
             ierr = 1;
         }
         h5_data = (struct h5_waveform3CData_struct *)
@@ -1180,7 +1171,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
                                                  &h5_data[k]); 
             if (ierr != 0)
             {
-                log_errorF("%s: Error copying 3C data\n", fcnm);
+                LOG_ERRMSG("%s", "Error copying 3C data");
                 return ierr;
             }
         }
@@ -1194,7 +1185,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
         gps_data->stream_length = nstreams;
         if (nstreams < 1)
         {
-            log_errorF("%s: Error no streams to copy!\n", fcnm);
+            LOG_ERRMSG("%s", "Error no streams to copy!");
             ierr = 1;
         }
         gps_data->data = (struct GFAST_waveform3CData_struct *)
@@ -1211,7 +1202,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
     }
     else
     {
-        log_errorF("%s: Invalid job\n", fcnm);
+        LOG_ERRMSG("Invalid job=%d\n", job);
         ierr = 1;
     }
     return ierr;

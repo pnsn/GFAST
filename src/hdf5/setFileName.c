@@ -4,7 +4,7 @@
 #include <limits.h>
 #include <math.h>
 #include "gfast_hdf5.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/os/os.h"
 
 /*!
@@ -25,19 +25,18 @@ int hdf5_setFileName(const char *adir,
                      const char *evid, 
                      char fname[PATH_MAX])
 {
-    const char *fcnm = "hdf5_setFileName\0";
     int ierr;
     size_t lenos;
     ierr = 0;
     memset(fname, 0, PATH_MAX*sizeof(char));
     if (evid == NULL)
     {   
-        log_errorF("%s: Error event ID cannot be NULL\n", fcnm);
+        LOG_ERRMSG("%s", "Error event ID cannot be NULL");
         return -1; 
     }   
     if (strlen(evid) == 0)
     {   
-        log_errorF("%s: Error evid is not defined\n", fcnm);
+        LOG_ERRMSG("%s", "Error evid is not defined");
         return -1; 
     }   
     // Set the archive directory
@@ -60,7 +59,7 @@ int hdf5_setFileName(const char *adir,
                 ierr = os_makedirs(adir);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Failed making directory %s\n", fcnm, adir);
+                    LOG_ERRMSG("Failed making directory %s\n", adir);
                     return -1;
                 }
             }

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_hdf5.h"
-#include "iscl/log/log.h"
 
 int hdf5_memory_freePGDResults(struct h5_pgdResults_struct *pgd)
 {

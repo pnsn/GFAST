@@ -322,6 +322,20 @@ int core_ff_weightObservations(const int mrows,
 };
 #endif
 
+#ifndef LOG_WARNMSG 
+#define LOG_WARNMSG(fmt, ...) \
+{ \
+   char warnmsg[GFAST_MAXMSG_LEN]; \
+   memset(warnmsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   sprintf(warnmsg, "[WARNING]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+   do \
+   {  \
+     snprintf(&warnmsg[strlen(warnmsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logWarningMessage(warnmsg); \
+};
+#endif
+
 #ifndef LOG_INFOMSG 
 #define LOG_INFOMSG(fmt, ...) \
 { \

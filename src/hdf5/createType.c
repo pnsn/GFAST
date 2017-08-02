@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_hdf5.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Creates the peak displacement data type
@@ -17,7 +17,6 @@
  */
 herr_t hdf5_createType_peakDisplacementData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_peakDisplacementData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -66,7 +65,7 @@ herr_t hdf5_createType_peakDisplacementData(hid_t group_id)
                       H5T_NATIVE_INT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to pack type\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to pack type");
         return ierr;
     }
     // Commit it
@@ -74,7 +73,7 @@ herr_t hdf5_createType_peakDisplacementData(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to create pgd data structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create pgd data structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -97,7 +96,6 @@ herr_t hdf5_createType_peakDisplacementData(hid_t group_id)
  */
 herr_t hdf5_createType_pgdResults(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_pgdResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -153,7 +151,7 @@ herr_t hdf5_createType_pgdResults(hid_t group_id)
                       H5T_NATIVE_INT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to pack type\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to pack type");
         return ierr;
     }
     // Commit it
@@ -161,7 +159,7 @@ herr_t hdf5_createType_pgdResults(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to create pgd results structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create pgd results structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -182,7 +180,6 @@ herr_t hdf5_createType_pgdResults(hid_t group_id)
  */
 herr_t hdf5_createType_offsetData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_offsetData\0";
     hid_t dataType, vlenCData, vlenDData, vlenIData, string64Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -242,7 +239,7 @@ herr_t hdf5_createType_offsetData(hid_t group_id)
                       H5T_NATIVE_INT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to pack type\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to pack type");
         return ierr;
     }
     // Commit it
@@ -250,7 +247,7 @@ herr_t hdf5_createType_offsetData(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr < 0)
     {
-        log_errorF("%s: Failed to create offset data structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create offset data structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -273,7 +270,6 @@ herr_t hdf5_createType_offsetData(hid_t group_id)
  */
 herr_t hdf5_createType_hypocenter(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_hypocenter\0";
     hid_t dataType, string128Type;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -309,7 +305,7 @@ herr_t hdf5_createType_hypocenter(hid_t group_id)
                       H5T_NATIVE_DOUBLE);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to pack type\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to pack type");
         return ierr;
     }
     // Commit it
@@ -317,7 +313,7 @@ herr_t hdf5_createType_hypocenter(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to create offset data structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create offset data structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -337,7 +333,6 @@ herr_t hdf5_createType_hypocenter(hid_t group_id)
  */
 herr_t hdf5_createType_cmtResults(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_cmtResults\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -427,7 +422,7 @@ herr_t hdf5_createType_cmtResults(hid_t group_id)
                       H5T_NATIVE_INT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to pack type\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to pack type");
         return ierr;
     }
     // Commit it
@@ -435,7 +430,7 @@ herr_t hdf5_createType_cmtResults(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to create cmt results structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create cmt results structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -456,7 +451,6 @@ herr_t hdf5_createType_cmtResults(hid_t group_id)
  */
 herr_t hdf5_createType_faultPlane(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_faultPlane\0";
     hid_t dataType, vlenDData, vlenIData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -551,7 +545,7 @@ herr_t hdf5_createType_faultPlane(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr < 0)
     {
-        log_errorF("%s: Failed to create fault plane structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create fault plane structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -572,7 +566,6 @@ herr_t hdf5_createType_faultPlane(hid_t group_id)
  */
 herr_t hdf5_createType_ffResults(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_ffResults\0";
     hid_t dataType, faultType, vlenDData, vlenFault;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -584,11 +577,11 @@ herr_t hdf5_createType_ffResults(hid_t group_id)
     }
     if (H5Lexists(group_id, "faultPlaneStructure\0", H5P_DEFAULT) == 0)
     {
-        log_warnF("%s: Making fault plane structure\n", fcnm);
+        LOG_WARNMSG("%s", "Making fault plane structure");
         ierr = GFAST_hdf5_createType_faultPlane(group_id);
         if (ierr != 0)
         {
-            log_errorF("%s: ERror making fault plane structure\n", fcnm);
+            LOG_ERRMSG("%s", "Error making fault plane structure");
             return ierr;
         }
     }
@@ -637,7 +630,7 @@ herr_t hdf5_createType_ffResults(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr < 0)
     {
-        log_errorF("%s: Failed to create ff results structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create ff results structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -659,7 +652,6 @@ herr_t hdf5_createType_ffResults(hid_t group_id)
  */
 herr_t hdf5_createType_waveform3CData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_waveform3CData\0";
     hid_t dataType, string64Type, vlenCData, vlenDData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -736,7 +728,7 @@ herr_t hdf5_createType_waveform3CData(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr < 0)
     {
-        log_errorF("%s: Failed to create 3C data structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create 3C data structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);
@@ -758,7 +750,6 @@ herr_t hdf5_createType_waveform3CData(hid_t group_id)
  */
 herr_t hdf5_createType_gpsData(hid_t group_id)
 {
-    const char *fcnm = "hdf5_createType_gpsData\0";
     hid_t dataType, threeCdataType, vlen3CData;
     herr_t ierr = 0;
     //------------------------------------------------------------------------//
@@ -770,11 +761,11 @@ herr_t hdf5_createType_gpsData(hid_t group_id)
     }
     if (H5Lexists(group_id, "waveform3CDataStructure\0", H5P_DEFAULT) == 0)
     {
-        log_warnF("%s: Making 3C data structure\n", fcnm);
+        LOG_WARNMSG("%s", "Making 3C data structure");
         ierr = GFAST_hdf5_createType_waveform3CData(group_id);
         if (ierr != 0)
         {
-            log_errorF("%s: ERror making 3C data structure\n", fcnm);
+            LOG_ERRMSG("%s", "Error making 3C data structure");
             return ierr;
         }
     }
@@ -795,7 +786,7 @@ herr_t hdf5_createType_gpsData(hid_t group_id)
                       H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     if (ierr < 0)
     {
-        log_errorF("%s: Failed to create gpsData structure\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to create gpsData structure");
         return ierr;
     }
     ierr += H5Tclose(dataType);

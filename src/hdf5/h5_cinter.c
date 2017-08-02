@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "gfast_hdf5.h"
+#include "gfast_core.h"
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
@@ -10,8 +12,6 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-#include "gfast_hdf5.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 /*!
@@ -26,11 +26,10 @@
  */
 hid_t h5_open_rdonly(const char *flname)
 {
-    const char *fcnm = "h5_open_rdonly\0";
     hid_t file_id;
     if (!os_path_isfile(flname))
     {
-        log_errorF("%s: HDF5 file %s does not exist!\n", fcnm, flname);
+        LOG_ERRMSG("HDF5 file %s does not exist!\n", flname);
     }
     file_id = H5Fopen(flname, H5F_ACC_RDONLY, H5P_DEFAULT);
     return file_id; 
@@ -86,7 +85,6 @@ int h5_close(const hid_t file_id)
 int h5_write_array__float(const char *dset_name, const hid_t file_id,
                           const int n, const float *x)
 {
-    const char *fcnm = "h5_write_array__float\0";
     char *citem = (char *)calloc(strlen(dset_name)+1, sizeof(char));
     hid_t flt_dataspace_id, flt_dataset_id;
     hsize_t dims[1];
@@ -107,7 +105,7 @@ int h5_write_array__float(const char *dset_name, const hid_t file_id,
                       H5P_DEFAULT, x);
     if (status != 0)
     {
-        log_errorF(" %s: Write error\n", fcnm);
+        LOG_ERRMSG("%s", "Write error");
         return -1;
     }
     // Close the dataspace
@@ -115,7 +113,7 @@ int h5_write_array__float(const char *dset_name, const hid_t file_id,
     status += H5Dclose(flt_dataset_id);
     if (status != 0)
     {
-        log_errorF(" %s: Close error\n", fcnm);
+        LOG_ERRMSG("%s", "Close error");
     }
     free(citem);
     return status;
@@ -137,7 +135,6 @@ int h5_write_array__float(const char *dset_name, const hid_t file_id,
 int h5_write_array__double(const char *dset_name, const hid_t file_id,
                            const int n, const double *x)
 {
-    const char *fcnm = "h5_write_array__double\0";
     char *citem = (char *)calloc(strlen(dset_name)+1, sizeof(char));
     hid_t dbl_dataspace_id, dbl_dataset_id;
     hsize_t dims[1];
@@ -158,7 +155,7 @@ int h5_write_array__double(const char *dset_name, const hid_t file_id,
                       H5P_DEFAULT, x);
     if (status != 0)
     {
-        log_errorF(" %s: Write error\n", fcnm);
+        LOG_ERRMSG("%s", "Write error");
         return -1;
     }
     // Close the dataspace
@@ -166,7 +163,7 @@ int h5_write_array__double(const char *dset_name, const hid_t file_id,
     status += H5Dclose(dbl_dataset_id);
     if (status != 0)
     {
-        log_errorF(" %s: Close error\n", fcnm);
+        LOG_ERRMSG("%s", "Close error");
     }
     free(citem);
     return status;
@@ -188,7 +185,6 @@ int h5_write_array__double(const char *dset_name, const hid_t file_id,
 int h5_write_array__int(const char *dset_name, const hid_t file_id,
                         const int n, const int *x)
 {
-    const char *fcnm = "h5_write_array__int\0";
     char *citem = (char *)calloc(strlen(dset_name)+1, sizeof(char));
     hid_t int_dataspace_id, int_dataset_id;
     hsize_t dims[1];
@@ -208,7 +204,7 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
                       H5P_DEFAULT, x);
     if (status != 0)
     {
-        log_errorF(" %s: Write error\n", fcnm);
+        LOG_ERRMSG("%s", "Write error");
         return -1;
     }
     // Close the dataspace
@@ -216,7 +212,7 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
     status += H5Dclose(int_dataset_id);
     if (status != 0)
     {
-        log_errorF(" %s: Close error\n", fcnm);
+        LOG_ERRMSG("%s", "Close error");
     }
     free(citem);
     return status;
@@ -238,7 +234,6 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
 int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
                           const int n, char **c)
 {
-    const char *fcnm = "h5_write_array__chars\0";
     char **cout, *citem_hdf5;
     size_t len_item = strlen(citem_chr);
     hid_t chr_dataset_id, chr_dataspace_id, cftype, cmtype;
@@ -258,14 +253,14 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
     status = H5Tset_size(cftype, H5T_VARIABLE);
     if (status < 0)
     {
-        log_errorF("%s: Error setting space \n", fcnm);
+        LOG_ERRMSG("%s", "Error setting space");
         return -1;
     }
     cmtype = H5Tcopy(H5T_C_S1);
     status = H5Tset_size(cmtype, H5T_VARIABLE);
     if (status < 0)
     {
-        log_errorF("%s: Error setting memory space\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting memory space");
         return -1;
     }
     // Create the dataset
@@ -285,7 +280,7 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
                       H5P_DEFAULT, cout);
     if (status != 0)
     {
-        log_errorF("%s: Write error\n", fcnm);
+        LOG_ERRMSG("%s", "Write error");
         return -1;
     }
     status += H5Tclose(cftype);
@@ -294,7 +289,7 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
     status += H5Dclose(chr_dataset_id);
     if (status != 0)
     {
-        log_errorF("%s: Close errors\n", fcnm);
+        LOG_ERRMSG("%s", "Close errors");
     } 
     // Free space
     for (i=0; i<n; i++)
@@ -321,7 +316,6 @@ int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
 char **h5_read_array__string(const char *citem, const hid_t file_id,
                              int *nitems, int *ierr)
 {
-    const char *fcnm = "h5_read_array__string\0";
     char **cout, *citem_hdf5;
     size_t lenos = strlen(citem);
     hid_t dataSet, fileType, memType, space;
@@ -342,12 +336,12 @@ char **h5_read_array__string(const char *citem, const hid_t file_id,
     ndims = H5Sget_simple_extent_dims(space, dims, NULL);
     if (ndims < 1)
     {
-        log_errorF("%s: Error invalid number of dimensions\n", fcnm);
+        LOG_ERRMSG("%s", "Error invalid number of dimensions");
     }
     *nitems = (int) dims[0];
     if (*nitems < 1)
     {
-        log_errorF("%s: Error no data to read %d\n", fcnm, *nitems);
+        LOG_ERRMSG("Error no data to read %d", *nitems);
         *ierr = 1;
         return cout;
     }
@@ -363,7 +357,7 @@ char **h5_read_array__string(const char *citem, const hid_t file_id,
     status = H5Tset_size(memType, sdim);
     if (status < 0)
     {
-        log_errorF("%s: Error setting size\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting size");
         *ierr = 1;
         return cout;
     }
@@ -371,7 +365,7 @@ char **h5_read_array__string(const char *citem, const hid_t file_id,
                      cout[0]);
     if (status < 0)
     {
-        log_errorF("%s: Error reading data\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading data");
         *ierr = 1;
         return cout;
     }
@@ -398,7 +392,6 @@ char **h5_read_array__string(const char *citem, const hid_t file_id,
 char **h5_read_array__char(const char *citem, const hid_t file_id,
                            int *nitems, int *ierr)
 {
-    const char *fcnm = "h5_read_array__char\0";
     char **cdata, **cwork, *citem_hdf5;
     size_t len_item = strlen(citem);
     size_t lens;
@@ -426,7 +419,7 @@ char **h5_read_array__char(const char *citem, const hid_t file_id,
     status = H5Tset_size(cmtype,H5T_VARIABLE);
     if (status < 0)
     {
-        log_errorF("%s: Error creating memory datatype\n",fcnm);
+        LOG_ERRMSG("%s", "Error creating memory datatype");
         *ierr = 1;
         return NULL;
     }
@@ -435,7 +428,7 @@ char **h5_read_array__char(const char *citem, const hid_t file_id,
                      H5P_DEFAULT, cwork);
     if (status < 0)
     {
-        log_errorF("%s: Error reading char data\n",fcnm);
+        LOG_ERRMSG("%s", "Error reading char data");
         *ierr = 1;
         return NULL;
     }
@@ -443,20 +436,20 @@ char **h5_read_array__char(const char *citem, const hid_t file_id,
     status = H5Dclose(chr_dataset);
     if (status < 0)
     {
-        log_errorF("%s: Error closing dataset\n",fcnm);
+        LOG_ERRMSG("%s", "Error closing dataset");
         *ierr = 1;
         return NULL;
     }
     status = H5Sclose(cspace);
     if (status < 0){
-        log_errorF("%s: Error closing dataspace\n",fcnm);
+        LOG_ERRMSG("%s", "Error closing dataspace");
         *ierr = 1;
         return NULL;
     }
     status = H5Tclose(cmtype);
     if (status < 0)
     {
-        log_errorF("%s: Error closing memory type\n",fcnm);
+        LOG_ERRMSG("%s", "Error closing memory type");
         *ierr = 1;
         return NULL;
     }
@@ -491,7 +484,6 @@ char **h5_read_array__char(const char *citem, const hid_t file_id,
 int h5_read_array__double(const char *dset_name, const hid_t file_id,
                           const int nref, double *x)
 {
-    const char *fcnm = "h5_read_array__double\0";
     char *citem = (char *)calloc(strlen(dset_name)+1, sizeof(char));
     hid_t memspace, dbl_dataspace, dbl_dataset, cparms;
     hsize_t *dims;
@@ -516,7 +508,7 @@ int h5_read_array__double(const char *dset_name, const hid_t file_id,
     }
     if (nwork > nref)
     {
-        log_errorF("%s: Insufficient space!\n", fcnm);
+        LOG_ERRMSG("%s", "Insufficient space!");
         return -1;
     }
     // Get properties handle
@@ -528,7 +520,7 @@ int h5_read_array__double(const char *dset_name, const hid_t file_id,
                      H5P_DEFAULT, x);
     if (status != 0)
     {
-        log_errorF("%s: Error loading data\n", fcnm);
+        LOG_ERRMSG("%s", "Error loading data");
         return -1;
     }
     // Close it up
@@ -536,8 +528,9 @@ int h5_read_array__double(const char *dset_name, const hid_t file_id,
     status += H5Sclose(dbl_dataspace);
     status += H5Sclose(memspace);
     status += H5Dclose(dbl_dataset);
-    if (status != 0){
-        log_errorF("%s: Error closing space\n", fcnm);
+    if (status != 0)
+    {
+        LOG_ERRMSG("%s", "Error closing space");
     }
     free(citem);
     free(dims);
@@ -561,7 +554,6 @@ int h5_read_array__double(const char *dset_name, const hid_t file_id,
 int h5_read_array__float(const char *dset_name, const hid_t file_id,
                          const int nref, float *x)
 {
-    const char *fcnm = "h5_read_array__float\0";
     char *citem = (char *)calloc(strlen(dset_name)+1, sizeof(char));
     hid_t memspace, flt_dataspace, flt_dataset, cparms;
     hsize_t *dims;
@@ -586,7 +578,7 @@ int h5_read_array__float(const char *dset_name, const hid_t file_id,
     }
     if (nwork > nref)
     {
-        log_errorF("%s: Insufficient space!\n", fcnm);
+        LOG_ERRMSG("%s", "Insufficient space!");
         return -1;
     }
     // Get properties handle
@@ -598,7 +590,7 @@ int h5_read_array__float(const char *dset_name, const hid_t file_id,
                      H5P_DEFAULT, x);
     if (status != 0)
     {
-        log_errorF("%s: Error loading data\n", fcnm);
+        LOG_ERRMSG("%s", "Error loading data");
         return -1;
     }
     // Close it up
@@ -608,7 +600,7 @@ int h5_read_array__float(const char *dset_name, const hid_t file_id,
     status += H5Dclose(flt_dataset);
     if (status != 0)
     {
-        log_errorF("%s: Error closing space\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing space");
     }
     free(citem);
     free(dims);
@@ -632,7 +624,6 @@ int h5_read_array__float(const char *dset_name, const hid_t file_id,
 int h5_read_array__int(const char *dset_name, const hid_t file_id,
                        const int nref, int *x)
 {
-    const char *fcnm = "h5_read_array__int\0";
     char *citem = (char *)calloc(strlen(dset_name)+1,sizeof(char));
     hid_t memspace, int_dataspace, int_dataset, cparms;
     hsize_t *dims;
@@ -655,7 +646,7 @@ int h5_read_array__int(const char *dset_name, const hid_t file_id,
         nwork = nwork*(int) (dims[i]);
     }
     if (nwork > nref){
-        log_errorF("%s: Insufficient space!\n", fcnm);
+        LOG_ERRMSG("%s", "Insufficient space!");
         return -1;
     }
     // Get properties handle
@@ -667,7 +658,7 @@ int h5_read_array__int(const char *dset_name, const hid_t file_id,
                      H5P_DEFAULT, x);
     if (status != 0)
     {
-        log_errorF("%s: Error reading data\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading data");
         return -1;
     }
     // Close it up
@@ -677,7 +668,7 @@ int h5_read_array__int(const char *dset_name, const hid_t file_id,
     status += H5Dclose(int_dataset);
     if (status != 0)
     {
-        log_errorF("%s: Error closing h5\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing h5");
     }
     free(citem);
     free(dims);
@@ -700,7 +691,6 @@ int h5_read_array__int(const char *dset_name, const hid_t file_id,
 int h5_write_attribute__double(const char *citem, const hid_t hdf5_id,
                                const int n, const double *attr_data)
 {
-    const char *fcnm = "h5_write_attribute__double\0";
     char *citem_hdf5;
     size_t len_item = strlen(citem);
     hid_t attr_dataspace_id, attribute_id;
@@ -723,7 +713,7 @@ int h5_write_attribute__double(const char *citem, const hid_t hdf5_id,
     status += H5Sclose(attr_dataspace_id);
     if (status != 0)
     {
-        log_errorF("%s: Error writing attributes\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing attributes");
     }
     // Free space 
     free(citem_hdf5);
@@ -747,7 +737,6 @@ int h5_write_attribute__double(const char *citem, const hid_t hdf5_id,
 int h5_write_attribute__int(const char *citem, const hid_t hdf5_id,
                             const int n, const int *attr_data)
 {
-    const char *fcnm = "h5_write_attribute__int\0";
     char *citem_hdf5;
     size_t len_item = strlen(citem);
     hid_t attr_dataspace_id, attribute_id;
@@ -770,7 +759,7 @@ int h5_write_attribute__int(const char *citem, const hid_t hdf5_id,
     status += H5Sclose(attr_dataspace_id);
     if (status != 0)
     {
-        log_errorF("%s: Error writing attributes\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing attributes");
     }   
     // Free space 
     free(citem_hdf5);
@@ -794,7 +783,6 @@ int h5_write_attribute__int(const char *citem, const hid_t hdf5_id,
 int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
                              const int n, const char **cattr)
 {
-    const char *fcnm = "h5_write_attribute__char\0";
     char **cout, *citem_hdf5;
     size_t len_item = strlen(citem);
     int i, lens;
@@ -814,14 +802,14 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
     status = H5Tset_size(cftype, H5T_VARIABLE);
     if (status < 0)
     {
-        log_errorF("%s: Error setting space!\n",fcnm);
+        LOG_ERRMSG("%s", "Error setting space!");
         return -1;
     }
     cmtype = H5Tcopy(H5T_C_S1);
     status = H5Tset_size(cmtype, H5T_VARIABLE);
     if (status < 0)
     {
-        log_errorF("%s: Error setting memory space\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting memory space");
         return -1; 
     }
     // Create dataset for attribute
@@ -844,7 +832,7 @@ int h5_write_attribute__char(const char *citem, const hid_t hdf5_id,
     status += H5Sclose(attr_dataspace_id);
     if (status != 0)
     {
-        log_errorF("%s: Error writing attribute!\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing attribute!");
     }
     // Free space
     for (i=0; i<n; i++)
@@ -915,7 +903,6 @@ int h5_n_group_members(const char *group_name, const hid_t file_id)
  */
 int h5_get_array_size(const hid_t file_id, const char *citem)
 {
-    const char *fcnm = "h5_get_array_size\0";
     char *citem_hdf5;
     int nwork_out;
     hid_t dataspace_id, dataset_id;
@@ -937,7 +924,7 @@ int h5_get_array_size(const hid_t file_id, const char *citem)
     status += H5Dclose(dataset_id);
     if (status != 0)
     {
-        log_errorF("%s: Error closing h5\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing h5");
         return (int) nwork;
     }   
     free(citem_hdf5);
@@ -988,7 +975,6 @@ bool h5_item_exists(const hid_t file_id, const char *citem_in)
  */
 herr_t h5_create_group(const hid_t file_id, const char *cgroup)
 {
-    const char *fcnm = "h5_create_group\0";
     char *cgroup_hdf5;
     size_t len_item = strlen(cgroup);
     hid_t group_id;
@@ -1003,7 +989,7 @@ herr_t h5_create_group(const hid_t file_id, const char *cgroup)
     lexist = H5Lexists(file_id, cgroup, H5P_DEFAULT);
     if (lexist == 1)
     {
-        log_warnF("%s: Warning group exists; skipping\n", fcnm);
+        LOG_WARNMSG("%s", "Warning group exists; skipping");
         free(cgroup_hdf5);
         return 0;
     }
@@ -1014,7 +1000,7 @@ herr_t h5_create_group(const hid_t file_id, const char *cgroup)
     status = H5Gclose(group_id);
     if (status < 0)
     {
-        log_errorF("%s: Error closing group\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing group");
     }
     // Free space
     free(cgroup_hdf5);
