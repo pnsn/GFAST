@@ -3,7 +3,7 @@
 #include <string.h>
 #include <limits.h>
 #include "gfast_hdf5.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/os/os.h"
 /*!
  * @brief Initializes the current directory for this GFAST iteration.
@@ -21,7 +21,6 @@ int hdf5_updateGetIteration(const char *adir,
                             const char *evid,
                             const double epoch)
 {
-    const char *fcnm = "hdf5_updateGetIteration\0";
     const char *group_root = "/GFAST_History\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX], iterGroup[256];
@@ -34,12 +33,12 @@ int hdf5_updateGetIteration(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
     if (!os_path_isfile(h5fl))
     {
-        log_errorF("%s: Error file %s does not exist!\n", fcnm, h5fl);
+        LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
     }
     fileID = h5_open_rdwt(h5fl);
@@ -49,7 +48,7 @@ int hdf5_updateGetIteration(const char *adir,
     sprintf(iterGroup, "%s_%d", item_root, k);
     if (h5_item_exists(fileID, iterGroup))
     {
-        log_errorF("%s: Error group shouldn't exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error group shouldn't exist");
         ierr = h5_close(fileID);
         return ierr;
     }
@@ -59,7 +58,7 @@ int hdf5_updateGetIteration(const char *adir,
     status = h5_write_attribute__double("epoch\0", groupID, 1, &epoch);
     if (status < 0)
     {
-        log_errorF("%s: Error writing attribute\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing attribute");
     }
     status = H5Gclose(groupID);
     status = h5_close(fileID);
@@ -79,7 +78,6 @@ int hdf5_updateHypocenter(const char *adir,
                           const int h5k,
                           struct GFAST_shakeAlert_struct hypo)
 {
-    const char *fcnm = "hdf5_updateHypocenter\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_hypocenter_struct h5_hypo;
@@ -96,12 +94,12 @@ int hdf5_updateHypocenter(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
     if (!os_path_isfile(h5fl))
     {
-        log_errorF("%s: Error file %s does not exist!\n", fcnm, h5fl);
+        LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
     }
     fileID = h5_open_rdwt(h5fl);
@@ -110,7 +108,7 @@ int hdf5_updateHypocenter(const char *adir,
     sprintf(hypoGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, hypoGroup))
     {
-        log_errorF("%s: Error group should exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error group should exist");
         ierr = h5_close(fileID);
         return ierr;
     }
@@ -133,7 +131,7 @@ int hdf5_updateHypocenter(const char *adir,
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing hypocenter\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing hypocenter");
     }
     // Close the group and file
     ierr = ierr + H5Gclose(groupID);
@@ -156,7 +154,6 @@ int hdf5_updatePGD(const char *adir,
                    struct GFAST_peakDisplacementData_struct pgd_data,
                    struct GFAST_pgdResults_struct pgd)
 {
-    const char *fcnm = "hdf5_updatePGD\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_peakDisplacementData_struct h5_pgd_data;
@@ -175,12 +172,12 @@ int hdf5_updatePGD(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
     if (!os_path_isfile(h5fl))
     {
-        log_errorF("%s: Error file %s does not exist!\n", fcnm, h5fl);
+        LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
     }
     fileID = h5_open_rdwt(h5fl);
@@ -189,7 +186,7 @@ int hdf5_updatePGD(const char *adir,
     sprintf(pgdGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, pgdGroup))
     {
-        log_errorF("%s: Error group should exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error group should exist");
         ierr = h5_close(fileID);
         return ierr;
     }
@@ -213,7 +210,7 @@ int hdf5_updatePGD(const char *adir,
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing PGD data\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing PGD data");
     }
     // Copy and write the results 
     ierr = ierr +  GFAST_hdf5_copyPGDResults(COPY_DATA_TO_H5,
@@ -228,14 +225,14 @@ int hdf5_updatePGD(const char *adir,
                     H5P_DEFAULT, &h5_pgd);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing PGD results\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing PGD results");
     }
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {
-        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing HDF5 data items");
     } 
     // Free the space
     ierr = GFAST_hdf5_memory_freePGDData(&h5_pgd_data);
@@ -252,7 +249,6 @@ int hdf5_updateCMT(const char *adir,
                    struct GFAST_offsetData_struct cmt_data,
                    struct GFAST_cmtResults_struct cmt)
 {
-    const char *fcnm = "hdf5_updateCMT\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_offsetData_struct h5_cmt_data;
@@ -271,12 +267,12 @@ int hdf5_updateCMT(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
     if (!os_path_isfile(h5fl))
     {
-        log_errorF("%s: Error file %s does not exist!\n", fcnm, h5fl);
+        LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
     }
     fileID = h5_open_rdwt(h5fl);
@@ -285,7 +281,7 @@ int hdf5_updateCMT(const char *adir,
     sprintf(cmtGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, cmtGroup))
     {
-        log_errorF("%s: Error group should exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error group should exist");
         ierr = h5_close(fileID);
         return ierr;
     }
@@ -308,7 +304,7 @@ int hdf5_updateCMT(const char *adir,
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error writing CMT data\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing CMT data");
     }
     // Copy and write the results
     ierr = ierr +  GFAST_hdf5_copyCMTResults(COPY_DATA_TO_H5,
@@ -323,14 +319,14 @@ int hdf5_updateCMT(const char *adir,
                     H5P_DEFAULT, &h5_cmt); 
     if (ierr != 0)
     {   
-        log_errorF("%s: Error writing Greens functions\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing Greens functions");
     }
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing HDF5 data items");
     }
     // Free the space
     ierr = GFAST_hdf5_memory_freeOffsetData(&h5_cmt_data);
@@ -346,7 +342,6 @@ int hdf5_updateFF(const char *adir,
                   const int h5k,
                   struct GFAST_ffResults_struct ff)
 {
-    const char *fcnm = "hdf5_updateFF\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX], dataName[256];
     struct h5_offsetData_struct h5_ff_data;
@@ -366,12 +361,12 @@ int hdf5_updateFF(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1; 
     }   
     if (!os_path_isfile(h5fl))
     {   
-        log_errorF("%s: Error file %s does not exist!\n", fcnm, h5fl);
+        LOG_ERRMSG("Error file %s does not exist!\n", h5fl);
         return -1; 
     }
     fileID = h5_open_rdwt(h5fl);
@@ -380,7 +375,7 @@ int hdf5_updateFF(const char *adir,
     sprintf(ffGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, ffGroup))
     {
-        log_errorF("%s: Error group should exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error group should exist");
         ierr = h5_close(fileID);
         return ierr;
     }
@@ -399,14 +394,14 @@ int hdf5_updateFF(const char *adir,
                     H5P_DEFAULT, &h5_ff);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing Greens functions\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing Greens functions");
     }
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {
-        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing HDF5 data items");
     }
     // Write the faults individually for h5py
     dataType = H5Topen(groupID, "/DataStructures/faultPlaneStructure\0",
@@ -429,7 +424,7 @@ int hdf5_updateFF(const char *adir,
     ierr = ierr + H5Tclose(dataType);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing HDF5 data items");
     }
     // Free the space
     ierr = GFAST_hdf5_memory_freeFFResults(&h5_ff);
@@ -444,7 +439,6 @@ int hdf5_update_gpsData(const char *adir,
                         const int h5k,
                         struct GFAST_data_struct data)
 {
-    const char *fcnm = "hdf5_update_gpsData\0";
     const char *item_root = "/GFAST_History/Iteration\0";
     char h5fl[PATH_MAX];
     struct h5_gpsData_struct h5_gpsData;
@@ -462,12 +456,12 @@ int hdf5_update_gpsData(const char *adir,
     ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
     if (!os_path_isfile(h5fl))
     {
-        log_errorF("%s: Error file %s does not exist!\n", fcnm, h5fl);
+        LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
     }
     fileID = h5_open_rdwt(h5fl);
@@ -476,7 +470,7 @@ int hdf5_update_gpsData(const char *adir,
     sprintf(gpsGroup, "%s_%d", item_root, h5k);
     if (!h5_item_exists(fileID, gpsGroup))
     {
-        log_errorF("%s: Error group should exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error group should exist");
         ierr = h5_close(fileID);
         return ierr;
     }
@@ -487,13 +481,13 @@ int hdf5_update_gpsData(const char *adir,
                             &data, &h5_gpsData);
     if (ierr != 0)
     {
-        log_errorF("%s: Error copying GPS data!\n", fcnm);
+        LOG_ERRMSG("%s", "Error copying GPS data!");
         h5_close(fileID);
         return -1;
     }
     if (!h5_item_exists(groupID, "/DataStructures/gpsDataStructure\0"))
     {
-        log_errorF("%s: Error gps data type does not exist\n", fcnm);
+        LOG_ERRMSG("%s", "Error gps data type does not exist");
         ierr = h5_close(fileID);
         return -1;
     }
@@ -507,7 +501,7 @@ int hdf5_update_gpsData(const char *adir,
                     H5P_DEFAULT, &h5_gpsData);
     if (ierr != 0)
     {
-        log_errorF("%s: Error writing Greens functions\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing Greens functions");
     }
     ierr = H5Dclose(dataSet);
     ierr = ierr + H5Sclose(dataSpace);
@@ -516,7 +510,7 @@ int hdf5_update_gpsData(const char *adir,
     ierr = ierr + H5Gclose(groupID);
     if (ierr != 0)
     {
-        log_errorF("%s: Error closing HDF5 data items\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing HDF5 data items");
     }
     ierr = h5_close(fileID);
     return ierr;

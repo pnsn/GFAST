@@ -1,5 +1,5 @@
-#ifndef _gfast_core_h__
-#define _gfast_core_h__ 1
+#ifndef GFAST_CORE_H
+#define GFAST_CORE_H 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -298,45 +298,44 @@ int core_ff_weightObservations(const int mrows,
 //----------------------------------------------------------------------------//
 #ifndef ERRMSG
 #define ERRMSG(msg, fmt, ...)                                                \
+{ \
    memset(msg, 0, GFAST_MAXMSG_LEN*sizeof(char));                            \
    sprintf(msg, "[ERROR]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
    do \
    {  \
      snprintf(&msg[strlen(msg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
-   } while(0)
+   } while(0) \
+};
 #endif
 
 #ifndef LOG_ERRMSG 
-#define LOG_ERRMSG(msg, fmt, ...)                                            \
-   memset(msg, 0, GFAST_MAXMSG_LEN*sizeof(char));                            \
-   sprintf(msg, "[ERROR]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+#define LOG_ERRMSG(fmt, ...) \
+{ \
+   char errmsg[GFAST_MAXMSG_LEN]; \
+   memset(errmsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   sprintf(errmsg, "[ERROR]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ );\
    do \
    {  \
-     snprintf(&msg[strlen(msg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+     snprintf(&errmsg[strlen(errmsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
    } while(0); \
-   core_log_logErrorMessage(msg); 
+   core_log_logErrorMessage(errmsg); \
+};
 #endif
 
 #ifndef LOG_INFOMSG 
-#define LOG_INFOMSG(msg, fmt, ...)                                          \
-   memset(msg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(msg, "[INFO]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+#define LOG_INFOMSG(fmt, ...) \
+{ \
+   char infomsg[GFAST_MAXMSG_LEN]; \
+   memset(infomsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   sprintf(infomsg, "[INFO]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
    do \
    {  \
-     snprintf(&msg[strlen(msg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+     snprintf(&infomsg[strlen(infomsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
    } while(0); \
-   core_log_logInfoMessage(msg); 
+   core_log_logInfoMessage(infomsg); \
+};
 #endif
 
-#ifndef WARNMSG
-#define WARNMSG(msg, fmt, ...) \
-   memset(msg, 0, GFAST_MAXMSG_LEN*sizeof(char));                              \
-   sprintf(msg, "[WARNING]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
-   do \
-   {  \
-     snprintf(&msg[strlen(msg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
-   } while(0);
-#endif
 void core_log_logErrorMessage(const char *msg);
 void core_log_logWarningMessage(const char *msg);
 void core_log_logDebugMessage(const char *msg);

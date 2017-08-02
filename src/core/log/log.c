@@ -3,6 +3,24 @@
 #include <string.h>
 #include "gfast_core.h"
 
+static FILE *errorFile = NULL;
+static FILE *infoFile = NULL;
+static FILE *warnFile = NULL;
+
+int core_log_createLogFile(const char *fileName)
+{
+    if (errorFile != NULL){fclose(errorFile);}
+    errorFile = fopen(fileName, "w");
+    return 0;
+}
+
+void core_log_closeLogFile(void)
+{
+    fclose(errorFile);
+    errorFile = NULL;
+    return;
+}
+
 /*!
  * @brief Writes an error message to the error log.
  *
@@ -11,7 +29,14 @@
  */
 void core_log_logErrorMessage(const char *msg)
 {
-    fprintf(stderr, "%s\n", msg);
+    if (errorFile == NULL)
+    {
+        fprintf(stderr, "%s\n", msg);
+    }
+    else
+    {
+        fprintf(errorFile, "%s\n", msg);
+    } 
     return;
 }
 
@@ -23,7 +48,15 @@ void core_log_logErrorMessage(const char *msg)
  */
 void core_log_logWarningMessage(const char *msg)
 {
-    fprintf(stdout, "%s\n", msg); 
+    if (msg == NULL){return;}
+    if (warnFile == NULL)
+    {   
+        fprintf(stdout, "%s\n", msg);
+    }   
+    else
+    {   
+        fprintf(warnFile, "%s\n", msg);
+    }   
     return;
 }
 
@@ -35,6 +68,14 @@ void core_log_logWarningMessage(const char *msg)
  */
 void core_log_logInfoMessage(const char *msg)
 {
-    fprintf(stdout, "%s\n", msg); 
+    if (msg == NULL){return;}
+    if (infoFile == NULL)
+    {
+        fprintf(stdout, "%s\n", msg); 
+    }
+    else
+    {
+        fprintf(infoFile, "%s\n", msg);
+    }
     return;
 }
