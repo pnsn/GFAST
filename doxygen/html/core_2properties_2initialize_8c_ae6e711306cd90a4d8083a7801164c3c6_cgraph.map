@@ -1,0 +1,6 @@
+<map id="core_properties_initialize" name="core_properties_initialize">
+<area shape="rect" id="node2" href="$pgd__read_ini_8c.html#ae56d6c40f42c365f18b972ef6c100f6e" title="Reads the PGD properties from the initialization file. " alt="" coords="219,5,388,32"/>
+<area shape="rect" id="node3" href="$core_2cmt_2read_ini_8c.html#acb34cfa43bfc9e017bf19c5a8a125ce0" title="Reads the CMT properties from the initialization file. " alt="" coords="242,56,365,83"/>
+<area shape="rect" id="node4" href="$core_2ff_2read_ini_8c.html#a856edd230bfca1eb37c63617f8bb2496" title="Reads the finite fault properties from the initialization file. " alt="" coords="249,107,357,133"/>
+<area shape="rect" id="node5" href="$active_m_q_2read_ini_8c.html#a64ee6f2ea6172d7710d17d062caf4926" title="Reads the ActiveMQ properties from the initialization file. " alt="" coords="241,157,365,184"/>
+</map>

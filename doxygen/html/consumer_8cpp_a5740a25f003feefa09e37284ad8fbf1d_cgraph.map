@@ -1,0 +1,4 @@
+<map id="activeMQ_consumer_getMessageFromListener" name="activeMQ_consumer_getMessageFromListener">
+<area shape="rect" id="node2" href="$class_shake_alert_consumer.html#a04321e4762171080622518d52bc4624a" title="Convenience function to determine if the class was initialized. " alt="" coords="289,5,435,47"/>
+<area shape="rect" id="node3" href="$class_shake_alert_consumer.html#a1f3f4efb0d970e1961ed0405f08969a4" title="Checks if a message exists, and if yes, returns the message. " alt="" coords="273,71,451,112"/>
+</map>

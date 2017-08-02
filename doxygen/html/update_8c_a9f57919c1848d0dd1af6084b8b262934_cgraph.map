@@ -1,0 +1,7 @@
+<map id="hdf5_update_gpsData" name="hdf5_update_gpsData">
+<area shape="rect" id="node2" href="$h5__cinter_8c.html#a7d676e995158e83d2c5d2e0e99d8243c" title="Opens an HDF5 file and returns handle for reading and writing. " alt="" coords="245,5,347,32"/>
+<area shape="rect" id="node3" href="$h5__cinter_8c.html#ab3ac774368c962c3c5b72b848e23fab9" title="Determines if an item exists. " alt="" coords="241,56,351,83"/>
+<area shape="rect" id="node4" href="$h5__cinter_8c.html#a0a30d1d204691458db912d9c66463921" title="Closes an HDF5 file. " alt="" coords="259,107,333,133"/>
+<area shape="rect" id="node5" href="$copy_8c.html#a346f5ad807d4a7b48ae273cc073b0930" title="Copies GPS data structure to/from HDF5 GPS data structure. " alt="" coords="227,157,365,184"/>
+<area shape="rect" id="node6" href="$memory_8c.html#ad59774705cc7b21de8d7e5618eed1ed7" title="hdf5_memory_freeGPSData" alt="" coords="203,208,389,235"/>
+</map>

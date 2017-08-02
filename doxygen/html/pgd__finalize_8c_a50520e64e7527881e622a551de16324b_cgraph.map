@@ -1,0 +1,5 @@
+<map id="core_scaling_pgd_finalize" name="core_scaling_pgd_finalize">
+<area shape="rect" id="node2" href="$core_2properties_2finalize_8c.html#af6ab622376e9621b93be84fc5603c718" title="Frees/nulls ou thte GFAST PGD properties structure. " alt="" coords="244,5,403,47"/>
+<area shape="rect" id="node3" href="$pgd__finalize_8c.html#ad3fb81ee298c8333e0af17b1ca88c7c6" title="Releases the memory on the PGD data data structure. " alt="" coords="224,71,423,98"/>
+<area shape="rect" id="node4" href="$pgd__finalize_8c.html#a346f99507b5a19f710fec424b13844b3" title="Releases the memory on the PGD result structure. " alt="" coords="238,123,409,164"/>
+</map>

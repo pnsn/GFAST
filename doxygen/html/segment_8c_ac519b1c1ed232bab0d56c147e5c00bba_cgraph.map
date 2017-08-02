@@ -1,0 +1,6 @@
+<map id="xml_shakeAlert_writeSegment" name="xml_shakeAlert_writeSegment">
+<area shape="rect" id="node2" href="$vertices_8c.html#a4a0e5bb50c089bf6c83acfbc81657aa6" title="Writes the vertices for a segment. " alt="" coords="252,5,447,32"/>
+<area shape="rect" id="node5" href="$slip_8c.html#aecabf0fe4414c933918339b73bb7a3dd" title="Writes the slip on a fault patch in the finite fault. " alt="" coords="503,56,672,83"/>
+<area shape="rect" id="node3" href="$vertex_8c.html#afc5e74deafb1636f14b39d6c37f9b9ea" title="Writes a vertex defined by a (latitude, longitude, depth) " alt="" coords="495,5,680,32"/>
+<area shape="rect" id="node4" href="$units_8c.html#a3fbe83b34dfb7092f134ad565c0f9ff1" title="Converts the enumerated units a string. " alt="" coords="728,31,905,57"/>
+</map>

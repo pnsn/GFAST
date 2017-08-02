@@ -1,0 +1,4 @@
+<map id="xml_shakeAlert_writeCoreInfo" name="xml_shakeAlert_writeCoreInfo">
+<area shape="rect" id="node2" href="$units_8c.html#a3fbe83b34dfb7092f134ad565c0f9ff1" title="Converts the enumerated units a string. " alt="" coords="251,5,428,32"/>
+<area shape="rect" id="node3" href="$epoch2string_8c.html#a8210c2ec0150f2b418eea78573444219" title="Converts the epochal time (s) to YYYY&#45;MM&#45;DDThh:mm:ss.sssZ format. " alt="" coords="277,56,401,83"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="activeMQ_producer_initialize" name="activeMQ_producer_initialize">
+<area shape="rect" id="node2" href="$producer_8cpp.html#a63820cf9a87d590021efe6651bdbb49e" title="Sets the tcp URI for the producer. " alt="" coords="243,5,449,32"/>
+<area shape="rect" id="node4" href="$active_m_q_8c.html#a8542af04d09ef988b0323eb5c356089a" title="activeMQ_isInit" alt="" coords="540,56,653,83"/>
+<area shape="rect" id="node5" href="$active_m_q_8c.html#a5278d379e241adeca6a602401d425b58" title="activeMQ_start" alt="" coords="291,107,401,133"/>
+<area shape="rect" id="node8" href="$class_shake_alert_producer.html#ae84b855d2672c68a8bcb5cb16b10062b" title="ShakeAlertProducer\l::initialize" alt="" coords="277,158,415,199"/>
+<area shape="rect" id="node9" href="$class_shake_alert_producer.html#a6630f86f6fd5224a5829ed7d928df6f5" title="Starts the message sender. To use this you must first initialize the private variables with the initi..." alt="" coords="271,223,421,265"/>
+<area shape="rect" id="node10" href="$class_shake_alert_producer.html#a156b24ef758d8f30f0b658ebf2801a1d" title="Convenience function to determine if the class was initialized. " alt="" coords="277,289,415,330"/>
+<area shape="rect" id="node3" href="$consumer_8cpp.html#a81418d6450cb13b0ccdf0d814501e67c" title="Sets the tcp URI from the host name, port number, max milliseconds for a reconnect, and max number of attempts to connect. " alt="" coords="497,5,696,32"/>
+<area shape="rect" id="node6" href="$active_m_q_8cpp.html#a0e4e4455288f67dea1bbba7ba9b1c6e5" title="activeMQ_initialize" alt="" coords="531,107,663,133"/>
+<area shape="rect" id="node7" href="$active_m_q_8c.html#a1238402db644f41f26c888daf497ef3d" title="activeMQ_setInit" alt="" coords="536,157,657,184"/>
+</map>

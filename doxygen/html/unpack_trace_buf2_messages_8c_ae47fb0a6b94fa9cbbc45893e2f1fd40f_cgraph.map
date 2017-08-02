@@ -1,0 +1,4 @@
+<map id="traceBuffer_ewrr_unpackTraceBuf2Messages" name="traceBuffer_ewrr_unpackTraceBuf2Messages">
+<area shape="rect" id="node2" href="$gfast__trace_buffer_8h.html#ae190371941dd8cec562c70a1e2577d95" title="WaveMsg2MakeLocal" alt="" coords="261,5,411,32"/>
+<area shape="rect" id="node3" href="$freetb2_trace_8c.html#a8107d7f51d6c3b5463c8279546f8f13a" title="Clears the memory, and optionally the SNCLs, on the tb2Trace_struct struct. " alt="" coords="253,57,419,98"/>
+</map>

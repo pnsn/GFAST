@@ -1,0 +1,4 @@
+<map id="core_events_updateEvent" name="core_events_updateEvent">
+<area shape="rect" id="node2" href="$new_event_8c.html#af3c6056d2842f002782224aa4e34445e" title="Adds a new event to the working events list. " alt="" coords="227,5,385,32"/>
+<area shape="rect" id="node3" href="$free_events_8c.html#a19c74be2676eccfc2f00f811cd9e1fab" title="Frees memory on the active events structure. " alt="" coords="433,5,596,32"/>
+</map>

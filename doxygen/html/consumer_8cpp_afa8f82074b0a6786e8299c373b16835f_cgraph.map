@@ -1,0 +1,10 @@
+<map id="activeMQ_consumer_initialize" name="activeMQ_consumer_initialize">
+<area shape="rect" id="node2" href="$consumer_8cpp.html#a81418d6450cb13b0ccdf0d814501e67c" title="Sets the tcp URI from the host name, port number, max milliseconds for a reconnect, and max number of attempts to connect. " alt="" coords="249,5,448,32"/>
+<area shape="rect" id="node3" href="$active_m_q_8c.html#a8542af04d09ef988b0323eb5c356089a" title="activeMQ_isInit" alt="" coords="505,56,619,83"/>
+<area shape="rect" id="node4" href="$active_m_q_8c.html#a5278d379e241adeca6a602401d425b58" title="activeMQ_start" alt="" coords="293,107,404,133"/>
+<area shape="rect" id="node7" href="$class_shake_alert_consumer.html#a0a3facf381527058eeff58b0b6a4ada7" title="Initializes the internal variables for the ActiveMQ message listener. " alt="" coords="275,158,422,199"/>
+<area shape="rect" id="node8" href="$class_shake_alert_consumer.html#ac0cffa85a16a02e6cc3e90f23ea42e6f" title="Starts the message listener. To use this you must first initialize the private variables with the ini..." alt="" coords="271,223,426,265"/>
+<area shape="rect" id="node9" href="$class_shake_alert_consumer.html#a04321e4762171080622518d52bc4624a" title="Convenience function to determine if the class was initialized. " alt="" coords="275,289,422,330"/>
+<area shape="rect" id="node5" href="$active_m_q_8cpp.html#a0e4e4455288f67dea1bbba7ba9b1c6e5" title="activeMQ_initialize" alt="" coords="496,107,628,133"/>
+<area shape="rect" id="node6" href="$active_m_q_8c.html#a1238402db644f41f26c888daf497ef3d" title="activeMQ_setInit" alt="" coords="501,157,623,184"/>
+</map>

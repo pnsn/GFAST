@@ -1,0 +1,6 @@
+<map id="core_ff_finalize" name="core_ff_finalize">
+<area shape="rect" id="node2" href="$core_2properties_2finalize_8c.html#a9fe96e82671095ebd3c8d0a710c2d1f5" title="Frees/nulls out the GFAST finite fault properties. " alt="" coords="172,5,331,47"/>
+<area shape="rect" id="node3" href="$core_2ff_2finalize_8c.html#a4a3f6011fddf438b21c83fc07e5b5859" title="Frees memory associated with the offset data. " alt="" coords="164,71,339,98"/>
+<area shape="rect" id="node4" href="$core_2ff_2finalize_8c.html#a3fccf06f90bd3247e64556ac1f311bc5" title="Free the finite fault results structure. " alt="" coords="174,122,329,149"/>
+<area shape="rect" id="node5" href="$core_2ff_2finalize_8c.html#abc596f815853e59eb3e8d5b08dc065cb" title="Free the fault plane structure. " alt="" coords="387,122,559,149"/>
+</map>

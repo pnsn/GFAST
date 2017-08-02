@@ -1,0 +1,26 @@
+var structbeach_ball__struct =
+[
+    [ "lhavePTBAxes", "structbeach_ball__struct.html#a29a0746662414ad190e7e3fa797672c2", null ],
+    [ "nFocalSphere", "structbeach_ball__struct.html#ad6bdeeca57359c5bb4a13bf52933cca6", null ],
+    [ "nNodalLineSegs1", "structbeach_ball__struct.html#ae5118884cd104f1662bad29cd32bb2aa", null ],
+    [ "nNodalLineSegs2", "structbeach_ball__struct.html#ada579aea1b865d64386b70b0f42c65d2", null ],
+    [ "nodalLine1Ptr", "structbeach_ball__struct.html#aed28f64861afc74fcac34db801f2fe3e", null ],
+    [ "nodalLine2Ptr", "structbeach_ball__struct.html#aeca1929302c7683f529bbaf185bf8cdc", null ],
+    [ "npolarity", "structbeach_ball__struct.html#ae2c993a67248339ca041a2daf13fcf89", null ],
+    [ "pad", "structbeach_ball__struct.html#a433a135515c7e923545ea6ad0f2f7d91", null ],
+    [ "polarity", "structbeach_ball__struct.html#af23ae8fe9b61d7f66813fdb9f93daaf3", null ],
+    [ "xb", "structbeach_ball__struct.html#ae78ecf4e64643bcfc6a3b4405d856f5c", null ],
+    [ "xFocalSphere", "structbeach_ball__struct.html#ad85c80e168676b8e530babeb8696c939", null ],
+    [ "xNodalLine1", "structbeach_ball__struct.html#ab49a92d33ce4f0824e66094c8b3f3153", null ],
+    [ "xNodalLine2", "structbeach_ball__struct.html#a35bc938a1431f6da372d7522672510fb", null ],
+    [ "xp", "structbeach_ball__struct.html#af649efec4c4f51f4db0ebb935a83d015", null ],
+    [ "xPolarity", "structbeach_ball__struct.html#a5d16c92e39b01e34aa44dc0fba4fcd9d", null ],
+    [ "xt", "structbeach_ball__struct.html#a5b5d4f3c9ef8cbf20bff18ddd1b04609", null ],
+    [ "yb", "structbeach_ball__struct.html#a363478c63dde84a67ebcd5d3ca1fbda2", null ],
+    [ "yFocalSphere", "structbeach_ball__struct.html#a9fa03171ed7fd073882543c4a26fb6b8", null ],
+    [ "yNodalLine1", "structbeach_ball__struct.html#ad986f10526b97fa59b5ecd6c7ff8f77d", null ],
+    [ "yNodalLine2", "structbeach_ball__struct.html#ab489a45cef8599c5fc11611b3c71dedc", null ],
+    [ "yp", "structbeach_ball__struct.html#a7841edcbdbfea2b400dea7753dcfac9e", null ],
+    [ "yPolarity", "structbeach_ball__struct.html#a098567845b40d00d3bac256a61916c21", null ],
+    [ "yt", "structbeach_ball__struct.html#ad64a753b0b96448e6fafb8b9d20c26e0", null ]
+];

@@ -1,0 +1,6 @@
+<map id="cmopad_MT2PrincipalAxisSystem" name="cmopad_MT2PrincipalAxisSystem">
+<area shape="rect" id="node2" href="$cmopad_8c.html#a49e3758cf17c8bbafa912738f1b5f64a" title="Sets the two angle&#45;triples, describing the faultplanes of the Double Couple, defined by the eigenvect..." alt="" coords="276,5,441,32"/>
+<area shape="rect" id="node3" href="$cmopad_8c.html#a5f68c005203670f87d890464e62360a0" title="Returns dip, strike, and slip(rake) angles in degrees describing the fault plane. ..." alt="" coords="489,5,671,32"/>
+<area shape="rect" id="node4" href="$cmopad_8c.html#a7d827c71f5bb152252464b4a0edeaf0c" title="Returns three Euler angles alpha, beta, and gamma (radians) from a rotation matrix. " alt="" coords="719,5,875,32"/>
+<area shape="rect" id="node5" href="$cmopad_8c.html#acc7e3331ef6112c001757c3ed0aa0e6e" title="Uniquify euler angle triplet. " alt="" coords="923,5,1065,32"/>
+</map>

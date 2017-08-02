@@ -1,0 +1,30 @@
+\form#0:\[ W \left [B + C \log_{10}(r) \right ] \textbf{m} = W \left \{ \log_{10}(d) - A \right \} \]
+\form#1:\[ W = diag \left[ e^{-\frac{\Delta^2}{8 \min(\Delta^2) }} \right ] \]
+\form#2:$ \Delta $
+\form#3:\[ W_i = w_i e^{ \left (-\frac{r_i^2}{8 r_{min}} \right ) } \]
+\form#4:$ r_i$
+\form#5:$ w_i $
+\form#6:$ w_i$
+\form#7:$ G = \left [ B + C \log_{10}(r) \right ] $
+\form#8:$ \textbf{b} = \left \{ \log_{10}(d) - A \right \} $
+\form#9:$ \tilde{G} = diag \{W\} G $
+\form#10:$ \tilde{b} = diag \{W\} b $
+\form#11:$ \{ m_{xx}, m_{yy}, m_{zz}, m_{xy}, m_{xz}, m_{yz} \} $
+\form#12:$ \{m_{xx}, m_{yy}, m_{zz}, m_{xy}, m_{xz}, m_{yz} \} $
+\form#13:$ diag{W} G m = diag{W} U $
+\form#14:$ \{ m_{xy}, m_{xz}, m_{zz}, \frac{1}{2} \left ( m_{xx} - m_{yy} \right ), m_{yz} \} $
+\form#15:$ \{ n_{avg}^{(i)}, e_{avg}^{(i)}, -u_{avg}^{(i)} \} $
+\form#16:$ \tilde{G} \leftarrow diag\{W\} G $
+\form#17:$ \{ e_{avg}^{(i)}, n_{avg}^{(i)}, u_{avg}^{(i)} \} $
+\form#18:$ v_{s} $
+\form#19:$ t_{0} $
+\form#20:$ d_{s,r} $
+\form#21:$ t_{s} = t_0 + \frac{ d_{s,r} }{ v_{s} } $
+\form#22:$ \{ m_{rr}, m_{\theta \theta}, m_{\phi \phi}, m_{r \theta}, m_{r \phi}, m_{\theta \phi} \} $
+\form#23:$ s.t. \phi \in [0,360] $
+\form#24:$ \phi \in [0,360] $
+\form#25:$ \delta \in [0,90] $
+\form#26:$ \lambda \in [-180,180] $
+\form#27:$ \{ m_{rr}, m_{\theta \theta} m_{\phi \phi}, m_{r \theta} m_{r \phi} m_{\theta \phi} \} $
+\form#28:$ {1,2,3,4,5,6} = {11,22,33,12,13,23} $
+\form#29:$ \{m_{11},m_{22},m_{33},m_{12},m_{13},m_{23} \} $

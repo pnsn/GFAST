@@ -1,0 +1,4 @@
+<map id="core_data_initialize" name="core_data_initialize">
+<area shape="rect" id="node2" href="$read_meta_data_file_8c.html#a8e34bee89930bb5df13ad6756073bb17" title="Reads the site metadata file. From this we initialize the site network, station, channel, and location code, it&#39;s position (latitude, longitude, elevation), sampling period, and gain) " alt="" coords="187,5,376,32"/>
+<area shape="rect" id="node3" href="$read_site_mask_file_8c.html#a79c4b499d0bf2e9df163fdc769a7fd79" title="Reads the site mask file and if a SNCL is found mutes the site&#39;s channel. " alt="" coords="188,56,375,83"/>
+</map>

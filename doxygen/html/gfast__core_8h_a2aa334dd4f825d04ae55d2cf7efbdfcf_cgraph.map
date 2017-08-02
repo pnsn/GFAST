@@ -1,0 +1,4 @@
+<map id="core_events_removeExpiredEvents" name="core_events_removeExpiredEvents">
+<area shape="rect" id="node2" href="$remove_expired_event_8c.html#a48252fdf07c20f8a6f27fe7c67c538c0" title="Removes an event from the active event list if (currentTime &#45; SA.time) &gt; maxtime. ..." alt="" coords="240,5,427,47"/>
+<area shape="rect" id="node3" href="$free_events_8c.html#a19c74be2676eccfc2f00f811cd9e1fab" title="Frees memory on the active events structure. " alt="" coords="475,13,637,39"/>
+</map>

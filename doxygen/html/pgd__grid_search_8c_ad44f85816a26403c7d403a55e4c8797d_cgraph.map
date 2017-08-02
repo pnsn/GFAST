@@ -1,0 +1,8 @@
+<map id="core_scaling_pgd_gridSearch" name="core_scaling_pgd_gridSearch">
+<area shape="rect" id="node2" href="$pgd__depth_grid_search_8c.html#a9d7103bea031f5dfe846850dcb14f6fb" title="Computes the predicted magnitude using PGD and Pd from the geodetic data by solving the overdetermine..." alt="" coords="245,115,432,157"/>
+<area shape="rect" id="node3" href="$pgd__set_r_h_s_8c.html#a9990bda13062e75291862152f6aa9dd4" title="Computes the right hand side in the peak ground displacement estimation s.t. &#160;where A is a scalar shi..." alt="" coords="514,5,691,32"/>
+<area shape="rect" id="node4" href="$pgd__set_diagonal_weight_matrix_8c.html#a18222ccb974ece32a2561ee3a9ca0cbd" title="Sets the diagonal weighting matrix for the PGD scaling. The diagonal weight matrix terms are defined ..." alt="" coords="503,57,702,98"/>
+<area shape="rect" id="node5" href="$pgd__weight_observations_8c.html#a4255093a33672feb222cf1eea8fe9948" title="Applies the diagonal data weight matrix to the observations. " alt="" coords="480,123,725,149"/>
+<area shape="rect" id="node6" href="$pgd__set_forward_model_8c.html#abb584f64c93280737387f941e95533d6" title="Sets the forward modeling matrix G s.t. &#160;where B and C are scalar shifts and scale factors respective..." alt="" coords="505,174,700,215"/>
+<area shape="rect" id="node7" href="$pgd__weight_forward_model_8c.html#a9f135abbc4ccd22d594d5ffb437ed2ad" title="Applies the diagonal data weight matrix to the forward modeling matrix. In the case of PGD scaling th..." alt="" coords="495,239,710,281"/>
+</map>

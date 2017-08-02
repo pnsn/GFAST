@@ -1,0 +1,7 @@
+<map id="xml_quakeML_writeOrigin" name="xml_quakeML_writeOrigin">
+<area shape="rect" id="node2" href="$time_8c.html#ac15e3bc5120078b9e657a5796e839e1a" title="xml_quakeML_writeTime" alt="" coords="239,5,406,32"/>
+<area shape="rect" id="node4" href="$latitude_8c.html#a0d7f6f1322451f76031281196ebeb49f" title="xml_quakeML_writeLatitude" alt="" coords="231,56,415,83"/>
+<area shape="rect" id="node5" href="$longitude_8c.html#a18a30c597a38f90bd70b16bba7de9bb6" title="xml_quakeML_writeLongitude" alt="" coords="225,107,420,133"/>
+<area shape="rect" id="node6" href="$depth_8c.html#a686f17ee1e5d78ce57d2386553a4b13c" title="xml_quakeML_writeDepth" alt="" coords="236,157,409,184"/>
+<area shape="rect" id="node3" href="$units_8c.html#a3fbe83b34dfb7092f134ad565c0f9ff1" title="Converts the enumerated units a string. " alt="" coords="468,81,645,108"/>
+</map>

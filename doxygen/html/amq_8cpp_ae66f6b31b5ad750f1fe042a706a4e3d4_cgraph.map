@@ -1,0 +1,9 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$amq_8cpp.html#a20880b4f4a976159b0b1b3b017bb5ece" title="C interface function to initialize the ActiveMQ shakeAlert decision module message listener..." alt="" coords="116,13,248,39"/>
+<area shape="rect" id="node4" href="$class_shake_alert_consumer.html#ac0cffa85a16a02e6cc3e90f23ea42e6f" title="Starts the message listener. To use this you must first initialize the private variables with the ini..." alt="" coords="105,64,259,105"/>
+<area shape="rect" id="node5" href="$amq_8cpp.html#a9b0b17bda2ca8e15773c47298bfa7245" title="Checks for the presence of a message from ActiveMQ and, if a message was received, returns it. " alt="" coords="104,130,260,157"/>
+<area shape="rect" id="node7" href="$amq_8cpp.html#aa7072f2fcc9aa28fc760d5e47cb70bc2" title="C interface function to destroy the ActiveMQ listener. " alt="" coords="119,185,245,211"/>
+<area shape="rect" id="node3" href="$class_shake_alert_consumer.html#a0a3facf381527058eeff58b0b6a4ada7" title="Initializes the internal variables for the ActiveMQ message listener. " alt="" coords="308,5,455,47"/>
+<area shape="rect" id="node6" href="$class_shake_alert_consumer.html#abbc61806dba7a5703c2562ee9bdab6bf" title="Checks if a message exists, and if yes, returns the message. " alt="" coords="308,119,455,160"/>
+<area shape="rect" id="node8" href="$class_shake_alert_consumer.html#a3a80b6032f86a56bec74609034b3246f" title="Cleans up the internal variables in the ActiveMQ message listener by calling the private cleanup func..." alt="" coords="308,184,455,225"/>
+</map>

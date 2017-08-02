@@ -1,0 +1,5 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$class_hello_world_consumer.html#abee08949b3c18040832a0c32b73a7756" title="HelloWorldConsumer\l::waitUntilReady" alt="" coords="104,5,251,47"/>
+<area shape="rect" id="node3" href="$class_hello_world_consumer.html#a5ae591df94fc66ccb85cbb6565368bca" title="HelloWorldConsumer\l::close" alt="" coords="104,71,251,112"/>
+<area shape="rect" id="node4" href="$class_hello_world_producer.html#a5ae591df94fc66ccb85cbb6565368bca" title="HelloWorldProducer\l::close" alt="" coords="108,136,247,177"/>
+</map>
