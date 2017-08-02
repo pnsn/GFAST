@@ -38,7 +38,6 @@ int xml_quakeML_writeNodalPlanes(const double np1[3],
                                  const double np2[3],
                                  void *xml_writer)
 {
-    const char *fcnm = "xml_quakeML_writeNodalPlanes\0";
     xmlTextWriterPtr writer;
     int rc;
     //------------------------------------------------------------------------//
@@ -109,7 +108,6 @@ int xml_quakeML_readNodalPlanes(const void *xml_reader,
                                 double rake[2],
                                 double dip[2])
 {
-    const char *fcnm = "xml_quakeML_readNodalPlanes\0";
     LOG_ERRMSG("%s", "Error this isn't programmed yet");
     return -1;
 }
