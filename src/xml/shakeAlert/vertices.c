@@ -17,7 +17,6 @@
 #endif
 #include "gfast_xml.h"
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 /*!
  * @brief Reads the vertices in a segment
