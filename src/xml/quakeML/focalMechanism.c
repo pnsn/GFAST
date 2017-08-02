@@ -14,7 +14,6 @@
 #include "gfast_xml.h"
 #include "gfast_core.h"
 #include "cmopad.h"
-#include "iscl/log/log.h"
 
 /*!
  * @brief Writes the focal mechanism and derived quantities such as the 

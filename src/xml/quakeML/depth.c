@@ -17,7 +17,6 @@
 #endif
 #include "gfast_xml.h"
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 int xml_quakeML_writeDepth(const double depth,
                            const enum alert_units_enum depth_units,
