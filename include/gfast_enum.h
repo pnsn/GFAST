@@ -1,5 +1,5 @@
-#ifndef _gfast_enum__
-#define _gfast_enum__ 1
+#ifndef GFAST_ENUM_H
+#define GFAST_ENUM_H 1
 
 enum dtinit_type
 {
@@ -7,7 +7,7 @@ enum dtinit_type
     INIT_DT_FROM_FILE = 2,     /*!< Obtains GPS sampling period from file */
     INIT_DT_FROM_TRACEBUF = 3, /*!< Obtains GPS sampling period from 
                                     Earthworm tracebuf */
-    INIT_DT_FROM_SAC = 4,      /*!< Obtains GPS sampling period from 
+    INIT_DT_FROM_SAC = 4       /*!< Obtains GPS sampling period from 
                                     SAC file */
 };
 
@@ -17,7 +17,7 @@ enum locinit_type
                                       SOPAC SECTOR web service file */
     INIT_LOCS_FROM_TRACEBUF = 2, /*!< Sets the GPS site locations from
                                       Earthworm tracbuf */
-    INIT_LOCS_FROM_SAC = 3,      /*!< Sets the GPS site locations from
+    INIT_LOCS_FROM_SAC = 3       /*!< Sets the GPS site locations from
                                       SAC file */
 };
 
@@ -28,14 +28,14 @@ enum opmode_type
     //REAL_TIME_PTWC = 2, /*!< GFAST is running in real time mode for PTWC */
     //REAL_TIME_ATWC = 3, /*!< GFAST is running in real time mode for ATWC */
     PLAYBACK = 21,      /*!< GFAST is running in historical playback mode */
-    OFFLINE = 31,       /*!< GFAST is running offline and obtaining data 
+    OFFLINE = 31        /*!< GFAST is running offline and obtaining data 
                              and configuration purely from files */
 };
 
 enum acquisition_type
 {
     DATA_FROM_EARTHWORM = 1, /*!< GFAST will acquire data from earthworm */
-    DATA_FROM_H5 = 2,        /*!< GFAST will read data from disk */
+    DATA_FROM_H5 = 2         /*!< GFAST will read data from disk */
 };
 
 enum pgd_return_enum
@@ -76,7 +76,7 @@ enum alert_units_enum
     UTC = 5,              /*!< Time - UTC */
     MOMENT_MAGNITUDE = 6, /*!< Moment magnitude Mw */
     DYNE_CENTIMETERS = 7, /*!< Torque - dyne centimeters */
-    NEWTON_METERS= 8,     /*!< Torque - Newton meters */
+    NEWTON_METERS= 8      /*!< Torque - Newton meters */
 };
 
 #endif /* _gfast_enum__ */

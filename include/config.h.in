@@ -1,8 +1,9 @@
-#ifndef GFAST_CONFIG_H__
-#define GFAST_CONFIG_H__ 1
+#ifndef GFAST_CONFIG_H
+#define GFAST_CONFIG_H 1
 
 #cmakedefine GFAST_USE_EW 1
 #cmakedefine GFAST_USE_INTEL 1
 #cmakedefine USE_AMQ 1
+#define GFAST_MAXMSG_LEN 4096
 
 #endif /* _gfast_config_h__ */

@@ -11,6 +11,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 #endif
 #include <hdf5.h>
 #ifdef __clang__
@@ -27,6 +28,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpadded"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 #endif
 #include <transport.h>
 #include <earthworm.h>

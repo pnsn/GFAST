@@ -1,5 +1,5 @@
-#ifndef GFAST_STRUCT_H__
-#define GFAST_STRUCT_H__ 1
+#ifndef GFAST_STRUCT_H
+#define GFAST_STRUCT_H 1
 #if defined WINNT || defined WIN32 || defined WIN64
 #include <windows.h>
 #include <limits.h>
