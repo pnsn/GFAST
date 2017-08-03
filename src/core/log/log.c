@@ -5,6 +5,7 @@
 
 static FILE *errorFile = NULL;
 static FILE *infoFile = NULL;
+static FILE *debugFile = NULL;
 static FILE *warnFile = NULL;
 
 int core_log_createLogFile(const char *fileName)
@@ -76,6 +77,26 @@ void core_log_logInfoMessage(const char *msg)
     else
     {
         fprintf(infoFile, "%s\n", msg);
+    }
+    return;
+}
+
+/*!
+ * @brief Writes a debug/extra info message to the debug log.
+ *
+ * @param[in] msg    Message to write to the debug log file.
+ *
+ */
+void core_log_logDebugMessage(const char *msg)
+{
+    if (msg == NULL){return;}
+    if (debugFile == NULL)
+    {
+        fprintf(stdout, "%s\n", msg);
+    }
+    else
+    {
+        fprintf(debugFile, "%s\n", msg);
     }
     return;
 }

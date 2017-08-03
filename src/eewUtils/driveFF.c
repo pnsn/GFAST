@@ -13,6 +13,7 @@
 #endif
 #include "gfast_core.h"
 #include "iscl/log/log.h"
+#include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
 
 static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
@@ -90,7 +91,7 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     ierr = __verify_ff_structs(ff_data, ff);
     if (ierr != 0)
     {
-        log_errorF("%s: Error failed to verify data structures\n", fcnm);
+        LOG_ERRMSG("%s", "Error failed to verify data structures");
         goto ERROR;
     }
     // Initialize the result
@@ -131,6 +132,12 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
             ff->fp[ifp].dep_vtx[i] = 0.0;
         }
         // Observations
+        array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].EN);
+        array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].NN);
+        array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].UN);
+        array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].Einp);
+        array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].Ninp);
+        array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].Uinp);
 #ifdef _OPENMP
         #pragma omp simd
 #endif
@@ -166,8 +173,8 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     {
         if (ff_props.verbose > 1)
         {
-            log_warnF("%s: Insufficient data to invert %d < %d\n",
-                      fcnm, l1, ff_props.min_sites);
+            LOG_WARNMSG("Insufficient data to invert %d < %d\n",
+                        l1, ff_props.min_sites);
         }
         ierr = FF_INSUFFICIENT_DATA;
         goto ERROR;
@@ -293,8 +300,8 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     // Let user know an inversion is about to happen 
     if (ff_props.verbose > 2)
     {   
-        log_debugF("%s: Inverting for slip on %d planes with %d sites\n",
-                   fcnm, nfp, l1);
+        LOG_DEBUGMSG("Inverting for slip on %d planes with %d sites",
+                     nfp, l1);
     }
     // Perform the finite fault inversion
     ierr = core_ff_faultPlaneGridSearch(l1, l2,
@@ -313,7 +320,7 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                                         sslip_unc, dslip_unc);
     if (ierr != 0)
     {
-        log_errorF("%s: Error performing finite fault grid search\n", fcnm);
+        LOG_ERRMSG("%s", "Error performing finite fault grid search");
         goto ERROR;
     }
     //----------------------------Extract the Results-------------------------//
@@ -407,13 +414,13 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
     if (ff_data.nsites < 1)
     {
         ierr = FF_OS_DATA_ERROR;
-        log_errorF("%s: No peak displacement data\n", fcnm);
+        LOG_ERRMSG("%s", "No peak displacement data");
         goto ERROR;
     }
     // Verify the output data structures
     if (ff->nfp < 1)
     {
-        log_errorF("%s: No fault planes in fault plane gridsearch!\n", fcnm);
+        LOG_ERRMSG("%s", "No fault planes in fault plane gridsearch!");
         ierr = FF_STRUCT_ERROR;
         goto ERROR;
     }
@@ -422,23 +429,23 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
     {
         if (ff->fp == NULL)
         {
-            log_errorF("%s: Error fault plane is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error fault plane is NULL");
         }
         if (ff->vr == NULL)
         {
-            log_errorF("%s: Error ff->vr is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error ff->vr is NULL");
         }
         if (ff->Mw == NULL)
         {
-            log_errorF("%s: Error ff->Mw is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error ff->Mw is NULL");
         }
         if (ff->str == NULL)
         {
-            log_errorF("%s: Error ff->str is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error ff->str is NULL");
         }
         if (ff->dip == NULL)
         {
-            log_errorF("%s: Error ff->dip is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error ff->dip is NULL");
         }
         ierr = FF_STRUCT_ERROR;
         goto ERROR;
@@ -448,13 +455,12 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
     {
         if (ff->fp[ifp].nstr != ff->fp[0].nstr)
         {
-            log_errorF("%s: Error inconsistent number of strike patches\n",
-                       fcnm);
+            LOG_ERRMSG("%s", "Error inconsistent number of strike patches");
             ierr = FF_STRUCT_ERROR;
         }
         if (ff->fp[ifp].ndip != ff->fp[0].ndip)
         {
-            log_errorF("%s: Error inconsistent number of dip patches\n", fcnm);
+            LOG_ERRMSG("%s", "Error inconsistent number of dip patches");
             ierr = FF_STRUCT_ERROR;       
         }
         if (ff->fp[ifp].lon_vtx == NULL ||

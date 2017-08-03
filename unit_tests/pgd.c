@@ -142,6 +142,8 @@ static int read_results(const char *filenm,
     // Results + depths in grid search
     pgd->nsites = pgd_data->nsites;
     pgd->ndeps = pgd_props->ngridSearch_deps;
+    pgd->nlats = 1;
+    pgd->nlons = 1;
     pgd->mpgd    = ISCL_memory_calloc__double(pgd->ndeps);
     pgd->mpgd_vr = ISCL_memory_calloc__double(pgd->ndeps);
     pgd->dep_vr_pgd = ISCL_memory_calloc__double(pgd->ndeps);
@@ -202,6 +204,8 @@ int pgd_inversion_test2(void)
     // Set space
     pgd.nsites = pgd_ref.nsites;
     pgd.ndeps = pgd_ref.ndeps;
+    pgd.nlats = 1;
+    pgd.nlons = 1;
     pgd.mpgd    = ISCL_memory_calloc__double(pgd.ndeps);
     pgd.mpgd_vr = ISCL_memory_calloc__double(pgd.ndeps);
     pgd.dep_vr_pgd = ISCL_memory_calloc__double(pgd.ndeps);

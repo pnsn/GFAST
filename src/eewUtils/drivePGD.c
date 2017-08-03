@@ -5,7 +5,6 @@
 #include "gfast_eewUtils.h"
 #include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -42,10 +41,9 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
                       struct GFAST_peakDisplacementData_struct pgd_data,
                       struct GFAST_pgdResults_struct *pgd)
 {
-    const char *fcnm = "eewUtils_drivePGD\0";
     double *d, *srdist, *staAlt, *Uest, *utmRecvEasting, *utmRecvNorthing, *wts,
            iqrMin, utmSrcEasting, utmSrcNorthing, x1, x2, y1, y2;
-    int i, idep, ierr, j, k, l1, zone_loc;
+    int i, idep, ierr, j, k, l1, nloc, zone_loc;
     bool *luse, lnorthp;
     //------------------------------------------------------------------------//
     //
@@ -65,7 +63,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         ierr = PGD_PD_DATA_ERROR;
         if (pgd_props.verbose > 1)
         {
-            log_warnF("%s: No peak displacement data\n", fcnm);
+            LOG_WARNMSG("%s", "No peak displacement data");
         }
         goto ERROR;
     }
@@ -75,26 +73,26 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         ierr = PGD_PD_DATA_ERROR;
         if (pgd_data.pd == NULL)
         {
-            log_errorF("%s: pgd_data.pd is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd_data.pd is NULL");
         }
         if (pgd_data.wt == NULL)
         {
-            log_errorF("%s: pgd_data.wt is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd_data.wt is NULL");
         }
         if (pgd_data.lactive == NULL)
         {
-            log_errorF("%s: pgd_data.lactive is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd_data.lactive is NULL");
         }
         if (pgd_data.lmask == NULL)
         {
-            log_errorF("%s: pgd_data.lmask is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd_data.lmask is NULL");
         }
         goto ERROR;
     }
     // Verify the output data structures 
     if (pgd->ndeps < 1)
     {
-        log_errorF("%s: No depths in PGD gridsearch!\n", fcnm);
+        LOG_ERRMSG("%s", "No depths in PGD gridsearch!");
         ierr = PGD_STRUCT_ERROR;
         goto ERROR;
     }
@@ -105,31 +103,31 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     {
         if (pgd->mpgd == NULL)
         {
-            log_errorF("%s: pgd->mpgd is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->mpgd is NULL");
         }
         if (pgd->mpgd_vr == NULL)
         {
-            log_errorF("%s: pgd->mpgd_vr is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->mpgd_vr is NULL");
         }
         if (pgd->srcDepths == NULL)
         {
-            log_errorF("%s: pgd->srcDepths is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->srcDepths is NULL");
         }
         if (pgd->UP == NULL)
         {
-            log_errorF("%s: pgd->UP is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->UP is NULL");
         }
         if (pgd->UPinp == NULL)
         {
-            log_errorF("%s: pgd->UPinp is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->UPinp is NULL");
         }
         if (pgd->srdist == NULL)
         {
-            log_errorF("%s: pgd->srdist is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->srdist is NULL");
         }
         if (pgd->lsiteUsed == NULL)
         {
-            log_errorF("%s: pgd->lsiteUsed is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "pgd->lsiteUsed is NULL");
         }
         ierr = PGD_STRUCT_ERROR;
         goto ERROR;
@@ -137,8 +135,8 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     // Avoid a segfault
     if (pgd->nsites != pgd_data.nsites)
     {
-        log_errorF("%s: nsites on pgd and pgd_data differs %d %d\n",
-                   fcnm, pgd->nsites, pgd_data.nsites);
+        LOG_ERRMSG("nsites on pgd and pgd_data differs %d %d\n",
+                   pgd->nsites, pgd_data.nsites);
         ierr = PGD_STRUCT_ERROR;
         goto ERROR;
     }
@@ -146,32 +144,18 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     if (pgd_props.verbose > 1 &&
         (SA_dep < pgd->srcDepths[0] || SA_dep > pgd->srcDepths[pgd->ndeps-1]))
     {
-        log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
+        LOG_WARNMSG("%s", "Warning hypocenter isn't in grid search!");
     }
     // Null out results
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (k=0; k<pgd->nsites; k++)
-    {
-        pgd->UPinp[k] = 0.0;
-        pgd->lsiteUsed[k] = true;
-    }
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<pgd->ndeps; i++)
-    {
-        pgd->mpgd[i] = 0.0;
-        pgd->mpgd_vr[i] = 0.0;
-    }
-#ifdef _OPENMP
-    #pragma omp simd
-#endif
-    for (i=0; i<pgd->ndeps*pgd->nsites; i++)
-    {
-        pgd->UP[i] = 0.0;
-    }
+    nloc = pgd->ndeps*pgd->nlats*pgd->nlons;
+    array_zeros64f_work(pgd->nsites, pgd->UPinp);
+    array_zeros8l_work( pgd->nsites, pgd->lsiteUsed);
+    array_zeros64f_work(nloc, pgd->mpgd);
+    array_zeros64f_work(nloc, pgd->mpgd_vr);
+    array_zeros64f_work(nloc, pgd->dep_vr_pgd);
+    array_zeros64f_work(nloc, pgd->iqr);
+    array_zeros64f_work(pgd->nsites*nloc, pgd->UP);
+    array_zeros64f_work(pgd->nsites*nloc, pgd->srdist);
     // Require there is a sufficient amount of data to invert
     luse = memory_calloc8l(pgd_data.nsites);
     l1 = 0;
@@ -185,8 +169,8 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     {
         if (pgd_props.verbose > 1)
         {
-            log_warnF("%s: Insufficient data to invert %d < %d\n",
-                      fcnm, l1, pgd_props.min_sites);
+            LOG_WARNMSG("Insufficient data to invert %d < %d\n",
+                        l1, pgd_props.min_sites);
         }
         ierr = PGD_INSUFFICIENT_DATA;
         goto ERROR;
@@ -228,7 +212,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     // Invert!
     if (pgd_props.verbose > 2)
     {   
-        log_debugF("%s: Inverting for PGD with %d sites\n", fcnm, l1);
+        LOG_DEBUGMSG("Inverting for PGD with %d sites", l1);
     }   
     ierr = core_scaling_pgd_depthGridSearch(l1, pgd->ndeps,
                                             pgd_props.verbose,
@@ -251,7 +235,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     {   
         if (pgd_props.verbose > 0)
         {
-            log_errorF("%s: Error in PGD grid search!\n", fcnm);
+            LOG_ERRMSG("%s", "Error in PGD grid search!");
         }
         ierr = PGD_COMPUTE_ERROR;
     }

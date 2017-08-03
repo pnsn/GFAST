@@ -49,7 +49,6 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                       struct GFAST_offsetData_struct cmt_data,
                       struct GFAST_cmtResults_struct *cmt)
 {
-    const char *fcnm = "eewUtils_driveCMT\0";
     double *utmRecvEasting, *utmRecvNorthing, *staAlt,
            *eOffset, *eEst, *eWts, *nOffset, *nEst, *nWts,
            *uOffset, *uEst, *uWts,
@@ -78,11 +77,11 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     ierr =__verify_cmt_structs(cmt_data, cmt);
     if (ierr != CMT_SUCCESS)
     {
-        log_errorF("%s: Error failed to verify data structures\n", fcnm);
+        LOG_ERRMSG("%s", "Error failed to verify data structures");
     }
     if (cmt->nlats > 1 || cmt->nlons > 1)
     {
-        log_errorF("%s: Error nlats > 1 | nlons > 1 not done\n", fcnm);
+        LOG_ERRMSG("%s", "Error nlats > 1 | nlons > 1 not done");
         ierr = 1;
         return ierr;
     }
@@ -90,7 +89,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     if (cmt_props.verbose > 1 &&
         (SA_dep < cmt->srcDepths[0] || SA_dep > cmt->srcDepths[cmt->ndeps-1]))
     {
-        log_warnF("%s: Warning hypocenter isn't in grid search!\n", fcnm);
+        LOG_WARNMSG("%s", "Warning hypocenter isn't in grid search!");
     }
     // Initialize result
     nlld = cmt->nlats*cmt->nlons*cmt->ndeps;
@@ -135,8 +134,8 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     {
         if (cmt_props.verbose > 1)
         {
-            log_warnF("%s: Insufficient data to invert %d < %d\n",
-                      fcnm, l1, cmt_props.min_sites);
+            LOG_WARNMSG("Insufficient data to invert %d < %d\n",
+                        l1, cmt_props.min_sites);
         }
         ierr = CMT_INSUFFICIENT_DATA;
         goto ERROR;
@@ -187,7 +186,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     // Invert!
     if (cmt_props.verbose > 2)
     { 
-        log_debugF("%s: Inverting for CMT with %d sites\n", fcnm, l1);
+        LOG_DEBUGMSG("Inverting for CMT with %d sites", l1);
     }
     ierr = core_cmt_gridSearch(l1,
                                cmt->ndeps, cmt->nlats, cmt->nlons,
@@ -232,7 +231,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
 */
     if (ierr != 0)
     {   
-        log_errorF("%s: Error in CMT gridsearch!\n", fcnm);
+        LOG_ERRMSG("%s", "Error in CMT gridsearch!");
         ierr = CMT_COMPUTE_ERROR;
         goto ERROR;
     }
@@ -253,7 +252,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
 #ifdef PARALLEL_CMT
     #pragma omp parallel for collapse(3) \
      private(DC_pct, eres, i, idep, ierr1, ilat, ilon, indx, k, sum_res2, nres, ures) \
-     shared(cmt, eOffset, eEst, fcnm, l1, luse, nOffset, nEst, uOffset, uEst) \
+     shared(cmt, eOffset, eEst, l1, luse, nOffset, nEst, uOffset, uEst) \
      reduction(+:ierr), default(none) 
 #endif
     for (ilon=0; ilon<cmt->nlons; ilon++)
@@ -291,7 +290,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                                                        &cmt->rak2[idep]);
                 if (ierr1 != 0)
                 {
-                    log_errorF("%s: Error decomposing mt\n", fcnm);
+                    LOG_ERRMSG("%s", "Error decomposing mt");
                     ierr = ierr + 1;
                     continue;
                 }
@@ -319,15 +318,14 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     } // loop on longitudes
     if (ierr != 0)
     {
-        log_errorF("%s: Error decomposing moment tensor\n", fcnm);
+        LOG_ERRMSG("%s", "Error decomposing moment tensor");
         ierr = CMT_COMPUTE_ERROR;
     }
     // Get the optimimum index
     cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn, &ierr); // TODO: cmt->ndeps = nlld
     if (cmt->ndeps < nlld)
     {
-        log_warnF("%s: NEED to unpack opt_indx and make a cmt->opt_dep\n",
-                  fcnm);
+        LOG_WARNMSG("%s", "NEED to unpack opt_indx and make a cmt->opt_dep");
     }
 ERROR:;
     memory_free8l(&luse);
@@ -360,26 +358,19 @@ ERROR:;
 static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
                                 struct GFAST_cmtResults_struct *cmt)
 {
-    const char *fcnm = "__verify_cmt_structs\0";
     int ierr;
     ierr = CMT_SUCCESS;
     // Require there is offset data
     if (cmt_data.nsites < 1)
     {
         ierr = CMT_OS_DATA_ERROR;
-        log_errorF("%s: No offset data\n", fcnm);
-        goto ERROR;
-    }
-    if (cmt_data.nsites < 1)
-    {
-        ierr = CMT_OS_DATA_ERROR;
-        log_errorF("%s: No peak displacement data\n", fcnm);
+        LOG_ERRMSG("%s", "No offset data");
         goto ERROR;
     }
     // Verify the output data structures
     if (cmt->ndeps < 1)
     {
-        log_errorF("%s: No depths in CMT gridsearch!\n", fcnm);
+        LOG_ERRMSG("%s", "No depths in CMT gridsearch!");
         ierr = CMT_STRUCT_ERROR;
         goto ERROR;
     }
@@ -395,79 +386,79 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
     {
         if (cmt->l2 == NULL)
         {
-            log_errorF("%s: Error cmt->l2 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->l2 is NULL");
         }
         if (cmt->pct_dc == NULL)
         {
-            log_errorF("%s: Error cmt->pct_dc is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->pct_dc is NULL");
         }
         if (cmt->objfn == NULL)
         {
-            log_errorF("%s: Error cmt->objfn is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->objfn is NULL");
         }
         if (cmt->mts == NULL)
         {
-            log_errorF("%s: Error cmt->mts is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->mts is NULL");
         }
         if (cmt->str1 == NULL)
         {
-            log_errorF("%s: Error cmt->str1 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->str1 is NULL");
         }
         if (cmt->str2 == NULL)
         {
-            log_errorF("%s: Error cmt->str2 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->str2 is NULL");
         }
         if (cmt->dip1 == NULL)
         {
-            log_errorF("%s: Error cmt->dip1 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->dip1 is NULL");
         }
         if (cmt->dip2 == NULL)
         {
-            log_errorF("%s: Error cmt->dip2 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->dip2 is NULL");
         }
         if (cmt->rak1 == NULL)
         {
-            log_errorF("%s: Error cmt->rak1 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->rak1 is NULL");
         }
         if (cmt->rak2 == NULL)
         {
-            log_errorF("%s: Error cmt->rak2 is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error cmt->rak2 is NULL");
         }
         if (cmt->Mw == NULL)
         {
-            log_errorF("%s: Error Mw is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error Mw is NULL");
         }
         if (cmt->srcDepths == NULL)
         {
-            log_errorF("%s: Error srcDepths is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error srcDepths is NULL");
         }
         if (cmt->EN == NULL)
         {
-            log_errorF("%s: Error EN is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error EN is NULL");
         }
         if (cmt->NN == NULL)
         {
-            log_errorF("%s: Error NN is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error NN is NULL");
         }
         if (cmt->UN == NULL)
         {
-            log_errorF("%s: Error UN is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error UN is NULL");
         }
         if (cmt->Einp == NULL)
         {
-            log_errorF("%s: Error Einp is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error Einp is NULL");
         }
         if (cmt->Ninp == NULL)
         {
-            log_errorF("%s: Error Ninp is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error Ninp is NULL");
         }
         if (cmt->Uinp == NULL)
         {
-            log_errorF("%s: Error Uinp is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error Uinp is NULL");
         }
         if (cmt->lsiteUsed == NULL)
         {
-            log_errorF("%s: Error lsiteUsed is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error lsiteUsed is NULL");
         }
         ierr = CMT_STRUCT_ERROR;
         goto ERROR;
@@ -475,8 +466,8 @@ static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,
     // Avoid a segfault
     if (cmt->nsites != cmt_data.nsites)
     {
-        log_errorF("%s: nsites on cmt and cmt_data differs %d %d\n",
-                   fcnm, cmt->nsites, cmt_data.nsites);
+        LOG_ERRMSG("nsites on cmt and cmt_data differs %d %d\n",
+                   cmt->nsites, cmt_data.nsites);
         ierr = CMT_STRUCT_ERROR;
         goto ERROR;
     }

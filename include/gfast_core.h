@@ -339,14 +339,28 @@ int core_ff_weightObservations(const int mrows,
 #ifndef LOG_INFOMSG 
 #define LOG_INFOMSG(fmt, ...) \
 { \
-   char infomsg[GFAST_MAXMSG_LEN]; \
-   memset(infomsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(infomsg, "[INFO]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+   char infoMsg[GFAST_MAXMSG_LEN]; \
+   memset(infoMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   sprintf(infoMsg, "[INFO]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
    do \
    {  \
-     snprintf(&infomsg[strlen(infomsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+     snprintf(&infoMsg[strlen(infoMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
    } while(0); \
-   core_log_logInfoMessage(infomsg); \
+   core_log_logInfoMessage(infoMsg); \
+};
+#endif
+
+#ifndef LOG_DEBUGMSG 
+#define LOG_DEBUGMSG(fmt, ...) \
+{ \
+   char debugMsg[GFAST_MAXMSG_LEN]; \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   sprintf(debugMsg, "[DEBUG]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+   do \
+   {  \
+     snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logDebugMessage(debugMsg); \
 };
 #endif
 
