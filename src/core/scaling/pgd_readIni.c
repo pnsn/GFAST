@@ -10,7 +10,6 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,
@@ -42,7 +41,6 @@ int core_scaling_pgd_readIni(const char *propfilename,
                              const int verbose, const int utm_zone,
                              struct GFAST_pgd_props_struct *pgd_props)
 {
-    const char *fcnm = "core_scaling_pgd_readIni\0";
     char var[256];
     int ierr;
     dictionary *ini;
@@ -50,8 +48,7 @@ int core_scaling_pgd_readIni(const char *propfilename,
     memset(pgd_props, 0, sizeof(struct  GFAST_pgd_props_struct));
     if (!os_path_isfile(propfilename))
     {   
-        log_errorF("%s: Properties file: %s does not exist\n",
-                   fcnm, propfilename);
+        LOG_ERRMSG("Properties file: %s does not exist", propfilename);
         return ierr;
     }
     ini = iniparser_load(propfilename);
@@ -62,16 +59,16 @@ int core_scaling_pgd_readIni(const char *propfilename,
     pgd_props->dist_tol = iniparser_getdouble(ini, var, 6.0);
     if (pgd_props->dist_tol < 0.0)
     {
-        log_errorF("%s: Error ndistance tolerance %f cannot be negative\n",
-                   fcnm, pgd_props->dist_tol);
+        LOG_ERRMSG("Error ndistance tolerance %f cannot be negative",
+                   pgd_props->dist_tol);
         goto ERROR;
     }
     setVarName(group, "disp_default\0", var);
     pgd_props->disp_def = iniparser_getdouble(ini, var, 0.01);
     if (pgd_props->disp_def <= 0.0)
     {
-        log_errorF("%s: Error PGD distance default %f must be positive\n",
-                   fcnm, pgd_props->disp_def);
+        LOG_ERRMSG("Error PGD distance default %f must be positive",
+                   pgd_props->disp_def);
         goto ERROR;
     }
     setVarName(group, "deltaLatitude\0", var);
@@ -79,8 +76,8 @@ int core_scaling_pgd_readIni(const char *propfilename,
          = iniparser_getdouble(ini, var, 0.1);
     if (pgd_props->dLat < 0.0)
     {
-        log_errorF("%s: Error PGD latitude serach %f must be positive\n",
-                   fcnm, pgd_props->dLat);
+        LOG_ERRMSG("Error PGD latitude serach %f must be positive",
+                   pgd_props->dLat);
         goto ERROR;
     }
     setVarName(group, "deltaLongitude\0", var);
@@ -88,8 +85,7 @@ int core_scaling_pgd_readIni(const char *propfilename,
          = iniparser_getdouble(ini, var, 0.1);
     if (pgd_props->dLon < 0.0)
     {
-        log_errorF("%s: Error PGD longitudes %f must be positive\n",
-                   fcnm, pgd_props->dLon);
+        LOG_ERRMSG("Error PGD longitudes %f must be positive", pgd_props->dLon);
         goto ERROR;
     }
     setVarName(group, "nlats_in_pgd_gridSearch\0", var);
@@ -97,13 +93,13 @@ int core_scaling_pgd_readIni(const char *propfilename,
          = iniparser_getint(ini, var, 1);
     if (pgd_props->ngridSearch_lats < 1)
     {
-        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, pgd_props->ngridSearch_lats);
+        LOG_ERRMSG("Error PGD grid search depths %d must be positive",
+                   pgd_props->ngridSearch_lats);
         goto ERROR;
     }
     if (pgd_props->ngridSearch_lats%2 == 0)
     {
-        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
+        LOG_WARNMSG("%s", "Adding 1 point to CMT lat gridsearch");
         pgd_props->ngridSearch_lats
            = pgd_props->ngridSearch_lats + 1;
     }
@@ -112,13 +108,13 @@ int core_scaling_pgd_readIni(const char *propfilename,
          = iniparser_getint(ini, var, 1);
     if (pgd_props->ngridSearch_lons < 1)
     {
-        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, pgd_props->ngridSearch_lons);
+        LOG_ERRMSG("Error PGD grid search depths %d must be positive",
+                   pgd_props->ngridSearch_lons);
         goto ERROR;
     }
     if (pgd_props->ngridSearch_lons%2 == 0)
     {
-        log_warnF("%s: Adding 1 point to CMT lat gridsearch\n", fcnm);
+        LOG_WARNMSG("%s", "Adding 1 point to CMT lat gridsearch");
         pgd_props->ngridSearch_lons
            = pgd_props->ngridSearch_lons + 1;
     }
@@ -127,23 +123,22 @@ int core_scaling_pgd_readIni(const char *propfilename,
          = iniparser_getint(ini, var, 100);
     if (pgd_props->ngridSearch_deps < 1)
     {
-        log_errorF("%s: Error PGD grid search depths %d must be positive\n",
-                   fcnm, pgd_props->ngridSearch_deps);
+        LOG_ERRMSG("Error PGD grid search depths %d must be positive",
+                   pgd_props->ngridSearch_deps);
         goto ERROR;
     }
     setVarName(group, "pgd_window_vel\0", var);
     pgd_props->window_vel = iniparser_getdouble(ini, var, 3.0);
     if (pgd_props->window_vel <= 0.0)
     {
-        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
+        LOG_ERRMSG("%s", "Error window velocity must be positive!");
         goto ERROR;
     }
     setVarName(group, "pgd_min_sites\0", var);
     pgd_props->min_sites = iniparser_getint(ini, var, 4);
     if (pgd_props->min_sites < 1)
     {
-        log_errorF("%s: Error at least one site needed to estimate PGD!\n",
-                   fcnm);
+        LOG_ERRMSG("%s", "Error at least one site needed to estimate PGD!");
         goto ERROR;
     }
     ierr = 0;

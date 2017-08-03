@@ -10,7 +10,6 @@
 #include <cblas.h>
 #endif
 #include "iscl/linalg/linalg.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/statistics/statistics.h"
 #include "iscl/time/time.h"
@@ -84,7 +83,6 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                      double *__restrict__ iqr,
                                      double *__restrict__ Uest)
 {
-    const char *fcnm = "core_scaling_pgd_depthGridSearch\0";
     double *b, *G, *r, *repi, *UP, *W, *Wb, *WG, *wres, pct[2], M1[1],
            est, srcDepth, xden, xnum;
     int i, idep, ierr, ierr1;
@@ -112,15 +110,13 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     // Error check
     if (l1 < 1)
     {
-        log_errorF("%s: Error invalid number of input stations: %d\n",
-                   fcnm, l1);
+        LOG_ERRMSG("Error invalid number of input stations: %d", l1);
         ierr = 1;
         goto ERROR;
     }
     if (ndeps < 1)
     {
-        log_errorF("%s: Error invalid number of source depths: %d\n",
-                   fcnm, ndeps);
+        LOG_ERRMSG("Error invalid number of source depths: %d", ndeps);
         ierr = 1;
         goto ERROR;
     }
@@ -128,21 +124,21 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         utmRecvNorthing == NULL || staAlt == NULL || 
         d == NULL || M == NULL || VR == NULL || Uest == NULL || srdist == NULL)
     {
-        if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
+        if (srcDepths == NULL){LOG_ERRMSG("%s", "srcDepths is NULL!");}
         if (utmRecvEasting == NULL)
         {
-            log_errorF("%s: utmRecvEasting is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvEasting is NULL!");
         }
         if (utmRecvNorthing == NULL)
         {
-            log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvNorthing is NULL!");
         }
-        if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
-        if (d == NULL){log_errorF("%s: d is NULL\n", fcnm);}
-        if (M == NULL){log_errorF("%s: M is NULL\n", fcnm);}
-        if (VR == NULL){log_errorF("%s: VR is NULL\n", fcnm);}
-        if (Uest == NULL){log_errorF("%s: Uest is NULL\n", fcnm);}
-        if (srdist == NULL){log_errorF("%s: srdist is NULL\n", fcnm);}
+        if (staAlt == NULL){LOG_ERRMSG("%s", "staAlt is NULL");}
+        if (d == NULL){LOG_ERRMSG("%s", "d is NULL");}
+        if (M == NULL){LOG_ERRMSG("%s", "M is NULL");}
+        if (VR == NULL){LOG_ERRMSG("%s", "VR is NULL");}
+        if (Uest == NULL){LOG_ERRMSG("%s", "Uest is NULL");}
+        if (srdist == NULL){LOG_ERRMSG("%s", "srdist is NULL");}
         ierr = 1;
         goto ERROR;
     }
@@ -181,7 +177,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                    b);
     if (ierr != 0)
     {
-        log_errorF("%s: Error creating RHS\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating RHS");
         goto ERROR;
     }
     // Compute the diagonal data weights
@@ -191,7 +187,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                                     W);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting diagonal weight matrix\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting diagonal weight matrix");
         goto ERROR;
     }
     // Weight the observations
@@ -201,21 +197,21 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                                Wb);
     if (ierr < 0)
     {
-        log_errorF("%s: Error weighting observations\n", fcnm);
+        LOG_ERRMSG("%s", "Error weighting observations");
         goto ERROR;
     }
     // Grid search on source depths
     ISCL_time_tic();
     if (verbose > 2)
     {   
-        log_debugF("%s: Beginning search on depths...\n", fcnm);
+        LOG_DEBUGMSG("%s", "Beginning search on depths...");
     }
 #ifdef PARALLEL_PGD
     #pragma omp parallel \
      firstprivate(A, B, C) \
      private(i, idep, ierr1, est, G, M1, pct, r, srcDepth, UP, WG) \
      private(wres, xden, xnum) \
-     shared(b, d, iqr, fcnm, M, q, repi, srdist, \
+     shared(b, d, iqr, M, q, repi, srdist, \
             srcDepths, staAlt, utmRecvEasting, utmRecvNorthing, \
             Uest, verbose, VR, W, Wb) \
      reduction(+:ierr) default(none)
@@ -246,7 +242,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                                  G);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error creating G matrix\n", fcnm);
+            LOG_ERRMSG("%s", "Error creating G matrix");
             ierr = ierr + 1;
             continue;
         }
@@ -257,7 +253,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                                     WG);
         if (ierr1 < 0)
         {
-            log_errorF("%s: Error weighting forward modeling matrix\n", fcnm);
+            LOG_ERRMSG("%s", "Error weighting forward modeling matrix");
             ierr = ierr + 1;
         }
         // Solve the weighted least squares problem (M = lstsq(W*G,W*b)[0])
@@ -266,7 +262,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                                         M1, NULL);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error solving the least-squares problem\n", fcnm);
+            LOG_ERRMSG("%s", "Error solving the least-squares problem");
             ierr = ierr + 1;
             continue;
         }
@@ -290,7 +286,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         iqr[idep] = pct[1] - pct[0];
         if (ierr1 != 0)
         {   
-            log_errorF("%s: Error computing interquartile range\n", fcnm);
+            LOG_ERRMSG("%s", "Error computing interquartile range");
             iqr[idep] = 1.0;
         }
         // Copy results
@@ -307,14 +303,14 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
 #endif
     if (ierr != 0)
     {
-        log_errorF("%s: Errors detected during grid search\n", fcnm);
+        LOG_ERRMSG("%s", "Errors detected during grid search");
         ierr = 1;
     }
     else
     {   
         if (verbose > 2)
         {
-            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, ISCL_time_toc());
+            LOG_DEBUGMSG("Grid-search time: %f (s)", time_toc());
         }
     }
 ERROR:; // An error was encountered

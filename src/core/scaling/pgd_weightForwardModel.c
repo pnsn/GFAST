@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Applies the diagonal data weight matrix to the forward modeling
  *        matrix.  In the case of PGD scaling the forward modeling matrix
@@ -28,23 +27,22 @@ int core_scaling_pgd_weightForwardModel(const int l1,
                                         const double *__restrict__ G,
                                         double *__restrict__ WG)
 {
-    const char *fcnm = "core_scaling_pgd_weightForwardModel\0";
     int i;
     if (l1 < 1)
     {
-        log_errorF("%s: Error no observations\n", fcnm);
+        LOG_ERRMSG("Error no observations %d", l1);
         return -1;
     }
     if (G == NULL || WG == NULL)
     {
-        if (G == NULL){log_errorF("%s: Error G is NULL\n", fcnm);}
-        if (WG == NULL){log_errorF("%s: Error WG is NULL\n", fcnm);}
+        if (G == NULL){LOG_ERRMSG("%s", "Error G is NULL");}
+        if (WG == NULL){LOG_ERRMSG("%s", "Error WG is NULL");}
         return -1;
     }
     // Don't break anything if the weights are NULL
     if (W == NULL)
     {
-        log_warnF("%s: Warning W is NULL - assuming identity\n", fcnm);
+        LOG_WARNMSG("%s", "Warning W is NULL - assuming identity");
         array_copy64f_work(l1, G, WG);
         return 1;
     }

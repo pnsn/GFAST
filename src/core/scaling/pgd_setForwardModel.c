@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Sets the forward modeling matrix G s.t.
  *        \f$ G = \left [ B + C \log_{10}(r) \right ] \f$
@@ -27,11 +26,12 @@ int core_scaling_pgd_setForwardModel(const int n,
                                      const double *__restrict__ r,
                                      double *__restrict__ G)
 {
-    const char *fcnm = "core_scaling_pgd_setForwardModel\0";
     int i;
-    if (n < 1)
+    if (n < 1 || r == NULL || G == NULL)
     {
-        log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
+        if (n < 1){LOG_ERRMSG("Invalid number of points: %d\n", n);}
+        if (r == NULL){LOG_ERRMSG("%s", "Error r is NULL");}
+        if (G == NULL){LOG_ERRMSG("%s", "Error G is NULL");}
         return -1;
     }
     for (i=0; i<n; i++)

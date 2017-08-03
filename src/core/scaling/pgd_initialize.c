@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 /*!
  * @brief Allocates space for the PGD grid search and its data structure
@@ -24,7 +23,6 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
                                 struct GFAST_pgdResults_struct *pgd,
                                 struct GFAST_peakDisplacementData_struct *pgd_data)
 {
-    const char *fcnm = "core_scaling_pgd_initialize\0";
     int i, nloc;
     pgd->ndeps = pgd_props.ngridSearch_deps;
     pgd->nlats = pgd_props.ngridSearch_lats;
@@ -33,25 +31,25 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     {
         if (pgd->ndeps < 1)
         {
-            log_errorF("%s: No depths in PGD grid search %d\n",
-                       fcnm, pgd_props.ngridSearch_deps);
+            LOG_ERRMSG("No depths in PGD grid search %d",
+                       pgd_props.ngridSearch_deps);
         }
         if (pgd->nlats < 1)
         {
-            log_errorF("%s: No lats in PGD grid search %d\n",
-                       fcnm, pgd_props.ngridSearch_lats);
+            LOG_ERRMSG("No lats in PGD grid search %d",
+                       pgd_props.ngridSearch_lats);
         }
         if (pgd->nlats < 1)
         {
-            log_errorF("%s: No lons in PGD grid search %d\n",
-                       fcnm, pgd_props.ngridSearch_lons);
+            LOG_ERRMSG("No lons in PGD grid search %d",
+                       pgd_props.ngridSearch_lons);
         }
         return -1;
     }
     pgd->nsites = gps_data.stream_length;
     if (pgd->nsites < pgd_props.min_sites)
     {
-        log_errorF("%s: Insufficient number of sites to compute PGD!\n", fcnm);
+        LOG_ERRMSG("%s", "Insufficient number of sites to compute PGD");
         return -1;
     }
     // data

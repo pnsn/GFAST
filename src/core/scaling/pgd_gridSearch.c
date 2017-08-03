@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/time/time.h"
 
 /*!
@@ -84,30 +83,25 @@ int core_scaling_pgd_gridSearch(const int l1, const int ndeps,
                                 double *__restrict__ iqr,
                                 double *__restrict__ Uest)
 {
-    const char *fcnm = "core_scaling_pgd_gridSearch\0";
     int ierr, ierr1, ilat, ilatLon, ilon;
     // Error check
     if (l1 < 1 || ndeps < 1 || nlats < 1 || nlons < 1)
     {
         if (l1 < 1)
         {
-            log_errorF("%s: Error invalid number of input stations: %d\n",
-                       fcnm, l1);
+            LOG_ERRMSG("Error invalid number of input stations: %d", l1);
         }
         if (ndeps < 1)
         {
-            log_errorF("%s: Error invalid number of source depths: %d\n",
-                       fcnm, ndeps);
+            LOG_ERRMSG("Error invalid number of source depths: %d", ndeps);
         }
         if (nlons < 1)
         {
-            log_errorF("%s: Error invalid number of lons (easting): %d\n",
-                       fcnm, nlons);
+            LOG_ERRMSG("Error invalid number of lons (easting): %d", nlons);
         }
         if (nlats < 1)
         {
-            log_errorF("%s: Error invalid number of lats (northings): %d\n",
-                       fcnm, nlats);
+            LOG_ERRMSG("Error invalid number of lats (northings): %d", nlats);
         }
         return -1;
     }
@@ -118,27 +112,27 @@ int core_scaling_pgd_gridSearch(const int l1, const int ndeps,
     {
         if (utmSrcEastings == NULL)
         {
-            log_errorF("%s: utmSrcEastings is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmSrcEastings is NULL!");
         }
         if (utmSrcNorthings == NULL)
         {
-            log_errorF("%s: utmSrcNorthings is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmSrcNorthings is NULL!");
         }
-        if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
+        if (srcDepths == NULL){LOG_ERRMSG("%s", "srcDepths is NULL!");}
         if (utmRecvEasting == NULL)
         {
-            log_errorF("%s: utmRecvEasting is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvEasting is NULL!");
         }
         if (utmRecvNorthing == NULL)
         {
-            log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvNorthing is NULL!");
         }
-        if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
-        if (d == NULL){log_errorF("%s: d is NULL\n", fcnm);}
-        if (M == NULL){log_errorF("%s: M is NULL\n", fcnm);}
-        if (VR == NULL){log_errorF("%s: VR is NULL\n", fcnm);}
-        if (Uest == NULL){log_errorF("%s: Uest is NULL\n", fcnm);}
-        if (srdist == NULL){log_errorF("%s: srdist is NULL\n", fcnm);}
+        if (staAlt == NULL){LOG_ERRMSG("%s", "staAlt is NULL");}
+        if (d == NULL){LOG_ERRMSG("%s", "d is NULL");}
+        if (M == NULL){LOG_ERRMSG("%s", "M is NULL");}
+        if (VR == NULL){LOG_ERRMSG("%s", "VR is NULL");}
+        if (Uest == NULL){LOG_ERRMSG("%s", "Uest is NULL");}
+        if (srdist == NULL){LOG_ERRMSG("%s", "srdist is NULL");}
         return -1;
     }
     // Loop on the longitudes (eastings)
@@ -174,8 +168,7 @@ int core_scaling_pgd_gridSearch(const int l1, const int ndeps,
                                                      &Uest[ilatLon*ndeps*l1]);
             if (ierr1 != 0)
             {
-                log_errorF("%s: Error calling depthGridSearch %d %d\n",
-                           fcnm, ilat, ilon);
+                LOG_ERRMSG("Error calling depthGridSearch %d %d", ilat, ilon);
                 ierr = ierr + 1;
             }
         } // loop on latitudes 
@@ -183,7 +176,7 @@ int core_scaling_pgd_gridSearch(const int l1, const int ndeps,
     // Check if i encountered an error
     if (ierr != 0)
     {
-        log_errorF("%s: Error in gridsearch\n", fcnm);
+        LOG_ERRMSG("%s", "Error in gridsearch");
         return -2;
     }
     return 0;

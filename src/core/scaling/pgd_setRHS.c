@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 /*!
  * @brief Computes the right hand side in the peak ground displacement 
@@ -31,12 +30,11 @@ int core_scaling_pgd_setRHS(const int n,
                             const double *__restrict__ d,
                             double *__restrict__ b)
 {
-    const char *fcnm = "core_scaling_pgd_setRHS\0";
     double dist;
     int i;
     if (n < 1)
     {
-        log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
+        LOG_ERRMSG("Invalid number of points: %d", n);
         return -1;
     }
     for (i=0; i<n; i++)

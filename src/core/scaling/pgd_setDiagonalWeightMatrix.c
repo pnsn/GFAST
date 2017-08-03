@@ -3,7 +3,6 @@
 #include <math.h>
 #include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Sets the diagonal weighting matrix for the PGD scaling.
  *        The diagonal weight matrix terms are defined by
@@ -29,19 +28,18 @@ int core_scaling_pgd_setDiagonalWeightMatrix(const int l1,
                                              const double *__restrict__ wts,
                                              double *__restrict__ W)
 {
-    const char *fcnm = "core_scaling_pgd_setDiagonalWeightMatrix\0";
     double repi_min, repi_min2;
     int i;
     enum isclError_enum isclError;
     if (l1 < 1)
     {
-        log_errorF("%s: Error no observations\n", fcnm);
+        LOG_ERRMSG("%s", "Error no observations");
         return -1;
     }
     if (W == NULL || repi == NULL)
     {
-        if (repi == NULL){log_errorF("%s: Error repi is NULL\n", fcnm);}
-        if (W == NULL){log_errorF("%s: Error W is NULL\n", fcnm);}
+        if (repi == NULL){LOG_ERRMSG("%s", "Error repi is NULL");}
+        if (W == NULL){LOG_ERRMSG("%s", "Error W is NULL");}
         return -1;
     }
     // Get the min epicentral distance
