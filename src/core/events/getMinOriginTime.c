@@ -4,7 +4,6 @@
 #include <float.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Finds the minimum origin time (UTC epochal seconds) in the
  *        events list.
@@ -24,7 +23,6 @@ double core_events_getMinOriginTime(struct GFAST_props_struct props,
                                     struct GFAST_activeEvents_struct events,
                                     bool *lnoEvents)
 {
-    const char *fcnm = "GFAST_core_getMinOriginTime\0";
     double t0; 
     int iev;
     *lnoEvents = true;
@@ -38,7 +36,7 @@ double core_events_getMinOriginTime(struct GFAST_props_struct props,
     if (props.verbose > 1 && fabs(t0 - DBL_MAX) < 1.e-10)
     {
         *lnoEvents = true;
-        log_warnF("%s: Warning origin times are screwy\n", fcnm);
+        LOG_WARNMSG("%s", "Warning origin times are screwy");
     }   
     return t0; 
 }

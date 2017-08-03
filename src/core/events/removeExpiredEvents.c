@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Convenience function to pop expired events from the events list.
  *        An event is expired when:
@@ -26,7 +25,6 @@ int core_events_removeExpiredEvents(const double processingTime,
                                     const int verbose,
                                     struct GFAST_activeEvents_struct *events)
 {
-    const char *fcnm = "core_events_removeExpiredEvents\0";
     struct GFAST_shakeAlert_struct *SAall;
     double t1, t2;
     int iev, nev0, nrem;
@@ -58,8 +56,7 @@ int core_events_removeExpiredEvents(const double processingTime,
                                                    SAall[iev], events);
             if (!lgone)
             {
-                log_warnF("%s: Strange - but keeping %s\n",
-                          fcnm, SAall[iev].eventid);
+                LOG_WARNMSG("Strange - but keeping %s", SAall[iev].eventid);
             }
             else
             {

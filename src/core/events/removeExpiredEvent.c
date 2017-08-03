@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Removes an event from the active event list if 
  *        (currentTime - SA.time) > maxtime.
@@ -27,7 +26,6 @@ bool core_events_removeExpiredEvent(const double maxtime,
                                     struct GFAST_shakeAlert_struct SA,
                                     struct GFAST_activeEvents_struct *events)
 {
-    const char *fcnm = "core_events_removeExpiredEvent\0";
     struct GFAST_activeEvents_struct SAtemp;
     int iev, jev, nev0, pop_indx;
     bool lpopped;
@@ -36,7 +34,7 @@ bool core_events_removeExpiredEvent(const double maxtime,
     {
         if (verbose > 0)
         {
-            log_warnF("%s: Warning no events in list\n", fcnm);
+            LOG_WARNMSG("%s", "Warning no events in list");
         }
         return lpopped;         
     }
@@ -52,8 +50,8 @@ bool core_events_removeExpiredEvent(const double maxtime,
             {
                 if (verbose > 0)
                 {
-                    log_infoF("%s: Removing %s %f from event list at %f\n",
-                              fcnm, SA.eventid, SA.time, currentTime);
+                    LOG_INFOMSG("Removing %s %f from event list at %f",
+                                SA.eventid, SA.time, currentTime);
                 }
                 pop_indx = iev;
                 break;
@@ -65,8 +63,7 @@ bool core_events_removeExpiredEvent(const double maxtime,
     {
         if (verbose > 0)
         {
-            log_warnF("%s: Strangely cannot find this event %s\n",
-                      fcnm, SA.eventid);
+            LOG_WARNMSG("Strangely cannot find this event %s", SA.eventid);
         }
         return lpopped;
     }

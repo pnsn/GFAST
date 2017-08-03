@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Convenience function that prints the details of an event to debug.
  *
@@ -11,13 +10,31 @@
  */
 void core_events_printEvents(struct GFAST_shakeAlert_struct SA) 
 {
-    const char *fcnm   = "core_events_printEvents\0";
     const char *lspace = "                  \0";
-    log_debugF("%s: Event %s statistics:\n", fcnm, SA.eventid);
-    log_debugF("%s  Event latitude %f (degrees)\n", lspace, SA.lat);
-    log_debugF("%s  Event longitude %f (degrees)\n", lspace, SA.lon);
-    log_debugF("%s  Event depth %f (km)\n", lspace, SA.dep);
-    log_debugF("%s  Event magnitude %f (km)\n", lspace, SA.mag);
-    log_debugF("%s  Event epochal time %f (s)\n", lspace, SA.time);
+    char line[128], msg[1024];
+    memset(msg, 0, 1024*sizeof(char));
+    sprintf(msg, "%s: Event %s statistics:\n", lspace, SA.eventid);
+
+    memset(line, 0, 128*sizeof(char));
+    sprintf(line, "%s  Event latitude %f (degrees)\n", lspace, SA.lat);
+    strcat(msg, line);
+
+    memset(line, 0, 128*sizeof(char));
+    sprintf(line, "%s  Event longitude %f (degrees)\n", lspace, SA.lon);
+    strcat(msg, line);
+
+    memset(line, 0, 128*sizeof(char));
+    sprintf(line, "%s  Event depth %f (km)\n", lspace, SA.dep);
+    strcat(msg, line);
+
+    memset(line, 0, 128*sizeof(char));
+    sprintf(line, "%s  Event magnitude %f (km)\n", lspace, SA.mag);
+    strcat(msg, line);
+
+    memset(line, 0, 128*sizeof(char));
+    sprintf(line, "%s  Event epochal time %f (s)\n", lspace, SA.time);
+    strcat(msg, line);
+
+    LOG_DEBUGMSG("%s", msg);
     return;
 }
