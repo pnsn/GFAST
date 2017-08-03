@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -29,7 +28,6 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_offsetData_struct *cmt_data)
 {
-    const char *fcnm = "core_cmt_initialize\0";
     int i, nlld;
     //------------------------------------------------------------------------//
     cmt->ndeps = props.ngridSearch_deps;
@@ -39,18 +37,18 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     {
         if (cmt->ndeps < 1)
         {
-            log_errorF("%s: No depths in CMT grid search %d\n",
-                       fcnm, props.ngridSearch_deps);
+            LOG_ERRMSG("No depths in CMT grid search %d\n",
+                       props.ngridSearch_deps);
         }
         if (cmt->nlats < 1)
         {
-            log_errorF("%s: No lats in CMT grid search %d\n",
-                       fcnm, props.ngridSearch_lats);
+            LOG_ERRMSG("No lats in CMT grid search %d\n",
+                       props.ngridSearch_lats);
         }
         if (cmt->nlats < 1)
         {
-            log_errorF("%s: No lons in CMT grid search %d\n",
-                       fcnm, props.ngridSearch_lons);
+            LOG_ERRMSG("No lons in CMT grid search %d\n",
+                       props.ngridSearch_lons);
         }
         return -1;
     }
@@ -58,8 +56,8 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     cmt->nsites = gps_data.stream_length;
     if (gps_data.stream_length < 1)
     {
-        log_errorF("%s: Error insufficient data to estimate CMT %d\n",
-                   fcnm, gps_data.stream_length);
+        LOG_ERRMSG("Error insufficient data to estimate CMT %d\n",
+                   gps_data.stream_length);
     }
     // data
     cmt_data->stnm = (char **)calloc((size_t) gps_data.stream_length,

@@ -2,25 +2,394 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
+#include "iscl/os/os.h"
+#include "iscl/memory/memory.h"
+
+enum logFileType_enum
+{
+    ERROR_FILE = 1,
+    INFO_FILE = 2,
+    WARNING_FILE = 3, 
+    DEBUG_FILE = 4
+};
 
 static FILE *errorFile = NULL;
 static FILE *infoFile = NULL;
 static FILE *debugFile = NULL;
-static FILE *warnFile = NULL;
+static FILE *warningFile = NULL;
 
-int core_log_createLogFile(const char *fileName)
+/*!
+ * @brief Closes the log file.
+ *
+ * @param[in] fileType    Type of file (error, log, debug, info) to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+static int core_log_closeLogFile(const enum logFileType_enum fileType)
 {
-    if (errorFile != NULL){fclose(errorFile);}
-    errorFile = fopen(fileName, "w");
-    return 0;
+    int ierr = 0;
+    if (fileType == ERROR_FILE)
+    {   
+        if (errorFile != NULL){fclose(errorFile);}
+        errorFile = NULL;
+    }   
+    else if (fileType == INFO_FILE)
+    {   
+        if (infoFile != NULL){fclose(infoFile);}
+        infoFile = NULL;
+    }   
+    else if (fileType == WARNING_FILE)
+    {   
+        if (warningFile != NULL){fclose(warningFile);}
+        warningFile = NULL;
+    }   
+    else if (fileType == DEBUG_FILE)
+    {   
+        if (debugFile != NULL){fclose(debugFile);}
+        debugFile = NULL;
+    }   
+    else
+    {   
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Invalid option\n", 
+                __FILE__, __func__, __LINE__);
+        ierr = 1;
+    }
+    return ierr;
 }
-
-void core_log_closeLogFile(void)
+/*!
+ * @brief Creates a log file.  If the file exists then it will be over-written.
+ *
+ * @param[in] fileName    Name of log file.
+ * @param[in] fileType    Type of log file (error, debug, info, warning) to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+static int core_log_createLogFile(const char *fileName,
+                                  const enum logFileType_enum fileType)
 {
-    fclose(errorFile);
-    errorFile = NULL;
-    return;
+    char *dirName;
+    enum isclError_enum isclError;
+    int ierr = 0;
+    // Does this file name make sense?
+    if (fileName == NULL)
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
+                __FILE__, __func__, __LINE__);
+        return -1;
+    }
+    if (strlen(fileName) < 1)
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is blank\n",
+                __FILE__, __func__, __LINE__);
+        return -1;
+    } 
+    // Make sure I don't destroy an existing file handle
+    ierr = core_log_closeLogFile(fileType);
+    if (ierr != 0)
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error closing log file %s\n",
+                 __FILE__, __func__, __LINE__, fileName);
+        return ierr;
+    }
+    // Check the output
+    dirName = os_dirname(fileName, &isclError); 
+    if (!os_path_isdir(dirName))
+    {
+        isclError = os_makedirs(dirName);
+        if (isclError != ISCL_SUCCESS)
+        {
+            fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Failed to make %s\n",
+                    __FILE__, __func__, __LINE__, dirName);
+           ierr = 1;
+        }
+        memory_free8c(&dirName);
+    }
+    if (ierr != 0){return ierr;}
+    // Just point out this file is going to be over-written 
+    if (os_path_isfile(fileName))
+    {
+        fprintf(stdout, "[WARNING]: (%s:%s:line=%d) Overwriting file %s\n",
+                 __FILE__, __func__, __LINE__, fileName);
+    } 
+    // Open the desired file
+    if (fileType == ERROR_FILE)
+    {
+        errorFile = fopen(fileName, "w");
+    }
+    else if (fileType == INFO_FILE)
+    {
+        infoFile = fopen(fileName, "w");
+    }
+    else if (fileType == WARNING_FILE)
+    {
+        warningFile = fopen(fileName, "w");
+    }
+    else if (fileType == DEBUG_FILE)
+    {
+        debugFile = fopen(fileName, "w");
+    } 
+    else
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Invalid option\n", 
+                __FILE__, __func__, __LINE__);
+        ierr = 1;
+    }
+    return ierr;
 }
+//============================================================================//
+/*!
+ * @brief Opens a log file for writing.  If the file exists then it will be
+ *        appended to.
+ *
+ * @param[in] fileName    Name of log file.
+ * @param[in] fileType    Type of log file (error, debug, info, warning) to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+static int core_log_openLogFile(const char *fileName,
+                                const enum logFileType_enum fileType)
+{
+    char *dirName;
+    enum isclError_enum isclError;
+    int ierr = 0;
+    // Does this file name make sense?
+    if (fileName == NULL)
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
+                __FILE__, __func__, __LINE__);
+        return -1;
+    }
+    if (strlen(fileName) < 1)
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is blank\n",
+                __FILE__, __func__, __LINE__);
+        return -1;
+    }
+    // Make sure I don't destroy an existing file handle
+    ierr = core_log_closeLogFile(fileType);
+    if (ierr != 0)
+    {
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error closing log file %s\n",
+                 __FILE__, __func__, __LINE__, fileName);
+        return ierr;
+    }
+    // Does the file exist?  If not then give it an output directory
+    if (!os_path_isfile(fileName))
+    {
+        dirName = os_dirname(fileName, &isclError);
+        if (!os_path_isdir(dirName))
+        {
+            isclError = os_makedirs(dirName);
+            if (isclError != ISCL_SUCCESS)
+            {
+                fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Failed to make %s\n",
+                        __FILE__, __func__, __LINE__, dirName);
+                ierr = 1;
+            }
+            memory_free8c(&dirName);
+        }
+    }
+    if (ierr != 0){return ierr;}
+    // Open the desired file
+    if (fileType == ERROR_FILE)
+    {   
+        errorFile = fopen(fileName, "a");
+    }   
+    else if (fileType == INFO_FILE)
+    {   
+        infoFile = fopen(fileName, "a");
+    }   
+    else if (fileType == WARNING_FILE)
+    {   
+        warningFile = fopen(fileName, "a");
+    }   
+    else if (fileType == DEBUG_FILE)
+    {   
+        debugFile = fopen(fileName, "a");
+    }   
+    else
+    {   
+        fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Invalid option\n", 
+                __FILE__, __func__, __LINE__);
+        ierr = 1;
+    }
+    return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Opens the error log file.  If the file exists then it will be
+ *        appended to.
+ *
+ * @param[in] fileName   Name of error log file to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_openErrorLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_openLogFile(fileName, ERROR_FILE);
+    return ierr;
+}
+/*!
+ * @brief Opens the info log file.  If the file exists then it will be
+ *        appended to.
+ *
+ * @param[in] fileName   Name of info log file to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_openInfoLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_openLogFile(fileName, INFO_FILE);
+    return ierr;
+}
+/*!
+ * @brief Opens the warning log file.  If the file exists then it will be
+ *        appended to.
+ *
+ * @param[in] fileName   Name of warning log file to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_openWarningLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_openLogFile(fileName, WARNING_FILE);
+    return ierr;
+}
+/*!
+ * @brief Opens the debug log file.  If the file exists then it will be
+ *        appended to.
+ *
+ * @param[in] fileName   Name of debug log file to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_openDebugLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_openLogFile(fileName, DEBUG_FILE);
+    return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Creates the error log file.  If the file exists then it will be
+ *        overwritten.
+ *
+ * @param[in] fileName   Name of error log file to create.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_createErrorLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_createLogFile(fileName, ERROR_FILE);
+    return ierr;
+}
+/*!
+ * @brief Creates the info log file.  If the file exists then it will be
+ *        overwritten.
+ *
+ * @param[in] fileName   Name of info log file to create.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_createInfoLog(const char *fileName)
+{   
+    int ierr;
+    ierr = core_log_createLogFile(fileName, INFO_FILE);
+    return ierr;
+}
+/*!
+ * @brief Creates the warning log file.  If the file exists then it will be
+ *        overwritten.
+ *
+ * @param[in] fileName   Name of warning log file to create.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_createWarningLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_createLogFile(fileName, WARNING_FILE);
+    return ierr;
+}
+/*!
+ * @brief Creates the debug log file.  If the file exists then it will be
+ *        overwritten.
+ *
+ * @param[in] fileName   Name of debug log file to create.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_createDebugLog(const char *fileName)
+{   
+    int ierr;
+    ierr = core_log_createLogFile(fileName, DEBUG_FILE);
+    return ierr;
+}
+//============================================================================//
+/*!
+ * @brief Closes the error log file.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_closeErrorLog(void)
+{
+    int ierr;
+    ierr = core_log_closeLogFile(ERROR_FILE);
+    return ierr;
+}
+/*!
+ * @brief Closes the info log file.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_closeInfoLog(void)
+{   
+    int ierr;
+    ierr = core_log_closeLogFile(INFO_FILE);
+    return ierr;
+}
+/*!
+ * @brief Closes the warning log file.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_closeWarningLog(void)
+{
+    int ierr;
+    ierr = core_log_closeLogFile(WARNING_FILE);
+    return ierr;
+}
+/*!
+ * @brief Closes the debug log file.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_closeDebugLog(void)
+{   
+    int ierr;
+    ierr = core_log_closeLogFile(DEBUG_FILE);
+    return ierr;
+}
+//============================================================================//
 
 /*!
  * @brief Writes an error message to the error log.
@@ -50,13 +419,13 @@ void core_log_logErrorMessage(const char *msg)
 void core_log_logWarningMessage(const char *msg)
 {
     if (msg == NULL){return;}
-    if (warnFile == NULL)
+    if (warningFile == NULL)
     {   
         fprintf(stdout, "%s\n", msg);
     }   
     else
     {   
-        fprintf(warnFile, "%s\n", msg);
+        fprintf(warningFile, "%s\n", msg);
     }   
     return;
 }

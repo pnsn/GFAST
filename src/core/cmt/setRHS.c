@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Sets the RHS for the moment tensor inversion.  The right hand
  *        side for the i'th site is packed 
@@ -29,11 +28,15 @@ int core_cmt_setRHS(const int n,
                     const double *__restrict__ uOffset,
                     double *__restrict__ U)
 {
-    const char *fcnm = "core_cmt_setRHS\0";
     int i, i3;
-    if (n < 1)
+    if (n < 1 || U == NULL ||
+        nOffset == NULL || eOffset == NULL || uOffset == NULL)
     {
-        log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
+        if (n < 1){LOG_ERRMSG("Invalid number of points: %d", n);}
+        if (U == NULL){LOG_ERRMSG("%s", "U is NULL");}
+        if (nOffset == NULL){LOG_ERRMSG("%s", "nOffset is NULL");}
+        if (eOffset == NULL){LOG_ERRMSG("%s", "eOffset is NULL");}
+        if (uOffset == NULL){LOG_ERRMSG("%s", "uOffset is NULL");}
         return -1;
     }
     i3 = 0;

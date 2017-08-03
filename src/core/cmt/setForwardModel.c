@@ -4,7 +4,6 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 #ifndef M_PI
@@ -63,7 +62,6 @@ int core_cmt_setForwardModel(const int l1, const bool ldeviatoric,
                              const double *__restrict__ z1,
                              double *__restrict__ G)
 {
-    const char *fcnm = "core_cmt_setForwardModel\0";
     double C1, C2, 
            g111, g122, g133, g112, g113, g123,
            g211, g222, g233, g212, g213, g223,
@@ -77,12 +75,12 @@ int core_cmt_setForwardModel(const int l1, const bool ldeviatoric,
     // Size check
     if (l1 < 1)
     {
-        log_errorF("%s: Error invalid number of points %d\n", fcnm, l1);
+        LOG_ERRMSG("Error invalid number of points %d", l1);
         return -1; 
     }
     if (!ldeviatoric)
     {
-        log_errorF("%s: General case not yet programmed\n", fcnm);
+        LOG_ERRMSG("%s", "General case not yet programmed");
         return -1;
     }
     if (ldeviatoric)

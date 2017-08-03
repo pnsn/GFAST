@@ -364,6 +364,21 @@ int core_ff_weightObservations(const int mrows,
 };
 #endif
 
+int core_log_closeErrorLog(void);
+int core_log_closeInfoLog(void);
+int core_log_closeWarningLog(void);
+int core_log_closeDebugLog(void);
+
+int core_log_createErrorLog(const char *fileName);
+int core_log_createInfoLog(const char *fileName);
+int core_log_createWarningLog(const char *fileName);
+int core_log_createDebugLog(const char *fileName);
+
+int core_log_openErrorLog(const char *fileName);
+int core_log_openInfoLog(const char *fileName);
+int core_log_openWarningLog(const char *fileName);
+int core_log_openDebugLog(const char *fileName);
+
 void core_log_logErrorMessage(const char *msg);
 void core_log_logWarningMessage(const char *msg);
 void core_log_logDebugMessage(const char *msg);

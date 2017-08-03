@@ -90,7 +90,6 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                              double *__restrict__ uEst,
                              double *__restrict__ mts)
 {
-    const char *fcnm = "core_cmt_depthGridSearch\0";
     double *diagWt, *G, *U, *UP, *WG, *WU, *xrs, *yrs, *zrs_negative, S[6],
            eq_alt, m11, m12, m13, m22, m23, m33;
     int i, idep, ierr, ierr1, ldg, mrows, ncols;
@@ -108,8 +107,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     // Error check
     if (l1 < 1)
     {
-        log_errorF("%s: Error invalid number of input stations: %d\n",
-                   fcnm, l1);
+        LOG_ERRMSG("Error invalid number of input stations: %d",l1);
         ierr = 1;
         goto ERROR;
     }   
@@ -119,36 +117,35 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         nEst == NULL || eEst == NULL || uEst == NULL || 
         mts == NULL)
     {
-        if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
+        if (srcDepths == NULL){LOG_ERRMSG("%s", "srcDepths is NULL!");}
         if (utmRecvEasting == NULL)
         {
-            log_errorF("%s: utmRecvEasting is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvEasting is NULL!");
         }
         if (utmRecvNorthing == NULL)
         {
-            log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvNorthing is NULL!");
         }
-        if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
-        if (nObsOffset == NULL){log_errorF("%s: nObsOffset is NULL\n", fcnm);}
-        if (eObsOffset == NULL){log_errorF("%s: eObsOffset is NULL\n", fcnm);}
-        if (uObsOffset == NULL){log_errorF("%s: uObsOffset is NULL\n", fcnm);}
-        if (nEst == NULL){log_errorF("%s: nEst is NULL\n", fcnm);}
-        if (eEst == NULL){log_errorF("%s: eEst is NULL\n", fcnm);}
-        if (uEst == NULL){log_errorF("%s: uEst is NULL\n", fcnm);}
-        if (mts == NULL){log_errorF("%s: mts is NULL\n", fcnm);}
+        if (staAlt == NULL){LOG_ERRMSG("%s", "staAlt is NULL");}
+        if (nObsOffset == NULL){LOG_ERRMSG("%s", "nObsOffset is NULL");}
+        if (eObsOffset == NULL){LOG_ERRMSG("%s", "eObsOffset is NULL");}
+        if (uObsOffset == NULL){LOG_ERRMSG("%s", "uObsOffset is NULL");}
+        if (nEst == NULL){LOG_ERRMSG("%s", "nEst is NULL");}
+        if (eEst == NULL){LOG_ERRMSG("%s", "eEst is NULL");}
+        if (uEst == NULL){LOG_ERRMSG("%s", "uEst is NULL");}
+        if (mts == NULL){LOG_ERRMSG("%s", "mts is NULL");}
         ierr = 1;
         goto ERROR;
     }
     if (ndeps < 1)
     {
-        log_errorF("%s: Error invalid number of source depths: %d\n",
-                   fcnm, ndeps);
+        LOG_ERRMSG("Error invalid number of source depths: %d", ndeps);
         ierr = 1;
         goto ERROR;
     }
     if (!deviatoric)
     {
-        log_errorF("%s: Cannot perform general MT gridsearch!\n", fcnm);
+        LOG_ERRMSG("%s", "Cannot perform general MT gridsearch!");
         ierr = 1;
         goto ERROR;
     }
@@ -180,7 +177,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     ierr = core_cmt_setRHS(l1, nObsOffset, eObsOffset, uObsOffset, U);
     if (ierr != 0)
     {
-        log_errorF("%s: error setting RHS!\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting RHS!");
         goto ERROR;
     }
     // Compute the diagonal data weights
@@ -191,8 +188,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                                             diagWt);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to set weight matrix - will set to identity\n",
-                   fcnm);
+        LOG_ERRMSG("%s", "Failed to set weight matrix - will set to identity");
         for (i=0; i<mrows; i++)
         {
             diagWt[i] = 1.0;
@@ -205,20 +201,20 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                                        WU);
     if (ierr != 0)
     {
-        log_errorF("%s: Failed to apply data weights to data\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to apply data weights to data");
         return -1;
     }
     // Grid search on source depths
     time_tic();
     if (verbose > 2)
     {
-        log_debugF("%s: Beginning search on depths...\n", fcnm);
+        LOG_DEBUGMSG("%s", "Beginning search on depths...");
     }
 #ifdef PARALLEL_CMT
     #pragma omp parallel \
      private (G, UP, WG, zrs_negative) \
      private (i, idep, ierr1, eq_alt, m11, m22, m33, m12, m13, m23, S ) \
-     shared (diagWt, eEst, fcnm, ldg, mts, mrows, \
+     shared (diagWt, eEst, ldg, mts, mrows, \
              ncols, nEst, srcDepths, staAlt, \
              uEst, U, WU, xrs, yrs) reduction(+:ierr) default (none)
     {
@@ -249,8 +245,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                                          G);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error constructing Green's function matrix\n",
-                       fcnm);
+            LOG_ERRMSG("%s", "Error constructing Green's function matrix");
             ierr = ierr + 1;
             continue;
         }
@@ -258,7 +253,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
         ierr1 = core_cmt_weightForwardModel(mrows, ncols, diagWt, G, WG);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error weighting forward modeling matrix!\n", fcnm);
+            LOG_ERRMSG("%s", "Error weighting forward modeling matrix!");
             ierr = ierr + 1;
             continue;
         }
@@ -269,7 +264,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
                                         S, NULL);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error solving least squares problem\n", fcnm);
+            LOG_ERRMSG("%s", "Error solving least squares problem");
             ierr = ierr + 1;
             continue;
         }
@@ -309,13 +304,13 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
 #endif
     if (ierr != 0)
     {
-        log_errorF("%s: Errors were detect during the grid search\n", fcnm);
+        LOG_ERRMSG("%s", "Errors were detect during the grid search");
     }
     else
     {
         if (verbose > 2)
         {
-            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, time_toc());
+            LOG_DEBUGMSG("Grid-search time: %f (s)\n", time_toc());
         }
     }
 ERROR:;

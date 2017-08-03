@@ -48,7 +48,6 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                      struct GFAST_offsetData_struct ff_data,
                      struct GFAST_ffResults_struct *ff)
 {
-    const char *fcnm = "eewUtils_driveFF\0";
     double *dip, *dslip, *dslip_unc, *eOffset, *EN, *eWts,
            *fault_xutm, *fault_yutm, *fault_alt, *length,
            *Mw, *nOffset, *NN, *nWts, *sslip, *sslip_unc, *staAlt,
@@ -220,7 +219,7 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
 #ifdef PARALLEL_FF
     #pragma omp parallel for \
      private(ierr1, ifp) \
-     shared(fcnm, ff, ff_props, zone_loc) \
+     shared(ff, ff_props, zone_loc) \
      reduction(+:ierr) default(none)
 #endif
     for (ifp=0; ifp<ff->nfp; ifp++)
@@ -384,7 +383,6 @@ ERROR:;
 static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
                                struct GFAST_ffResults_struct *ff)
 {
-    const char *fcnm = "__verify_ff_structs\0";
     int ierr, ifp;
     ierr = FF_SUCCESS;
     if (ff_data.nsites < 1)
@@ -456,63 +454,61 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
         {
             if (ff->fp[ifp].lon_vtx == NULL)
             {
-                log_errorF("%s: Error lon_vtx null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error lon_vtx null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].lat_vtx == NULL)
             {
-                log_errorF("%s: Error lat_vtx null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error lat_vtx null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].dep_vtx == NULL)
             {
-                log_errorF("%s: Error dep_vtx null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error dep_vtx null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].fault_xutm == NULL)
             {
-                log_errorF("%s: Error fault_xutm null on ifp %d\n",
-                            fcnm, ifp+1);
+                LOG_ERRMSG(" Error fault_xutm null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].fault_yutm == NULL)
             {
-                log_errorF("%s: Error fault_xutm null on ifp %d\n",
-                            fcnm, ifp+1);
+                LOG_ERRMSG("Error fault_xutm null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].fault_alt == NULL)
             {
-                log_errorF("%s: Error fault_alt null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error fault_alt null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].strike == NULL)
             {
-                log_errorF("%s: Error strike null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error strike null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].dip == NULL)
             {
-                log_errorF("%s: Error dip null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error dip null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].length == NULL)
             {
-                log_errorF("%s: Error length null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error length null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].width == NULL)
             {
-                log_errorF("%s: Error width null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error width null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].sslip == NULL)
             {
-                log_errorF("%s: Error sslip null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error sslip null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].dslip == NULL)
             {
-                log_errorF("%s: Error dslip null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error dslip null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].sslip_unc == NULL)
             {
-                log_errorF("%s: Error sslip_unc null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error sslip_unc null on ifp %d", ifp+1);
             }
             if (ff->fp[ifp].dslip_unc == NULL)
             {
-                log_errorF("%s: Error dslip_unc null on ifp %d\n", fcnm, ifp+1);
+                LOG_ERRMSG("Error dslip_unc null on ifp %d", ifp+1);
             }
-            log_errorF("%s: Error fp %d is invalid\n", fcnm, ifp+1);
+            LOG_ERRMSG("Error fp %d is invalid\n", ifp+1);
             ierr = FF_STRUCT_ERROR;
             goto ERROR;
         }
@@ -522,8 +518,8 @@ static int __verify_ff_structs(struct GFAST_offsetData_struct ff_data,
     {
         if (ff->fp[ifp].maxobs != ff_data.nsites)
         {
-            log_errorF("%s: nsites on ff and ff_data differs %d %d\n",
-                       fcnm, ff->fp[ifp].maxobs, ff_data.nsites);
+            LOG_ERRMSG("nsites on ff and ff_data differs %d %d",
+                       ff->fp[ifp].maxobs, ff_data.nsites);
             ierr = FF_STRUCT_ERROR;
             goto ERROR;
         }

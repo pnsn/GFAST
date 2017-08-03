@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 /*!
  * @brief Performs the CMT depth grid search.
@@ -89,7 +88,6 @@ int core_cmt_gridSearch(const int l1,
                         double *__restrict__ uEst,
                         double *__restrict__ mts)
 {
-    const char *fcnm = "core_cmt_gridSearch\0";
     int ierr, ierr1, ilat, ilon, ilatLon;
     //------------------------------------------------------------------------//
     //
@@ -103,29 +101,29 @@ int core_cmt_gridSearch(const int l1,
     {
         if (utmSrcEastings == NULL)
         {
-            log_errorF("%s: utmSrcEastings is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmSrcEastings is NULL!");
         }
         if (utmSrcNorthings == NULL)
         {
-            log_errorF("%s: utmSrcNorthings is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmSrcNorthings is NULL!");
         } 
-        if (srcDepths == NULL){log_errorF("%s: srcDepths is NULL!\n", fcnm);}
+        if (srcDepths == NULL){LOG_ERRMSG("%s", "srcDepths is NULL!");}
         if (utmRecvEasting == NULL)
         {
-            log_errorF("%s: utmRecvEasting is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvEasting is NULL!");
         }
         if (utmRecvNorthing == NULL)
         {
-            log_errorF("%s: utmRecvNorthing is NULL!\n", fcnm);
+            LOG_ERRMSG("%s", "utmRecvNorthing is NULL!");
         }
-        if (staAlt == NULL){log_errorF("%s: staAlt is NULL\n", fcnm);}
-        if (nObsOffset == NULL){log_errorF("%s: nObsOffset is NULL\n", fcnm);}
-        if (eObsOffset == NULL){log_errorF("%s: eObsOffset is NULL\n", fcnm);}
-        if (uObsOffset == NULL){log_errorF("%s: uObsOffset is NULL\n", fcnm);}
-        if (nEst == NULL){log_errorF("%s: nEst is NULL\n", fcnm);}
-        if (eEst == NULL){log_errorF("%s: eEst is NULL\n", fcnm);}
-        if (uEst == NULL){log_errorF("%s: uEst is NULL\n", fcnm);}
-        if (mts == NULL){log_errorF("%s: mts is NULL\n", fcnm);}
+        if (staAlt == NULL){LOG_ERRMSG("%s", "staAlt is NULL");}
+        if (nObsOffset == NULL){LOG_ERRMSG("%s", "nObsOffset is NULL");}
+        if (eObsOffset == NULL){LOG_ERRMSG("%s", "eObsOffset is NULL");}
+        if (uObsOffset == NULL){LOG_ERRMSG("%s", "uObsOffset is NULL");}
+        if (nEst == NULL){LOG_ERRMSG("%s", "nEst is NULL");}
+        if (eEst == NULL){LOG_ERRMSG("%s", "eEst is NULL");}
+        if (uEst == NULL){LOG_ERRMSG("%s", "uEst is NULL");}
+        if (mts == NULL){LOG_ERRMSG("%s", "mts is NULL");}
         return -1;
     }
     // Verify the sizes
@@ -133,29 +131,26 @@ int core_cmt_gridSearch(const int l1,
     {
         if (l1 < 1)
         {
-            log_errorF("%s: Error no observations %d\n", fcnm, l1);
+            LOG_ERRMSG("Error no observations %d", l1);
         }
         if (ndeps < 1)
         {
-            log_errorF("%s: Error invalid number of source depths: %d\n",
-                       fcnm, ndeps);
+            LOG_ERRMSG("Error invalid number of source depths: %d", ndeps);
         }
         if (nlons < 1)
         {
-            log_errorF("%s: Error invalid number of lons (easting): %d\n",
-                       fcnm, nlons);
+            LOG_ERRMSG("Error invalid number of lons (easting): %d", nlons);
         }
         if (nlats < 1)
         {
-            log_errorF("%s: Error invalid number of lats (northings): %d\n",
-                       fcnm, nlats);
+            LOG_ERRMSG("Error invalid number of lats (northings): %d", nlats);
         } 
         return -1;
     }
     // Prevent problems with deviatoric
     if (!deviatoric)
     {
-        log_errorF("%s: Cannot perform general MT gridsearch!\n", fcnm);
+        LOG_ERRMSG("%s", "Cannot perform general MT gridsearch!");
         return -1;
     }
     // Loop on the longitudes (eastings)
@@ -193,8 +188,7 @@ int core_cmt_gridSearch(const int l1,
                                              &mts[6*ilatLon*ndeps]);
             if (ierr1 != 0)
             {
-                log_errorF("%s: Error calling depthGridSearch %d %d\n",
-                           fcnm, ilat, ilon);
+                LOG_ERRMSG("Error calling depthGridSearch %d %d", ilat, ilon);
                 ierr = ierr + 1;
             }
         } // loop on latitudes 
@@ -202,7 +196,7 @@ int core_cmt_gridSearch(const int l1,
     // Check if i encountered an error
     if (ierr != 0)
     {
-        log_errorF("%s: Error in gridsearch\n", fcnm);
+        LOG_ERRMSG("%s", "Error in gridsearch");
         return -2;
     }
     return 0; 

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Sets the diagonal weight matrix in the inversion.
  *
@@ -25,24 +24,23 @@ int core_cmt_setDiagonalWeightMatrix(const int n,
                                      const double *__restrict__ uWts,
                                      double *__restrict__ diagWt)
 {
-    const char *fcnm = "core_cmt_setDiagonalWeightMatrix\0";
     int i, i3;
     bool leWts, lnWts, luWts;
     if (n < 1)
     {
-        log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
+        LOG_ERRMSG("Invalid number of points: %d", n);
         return -1;
     }
     if (diagWt == NULL)
     {
-        log_errorF("%s: Error diagWt is NULL!\n", fcnm);
+        LOG_ERRMSG("%s", "Error diagWt is NULL!");
         return -1;
     }
     if (nWts == NULL || eWts == NULL || uWts == NULL)
     {
         if (nWts == NULL && eWts == NULL && uWts == NULL)
         {
-            log_warnF("%s: Setting diagonal weight matrix to unity\n", fcnm);
+            LOG_WARNMSG("%s", "Setting diagonal weight matrix to unity");
 #ifdef _OPENMP
             #pragma omp simd
 #endif
@@ -58,17 +56,17 @@ int core_cmt_setDiagonalWeightMatrix(const int n,
             luWts = true;
             if (nWts == NULL)
             {
-                log_warnF("%s: Setting nWts to unity\n", fcnm);
+                LOG_WARNMSG("%s", "Setting nWts to unity");
                 lnWts = false;
             }
             if (eWts == NULL)
             {
-                log_warnF("%s: Setting eWts to unity\n", fcnm);
+                LOG_WARNMSG("%s", "Setting eWts to unity");
                 leWts = false;
             }
             if (uWts == NULL)
             {
-                log_warnF("%s: Setting uWts to unity\n", fcnm);
+                LOG_WARNMSG("%s", "Setting uWts to unity");
                 luWts = false;
             }
             i3 = 0;

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "gfast_core.h"
 #include "cmopad.h"
-#include "iscl/log/log.h"
 
 /*!
  * @brief Finds the moment tensor decomposition of the NED moment tensor
@@ -47,7 +46,6 @@ int core_cmt_decomposeMomentTensor(const int nmt,
                                    double *__restrict__ rake1,
                                    double *__restrict__ rake2)
 {
-    const char *fcnm = "core_cmt_decomposeMomentTensor\0";
     struct cmopad_struct cmt;
     double M33[3][3];
     int i, ierr, ierr1;
@@ -76,7 +74,7 @@ int core_cmt_decomposeMomentTensor(const int nmt,
         ierr1 = cmopad_standardDecomposition(M33, &cmt);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error decomposing moment tensor\n", fcnm);
+            LOG_ERRMSG("%s", "Error decomposing moment tensor");
             ierr = ierr + 1;
             continue;
         }
@@ -84,7 +82,7 @@ int core_cmt_decomposeMomentTensor(const int nmt,
         ierr1 = cmopad_MT2PrincipalAxisSystem(verbose, &cmt);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error computing strike, dips, and rakes!\n", fcnm);
+            LOG_ERRMSG("%s", "Error computing strike, dips, and rakes!");
             ierr = ierr + 1;
             continue;
         }
@@ -103,7 +101,7 @@ int core_cmt_decomposeMomentTensor(const int nmt,
     }
     if (ierr != 0)
     {
-        log_errorF("%s: Errors during moment tensor decomposition\n", fcnm);
+        LOG_ERRMSG("%s", "Errors during moment tensor decomposition");
     }
     return ierr;
 }
