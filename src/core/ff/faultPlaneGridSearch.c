@@ -11,8 +11,8 @@
 #include <lapacke.h>
 #include <cblas.h>
 #endif
+#include "iscl/array/array.h"
 #include "iscl/linalg/linalg.h"
-#include "iscl/log/log.h"
 #include "iscl/time/time.h"
 #include "iscl/memory/memory.h"
 
@@ -132,7 +132,6 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                  double *__restrict__ dslip_unc
                                  )
 {
-    const char *fcnm = "core_ff_faultPlaneGridSearch\0";
     double *diagWt, *G, *G2, *R, *S, *T, *UD, *UP, *WUD, *xrs, *yrs, *zrs,
            asum, ds_unc, lampred, len0, ss_unc, st, M0, res, wid0, xden, xnum;
     int i, ierr, ierr1, if_off, ifp, ij, io_off, j,
@@ -155,13 +154,13 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     lsslip_unc = false;
     ldslip_unc = false;
     // Error handling
-    if (l1 == 0 || l2 == 0 || l2 != nstr*ndip)
+    if (l1 <= 0 || l2 <= 0 || l2 != nstr*ndip)
     {
-        if (l1 == 0){log_errorF("%s: Error no observations\n", fcnm);}
-        if (l2 == 0){log_errorF("%s: Error no points in fault plane\n", fcnm);}
-        if (l2 != nstr*ndip){
-            log_errorF("%s: Error l2 != nstr*ndip %d %d %d!\n",
-                       fcnm, nstr, ndip);
+        if (l1 <= 0){LOG_ERRMSG("%s", "Error no observations");}
+        if (l2 <= 0){LOG_ERRMSG("%s", "Error no points in fault plane");}
+        if (l2 != nstr*ndip)
+        {
+            LOG_ERRMSG("Error l2 != nstr*ndip %d %d*%d!", l2, nstr, ndip);
         }
         return -1;
     }
@@ -172,26 +171,20 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     {
         if (utmRecvEasting == NULL)
         {
-            log_errorF("%s: Error utmRecvEasting is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error utmRecvEasting is NULL");
         }
         if (utmRecvNorthing == NULL)
         {
-            log_errorF("%s: Error utmRecvNorthing is NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error utmRecvNorthing is NULL");
         }
-        if (fault_xutm == NULL)
-        {
-            log_errorF("%s: Error fault_xutm is NULL\n", fcnm);
-        }
-        if (fault_yutm == NULL)
-        {
-            log_errorF("%s: Error fault_yutm is NULL\n", fcnm);
-        }
-        if (length == NULL){log_errorF("%s: Error length is NULL\n", fcnm);}
-        if (width == NULL){log_errorF("%s: Error width is NULL\n", fcnm);}
-        if (strike == NULL){log_errorF("%s: Error strike is NULL\n", fcnm);}
-        if (dip == NULL){log_errorF("%s: Error dip is NULL\n", fcnm);}
-        if (sslip == NULL){log_errorF("%s: Error sslip is NULL\n", fcnm);}
-        if (dslip == NULL){log_errorF("%s: Error dslip is NULL\n", fcnm);}
+        if (fault_xutm == NULL){LOG_ERRMSG("%s", "Error fault_xutm is NULL");}
+        if (fault_yutm == NULL){LOG_ERRMSG("%s", "Error fault_yutm is NULL");}
+        if (length == NULL){LOG_ERRMSG("%s", "Error length is NULL");}
+        if (width == NULL){LOG_ERRMSG("%s", "Error width is NULL");}
+        if (strike == NULL){LOG_ERRMSG("%s", "Error strike is NULL");}
+        if (dip == NULL){LOG_ERRMSG("%s", "Error dip is NULL");}
+        if (sslip == NULL){LOG_ERRMSG("%s", "Error sslip is NULL");}
+        if (dslip == NULL){LOG_ERRMSG("%s", "Error dslip is NULL");}
         return -1;
     }
     if (sslip_unc != NULL || dslip_unc != NULL)
@@ -216,16 +209,16 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     diagWt = memory_calloc64f(mrowsG);
     if (WUD == NULL || UD == NULL || diagWt == NULL)
     {
-        if (WUD == NULL){log_errorF("%s: Error setting space for WUD\n", fcnm);}
-        if (UD == NULL){log_errorF("%s: Error setting space for UP\n", fcnm);}
+        if (WUD == NULL){LOG_ERRMSG("%s", "Error setting space for WUD");}
+        if (UD == NULL){LOG_ERRMSG("%s", "Error setting space for UP");}
         if (diagWt == NULL)
         {
-            log_errorF("%s: Error setting space for diagWt\n", fcnm);
+            LOG_ERRMSG("%s", "Error setting space for diagWt");
         }
         ierr = 5;
         goto ERROR;
     }
-    if (verbose > 2){log_debugF("%s: Setting RHS...\n", fcnm);}
+    if (verbose > 2){LOG_DEBUGMSG("%s", "Setting RHS...");}
     // Set the RHS
     ierr = core_ff_setRHS(l1,
                           nObsOffset,
@@ -234,7 +227,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                           UD);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting right hand side\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting right hand side");
         goto ERROR;
     }
     // Compute the diagonal data weights
@@ -245,11 +238,8 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                            diagWt);
     if (ierr != 0)
     {
-        log_warnF("%s: Setting data weights to unity\n", fcnm);
-        for (i=0; i<mrowsG; i++)
-        {
-            diagWt[i] = 1.0;
-        }
+        LOG_WARNMSG("%s", "Setting data weights to unity");
+        array_set64f_work(mrowsG, 1.0, diagWt); 
     }
     // Weight the observations
     ierr = core_ff_weightObservations(mrowsG,
@@ -258,7 +248,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                       WUD);
     if (ierr != 0)
     {
-        log_errorF("%s: Error weighting observations\n", fcnm);
+        LOG_ERRMSG("%s", "Error weighting observations");
         goto ERROR;
     }
     // Begin the grid search on fault planes
@@ -266,7 +256,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     ISCL_time_tic();
     if (verbose > 2)
     {
-        log_debugF("%s: Beginning search on fault planes...\n", fcnm);
+        LOG_DEBUGMSG("%s", "Beginning search on fault planes...");
     }
 #ifdef PARALLEL_FF
     #pragma omp parallel \
@@ -274,7 +264,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
              lampred, len0, M0, R, res, S, ss_unc, st, T, UP, wid0, \
              xrs, xden, xnum, yrs, zrs) \
      shared(diagWt, dip, dslip, dslip_unc, EN, fault_alt, \
-            fault_xutm, fault_yutm, fcnm, ldslip_unc, length, \
+            fault_xutm, fault_yutm, ldslip_unc, length, \
             lrmtx, lsslip_unc, Mw, mrowsG, mrowsG2, ncolsG, ncolsG2, \
             ng, ng2, NN, nt, sslip, sslip_unc, staAlt, strike, \
             vr, WUD, UD, UN, utmRecvEasting, utmRecvNorthing, width) \
@@ -329,7 +319,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                                      G);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error setting forward model\n", fcnm);
+            LOG_ERRMSG("%s", "Error setting forward model");
             ierr = ierr + 1;
             continue;
         }
@@ -340,7 +330,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                            G2);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error weighting forward modeling matrix\n", fcnm);
+            LOG_ERRMSG("%s", "Error weighting forward modeling matrix");
             ierr = ierr + 1;
             continue;
         }
@@ -354,7 +344,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                        T);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error setting regulizer\n", fcnm);
+            LOG_ERRMSG("%s", "Error setting regulizer");
             ierr = ierr + 1;
             continue;
         }
@@ -374,7 +364,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                         S, R);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error solving least squares problem\n", fcnm);
+            LOG_ERRMSG("%s", "Error solving least squares problem");
             ierr = ierr + 1;
             continue;
         }
@@ -391,7 +381,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                                    R, ncolsG2);
             if (ierr1 != 0)
             {
-                log_errorF("%s: Error inverting triangular matrix!\n", fcnm);
+                LOG_ERRMSG("%s", "Error inverting triangular matrix!");
                 ierr = ierr + 1;
                 continue;
             }
@@ -491,15 +481,14 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
 #endif
     if (ierr != 0)
     {
-        log_errorF("%s: There was an error in the fault plane grid-search\n",
-                   fcnm);
+        LOG_ERRMSG("%s", "There was an error in the fault plane grid-search");
         ierr = 4;
     }
     else
     {
         if (verbose > 2)
         {
-            log_debugF("%s: Grid-search time: %f (s)\n", fcnm, ISCL_time_toc());
+            LOG_DEBUGMSG("Fault plane grid-search time: %f (s)", time_toc());
         }
     }
 ERROR:;

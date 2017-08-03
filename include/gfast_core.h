@@ -355,7 +355,7 @@ int core_ff_weightObservations(const int mrows,
 { \
    char debugMsg[GFAST_MAXMSG_LEN]; \
    memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(debugMsg, "[DEBUG]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+   sprintf(debugMsg, "[DEBUG]: %s: ", __func__); \
    do \
    {  \
      snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \

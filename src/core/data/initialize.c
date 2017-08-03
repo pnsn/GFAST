@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
 
@@ -24,15 +23,14 @@
 int core_data_initialize(struct GFAST_props_struct props,
                          struct GFAST_data_struct *gps_data)
 {
-    const char *fcnm = "core_data_initialize\0";
     int ierr, k, mpts;
     // Get the sites to be used
     ierr = 0;
-    if (props.verbose > 0){log_infoF("%s: Initializing metadata...\n", fcnm);}
+    if (props.verbose > 0){LOG_DEBUGMSG("%s", "Initializing metadata...");}
     ierr = core_data_readMetaDataFile(props.metaDataFile, gps_data);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading sites file!\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading sites file!");
         return -1;
     }
     if (os_path_isfile(props.siteMaskFile))
@@ -41,7 +39,7 @@ int core_data_initialize(struct GFAST_props_struct props,
                                           props.verbose, gps_data);
         if (ierr != 0)
         {
-            log_errorF("%s: Error reading site mask file\n", fcnm);
+            LOG_ERRMSG("%s", "Error reading site mask file");
             return -1;
         }
     }

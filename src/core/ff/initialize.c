@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -27,19 +26,18 @@ int core_ff_initialize(struct GFAST_ff_props_struct props,
                        struct GFAST_ffResults_struct *ff,
                        struct GFAST_offsetData_struct *ff_data)
 {
-    const char *fcnm = "core_ff_initialize\0";
     int i, ifp, maxobs, nstr_ndip;
     //------------------------------------------------------------------------//
     maxobs = gps_data.stream_length;
     if (maxobs < 1)
     {
-        log_errorF("%s: There will be no data in FF inversion!\n", fcnm);
+        LOG_ERRMSG("There will be no data %d in FF inversion!", maxobs);
         return -1;
     }
     nstr_ndip = props.ndip*props.nstr;
     if (nstr_ndip < 1)
     {
-        log_errorF("%s: Error not fault patches!\n", fcnm);
+        LOG_ERRMSG("Error not fault patches %d!", nstr_ndip);
         return -1;
     }
     // data

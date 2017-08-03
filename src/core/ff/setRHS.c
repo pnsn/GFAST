@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Sets the RHS for the finite fault inversion.  The right hand
  *        side for the i'th site is packed 
@@ -27,11 +26,10 @@ int core_ff_setRHS(const int n,
                    const double *__restrict__ uOffset,
                    double *__restrict__ U)
 {
-    const char *fcnm = "core_ff_setRHS\0";
     int i, i3; 
     if (n < 1)
     {
-        log_errorF("%s: Invalid number of points: %d\n", fcnm, n); 
+        LOG_ERRMSG("Invalid number of points: %d", n);
         return -1; 
     }   
     i3 = 0;

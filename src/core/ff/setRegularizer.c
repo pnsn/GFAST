@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Computes the second order Tikhonov regularizer along
  *        strike and down dip for estimation of the slip 
@@ -34,7 +33,6 @@ int core_ff_setRegularizer(const int l2, const int nstr,
                            const double *__restrict__ length,
                            double *__restrict__ T)
 {
-    const char *fcnm = "core_ff_setRegularizer\0";
     double len02i, lnwidi, wid02i;
     int i, indx1, indx2, indx3, indx4, indx5, j, k, l, ldt,
            kndx1, kndx2, kndx3, kndx4, kndx5, m, ntref;
@@ -46,20 +44,19 @@ int core_ff_setRegularizer(const int l2, const int nstr,
     {
         if (nstr < 1)
         {
-            log_errorF("%s: Error no faults along strike\n", fcnm);
+            LOG_ERRMSG("Error no faults along strike %d", nstr);
         }
         if (ndip < 1)
         {
-            log_errorF("%s: Error no faults down dip\n", fcnm);
+            LOG_ERRMSG("Error no faults down dip %d", ndip);
         }
         if (nstr*ndip != l2)
         {
-            log_errorF("%s: Error size inconsistency\n", fcnm);
+            LOG_ERRMSG("Error size inconsistency %d %d", l2, nstr*ndip);
         }
         if (nt != ntref)
         {
-            log_errorF("%s: Error nt is not proper size %d %d\n",
-                       fcnm, nt, ntref);
+            LOG_ERRMSG("Error nt is not proper size %d %d", nt, ntref);
         }
         return -1;
     }
@@ -67,15 +64,15 @@ int core_ff_setRegularizer(const int l2, const int nstr,
     {
         if (width == NULL)
         {
-            log_errorF("%s: Error width can't be NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error width can't be NULL");
         }
         if (length == NULL)
         {
-            log_errorF("%s: Error length can't be NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error length can't be NULL");
         }
         if (T == NULL)
         {
-            log_errorF("%s: Error regularizer T can't be NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error regularizer T can't be NULL");
         }
         return -1;
     }
@@ -137,8 +134,7 @@ int core_ff_setRegularizer(const int l2, const int nstr,
     } // Loop on dip
     if (k != 2*ndip*nstr - 1)
     {
-        log_errorF("%s: Error lost count part 1 %d %d\n",
-                   fcnm, k, 2*ndip*nstr - 1);
+        LOG_ERRMSG("Error lost count part 1 %d %d", k, 2*ndip*nstr - 1);
         return -1;
     }
     // Now apply boundary conditions s.t. the fault ends excluding 
@@ -167,8 +163,8 @@ int core_ff_setRegularizer(const int l2, const int nstr,
     // Did we get them all?
     if (k != (2*l2 + 2*(2*ndip + nstr - 2)))
     {
-        log_warnF("%s: Warning failed to initialize all rows in T %d %d\n",
-                  fcnm, k, 2*l2 + 2*(2*ndip + nstr - 2));
+        LOG_WARNMSG("Warning failed to initialize all rows in T %d %d",
+                    k, 2*l2 + 2*(2*ndip + nstr - 2));
     }
     return 0;
 }

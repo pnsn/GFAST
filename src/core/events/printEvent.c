@@ -10,10 +10,10 @@
  */
 void core_events_printEvents(struct GFAST_shakeAlert_struct SA) 
 {
-    const char *lspace = "                  \0";
+    const char *lspace = "       \0";
     char line[128], msg[1024];
     memset(msg, 0, 1024*sizeof(char));
-    sprintf(msg, "%s: Event %s statistics:\n", lspace, SA.eventid);
+    sprintf(msg, "\n%s  Event %s statistics:\n", lspace, SA.eventid);
 
     memset(line, 0, 128*sizeof(char));
     sprintf(line, "%s  Event latitude %f (degrees)\n", lspace, SA.lat);

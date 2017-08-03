@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Applies the diagonal data weight matrix to the observations
  *
@@ -27,22 +26,21 @@ int core_ff_weightObservations(const int mrows,
                                const double *__restrict__ b,
                                double *__restrict__ diagWb)
 {
-    const char *fcnm = "core_ff_weightObservations\0";
     int i;
     if (mrows < 1)
     {
-        log_errorF("%s: Error no rows!\n", fcnm);
+        LOG_ERRMSG("Error no rows = %d!", mrows);
         return -1;
     }
     if (b == NULL || diagWb == NULL)
     {
-        if (b == NULL){log_errorF("%s: Error b is NULL\n", fcnm);}
-        if (diagWb == NULL){log_errorF("%s: Error diagWb is NULL\n", fcnm);}
+        if (b == NULL){LOG_ERRMSG("%s", "Error b is NULL");}
+        if (diagWb == NULL){LOG_ERRMSG("%s", "Error diagWb is NULL");}
         return -1;
     }
     if (diagWt == NULL)
     {
-        log_warnF("%s: Warning diagWt is NULL - assuming identity\n", fcnm);
+        LOG_WARNMSG("%s", "Warning diagWt is NULL - assuming identity");
         array_copy64f_work(mrows, b, diagWb);
         return 1;
     }

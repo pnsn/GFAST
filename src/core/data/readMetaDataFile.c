@@ -3,7 +3,6 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static int splitLine(const char *cline,
@@ -29,7 +28,6 @@ static int splitLine(const char *cline,
 int core_data_readMetaDataFile(const char *metaDataFile,
                                struct GFAST_data_struct *gps_data)
 {
-    const char *fcnm = "core_data_readMetaDataFile\0";
     FILE *infl;
     char **textfl, **sites, cline[1024],
          site[256], chan[64], chan1[64], loc[64], loc1[64],
@@ -48,7 +46,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     // Require the site file exists
     if (!os_path_isfile(metaDataFile))
     {
-        log_errorF("%s: Error site file does not exist!\n", fcnm);
+        LOG_ERRMSG("%s", "Error site file does not exist!");
         return -1;
     }
     // Open the file for reading and count the sites
@@ -59,7 +57,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     }
     if (nlines < 1)
     {
-        log_errorF("%s: Error no data read!\n", fcnm);
+        LOG_ERRMSG("%s", "Error no data read!");
         ierr = 1;
         goto ERROR;
     }
@@ -77,14 +75,14 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         if (fgets(cline, 1024, infl) == NULL)
         {
             ierr = 1;
-            log_errorF("%s: Premature end of file\n", fcnm);
+            LOG_ERRMSG("%s", "Premature end of file");
             goto ERROR;
         }
         if (i == 0){continue;} // Skip the header
         if (strlen(cline) == 0)
         {
             ierr = 0; 
-            log_errorF("%s: Blank line - invalid input!\n", fcnm);
+            LOG_ERRMSG("%s", "Blank line - invalid input!");
             goto ERROR;
         }
         // Get rid of the end of line
@@ -107,7 +105,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                          &reflat, &reflon);
         if (ierr != 0)
         {
-            log_errorF("%s: Error parsing line!\n", fcnm);
+            LOG_ERRMSG("%s", "Error parsing line!");
             goto ERROR;
         }
         // Make the site name
@@ -118,8 +116,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         if (strlen(chan) != 3)
         {
             ierr = 1;
-            log_errorF("%s: I don't know how to parse this channel %s\n",
-                       fcnm, chan);
+            LOG_ERRMSG("I don't know how to parse this channel %s", chan);
             goto ERROR;
         }
         strncat(site, chan, 2);
@@ -148,7 +145,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                              &reflat, &reflon);
             if (ierr != 0)
             {
-                log_errorF("%s: Error parsing line!\n", fcnm);
+                LOG_ERRMSG("%s", "Error parsing line!");
                 goto ERROR;
             }
             if (strcasecmp( netw1, netw) == 0 &&
@@ -171,27 +168,27 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                 if (fabs(gain0[0] - gain0[1]) > 1.e-6 ||
                     fabs(gain0[0] - gain0[2]) > 1.e-6)
                 {
-                    log_errorF("%s: Error inconstent gain\n", fcnm);
+                    LOG_ERRMSG("%s", "Error inconsistent gain");
                     goto ERROR;
                 }
             }
         }
         else
         {
-            log_errorF("%s: Couldn't find other channels %s\n", fcnm, site);
+            LOG_ERRMSG("Couldn't find other channels %s", site);
         }
 NEXT_LINE:; // Try another site to match
     }
     // Did we get anything?
     if (gps_data->stream_length < 1)
     {
-        log_errorF("%s: No three-component sites found!\n", fcnm);
+        LOG_ERRMSG("%s", "No three-component sites found!");
         ierr = 1;
         goto ERROR;
     }
     if (ns != gps_data->stream_length)
     {
-        log_warnF("%s: Warning - counting problem\n", fcnm);
+        LOG_WARNMSG("%s", "Warning - counting problem");
     }
     gps_data->data = (struct GFAST_waveform3CData_struct *)
                      calloc((size_t) gps_data->stream_length,
@@ -208,25 +205,25 @@ NEXT_LINE:; // Try another site to match
                          &reflat, &reflon);
         if (ierr != 0)
         {
-            log_errorF("%s: Error parsing line!\n", fcnm);
+            LOG_ERRMSG("%s", "Error parsing line!");
             goto ERROR;
         }
         // Verify the inputs
         if (lat <-90.0 || lat > 90.0)
         {
-            log_errorF("%s: Input latitude %f is invalid\n", fcnm, lat);
+            LOG_ERRMSG("Input latitude %f is invalid", lat);
             ierr = 1;
             goto ERROR;
         }
         if (lon <-180.0 || lon > 360.0)
         {
-            log_errorF("%s: Input longitude %f is invalid\n", fcnm, lon);
+            LOG_ERRMSG("Input longitude %f is invalid", lon);
             ierr = 1;
             goto ERROR;
         }
         if (dt <= 0.0)
         {
-            log_errorF("%s: Input sampling period %f is invalid\n", fcnm, dt);
+            LOG_ERRMSG("Input sampling period %f is invalid", dt);
             ierr = 1;
             goto ERROR;
         }
@@ -252,17 +249,17 @@ NEXT_LINE:; // Try another site to match
         {
             if (gain == 0.0)
             {
-                log_warnF("%s: Instrument gain will mute staion\n", fcnm);
+                LOG_WARNMSG("%s", "Instrument gain will mute station");
             }
             if (dt <= 0.0)
             {
-                log_errorF("%s: Sampling period %f is invalid\n", fcnm, dt);
+                LOG_ERRMSG("Sampling period %f is invalid", dt);
                 ierr = 1;
                 goto ERROR;
             }
             if (isnan(dt))
             {
-                log_errorF("%s: Sampling rate input was zero\n", fcnm);
+                LOG_ERRMSG("%s", "Sampling rate input was zero");
                 ierr = 1;
                 goto ERROR;
             }
@@ -303,7 +300,6 @@ static int splitLine(const char *cline,
                      char units[64], char sensorType[64],
                      double *reflat, double *reflon)
 {
-    const char *fcnm = "splitLine\0";
     char *token, *work;
     int i, ierr;
     const char *split = " ";
@@ -347,7 +343,7 @@ static int splitLine(const char *cline,
     }
     if (i != 13 && i != 14)
     {
-        log_errorF("%s: Failed to split line %d %s\n", fcnm, i, cline);
+        LOG_ERRMSG("Failed to split line %d %s", i, cline);
         ierr = 1;
     }
     free(work);

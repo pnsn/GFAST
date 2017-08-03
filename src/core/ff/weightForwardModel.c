@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 /*!
  * @brief Weights a forward modeling matrix by the diagonal data weights
  *
@@ -35,27 +34,25 @@ int core_ff_weightForwardModel(const int mrows, const int ncols,
                                const double *__restrict__ G,
                                double *__restrict__ diagWtG)
 {
-    const char *fcnm = "core_ff_weightForwardModel\0";
     int i, j;
     if (mrows < 1 || ncols < 1)
     {
-        log_errorF("%s: Error G has no dimension\n", fcnm);
+        LOG_ERRMSG("Error G has invalid dimension %d %d", mrows, ncols);
         return -1;
     }
     if (G == NULL || diagWtG == NULL)
     {
-        if (G == NULL){log_errorF("%s: Error G cannot be NULL\n", fcnm);}
+        if (G == NULL){LOG_ERRMSG("%s", "Error G cannot be NULL");}
         if (diagWtG == NULL)
         {
-            log_errorF("%s: Error diagWtG cannot be NULL\n", fcnm);
+            LOG_ERRMSG("%s", "Error diagWtG cannot be NULL");
         }
         return -1;
     }
     // Avoid a segmentation fault
     if (diagWt == NULL)
     {
-        log_warnF("%s: Warning diagWt is NULL; G will not be weighted\n",
-                  fcnm);
+        LOG_WARNMSG("%s", "Warning diagWt is NULL; G will not be weighted");
         array_copy64f_work(mrows*ncols, G, diagWtG);
         return 1;
     }

@@ -39,7 +39,6 @@ int core_properties_initialize(const char *propfilename,
                                const enum opmode_type opmode,
                                struct GFAST_props_struct *props)
 {
-    const char *fcnm = "core_properties_initialize\0";
     const char *s;
     char cwork[PATH_MAX];
     int i, ierr, itemp, lenos;
@@ -51,8 +50,7 @@ int core_properties_initialize(const char *propfilename,
     props->opmode = opmode;
     if (!ISCL_os_path_isfile(propfilename))
     {
-        log_errorF("%s: Properties file: %s does not exist\n",
-                   fcnm, propfilename);
+        LOG_ERRMSG("Properties file: %s does not exist", propfilename);
         return ierr;
     }
     // Load the ini file
@@ -65,8 +63,7 @@ int core_properties_initialize(const char *propfilename,
     strcpy(props->metaDataFile, s);
     if (!ISCL_os_path_isfile(props->metaDataFile))
     {
-        log_errorF("%s: Cannot find station list %s\n",
-                   fcnm, props->metaDataFile);
+        LOG_ERRMSG("Cannot find station list %s", props->metaDataFile);
         return -1;
     }
     s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
@@ -81,7 +78,7 @@ int core_properties_initialize(const char *propfilename,
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
     if (props->bufflen <= 0.0)
     {
-        log_errorF("%s: Buffer lengths must be positive!\n", fcnm);
+        LOG_ERRMSG("Buffer lengths=%f must be positive!", props->bufflen);
         goto ERROR;
     }
     if (props->opmode == OFFLINE)
@@ -89,7 +86,7 @@ int core_properties_initialize(const char *propfilename,
         s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
         if (s == NULL)
         {
-            log_errorF("%s: Could not find decision module XML file!\n", fcnm);
+            LOG_ERRMSG("%s", "Could not find decision module XML file!");
             goto ERROR;
         }
         strcpy(props->eewsfile, s);
@@ -99,8 +96,8 @@ int core_properties_initialize(const char *propfilename,
             strcpy(props->obsdataDir, s);
             if (!ISCL_os_path_isdir(props->obsdataDir))
             {
-                log_errorF("%s: Observed data directory %s doesn't exist\n",
-                           fcnm, props->obsdataDir);
+                LOG_ERRMSG("Observed data directory %s doesn't exist",
+                           props->obsdataDir);
                 goto ERROR; 
             }
             if (strlen(props->obsdataDir) == 0)
@@ -128,14 +125,13 @@ int core_properties_initialize(const char *propfilename,
             strcat(cwork, props->obsdataFile);
             if (!ISCL_os_path_isfile(cwork))
             {
-                log_errorF("%s: Observed data file %s doesn't exist\n",
-                           fcnm, cwork);
+                LOG_ERRMSG("Observed data file %s doesn't exist", cwork);
                 goto ERROR;
             }
         }
         else
         {
-            log_errorF("%s: Must specify observed data file!\n", fcnm);
+            LOG_ERRMSG("%s", "Must specify observed data file!");
         }
         s = iniparser_getstring(ini, "general:synthetic_data_prefix\0", "LX\0");
     }
@@ -145,8 +141,8 @@ int core_properties_initialize(const char *propfilename,
     {
         if (props->utm_zone !=-12345)
         {
-            log_warnF("%s: UTM zone %d is invalid estimating from hypocenter\n",
-                   fcnm, props->utm_zone);
+            LOG_WARNMSG("UTM zone %d is invalid estimating from hypocenter",
+                        props->utm_zone);
             props->utm_zone =-12345;
         } 
     }
@@ -156,16 +152,17 @@ int core_properties_initialize(const char *propfilename,
     props->dt_default = iniparser_getdouble(ini, "general:dt_default\0", 1.0);
     if (props->dt_default <= 0.0)
     {
-        log_warnF("%s: Default sampling period %f invalid; defaulting to %f!\n",
-                  fcnm, props->dt_init, 1.0);
-        props->dt_default = 1.0; 
+        LOG_WARNMSG("Default sampling period %f invalid; defaulting to %f!",
+                    props->dt_default, 1.0);
+        props->dt_default = 1.0;
     }
     itemp = iniparser_getint(ini, "general:dt_init\0", 3);
     props->dt_init = (enum dtinit_type) itemp; //iniparser_getint(ini, "general:dt_init\0", 3);
     if (props->opmode != OFFLINE)
     {
-        if (props->dt_init != INIT_DT_FROM_TRACEBUF){
-            log_warnF("%s: Obtaining sampling period from tracebuf\n", fcnm);
+        if (props->dt_init != INIT_DT_FROM_TRACEBUF)
+        {
+            LOG_WARNMSG("%s", "Obtaining sampling period from tracebuf");
             props->dt_init = INIT_DT_FROM_TRACEBUF; //3;
         }
     }
@@ -174,8 +171,7 @@ int core_properties_initialize(const char *propfilename,
         // Make sure the EEW XML file exists
         if (!ISCL_os_path_isfile(props->eewsfile))
         {
-            log_errorF("%s: Cannot find EEW XML file!\n",
-                       fcnm, props->eewsfile);
+            LOG_ERRMSG("Cannot find EEW XML file %s!", props->eewsfile);
             goto ERROR;
         }
         // Figure out how to initialize sampling period
@@ -185,7 +181,7 @@ int core_properties_initialize(const char *propfilename,
             props->dt_init = (enum dtinit_type) itemp;
             if (s == NULL)
             {
-                log_errorF("%s: Must specify metaDataFile!\n", fcnm);
+                LOG_ERRMSG("%s", "Must specify metaDataFile!");
                 goto ERROR; 
             }
         }
@@ -197,7 +193,7 @@ int core_properties_initialize(const char *propfilename,
         {
             if (props->dt_init != INIT_DT_FROM_DEFAULT)
             {
-                log_warnF("%s: Setting dt from default\n", fcnm);
+                LOG_WARNMSG("%s", "Setting dt from default");
                 props->dt_init = INIT_DT_FROM_DEFAULT;
             }
         }
@@ -206,8 +202,7 @@ int core_properties_initialize(const char *propfilename,
     {
         if (props->dt_init != INIT_DT_FROM_TRACEBUF)
         {
-            log_warnF("%s: Will get GPS sampling period from trace buffer!\n",
-                      fcnm);
+            LOG_WARNMSG("%s", "Will get GPS sampling period from tracebuffer!");
             props->dt_init = INIT_DT_FROM_TRACEBUF;
         }
     }
@@ -218,7 +213,7 @@ int core_properties_initialize(const char *propfilename,
         props->waitTime = iniparser_getdouble(ini, "general:waitTime\0", 1.0);
         if (props->waitTime < 0.0)
         {
-            log_errorF("%s: Invalid wait time %f!\n", fcnm, props->waitTime);
+            LOG_ERRMSG("Invalid wait time %f!", props->waitTime);
             goto ERROR;
         } 
     }        
@@ -229,8 +224,7 @@ int core_properties_initialize(const char *propfilename,
     {
         if (props->loc_init == INIT_LOCS_FROM_TRACEBUF)
         {
-            log_errorF("%s: offline can't initialize locations from tracebuf\n",
-                       fcnm);
+            LOG_ERRMSG("%s", "offline cant initialize locations from tracebuf");
             goto ERROR;
         }
     }
@@ -245,8 +239,7 @@ int core_properties_initialize(const char *propfilename,
        = iniparser_getdouble(ini, "general:processing_time\0", 300.0);
     if (props->processingTime > props->bufflen)
     {
-        log_errorF("%s: Error processing time cannot exceed buffer length\n",
-                   fcnm);
+        LOG_ERRMSG("%s", "Error processing time cannot exceed buffer length");
         goto ERROR;
     }
     // Default earthquake depth
@@ -254,8 +247,8 @@ int core_properties_initialize(const char *propfilename,
         = iniparser_getdouble(ini, "general:default_event_depth\0", 8.0);
     if (props->eqDefaultDepth < 0.0)
     {
-        log_errorF("%s: Error default earthquake depth must be positive %f\n",
-                   fcnm, props->eqDefaultDepth);
+        LOG_ERRMSG("Error default earthquake depth must be positive %f",
+                   props->eqDefaultDepth);
         goto ERROR;
     }
     // H5 archive directory
@@ -269,9 +262,9 @@ int core_properties_initialize(const char *propfilename,
         strcpy(props->h5ArchiveDir, s);
         if (!ISCL_os_path_isdir(props->h5ArchiveDir))
         {
-            log_warnF("%s: Archive directory %s doesn't exist\n",
-                       fcnm, props->h5ArchiveDir);
-            log_warnF("%s: Will use current working directory\n", fcnm);
+            LOG_WARNMSG("Archive directory %s doesn't exist",
+                        props->h5ArchiveDir);
+            LOG_WARNMSG("%s", "Will use current working directory");
             memset(props->h5ArchiveDir, 0, sizeof(props->h5ArchiveDir));
             strcpy(props->h5ArchiveDir, "./\0");
         }
@@ -303,13 +296,13 @@ int core_properties_initialize(const char *propfilename,
         strcpy(props->ew_props.gpsRingName, s);
         if (strlen(props->ew_props.gpsRingName) < 1)
         {
-            log_warnF("%s: GPS ring name may not be specified\n", fcnm);
+            LOG_WARNMSG("%s", "GPS ring name may not be specified");
         }
         s = iniparser_getstring(ini, "earthworm:moduleName\0", "geojson2ew\0");
         strcpy(props->ew_props.moduleName, s);
         if (strlen(props->ew_props.moduleName) < 1)
         {
-            log_errorF("%s: Module name is not specified\n", fcnm);
+            LOG_ERRMSG("%s", "Module name is not specified");
             goto ERROR;
         }
     }
@@ -321,7 +314,7 @@ int core_properties_initialize(const char *propfilename,
                                     &props->pgd_props);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading PGD parameters\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading PGD parameters");
         goto ERROR;
     }
     //----------------------------CMT Parameters------------------------------//
@@ -330,7 +323,7 @@ int core_properties_initialize(const char *propfilename,
                             &props->cmt_props); 
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading CMT parameters\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading CMT parameters");
         goto ERROR;
     } 
     //------------------------------FF Parameters-----------------------------//
@@ -340,7 +333,7 @@ int core_properties_initialize(const char *propfilename,
                            &props->ff_props);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading FF parameters\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading FF parameters");
         goto ERROR; 
     }
     //---------------------------ActiveMQ Parameters--------------------------//
@@ -351,7 +344,7 @@ int core_properties_initialize(const char *propfilename,
                                 &props->activeMQ_props);
         if (ierr != 0)
         {
-            log_errorF("%s: Error reading FF parameters\n", fcnm);
+            LOG_ERRMSG("%s", "Error reading FF parameters");
             goto ERROR; 
         }
     } // End check on need for ActiveMQ

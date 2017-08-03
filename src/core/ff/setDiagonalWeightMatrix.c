@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
+#include "iscl/array/array.h"
 /*!
  * @brief Sets the diagonal weight matrix in the inversion.
  *
@@ -25,17 +25,16 @@ int core_ff_setDiagonalWeightMatrix(const int n,
                                     const double *__restrict__ uWts,
                                     double *__restrict__ diagWt)
 {
-    const char *fcnm = "core_ff_setDiagonalWeightMatrix\0";
     int i, i3;
     bool leWts, lnWts, luWts;
     if (n < 1)
     {
-        log_errorF("%s: Invalid number of points: %d\n", fcnm, n);
+        LOG_ERRMSG("Invalid number of points: %d", n);
         return -1;
     }
     if (diagWt == NULL)
     {
-        log_errorF("%s: Error diagWt is NULL!\n", fcnm);
+        LOG_ERRMSG("%s", "Error diagWt is NULL!");
         return -1;
     }
     if (nWts == NULL || eWts == NULL || uWts == NULL)
@@ -43,14 +42,8 @@ int core_ff_setDiagonalWeightMatrix(const int n,
         // Weights not specified
         if (nWts == NULL && eWts == NULL && uWts == NULL)
         {
-            log_warnF("%s: Setting diagonal weight matrix to unity\n", fcnm);
-#ifdef _OPENMP
-            #pragma omp simd
-#endif
-            for (i=0; i<3*n; i++)
-            {
-                diagWt[i] = 1.0;
-            }
+            LOG_WARNMSG("%s", "Setting diagonal weight matrix to unity");
+            array_set64f_work(3*n, 1.0, diagWt);
         }
         else // Selectively make weights 1
         {
@@ -59,17 +52,17 @@ int core_ff_setDiagonalWeightMatrix(const int n,
             luWts = true;
             if (nWts == NULL)
             {
-                log_warnF("%s: Setting nWts to unity\n", fcnm);
+                LOG_WARNMSG("%s", "Setting nWts to unity");
                 lnWts = false;
             }
             if (eWts == NULL)
             {
-                log_warnF("%s: Setting eWts to unity\n", fcnm);
+                LOG_WARNMSG("%s", "Setting eWts to unity");
                 leWts = false;
             }
             if (uWts == NULL)
             {
-                log_warnF("%s: Setting uWts to unity\n", fcnm);
+                LOG_WARNMSG("%s", "Setting uWts to unity");
                 luWts = false;
             }
             i3 = 0;

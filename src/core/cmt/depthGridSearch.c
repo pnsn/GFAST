@@ -310,7 +310,7 @@ int core_cmt_depthGridSearch(const int l1, const int ndeps,
     {
         if (verbose > 2)
         {
-            LOG_DEBUGMSG("Grid-search time: %f (s)\n", time_toc());
+            LOG_DEBUGMSG("Grid-search time: %f (s)", time_toc());
         }
     }
 ERROR:;

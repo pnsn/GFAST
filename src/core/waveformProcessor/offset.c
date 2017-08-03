@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 #ifndef MAX
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
@@ -87,7 +86,6 @@ int core_waveformProcessor_offset(const int utm_zone,
                                   struct GFAST_offsetData_struct *offset_data,
                                   int *ierr)
 {
-    const char *fcnm = "core_waveformProcessor_offset\0";
     double currentTime, distance, effectiveHypoDist, eOffset, epoch, nOffset,
            swave_time, uOffset, x1, x2, y1, y2;
     int k, nsites, zone_loc;
@@ -102,13 +100,13 @@ int core_waveformProcessor_offset(const int utm_zone,
         offset_data->wtn == NULL || offset_data->wte == NULL ||
         offset_data->lactive == NULL)
     {
-        log_errorF("%s: Error offset_data pointers not initialized\n", fcnm);
+        LOG_ERRMSG("%s", "Error offset_data pointers not initialized");
         return -1;
     }
     if (gps_data.stream_length != offset_data->nsites)
     {
-        log_errorF("%s: Inconsistent structure sizes %d %d\n",
-                   fcnm, gps_data.stream_length, offset_data->nsites);
+        LOG_ERRMSG("Inconsistent structure sizes %d %d\n",
+                   gps_data.stream_length, offset_data->nsites);
         *ierr = 1;
         // For safety cut the inversion off at the knees
         if (offset_data->nsites > 0)
@@ -232,7 +230,6 @@ static bool __getAverageOffset(const int npts,
                                double *nOffset,
                                double *eOffset)
 {
-    const char *fcnm = "__getAverageOffset\0";
     double diffT, de, dn, du, e0, n0, u0, eOffsetNan, nOffsetNan, uOffsetNan;
     int i, iavg, iavg1, indx0;
     bool luse;
@@ -246,14 +243,14 @@ static bool __getAverageOffset(const int npts,
     // This is a bad input
     if (ev_time > swave_time)
     {
-        log_errorF("%s: event origin time exceeds S wave arrival\n", fcnm);
+        LOG_ERRMSG("%s", "event origin time exceeds S wave arrival");
         return luse;
     }
     // This might compromise the offset
     if (epoch > ev_time)
     {
-        log_warnF("%s: Warning trace start-time is after event origint ime\n",
-                  fcnm);
+        LOG_WARNMSG("%s",
+                    "Warning trace start-time is after event origint time");
     }
     // Set the initial position
     u0 = 0.0;

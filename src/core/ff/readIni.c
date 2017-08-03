@@ -10,7 +10,6 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,
@@ -44,7 +43,6 @@ int core_ff_readIni(const char *propfilename,
                     const int cmtMinSites,
                     struct GFAST_ff_props_struct *ff_props)
 {
-    const char *fcnm = "core_ff_readIni\0";
     char var[256];
     int ierr;
     dictionary *ini;
@@ -52,8 +50,7 @@ int core_ff_readIni(const char *propfilename,
     memset(ff_props, 0, sizeof(struct  GFAST_ff_props_struct));
     if (!os_path_isfile(propfilename))
     {
-        log_errorF("%s: Properties file: %s does not exist\n",
-                   fcnm, propfilename);
+        LOG_ERRMSG("Properties file: %s does not exist", propfilename);
         return ierr;
     }
     ini = iniparser_load(propfilename);
@@ -64,56 +61,56 @@ int core_ff_readIni(const char *propfilename,
     ff_props->nfp = iniparser_getint(ini, var, 2);
     if (ff_props->nfp != 2)
     {
-        log_errorF("%s: Error only 2 fault planes considered in ff\n", fcnm);
+        LOG_ERRMSG("%s", "Error only 2 fault planes considered in ff");
         goto ERROR;
     }
     setVarName(group, "ff_nstr\0", var);
     ff_props->nstr = iniparser_getint(ini, var, 10);
     if (ff_props->nstr < 1)
     {
-        log_errorF("%s: Error no fault patches along strike!\n", fcnm);
+        LOG_ERRMSG("%s", "Error no fault patches along strike!");
         goto ERROR;
     }
     setVarName(group, "ff_ndip\0", var);
     ff_props->ndip = iniparser_getint(ini, var, 5);
     if (ff_props->ndip < 1)
     {
-        log_errorF("%s: Error no fault patches down dip!\n", fcnm);
+        LOG_ERRMSG("%s", "Error no fault patches down dip!");
         goto ERROR;
     }
     setVarName(group, "ff_min_sites\0", var);
     ff_props->min_sites = iniparser_getint(ini, var, 4);
     if (ff_props->min_sites < cmtMinSites)
     {
-        log_errorF("%s: Error FF needs at least as many sites as CMT\n", fcnm);
+        LOG_ERRMSG("%s", "Error FF needs at least as many sites as CMT");
         goto ERROR;
     }
     setVarName(group, "ff_window_vel\0", var);
     ff_props->window_vel = iniparser_getdouble(ini, var, 3.0);
     if (ff_props->window_vel <= 0.0)
     {
-        log_errorF("%s: Error window velocity must be positive!\n", fcnm);
+        LOG_ERRMSG("%s", "Error window velocity must be positive!");
         goto ERROR;
     }
     setVarName(group, "ff_window_avg\0", var);
     ff_props->window_avg = iniparser_getdouble(ini, var, 10.0);
     if (ff_props->window_avg <= 0.0)
     {
-        log_errorF("%s: Error window average time must be positive!\n", fcnm);
+        LOG_ERRMSG("%s", "Error window average time must be positive!");
         goto ERROR;
     }
     setVarName(group, "ff_flen_pct\0", var);
     ff_props->flen_pct = iniparser_getdouble(ini, var, 10.0);
     if (ff_props->flen_pct < 0.0)
     {
-        log_errorF("%s: Error cannot shrink fault length\n", fcnm);
+        LOG_ERRMSG("%s", "Error cannot shrink fault length");
         goto ERROR;
     }
     setVarName(group, "ff_fwid_pct\0", var);
     ff_props->fwid_pct = iniparser_getdouble(ini, var, 10.0);
     if (ff_props->fwid_pct < 0.0)
     {
-        log_errorF("%s: Error cannot shrink fault width\n", fcnm);
+        LOG_ERRMSG("%s", "Error cannot shrink fault width");
         goto ERROR;
     }
     ierr = 0;

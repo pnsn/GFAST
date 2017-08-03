@@ -4,7 +4,6 @@
 #include <math.h>
 #include <float.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 #define PD_MAX_NAN -DBL_MAX
 #ifndef MAX
@@ -68,7 +67,6 @@ int core_waveformProcessor_peakDisplacement(
     struct GFAST_peakDisplacementData_struct *pgd_data,
     int *ierr)
 {
-    const char *fcnm = "core_waveformProcessor_peakDisplacement\0";
     double currentTime, distance, effectiveHypoDist, epoch,
            peakDisp, x1, x2, y1, y2;
     int k, nsites, zone_loc;
@@ -80,8 +78,8 @@ int core_waveformProcessor_peakDisplacement(
     nsites = 0;
     if (gps_data.stream_length != pgd_data->nsites)
     {
-        log_errorF("%s: Inconsistent structure sizes %d %d\n",
-                   fcnm, gps_data.stream_length, pgd_data->nsites); 
+        LOG_ERRMSG("Inconsistent structure sizes %d %d",
+                   gps_data.stream_length, pgd_data->nsites); 
         *ierr = 1;
         // For safety cut the inversion off at the knees
         if (pgd_data->nsites > 0)

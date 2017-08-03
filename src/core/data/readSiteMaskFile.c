@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static int splitLine(const char *cline,
@@ -30,7 +29,6 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
                                const int verbose,
                                struct GFAST_data_struct *gps_data)
 {
-    const char *fcnm = "core_data_readSiteMaskFile\0";
     FILE *infl;
     char cline[1024], netw[64], stnm[64], chan[64], loc[64];
     int i, ierr, iuseCMT, iuseFF, iusePGD, k, nlines;
@@ -44,7 +42,7 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
     }
     if (nlines < 1)
     {
-        log_warnF("%s: No sites in maskFile\n", fcnm);
+        LOG_WARNMSG("%s", "No sites in maskFile");
         fclose(infl);
         return 0;
     }
@@ -54,13 +52,13 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
         memset(cline, 0, sizeof(cline));
         if (fgets(cline, 1024, infl) == NULL)
         {
-            log_errorF("%s: Premature end of file\n", fcnm);
+            LOG_ERRMSG("%s", "Premature end of file");
             return -1;
         }
         if (i == 0){continue;}
         if (strlen(cline) == 0)
         {
-            log_errorF("%s: Error line is blank!\n", fcnm);
+            LOG_ERRMSG("%s", "Error line is blank!");
             return -1;
         }
         if (cline[strlen(cline)-1] == '\n')
@@ -72,7 +70,7 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
                          &iusePGD, &iuseCMT, &iuseFF);
         if (ierr != 0)
         {
-            log_errorF("%s: Error parsing line!\n", fcnm);
+            LOG_ERRMSG("%s", "Error parsing line!");
             return -1;
         }
         if (iusePGD == 1 && iuseCMT == 1 && iuseFF == 1){continue;}
@@ -90,8 +88,8 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
                 {
                     if (verbose > 0)
                     {
-                        log_infoF("%s: Masking %s.%s.%s.%s\n",
-                                  fcnm, netw, stnm, chan, loc);
+                        LOG_INFOMSG("Masking %s.%s.%s.%s",
+                                    netw, stnm, chan, loc);
                     }
                     if (iusePGD == 0)
                     {
@@ -117,7 +115,6 @@ static int splitLine(const char *cline,
                      char netw[64], char stnm[64], char loc[64], char chan[64],
                      int *iusePGD, int *iuseCMT, int *iuseFF)
 {
-    const char *fcnm = "splitLine\0";
     char *token, *work;
     int i, ierr;
     const char *split = " ";
@@ -149,7 +146,7 @@ static int splitLine(const char *cline,
     }   
     if (i != 7) 
     {   
-        log_errorF("%s: Failed to split line %d %s\n", fcnm, i, cline);
+        LOG_ERRMSG("Failed to split line %d %s\n", i, cline);
         ierr = 1;
     }   
     free(work);

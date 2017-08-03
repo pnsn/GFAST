@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -85,7 +84,6 @@ int core_ff_meshFaultPlane(const double ev_lat,
                            double *__restrict__ length,
                            double *__restrict__ width)
 {
-    const char *fcnm = "core_ff_meshFaultPlane\0";
     double area, dalt, di, dj, dlen, dwid,
            fact_len, fact_wid,
            fault_X, fault_X1, fault_X2, fault_X3, fault_X4,
@@ -102,13 +100,12 @@ int core_ff_meshFaultPlane(const double ev_lat,
     {
         if (ndip < 1)
         {
-            log_errorF("%s: Invalid number of fault patches down dip: %d\n",
-                       fcnm, ndip);
+            LOG_ERRMSG("Invalid number of fault patches down dip: %d", ndip);
         }
         if (nstr < 1)
         {
-            log_errorF("%s: Invalid number of fault patches along strike: %d\n",
-                       fcnm, nstr);
+            LOG_ERRMSG("Invalid number of fault patches along strike: %d",
+                       nstr);
         }
         return -1;
     }
@@ -118,8 +115,8 @@ int core_ff_meshFaultPlane(const double ev_lat,
     {
         if (verbose > 1)
         {
-            log_warnF("%s: Width safety factor %f is invalid; setting to 10\n",
-                      fcnm, flen_pct);
+            LOG_WARNMSG("Width safety factor %f is invalid; setting to 10 pct",
+                        flen_pct);
         }
     }
     else
@@ -131,8 +128,8 @@ int core_ff_meshFaultPlane(const double ev_lat,
     {
         if (verbose > 0)
         {
-            log_warnF("%s: Length safety factor %f is invalid; setting to 10\n",
-                       fcnm, fwid_pct); 
+            LOG_WARNMSG("Length safety factor %f is invalid; setting to 10 pct",
+                        fwid_pct); 
         }
     }
     else

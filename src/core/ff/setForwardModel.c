@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdbool.h>
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 // Small number to test cos(90) = 0 
 #define eps 6.1232e-14 /*!< A close number for okadaGreenF */
 // Poisson's ratio
@@ -70,7 +69,6 @@ int core_ff_setForwardModel__okadagreenF(const int l1, const int l2,
                                          const double *__restrict__ L,
                                          double *__restrict__ G)
 {
-    const char *fcnm = "core_ff_setForwardModel__okadagreenF\0";
     double cos_dip, cos_strike, d, dip1, ec, 
            g1, g1n, g2, g2n, g3, g3n, g4, g4n, g5, g6,
            nc, p, q,
@@ -87,8 +85,8 @@ int core_ff_setForwardModel__okadagreenF(const int l1, const int l2,
     //------------------------------------------------------------------------//
     if (l1 < 1 || l2 < 1)
     {
-        if (l1 < 1){log_errorF("%s: Error no observations\n", fcnm);}
-        if (l2 < 1){log_errorF("%s: Error no fault patches\n", fcnm);}
+        if (l1 < 1){LOG_ERRMSG("%s", "Error no observations");}
+        if (l2 < 1){LOG_ERRMSG("%s", "Error no fault patches");}
         return -1;
     }
     // classify the job
@@ -303,7 +301,7 @@ int core_ff_setForwardModel__okadagreenF(const int l1, const int l2,
                 if (fabs(G[indx+0] - g1n) > eps ||
                     fabs(G[indx+1] - g2n) > eps)
                 {
-                    log_warnF("%s: g1n g2n failed\n", fcnm);
+                    LOG_WARNMSG("%s", "g1n g2n failed");
                     G[indx+0] = g1n;
                     G[indx+1] = g2n;
                 }
@@ -312,7 +310,7 @@ int core_ff_setForwardModel__okadagreenF(const int l1, const int l2,
                 if (fabs(G[indx+2*l2+0]) - g3n > eps ||
                     fabs(G[indx+2*l2+1]) - g4n > eps)
                 {
-                    log_warnF("%s: g3n g4n failed\n", fcnm);
+                    LOG_WARNMSG("%s", "g3n g4n failed");
                     G[indx+2*l2+0] = g3n;
                     G[indx+2*l2+1] = g4n;
                 }
@@ -321,7 +319,7 @@ int core_ff_setForwardModel__okadagreenF(const int l1, const int l2,
                 if (fabs(G[indx+4*l2+0]) - g5 > eps ||
                     fabs(G[indx+4*l2+1]) - g6 > eps)
                 {
-                    log_warnF("%s: g5 g6 failed\n", fcnm);
+                    LOG_WARNMSG("%s", "g5 g6 failed");
                     G[indx+4*l2+0] = g5;
                     G[indx+4*l2+1] = g6;
                 }
