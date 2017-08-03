@@ -104,33 +104,21 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     {
         if_off = ifp*l2;
         // Faults plane info
-#ifdef _OPENMP
-        #pragma omp simd
-#endif
-        for (i=0; i<l2; i++)
-        {
-            ff->fp[ifp].fault_xutm[i] = 0.0;
-            ff->fp[ifp].fault_yutm[i] = 0.0;
-            ff->fp[ifp].fault_alt[i] = 0.0;
-            ff->fp[ifp].strike[i] = 0.0;
-            ff->fp[ifp].dip[i] = 0.0;
-            ff->fp[ifp].length[i] = 0.0;
-            ff->fp[ifp].width[i] = 0.0;
-            ff->fp[ifp].sslip[i] = 0.0;
-            ff->fp[ifp].dslip[i] = 0.0;
-            ff->fp[ifp].sslip_unc[i] = 0.0;
-            ff->fp[ifp].dslip_unc[i] = 0.0;
-        }
+        array_zeros64f_work(l2, ff->fp[ifp].fault_xutm);
+        array_zeros64f_work(l2, ff->fp[ifp].fault_yutm);
+        array_zeros64f_work(l2, ff->fp[ifp].fault_alt);
+        array_zeros64f_work(l2, ff->fp[ifp].strike);
+        array_zeros64f_work(l2, ff->fp[ifp].dip);
+        array_zeros64f_work(l2, ff->fp[ifp].length);
+        array_zeros64f_work(l2, ff->fp[ifp].width);
+        array_zeros64f_work(l2, ff->fp[ifp].sslip);
+        array_zeros64f_work(l2, ff->fp[ifp].dslip);
+        array_zeros64f_work(l2, ff->fp[ifp].sslip_unc);
+        array_zeros64f_work(l2, ff->fp[ifp].dslip_unc);
         // Plotting information
-#ifdef _OPENMP
-        #pragma omp simd
-#endif
-        for (i=0; i<4*l2; i++)
-        {
-            ff->fp[ifp].lon_vtx[i] = 0.0;
-            ff->fp[ifp].lat_vtx[i] = 0.0;
-            ff->fp[ifp].dep_vtx[i] = 0.0;
-        }
+        array_zeros64f_work(4*l2, ff->fp[ifp].lon_vtx);
+        array_zeros64f_work(4*l2, ff->fp[ifp].lat_vtx);
+        array_zeros64f_work(4*l2, ff->fp[ifp].dep_vtx);
         // Observations
         array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].EN);
         array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].NN);
@@ -138,18 +126,6 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
         array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].Einp);
         array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].Ninp);
         array_zeros64f_work(ff->fp[ifp].maxobs, ff->fp[ifp].Uinp);
-#ifdef _OPENMP
-        #pragma omp simd
-#endif
-        for (i=0; i<ff->fp[ifp].maxobs; i++)
-        {
-            ff->fp[ifp].EN[i] = 0.0;
-            ff->fp[ifp].NN[i] = 0.0;
-            ff->fp[ifp].UN[i] = 0.0;
-            ff->fp[ifp].Einp[i] = 0.0;
-            ff->fp[ifp].Ninp[i] = 0.0;
-            ff->fp[ifp].Uinp[i] = 0.0;
-        }
         ff->fp[ifp].nsites_used = 0;
         ff->Mw[ifp] = 0.0;
         ff->vr[ifp] = 0.0;
@@ -239,7 +215,7 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
     ierr = 0;
     if (ff_props.verbose > 2)
     {
-        log_debugF("%s: Meshing fault plane...\n", fcnm);
+        LOG_DEBUGMSG("%s", "Meshing fault plane...");
     }
 #ifdef PARALLEL_FF
     #pragma omp parallel for \
@@ -268,14 +244,14 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                                        ff->fp[ifp].width);
         if (ierr1 != 0)
         {
-            log_errorF("%s: Error meshing fault plane\n", fcnm);
+            LOG_ERRMSG("%s", "Error meshing fault plane");
             ierr = ierr + 1;
             continue;
         }
     } // Loop on fault planes
     if (ierr != 0)
     {
-        log_errorF("%s: Error meshing fault planes!\n", fcnm);
+        LOG_ERRMSG("%s", "Error meshing fault planes!");
         goto ERROR;
     }
     //------------------------------ Inversion -------------------------------//
