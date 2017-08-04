@@ -61,7 +61,6 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_ffResults_struct *ff,
                         struct GFAST_xmlMessages_struct *xmlMessages)
 {
-    const char *fcnm = "eewUtils_driveGFAST\0";
     struct GFAST_shakeAlert_struct SA;
     //char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
     //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
@@ -80,6 +79,7 @@ int eewUtils_driveGFAST(const double currentTime,
     shakeAlertMode = 1;
     if (props.opmode == PLAYBACK){shakeAlertMode = 2;}
     // Set memory for XML messages
+    memset(xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
     xmlMessages->mmessages = events->nev;
     xmlMessages->nmessages = 0;
     xmlMessages->evids  = (char **)
@@ -105,8 +105,8 @@ int eewUtils_driveGFAST(const double currentTime,
         t2 = currentTime;
         if (t1 > t2)
         {
-            log_warnF("%s: Origin time > currentime? - skipping event %s\n",
-                      fcnm, SA.eventid);
+            LOG_WARNMSG("Origin time > currentime? - skipping event %s",
+                        SA.eventid);
             continue;
         }
         // Set the log file names
@@ -120,8 +120,7 @@ printf("getting data\n");
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
         if (ierr != 0)
         {
-            log_errorF("%s: Error getting the data for event %s\n",
-                       fcnm, SA.eventid);
+            LOG_ERRMSG("Error getting the data for event %s", SA.eventid);
             continue; 
         }
 printf("copying data\n");
@@ -130,7 +129,7 @@ printf("copying data\n");
                                                            gps_data);
         if (ierr != 0)
         {
-            log_errorF("%s: Error copying trace buffer\n", fcnm);
+            LOG_ERRMSG("%s", "Error copying trace buffer");
             continue;
         }
 printf("waveform processing\n");
@@ -147,7 +146,7 @@ printf("waveform processing\n");
                                     &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Error processing peak displacement\n", fcnm);
+            LOG_ERRMSG("%s", "Error processing peak displacement");
             continue;
         }
 printf("waveform prcoessing 2\n");
@@ -164,7 +163,7 @@ printf("waveform prcoessing 2\n");
                                     &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Error processing CMT offset\n", fcnm);
+            LOG_ERRMSG("%s", "Error processing CMT offset");
             continue;
         }
 printf("waveform processing 3\n");
@@ -181,7 +180,7 @@ printf("waveform processing 3\n");
                                     &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Error processing FF offset\n", fcnm);
+            LOG_ERRMSG("%s", "Error processing FF offset");
             continue;
         }
 printf("pgd scaling..\n");
@@ -191,7 +190,7 @@ printf("pgd scaling..\n");
         {
             if (props.verbose > 2)
             {
-                log_infoF("%s: Estimating PGD scaling...\n", fcnm);
+                LOG_INFOMSG("%s", "Estimating PGD scaling...");
             }
             lpgdSuccess = true;
             ierr = eewUtils_drivePGD(props.pgd_props,
@@ -200,7 +199,7 @@ printf("pgd scaling..\n");
                                      pgd);
             if (ierr != PGD_SUCCESS)
             {
-                log_errorF("%s: Error computing PGD\n", fcnm);
+                LOG_ERRMSG("%s", "Error computing PGD");
                 lpgdSuccess = false;
             }
         }
@@ -210,7 +209,7 @@ printf("pgd scaling..\n");
         {
             if (props.verbose > 2)
             {
-                log_infoF("%s: Estimating CMT...\n", fcnm);
+                LOG_INFOMSG("%s", "Estimating CMT...");
             }
             lcmtSuccess = true;
             ierr = eewUtils_driveCMT(props.cmt_props,
@@ -219,7 +218,7 @@ printf("pgd scaling..\n");
                                      cmt);
             if (ierr != CMT_SUCCESS || cmt->opt_indx < 0)
             {
-                log_errorF("%s: Error computing CMT\n", fcnm);
+                LOG_ERRMSG("%s", "Error computing CMT");
                 lcmtSuccess = false;
             }
         }
@@ -229,7 +228,7 @@ printf("pgd scaling..\n");
         {
             if (props.verbose > 2)
             {
-                log_infoF("%s: Estimating finite fault...\n", fcnm);
+                LOG_INFOMSG("%s", "Estimating finite fault...");
             }
             ff->SA_lat = events->SA[iev].lat;
             ff->SA_lon = events->SA[iev].lon;
@@ -246,7 +245,7 @@ printf("pgd scaling..\n");
                                     ff);
             if (ierr != FF_SUCCESS)
             {
-                log_errorF("%s: Error computing finite fault\n", fcnm);
+                LOG_ERRMSG("%s", "Error computing finite fault");
                 lffSuccess = false;
             }
         }
@@ -262,6 +261,10 @@ printf("pgd scaling..\n");
             // Make the PGD xml
             if (lpgdSuccess)
             {
+                if (props.verbose > 2)
+                {
+                    LOG_DEBUGMSG("%s", "Generating pgd XML");
+                }
                 pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
                 pgdXML = eewUtils_makeXML__pgd(shakeAlertMode,
                                                "GFAST\0",
@@ -278,7 +281,7 @@ printf("pgd scaling..\n");
                                                &ierr);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error generating PGD XML\n", fcnm);
+                    LOG_ERRMSG("%s", "Error generating PGD XML");
                     if (pgdXML != NULL)
                     {   
                         free(pgdXML);
@@ -290,6 +293,10 @@ printf("pgd scaling..\n");
             // Make the CMT quakeML
             if (lcmtSuccess)
             {
+                if (props.verbose > 2)
+                {
+                    LOG_DEBUGMSG("%s", "Generating CMT QuakeML");
+                }
                 cmtQML = eewUtils_makeXML__quakeML(props.anssNetwork,
                                                   props.anssDomain,
                                                   SA.eventid,
@@ -301,7 +308,7 @@ printf("pgd scaling..\n");
                                                   &ierr);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error generating CMT quakeML\n", fcnm);
+                    LOG_ERRMSG("%s", "Error generating CMT quakeML");
                     if (cmtQML != NULL)
                     {
                         free(cmtQML);
@@ -313,6 +320,11 @@ printf("pgd scaling..\n");
             // Make the finite fault XML
             if (lffSuccess)
             {
+                if (props.verbose > 2)
+                {
+                    LOG_DEBUGMSG("Generating FF XML; preferred plane=%d",
+                                 ff->preferred_fault_plane+1);
+                }
                 ipf = ff->preferred_fault_plane;
                 nstrdip = ff->fp[ipf].nstr*ff->fp[ipf].ndip;
                 ffXML = eewUtils_makeXML__ff(props.opmode,
@@ -339,7 +351,7 @@ printf("pgd scaling..\n");
                                              &ierr); 
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error generating finite fault XML\n", fcnm);
+                    LOG_ERRMSG("%s", "Error generating finite fault XML");
                     if (ffXML != NULL)
                     {
                         free(ffXML);
@@ -371,6 +383,10 @@ printf("pgd scaling..\n");
                                                SA);
             if (lpgdSuccess)
             {
+                if (props.verbose > 2)
+                {
+                    LOG_DEBUGMSG("Writing PGD for iteration %d", h5k);
+                }
                 ierr = GFAST_hdf5_updatePGD(props.h5ArchiveDir,
                                             SA.eventid,
                                             h5k,
@@ -379,6 +395,10 @@ printf("pgd scaling..\n");
             }
             if (lcmtSuccess)
             {
+                if (props.verbose > 2)
+                {
+                    LOG_DEBUGMSG("Writing CMT for iteration %d", h5k);
+                }
                 ierr = GFAST_hdf5_updateCMT(props.h5ArchiveDir,
                                             SA.eventid,
                                             h5k,
@@ -387,6 +407,10 @@ printf("pgd scaling..\n");
             }
             if (lffSuccess)
             {
+                if (props.verbose > 2)
+                {
+                    LOG_DEBUGMSG("Writing FF for iteration %d", h5k);
+                }
                 ierr = GFAST_hdf5_updateFF(props.h5ArchiveDir,
                                            SA.eventid,
                                            h5k,
@@ -423,7 +447,7 @@ printf("pgd scaling..\n");
                                                    events);
         if (nRemoved != nPop)
         {
-            log_warnF("%s: Strange - check removeExpiredEvents\n", fcnm);
+            LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
     }
     return ierr;
