@@ -341,7 +341,7 @@ int core_ff_weightObservations(const int mrows,
 { \
    char infoMsg[GFAST_MAXMSG_LEN]; \
    memset(infoMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(infoMsg, "[INFO]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+   sprintf(infoMsg, "[INFO] %s: ", __func__); \
    do \
    {  \
      snprintf(&infoMsg[strlen(infoMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
@@ -355,7 +355,7 @@ int core_ff_weightObservations(const int mrows,
 { \
    char debugMsg[GFAST_MAXMSG_LEN]; \
    memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(debugMsg, "[DEBUG]: %s: ", __func__); \
+   sprintf(debugMsg, "[DEBUG] %s: ", __func__); \
    do \
    {  \
      snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
@@ -364,6 +364,7 @@ int core_ff_weightObservations(const int mrows,
 };
 #endif
 
+int core_log_closeLogs(void);
 int core_log_closeErrorLog(void);
 int core_log_closeInfoLog(void);
 int core_log_closeWarningLog(void);

@@ -220,6 +220,22 @@ static int core_log_openLogFile(const char *fileName,
 }
 //============================================================================//
 /*!
+ * @brief Convenience function to close logs.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_closeLogs(void)
+{
+    int ierr = 0;
+    ierr += core_log_closeErrorLog();
+    ierr += core_log_closeInfoLog();
+    ierr += core_log_closeDebugLog();
+    ierr += core_log_closeWarningLog();
+    return ierr;
+}
+//============================================================================//
+/*!
  * @brief Opens the error log file.  If the file exists then it will be
  *        appended to.
  *

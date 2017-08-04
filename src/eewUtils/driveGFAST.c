@@ -111,10 +111,17 @@ int eewUtils_driveGFAST(const double currentTime,
         }
         // Set the log file names
         eewUtils_setLogFileNames(SA.eventid);
+        core_log_openErrorLog(errorLogFileName);
+        core_log_openInfoLog(infoLogFileName);
+        core_log_openWarningLog(warnLogFileName);
+        core_log_openDebugLog(warnLogFileName);
+
+/*
         log_initErrorLog(&__errorToLog);
         log_initInfoLog(&__infoToLog);
         log_initDebugLog(&__debugToLog);
         log_initWarnLog(&__warnToLog);
+*/
         // Get the data for this event
 printf("getting data\n");
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
@@ -373,10 +380,18 @@ printf("pgd scaling..\n");
             h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
                                                 SA.eventid,
                                                 currentTime);
+            if (props.verbose > 2)
+            {
+                LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
+            }
             ierr = GFAST_hdf5_update_gpsData(props.h5ArchiveDir,
                                              SA.eventid,
                                              h5k,
                                              *gps_data);
+            if (props.verbose > 2)
+            {
+                LOG_DEBUGMSG("Writing hypocenter for iteration %d", h5k);
+            }
             ierr = GFAST_hdf5_updateHypocenter(props.h5ArchiveDir,
                                                SA.eventid,
                                                h5k,
@@ -436,7 +451,8 @@ printf("pgd scaling..\n");
             }
         } // End check on updating archive or finalizing event
         // Close the logs
-        log_closeLogs();
+        //log_closeLogs();
+        core_log_closeLogs();
     } // Loop on the events
     // Need to down-date the events should any have expired
     if (nPop > 0)
