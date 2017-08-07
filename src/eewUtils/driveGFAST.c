@@ -197,7 +197,7 @@ printf("pgd scaling..\n");
         {
             if (props.verbose > 2)
             {
-                LOG_INFOMSG("%s", "Estimating PGD scaling...");
+                LOG_INFOMSG("Estimating PGD scaling for %s...", SA.eventid);
             }
             lpgdSuccess = true;
             ierr = eewUtils_drivePGD(props.pgd_props,
@@ -216,7 +216,7 @@ printf("pgd scaling..\n");
         {
             if (props.verbose > 2)
             {
-                LOG_INFOMSG("%s", "Estimating CMT...");
+                LOG_INFOMSG("Estimating CMT for %s...", SA.eventid);
             }
             lcmtSuccess = true;
             ierr = eewUtils_driveCMT(props.cmt_props,
@@ -235,7 +235,7 @@ printf("pgd scaling..\n");
         {
             if (props.verbose > 2)
             {
-                LOG_INFOMSG("%s", "Estimating finite fault...");
+                LOG_INFOMSG("Estimating finite fault for %s...", SA.eventid);
             }
             ff->SA_lat = events->SA[iev].lat;
             ff->SA_lon = events->SA[iev].lon;
