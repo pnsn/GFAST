@@ -8,13 +8,15 @@
 /*!
  * @brief Initializes the current directory for this GFAST iteration.
  *
- * @param[in] adir     archive directory.  if NULL this will be the current
- *                     working directory.
- * @param[in] evid     event ID
+ * @param[in] adir     Archive directory.  If NULL then the current working
+ *                     directory will be used.
+ * @param[in] evid     Event ID.
  *
- * @result if -1 an error occurred.
- *         otherwise, this is the is iteration number for writing GFAST's
- *         history
+ * @result If -1 an error occurred. \n
+ *         Otherwise, this is the is iteration number for writing GFAST's
+ *         history.
+ *
+ * @author Ben Baker, ISTI
  *
  */
 int hdf5_updateGetIteration(const char *adir,
@@ -138,10 +140,18 @@ int hdf5_updateHypocenter(const char *adir,
     ierr = h5_close(fileID);
     return ierr;
 }
-
 //============================================================================//
 /*!
- * @brief Writes the next iteration of the PGD estimation for the given event
+ * @brief Writes the next iteration of the PGD estimation for the given event.
+ *
+ * @param[in] adir      Archive directory.  If NULL then this will use the
+ *                      current working directory.
+ * @param[in] evid      Event ID. 
+ * @param[in] h5k       Iteration number.  This can be obtained from: 
+ *                      hdf5_updateGetIteration.
+ * @param[in] pgd_data  Peak ground displacement data used in this iteration
+ *                      to archive.
+ * @param[in] pgd       PGD results from this iteration to archive.
  *
  * @result 0 indicates success
  *
@@ -243,6 +253,22 @@ int hdf5_updatePGD(const char *adir,
     return ierr;
 }
 //============================================================================//
+/*!
+ * @brief Writes the next iteration of the CMT estimation for the given event.
+ *
+ * @param[in] adir      Archive directory.  If NULL then this will use the
+ *                      current working directory.
+ * @param[in] evid      Event ID. 
+ * @param[in] h5k       Iteration number.  This can be obtained from: 
+ *                      hdf5_updateGetIteration.
+ * @param[in] cmt_data  Offset data used in this iteration to archive.
+ * @param[in] cmt       CMT results from this iteration to archive.
+ *
+ * @result 0 indicates success
+ *
+ * @author Ben Baker, ISTI
+ *
+ */
 int hdf5_updateCMT(const char *adir,
                    const char *evid,
                    const int h5k,
@@ -332,6 +358,75 @@ int hdf5_updateCMT(const char *adir,
     ierr = GFAST_hdf5_memory_freeOffsetData(&h5_cmt_data);
     ierr = GFAST_hdf5_memory_freeCMTResults(&h5_cmt);
     // Close the group and file
+    ierr = ierr + H5Gclose(groupID);
+    ierr = h5_close(fileID);
+    return ierr;
+}
+//============================================================================//
+int hdf5_updateXMLMessage(const char *adir,
+                          const char *evid,
+                          const int h5k,
+                          const char *messageName, char *message)
+{
+    const char *item_root = "/GFAST_History/Iteration\0";
+    char h5fl[PATH_MAX], msgGroup[256];
+    hid_t fileID, groupID;
+    int ierr;
+    // There's nothing to do
+    if (message == NULL){return 0;}
+    if (strlen(message) < 1)
+    {
+        LOG_ERRMSG("%s", "Message is empty");
+        return -1;
+    }
+    if (messageName == NULL)
+    {
+        LOG_ERRMSG("%s", "Message name cannot be NULL");
+        return -1;
+    }
+    if (strlen(messageName) < 1)
+    {
+        LOG_ERRMSG("%s", "Message name cannot be blank");
+        return -1;
+    }
+    // Open the old HDF5 file 
+    ierr = GFAST_hdf5_setFileName(adir, evid, h5fl);
+    if (ierr != 0)
+    {   
+        LOG_ERRMSG("%s", "Error setting filename");
+        return -1; 
+    }
+    if (!os_path_isfile(h5fl))
+    {
+        LOG_ERRMSG("Error file %s does not exist!\n", h5fl);
+        return -1;
+    }
+    fileID = h5_open_rdwt(h5fl);
+    // Have HDF5 count the group members as to compute the iteration number 
+    memset(msgGroup, 0, 256*sizeof(char));
+    sprintf(msgGroup, "%s_%d", item_root, h5k);
+    if (!h5_item_exists(fileID, msgGroup))
+    {
+        LOG_ERRMSG("%s", "Error group should exist");
+        ierr = h5_close(fileID);
+        return ierr;
+    }
+    // Open the group for writing 
+    groupID = H5Gopen2(fileID, msgGroup, H5P_DEFAULT);
+    if (h5_item_exists(groupID, messageName))
+    {
+        LOG_ERRMSG("%s exists; skipping", messageName);
+        ierr = 1;
+        goto ERROR;
+    }
+    ierr = h5_write_array__chars(messageName, groupID, 1, &message);
+    if (ierr != 0)
+    {
+        LOG_ERRMSG("Error writing %s", messageName);
+        ierr =-1;
+    }
+    // Close the group and file
+ERROR:;
     ierr = ierr + H5Gclose(groupID);
     ierr = h5_close(fileID);
     return ierr;

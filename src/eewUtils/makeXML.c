@@ -14,6 +14,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_eewUtils.h"
+#include "gfast_core.h"
 #include "gfast_xml.h"
 #include "cmopad.h"
 #include "iscl/log/log.h"
@@ -31,7 +32,7 @@
  *
  * @bug fix cast quality
  */
-char *eewUtils_makeXML__ff(const int mode,
+char *eewUtils_makeXML__ff(const enum opmode_type mode,
                            const char *orig_sys,
                            const char *alg_vers,
                            const char *instance,
@@ -54,7 +55,6 @@ char *eewUtils_makeXML__ff(const int mode,
                            const double *ds_unc,
                            int *ierr)
 {
-    const char *fcnm = "eewUtils_makeXML__ff\0";
     struct coreInfo_struct core;
     char *xmlmsg, cnow[128], cmode[64], cseg[64];
     enum xml_segmentShape_enum shape;
@@ -71,7 +71,7 @@ char *eewUtils_makeXML__ff(const int mode,
     buf = xmlBufferCreate();
     if (buf == NULL)
     {
-        log_errorF("%s: Error creating XML buffer!\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating XML buffer!");
         *ierr = 1;
         return xmlmsg;
     } 
@@ -79,7 +79,7 @@ char *eewUtils_makeXML__ff(const int mode,
     writer = xmlNewTextWriterMemory(buf, 0);
     if (writer == NULL)
     {
-        log_errorF("%s: Error creating xml writer\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating xml writer");
         *ierr = 1;
         return xmlmsg;
     }
@@ -87,7 +87,7 @@ char *eewUtils_makeXML__ff(const int mode,
     rc = xmlTextWriterStartDocument(writer, NULL, XML_ENCODING, NULL);
     if (rc < 0)
     {
-        log_errorF("%s: Error starting writer\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting writer");
         *ierr = 1;
         return xmlmsg;
     }
@@ -95,22 +95,26 @@ char *eewUtils_makeXML__ff(const int mode,
     rc = xmlTextWriterStartElement(writer, BAD_CAST "event_message");
     if (rc < 0) 
     {
-        log_errorF("%s: Error writing event_message\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing event_message");
         *ierr = 1;
         return xmlmsg;
     }
     memset(cmode, 0, 64*sizeof(char));
-    if (mode == 1)
+    if (mode == REAL_TIME_EEW)
     {
         strcpy(cmode, "live\0");
     }
-    else if (mode == 2)
+    else if (mode == PLAYBACK)
     {
         strcpy(cmode, "playback\0"); 
     }
+    else if (mode == OFFLINE)
+    {
+         strcpy(cmode, "offline\0");
+    }
     else
     {
-        log_warnF("%s: Defaulting to live mode\n", fcnm);
+        LOG_WARNMSG("Defaulting to live mode %d", mode);
         strcpy(cmode, "live\0");
     }
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
@@ -131,7 +135,7 @@ char *eewUtils_makeXML__ff(const int mode,
                                       BAD_CAST version);
     if (rc < 0)
     {
-        log_errorF("%s: Error setting attributes\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting attributes");
         *ierr = 1;
         return xmlmsg;
     }
@@ -183,7 +187,7 @@ char *eewUtils_makeXML__ff(const int mode,
     rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
     if (rc != 0)
     {
-        log_errorF("%s: Error writing core info\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing core info");
         *ierr = 1;
         return xmlmsg;
     }
@@ -220,7 +224,7 @@ char *eewUtils_makeXML__ff(const int mode,
         }
         else
         {
-            log_errorF("%s: Invalid shape!\n", fcnm);
+            LOG_ERRMSG("%s", "Invalid shape!");
             continue;
         }
         rc = GFAST_xml_shakeAlert_writeSegment(shape,
@@ -234,7 +238,7 @@ char *eewUtils_makeXML__ff(const int mode,
                                                (void *) writer);
         if (rc != 0)
         {
-            log_errorF("%s: Error writing segment %d\n", fcnm, iseg);
+            LOG_ERRMSG("Error writing segment %d", iseg);
             *ierr = 1;
             return xmlmsg; 
         }
@@ -246,14 +250,14 @@ char *eewUtils_makeXML__ff(const int mode,
     rc = xmlTextWriterEndElement(writer); // </event_message>
     if (rc < 0)
     {
-        log_errorF("%s: Error closing EVENT_MESSAGE\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing EVENT_MESSAGE");
         return xmlmsg;
     }
     // Finalize the writer
     rc = xmlTextWriterEndDocument(writer);
     if (rc < 0)
     {
-        log_errorF("%s: Error writing ending the document\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing ending the document");
         *ierr = 1;
         return xmlmsg;
     }
@@ -307,7 +311,6 @@ char *eewUtils_makeXML__quakeML(const char *network,
                                 const double mt[6],
                                 int *ierr)
 {
-    const char *fcnm = "eewUtils_makeXML__quakeML\0";
     char *qml;
     char publicID[512], publicIDroot[512], datasource[512], dataid[512];
     char networkLower[64];
@@ -363,7 +366,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     buf = xmlBufferCreate();
     if (buf == NULL)
     {
-        log_errorF("%s: Error creating XML buffer!\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating XML buffer!");
         *ierr = 1;
         return qml;
     }
@@ -371,7 +374,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     writer = xmlNewTextWriterMemory(buf, 0);
     if (writer == NULL)
     {
-        log_errorF("%s: Error creating xml writer\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating xml writer");
         *ierr = 1;
         return qml;
     }
@@ -379,7 +382,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     rc = xmlTextWriterStartDocument(writer, NULL, XML_ENCODING, NULL);
     if (rc < 0)
     {
-        log_errorF("%s: Error starting writer\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting writer");
         *ierr = 1;
         return qml;
     }
@@ -432,7 +435,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     }
     else
     {
-        log_errorF("%s: Error computing moment magnitude\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing moment magnitude");
     }
     // Make the origin
     memset(&origin, 0, sizeof(struct qmlOrigin_struct));
@@ -470,7 +473,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
     rc = xmlTextWriterEndDocument(writer);
     if (rc < 0)
     {
-        log_errorF("%s: Error writing ending the document\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing ending the document");
         *ierr = 1;
         return qml;
     }
@@ -490,7 +493,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
 /*!
  *
  */
-char *eewUtils_makeXML__pgd(const int mode,
+char *eewUtils_makeXML__pgd(const enum opmode_type mode,
                             const char *orig_sys,
                             const char *alg_vers,
                             const char *instance,
@@ -504,7 +507,6 @@ char *eewUtils_makeXML__pgd(const int mode,
                             const double SA_time,
                             int *ierr)
 {
-    const char *fcnm = "eewUtils_makeXML__pgd\0";
     struct coreInfo_struct core;
     char *xmlmsg, cnow[128], cmode[64];
     xmlTextWriterPtr writer;
@@ -520,7 +522,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     buf = xmlBufferCreate();
     if (buf == NULL)
     {
-        log_errorF("%s: Error creating XML buffer!\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating XML buffer!");
         *ierr = 1;
         return xmlmsg;
     }
@@ -528,7 +530,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     writer = xmlNewTextWriterMemory(buf, 0);
     if (writer == NULL)
     {
-        log_errorF("%s: Error creating xml writer\n", fcnm);
+        LOG_ERRMSG("%s", "Error creating xml writer");
         *ierr = 1;
         return xmlmsg;
     }
@@ -536,7 +538,7 @@ char *eewUtils_makeXML__pgd(const int mode,
     rc = xmlTextWriterStartDocument(writer, NULL, XML_ENCODING, NULL);
     if (rc < 0)
     {
-        log_errorF("%s: Error starting writer\n", fcnm);
+        LOG_ERRMSG("%s", "Error starting writer");
         *ierr = 1;
         return xmlmsg;
     }
@@ -544,22 +546,26 @@ char *eewUtils_makeXML__pgd(const int mode,
     rc = xmlTextWriterStartElement(writer, BAD_CAST "event_message");
     if (rc < 0)
     {
-        log_errorF("%s: Error writing event_message\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing event_message");
         *ierr = 1;
         return xmlmsg;
     }
     memset(cmode, 0, 64*sizeof(char));
-    if (mode == 1)
+    if (mode == REAL_TIME_EEW)
     {
         strcpy(cmode, "live\0");
     }
-    else if (mode == 2)
+    else if (mode == PLAYBACK)
     {
         strcpy(cmode, "playback\0");
     }
+    else if (mode == OFFLINE)
+    {
+        strcpy(cmode, "offline\0");
+    }
     else
     {
-        log_warnF("%s: Defaulting to live mode\n", fcnm);
+        LOG_WARNMSG("%s", "Defaulting to live mode");
         strcpy(cmode, "live\0");
     }
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
@@ -580,7 +586,7 @@ char *eewUtils_makeXML__pgd(const int mode,
                                       BAD_CAST version);
     if (rc < 0)
     {
-        log_errorF("%s: Error setting attributes\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting attributes");
         *ierr = 1;
         return xmlmsg;
     }
@@ -631,8 +637,8 @@ char *eewUtils_makeXML__pgd(const int mode,
     rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
     //---------------------------------magnitude------------------------------//
     rc = xmlTextWriterStartElement(writer, BAD_CAST "magnitude\0");
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "pgd\0",
-                                     BAD_CAST "false\0");
+    //rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "pgd\0",
+    //                                 BAD_CAST "false\0");
     rc = xmlTextWriterWriteFormatElement(writer,
                                          BAD_CAST "value\0",
                                          "%f", SA_mag);
@@ -641,14 +647,14 @@ char *eewUtils_makeXML__pgd(const int mode,
     rc = xmlTextWriterEndElement(writer); // </event_message>
     if (rc < 0)
     {
-        log_errorF("%s: Error closing EVENT_MESSAGE\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing EVENT_MESSAGE");
         return xmlmsg;
     }
     // Finalize the writer
     rc = xmlTextWriterEndDocument(writer);
     if (rc < 0)
     {
-        log_errorF("%s: Error writing ending the document\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing ending the document");
         *ierr = 1;
         return xmlmsg;
     }

@@ -268,6 +268,10 @@ int hdf5_update_gpsData(const char *adir,
                         const char *evid,
                         const int h5k, 
                         struct GFAST_data_struct data);
+int hdf5_updateXMLMessage(const char *adir,
+                          const char *evid,
+                          const int h5k,
+                          const char *messageName, char *message);
 int hdf5_updateHypocenter(const char *adir,
                           const char *evid,
                           const int h5k,

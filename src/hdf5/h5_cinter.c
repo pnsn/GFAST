@@ -230,6 +230,8 @@ int h5_write_array__int(const char *dset_name, const hid_t file_id,
  *
  * @author Ben Baker, ISTI
  *
+ * TODO: This needs to be a const char **c.
+ *
  */
 int h5_write_array__chars(const char *citem_chr, const hid_t file_id,
                           const int n, char **c)

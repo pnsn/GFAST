@@ -44,7 +44,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
                       struct GFAST_peakDisplacementData_struct pgd_data,
                       struct GFAST_pgdResults_struct *pgd);
 /* Make finite fault XML for shakeAlert */
-char *eewUtils_makeXML__ff(const int mode,
+char *eewUtils_makeXML__ff(const enum opmode_type mode,
                            const char *orig_sys,
                            const char *alg_vers,
                            const char *instance,
@@ -77,7 +77,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
                                 const double mt[6],
                                 int *ierr);
 /* Make the PGD XML */
-char *eewUtils_makeXML__pgd(const int mode,
+char *eewUtils_makeXML__pgd(const enum opmode_type mode,
                             const char *orig_sys,
                             const char *alg_vers,
                             const char *instance,

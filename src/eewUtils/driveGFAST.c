@@ -264,6 +264,11 @@ printf("pgd scaling..\n");
         //printf("%lf %lf %lf %lf\n", t1, t2, t2 - t1, props.processingTime);
         if (t2 - t1 >= props.processingTime)
         {
+            nPop = nPop + 1;
+            lfinalize = true;
+        }
+        if (true) //if (t2 - t1 >= props.processingTime)
+        {
             lfinalize = true;
             // Make the PGD xml
             if (lpgdSuccess)
@@ -273,7 +278,7 @@ printf("pgd scaling..\n");
                     LOG_DEBUGMSG("%s", "Generating pgd XML");
                 }
                 pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
-                pgdXML = eewUtils_makeXML__pgd(shakeAlertMode,
+                pgdXML = eewUtils_makeXML__pgd(props.opmode, //shakeAlertMode,
                                                "GFAST\0",
                                                GFAST_ALGORITHM_VERSION,
                                                GFAST_INSTANCE,
@@ -407,6 +412,13 @@ printf("pgd scaling..\n");
                                             h5k,
                                             *pgd_data,
                                             *pgd);
+                if (pgdXML)
+                {
+                    ierr = hdf5_updateXMLMessage(props.h5ArchiveDir,
+                                                 SA.eventid,
+                                                 h5k, "pgdXML\0",
+                                                 pgdXML);
+                }
             }
             if (lcmtSuccess)
             {
@@ -419,6 +431,13 @@ printf("pgd scaling..\n");
                                             h5k,
                                             *cmt_data,
                                             *cmt);
+                if (cmtQML)
+                {
+                    ierr = hdf5_updateXMLMessage(props.h5ArchiveDir,
+                                                 SA.eventid,
+                                                 h5k, "cmtQuakeML\0",
+                                                 cmtQML);
+                }
             }
             if (lffSuccess)
             {
@@ -430,11 +449,19 @@ printf("pgd scaling..\n");
                                            SA.eventid,
                                            h5k,
                                            *ff);
+                if (ffXML)
+                {
+                    ierr = hdf5_updateXMLMessage(props.h5ArchiveDir,
+                                                 SA.eventid,
+                                                 h5k, "ffXML\0",
+                                                 ffXML);
+                }
             }
+/*
             // TODO: Write the XML to the HDF5 file
             if (lfinalize && cmtQML)
             {
-
+ 
             }
             if (lfinalize && ffXML)
             {
@@ -449,6 +476,7 @@ printf("pgd scaling..\n");
                 //ldownDate[iev] = true;
                 nPop = nPop + 1;
             }
+*/
         } // End check on updating archive or finalizing event
         // Close the logs
         //log_closeLogs();
