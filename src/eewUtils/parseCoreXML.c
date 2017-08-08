@@ -13,6 +13,7 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+#include "gfast_core.h"
 #include "gfast_eewUtils.h"
 #include "gfast_xml.h"
 #include "iscl/log/log.h"
@@ -35,7 +36,6 @@ int eewUtils_parseCoreXML(const char *message,
                           const double saNaN,
                           struct GFAST_shakeAlert_struct *SA)
 {
-    const char *fcnm = "GFAST_eewUtils_parseCoreXML\0";
     xmlDocPtr doc;
     xmlNodePtr core_xml, event_xml;
     struct coreInfo_struct core;
@@ -48,20 +48,20 @@ int eewUtils_parseCoreXML(const char *message,
     length = (int) (strlen(message));
     if (length == 0)
     {
-        log_errorF("%s: Error the message is empty\n", fcnm);
+        LOG_ERRMSG("%s", "Error the message is empty");
         return -1;
     }
     doc = xmlReadMemory(message, length, "noname.xml\0", NULL, 0);
     if (doc == NULL)
     {
-        log_errorF("%s: Error - failed to parse xml document\n", fcnm);
+        LOG_ERRMSG("%s", "Error - failed to parse xml document");
         return -1;
     }
     // Make sure there's something in the message
     event_xml = xmlDocGetRootElement(doc);
     if (event_xml == NULL)
     {
-        log_errorF("%s: Empty document\n", fcnm);
+        LOG_ERRMSG("%s", "Empty document");
         return -1;
     }
     lfound = false;
@@ -87,7 +87,7 @@ int eewUtils_parseCoreXML(const char *message,
                                                      saNaN, &core);
             if (ierr != 0)
             {
-                 log_errorF("%s: Error reading core info!\n", fcnm);
+                 LOG_ERRMSG("%s", "Error reading core info!");
             }
             break; 
 NEXT_CORE_XML:;
@@ -99,7 +99,7 @@ NEXT_EVENT_XML:;
     } // Loop on events
     if (ierr != 0)
     {
-        log_errorF("%s: Error parsing core shakeAlert information\n", fcnm);
+        LOG_ERRMSG("%s", "Error parsing core shakeAlert information");
     }
     else
     {
@@ -111,7 +111,7 @@ NEXT_EVENT_XML:;
         }
         else
         {
-            log_errorF("%s: Couldn't find origin time\n", fcnm);
+            LOG_ERRMSG("%s", "Couldn't find origin time");
             ierr = ierr + 1;
         }
         // latitude
@@ -121,7 +121,7 @@ NEXT_EVENT_XML:;
         }
         else
         {
-            log_errorF("%s: Couldn't find latitude\n", fcnm);
+            LOG_ERRMSG("%s", "Couldn't find latitude");
             ierr = ierr + 1;
         }
         // longitude
@@ -131,7 +131,7 @@ NEXT_EVENT_XML:;
         }
         else
         {
-            log_errorF("%s: Couldn't find longitude\n", fcnm);
+            LOG_ERRMSG("%s", "Couldn't find longitude");
             ierr = ierr + 1;
         }
         // depth
@@ -141,7 +141,7 @@ NEXT_EVENT_XML:;
         }
         else
         {
-            log_errorF("%s: Couldn't find depth\n", fcnm);
+            LOG_ERRMSG("%s", "Couldn't find depth");
             ierr = ierr + 1;
         }
         // magnitude
@@ -151,7 +151,7 @@ NEXT_EVENT_XML:;
         }
         else
         {
-            log_errorF("%s: Couldn't find magnitude\n", fcnm);
+            LOG_ERRMSG("%s", "Couldn't find magnitude");
             ierr = ierr + 1;
         }
         if (SA->lon < 0.0){SA->lon = SA->lon + 360.0;}

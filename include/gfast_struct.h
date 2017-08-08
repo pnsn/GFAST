@@ -554,6 +554,7 @@ struct coreInfo_struct
                                                  defined */
     double likelihood;  /*!< TODO: I have no idea what likelihood means */
     bool lhaveLikelihood; /*!< If true then the likelihood is defined */
+    int numStations;   /*!< Number of stations used in event. */
 };
 
 struct GFAST_xmlMessages_struct

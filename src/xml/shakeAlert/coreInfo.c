@@ -49,25 +49,27 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     xmlChar *value = NULL;
     enum unpack_types_enum
     {
+        UNPACK_INT = 0,
         UNPACK_DOUBLE = 1,
         UNPACK_TIME = 2
     };
-    const int nitems = 11; 
-    const xmlChar *citems[11] = { BAD_CAST "mag\0", BAD_CAST "mag_uncer\0",
+    const int nitems = 12; 
+    const xmlChar *citems[12] = { BAD_CAST "mag\0", BAD_CAST "mag_uncer\0",
                                   BAD_CAST "lat\0", BAD_CAST "lat_uncer\0",
                                   BAD_CAST "lon\0", BAD_CAST "lon_uncer\0",
                                   BAD_CAST "depth\0", BAD_CAST "depth_uncer\0",
                                   BAD_CAST "orig_time\0",
                                   BAD_CAST "orig_time_uncer\0",
-                                  BAD_CAST "likelihood\0"};
-    double values[11];
-    int units[11];
-    const int types[11] = {UNPACK_DOUBLE, UNPACK_DOUBLE,
+                                  BAD_CAST "likelihood\0",
+                                  BAD_CAST "num_stations\0"};
+    double values[12];
+    int units[12], ivalues[12];
+    const int types[12] = {UNPACK_DOUBLE, UNPACK_DOUBLE,
                            UNPACK_DOUBLE, UNPACK_DOUBLE,
                            UNPACK_DOUBLE, UNPACK_DOUBLE,
                            UNPACK_DOUBLE, UNPACK_DOUBLE,
                            UNPACK_TIME, UNPACK_DOUBLE,
-                           UNPACK_DOUBLE};
+                           UNPACK_INT};
     int dom, hour, ierr, item, item0, minute, month, nzmsec, nzmusec,
         nzsec, year;
     bool lfound, lunpack;
@@ -82,6 +84,7 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
     for (item=0; item<nitems; item++)
     {
         values[item] = SA_NAN;
+        ivalues[item] = 0;
         units[item] = UNKNOWN_UNITS;
     }
     // Require there be something to read
@@ -177,7 +180,11 @@ int xml_shakeAlert_readCoreInfo(void *xml_reader,
         value = xmlNodeGetContent(core_xml_info);
         if (value != NULL)
         {
-             if (types[item0] == UNPACK_DOUBLE)
+             if (types[item0] == UNPACK_INT)
+             {
+                 ivalues[item0] = (int) (xmlXPathCastStringToNumber(value) + 0.5);
+             }
+             else if (types[item0] == UNPACK_DOUBLE)
              {
                  values[item0] = xmlXPathCastStringToNumber(value);
              }
@@ -226,6 +233,7 @@ ERROR:;
     core->origTime      = values[8];
     core->origTimeUncer = values[9];
     core->likelihood    = values[10];
+    core->numStations   = ivalues[11];
     if (fabs(core->mag           - SA_NAN) > tol){core->lhaveMag = true;}
     if (fabs(core->magUncer      - SA_NAN) > tol){core->lhaveMagUncer = true;}
     if (fabs(core->lat           - SA_NAN) > tol){core->lhaveLat = true;}
@@ -482,6 +490,15 @@ int xml_shakeAlert_writeCoreInfo(struct coreInfo_struct core,
         sprintf(var, "%f", core.likelihood);
         rc += xmlTextWriterWriteString(writer, BAD_CAST var);
         rc += xmlTextWriterEndElement(writer); 
+    }
+    // number of stations
+    if (core.numStations > 0)
+    {
+        rc += xmlTextWriterStartElement(writer, BAD_CAST "num_stations\0") ;
+        memset(var, 0, 128*sizeof(char));
+        sprintf(var, "%d", core.numStations);
+        rc += xmlTextWriterWriteString(writer, BAD_CAST var);
+        rc += xmlTextWriterEndElement(writer);
     }
     // </core_info>
     rc = xmlTextWriterEndElement(writer); // </core_info>
