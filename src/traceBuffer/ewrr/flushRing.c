@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 /*!
  * @brief Flushes the ring on ringInfo.
  *
@@ -18,7 +18,6 @@
  */
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo)
 {
-    const char *fcnm = "traceBuffer_ewrr_flushRing\0";
     MSG_LOGO gotLogo;
     char msg[MAX_TRACEBUF_SIZ];
     unsigned char sequenceNumber;
@@ -29,7 +28,7 @@ int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo)
     // Make sure user knows the ring was flushed
     if (ringInfo->linit == false)
     {
-        log_errorF("%s: Error the ring was never initialized\n", fcnm);
+        LOG_ERRMSG("%s", "Error the ring was never initialized");
         return -1;
     }
     // Lift all the messages from the ring

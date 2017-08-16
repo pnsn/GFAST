@@ -9,7 +9,7 @@
 #include <math.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 
 /*!
@@ -34,23 +34,22 @@ int traceBuffer_ewrr_initialize(const char *ewRing,
                                 const int msWait,
                                 struct ewRing_struct *ringInfo)
 {
-    const char *fcnm = "traceBuffer_ewrr_initialize\0";
     // Check the inputs
     if (ringInfo == NULL)
     {
-        log_errorF("%s: ewRing_struct cannot be NULL\n", fcnm);
+        LOG_ERRMSG("%s", "ewRing_struct cannot be NULL");
         return -1;
     }
     memset(ringInfo, 0, sizeof(struct ewRing_struct));
     strcpy(ringInfo->ewRingName, ewRing);
     if (ewRing == NULL)
     {
-        log_errorF("%s: Error ewRing cannot be NULL\n", fcnm);
+        LOG_ERRMSG("%s", "Error ewRing cannot be NULL");
         return -1;
     }
     if (strlen(ewRing) == 0)
     {
-        log_errorF("%s: Error ewRing must be specified\n", fcnm);
+        LOG_ERRMSG("%s", "Error ewRing must be specified");
         return -1;
     }
     ringInfo->msWait = 0;
@@ -59,42 +58,41 @@ int traceBuffer_ewrr_initialize(const char *ewRing,
     ringInfo->ringKey = GetKey(ringInfo->ewRingName);
     if (ringInfo->ringKey ==-1)
     {
-        log_errorF("%s: Invalid ring %s\n", fcnm, ewRing);
+        LOG_ERRMSG("Invalid ring %s", ewRing);
         return -1;
     }
     // Look up instrumentID 
     if (GetLocalInst(&ringInfo->instLocalID) != 0)
     {
-        log_errorF("%s: Error getting local instrument id!\n", fcnm);
+        LOG_ERRMSG("%s", "Error getting local instrument id!");
         return -1;
     }
     if (GetInst("INST_WILDCARD", &ringInfo->instWildcardID ) != 0)
     {
-        log_errorF("%s: Error getting INST_WILDCARD!\n", fcnm);
+        LOG_ERRMSG("%s", "Error getting INST_WILDCARD!");
         return -1;
     } 
     // Look up the tracebuffer2 type 
     if (GetType("TYPE_TRACEBUF2", &ringInfo->traceBuffer2Type) != 0)
     {
-        log_errorF("%s Error getting TYPE_TRACEBUF2!\n", fcnm);
+        LOG_ERRMSG("%s", "Error getting TYPE_TRACEBUF2!");
         return -1;
     }
     // Look up the heartbeat type 
     if (GetType("TYPE_HEARTBEAT", &ringInfo->heartBeatType) != 0)
     {   
-        log_errorF("%s Error getting TYPE_HEARTBEAT!\n", fcnm);
+        LOG_ERRMSG("%s", "Error getting TYPE_HEARTBEAT!");
         return -1; 
     }
     // Look up the error type
     if (GetType("TYPE_ERROR", &ringInfo->errorType) != 0)
     {
-        log_errorF("%s Error getting TYPE_ERROR!\n", fcnm);
+        LOG_ERRMSG("%s", "Error getting TYPE_ERROR!");
         return -1;
     }
     if (GetModId( "MOD_WILDCARD", &ringInfo->modWildcardID) != 0 )
     {
-        log_errorF("%s: MOD_WILDCARD Missing from earthworm(_global).d\n",
-                  fcnm);
+        LOG_ERRMSG("%s", "MOD_WILDCARD Missing from earthworm(_global).d");
         return -1;
     }
     // Hook the getLogo's up for reading tracebuffer2s

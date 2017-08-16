@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 /*!
  * @brief Disconnects from the ring and clears the earthworm ring structure.
  *
@@ -21,10 +21,9 @@
  */
 int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo)
 {
-    const char *fcnm = "traceBuffer_ewrr_finalize\0";
     if (!ringInfo->linit)
     {   
-        log_errorF("%s: Error ewRing_struct was never initialized\n", fcnm);
+        LOG_ERRMSG("%s", "Error ewRing_struct was never initialized");
         return -1; 
     }
     if (ringInfo->getLogo != NULL && ringInfo->nlogo > 0)

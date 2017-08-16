@@ -3,8 +3,8 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/sorting/sorting.h"
 
@@ -47,7 +47,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const char *msgs,
     struct tb2Data_struct *tb2Data)
 {
-    const char *fcnm = "traceBuffer_ewrr_unpackTraceBuf2Messages\0";
     char *msg, netw[64], stat[64], chan[64], loc[64];
     TRACE2_HEADER traceHeader;
     //long *longData;
@@ -63,7 +62,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Check the tb2data was initialized
     if (!tb2Data->linit)
     {
-        log_errorF("%s: tb2Data never initialized\n", fcnm);
+        LOG_ERRMSG("%s", "tb2Data never initialized");
         return -1;
     }
     // Nothing to do
@@ -104,7 +103,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             ierr = WaveMsg2MakeLocal(&traceHeader);
             if (ierr < 0)
             {
-                 log_errorF("%s: Error flipping bytes\n", fcnm);
+                 LOG_ERRMSG("%s", "Error flipping bytes");
                  return -1;
             }
             // This is a match - update the 
@@ -115,7 +114,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             {
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
-                    log_errorF("%s: Error multiply mapped wave\n", fcnm);
+                    LOG_ERRMSG("%s", "Error multiply mapped wave");
                     return -1;
                 }
                 imap[i] = k;
@@ -123,8 +122,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 npts = traceHeader.nsamp;
                 if (npts < 0 || npts > maxpts)
                 {
-                    log_errorF("%s: Invalid number of points %d %d\n",
-                               fcnm, npts, maxpts);
+                    LOG_ERRMSG("Invalid number of points %d %d", npts, maxpts);
                     return -1;
                 }
                 times[i] = traceHeader.starttime;
@@ -146,7 +144,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     ierr = sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
     if (ierr != 0)
     {
-        log_errorF("%s: Error sorting messages\n", fcnm);
+        LOG_ERRMSG("%s", "Error sorting messages");
         return -1;
     }
     // Apply the permutations
@@ -179,7 +177,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                                                         SORT_ASCENDING, iperm);
                     if (ierr != 0)
                     {
-                        log_errorF("%s: Failed partial sort\n", fcnm);
+                        LOG_ERRMSG("%s", "Failed partial sort");
                         return -1;
                     }
                     sorting_applyPermutation32i_work(nsort, iperm,
@@ -195,7 +193,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
             else if (nsort == 0)
             {
-                log_errorF("%s: Counting error\n", fcnm);
+                LOG_ERRMSG("%s", "Counting error");
                 return -1;
             }
             nReadPtr = nReadPtr + 1;
@@ -228,7 +226,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             i = imsg[im];
             if (i < 0 || i >= nRead)
             {
-                log_errorF("%s: Invalid message number %d\n", fcnm, i);
+                LOG_ERRMSG("Invalid message number %d", i);
                 continue;
             }
             indx = i*MAX_TRACEBUF_SIZ;
@@ -238,7 +236,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             ierr = WaveMsg2MakeLocal(&traceHeader);
             if (ierr < 0)
             {
-                 log_errorF("%s: Error flipping bytes\n", fcnm);
+                 LOG_ERRMSG("%s", "Error flipping bytes");
             }
             dtype = 4;
             if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
@@ -252,7 +250,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
             if (ierr != 0)
             {
-                log_errorF("%s: Error unpacking data\n", fcnm);
+                LOG_ERRMSG("%s", "Error unpacking data");
             }
             // Update the points
             dt = 1.0/traceHeader.samprate;
@@ -293,7 +291,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         // Reality check
         if (kndx != kpts[k])
         {
-            log_errorF("%s: Lost count %d %d\n", fcnm, kndx, kpts[k]);
+            LOG_ERRMSG("Lost count %d %d", kndx, kpts[k]);
             return -1;
         }
         if (tb2Data->traces[k].nchunks > 0)
@@ -301,8 +299,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             nchunks = tb2Data->traces[k].nchunks;
             if (tb2Data->traces[k].chunkPtr[nchunks] != tb2Data->traces[k].npts)
             {
-                log_errorF("%s: Inconsistent number of points %d %d\n",
-                           fcnm, tb2Data->traces[k].chunkPtr[nchunks],
+                LOG_ERRMSG("Inconsistent number of points %d %d",
+                           tb2Data->traces[k].chunkPtr[nchunks],
                            tb2Data->traces[k].npts);
                 return -1;
             }
@@ -335,6 +333,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
  * @author Ben Baker (ISTI)
  *
  * @copyright Apache 2
+ *
+ * @bug This doesn't vectorize.
  *
  */
 static void fastUnpackI4(const int npts, const int lswap,
@@ -386,6 +386,8 @@ static void fastUnpackI4(const int npts, const int lswap,
  * @author Ben Baker (ISTI)
  *
  * @copyright Apache 2
+ *
+ * @bug This doesn't vectorize.
  *
  */
 static void fastUnpackI2(const int npts, const int lswap,
@@ -443,7 +445,6 @@ static int fastUnpack(const int npts, const int lswap,
                       const char *__restrict__ msg,
                       int *__restrict__ resp)
 {
-    const char *fcnm = "fastUnpack\0";
     if (npts < 1){return 0;} // Nothing to do
     if (dtype == 4)
     {
@@ -455,7 +456,7 @@ static int fastUnpack(const int npts, const int lswap,
     }
     else
     {
-        log_errorF("%s: Invalid type\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid type");
         return -1;
     }
     return 0;

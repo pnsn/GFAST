@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Initializes the data list which will be retained from a 
@@ -30,36 +30,35 @@ int traceBuffer_ewrr_settb2Data(const int ntraces,
                                 const char **locs,
                                 struct tb2Data_struct *tb2data)
 {
-    const char *fcnm = "traceBuffer_ewrr_settb2Data\0";
     int i;
     if (ntraces < 1 || nets == NULL || stats == NULL ||
         chans == NULL || locs == NULL)
     {
         if (ntraces < 1)
         {
-            log_errorF("%s: No traces to initialize\n", fcnm);
+            LOG_ERRMSG("%s", "No traces to initialize");
         }
         if (nets == NULL)
         {
-            log_errorF("%s: Error must define network list\n", fcnm);
+            LOG_ERRMSG("%s", "Error must define network list");
         }
         if (stats == NULL)
         {
-            log_errorF("%s: Error must define station list\n", fcnm);
+            LOG_ERRMSG("%s", "Error must define station list");
         }
         if (chans == NULL)
         {
-            log_errorF("%s: Error must define channel list\n", fcnm);
+            LOG_ERRMSG("%s", "Error must define channel list");
         }
         if (locs == NULL)
         {
-            log_errorF("%s: Error must define location list\n", fcnm);
+            LOG_ERRMSG("%s", "Error must define location list");
         }
         return -1;
     }
     if (tb2data->linit)
     {
-        log_errorF("%s: Error tb2data already initialized\n", fcnm);
+        LOG_ERRMSG("%s", "Error tb2data already initialized");
         return -1;
     }
     tb2data->traces = (struct tb2Trace_struct *)

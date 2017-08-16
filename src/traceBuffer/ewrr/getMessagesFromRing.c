@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -47,7 +47,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                                            struct ewRing_struct *ringInfo,
                                            int *nRead, int *ierr)
 {
-    const char *fcnm = "traceBuffer_ewrr_getMessagesFromRing\0";
     MSG_LOGO gotLogo; 
     TRACE2_HEADER traceHeader;
     char *msg, *msgs, *msgWork;
@@ -64,7 +63,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     msgs = NULL;
     if (!ringInfo->linit)
     {
-        log_errorF("%s: Error ringInfo not initialized\n", fcnm);
+        LOG_ERRMSG("%s", "Error ringInfo not initialized");
         *ierr =-3;
         return msgs;
     }
@@ -72,14 +71,14 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
 /*
     if (maxMessages < 1 || msg == NULL)
     {
-        if (maxMessages < 1){log_errorF("%s: Error no space\n", fcnm);}
-        if (msgs == NULL){log_errorF("%s: Error messages is NULL\n", fcnm);}
+        if (maxMessages < 1){LOG_ERRMSG("%s", "Error no space");}
+        if (msgs == NULL){LOG_ERRMSG("%s", "Error messages is NULL");}
         return -4;
     }
 */
     if (messageBlock < 1)
     {
-        log_errorF("%s: messageBlock allocator must be postiive\n", fcnm);
+        LOG_ERRMSG("%s", "messageBlock allocator must be postiive");
         *ierr =-4;
         return msgs;
     }
@@ -95,8 +94,8 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         retval = tport_getflag(&ringInfo->region);
         if (retval == TERMINATE)
         {
-            log_errorF("%s: Receiving kill signal from ring %s\n",
-                       fcnm, ringInfo->ewRingName);
+            LOG_ERRMSG("Receiving kill signal from ring %s",
+                       ringInfo->ewRingName);
             *ierr =-1;
             return msgs;
         }
@@ -109,7 +108,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         retval = traceBuffer_ewrr_classifyGetRetval(retval);
         if (retval ==-2)
         {
-            log_errorF("%s: An error was encountered getting message\n", fcnm);
+            LOG_ERRMSG("%s", "An error was encountered getting message");
             *ierr =-2;
             return msgs;
         }
@@ -121,7 +120,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             *ierr = WaveMsg2MakeLocal(&traceHeader);
             if (*ierr < 0)
             {
-                log_errorF("%s: Error flipping bytes\n", fcnm);
+                LOG_ERRMSG("%s", "Error flipping bytes");
                 *ierr =-2;
                 return msgs;
             }
@@ -142,7 +141,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             {
                 if (showWarnings)
                 {
-                    log_warnF("%s: Reallocating msgs block\n", fcnm);
+                    LOG_WARNMSG("%s", "Reallocating msgs block");
                 }
                 // get workspace sizes
                 nwork = MAX_TRACEBUF_SIZ*(*nRead + nblock*messageBlock);
