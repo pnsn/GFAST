@@ -5,9 +5,9 @@
 #include <float.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_core.h"
 #include "gfast_hdf5.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 /*
@@ -39,7 +39,6 @@ int traceBuffer_h5_setData(const double currentTime,
                            struct tb2Data_struct tb2Data,
                            struct h5traceBuffer_struct h5traceBuffer)
 {
-    const char *fcnm = "traceBuffer_h5_setData\0";
     double *dwork, *gains, *work;
     int *map, c1, c2, chunk, i, i1, i2, idt, ierr, ierrAll,
         indx, is, ishift, jndx, k, k1, k2, maxpts, nchunks, ncopy, ntraces;
@@ -55,11 +54,8 @@ int traceBuffer_h5_setData(const double currentTime,
     ierrAll = 0;
     if (!tb2Data.linit || !h5traceBuffer.linit)
     {
-        if (!tb2Data.linit){log_errorF("%s: Error tb2Data not set\n", fcnm);}
-        if (!h5traceBuffer.linit)
-        {
-            log_errorF("%s: h5traceBuffer not set\n", fcnm);
-        }
+        if (!tb2Data.linit){LOG_ERRMSG("%s", "Error tb2Data not set");}
+        if (!h5traceBuffer.linit){LOG_ERRMSG("%s", "h5traceBuffer not set");}
         return -1;
     }
     // Nothing to do
@@ -70,7 +66,7 @@ int traceBuffer_h5_setData(const double currentTime,
     // Not finished yet
     if (h5traceBuffer.ndtGroups > 1)
     {
-        log_errorF("%s: Multiple dt groups not yet done\n", fcnm);
+        LOG_ERRMSG("%s", "Multiple dt groups not yet done");
         return -1;
     }
     // Make a map from the HDF5 trace buffer to the tracebuffer2 data
@@ -136,24 +132,24 @@ NEXT_TRACE:;
                                        &maxpts, &dt, &ts1, &ts2, gains, &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Error reading data\n", fcnm);
+            LOG_ERRMSG("%s", "Error reading data");
             return -1; 
         }
         // Check what i just read
         if (dt <= 0.0)
         {
-            log_errorF("%s: Invalid sampling period %f\n", fcnm, dt);
+            LOG_ERRMSG("Invalid sampling period %f", dt);
             return -1; 
         }
         if (maxpts < 1)
         {
-            log_errorF("%s: Invalid number of points %d\n", fcnm, maxpts);
+            LOG_ERRMSG("Invalid number of points %d", maxpts);
             return -1; 
         }
         if (currentTime < ts2)
         {
-            log_errorF("%s: Update time is less than most recent time %f %f\n",
-                       fcnm, currentTime, ts2);
+            LOG_ERRMSG("Update time is less than most recent time %f %f",
+                       currentTime, ts2);
             return -1;
         }
         // Copy the old traces onto the new traces
@@ -168,8 +164,7 @@ printf("%d\n", ishift);
             ierr = array_copy64f_work(ncopy, &work[indx], &dwork[jndx]);
             if (ierr != 0)
             {
-                log_errorF("%s: Error copying trace %d %d\n",
-                           fcnm, k+1, ntraces);
+                LOG_ERRMSG("Error copying trace %d %d", k+1, ntraces);
                 return -1;
             }
         }
@@ -186,8 +181,8 @@ printf("%d\n", ishift);
             c2 = tb2Data.traces[i].chunkPtr[nchunks];
             if (c2 - c1 <= 0 || c2 - c1 != tb2Data.traces[i].npts)
             {
-                log_errorF("%s: npts to update is invalid %d %d %d\n",
-                           fcnm, c1, c2, tb2Data.traces[i].npts);
+                LOG_ERRMSG("npts to update is invalid %d %d %d",
+                           c1, c2, tb2Data.traces[i].npts);
                 return -1;
             }
             for (chunk=0; chunk<nchunks; chunk++)
@@ -214,14 +209,14 @@ printf("%d\n", ishift);
                           H5P_DEFAULT, dwork);
         if (status < 0)
         {
-            log_errorF("%s: Error writing data chunk\n", fcnm);
+            LOG_ERRMSG("%s", "Error writing data chunk");
             return -1;
         }
         attribute = H5Aopen(dataSet, "StartTime\0", H5P_DEFAULT);
         status = H5Awrite(attribute, H5T_NATIVE_DOUBLE, &ts1);
         if (status < 0)
         {
-            log_errorF("%s: Error updating start time\n", fcnm);
+            LOG_ERRMSG("%s", "Error updating start time");
             return -1;
         }
         status = H5Aclose(attribute);
@@ -230,8 +225,8 @@ printf("%d\n", ishift);
         status = H5Gclose(groupID);
         if (status < 0)
         {
-            log_errorF("%s: Error closing group %s\n",
-                       fcnm, h5traceBuffer.dtGroupName[idt]);
+            LOG_ERRMSG("Error closing group %s",
+                       h5traceBuffer.dtGroupName[idt]);
             return -1; 
         }
         // free memory
@@ -267,7 +262,6 @@ static int update_dataSet(const hid_t groupID,
                           int i1, int i2, const int npts,
                           const double *__restrict__ data)
 {
-    const char *fcnm = "update_dataSet\0";
     hid_t dataSetID, dataSpace, memSpace;
     herr_t status;
     hsize_t block[1], count[1], dims[1], offset[1], stride[1];
@@ -279,17 +273,17 @@ static int update_dataSet(const hid_t groupID,
     // Check the inputs
     if (i2 < i1 || npts != i2 - i1 + 1 || data == NULL)
     {
-        if (i2 < i1){log_errorF("%s: Error i2 < i1!\n", fcnm);}
+        if (i2 < i1){LOG_ERRMSG("%s", "Error i2 < i1!");}
         if (npts != i2 - i1 + 1)
         {
-            log_errorF("%s: Error npts != i2 - i1 + 1\n", fcnm);
+            LOG_ERRMSG("%s", "Error npts != i2 - i1 + 1");
         }
-        if (data == NULL){log_errorF("%s: data is NULL\n", fcnm);}
+        if (data == NULL){LOG_ERRMSG("%s", "data is NULL");}
         return -1;
     }
     if (H5Lexists(groupID, dataSetName, H5P_DEFAULT) != 1)
     {
-        log_errorF("%s: Dataset %s does not exist\n", fcnm, dataSetName); 
+        LOG_ERRMSG("Dataset %s does not exist", dataSetName); 
         return -1;
     }
     // Open the dataspace
@@ -297,22 +291,22 @@ static int update_dataSet(const hid_t groupID,
     dataSpace = H5Dget_space(dataSetID);
     if (H5Sget_simple_extent_ndims(dataSpace) != rank)
     {
-        log_errorF("%s: Invalid rank\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid rank");
         status =-1;
         goto ERROR1;
     }
     status = H5Sget_simple_extent_dims(dataSpace, dims, NULL);
     if (dims[0] < (hsize_t) npts)
     {
-        log_errorF("%s: Too many points to write %d %d!\n",
-                   fcnm, npts, (int) dims[0]);
+        LOG_ERRMSG("Too many points to write %d %d!",
+                    npts, (int) dims[0]);
         status =-1;
         goto ERROR1;
     }
     if (dims[0] < (hsize_t) (i1 + npts))
     {
-        log_errorF("%s: Trying to write past end of data %d %d %d!\n",
-                   fcnm, i1, npts, (int) dims[0]);
+        LOG_ERRMSG("Trying to write past end of data %d %d %d!\n",
+                   i1, npts, (int) dims[0]);
         status =-1;
         goto ERROR1;
     }
@@ -328,7 +322,7 @@ static int update_dataSet(const hid_t groupID,
                                  count, block);
     if (status < 0)
     {
-        log_errorF("%s: Error selecting hyperslab\n", fcnm);
+        LOG_ERRMSG("%s", "Error selecting hyperslab");
         status =-1;
         goto ERROR2;
     }
@@ -337,7 +331,7 @@ static int update_dataSet(const hid_t groupID,
                       H5P_DEFAULT, data);
     if (status < 0)
     {
-        log_errorF("%s: Error writing data\n", fcnm);
+        LOG_ERRMSG("%s", "Error writing data");
         status =-1;
         goto ERROR2;
     }

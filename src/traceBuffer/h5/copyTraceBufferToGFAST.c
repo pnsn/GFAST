@@ -3,8 +3,8 @@
 #include <math.h>
 #include <cblas.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 static int copyTrace(const int npts,
@@ -34,7 +34,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     struct h5traceBuffer_struct *traceBuffer,
     struct GFAST_data_struct *gps_data)
 {
-    const char *fcnm = "traceBuffer_h5_copyTraceBufferToGFAST\0";
     double dt, gain;
     int i, ierr, ierr1, j, k, l;
     bool *ltInit;
@@ -42,7 +41,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     if (traceBuffer->ntraces < 1){return ierr;} // Nothing to do
     if (fmod(traceBuffer->ntraces, 3) != 0)
     {
-        log_warnF("%s: Expecting multiple of 3 traces\n", fcnm);
+        LOG_WARNMSG("%s", "Expecting multiple of 3 traces");
     }
     ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/3, 1)));
     // Copy the data back
@@ -52,7 +51,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
         k = (traceBuffer->traces[i].idest - j)/3;
         if (traceBuffer->traces[i].ncopy > gps_data->data[k].maxpts)
         {
-            log_errorF("%s: Invalid copy size\n", fcnm);
+            LOG_ERRMSG("%s", "Invalid copy size");
             ierr = ierr + 1;
             continue;
         }
@@ -67,7 +66,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             memory_free64f(&traceBuffer->traces[i].data);
             if (ierr1 != 0)
             {
-                log_errorF("%s: Error copying ubuff\n", fcnm);
+                LOG_ERRMSG("%s", "Error copying ubuff");
                 ierr = ierr + 1;
             }
             // Apply the gain
@@ -75,7 +74,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = traceBuffer->traces[i].gain;
             if (fabs(gain) < 1.e-15)
             {
-                log_errorF("%s: Division by zero\n", fcnm);
+                LOG_ERRMSG("%s", "Division by zero");
                 ierr = ierr + 1;
             }
             gain = 1.0/gain;
@@ -100,7 +99,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             memory_free64f(&traceBuffer->traces[i].data);
             if (ierr1 != 0)
             {
-                log_errorF("%s: Error copying nbuff\n", fcnm);
+                LOG_ERRMSG("%s", "Error copying nbuff");
                 ierr = ierr + 1;
             }
             // Apply the gain
@@ -108,7 +107,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = traceBuffer->traces[i].gain;
             if (gain == 0.0)
             {
-                log_errorF("%s: Division by zero\n", fcnm);
+                LOG_ERRMSG("%s", "Division by zero");
                 ierr = ierr + 1;
             }
             gain = 1.0/gain;
@@ -126,7 +125,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             memory_free64f(&traceBuffer->traces[i].data);
             if (ierr1 != 0)
             {
-                log_errorF("%s: Error copying ebuff\n", fcnm);
+                LOG_ERRMSG("%s", "Error copying ebuff");
                 ierr = ierr + 1;
             }
             // Apply the gain
@@ -134,7 +133,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = traceBuffer->traces[i].gain;
             if (gain == 0.0)
             {
-                log_errorF("%s: Division by zero\n", fcnm);
+                LOG_ERRMSG("%s", "Division by zero");
                 ierr = ierr + 1;
             }
             gain = 1.0/gain;
@@ -169,12 +168,11 @@ static int copyTrace(const int npts,
                      const int ndest,
                      double *__restrict__ dest)
 {
-    const char *fcnm = "copyTrace\0";
     int i, ierr;//, nc;
     ierr = 0;
     if (npts > ndest)
     {
-        log_errorF("%s: npts > ndest %d %d\n", fcnm, npts, ndest);
+        LOG_ERRMSG("npts > ndest %d %d", npts, ndest);
         return 1;
     }
 /*
@@ -187,12 +185,12 @@ static int copyTrace(const int npts,
 */
     if (ndest > 0 && dest == NULL)
     {
-        log_errorF("%s: dest is NULL\n", fcnm);
+        LOG_ERRMSG("%s", "dest is NULL");
         return 1;
     }
     if (npts > 0 && origin == NULL)
     {
-        log_errorF("%s: origin is NULL\n", fcnm);
+        LOG_ERRMSG("%s", "origin is NULL");
         return 1;
     }
 #ifdef _OPENMP

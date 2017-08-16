@@ -3,7 +3,7 @@
 #include <string.h>
 #include <limits.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/os/os.h"
 
 /*!
@@ -22,17 +22,16 @@ int traceBuffer_h5_setFileName(const char *h5dir,
                                const char *h5file,
                                char h5name[PATH_MAX])
 {
-    const char *fcnm = "traceBuffer_h5_setFileName\0";
     size_t lend;
     memset(h5name, 0, PATH_MAX*sizeof(char));
     if (h5file == NULL)
     {
-        log_errorF("%s: Error h5file cannot be NULL\n", fcnm);
+        LOG_ERRMSG("%s", "Error h5file cannot be NULL");
         return -1;
     }
     if (strlen(h5file) == 0)
     {
-        log_errorF("%s: Error h5file cannot be blank\n", fcnm);
+        LOG_ERRMSG("%s", "Error h5file cannot be blank");
         return -1;
     }
     // Set the directory name
@@ -51,7 +50,7 @@ int traceBuffer_h5_setFileName(const char *h5dir,
         {
             if (!os_path_isdir(h5dir))
             {
-                log_errorF("%s: Directory %s does not exist\n", fcnm, h5dir);
+                LOG_ERRMSG("Directory %s does not exist", h5dir);
                 return -1;
             }
             strcpy(h5name, h5dir);

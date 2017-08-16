@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -19,14 +19,13 @@
  */ 
 int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
 {
-    const char *fcnm = "traceBuffer_h5_finalize\0";
     herr_t status;
     int i, ierr;
     //------------------------------------------------------------------------//
     ierr = 0;
     if (!h5trace->linit)
     {
-        log_errorF("%s: Error h5trace never initialized\n", fcnm);
+        LOG_ERRMSG("%s", "Error h5trace never initialized");
         ierr = 1;
         return ierr;
     }
@@ -57,7 +56,7 @@ int traceBuffer_h5_finalize(struct h5traceBuffer_struct *h5trace)
     status = H5Fclose(h5trace->fileID);
     if (status != 0)
     {
-        log_errorF("%s: Error closing file\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing file");
         ierr = 1; 
     }
     memset(h5trace, 0, sizeof(struct h5traceBuffer_struct));

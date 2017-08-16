@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Sets the integer scalar dataset
@@ -19,7 +19,6 @@ int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
                                     const char *citem,
                                     const int scalar)
 {
-    const char *fcnm = "traceBuffer_h5_setIntegerScalar\0";
     int scalars[1];
     hid_t dataSetID, dataSpace;
     herr_t status;
@@ -30,7 +29,7 @@ int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
     ierr = 0;
     if (citem == NULL)
     {
-        log_errorF("%s: Error citem must be defined\n", fcnm);
+        LOG_ERRMSG("%s", "Error citem must be defined");
         return -1;
     }
     if (H5Lexists(groupID, citem, H5P_DEFAULT) == 1){return 0;} // Nothing to do
@@ -53,14 +52,14 @@ int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
                       H5P_DEFAULT, scalars);
     if (status < 0)
     {
-        log_errorF("%s: Failed to write dataset\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to write dataset");
         ierr = 1;
     }
     status  = H5Sclose(dataSpace);
     status += H5Dclose(dataSetID);
     if (status < 0)
     {
-        log_errorF("%s: Failed to close dataspace or dataset\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to close dataspace or dataset");
         ierr = 1;
     }
     return ierr;
@@ -82,7 +81,6 @@ int traceBuffer_h5_setDoubleScalar(const hid_t groupID,
                                    const char *citem,
                                    const double scalar)
 {
-    const char *fcnm = "traceBuffer_h5_setDoubleScalar\0";
     double scalars[1];
     hid_t dataSetID, dataSpace;
     herr_t status;
@@ -93,7 +91,7 @@ int traceBuffer_h5_setDoubleScalar(const hid_t groupID,
     ierr = 0;
     if (citem == NULL)
     {
-        log_errorF("%s: Error citem must be defined\n", fcnm);
+        LOG_ERRMSG("%s", "Error citem must be defined");
         return -1;
     }
     scalars[0] = scalar;
@@ -115,14 +113,14 @@ int traceBuffer_h5_setDoubleScalar(const hid_t groupID,
                       H5P_DEFAULT, scalars);
     if (status < 0)
     {
-        log_errorF("%s: Failed to write dataset\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to write dataset");
         ierr = 1;
     }
     status  = H5Sclose(dataSpace);
     status += H5Dclose(dataSetID);
     if (status < 0)
     {
-        log_errorF("%s: Failed to close dataspace or dataset\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to close dataspace or dataset");
         ierr = 1;
     }
     return ierr;

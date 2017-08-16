@@ -4,8 +4,8 @@
 #include <math.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -32,7 +32,6 @@ double *traceBuffer_h5_readData(const hid_t groupID,
                                 double *dt, double *ts1, double *ts2,
                                 double *gain, int *ierr)
 {
-    const char *fcnm = "traceBuffer_h5_readData\0";
     double *work;
     hid_t attribute, dataSet, dataSpace, memSpace;
     hsize_t dims[2];
@@ -44,7 +43,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
     work = NULL;
     if (gain == NULL)
     {
-        log_errorF("%s: Error gain cannot be NULL\n", fcnm);
+        LOG_ERRMSG("%s", "Error gain cannot be NULL");
         *ierr = 1;
         return work;
     }
@@ -53,7 +52,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
     rankIn = H5Sget_simple_extent_ndims(dataSpace);
     if (rankIn != 2)
     {
-        log_errorF("%s: Invalid number of dimensions %d\n", fcnm, rankIn);
+        LOG_ERRMSG("Invalid number of dimensions %d", rankIn);
         *ierr = 1;
         return work;
     }
@@ -65,7 +64,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
                      H5P_DEFAULT, work);
     if (status < 0)
     {
-        log_errorF("%s: Error loading data\n", fcnm);
+        LOG_ERRMSG("%s", "Error loading data");
         *ierr = 1;
         return work;
     }
@@ -80,8 +79,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
     status = H5Aread(attribute, H5T_NATIVE_INT, &ntracesIn);
     if (ntracesIn != ntraces)
     {
-        log_errorF("%s: Inconsistent number of traces %d %d\n",
-                   fcnm, ntracesIn, ntraces);
+        LOG_ERRMSG("Inconsistent number of traces %d %d", ntracesIn, ntraces);
         *ierr = 1;
         return work;
     }
@@ -96,7 +94,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
     status += H5Dclose(dataSet);
     if (status < 0)
     {
-        log_errorF("%s: Error closing data dataset\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing data dataset");
         *ierr = 1;
         return work;
     }
@@ -109,7 +107,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
                      H5P_DEFAULT, gain);
     if (status < 0)
     {
-        log_errorF("%s: Error loading gain\n", fcnm);
+        LOG_ERRMSG("%s", "Error loading gain");
         *ierr = 1;
         return work;
     }
@@ -119,7 +117,7 @@ double *traceBuffer_h5_readData(const hid_t groupID,
     status += H5Dclose(dataSet);
     if (status < 0)
     {
-        log_errorF("%s: Error closing data dataset\n", fcnm);
+        LOG_ERRMSG("%s", "Error closing data dataset");
         *ierr = 1;
         return work;
     }

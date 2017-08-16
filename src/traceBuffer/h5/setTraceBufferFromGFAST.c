@@ -4,7 +4,7 @@
 #include <math.h>
 #include "gfast_struct.h"
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -25,7 +25,6 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
     struct GFAST_data_struct gps_data,
     struct h5traceBuffer_struct *traceBuffer)
 {
-    const char *fcnm = "traceBuffer_h5_setTraceBufferFromGFAST\0";
     char temp[1024];
     double *dtGroups, dt0, dt;
     int *ndtGroups, i, itn, j, k, ng;
@@ -43,7 +42,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
     }
     if (traceBuffer->ntraces < 1)
     {
-        log_errorF("%s: Error no traces to read!\n", fcnm);
+        LOG_ERRMSG("%s", "Error no traces to read!");
         return -1;
     }
     // Set the sampling period group numbers
@@ -71,13 +70,13 @@ NEXT_STATION:;
     // Check
     if (ng < 1)
     {
-        log_errorF("%s: Error no dt groups\n", fcnm);
+        LOG_ERRMSG("%s", "Error no dt groups");
         return -1;
     }
     if (ng > 1)
     {
-        log_warnF("%s: Multiple sampling periods is untested\n", fcnm);
-        log_warnF("%s: argsort the ndtGroups and fill in order\n", fcnm);
+        LOG_WARNMSG("%s", "Multiple sampling periods is untested");
+        LOG_WARNMSG("%s", "argsort the ndtGroups and fill in order");
     }
     dt0 = (double) NAN;
     traceBuffer->dtPtr = memory_calloc32i(ng + 1);
@@ -153,8 +152,7 @@ NEXT_STATION:;
             }
             if (fabs(dt0 - gps_data.data[k].dt)/dt0 > 1.e-10)
             {
-                log_errorF("%s: Error can't yet handle multirate data\n",
-                           fcnm);
+                LOG_ERRMSG("%s", "Error can't yet handle multirate data");
                 return -1;
             }
             traceBuffer->traces[i].traceNumber = itn;

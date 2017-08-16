@@ -4,8 +4,8 @@
 #include <math.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 /*!
@@ -30,7 +30,6 @@
 int traceBuffer_h5_getData(const double t1, const double t2,
                            struct h5traceBuffer_struct *h5traceBuffer)
 {
-    const char *fcnm = "traceBuffer_h5_getData\0";
     double *gain, *work, dt, ts1, ts2;
     int i1, i2, ibeg, idt, iend, ierr, j1, j2, k, k1, k2,
         maxpts, ncopy, ntraces;
@@ -53,7 +52,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
                                        &maxpts, &dt, &ts1, &ts2, gain, &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Error reading data\n", fcnm);
+            LOG_ERRMSG("%s", "Error reading data");
             return -1;
         }
         // This concludes the fileIO
@@ -61,39 +60,39 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         // Check what i just read
         if (status < 0)
         {
-            log_errorF("%s: Error closing group %s\n",
-                       fcnm, h5traceBuffer->dtGroupName[idt]);
+            LOG_ERRMSG("Error closing group %s",
+                       h5traceBuffer->dtGroupName[idt]);
             return -1;
         }
         if (dt <= 0.0)
         {
-            log_errorF("%s: Invalid sampling period %f\n", fcnm, dt);
+            LOG_ERRMSG("Invalid sampling period %f", dt);
             return -1;
         } 
         if (maxpts < 1)
         {
-            log_errorF("%s: Invalid number of points %d\n", fcnm, maxpts);
+            LOG_ERRMSG("Invalid number of points %d", maxpts);
             return -1; 
         }
         // Check what I just read
         if (t1 > ts2)
         {
-            log_errorF("%s: Start time is too new\n", fcnm);
+            LOG_ERRMSG("%s", "Start time is too new");
             return -1;
         }
         if (t2 < ts1)
         {
-            log_errorF("%s: End time is too old\n", fcnm);
+            LOG_ERRMSG("%s", "End time is too old");
             return -1;
         }
         if (t2 > ts1 + (double) (maxpts - 1)*dt)
         {
-            log_errorF("%s: Looking for data that's too current\n", fcnm);
+            LOG_ERRMSG("%s", "Looking for data that's too current");
             return -1;
         }
         if (t1 < ts1)
         {
-            log_errorF("%s: Error start time is too old\n", fcnm);
+            LOG_ERRMSG("%s", "Error start time is too old");
             return -1;
         }
         // Indices in chunk to read from
@@ -111,7 +110,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         j2 = MIN(j2, maxpts - 1); //if (j2 > maxpts - 1){j2 = maxpts - 1;}
         if (i2 - i1 > j2 - j1)
         {
-            log_errorF("%s: Error source array larger than dest array\n", fcnm);
+            LOG_ERRMSG("%s", "Error source array larger than dest array");
             return -1;
         }
         ncopy = (int) ((t2 - t1)/dt + 0.5) + 1;
@@ -136,14 +135,13 @@ int traceBuffer_h5_getData(const double t1, const double t2,
             iend = ibeg + ncopy - 1; //i2;
             if (iend - ibeg + 1 != ncopy)
             {
-                log_errorF("%s: Inconsistent copy size %d %d %d\n",
-                           fcnm, ibeg, iend, ncopy);
+                LOG_ERRMSG("Inconsistent copy size %d %d %d",
+                           ibeg, iend, ncopy);
                 return -1;
             }
             if (iend >= maxpts*ntraces)
             {
-                log_errorF("%s: Critical error - work bounds exceeded\n",
-                           fcnm);
+                LOG_ERRMSG("%s", "Critical error - work bounds exceeded");
                 return -1;
             } 
             //memcpy(&h5traceBuffer->traces[k].data[j1], &work[ibeg],
@@ -182,7 +180,6 @@ int traceBuffer_h5_getData(const double t1, const double t2,
 int traceBuffer_h5_getData2(const double t1, const double t2,
                             struct h5traceBuffer_struct *h5traceBuffer)
 {
-    const char *fcnm = "traceBuffer_h5_getData\0";
     char dataBuffer1[64], dataBuffer2[64];
     double *work, dt, gain, ts1, ts2, ts1Use, ts2Use;
     int i, ierr, ierrAll, i1, i2, j1, j2, maxpts, nc1, nc2, ncopy;
@@ -193,7 +190,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
     // Do the times make sense?
     if (t2 < t1)
     {
-        log_errorF("%s: Invalid input times\n", fcnm);
+        LOG_ERRMSG("%s", "Invalid input times");
         return -1;
     }
     ierrAll = 0;
@@ -214,38 +211,36 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
                                                &dt, &gain, &ts1, &ts2);
         if (ierr != 0)
         {
-            log_errorF("%s: Error getting scalars!\n", fcnm);
+            LOG_ERRMSG("%s", "Error getting scalars!");
             ierrAll = ierrAll + 1;
             continue;
         }
         if (maxpts < 1)
         {
-            log_errorF("%s: Error maxpts is wrong %d\n", fcnm, maxpts);
+            LOG_ERRMSG("Error maxpts is wrong %d", maxpts);
             ierrAll = ierrAll + 1;
             continue;
         }
         if (dt <= 0.0)
         {
-            log_errorF("%s: Error dt is wrong %f!\n", fcnm, dt);
+            LOG_ERRMSG("Error dt is wrong %f!", dt);
             ierrAll = ierrAll + 1;
             continue;
         }
         if (gain == 0.0)
         {
-            log_warnF("%s: Division by zero coming up\n", fcnm);
+            LOG_WARNMSG("%s", "Division by zero coming up");
         }
         h5traceBuffer->traces[i].gain = gain;
         if (t1 < ts1 && t1 < ts2)
         {
-            log_errorF("%s: Error time is too %16.f %16.f %16.f\n",
-                       fcnm, t1, ts1, ts2);
+            LOG_ERRMSG("Error time is too %16.f %16.f %16.f", t1, ts1, ts2);
             ierrAll = ierrAll + 1;
             continue;
         }
         if (t2 > fmax(ts1, ts2) + (double) (maxpts - 1)*dt)
         {
-            log_errorF("%s: Error stale buffers %16.f %16.f %16.f\n",
-                       fcnm, t2, ts1, ts2);
+            LOG_ERRMSG("Error stale buffers %16.f %16.f %16.f", t2, ts1, ts2);
             ierrAll = ierrAll + 1;
             continue;
         }
@@ -285,7 +280,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
                                                            ncopy, work);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error getting array\n", fcnm);
+                    LOG_ERRMSG("%s", "Error getting array");
                     ierrAll = ierrAll + 1;
                     continue;
                 }
@@ -306,7 +301,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
                                                            nc1, work);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error getting array\n", fcnm);
+                    LOG_ERRMSG("%s", "Error getting array");
                 }
                 ierr = GFAST_traceBuffer_h5_getDoubleArray(groupID,
                                                            j1, j2,
@@ -315,7 +310,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
                                                            nc2, &work[nc1]);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error getting array\n", fcnm);
+                    LOG_ERRMSG("%s", "Error getting array");
                     ierrAll = ierrAll + 1;
                     continue;
                 }
@@ -338,7 +333,7 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
                                                            ncopy, work);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error getting array\n", fcnm);
+                    LOG_ERRMSG("%s", "Error getting array");
                     ierrAll = ierrAll + 1;
                     continue;
                 }
@@ -348,21 +343,20 @@ int traceBuffer_h5_getData2(const double t1, const double t2,
             }
             else
             {
-                log_errorF("%s: Invalid data range %16.4f %16.4f %16.4f!\n",
-                           fcnm, t1, ts1Use, ts2Use);
+                LOG_ERRMSG("Invalid data range %16.4f %16.4f %16.4f!",
+                           t1, ts1Use, ts2Use);
             }
         }
         status = status + H5Gclose(groupID);
     } // Loop on traces
     if (status != 0)
     {
-        log_errorF("%s: Error accessing data\n", fcnm);
+        LOG_ERRMSG("%s", "Error accessing data");
         return -1;
     }
     if (ierrAll != 0)
     {
-        log_errorF("%s: %d errors detected when getting data\n",
-                   fcnm, ierrAll);
+        LOG_ERRMSG("%d errors detected when getting data", ierrAll);
     }
     return ierrAll;
 }

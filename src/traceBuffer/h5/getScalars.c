@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include "gfast_traceBuffer.h"
-#include "iscl/log/log.h"
+#include "gfast_core.h"
 
 static double traceBuffer_h5_getDoubleScalar(const hid_t groupID,
                                              const char *citem,
@@ -37,7 +37,6 @@ int traceBuffer_h5_getScalars(const hid_t groupID,
                               double *dt, double *gain,
                               double *ts1, double *ts2)
 {
-    const char *fcnm = "traceBuffer_h5_getScalars\0";
     int ierr, ierr1;
     ierr = 0;
     *maxpts = traceBuffer_h5_getIntegerScalar(groupID,
@@ -62,7 +61,7 @@ int traceBuffer_h5_getScalars(const hid_t groupID,
     ierr = ierr + ierr1;
     if (ierr != 0)
     {
-        log_errorF("%s: Error getting scalars\n", fcnm);
+        LOG_ERRMSG("%s", "Error getting scalars");
     }
     return ierr;
 }
@@ -86,7 +85,6 @@ static double traceBuffer_h5_getDoubleScalar(const hid_t groupID,
                                              const double scalarNaN,
                                              int *ierr)
 {
-    const char *fcnm = "traceBuffer_h5_getDoubleScalar\0";
     double scalar;
     hid_t dataSet, dataSpace, memSpace;
     herr_t status;
@@ -101,7 +99,7 @@ static double traceBuffer_h5_getDoubleScalar(const hid_t groupID,
                      H5P_DEFAULT, &scalar);
     if (status != 0)
     {   
-        log_errorF("%s: Getting scalar\n", fcnm);
+        LOG_ERRMSG("%s", "Getting scalar");
         scalar = scalarNaN;
     }   
     status += H5Sclose(memSpace);
@@ -130,7 +128,6 @@ static int traceBuffer_h5_getIntegerScalar(const hid_t groupID,
                                            const int scalarNaN,
                                            int *ierr)
 {
-    const char *fcnm = "traceBuffer_h5_getIntegerScalar\0";
     int scalar;
     hid_t dataSet, dataSpace, memSpace;
     herr_t status;
@@ -145,7 +142,7 @@ static int traceBuffer_h5_getIntegerScalar(const hid_t groupID,
                      H5P_DEFAULT, &scalar);
     if (status != 0)
     {
-        log_errorF("%s: Getting scalar\n", fcnm);
+        LOG_ERRMSG("%s", "Getting scalar");
         scalar = scalarNaN;
     }
     status += H5Sclose(memSpace);

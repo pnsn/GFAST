@@ -4,9 +4,9 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_traceBuffer.h"
+#include "gfast_core.h"
 #include "gfast_hdf5.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
@@ -36,7 +36,6 @@ int traceBuffer_h5_initialize(const int job,
                               const char *h5file,
                               struct h5traceBuffer_struct *h5traceBuffer)
 {
-    const char *fcnm = "traceBuffer_h5_initialize\0";
     FILE *fp;
     double *work; 
     char **traceOut, **traces, h5name[PATH_MAX], cwork[512], temp[64];
@@ -50,14 +49,14 @@ int traceBuffer_h5_initialize(const int job,
     // Make sure there is data
     if (h5traceBuffer->traces == NULL || h5traceBuffer->ntraces < 1)
     {
-        log_errorF("%s: Input traces do not exist\n", fcnm);
+        LOG_ERRMSG("%s", "Input traces do not exist");
         return -1;
     }
     // Set the filename
     ierr = traceBuffer_h5_setFileName(h5dir, h5file, h5name);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting the HDF5 filename\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting the HDF5 filename");
         return -1;
     }
     // In this instance the file is simply opened for reading
@@ -66,8 +65,7 @@ int traceBuffer_h5_initialize(const int job,
         // If scratch file was saved then remove it
         if (!os_path_isfile(h5name))
         {
-            log_errorF("%s: Error HDF5 file does %s not exist!\n",
-                       fcnm, h5name);
+            LOG_ERRMSG("Error HDF5 file does %s not exist!", h5name);
             return -1;
         }
         // Get the size of the file
@@ -82,7 +80,7 @@ int traceBuffer_h5_initialize(const int job,
             status = H5Pset_fapl_core(properties, blockSize, false);
             if (status < 0)
             {
-                log_errorF("%s: Error setting properties list\n", fcnm);
+                LOG_ERRMSG("%s", "Error setting properties list");
                 return -1; 
             }
         }
@@ -90,7 +88,7 @@ int traceBuffer_h5_initialize(const int job,
         status = H5Pclose(properties);
         if (status < 0)
         {
-            log_errorF("%s: Error closing the properties list\n", fcnm);
+            LOG_ERRMSG("%s", "Error closing the properties list");
             return -1;
         }
         // Verify the group is there
@@ -100,7 +98,7 @@ int traceBuffer_h5_initialize(const int job,
                           h5traceBuffer->dtGroupName[i], //traces[i].groupName,
                           H5P_DEFAULT) != 1)
             {
-                log_errorF("%s: Error couldn't find group: %s\n", fcnm,
+                LOG_ERRMSG("Error couldn't find group: %s", 
                            h5traceBuffer->dtGroupName[i]);
                 return -1;
             }
@@ -110,12 +108,12 @@ int traceBuffer_h5_initialize(const int job,
                                        h5traceBuffer->fileID, &ntraces, &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Couldn't read traces\n", fcnm);
+            LOG_ERRMSG("%s", "Couldn't read traces");
             return -1;
         }
         if (ntraces != h5traceBuffer->ntraces)
         {
-            log_errorF("%s: metadata size inconsistency\n", fcnm);
+            LOG_ERRMSG("%s", "metadata size inconsistency");
             return -1;
         }
         // Match those SNCLs
@@ -137,7 +135,7 @@ int traceBuffer_h5_initialize(const int job,
                     goto FOUND_TRACE;
                 }
             }
-            log_errorF("%s: Failed to find trace!\n", fcnm);
+            LOG_ERRMSG("%s", "Failed to find trace!");
             return -1;
 FOUND_TRACE:;
         }
@@ -155,7 +153,7 @@ FOUND_TRACE:;
         // If scratch file was saved then remove it 
         if (os_path_isfile(h5name))
         {
-            log_warnF("%s: Deleting file %s\n", fcnm, h5name);
+            LOG_WARNMSG("Deleting file %s", h5name);
         }
         // Space estimate
         maxpts = 0;
@@ -166,19 +164,20 @@ FOUND_TRACE:;
             {
                 if (maxpts < 0)
                 {
-                    log_warnF("%s: maxpts is negative - setting to 0\n", fcnm);
+                    LOG_WARNMSG("maxpts = %d is negative - setting to 0",
+                                maxpts);
                     maxpts = 0;
                     h5traceBuffer->traces[i].maxpts = maxpts;
                 }
                 else
                 {
-                    log_warnF("%s: maxpts is 0 for trace %d\n", fcnm, i+1);
+                    LOG_WARNMSG("maxpts is 0 for trace %d", i+1);
                 }
             }
         }
         if (maxpts == 0)
         {
-            log_errorF("%s: There's no data in the buffers\n", fcnm);
+            LOG_ERRMSG("%s", "There's no data in the buffers");
             return -1;
         }
         blockSize = (size_t)
@@ -191,7 +190,7 @@ FOUND_TRACE:;
             status = H5Pset_fapl_core(properties, blockSize, lsave);
             if (status < 0)
             {
-                log_errorF("%s: Error setting properties list\n", fcnm);
+                LOG_ERRMSG("%s", "Error setting properties list");
                 return -1;
             }
         }
@@ -200,7 +199,7 @@ FOUND_TRACE:;
         status = H5Pclose(properties);
         if (status < 0)
         {
-            log_errorF("%s: Error closing the properties list\n", fcnm);
+            LOG_ERRMSG("%s", "Error closing the properties list");
             return -1; 
         }
         // Make the root groups
@@ -210,7 +209,7 @@ FOUND_TRACE:;
         status = H5Gclose(groupID);
         if (status < 0)
         {
-            log_errorF("%s: Error creating /Data group\n", fcnm);
+            LOG_ERRMSG("%s", "Error creating /Data group");
             return -1;
         }
         ndtGroups = 0;
@@ -223,12 +222,12 @@ FOUND_TRACE:;
         }
         if (ndtGroups <= 0)
         {
-            log_errorF("%s: Error no sampling period groups\n", fcnm);
+            LOG_ERRMSG("%s", "Error no sampling period groups");
             return -1;
         }
         if (ndtGroups > 1)
         {
-            log_warnF("%s: Multiple dt not tested\n", fcnm);
+            LOG_WARNMSG("%s", "Multiple dt not tested");
             return -1;
         }
         for (i=0; i<ndtGroups; i++)
@@ -249,7 +248,7 @@ FOUND_TRACE:;
         status = H5Gclose(groupID);
         if (status < 0)
         {
-            log_errorF("%s: Error creating /MetaData group\n", fcnm);
+            LOG_ERRMSG("%s", "Error creating /MetaData group");
             return -1;
         }
         // Make the data
@@ -325,7 +324,7 @@ FOUND_TRACE:;
                                           ntraces, dts); 
             if (ierr != 0)
             {
-                log_errorF("%s: Error writing dts\n", fcnm);
+                LOG_ERRMSG("%s", "Error writing dts");
                 return -1;
             }
             memset(cwork, 0, sizeof(cwork));
