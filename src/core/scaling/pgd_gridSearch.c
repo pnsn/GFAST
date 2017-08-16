@@ -9,6 +9,8 @@
  *
  * @param[in] l1               Number of sites.
  * @param[in] ndeps            Number of source depths.
+ * @param[in] nlats            Number of latitudes in grid search.
+ * @param[in] nlons            Number of longitudes in grid search.
  * @param[in] verbose          Controls verbosity (< 2 is quiet).
  * @param[in] dist_tol         Displacement tolerance (cm).  If the displacment
  *                             is less than dist_tol it will be set to dist_tol.
