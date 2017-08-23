@@ -3,7 +3,7 @@
 
 #cmakedefine GFAST_USE_EW 1
 #cmakedefine GFAST_USE_INTEL 1
-#cmakedefine USE_AMQ 1
+#cmakedefine GFAST_USE_AMQ 1
 #cmakedefine GFAST_VERSION_MAJOR @GFAST_VERSION_MAJOR@
 #cmakedefine GFAST_VERSION_MINOR @GFAST_VERSION_MINOR@
 #define GFAST_MAXMSG_LEN 4096
