@@ -2,7 +2,9 @@
 #define _gfast__h_ 1
 #include <stdbool.h>
 #include "gfast_config.h"
+#ifdef  GFAST_USE_AMQ
 #include "gfast_activeMQ.h"
+#endif
 #include "gfast_core.h"
 #include "gfast_eewUtils.h"
 #include "gfast_enum.h"
