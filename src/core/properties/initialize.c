@@ -15,7 +15,7 @@
 #include "gfast_core.h"
 #include "iscl/os/os.h"
 #include "iscl/log/log.h"
-#ifdef USE_AMQ
+#ifdef GFAST_USE_AMQ
 #include "gfast_activeMQ.h"
 #endif
 
@@ -337,7 +337,7 @@ int core_properties_initialize(const char *propfilename,
         goto ERROR; 
     }
     //---------------------------ActiveMQ Parameters--------------------------//
-#ifdef USE_AMQ
+#ifdef GFAST_USE_AMQ
     if (props->opmode == REAL_TIME_EEW) 
     {
         ierr = activeMQ_readIni(propfilename, "ActiveMQ",
