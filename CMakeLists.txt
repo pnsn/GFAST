@@ -51,9 +51,8 @@ find_package(ZLIB REQUIRED)
 find_package(XML2 REQUIRED)
 
 # Bring in headers
-include_directories(
+INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  cmopad
   ${CBLAS_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${COMPEARTH_INCLUDE_DIR}
@@ -61,6 +60,7 @@ include_directories(
   ${INIPARSER_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR}
 )
+#INCLUDE_DIRECTORIES(cmopad)
 
 IF (GFAST_USE_INTEL)
 INCLUDE_DIRECTORIES(
@@ -147,10 +147,10 @@ ADD_EXECUTABLE(fakeQuake src/debug/fakeQuake.c ${DEBUG_SRC})
 SET_TARGET_PROPERTIES(fakeQuake PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 ENDIF (UW_AMAZON)
 
-ADD_EXECUTABLE(xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
+#ADD_EXECUTABLE(xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
 SET_TARGET_PROPERTIES(gfast_playback PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 SET_TARGET_PROPERTIES(gfast_eew PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-SET_TARGET_PROPERTIES(xcmopad PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
+#SET_TARGET_PROPERTIES(xcmopad PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
 IF (GFAST_USE_INTEL)
 ADD_EXECUTABLE(xcoreTests ${SRCS_UT})
 SET_TARGET_PROPERTIES(xcoreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
@@ -181,7 +181,6 @@ if (GFAST_USE_INTEL)
                         gfast_core_static
                         gfast_activeMQ_shared
                         gfast_traceBuffer_static
-                        cmopad_shared
                         ${ISCL_LIBRARY}
                         ${COMPEARTH_LIBRARY}
                         -Wl,--start-group
@@ -201,7 +200,6 @@ if (GFAST_USE_INTEL)
                         gfast_core_static
                         gfast_activeMQ_shared
                         gfast_traceBuffer_static
-                        cmopad_shared
                         ${ISCL_LIBRARY}
                         ${COMPEARTH_LIBRARY}
                         -Wl,--start-group
@@ -215,13 +213,12 @@ if (GFAST_USE_INTEL)
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread)
- target_link_libraries(xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
+ #target_link_libraries(xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
  target_link_libraries(xcoreTests
                        gfast_xml_static
                        gfast_hdf5_static
                        gfast_core_static
                        gfast_traceBuffer_static
-                       cmopad_shared
                        ${ISCL_LIBRARY}
                        ${COMPEARTH_LIBRARY}
                        -Wl,--start-group
@@ -242,7 +239,6 @@ else()
                         gfast_core_static
                         gfast_activeMQ_shared
                         gfast_traceBuffer_static
-                        cmopad_shared
                         ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
                         ${FFTW3_LIBRARY}
@@ -260,7 +256,6 @@ else()
                         gfast_core_static
                         gfast_activeMQ_shared
                         gfast_traceBuffer_static
-                        cmopad_shared
                         ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
                         ${FFTW3_LIBRARY}
@@ -272,17 +267,16 @@ else()
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
-  target_link_libraries(xcmopad
-                        cmopad_shared
-                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
-                        ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
-                        -lm -ldl -lpthread -lgfortran)
+  #target_link_libraries(xcmopad
+  #                      cmopad_shared
+  #                      ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+  #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+  #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
+  #                      -lm -ldl -lpthread -lgfortran)
   #target_link_libraries(xcoreTests
   #                      gfast_xml_shared
   #                      gfast_hdf5_shared
   #                      gfast_core_shared
-  #                      cmopad_shared
   #                      ${ISCL_LIBRARY}
   #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
   #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
@@ -301,7 +295,6 @@ IF (UW_AMAZON)
                         gfast_xml_shared
                         gfast_activeMQ_shared
                         gfast_hdf5_shared
-                        cmopad_shared
                         ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                         ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
@@ -313,7 +306,6 @@ IF (UW_AMAZON)
                         gfast_xml_shared
                         gfast_activeMQ_shared
                         gfast_hdf5_shared
-                        cmopad_shared
                         ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                         ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
@@ -325,7 +317,6 @@ IF (UW_AMAZON)
                         gfast_xml_shared
                         gfast_activeMQ_shared
                         gfast_hdf5_shared
-                        cmopad_shared
                         ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                         ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
@@ -336,9 +327,9 @@ IF (UW_AMAZON)
  ENDIF (GFAST_USE_INTEL)
 ENDIF (UW_AMAZON)
 
-add_test(NAME cmopadTest
-         WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
-         COMMAND xcmopad)
+#add_test(NAME cmopadTest
+#         WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
+#         COMMAND xcmopad)
 IF (GFAST_USE_INTEL)
 add_test(NAME coreTest 
          WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}

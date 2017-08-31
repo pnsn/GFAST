@@ -2,7 +2,6 @@ add_sources(
 cmt.c
 coord.c
 ff.c
-mt.c
 pgd.c
 readCoreInfo.c
 tests.c

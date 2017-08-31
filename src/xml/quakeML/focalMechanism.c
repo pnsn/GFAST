@@ -11,9 +11,10 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+#include "compearth.h"
 #include "gfast_xml.h"
 #include "gfast_core.h"
-#include "cmopad.h"
+//#include "cmopad.h"
 
 /*!
  * @brief Writes the focal mechanism and derived quantities such as the 
@@ -49,8 +50,10 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
 {
     xmlTextWriterPtr writer;
     char publicID[512];
-    struct cmopad_struct src;
-    double M_ned[3][3], M_use[6], naxis[3], paxis[3], taxis[3];
+    //struct cmopad_struct src;
+    //double M_ned[3][3];
+    double M_use[6], naxis[3], paxis[3], taxis[3], fp1[3], fp2[3];
+    double clvdPct, dcPct, devPct, isoPct, M0, Mw;
     int ierr, rc;
     size_t lenos;
     //------------------------------------------------------------------------//
@@ -74,6 +77,17 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
         strcat(publicID, "/\0");
     }   
     if (method != NULL){strcat(publicID, method);}
+    // Do the decomposition
+    ierr = compearth_standardDecomposition(1, mt, CE_NED,
+                                           &M0, &Mw, fp1, fp2,
+                                           paxis, naxis, taxis,
+                                           &isoPct, &devPct, &dcPct, &clvdPct);
+    if (ierr != 0)
+    {
+        LOG_ERRMSG("%s", "Error computing standard decomposition");
+        return -1;
+    }
+/*
     // This is the moment tensor to be decomposed
     M_ned[0][0] = mt[0];               // mxx
     M_ned[1][1] = mt[1];               // myy
@@ -118,6 +132,8 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
         LOG_ERRMSG("%s", "Error converting NED to USE moment tensor");
         return -1;
     }
+*/
+    compearth_convertMT(1, CE_NED, CE_USE, mt, M_use);
     // <focalMechanism>
     rc += xmlTextWriterStartElement(writer, BAD_CAST "focalMechanism\0");
     // Write the moment tensor 
@@ -125,9 +141,9 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
                                          evid,
                                          method,
                                          M_use,
-                                         src.seismic_moment,
-                                         src.DC_percentage,
-                                         src.CLVD_percentage,
+                                         M0, //src.seismic_moment,
+                                         dcPct, //src.DC_percentage,
+                                         clvdPct, //src.CLVD_percentage,
                                          (void *) xml_writer);
     if (ierr != 0)
     {
@@ -135,7 +151,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
         return -1;
     }
     // Write the nodal planes
-    ierr = xml_quakeML_writeNodalPlanes(src.fp1, src.fp2,
+    ierr = xml_quakeML_writeNodalPlanes(fp1, fp2,
                                         (void *) writer);
     if (ierr != 0)
     {

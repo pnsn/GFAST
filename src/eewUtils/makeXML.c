@@ -16,7 +16,7 @@
 #include "gfast_eewUtils.h"
 #include "gfast_core.h"
 #include "gfast_xml.h"
-#include "cmopad.h"
+#include "compearth.h"
 #include "iscl/log/log.h"
 #include "iscl/time/time.h"
 
@@ -378,6 +378,12 @@ char *eewUtils_makeXML__quakeML(const char *network,
         *ierr = 1;
         return qml;
     }
+    // Turn indentation on
+    rc = xmlTextWriterSetIndentString(writer, BAD_CAST "  ");
+    if (rc < 0)
+    {
+        LOG_ERRMSG("%s", "Error setting indentation");
+    }
     // Start the document with default xml version
     rc = xmlTextWriterStartDocument(writer, NULL, XML_ENCODING, NULL);
     if (rc < 0)
@@ -385,6 +391,12 @@ char *eewUtils_makeXML__quakeML(const char *network,
         LOG_ERRMSG("%s", "Error starting writer");
         *ierr = 1;
         return qml;
+    }
+    // Set the indentation
+    rc = xmlTextWriterSetIndent(writer, 1);
+    if (rc < 0)
+    {
+        LOG_ERRMSG("%s", "Error activating indentation");
     }
     //------------------------------------------------------------------------//
     //                           Write the QuakeML                            //
@@ -425,7 +437,7 @@ char *eewUtils_makeXML__quakeML(const char *network,
                                                   (void *) writer);
     // Make the magnitude
     memset(&magnitude, 0, sizeof(struct qmlMagnitude_struct));
-    mag = cmopad_momentMagnitudeM6(mt, ierr);
+    *ierr = compearth_CMT2mw(1, 1, mt, &mag);
     if (*ierr == 0)
     {
         magnitude.magnitude = mag;
@@ -437,6 +449,15 @@ char *eewUtils_makeXML__quakeML(const char *network,
     {
         LOG_ERRMSG("%s", "Error computing moment magnitude");
     }
+    xml_quakeML_writeMagnitude(magnitude.magnitude, magnitude.lhaveMag, 
+                               0.5, false, 
+                               magnitude.type, magnitude.lhaveType,
+                               (void *) writer);
+    //*ierr = GFAST_xml_quakeML_writeMagnitude(publicIDroot,
+    //                                         evid,
+    //                                         method,
+    //                                         magnitude,
+    //                                         (void *) writer);
     // Make the origin
     memset(&origin, 0, sizeof(struct qmlOrigin_struct));
     origin.originTime.time = t0;

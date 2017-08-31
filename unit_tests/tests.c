@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "iscl/log/log.h"
 
-int numpy_lstsq_test();
 int coord_test_ll2utm(void);
 int pgd_inversion_test(void);
 int pgd_inversion_test2(void);
@@ -33,7 +32,6 @@ int main()
     }
 
 /*
-    ierr = numpy_lstsq_test();
     if (ierr != 0)
     {
         printf("%s: Failed the least-squares test!\n", fcnm);
@@ -48,12 +46,14 @@ int main()
         return EXIT_FAILURE;
     }
 
+/*
     ierr = cmopad_test(0);
     if (ierr != 0)
     {
         printf("%s: Failed MT decomposition!\n", fcnm);
         return EXIT_FAILURE;
     }
+*/
 
     //------------------------------------------------------------------------//
     // test the forward modeling and regularization matrices.  if any of      //

@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gfast_core.h"
-#include "cmopad.h"
+#include "compearth.h"
+#include "iscl/array/array.h"
+
+#define TEST_COMPEARTH 0
+#if (TEST_COMPEARTH == 1)
+#include "cmopad/cmopad.h"
+#endif
 
 /*!
  * @brief Finds the moment tensor decomposition of the NED moment tensor
@@ -46,15 +52,67 @@ int core_cmt_decomposeMomentTensor(const int nmt,
                                    double *__restrict__ rake1,
                                    double *__restrict__ rake2)
 {
+#if (TEST_COMPEARTH == 1)
     struct cmopad_struct cmt;
     double M33[3][3];
-    int i, ierr, ierr1;
+    int ierr1;
     int verbose = 0;
+#endif
+    double *M0, *fp1, *fp2, *pAxis, *tAxis, *bAxis, *isoPct, *devPct, *clvdPct;
+    int i, ierr;
     //------------------------------------------------------------------------//
     // Initialize output
     ierr = 0;
+    M0 = (double *) calloc((size_t) nmt, sizeof(double));
+    fp1 = (double *) calloc((size_t) (3*nmt), sizeof(double));
+    fp2 = (double *) calloc((size_t) (3*nmt), sizeof(double));
+    pAxis = (double *) calloc((size_t) (3*nmt), sizeof(double));
+    bAxis = (double *) calloc((size_t) (3*nmt), sizeof(double));
+    tAxis = (double *) calloc((size_t) (3*nmt), sizeof(double)); 
+    isoPct = (double *) calloc((size_t) nmt, sizeof(double));
+    devPct = (double *) calloc((size_t) nmt, sizeof(double));
+    clvdPct = (double *) calloc((size_t) nmt, sizeof(double));
+    ierr = compearth_standardDecomposition(nmt, M, CE_NED,
+                                           M0, Mw, fp1, fp2,
+                                           pAxis, bAxis, tAxis,
+                                           isoPct, devPct, DC_pct, clvdPct);
+    if (ierr != 0)
+    {
+        LOG_ERRMSG("%s", "Error in compearth moment tensor decomposition");
+        array_zeros64f_work(nmt, DC_pct);
+        array_zeros64f_work(nmt, Mw);
+        array_zeros64f_work(nmt, strike1);
+        array_zeros64f_work(nmt, strike2);
+        array_zeros64f_work(nmt, dip1);
+        array_zeros64f_work(nmt, dip2);
+        array_zeros64f_work(nmt, rake1);
+        array_zeros64f_work(nmt, rake2);
+    }
+    else
+    {
+        for (i=0; i<nmt; i++)
+        {
+            strike1[i] = fp1[3*i];
+            dip1[i]    = fp1[3*i+1];
+            rake1[i]   = fp1[3*i+2];
+            strike2[i] = fp2[3*i];
+            dip2[i]    = fp2[3*i+1];
+            rake2[i]   = fp2[3*i+2];
+        }
+    }
+    free(M0);
+    free(fp1);
+    free(fp2);
+    free(pAxis);
+    free(bAxis);
+    free(tAxis);
+    free(isoPct);
+    free(devPct);
+    free(clvdPct);
+#if (TEST_COMPEARTH == 1)
     for (i=0; i<nmt; i++)
     {
+/*
         Mw[i] = 0.0;
         DC_pct[i] = 100.0; //Avoid a division by zero if an error is encountered
         strike1[i] = 0.0;
@@ -63,6 +121,7 @@ int core_cmt_decomposeMomentTensor(const int nmt,
         dip2[i] = 0.0;
         rake1[i] = 0.0;
         rake2[i] = 0.0;
+*/
         // Pack up the moment tensor
         M33[0][0] = M[i*6+0];             //Mxx
         M33[1][1] = M[i*6+1];             //Myy
@@ -86,6 +145,46 @@ int core_cmt_decomposeMomentTensor(const int nmt,
             ierr = ierr + 1;
             continue;
         }
+        if (fabs(cmt.DC_percentage - DC_pct[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("dc mistmatch %f %f\n", cmt.DC_percentage, DC_pct[i]);
+            return -1;
+        }
+        if (fabs(cmt.moment_magnitude - Mw[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("Mw mistmatch %f %f\n", cmt.moment_magnitude, Mw[i]);
+            return -1;
+        }
+        if (fabs(cmt.fp1[0] - strike1[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("str1 mistmatch %f %f\n", cmt.fp1[0], strike1[i]);
+            return -1;
+        }
+        if (fabs(cmt.fp1[1] - dip1[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("dip1 mistmatch %f %f\n", cmt.fp1[1], dip1[i]);
+            return -1;
+        }
+        if (fabs(cmt.fp1[2] - rake1[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("rak1 mistmatch %f %f\n", cmt.fp1[2], rake1[i]);
+            return -1;
+        }
+        if (fabs(cmt.fp2[0] - strike2[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("str2 mistmatch %f %f\n", cmt.fp2[0], strike2[i]);
+            return -1;
+        }
+        if (fabs(cmt.fp2[1] - dip2[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("dip2 mistmatch %f %f\n", cmt.fp2[1], dip2[i]);
+            return -1;
+        }
+        if (fabs(cmt.fp2[2] - rake2[i]) > 1.e-10)
+        {
+            LOG_ERRMSG("rak2 mistmatch %f %f\n", cmt.fp2[2], rake2[i]);
+            return -1;
+        }
         // Double couple percentage
         DC_pct[i] = cmt.DC_percentage;
         // Moment magnitude
@@ -103,5 +202,6 @@ int core_cmt_decomposeMomentTensor(const int nmt,
     {
         LOG_ERRMSG("%s", "Errors during moment tensor decomposition");
     }
+#endif
     return ierr;
 }
