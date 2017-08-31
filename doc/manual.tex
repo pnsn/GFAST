@@ -151,6 +151,12 @@ at expediting the conversion of NumPy laden Python scripts to C via the ISTI Sci
 Computing Library (ISCL).  ISCL is distributed under the Apache-2 license and 
 freely available from \url{https://github.com/bakerb845/libiscl}.
 
+\subsection{compearth}
+This is a moment tensor manipulation package developed by Carl Tape and recently ported to C by ISTI. 
+It is used by G-FAST to perform moment tensor decompositions.
+It is currently available from \url{https://github.com/bakerb845/compearth} and the C source exists in compearth/momenttensor/c\_src.  
+It may soon be merged back into Carl's original directory.  It is distributed under the MIT license.
+
 \subsubsection{ActiveMQ}
 The ShakeAlert earthquake early warning system sends and receives alerts with the ActiveMQ
 messaging system.  If one is not using GFAST in earthquake early warning then ActiveMQ
@@ -182,6 +188,7 @@ available at \url{http://cython.org/} or through a package manager.  This is not
 at the present time minimally supported.
 
 \subsubsection{cMoPaD}
+\emph{Warning: This is soon to be deprecated}.
 The moment tensor decompositions are accomplished through a C implementation of 
 \href{https://github.com/geophysics/MoPaD}{MoPaD}.  This is distributed with GFAST.  
 Because the C implementation is derivative work it must assume MoPaD's original 
@@ -228,6 +235,8 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DINIPARSER_LIBRARY=path_to_libiniparser \
       -DISCL_INCLUDE_DIR=path_to_iscl_include \
       -DISCL_LIBRARY=path_to_libiscl_static \
+      -DCOMPEARTH_LIBRARY=path_to_libcompearth_static \
+      -DCOMPEARTH_INCLUDE_DIR=path_to_compearth_include \
       -DGEOLIB_LIBRARY=path_to_libGeographic \
       -DFFTW3_LIBRARY=path_to_libfftw3 \
       -DEW_INCLUDE_DIR=path_to_earthworm_include \
@@ -259,6 +268,8 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DINIPARSER_LIBRARY=path_to_libiniparser \
       -DISCL_INCLUDE_DIR=path_to_iscl_include \
       -DISCL_LIBRARY=path_to_libiscl \
+      -DCOMPEARTH_LIBRARY=path_to_libcompearth_static \
+      -DCOMPEARTH_INCLUDE_DIR=path_to_compearth_include \      
       -DGEOLIB_LIBRARY=path_to_libGeographic \
       -DEW_INCLUDE_DIR=path_to_ewinclude \
       -DEW_LIBRARY=path_to_libew \
