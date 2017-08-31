@@ -257,8 +257,8 @@ tbeger = ISCL_time_timeStamp();
 // early quit
  if (t1 - tbeg > 6200 && false)
 {
-printf("premature shut down\n");
-break;
+//printf("premature shut down\n");
+//break;
 } 
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;

@@ -280,7 +280,7 @@ printf("pgd scaling..\n");
                 pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
                 pgdXML = eewUtils_makeXML__pgd(props.opmode, //shakeAlertMode,
                                                "GFAST\0",
-                                               GFAST_ALGORITHM_VERSION,
+                                               GFAST_VERSION,
                                                GFAST_INSTANCE,
                                                "new\0",
                                                GFAST_VERSION,
@@ -341,7 +341,7 @@ printf("pgd scaling..\n");
                 nstrdip = ff->fp[ipf].nstr*ff->fp[ipf].ndip;
                 ffXML = eewUtils_makeXML__ff(props.opmode,
                                              "GFAST\0",
-                                             GFAST_ALGORITHM_VERSION,
+                                             GFAST_VERSION,
                                              GFAST_INSTANCE,
                                              "new\0",
                                              GFAST_VERSION,

@@ -13,9 +13,8 @@
 #include "gfast_traceBuffer.h"
 #include "gfast_xml.h"
 
-#define GFAST_ALGORITHM_VERSION "0.01"
-#define GFAST_VERSION "0.01"
-#define GFAST_INSTANCE "PNSN"
+//#define GFAST_ALGORITHM_VERSION "0.01"
+//#define GFAST_INSTANCE "PNSN"
 
 #ifdef __cplusplus
 extern "C"

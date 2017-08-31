@@ -6,6 +6,9 @@
 #cmakedefine GFAST_USE_AMQ 1
 #cmakedefine GFAST_VERSION_MAJOR @GFAST_VERSION_MAJOR@
 #cmakedefine GFAST_VERSION_MINOR @GFAST_VERSION_MINOR@
+#cmakedefine GFAST_VERSION_PATCH @GFAST_VERSION_PATCH@
+#cmakedefine GFAST_VERSION "@GFAST_VERSION@"
+#cmakedefine GFAST_INSTANCE "@GFAST_INSTANCE@"
 #define GFAST_MAXMSG_LEN 4096
 
 #endif /* _gfast_config_h__ */
