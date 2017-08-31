@@ -216,6 +216,7 @@ cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
       -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED  -D_USE_PTHREADS" \
       -DCMAKE_CXX_FLAGS="-g3 -O2" \
+      -DGFAST_INSTANCE="YourInstitution" \
       -DGFAST_USE_AMQ=TRUE \
       -DGFAST_USE_EW=TRUE \      
       -DAPR_INCLUDE_DIR=path_to_include_apr-1 \
@@ -248,11 +249,12 @@ As another example, one can use the MKL and IPP libraries to boost performance
 \begin{verbatim}
 cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
       -DCMAKE_INSTALL_PREFIX=./ \
-      -DCMAKE_C_COMPILER=/usr/bin/gcc-5 \
+      -DCMAKE_C_COMPILER=/usr/bin/gcc \
       -DCMAKE_CXX_COMPILER=/usr/bin/c++ \
       -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall" \
       -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED  -D_USE_PTHREADS" \
       -DCMAKE_CXX_FLAGS="-g3 -O2" \
+      -DGFAST_INSTANCE="YourInstitution" \
       -DGFAST_USE_INTEL=TRUE \
       -DGFAST_USE_AMQ=TRUE \
       -DGFAST_USE_EW=TRUE \      
