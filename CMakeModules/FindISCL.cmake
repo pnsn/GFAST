@@ -8,7 +8,7 @@
     HINTS /usr/include /usr/local/include $ENV{ISCL_DIR}/include
   )
   find_library(ISCL_LIBRARY
-    NAMES iscl
+    NAMES iscl iscl_shared iscl_static
     HINTS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 $ENV{ISCL_DIR}/lib
   )
   if (ISCL_INCLUDE_DIR)
