@@ -56,6 +56,7 @@ include_directories(
   cmopad
   ${CBLAS_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
+  ${COMPEARTH_INCLUDE_DIR}
   ${H5_C_INCLUDE_DIR}
   ${INIPARSER_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR}
@@ -159,7 +160,8 @@ ENDIF ()
 if (GFAST_USE_INTEL)
   message(${ISCL_LIBRARY})
   if (GFAST_USE_EW)
-    set (LIB_BASE ${ISCL_LIBARARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+    set (LIB_BASE ${ISCL_LIBARARY} ${COMPEARTH_LIBRARY}
+                  -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                   ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
                   ${LIBXML2_LIBRARY} ${EW_LIBRARY} -lm -ldl -lpthread)
   else()
@@ -181,6 +183,7 @@ if (GFAST_USE_INTEL)
                         gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
+                        ${COMPEARTH_LIBRARY}
                         -Wl,--start-group
                         ${MKL_LIBRARY}
                         -Wl,--end-group
@@ -200,6 +203,7 @@ if (GFAST_USE_INTEL)
                         gfast_traceBuffer_static
                         cmopad_shared
                         ${ISCL_LIBRARY}
+                        ${COMPEARTH_LIBRARY}
                         -Wl,--start-group
                         ${MKL_LIBRARY}
                         -Wl,--end-group
@@ -219,6 +223,7 @@ if (GFAST_USE_INTEL)
                        gfast_traceBuffer_static
                        cmopad_shared
                        ${ISCL_LIBRARY}
+                       ${COMPEARTH_LIBRARY}
                        -Wl,--start-group
                        ${MKL_LIBRARY}
                        -Wl,--end-group
@@ -238,7 +243,7 @@ else()
                         gfast_activeMQ_shared
                         gfast_traceBuffer_static
                         cmopad_shared
-                        ${ISCL_LIBRARY}
+                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
                         ${FFTW3_LIBRARY}
                         ${GEOLIB_LIBRARY}
@@ -256,7 +261,7 @@ else()
                         gfast_activeMQ_shared
                         gfast_traceBuffer_static
                         cmopad_shared
-                        ${ISCL_LIBRARY}
+                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
                         ${FFTW3_LIBRARY}
                         ${GEOLIB_LIBRARY}
@@ -269,7 +274,7 @@ else()
                         -lm -ldl -lpthread -lgfortran)
   target_link_libraries(xcmopad
                         cmopad_shared
-                        ${ISCL_LIBRARY}
+                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
                         ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
                         ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
@@ -297,7 +302,8 @@ IF (UW_AMAZON)
                         gfast_activeMQ_shared
                         gfast_hdf5_shared
                         cmopad_shared
-                        ${ISCL_LIBRARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                         ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lcurl -lm -ldl -lpthread -lpng)
@@ -308,7 +314,8 @@ IF (UW_AMAZON)
                         gfast_activeMQ_shared
                         gfast_hdf5_shared
                         cmopad_shared
-                        ${ISCL_LIBRARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                         ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng) 
@@ -319,7 +326,8 @@ IF (UW_AMAZON)
                         gfast_activeMQ_shared
                         gfast_hdf5_shared
                         cmopad_shared
-                        ${ISCL_LIBRARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
                         ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng)
