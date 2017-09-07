@@ -2,7 +2,7 @@
 #define GFAST_CONFIG_H 1
 
 #cmakedefine GFAST_USE_EW 1
-#cmakedefine GFAST_USE_INTEL 1
+#cmakedefine GFAST_USE_INTEL
 #cmakedefine GFAST_USE_AMQ 1
 #cmakedefine GFAST_VERSION_MAJOR @GFAST_VERSION_MAJOR@
 #cmakedefine GFAST_VERSION_MINOR @GFAST_VERSION_MINOR@
@@ -11,4 +11,4 @@
 #cmakedefine GFAST_INSTANCE "@GFAST_INSTANCE@"
 #define GFAST_MAXMSG_LEN 4096
 
-#endif /* _gfast_config_h__ */
+#endif /* GFAST_CONFIG_H__ */
