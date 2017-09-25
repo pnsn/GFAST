@@ -10,7 +10,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 4. src contains the source code.
   + src/activeMQ contains C++ readers/writers and C interfaes for using ActiveMQ.
   + src/core contains the core GFAST computations.
-  + eewUtils contains application specific functions for performing the earthquake early warning tasks.  This may be a useful directory for developers of other applications looking for examples of how to use GFAST's core functinoality.
+  + eewUtils contains application specific functions for performing the earthquake early warning tasks.  This may be a useful directory for developers of other applications looking for examples of how to use GFAST's core functionality.
   + src/hdf5 contains the HDF5 interfaces for generating a self-describing archive or play-by-play of GFAST.
   + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.  The GFAST specific buffer is targeted for deprecation and should be avoided. 
   + src/uw contains functions specific to the University of Washington and Amazon project.
@@ -19,146 +19,106 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 
 # Building GFAST 
 
-Dependencies (verify with manual):
+## Dependencies (verify with manual):
 
-(a)  You must have cmake >= 2.6 for generation of makefiles
+1. [cmake](https://cmake.org/) >= v2.6 for generation of Makefiles
 
-(b)  The low level math routines and logging reside in ISTI's computing library:
-       https://github.com/bakerb845/libiscl
-     which, at the present time, must be built from source (apache 2 license).
+2. [LAPACK(E)](http://www.netlib.org/lapack/) and [(C)BLAS](http://www.netlib.org/blas/) for matrix algebra.  These are available through MKL.
 
-(c)  For testing the lat/lon to UTM conversions you must install geographiclib:
-       http://geographiclib.sourceforge.net/
-     Additionally, if static linking with libiscl you will need this library
-     (mit license).
+3. [iniparser](https://github.com/ndevilla/iniparser) for parsing ini files.
 
-(d)  To parse the ini file you must install iniparser:
-       https://github.com/ndevilla/iniparser
-     (mit license)
+4. [hdf5](https://support.hdfgroup.org/HDF5/) for archival of results.  Currently v1.10.1 is required but as soon the ring archiver in eewUtils is completed the required version will be downgraded.  If linking to static libraries this may also required [zlib](http://www.zlib.net) for compression.
 
-(e)  It is recommended you obtain Intel's Math Kernel Library (MKL):
-       https://software.intel.com/sites/campaigns/nest/
-     as it will provide a non-negligible increase in performance.  You'll
-     have to agree to Intel's license.
+5. [libxml2](http://xmlsoft.org/) for reading/writing ShakeAlert and QuakeML XML.
 
-     Otherwise, you will need LAPACK, LAPACKE, BLAS, AND CBLAS which is likely
-     available with a package manager and resides in /usr/lib(64) or, if
-     absolutely necessary, can be built from source:
-       http://www.netlib.org/lapack/
-     (modified BSD)
-     If static linking to ISCL and do not have MKL you theoretically can use
-     FFTw.
-       http://www.fftw.org/
-     (GPL license - you really should use MKL)
+6. [ISCL](https://github.com/bakerb845/libiscl) for many small computations throughout GFAST.  If not using MKL and using static libraries only then this will require [fftw](http://www.fftw.org/).  Also, depending on your configuration it may also require [GeographicLib](https://geographiclib.sourceforge.io/).
 
-(f)  For archival purposes you must have HDF5.  HDF5 has a subdependency
-     zlib, which will expose itself should you attempt to statically,
-     link.  Both are available at the following sites.
-       http://www.zlib.net
-       https://www.hdfgroup.org/HDF5/
-     I encourage either building HDF5 from source or using a package
-     manager.  Never in between.  If you build with an MPI enabled HDF5
-     you'll need to either use the shared HDF5 libraries or specify mpicc
-     as your C compiler.  (zlib and hdf5 have permissive licenses)
+7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
 
-     zlib is also supposedly available in Intel's Performance Primitives
-     package:
-       https://software.intel.com/sites/campaigns/nest/
-     which may be of interest if one plans to use ISCL more extensively.
+8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
-(g)  XML and QuakeML are becoming a popular framework for disseminating
-     results.  For XML interfacing we use XML2 which is likely available
-     with GCC but, if not, is available at:
-       http://xmlsoft.org/
-     (mit license)
+9. [ActiveMQ](http://activemq.apache.org/) both the Java and C++ portions.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
---------------------------------------------------------------------------------
--                                   optional                                   -
---------------------------------------------------------------------------------
+## Configuring 
 
-(h)  The earthquake early warning community triggers on activeMQ messages.  
-     To use activeMQ you'll need libcrtypo and libssl as well as the C++
-     activeMQ package:
-       http://activemq.apache.org/cms/download.html
-     (apache 2 license)
+To get CMake to behave I usually use configuration scripts.  
 
-(i)  Earthworm'ers the data will be coming in via geojson2ew.  To get this
-     to compile you'll need, obviously, earthworm
-       http://earthworm.isti.com/trac/earthworm/
-     as well as rabbitmq-c 
-       https://github.com/alanxz/rabbitmq-c
-     and
-       https://github.com/akheron/jansson
-     (rabbit-c is mit licensed and jansson has a permissive license)
- 
-(j)  To use the Python interfaces you must have cython
-       http://cython.org/
-     which likely will be available through a package manager.
+On a machine with MKL/IPP I might do something like
 
-Install:
+    #!/bin/bash
+    /home/bakerb25/cmake-3.6.1/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
+    -DCMAKE_INSTALL_PREFIX=./ \
+    -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
+    -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
+    -DCMAKE_CXX_FLAGS="-g3 -O2" \
+    -DGFAST_INSTANCE="PNSN" \
+    -DGFAST_USE_INTEL=FALSE \
+    -DGFAST_USE_AMQ=TRUE \
+    -DGFAST_USE_EW=TRUE \
+    -DAPR_INCLUDE_DIR=/usr/include/apr-1 \
+    -DLIBAMQ_INCLUDE_DIR=/usr/include/activemq-cpp-3.8.2 \
+    -DLIBAMQ_LIBRARY=/usr/lib64/libactivemq-cpp.so \
+    -DLSSL_LIBRARY=/usr/lib64/libssl.so.10 \
+    -DLCRYPTO_LIBRARY=/usr/lib64/libcrypto.so.10 \
+    -DLAPACKE_INCLUDE_DIR=/home/bakerb25/lapack-3.6.1/LAPACKE/include \
+    -DLAPACKE_LIBRARY=/home/bakerb25/lapack-3.6.1/liblapacke.a \
+    -DLAPACK_LIBRARY=/home/bakerb25/lapack-3.6.1/liblapack.a \
+    -DCBLAS_INCLUDE_DIR=/home/bakerb25/lapack-3.6.1/CBLAS/include \
+    -DCBLAS_LIBRARY=/home/bakerb25/lapack-3.6.1/libcblas.a \
+    -DBLAS_LIBRARY=/home/bakerb25/lapack-3.6.1/libblas.a \
+    -DH5_C_INCLUDE_DIR=/home/bakerb25/hdf5-1.10.1/include \
+    -DH5_LIBRARY=/home/bakerb25/hdf5-1.10.1/lib/libhdf5.so \
+    -DINIPARSER_INCLUDE_DIR=/home/bakerb25/iniparser/src \
+    -DINIPARSER_LIBRARY=/home/bakerb25/iniparser/libiniparser.a \
+    -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/compearth/momenttensor/c_src/include \
+    -DCOMPEARTH_LIBRARY=/home/bakerb25/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
+    -DISCL_INCLUDE_DIR=/home/bakerb25/libiscl/include \
+    -DISCL_LIBRARY=/home/bakerb25/libiscl/lib/libiscl_static.a \
+    -DGEOLIB_LIBRARY=/home/bakerb25/GeographicLib-1.46/lib/libGeographic.a \
+    -DFFTW3_LIBRARY=/home/bakerb25/fftw-3.3.5/lib/libfftw3.a \
+    -DEW_INCLUDE_DIR=/home/bakerb25/earthworm/earthworm-working/include \
+    -DEW_LIBRARY="/home/bakerb25/earthworm/earthworm-working/lib/swap.o;/home/bakerb25/earthworm/earthworm-working/lib/libew.a" \
+    -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
+    -DLIBXML2_LIBRARY=/usr/lib64/libxml2.so
 
-(a)  Descend into source, type cmake ., and let the pain begin.  I don't
-     even bother with the ccmake and instead directly edit the CMakeLists.txt.
+Another example, when building with MKL/IPP I'd do something like
 
-(b)  Be sure to correctly set your LD_LIBRARY_PATH's.  I actually can't
-     static link all the libraries (though you might go into src/CMakeLists.txt,
-     look at the target_link_library section, and change things that say
-     _shared to _static)
+    #!/bin/bash
+    /usr/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
+    -DCMAKE_INSTALL_PREFIX=./ \
+    -DCMAKE_C_COMPILER=/usr/local/bin/clang \
+    -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
+    -DCMAKE_C_FLAGS="-g3 -O2 -Weverything -Wno-reserved-id-macro -Wno-padded -fopenmp" \
+    -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
+    -DCMAKE_CXX_FLAGS="-g3 -O2 -Weverything -fopenmp" \
+    -DGFAST_INSTANCE="PNSN" \
+    -DGFAST_USE_INTEL=TRUE \
+    -DGFAST_USE_AMQ=TRUE \
+    -DGFAST_USE_EW=TRUE \
+    -DAPR_INCLUDE_DIR=/usr/include/apr-1.0 \
+    -DLIBAMQ_INCLUDE_DIR=/home/bakerb25/cpp/activemq-cpp-library-3.9.3/include/activemq-cpp-3.9.3 \
+    -DLIBAMQ_LIBRARY=/home/bakerb25/cpp/activemq-cpp-library-3.9.3/lib/libactivemq-cpp.so \
+    -DLSSL_LIBRARY=/usr/lib/x86_64-linux-gnu/libssl.so \
+    -DLCRYPTO_LIBRARY=/usr/lib/x86_64-linux-gnu/libcrypto.so \
+    -DMKL_LIBRARY="/opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so;/opt/intel/mkl/lib/intel64/libmkl_core.so;/opt/intel/mkl/lib/intel64/libmkl_sequential.so" \
+    -DIPP_LIBRARY="/opt/intel/ipp/lib/intel64/libipps.so;/opt/intel/ipp/lib/intel64/libippvm.so;/opt/intel/ipp/lib/intel64/libippcore.so" \
+    -DH5_C_INCLUDE_DIR=/home/bakerb25/C/hdf5-1.10.1_intel/include \
+    -DH5_LIBRARY=/home/bakerb25/C/hdf5-1.10.1_intel/lib/libhdf5.so \
+    -DINIPARSER_INCLUDE_DIR=/home/bakerb25/C/iniparser/src \
+    -DINIPARSER_LIBRARY=/home/bakerb25/C/iniparser/libiniparser.a \
+    -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/C/compearth/momenttensor/c_src/include \
+    -DCOMPEARTH_LIBRARY=/home/bakerb25/C/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
+    -DISCL_INCLUDE_DIR=/home/bakerb25/C/libiscl/include \
+    -DISCL_LIBRARY="/home/bakerb25/C/libiscl/lib/libiscl_shared.so;/opt/intel/lib/intel64/libirc.so" \
+    -DGEOLIB_LIBRARY=/home/bakerb25/C/GeographicLib-1.46/lib/libGeographic.so \
+    -DEW_INCLUDE_DIR=/home/bakerb25/C/earthworm/earthworm-working/include \
+    -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/swap.o;/home/bakerb25/C/earthworm/earthworm-working/lib/libew.a" \
+    -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
+    -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so \
+    -DUW_AMAZON=TRUE \
+    -DJANSSON_LIBRARY=/home/bakerb25/C/jansson/lib/libjansson.a \
+    -DJANSSON_INCLUDE=/home/bakerb25/C/jansson/include
 
-(c)  Type make
+You'll only need Janson if making the UW source.  
 
-(d)  As an example, one can also Cython the shared library so that the C
-     functions can be used directly from Python.  Hopefully, the compile.sh
-     bash script is sufficient.  Additionally, if you are installing to 
-     non-system standard directories you will need to set/modify your 
-     LD_LIBRARY_PATH environment variable.
-
-     A word of caution: the calling sequences have been altered for C's 
-     benefit so the Python legacy source will likely be unable to call any 
-     GFAST function directly without modification to the call sequence.  
-     I do not recommend using this functionality until the src has
-     stabilized.  This is because the Python to C interfaces are low
-     priority for development.
-
-Directories (this is valid - TODO: copy to manual):
-
-(a)  doc - documentation for algorithms
-
-(b)  legacy - the original Python GFAST
-
-(c)  src
-     (i)    include - contains the GFAST include files
-     (ii)   cmopad - contains the functions for moment tensor conversions
-                     and decompositions (MoPaD Moment tensor Plotting and
-                     Decomposition - A tool for graphical and numerical
-                     analysis of seismic moment tensors) [library]
-     (iii)  core - core modeling and inversion utilities [library] 
-     (iv)   eewUtils - earthquake early warning utilities and drivers
-                       with EEW application logic - a good place to start
-                       if you'd like to learn how to use all the other
-                       libraries [application]
-     (v)    events - in real-time applications this handles the bookkeeping
-                     for GFAST and keeps track of the number of events to
-                     process [probably should move to core]
-     (vi)   xml - for writing (and reading?) XML for shakeAlert and
-                  quakeML for the CMT inversion [library]
-     (vii)  hdf5 - for archiving results [library]
-     (viii) activeMQ - for earthquake early warning this is the requisite
-                       functions for incoming shakeAlert core messages (on
-                       which GFAST EEW triggers) and for sending the finite
-                       fault and PGD shakeAlert XML messages [library]
-     (iix)  traceBuffer - handles the getting of data into the program.
-                          in here there reside the earthworm hooks.  though
-                          if not compiling for a real-time application this
-                          can be ignored.
-
-(d)  cython - (C)Python interface to libgfast.so.  After successfully
-              building the cython wrappers one can use them as if the
-              wrappers were Python modules. 
-
-(e)  unit_tests - regression testing for the core library. 
-
-Examples:
-
-(a)  No exercises in futility yet... 
 
