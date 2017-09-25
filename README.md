@@ -1,9 +1,23 @@
+# Introduction 
 
-For installation instructions RTFM in doc/manual.pdf
+This is the source code for Geodetic First Approximation of Size and Timing (GFAST) geodetic earthquake early warning module.  For more detailed instructions check the doc/manual.pdf
 
-Introduction:
+# Directories
 
-Read the manual.
+1. doc contains the GFAST user's manual.
+2. include contains the GFAST C include files.
+3. legacy is the original Python source code.
+4. src contains the source code.
+  + src/activeMQ contains C++ readers/writers and C interfaes for using ActiveMQ.
+  + src/core contains the core GFAST computations.
+  + eewUtils contains application specific functions for performing the earthquake early warning tasks.  This may be a useful directory for developers of other applications looking for examples of how to use GFAST's core functinoality.
+  + src/hdf5 contains the HDF5 interfaces for generating a self-describing archive or play-by-play of GFAST.
+  + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.  The GFAST specific buffer is targeted for deprecation and should be avoided. 
+  + src/uw contains functions specific to the University of Washington and Amazon project.
+  + src/xml contains functions for certainly writing and potentially reading QuakeML and ShakeAlert specific XML.
+5. unit_tests contains some simple regression tests for the core modules.
+
+# Building GFAST 
 
 Dependencies (verify with manual):
 
