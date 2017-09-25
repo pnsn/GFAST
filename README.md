@@ -23,7 +23,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 
 1. [cmake](https://cmake.org/) >= v2.6 for generation of Makefiles
 
-2. [LAPACK(E)](http://www.netlib.org/lapack/) and [(C)BLAS](http://www.netlib.org/blas/) for matrix algebra.  These are available through MKL.
+2. [LAPACK(E)](http://www.netlib.org/lapack/) and [(C)BLAS](http://www.netlib.org/blas/) for matrix algebra.  These are available through [MKL](https://software.intel.com/en-us/mkl) and [IPP](https://software.intel.com/en-us/intel-ipp/details).
 
 3. [iniparser](https://github.com/ndevilla/iniparser) for parsing ini files.
 
