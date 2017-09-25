@@ -1,7 +1,0 @@
-brendan, you have to email the comotion (tech transfer) and see what they want.  
-i'm going to guess this software belongs to uw, ideally it is free (as in beer) 
-for academics and government organizations, uw owns all modifications to the software, the software
-is provided as is, and you cannot hold uw liable.  i don't think gpl will be a good license
-choice.  if this library is to exist in the shakealert framework gpl licensing can very easily 
-find itself conflicting with caltech licensed software.  but that's the usgs's problem and not yours.
-
