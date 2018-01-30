@@ -84,16 +84,22 @@
  *                             component (m) for the i'th site on the ifp'th
  *                             fault plane [l1*nfp].
  *
- * @param[in,out] sslip_unc    if not NULL then this is the uncertainty (m)
+ * @param[in,out] sslip_unc    If not NULL then this is the uncertainty (m)
  *                             estimated from the diagonal of the model
  *                             covariance matrix for the slip along strike on
- *                             the if'th fault patch
- *                             on the ifp'th fault plane [l2*nfp]
- * @param[in,out] dslip_unc    if not NULL then this is the uncertainty (m)
+ *                             the if'th fault patch on the ifp'th fault plane.
+ *                             Note, that it must still be multiplied by a 
+ *                             confidence level and a standard deviation.
+ *                             If sslip_unc is requested then it must be an 
+ *                             array of dimension of [l2*nfp].
+ * @param[in,out] dslip_unc    If not NULL then this is the uncertainty (m)
  *                             estimated from the diagonal of the model
  *                             covariance matrix for the slip down dip on
- *                             the on the if'th fault patch
- *                             on the ifp'th fault plane [l2*nfp]
+ *                             the on the if'th fault patch on the ifp'th
+ *                             fault plane.  Note, that it must still be
+ *                             multiplied by a confidence level and a 
+ *                             standard deviation.  If dslip_unc is requested
+ *                             then it must be an array of dimension [l2*nfp].
  *  
  * @result 0 indicates success.
  *
