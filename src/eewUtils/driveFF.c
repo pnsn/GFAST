@@ -312,8 +312,8 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
         {
             ff->fp[ifp].sslip[i] = sslip[if_off+i];
             ff->fp[ifp].dslip[i] = dslip[if_off+i];
-            ff->fp[ifp].sslip_unc[i] = sslip[if_off+i];
-            ff->fp[ifp].dslip_unc[i] = dslip[if_off+i];
+            ff->fp[ifp].sslip_unc[i] = sslip_unc[if_off+i];
+            ff->fp[ifp].dslip_unc[i] = dslip_unc[if_off+i];
         }
         // Observations
         i = 0;

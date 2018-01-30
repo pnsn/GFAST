@@ -375,6 +375,10 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
         // Futhermore, we only retain the diagonals so computing a full matrix
         // matrix multiply is unnecessary.  What is necessary is instead taking
         // the inner products which would produce the diagonal elements.
+        // Note, to finish the computation you need an estimate of the standard
+        // deviation and a confidence level.  For example, if you had a standard
+        // deviation of say, 8, and a confidence level of 95 percent you'd compute
+        // sslip_unc = sslip_unc*1.96*8.
         if (lrmtx)
         {
             ierr1 = LAPACKE_dtrtri(LAPACK_ROW_MAJOR, 'U', 'N', ncolsG2,
@@ -414,7 +418,6 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
                         ds_unc = cblas_ddot(ncolsG2, &R[(2*i+1)*ncolsG2], 1,
                                                      &R[(2*i+1)*ncolsG2], 1);
                         sslip_unc[if_off+i] = sqrt(ds_unc);
-                        dslip_unc[if_off+i] = sqrt(ds_unc);
                     }
                 }
             }
