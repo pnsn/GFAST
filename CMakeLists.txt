@@ -267,6 +267,22 @@ else()
                         ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
                         ${INIPARSER_LIBRARY}
                         -lm -ldl -lpthread -lgfortran)
+ target_link_libraries(xcoreTests
+                       gfast_xml_static
+                       gfast_hdf5_static
+                       gfast_core_static
+                       gfast_traceBuffer_static
+                       ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+                       ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+                       ${FFTW3_LIBRARY}
+                       ${GEOLIB_LIBRARY}
+                       ${H5_LIBRARY}
+                       ${ZLIB_LIBRARY}
+                       ${EW_LIBRARY}
+                       ${LIBXML2_LIBRARY}
+                       ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+                       ${INIPARSER_LIBRARY}
+                       -lm -ldl -lpthread -lgfortran)
   #target_link_libraries(xcmopad
   #                      cmopad_shared
   #                      ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
