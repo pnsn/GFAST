@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<event_message category="live" message_type="new" orig_sys="elarms" version="0">
+  <core_info id="4557299">
+    <mag units="Mw">3.4000</mag>
+    <mag_uncer units="Mw">0.5000</mag_uncer>
+    <lat units="deg">38.8000</lat>
+    <lat_uncer units="deg">0.5000</lat_uncer>
+    <lon units="deg">-122.8200</lon>
+    <lon_uncer units="deg">0.5000</lon_uncer>
+    <depth units="km">8.0000</depth>
+    <depth_uncer units="km">5.0000</depth_uncer>
+    <orig_time units="UTC">2011-08-11T23:21:07.753Z</orig_time>
+    <orig_time_uncer units="sec">20.0000</orig_time_uncer>
+    <likelihood>0.8000</likelihood>
+  </core_info>
+  <elarms_info>
+    <pgv_obs number="2">
+      <obs>
+        <SNCL>STA1.NET.CHAN.LOC</SNCL>
+        <value units="cm/s">1234.5600</value>
+        <lat units="deg">33.1200</lat>
+        <lon units="deg">-123.4500</lon>
+        <time units="UTC">2011-08-11T23:21:12.753Z</time>
+      </obs>
+      <obs>
+        <SNCL>STA2.NET.CHAN.LOC</SNCL>
+        <value units="cm/s">2345.6700</value>
+        <lat units="deg">32.8500</lat>
+        <lon units="deg">-124.0200</lon>
+        <time units="UTC">2011-08-11T23:21:13.753Z</time>
+      </obs>
+    </pgv_obs>
+    <pga_obs number="2">
+      <obs>
+        <SNCL>STA1.NET.CHAN.LOC</SNCL>
+        <value units="g">2334.4500</value>
+        <lat units="deg">33.1200</lat>
+        <lon units="deg">-123.4500</lon>
+        <time units="UTC">2011-08-11T23:21:12.753Z</time>
+      </obs>
+      <obs>
+        <SNCL>STA2.NET.CHAN.LOC</SNCL>
+        <value units="g">1893.2000</value>
+        <lat units="deg">32.8500</lat>
+        <lon units="deg">-124.0200</lon>
+        <time units="UTC">2011-08-11T23:21:13.753Z</time>
+      </obs>
+    </pga_obs>
+  </elarms_info>
+</event_message>
