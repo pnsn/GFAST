@@ -6,7 +6,7 @@ ENABLE_LANGUAGE(CXX)
 ENABLE_TESTING()
 SET(GFAST_VERSION_MAJOR 1)
 SET(GFAST_VERSION_MINOR 2)
-SET(GFAST_VERSION_PATCH 0)
+SET(GFAST_VERSION_PATCH 1)
 SET(GFAST_VERSION ${GFAST_VERSION_MAJOR}.${GFAST_VERSION_MINOR}.${GFAST_VERSION_PATCH})
 IF ("${GFAST_INSTANCE}" STREQUAL "")
   SET(GFAST_INSTANCE "DEFAULT")
@@ -91,7 +91,6 @@ macro (add_sources)
 endmacro (add_sources)
 
 ADD_SUBDIRECTORY(include)
-#ADD_SUBDIRECTORY(cmopad)
 ADD_SUBDIRECTORY(src/core)
 ADD_SUBDIRECTORY(src/eewUtils)
 ADD_SUBDIRECTORY(src/traceBuffer)
@@ -99,249 +98,295 @@ ADD_SUBDIRECTORY(src/xml)
 ADD_SUBDIRECTORY(src/hdf5)
 ADD_SUBDIRECTORY(unit_tests)
 
-if (GFAST_USE_AMQ)
-  include_directories(${LIBAMQ_INCLUDE_DIR} ${APR_INCLUDE_DIR})
-  ADD_SUBDIRECTORY(src/activeMQ)
-endif (GFAST_USE_AMQ)
-
-if (GFAST_USE_EW)
-  add_definitions(-DUSE_EW=1)
-  include_directories(${EW_INCLUDE_DIR})
-else()
-  set(GFAST_USE_EW OFF)
-endif (GFAST_USE_EW)
-
+# Have GFAST use ActiveMQ
+IF (GFAST_USE_AMQ)
+   INCLUDE_DIRECTORIES(${LIBAMQ_INCLUDE_DIR} ${APR_INCLUDE_DIR})
+   ADD_SUBDIRECTORY(src/activeMQ)
+ENDIF (GFAST_USE_AMQ)
+# Have GFAST use Earthworm
+IF (GFAST_USE_EW)
+   #ADD_DEFINITIONS(-DUSE_EW=1)
+   INCLUDE_DIRECTORIES(${EW_INCLUDE_DIR})
+ELSE()
+   SET(GFAST_USE_EW OFF)
+ENDIF (GFAST_USE_EW)
+# Have GFAST propagate results to pnsn.org
 IF (UW_AMAZON)
    ADD_SUBDIRECTORY(src/uw)
    INCLUDE_DIRECTORIES(${JANSSON_INCLUDE_DIR})
 ENDIF (UW_AMAZON)
-
+# Add earthworm build flags - the earthworm `way' is to modify the system's OS flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EW_BUILD_FLAGS}" CACHE STRING "" FORCE)
 
-ADD_LIBRARY(gfast_core_shared SHARED ${SRCS_CORE})
-ADD_LIBRARY(gfast_core_static STATIC ${SRCS_CORE})
-ADD_LIBRARY(gfast_xml_shared SHARED ${SRCS_XML})
-ADD_LIBRARY(gfast_xml_static STATIC ${SRCS_XML})
-#ADD_LIBRARY(cmopad_shared SHARED ${SRCS_CMOPAD})
-#add_library(cmopad_static STATIC ${SRCS_CMOPAD}) # Need a license agreement from pnsn
-ADD_LIBRARY(gfast_traceBuffer_shared SHARED ${SRCS_H5TB})
-ADD_LIBRARY(gfast_traceBuffer_static STATIC ${SRCS_H5TB})
-IF (GFAST_USE_AMQ)
-  ADD_LIBRARY(gfast_activeMQ_shared SHARED ${SRCS_AMQ})
-  #add_library(gfast_activeMQ_static STATIC ${SRCS_AMQ})
-ENDIF (GFAST_USE_AMQ)
-ADD_LIBRARY(gfast_hdf5_shared SHARED ${SRCS_HDF5})
-ADD_LIBRARY(gfast_hdf5_static STATIC ${SRCS_HDF5})
+ADD_LIBRARY(gfast_shared SHARED ${SRCS_CORE} ${SRCS_XML} ${SRCS_AMQ} ${SRCS_EEW} ${SRCS_HDF5} ${SRCS_H5TB})
+ADD_LIBRARY(gfast_static STATIC ${SRCS_CORE} ${SRCS_XML} ${SRCS_AMQ} ${SRCS_EEW} ${SRCS_HDF5} ${SRCS_H5TB})
+#ADD_LIBRARY(gfast_core_shared SHARED ${SRCS_CORE})
+#ADD_LIBRARY(gfast_core_static STATIC ${SRCS_CORE})
+#ADD_LIBRARY(gfast_xml_shared SHARED ${SRCS_XML})
+#ADD_LIBRARY(gfast_xml_static STATIC ${SRCS_XML})
+##ADD_LIBRARY(cmopad_shared SHARED ${SRCS_CMOPAD})
+##add_library(cmopad_static STATIC ${SRCS_CMOPAD}) # Need a license agreement from pnsn
+#ADD_LIBRARY(gfast_traceBuffer_shared SHARED ${SRCS_H5TB})
+#ADD_LIBRARY(gfast_traceBuffer_static STATIC ${SRCS_H5TB})
+#IF (GFAST_USE_AMQ)
+#   ADD_LIBRARY(gfast_activeMQ_shared SHARED ${SRCS_AMQ})
+#   #add_library(gfast_activeMQ_static STATIC ${SRCS_AMQ})
+#ENDIF (GFAST_USE_AMQ)
+#ADD_LIBRARY(gfast_hdf5_shared SHARED ${SRCS_HDF5})
+#ADD_LIBRARY(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
 ADD_EXECUTABLE(gfast_playback src/gfast_playback.c ${SRCS_EEW})
 ADD_EXECUTABLE(gfast_eew src/gfast_eew.c ${SRCS_EEW})
 
+# These are UW development files and kind of clunky
 IF (UW_AMAZON)
-ADD_EXECUTABLE(gfast2web src/uw/gfast2web.c src/uw/beachball.c src/uw/gfast2json.c)
-SET_TARGET_PROPERTIES(gfast2web PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-#ADD_SUBDIRECTORY(debug)
-SET(DEBUG_SRC src/debug/fakeQueue.c)
-ADD_EXECUTABLE(gfast_debug src/debug/debug.c ${DEBUG_SRC})
-SET_TARGET_PROPERTIES(gfast_debug PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-ADD_EXECUTABLE(fakeQuake src/debug/fakeQuake.c ${DEBUG_SRC})
-SET_TARGET_PROPERTIES(fakeQuake PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+   ADD_EXECUTABLE(gfast2web src/uw/gfast2web.c src/uw/beachball.c src/uw/gfast2json.c)
+   SET_TARGET_PROPERTIES(gfast2web PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+   #ADD_SUBDIRECTORY(debug)
+   SET(DEBUG_SRC src/debug/fakeQueue.c)
+   ADD_EXECUTABLE(gfast_debug src/debug/debug.c ${DEBUG_SRC})
+   SET_TARGET_PROPERTIES(gfast_debug PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+   ADD_EXECUTABLE(fakeQuake src/debug/fakeQuake.c ${DEBUG_SRC})
+   SET_TARGET_PROPERTIES(fakeQuake PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 ENDIF (UW_AMAZON)
 
-#ADD_EXECUTABLE(xcmopad cmopad/unit_tests.c ${SRCS_CMOPAD}) 
+# Let CMake know where the binaries will live 
 SET_TARGET_PROPERTIES(gfast_playback PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 SET_TARGET_PROPERTIES(gfast_eew PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-#SET_TARGET_PROPERTIES(xcmopad PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
-#IF (GFAST_USE_INTEL)
+
+# Unit tests
 ADD_EXECUTABLE(xcoreTests ${SRCS_UT})
-SET_TARGET_PROPERTIES(xcoreTests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
-#ENDIF ()
+SET_TARGET_PROPERTIES(xcoreTests
+                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY})
 
-
-if (GFAST_USE_INTEL)
-  message(${ISCL_LIBRARY})
-  if (GFAST_USE_EW)
-    set (LIB_BASE ${ISCL_LIBARARY} ${COMPEARTH_LIBRARY}
-                  -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
-                  ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
-                  ${LIBXML2_LIBRARY} ${EW_LIBRARY} -lm -ldl -lpthread)
-  else()
-    set (LIB_BASE ${ISCL_LIBARARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
-                  ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
-                  ${LIBXML2_LIBRARY})
-  endif(GFAST_USE_EW)
-  if (GFAST_USE_AMQ)
-    set (LINK_LIB_ALL ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY} ${LIB_BASE})
-  else ()
-    set (LINK_LIB_ALL ${LIB_BASE})
-  endif ()
-  message(${LINK_LIB_ALL})
-  target_link_libraries(gfast_eew
-                        gfast_xml_static
-                        gfast_hdf5_static
-                        gfast_core_static
-                        gfast_activeMQ_shared
-                        gfast_traceBuffer_static
-                        ${ISCL_LIBRARY}
-                        ${COMPEARTH_LIBRARY}
-                        -Wl,--start-group
-                        ${MKL_LIBRARY}
-                        -Wl,--end-group
-                        ${IPP_LIBRARY}
-                        ${GEOLIB_LIBRARY}
-                        ${H5_LIBRARY}
-                        ${LIBXML2_LIBRARY}
-                        ${EW_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARY}
-                        -lm -ldl -lpthread)
-  target_link_libraries(gfast_playback
-                        gfast_xml_static
-                        gfast_hdf5_static
-                        gfast_core_static
-                        gfast_activeMQ_shared
-                        gfast_traceBuffer_static
-                        ${ISCL_LIBRARY}
-                        ${COMPEARTH_LIBRARY}
-                        -Wl,--start-group
-                        ${MKL_LIBRARY}
-                        -Wl,--end-group
-                        ${IPP_LIBRARY}
-                        ${GEOLIB_LIBRARY}
-                        ${H5_LIBRARY}
-                        ${LIBXML2_LIBRARY}
-                        ${EW_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARY}
-                        -lm -ldl -lpthread)
- #target_link_libraries(xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
- target_link_libraries(xcoreTests
-                       gfast_xml_static
-                       gfast_hdf5_static
-                       gfast_core_static
-                       gfast_traceBuffer_static
-                       ${ISCL_LIBRARY}
-                       ${COMPEARTH_LIBRARY}
-                       -Wl,--start-group
-                       ${MKL_LIBRARY}
-                       -Wl,--end-group
-                       ${IPP_LIBRARY}
-                       ${GEOLIB_LIBRARY}
-                       ${H5_LIBRARY}
-                       ${LIBXML2_LIBRARY}
-                       ${EW_LIBRARY}
-                       ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                       ${INIPARSER_LIBRARY}
-                       -lm -ldl -lpthread)
-else()
-  target_link_libraries(gfast_eew
-                        gfast_xml_static
-                        gfast_hdf5_static
-                        gfast_core_static
-                        gfast_activeMQ_shared
-                        gfast_traceBuffer_static
-                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
-                        ${FFTW3_LIBRARY}
-                        ${GEOLIB_LIBRARY}
-                        ${H5_LIBRARY}
-                        ${ZLIB_LIBRARY}
-                        ${LIBXML2_LIBRARY}
-                        ${EW_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARY}
-                        -lm -ldl -lpthread -lgfortran)
-  target_link_libraries(gfast_playback
-                        gfast_xml_static
-                        gfast_hdf5_static
-                        gfast_core_static
-                        gfast_activeMQ_shared
-                        gfast_traceBuffer_static
-                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
-                        ${FFTW3_LIBRARY}
-                        ${GEOLIB_LIBRARY}
-                        ${H5_LIBRARY}
-                        ${ZLIB_LIBRARY}
-                        ${EW_LIBRARY}
-                        ${LIBXML2_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${INIPARSER_LIBRARY}
-                        -lm -ldl -lpthread -lgfortran)
- target_link_libraries(xcoreTests
-                       gfast_xml_static
-                       gfast_hdf5_static
-                       gfast_core_static
-                       gfast_traceBuffer_static
-                       ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                       ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
-                       ${FFTW3_LIBRARY}
-                       ${GEOLIB_LIBRARY}
-                       ${H5_LIBRARY}
-                       ${ZLIB_LIBRARY}
-                       ${EW_LIBRARY}
-                       ${LIBXML2_LIBRARY}
-                       ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                       ${INIPARSER_LIBRARY}
-                       -lm -ldl -lpthread -lgfortran)
-  #target_link_libraries(xcmopad
-  #                      cmopad_shared
-  #                      ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-  #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
-  #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
-  #                      -lm -ldl -lpthread -lgfortran)
-  #target_link_libraries(xcoreTests
-  #                      gfast_xml_shared
-  #                      gfast_hdf5_shared
-  #                      gfast_core_shared
-  #                      ${ISCL_LIBRARY}
-  #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
-  #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
-  #                      ${ISCL_LIBRARY}
-  #                      ${LIBXML2_LIBRARY}
-  #                      ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-  #                      ${INIPARSER_LIBRARY}
-  #                      -lm -ldl -lpthread -lgfortran)
-endif(GFAST_USE_INTEL)
-
+# Set the libraries
+SET(LIB_BASE
+    ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY} ${INIPARSER_LIBRARY}
+    ${H5_LIBRARY} ${LIBXML2_LIBRARY})
+# Add MKL
+IF (GFAST_USE_INTEL)
+   SET(LIB_BASE ${LIB_BASE}
+       -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group ${IPP_LIBRARY})
+ELSE()
+   SET(LIB_BASE ${LIB_BASE}
+       ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+       ${FFTW3_LIBRARY})
+ENDIF()
+# Add Earthworm -> problem with fPIC and sort.o -> EW's build system is awful.
+#IF (GFAST_USE_EW)
+#   SET(LIB_BASE ${LIB_BASE} ${EW_LIBRARY})
+#ENDIF(GFAST_USE_EW)
+# Add ActiveMQ
+IF (GFAST_USE_AMQ)
+   SET(LIB_BASE ${LIB_BASE} ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY})
+ENDIF()
+# Add some extra libraries - there must be a better way to do this
+SET(LIB_BASE ${LIB_BASE} -lm -ldl -lpthread)
+# Set the libraries to target link executables with
+IF (GFAST_USE_EW)
+   SET(LIB_ALL ${EW_LIBRARY} ${LIB_BASE})
+ELSE()
+   SET(LIB_ALL ${LIB_BASE})
+ENDIF()
+# Target link the shared libraries
+TARGET_LINK_LIBRARIES(gfast_shared ${LIB_BASE})
+TARGET_LINK_LIBRARIES(gfast_static ${LIB_BASE})
+# Target link the executables
+TARGET_LINK_LIBRARIES(gfast_eew      gfast_shared ${LIB_ALL})
+TARGET_LINK_LIBRARIES(gfast_playback gfast_shared ${LIB_ALL})
+TARGET_LINK_LIBRARIES(xcoreTests     gfast_shared ${LIB_ALL})
 IF (UW_AMAZON)
- IF (GFAST_USE_INTEL)
-  TARGET_LINK_LIBRARIES(gfast2web
-                        gfast_core_shared
-                        gfast_traceBuffer_shared
-                        gfast_xml_shared
-                        gfast_activeMQ_shared
-                        gfast_hdf5_shared
-                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
-                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lcurl -lm -ldl -lpthread -lpng)
-  TARGET_LINK_LIBRARIES(fakeQuake
-                        gfast_core_shared
-                        gfast_traceBuffer_shared
-                        gfast_xml_shared
-                        gfast_activeMQ_shared
-                        gfast_hdf5_shared
-                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
-                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng) 
-  TARGET_LINK_LIBRARIES(gfast_debug
-                        gfast_core_shared
-                        gfast_traceBuffer_shared
-                        gfast_xml_shared
-                        gfast_activeMQ_shared
-                        gfast_hdf5_shared
-                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
-                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
-                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
-                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
-                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng)
- ELSE ()
+   TARGET_LINK_LIBRARIES(gfast2web   gfast_shared ${JANSSON_LIBRARY} ${LIB_ALL} -lcurl -lpng)
+   TARGET_LINK_LIBRARIES(gfast_debug gfast_shared ${JANSSON_LIBRARY} ${LIB_ALL} -lcurl -lpng)
+   TARGET_LINK_LIBRARIES(fakeQuake   gfast_shared ${JANSSON_LIBRARY} ${LIB_ALL} -lcurl -lpng)
+ENDIF()
+#IF (GFAST_USE_EW)
+#   TARGET_LINK_LIBRARIES(
 
- ENDIF (GFAST_USE_INTEL)
-ENDIF (UW_AMAZON)
+#IF (GFAST_USE_INTEL)
+#  IF (GFAST_USE_EW)
+#    set (LIB_BASE ${ISCL_LIBARARY} ${COMPEARTH_LIBRARY}
+#                  -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+#                  ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
+#                  ${LIBXML2_LIBRARY} ${EW_LIBRARY} -lm -ldl -lpthread)
+#  else()
+#    set (LIB_BASE ${ISCL_LIBARARY} -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+#                  ${IPP_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY} ${INIPARSER_LIBRARY}
+#                  ${LIBXML2_LIBRARY})
+#  endif(GFAST_USE_EW)
+#  if (GFAST_USE_AMQ)
+#    set (LINK_LIB_ALL ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY} ${LIB_BASE})
+#  else ()
+#    set (LINK_LIB_ALL ${LIB_BASE})
+#  endif ()
+#  message(${LINK_LIB_ALL})
+#  target_link_libraries(gfast_eew
+#                        gfast_xml_static
+#                        gfast_hdf5_static
+#                        gfast_core_static
+#                        gfast_activeMQ_shared
+#                        gfast_traceBuffer_static
+#                        ${ISCL_LIBRARY}
+#                        ${COMPEARTH_LIBRARY}
+#                        -Wl,--start-group
+#                        ${MKL_LIBRARY}
+#                        -Wl,--end-group
+#                        ${IPP_LIBRARY}
+#                        ${GEOLIB_LIBRARY}
+#                        ${H5_LIBRARY}
+#                        ${LIBXML2_LIBRARY}
+#                        ${EW_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${INIPARSER_LIBRARY}
+#                        -lm -ldl -lpthread)
+#  target_link_libraries(gfast_playback
+#                        gfast_xml_static
+#                        gfast_hdf5_static
+#                        gfast_core_static
+#                        gfast_activeMQ_shared
+#                        gfast_traceBuffer_static
+#                        ${ISCL_LIBRARY}
+#                        ${COMPEARTH_LIBRARY}
+#                        -Wl,--start-group
+#                        ${MKL_LIBRARY}
+#                        -Wl,--end-group
+#                        ${IPP_LIBRARY}
+#                        ${GEOLIB_LIBRARY}
+#                        ${H5_LIBRARY}
+#                        ${LIBXML2_LIBRARY}
+#                        ${EW_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${INIPARSER_LIBRARY}
+#                        -lm -ldl -lpthread)
+# #target_link_libraries(xcmopad cmopad_shared -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group -lm -ldl -lpthread)
+# target_link_libraries(xcoreTests
+#                       gfast_xml_static
+#                       gfast_hdf5_static
+#                       gfast_core_static
+#                       gfast_traceBuffer_static
+#                       ${ISCL_LIBRARY}
+#                       ${COMPEARTH_LIBRARY}
+#                       -Wl,--start-group
+#                       ${MKL_LIBRARY}
+#                       -Wl,--end-group
+#                       ${IPP_LIBRARY}
+#                       ${GEOLIB_LIBRARY}
+#                       ${H5_LIBRARY}
+#                       ${LIBXML2_LIBRARY}
+#                       ${EW_LIBRARY}
+#                       ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                       ${INIPARSER_LIBRARY}
+#                       -lm -ldl -lpthread)
+#else()
+#  target_link_libraries(gfast_eew
+#                        gfast_xml_static
+#                        gfast_hdf5_static
+#                        gfast_core_static
+#                        gfast_activeMQ_shared
+#                        gfast_traceBuffer_static
+#                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+#                        ${FFTW3_LIBRARY}
+#                        ${GEOLIB_LIBRARY}
+#                        ${H5_LIBRARY}
+#                        ${ZLIB_LIBRARY}
+#                        ${LIBXML2_LIBRARY}
+#                        ${EW_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${INIPARSER_LIBRARY}
+#                        -lm -ldl -lpthread -lgfortran)
+#  target_link_libraries(gfast_playback
+#                        gfast_xml_static
+#                        gfast_hdf5_static
+#                        gfast_core_static
+#                        gfast_activeMQ_shared
+#                        gfast_traceBuffer_static
+#                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#                        ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+#                        ${FFTW3_LIBRARY}
+#                        ${GEOLIB_LIBRARY}
+#                        ${H5_LIBRARY}
+#                        ${ZLIB_LIBRARY}
+#                        ${EW_LIBRARY}
+#                        ${LIBXML2_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${INIPARSER_LIBRARY}
+#                        -lm -ldl -lpthread -lgfortran)
+# target_link_libraries(xcoreTests
+#                       gfast_xml_static
+#                       gfast_hdf5_static
+#                       gfast_core_static
+#                       gfast_traceBuffer_static
+#                       ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#                       ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+#                       ${FFTW3_LIBRARY}
+#                       ${GEOLIB_LIBRARY}
+#                       ${H5_LIBRARY}
+#                       ${ZLIB_LIBRARY}
+#                       ${EW_LIBRARY}
+#                       ${LIBXML2_LIBRARY}
+#                       ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                       ${INIPARSER_LIBRARY}
+#                       -lm -ldl -lpthread -lgfortran)
+#  #target_link_libraries(xcmopad
+#  #                      cmopad_shared
+#  #                      ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#  #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+#  #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
+#  #                      -lm -ldl -lpthread -lgfortran)
+#  #target_link_libraries(xcoreTests
+#  #                      gfast_xml_shared
+#  #                      gfast_hdf5_shared
+#  #                      gfast_core_shared
+#  #                      ${ISCL_LIBRARY}
+#  #                      ${LAPACKE_LIBRARY} ${LAPACK_LIBRARY} ${CBLAS_LIBRARY} ${BLAS_LIBRARY}
+#  #                      ${FFTW3_LIBRARY} ${GEOLIB_LIBRARY} ${H5_LIBRARY}
+#  #                      ${ISCL_LIBRARY}
+#  #                      ${LIBXML2_LIBRARY}
+#  #                      ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#  #                      ${INIPARSER_LIBRARY}
+#  #                      -lm -ldl -lpthread -lgfortran)
+#endif(GFAST_USE_INTEL)
+
+#IF (UW_AMAZON)
+# IF (GFAST_USE_INTEL)
+#  TARGET_LINK_LIBRARIES(gfast2web
+#                        gfast_core_shared
+#                        gfast_traceBuffer_shared
+#                        gfast_xml_shared
+#                        gfast_activeMQ_shared
+#                        gfast_hdf5_shared
+#                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+#                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lcurl -lm -ldl -lpthread -lpng)
+#  TARGET_LINK_LIBRARIES(fakeQuake
+#                        gfast_core_shared
+#                        gfast_traceBuffer_shared
+#                        gfast_xml_shared
+#                        gfast_activeMQ_shared
+#                        gfast_hdf5_shared
+#                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+#                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng) 
+#  TARGET_LINK_LIBRARIES(gfast_debug
+#                        gfast_core_shared
+#                        gfast_traceBuffer_shared
+#                        gfast_xml_shared
+#                        gfast_activeMQ_shared
+#                        gfast_hdf5_shared
+#                        ${ISCL_LIBRARY} ${COMPEARTH_LIBRARY}
+#                        -Wl,--start-group ${MKL_LIBRARY} -Wl,--end-group
+#                        ${JANSSON_LIBRARY} ${H5_LIBRARY} ${LIBXML2_LIBRARY}
+#                        ${LIBAMQ_LIBRARY} ${LCRYPTO_LIBRARY} ${LSSL_LIBRARY}
+#                        ${EW_LIBRARY} ${INIPARSER_LIBRARY} -lm -ldl -lpthread -lpng)
+# ELSE ()
+#
+# ENDIF (GFAST_USE_INTEL)
+#ENDIF (UW_AMAZON)
 
 #add_test(NAME cmopadTest
 #         WORKING_DIRECTORY ${CMAKE_TESTING_OUTPUT_DIRECTORY}
@@ -352,8 +397,51 @@ add_test(NAME coreTest
          COMMAND xcoreTests)
 #ENDIF ()
 
-set(CPACK_PACKAGE_NAME "GFAST")
-set(CPACK_PACKAGE_VENDOR "PNSN")
-set(CPACK_PACKAGE_CONTACT "crowellb@uw.edu")
-set(CPACK_PACKAGE_LICENSE "GNU Public License 3")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Geodetic first approximation of earthquake size and timing")
+#------------------------------------------------------------------------------#
+#                                   CPACK Packaging                            #
+#------------------------------------------------------------------------------#
+SET(CPACK_PACKAGE_NAME "GFAST")
+SET(CPACK_PACKAGE_VENDOR "PNSN")
+SET(CPACK_PACKAGE_CONTACT "crowellb@uw.edu")
+SET(CPACK_PACKAGE_LICENSE "GNU Public License 3")
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Geodetic first approximation of earthquake size and timing")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${GFAST_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${GFAST_VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${GFAST_VERSION_PATCH})
+#IF (WIN32 AND NOT UNIX)
+
+#ELSE(WIN32 AND NOT UNIX)
+  SET(CPACK_GENERATOR "TGZ")
+  SET(CPACK_SOURCE_GENERATOR TGZ)
+  SET(CPACK_SOURCE_PACKAGE_FILE_NAME "gfast-${GFAST_VERSION}" )
+  #SET(CPACK_SOURCE_IGNORE_FILES ~$ .svn ${CPACK_SOURCE_IGNORE_FILES} )
+#ENDIF(WIN32 AND NOT UNIX)
+INCLUDE(CPack)
+
+#------------------------------------------------------------------------------#
+#                              Configuration Details                           #
+#------------------------------------------------------------------------------#
+SET(GFAST_LIBRARY iscl)
+SET(INCLUDE_INSTALL_DIR include/) #${INCLUDE_DIRECTORIES}) #$include/ ... CACHE)
+SET(LIB_INSTALL_DIR lib/)
+SET(SYSCONFIG_INSTALL_DIR etc/gfast/)
+#SET(LIB_INSTALL_DIR ${LIBRARY_OUTPUT_PATH})
+INCLUDE(CMakePackageConfigHelpers)
+CONFIGURE_PACKAGE_CONFIG_FILE(${CMAKE_MODULE_PATH}/FindGFAST.cmake.in
+                              ${CMAKE_BINARY_DIR}/FindGFAST.cmake
+                              INSTALL_DESTINATION ${LIB_INSTALL_DIR}/gfast/cmake
+                              PATH_VARS INCLUDE_INSTALL_DIR SYSCONFIG_INSTALL_DIR)
+WRITE_BASIC_PACKAGE_VERSION_FILE(${LIBRARY_OUTPUT_PATH}/GFASTConfigVersion.cmake #gfast-config.version.cmake
+                                 #${CMAKE_BINARY_DIR}/gfast-config-version.cmake
+                                 VERSION ${GFAST_VERSION} 
+                                 COMPATIBILITY SameMajorVersion) #ExactVersion)
+SET(TARGET_NAMES gfast_shared gfast_static)
+INSTALL(TARGETS ${TARGET_NAMES}
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_WRITE GROUP_READ WORLD_EXECUTE WORLD_WRITE WORLD_READ
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+INSTALL(FILES
+        ${CMAKE_BINARY_DIR}/FindGFAST.cmake
+        ${LIBRARY_OUTPUT_PATH}/GFASTConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/gfast/cmake)
+
