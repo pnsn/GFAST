@@ -4,7 +4,6 @@
 #include <string.h>
 #include <math.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 int cmt_greens_test(void);
@@ -19,7 +18,6 @@ static bool lequal(double a, double b, double tol)
 
 int cmt_greens_test(void)
 {
-    const char *fcnm = "cmt_greens_test\0";
     const int l1 = 4;
     const double x1[4] = {26739.10093066, -22080.60946829,
                           172341.17727517, 89347.93966518};
@@ -57,7 +55,7 @@ int cmt_greens_test(void)
     ierr = GFAST_core_cmt_setForwardModel(l1, true, y1, x1, z1, G); 
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting forward model!\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting forward model!");
         return EXIT_FAILURE;
     }
     indx = 0;
@@ -68,14 +66,14 @@ int cmt_greens_test(void)
             //if (fabs( (G[indx] - Gref[indx])/Gref[indx] ) > 1.e-8)
             if (!lequal(G[indx], Gref[indx], 1.e-8))
             {
-                log_errorF("%s: Failed to set deviatoric G %e %d\n",
-                           fcnm, G[indx], Gref[indx]);
+                LOG_ERRMSG("Failed to set deviatoric G %e %e %d",
+                           G[indx], Gref[indx], indx);
                 return EXIT_FAILURE;
             }
             indx = indx + 1;
         }
     }
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }
 
@@ -189,7 +187,6 @@ ERROR:;
 //============================================================================//
 int cmt_inversion_test(void)
 {
-    const char *fcnm = "cmt_inversion_test\0";
     const char *filenm = "files/final_cmt.maule.txt\0";
     struct GFAST_cmt_props_struct cmt_props;
     struct GFAST_offsetData_struct cmt_data;
@@ -207,7 +204,7 @@ int cmt_inversion_test(void)
                         &SA_lat, &SA_lon, &SA_dep);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error reading input file\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading input file");
         return EXIT_FAILURE;
     }
     // Set space
@@ -244,7 +241,7 @@ int cmt_inversion_test(void)
                              &cmt);
     if (ierr != CMT_SUCCESS)
     {
-        log_errorF("%s: Error computing CMT\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing CMT");
         return EXIT_FAILURE;
     }
     else
@@ -253,20 +250,20 @@ int cmt_inversion_test(void)
         {
             if (!lequal(cmt.objfn[i], cmt_ref.objfn[i], 1.e-4))
             {
-                log_errorF("%s: Error objfn is wrong %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error objfn is wrong %f %f %f",
                            cmt.srcDepths[i], cmt.objfn[i], cmt_ref.objfn[i]);
                 return EXIT_FAILURE;
             }
             if (!lequal(cmt.Mw[i], cmt_ref.Mw[i], 1.e-3))
             {
-                log_errorF("%s: Error Mw is wrong %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error Mw is wrong %f %f %f",
                            cmt.srcDepths[i], cmt.Mw[i], cmt_ref.Mw[i]);
                 return EXIT_FAILURE;
             } 
             if (!lequal(cmt.str1[i], cmt_ref.str1[i], 1.e-4) &&
                 !lequal(cmt.str1[i], cmt_ref.str2[i], 1.e-4))
             {
-                log_errorF("%s: Error str1 is wrong %f %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error str1 is wrong %f %f %f %f\n",
                            cmt.srcDepths[i],
                            cmt.str1[i], cmt_ref.str1[i], cmt_ref.str2[i]);
                 return EXIT_FAILURE;
@@ -274,7 +271,7 @@ int cmt_inversion_test(void)
             if (!lequal(cmt.str2[i], cmt_ref.str1[i], 1.e-4) &&
                 !lequal(cmt.str2[i], cmt_ref.str2[i], 1.e-4))
             {
-                log_errorF("%s: Error str2 is wrong %f %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error str2 is wrong %f %f %f %f",
                            cmt.srcDepths[i],
                            cmt.str2[i], cmt_ref.str1[i], cmt_ref.str2[i]);
                 return EXIT_FAILURE;
@@ -283,7 +280,7 @@ int cmt_inversion_test(void)
             if (!lequal(cmt.dip1[i], cmt_ref.dip1[i], 1.e-4) &&
                 !lequal(cmt.dip1[i], cmt_ref.dip2[i], 1.e-4))
             {
-                log_errorF("%s: Error dip1 is wrong %f %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error dip1 is wrong %f %f %f %f",
                            cmt.srcDepths[i],
                            cmt.dip1[i], cmt_ref.dip1[i], cmt_ref.dip2[i]);
                 return EXIT_FAILURE;
@@ -291,7 +288,7 @@ int cmt_inversion_test(void)
             if (!lequal(cmt.dip2[i], cmt_ref.dip1[i], 1.e-4) &&
                 !lequal(cmt.dip2[i], cmt_ref.dip2[i], 1.e-4))
             {
-                log_errorF("%s: Error dip2 is wrong %f %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error dip2 is wrong %f %f %f %f",
                            cmt.srcDepths[i],
                            cmt.dip2[i], cmt_ref.dip1[i], cmt_ref.dip2[i]);
                 return EXIT_FAILURE;
@@ -300,7 +297,7 @@ int cmt_inversion_test(void)
             if (!lequal(cmt.rak1[i], cmt_ref.rak1[i], 1.e-4) &&
                 !lequal(cmt.rak1[i], cmt_ref.rak2[i], 1.e-4))
             {
-                log_errorF("%s: Error rak1 is wrong %f %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error rak1 is wrong %f %f %f %f",
                            cmt.srcDepths[i],
                            cmt.rak1[i], cmt_ref.rak1[i], cmt_ref.rak2[i]);
                 return EXIT_FAILURE;
@@ -308,7 +305,7 @@ int cmt_inversion_test(void)
             if (!lequal(cmt.rak2[i], cmt_ref.rak1[i], 1.e-4) &&
                 !lequal(cmt.rak2[i], cmt_ref.rak2[i], 1.e-4))
             {
-                log_errorF("%s: Error rak2 is wrong %f %f %f\n", fcnm,
+                LOG_ERRMSG("Error rak2 is wrong %f %f %f %f",
                            cmt.srcDepths[i],
                            cmt.rak2[i], cmt_ref.rak1[i], cmt_ref.rak2[i]);
                 return EXIT_FAILURE;
@@ -318,7 +315,7 @@ int cmt_inversion_test(void)
             {
                 if (!lequal(cmt.mts[6*i+j], cmt_ref.mts[6*i+j], 1.e-4))
                 {
-                    log_errorF("%s: Error mt %d %f %f %f\n", fcnm, j+1,
+                    LOG_ERRMSG("Error mt %d %f %f %f", j+1,
                                cmt.srcDepths[i],
                                cmt.mts[6*i+j], cmt_ref.mts[6*i+j]); 
                     return EXIT_FAILURE;
@@ -330,13 +327,12 @@ int cmt_inversion_test(void)
     GFAST_core_cmt_finalizeOffsetData(&cmt_data);
     GFAST_core_cmt_finalizeResults(&cmt);
     GFAST_core_cmt_finalizeResults(&cmt_ref);
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS; 
 }
 /*
 int cmt_greens_test2()
 {
-    const char *fcnm = "cmt_greens_test\0";
     double SA_lat = 47.19;
     double SA_lon =-122.66;
     double SA_dep = 57.0;
@@ -421,7 +417,7 @@ int cmt_greens_test2()
                                       &x2, &y2,
                                       &lnorth, &zone);
     if (ierr != 0){ 
-        printf("%s: Failed to convert source ll2utm\n", fcnm);
+        printf("%s: Failed to convert source ll2utm\n", __func__);
         return -1; 
     }
 
@@ -430,7 +426,7 @@ int cmt_greens_test2()
                                           &xrs[i], &yrs[i],
                                           &lnorth, &zone);
         if (ierr != 0){ 
-            printf("%s: Failed to convert recv ll2utm\n", fcnm);
+            printf("%s: Failed to convert recv ll2utm\n", __func__);
             return -1; 
         }
     }
@@ -457,14 +453,14 @@ int cmt_greens_test2()
                                       xrs, yrs, zrs, azims,
                                        G);
     if (ierr != 0){
-        printf("%s: Failed to compute greens functions\n", fcnm);
+        printf("%s: Failed to compute greens functions\n", __func__);
         return -1;
     }
     indx = 0;
     for (i=0; i<ldg; i++){
         for (j=0; j<6; j++){
             if (fabs(G[indx] - Gref[indx])/Gref[indx] > 1.e-7){
-                printf("%s: Failed to compute G!\n", fcnm); 
+                printf("%s: Failed to compute G!\n", __func__); 
                 printf("%e %e\n",G[indx],Gref[indx]);
                 return -1;
             }
@@ -478,7 +474,7 @@ int cmt_greens_test2()
     free(zrs);
     free(backazi);
     free(azims);
-    printf("%s: Success!\n", fcnm);
+    printf("%s: Success!\n", __func__);
     return 0;
 }
 */

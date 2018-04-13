@@ -9,11 +9,11 @@
  *
  * @param[in] retval    Earthworm return code to classify.
  *
- * @result  1 -> The requested message was received. \n
- *          0 -> There are no more messages. \n
- *         -1 -> Messages were received but there may be a loss of
- *               information. \n
- *         -2 -> An error occurred and no messages were received.
+ * @retval  1 -> The requested message was received. 
+ * @retval  0 -> There are no more messages.
+ * @retval -1 -> Messages were received but there may be a loss of
+ *               information.
+ * @retval -2 -> An error occurred and no messages were received.
  *
  * @author Ben Baker
  *

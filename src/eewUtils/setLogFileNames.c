@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_eewUtils.h"
-#include "iscl/log/log.h"
-#include "iscl/log/logfiles.h"
 
-void eewUtils_setLogFileNames(const char *eventid)
+void eewUtils_setLogFileNames(const char *eventid,
+                              char errorLogFileName[PATH_MAX],
+                              char infoLogFileName[PATH_MAX],
+                              char debugLogFileName[PATH_MAX],
+                              char warnLogFileName[PATH_MAX])
 {
     // Set the log file names
     memset(errorLogFileName, 0, PATH_MAX*sizeof(char));

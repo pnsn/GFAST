@@ -95,7 +95,11 @@ int eewUtils_parseCoreXML(const char *message,
                           const double saNaN,
                           struct GFAST_shakeAlert_struct *SA);
 /* Make the EEW log file names */
-void eewUtils_setLogFileNames(const char *eventid);
+void eewUtils_setLogFileNames(const char *eventid,
+                              char errorLogFileName[PATH_MAX],
+                              char infoLogFileName[PATH_MAX],
+                              char debugLogFileName[PATH_MAX],
+                              char warnLogFileName[PATH_MAX]);
 
 #define GFAST_eewUtils_driveCMT(...)       \
               eewUtils_driveCMT(__VA_ARGS__)

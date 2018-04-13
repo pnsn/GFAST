@@ -14,9 +14,9 @@
  *                       \f$ \tilde{b} = diag \{W\} b \f$.
  *                       This is an array of dimension [l1].
  *
- * @result -1 -> indicates an error. \n
- *          0 -> indicates success. \n
- *          1 -> indicates that W is NULL and it is assumed that W
+ * @retval -1 -> indicates an error.
+ * @retval  0 -> indicates success.
+ * @retval  1 -> indicates that W is NULL and it is assumed that W
  *               is identity.
  *
  * @author Ben Baker (ISTI)

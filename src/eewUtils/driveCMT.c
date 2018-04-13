@@ -12,7 +12,6 @@
 #include <stdbool.h>
 #include "gfast_core.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 static int __verify_cmt_structs(struct GFAST_offsetData_struct cmt_data,

@@ -14,7 +14,6 @@
 #endif
 #include "gfast_core.h"
 #include "iscl/os/os.h"
-#include "iscl/log/log.h"
 #ifdef GFAST_USE_AMQ
 #include "gfast_activeMQ.h"
 #endif

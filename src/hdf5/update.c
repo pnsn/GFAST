@@ -12,8 +12,8 @@
  *                     directory will be used.
  * @param[in] evid     Event ID.
  *
- * @result If -1 an error occurred. \n
- *         Otherwise, this is the is iteration number for writing GFAST's
+ * @retval If -1 an error occurred.
+ * @retval Otherwise, this is the is iteration number for writing GFAST's
  *         history.
  *
  * @author Ben Baker, ISTI

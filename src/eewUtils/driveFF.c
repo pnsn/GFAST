@@ -12,7 +12,6 @@
 #include <cblas.h>
 #endif
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
 

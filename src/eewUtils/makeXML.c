@@ -16,7 +16,6 @@
 #include "gfast_core.h"
 #include "gfast_xml.h"
 #include "compearth.h"
-#include "iscl/log/log.h"
 #include "iscl/time/time.h"
 
 #ifdef __clang__

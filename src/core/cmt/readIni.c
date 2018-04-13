@@ -10,7 +10,6 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_core.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,

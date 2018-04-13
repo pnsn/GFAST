@@ -4,8 +4,6 @@
 #include <string.h>
 #include "gfast.h"
 #include "iscl/iscl/iscl.h"
-#include "iscl/log/log.h"
-#include "iscl/log/logfiles.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
@@ -48,6 +46,10 @@ int main(int argc, char **argv)
     int ierr, im, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent;
     const int rdwt = 2; // H5 file is read/write
+    char errorLogFileName[PATH_MAX];
+    char infoLogFileName[PATH_MAX];
+    char debugLogFileName[PATH_MAX];
+    char warnLogFileName[PATH_MAX];
     // Initialize 
     ierr = 0;
     msgs = NULL;
@@ -69,19 +71,19 @@ int main(int argc, char **argv)
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading GFAST initialization file\n", fcnm);
+        LOG_ERRMSG("%s: Error reading GFAST initialization file\n", fcnm);
         goto ERROR;
     }
     if (props.verbose > 2){GFAST_core_properties_print(props);}
     // Initialize the stations locations/names/sampling periods for the module
     if (props.verbose > 0)
     {   
-        log_infoF("%s: Initializing the data buffers...\n", fcnm);
+        LOG_INFOMSG("%s: Initializing the data buffers...\n", fcnm);
     }
     ierr = core_data_initialize(props, &gps_data);
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing data buffers\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing data buffers\n", fcnm);
         goto ERROR;
     }
     // Set the trace buffer names and open the HDF5 datafile
@@ -90,7 +92,7 @@ int main(int argc, char **argv)
                                                         &h5traceBuffer);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error setting the H5 tracebuffer\n", fcnm);
+        LOG_ERRMSG("%s: Error setting the H5 tracebuffer\n", fcnm);
         goto ERROR;
     }
     // Initialize the tracebuffer h5 archive
@@ -98,13 +100,13 @@ int main(int argc, char **argv)
                                      &h5traceBuffer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing the HDF5 wave file\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing the HDF5 wave file\n", fcnm);
         goto ERROR;
     }
     // Fire up the listener
     if (props.verbose > 0)
     {
-        log_infoF("%s: Initializing trigger listener...\n", fcnm);
+        LOG_INFOMSG("%s: Initializing trigger listener...\n", fcnm);
     }
     messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
                                         props.activeMQ_props.password,
@@ -120,7 +122,7 @@ int main(int argc, char **argv)
                                         &ierr);
     if (ierr != 0)
     {
-        log_errorF("%s: Error connecting to upstream message queue\n", fcnm);
+        LOG_ERRMSG("%s: Error connecting to upstream message queue\n", fcnm);
         goto ERROR;
     }
 
@@ -129,7 +131,7 @@ int main(int argc, char **argv)
                                        &pgd, &pgd_data);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error initializing PGD\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing PGD\n", fcnm);
         goto ERROR;
     }
     // Initialize CMT
@@ -137,7 +139,7 @@ int main(int argc, char **argv)
                                &cmt, &cmt_data);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error initializing CMT\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing CMT\n", fcnm);
         goto ERROR;
     }
     // Initialize finite fault
@@ -145,14 +147,14 @@ int main(int argc, char **argv)
                               &ff, &ff_data);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error initializing FF\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
     // Set up the SNCL's to target
     ierr = settb2DataFromGFAST(gps_data, &tb2Data);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting tb2Data\n", fcnm);
+        LOG_ERRMSG("%s: Error setting tb2Data\n", fcnm);
         goto ERROR;
     }
     // Connect to the earthworm ring
@@ -160,15 +162,15 @@ int main(int argc, char **argv)
                                        10,
                                        &ringInfo);
     // Flush the buffer
-    log_infoF("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
+    LOG_INFOMSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
     ierr = traceBuffer_ewrr_flushRing(&ringInfo);
     if (ierr != 0)
     {
-        log_errorF("%s: Error flusing the ring\n", fcnm);
+        LOG_ERRMSG("%s: Error flusing the ring\n", fcnm);
         goto ERROR;
     }
     // Begin the acquisition loop
-    log_infoF("%s: Beginning the acquisition...\n", fcnm);
+    LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
     t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
     tbeg = t0; 
@@ -186,7 +188,7 @@ int main(int argc, char **argv)
         tstatus1 = t0;
         if (tstatus1 - tstatus0 > 3600.0)
         {
-            log_debugF("%s: GFAST has been running for %d hours\n",
+            LOG_DEBUGMSG("%s: GFAST has been running for %d hours\n",
                        fcnm, (int) ((tstatus1 - tstatus)/3600.0));
             tstatus0 = tstatus1;
         } 
@@ -204,29 +206,29 @@ double tbeger0 = tbeger;
         {
             if (ierr ==-1)
             {
-                log_errorF("%s: Terminate message received from ring\n", fcnm);
+                LOG_ERRMSG("%s: Terminate message received from ring\n", fcnm);
                 ierr = 1;
             }
             else if (ierr ==-2)
             {
-                log_errorF("%s: Read error encountered on ring\n", fcnm);
+                LOG_ERRMSG("%s: Read error encountered on ring\n", fcnm);
                 ierr = 1;
             }
             else if (ierr ==-3)
             {
-                log_errorF("%s: Ring info structure never initialized\n", fcnm);
+                LOG_ERRMSG("%s: Ring info structure never initialized\n", fcnm);
                 ierr = 1;
             }
             else if (msgs == NULL)
             {
-                log_errorF("%s: Message allocation error\n", fcnm);
+                LOG_ERRMSG("%s: Message allocation error\n", fcnm);
                 ierr = 1;
             }
             goto ERROR;
         }
         if (nTracebufs2Read == 0)
         {
-            //log_warnF("%s: No data acquired\n", fcnm);
+            //LOG_WARNMSG("%s: No data acquired\n", fcnm);
         }
 //printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
@@ -236,7 +238,7 @@ tbeger = ISCL_time_timeStamp();
         memory_free8c(&msgs);
         if (ierr != 0)
         {
-            log_errorF("%s: Error unpacking tracebuf2 messages\n", fcnm);
+            LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
             goto ERROR;
         }
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
@@ -249,7 +251,7 @@ tbeger = ISCL_time_timeStamp();
                                       h5traceBuffer);
         if (ierr != 0)
         {
-            log_errorF("%s: Error setting data in H5 file\n", fcnm);
+            LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
 //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
@@ -266,7 +268,7 @@ tbeger = ISCL_time_timeStamp();
                                                         msWait, &ierr);
         if (ierr != 0)
         {
-            log_errorF("%s: Internal error when getting message\n", fcnm);
+            LOG_ERRMSG("%s: Internal error when getting message\n", fcnm);
             goto ERROR;
         }
 //continue;
@@ -277,9 +279,9 @@ tbeger = ISCL_time_timeStamp();
             ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
             if (ierr != 0)
             {
-                log_errorF("%s: Error parsing the decision module message\n",
+                LOG_ERRMSG("%s: Error parsing the decision module message\n",
                            fcnm);
-                log_errorF("%s\n", amqMessage);
+                LOG_ERRMSG("%s\n", amqMessage);
                 goto ERROR;
             }
 printf("got one:\n");
@@ -291,11 +293,13 @@ printf("%s\n", amqMessage);
                 // And the logs
                 if (props.verbose > 0)
                 {
-                    log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
+                    LOG_INFOMSG("%s: New event %s added\n", fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
-                eewUtils_setLogFileNames(SA.eventid);
+                eewUtils_setLogFileNames(SA.eventid,
+                                         errorLogFileName, infoLogFileName,
+                                         debugLogFileName, warnLogFileName);
                 if (os_path_isfile(errorLogFileName))
                 {
                     remove(errorLogFileName);
@@ -318,7 +322,7 @@ printf("%s\n", amqMessage);
                                              props.propfilename);
                 if (ierr != 0)
                 {
-                    log_errorF("%s: Error initializing the archive file\n",
+                    LOG_ERRMSG("%s: Error initializing the archive file\n",
                                fcnm);
                     goto ERROR;
                 }
@@ -330,7 +334,7 @@ printf("%s\n", amqMessage);
         if (events.nev < 1){continue;} 
         if (props.verbose > 2)
         {
-            log_debugF("%s: Processing events...\n", fcnm);
+            LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
@@ -346,7 +350,7 @@ printf("%s\n", amqMessage);
                                    &xmlMessages);
          if (ierr != 0)
          {
-             log_errorF("%s: Error calling GFAST driver!\n", fcnm);
+             LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              goto ERROR; 
          }
          // Send the messages where they need to go
@@ -428,12 +432,12 @@ static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
     int i, it, k;
     if (gpsData.stream_length == 0)
     {
-        log_errorF("%s: Error no data to copy\n", fcnm);
+        LOG_ERRMSG("%s: Error no data to copy\n", fcnm);
         return -1;
     }
     if (tb2Data->linit)
     {
-        log_errorF("%s: Error tb2Data already set\n", fcnm);
+        LOG_ERRMSG("%s: Error tb2Data already set\n", fcnm);
         return -1;
     }
     tb2Data->ntraces = 3*gpsData.stream_length;
@@ -454,7 +458,7 @@ static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
     }
     if (it != tb2Data->ntraces)
     {
-        log_errorF("%s: Lost count %d %d\n", fcnm, it, tb2Data->ntraces);
+        LOG_ERRMSG("%s: Lost count %d %d\n", fcnm, it, tb2Data->ntraces);
         return -1;
     }
     tb2Data->linit = true;

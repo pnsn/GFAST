@@ -9,8 +9,8 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+#include "gfast_core.h"
 #include "gfast_activeMQ.h"
-#include "iscl/log/log.h"
 #include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,
@@ -37,7 +37,6 @@ int activeMQ_readIni(const char *propfilename,
                      const char *group,
                      struct GFAST_activeMQ_struct *activeMQ_props)
 {
-    const char *fcnm = "activeMQ_readIni\0";
     const char *s;
     char var[256];
     int ierr;
@@ -46,8 +45,8 @@ int activeMQ_readIni(const char *propfilename,
     memset(activeMQ_props, 0, sizeof(struct  GFAST_activeMQ_struct));
     if (!os_path_isfile(propfilename))
     {
-        log_errorF("%s: Properties file: %s does not exist\n",
-                   fcnm, propfilename);
+        LOG_ERRMSG("%s: Properties file: %s does not exist\n",
+                   __func__, propfilename);
         return ierr;
     }
     ini = iniparser_load(propfilename);
@@ -56,7 +55,7 @@ int activeMQ_readIni(const char *propfilename,
     s = iniparser_getstring(ini, var, NULL);
     if (s == NULL)
     {
-        log_errorF("%s: Could not find ActiveMQ host!\n", fcnm);
+        LOG_ERRMSG("%s: Could not find ActiveMQ host!\n", __func__);
         goto ERROR;
     }
     else
@@ -67,7 +66,7 @@ int activeMQ_readIni(const char *propfilename,
     s = iniparser_getstring(ini, var, NULL);
     if (s == NULL)
     {
-        log_errorF("%s: Could not find ActiveMQ user!\n", fcnm);
+        LOG_ERRMSG("%s: Could not find ActiveMQ user!\n", __func__);
         goto ERROR;
     }
     else
@@ -78,7 +77,7 @@ int activeMQ_readIni(const char *propfilename,
     s = iniparser_getstring(ini, var, NULL);
     if (s == NULL)
     {
-        log_errorF("%s: Could not find password!\n", fcnm);
+        LOG_ERRMSG("%s: Could not find password!\n", __func__);
         goto ERROR;
     }
     else
@@ -89,7 +88,7 @@ int activeMQ_readIni(const char *propfilename,
     s = iniparser_getstring(ini, var, NULL);
     if (s == NULL)
     {
-        log_errorF("%s: Could not find activeMQ originTopic\n", fcnm);
+        LOG_ERRMSG("%s: Could not find activeMQ originTopic\n", __func__);
         goto ERROR;
     }
     else
@@ -100,7 +99,8 @@ int activeMQ_readIni(const char *propfilename,
     s = iniparser_getstring(ini, var, NULL);
     if (s == NULL)
     {
-        log_errorF("%s: Could not find ActiveMQ destinationTopic!\n", fcnm);
+        LOG_ERRMSG("%s: Could not find ActiveMQ destinationTopic!\n",
+                   __func__);
         goto ERROR;
     }
     else
@@ -111,29 +111,29 @@ int activeMQ_readIni(const char *propfilename,
     activeMQ_props->port = iniparser_getint(ini, var, -12345);
     if (activeMQ_props->port ==-12345)
     {
-        log_errorF("%s: Could not find activeMQ port\n", fcnm);
+        LOG_ERRMSG("%s: Could not find activeMQ port\n", __func__);
         goto ERROR;
     }
     setVarName(group, "msReconnect\0", var);
     activeMQ_props->msReconnect = iniparser_getint(ini, var, 500);
     if (activeMQ_props->msReconnect < 0)
     {
-        log_warnF("%s: Overriding msReconnect to 500\n", fcnm);
+        LOG_WARNMSG("%s: Overriding msReconnect to 500\n", __func__);
         activeMQ_props->msReconnect = 500;
     }
     setVarName(group, "maxAttempts\0", var);
     activeMQ_props->maxAttempts = iniparser_getint(ini, var, 5);
     if (activeMQ_props->maxAttempts < 0)
     {
-        log_warnF("%s: Overriding maxAttempts to 5\n", fcnm);
+        LOG_WARNMSG("%s: Overriding maxAttempts to 5\n", __func__);
         activeMQ_props->maxAttempts = 5;
     }
     setVarName(group, "msWaitForMessage\0", var);
     activeMQ_props->msWaitForMessage  = iniparser_getint(ini, var, 1);
     if (activeMQ_props->msWaitForMessage < 0)
     {
-        log_warnF("%s: ActiveMQ could hang indefinitely, overriding to 1\n",
-                  fcnm);
+        LOG_WARNMSG("%s: ActiveMQ could hang indefinitely, overriding to 1\n",
+                    __func__);
         activeMQ_props->msWaitForMessage = 1;
     }
     ierr = 0;

@@ -15,9 +15,9 @@
  *                       \f$ \tilde{b} = diag \{W\} b \f$.
  *                       This is an array of dimension [mrows].
  *
- * @result -1 indicates an error. \n
- *          0 indicates success. \n
- *          1 indicates that diagWt is NULL and it is assumed that diagWt
+ * @retval -1 indicates an error.
+ * @retval  0 indicates success.
+ * @retval  1 indicates that diagWt is NULL and it is assumed that diagWt
  *            is identity.
  *
  * @author Ben Baker (ISTI)

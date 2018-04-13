@@ -11,7 +11,6 @@
 #endif
 #include "iscl/array/array.h"
 #include "iscl/linalg/linalg.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 #include "iscl/time/time.h"
 

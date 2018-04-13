@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 int ff_meshPlane_test(void);
@@ -263,7 +262,6 @@ double *__read_grns(const char *fname, int *nrows, int *ncols, int *ierr)
  */
 int ff_regularizer_test(void)
 {
-    const char *fcnm = "ff_regularizer_test\0";
     const char *fname = "files/treg.txt\0";
     struct sparseMatrix_coo_struct coo;
     double *T, *length, *width;
@@ -276,7 +274,7 @@ int ff_regularizer_test(void)
     coo = __read_treg(fname, &ierr);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading file\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading file");
         return EXIT_FAILURE;
     }
     // Set lengths and widths
@@ -297,7 +295,7 @@ int ff_regularizer_test(void)
                                         width, length, T);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing regularizer\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing regularizer");
         return EXIT_FAILURE;
     }
     nnz = 0;
@@ -315,13 +313,12 @@ int ff_regularizer_test(void)
                         goto COMPARE;
                     }
                 }
-                log_errorF("%s: Couldn't find index %d %d\n", fcnm, i, j);
+                LOG_ERRMSG("Couldn't find index %d %d", i, j);
                 return EXIT_FAILURE;
 COMPARE:;
                 if (!lequal(coo.A[inz], T[indx], tol))
                 {
-                    log_errorF("%s: Differing T %e %e\n",
-                               fcnm, coo.A[inz], T[indx]);
+                    LOG_ERRMSG("Differing T %e %e\n", coo.A[inz], T[indx]);
                     return EXIT_FAILURE;
                 }
                 nnz = nnz + 1;
@@ -330,7 +327,7 @@ COMPARE:;
     }
     if (nnz != coo.nnz)
     {
-        log_errorF("%s: Differing nnz\n", fcnm);
+        LOG_ERRMSG("%s", "Differing nnz");
         return EXIT_FAILURE;
     }
     if (coo.A   != NULL){free(coo.A);}
@@ -339,7 +336,7 @@ COMPARE:;
     if (T != NULL){free(T);}
     if (length != NULL){free(length);}
     if (width != NULL){free(width);}
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }
 //============================================================================//
@@ -351,7 +348,6 @@ COMPARE:;
  */ 
 int ff_greens_test(void)
 {
-    const char *fcnm = "ff_greens_test\0";
     const char *xrsfl = "files/xrs.txt\0";
     const char *yrsfl = "files/yrs.txt\0";
     const char *zrsfl = "files/zrs.txt\0";
@@ -372,17 +368,17 @@ int ff_greens_test(void)
     grns2 = __read_grns(grnsfl2, &nrows, &ncols, &ierr); 
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading files\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading files");
         return EXIT_FAILURE;
     }
     if (nrows != 3*l1)
     {
-        log_errorF("%s: Lost count on rows\n", fcnm);
+        LOG_ERRMSG("%s", "Lost count on rows");
         return EXIT_FAILURE;
     }
     if (ncols != 2*l2)
     {
-        log_errorF("%s: Lost cont on columns\n", fcnm);
+        LOG_ERRMSG("%s", "Lost cont on columns");
         return EXIT_FAILURE;
     }
     // Set the strike, dip, width, and length 
@@ -405,7 +401,7 @@ int ff_greens_test(void)
                                                   Gmat);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting forward model 1\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting forward model 1");
         return EXIT_FAILURE;
     }
     for (i=0; i<nrows*ncols; i++)
@@ -413,8 +409,8 @@ int ff_greens_test(void)
          //if (fabs(Gmat[i] - grns1[i])/fabs(Gmat[i] + grns1[i]) > 1.e-6)
          if (!lequal(Gmat[i], grns1[i], tol))
          {
-             log_errorF("%s: Error with grns1 %e %e %e\n",
-                        fcnm, Gmat[i], grns1[i],
+             LOG_ERRMSG("Error with grns1 %e %e %e",
+                        Gmat[i], grns1[i],
                         fabs( (Gmat[i] - grns1[i])/grns1[i] ));
              return EXIT_FAILURE;
          }
@@ -431,7 +427,7 @@ int ff_greens_test(void)
                                                   Gmat);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting forward model 2\n", fcnm);
+        LOG_ERRMSG("%s", "Error setting forward model 2");
         return EXIT_FAILURE;
     }
     for (i=0; i<nrows*ncols; i++)
@@ -439,8 +435,8 @@ int ff_greens_test(void)
          //if (fabs(Gmat[i] - grns2[i])/fabs(Gmat[i] + grns2[i]) > 1.e-6)
          if (!lequal(Gmat[i], grns2[i], tol))
          {
-             log_errorF("%s: Error with grns2 %e %e\n",
-                        fcnm, Gmat[i], grns2[i]);
+             LOG_ERRMSG("Error with grns2 %e %e",
+                        Gmat[i], grns2[i]);
              return EXIT_FAILURE;
          }
     }
@@ -454,13 +450,12 @@ int ff_greens_test(void)
     free(xrs);
     free(yrs);
     free(zrs);
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }
 //============================================================================//
 int ff_meshPlane_test(void)
 {
-    const char *fcnm = "ff_meshPlane_test\0";
     const char *fname[2] = {"files/final_fp1.maule.txt\0",
                             "files/final_fp2.maule.txt\0"};
     struct GFAST_faultPlane_struct ff, ff_ref;
@@ -480,7 +475,7 @@ int ff_meshPlane_test(void)
                                  &ff_ref);
         if (ierr != 0)
         {
-            log_errorF("%s: Error reading faultPlane\n", fcnm);
+            LOG_ERRMSG("%s", "Error reading faultPlane");
             return EXIT_FAILURE;
         }
         ff.nstr = ff_ref.nstr;
@@ -524,43 +519,43 @@ int ff_meshPlane_test(void)
         {
             if (!lequal(ff.fault_xutm[i], ff_ref.fault_xutm[i], 1.e-4))
             {
-                log_errorF("%s: Error computing xutm %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing xutm %f %f",
                            ff.fault_xutm[i], ff_ref.fault_xutm[i]);
                 return EXIT_FAILURE;
             } 
             if (!lequal(ff.fault_yutm[i], ff_ref.fault_yutm[i], 1.e-4))
             {
-                log_errorF("%s: Error computing yutm %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing yutm %f %f",
                            ff.fault_yutm[i], ff_ref.fault_yutm[i]);
                 return EXIT_FAILURE;
             }
             if (!lequal(ff.fault_alt[i], ff_ref.fault_alt[i], 1.e-4))
             {
-                log_errorF("%s: Error computing alt %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing alt %f %f",
                            ff.fault_alt[i], ff_ref.fault_alt[i]);
                 return EXIT_FAILURE;
             }
             if (!lequal(ff.strike[i], ff_ref.strike[i], 1.e-4))
             {
-                log_errorF("%s: Error computing strike %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing strike %f %f",
                            ff.strike[i], ff_ref.strike[i]);
                 return EXIT_FAILURE;
             }
             if (!lequal(ff.dip[i], ff_ref.dip[i], 1.e-4))
             {
-                log_errorF("%s: Error computing dip %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing dip %f %f",
                            ff.dip[i], ff_ref.dip[i]);
                 return EXIT_FAILURE;
             }
             if (!lequal(ff.width[i]*1.e-3, ff_ref.width[i], 1.e-4))
             {
-                log_errorF("%s: Error computing width %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing width %f %f",
                            ff.width[i]*1.e-3, ff_ref.width[i]);
                 return EXIT_FAILURE;
             }
             if (!lequal(ff.length[i]*1.e-3, ff_ref.length[i], 1.e-4))
             {
-                log_errorF("%s: Error computing strike %f %f\n", fcnm,
+                LOG_ERRMSG("Error computing strike %f %f",
                            ff.length[i]*1.e-3, ff_ref.length[i]);
                 return EXIT_FAILURE;
             }
@@ -574,7 +569,6 @@ int ff_meshPlane_test(void)
 
 int ff_inversion_test(void)
 {
-    const char *fcnm = "ff_inversion_test\0";
     const char *fname = "files/final_ff.maule.txt\0";
     struct GFAST_ff_props_struct ff_props;
     struct GFAST_offsetData_struct ff_data;
@@ -593,7 +587,7 @@ int ff_inversion_test(void)
                         //&SA_lat, &SA_lon, &SA_dep);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading results\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading results");
         return EXIT_FAILURE;
     }
     // allocate space for fault
@@ -646,7 +640,7 @@ int ff_inversion_test(void)
                             ff_data, &ff);
     if (ierr != 0)
     {
-        log_errorF("%s: Error inverting ff\n", fcnm);
+        LOG_ERRMSG("%s", "Error inverting ff");
         return EXIT_FAILURE;
     }
     l2 = ff_props.nstr*ff_props.ndip;
@@ -654,12 +648,12 @@ int ff_inversion_test(void)
     {
         if (!lequal(ff.Mw[j], ff_ref.Mw[j], 1.e-3))
         {
-            log_errorF("%s: Mw is incorrect %d %f %f\n", fcnm, j,
+            LOG_ERRMSG("Mw is incorrect %d %f %f", j,
                        ff.Mw[j], ff_ref.Mw[j]);
         }
         if (!lequal(ff.vr[j], ff_ref.vr[j], 1.e-3))
         {
-            log_errorF("%s: vr is incorrect %d %f %f\n", fcnm, j,
+            LOG_ERRMSG("vr is incorrect %d %f %f", j,
                        ff.vr[j], ff_ref.vr[j]);
         }
     }
@@ -669,13 +663,13 @@ int ff_inversion_test(void)
         {
             if (!lequal(ff.fp[j].dslip[i], ff_ref.fp[j].dslip[i], 1.e-3))
             {
-                log_errorF("%s: Error computing dslip %d %f %f\n", fcnm, j,
+                LOG_ERRMSG("Error computing dslip %d %f %f", j,
                            ff.fp[j].dslip[i], ff_ref.fp[j].dslip[i]); 
                 return EXIT_FAILURE;
             }
             if (!lequal(ff.fp[j].sslip[i], ff_ref.fp[j].sslip[i], 1.e-3))
             {
-                log_errorF("%s: Error computing sslip %d %f %f\n", fcnm, j,
+                LOG_ERRMSG("Error computing sslip %d %f %f", j,
                            ff.fp[j].sslip[i], ff_ref.fp[j].sslip[i]); 
                 return EXIT_FAILURE;
            }
@@ -684,6 +678,6 @@ int ff_inversion_test(void)
     GFAST_core_ff_finalizeOffsetData(&ff_data);
     GFAST_core_ff_finalizeResults(&ff_ref);
     GFAST_core_ff_finalizeResults(&ff);
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }

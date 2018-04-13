@@ -10,7 +10,7 @@
  *                        checked for in events struture.  If it does not
  *                        exist in events then it is added. 
  * 
- * @param[in,out] events  On input holds the current active list of events. \n
+ * @param[in,out] events  On input holds the current active list of events. <br>
  *                        On output holds the new event in SA provided that 
  *                        SA does not already exist.
  *

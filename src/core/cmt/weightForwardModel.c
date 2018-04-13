@@ -20,9 +20,9 @@
  *                      This is in row major format and has of dimension 
  *                      [mrows x ncols]
  *
- * @result -1 indicates an input error. \n
- *          0 indicates success. \n
- *          1 indicates the diagonal weight matrix is NULL.  G will
+ * @retval -1 indicates an input error.
+ * @retval  0 indicates success.
+ * @retval  1 indicates the diagonal weight matrix is NULL.  G will
  *            not be modified in this instance.
  *
  * @author Ben Baker, ISTI

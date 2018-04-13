@@ -6,8 +6,6 @@
 #include "gfast.h"
 #include "gfast_eewUtils.h"
 #include "iscl/iscl/iscl.h"
-#include "iscl/log/log.h"
-#include "iscl/log/logfiles.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
@@ -27,6 +25,10 @@ int main(int argc, char *argv[])
     struct GFAST_props_struct props;
     struct GFAST_shakeAlert_struct SA;
     struct GFAST_xmlMessages_struct xmlMessages;
+    char errorLogFileName[PATH_MAX];
+    char infoLogFileName[PATH_MAX];
+    char debugLogFileName[PATH_MAX];
+    char warnLogFileName[PATH_MAX];
     char *elarms_xml_message;
     double currentTime, dtmax, t0sim, tbeg;
     const enum opmode_type opmode = OFFLINE;
@@ -47,8 +49,8 @@ int main(int argc, char *argv[])
     strcpy(propfilename, argv[1]);
     if (!os_path_isfile(propfilename))
     {
-        log_errorF("%s: Properties file %s doesn't exist\n"
-                  , fcnm, propfilename);
+        LOG_ERRMSG("%s: Properties file %s doesn't exist\n",
+                   fcnm, propfilename);
         return EXIT_FAILURE;
     }
     // Initialize 
@@ -66,11 +68,11 @@ int main(int argc, char *argv[])
     memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct)); 
     // Read the properties file
-    log_infoF("%s: Reading the properties file...\n", fcnm);
+    LOG_INFOMSG("%s: Reading the properties file...\n", fcnm);
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
     if (ierr != 0) 
     {
-        log_errorF("%s: Error reading the GFAST properties file\n", fcnm);
+        LOG_ERRMSG("%s: Error reading the GFAST properties file\n", fcnm);
         goto ERROR;
     }
     if (props.verbose > 2)
@@ -81,7 +83,7 @@ int main(int argc, char *argv[])
     ierr = GFAST_core_data_initialize(props, &gps_data); 
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing data buffers\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing data buffers\n", fcnm);
         goto ERROR;
     }
     // Initialize PGD
@@ -89,7 +91,7 @@ int main(int argc, char *argv[])
                                              &pgd, &pgd_data);
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing PGD\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing PGD\n", fcnm);
         goto ERROR;
     }
     // Initialize CMT
@@ -97,7 +99,7 @@ int main(int argc, char *argv[])
                                      &cmt, &cmt_data);
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing CMT\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing CMT\n", fcnm);
         goto ERROR;
     }
     // Initialize finite fault
@@ -105,7 +107,7 @@ int main(int argc, char *argv[])
                                     &ff, &ff_data);
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing FF\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing FF\n", fcnm);
         goto ERROR;
     }
     // Set the trace buffer names and open the HDF5 datafile
@@ -114,14 +116,14 @@ int main(int argc, char *argv[])
                                                         &h5traceBuffer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error setting the H5 tracebuffer\n", fcnm);
+        LOG_ERRMSG("%s: Error setting the H5 tracebuffer\n", fcnm);
         goto ERROR;
     }
     ierr = GFAST_traceBuffer_h5_initialize(1, true, props.obsdataDir,
                                            props.obsdataFile, &h5traceBuffer);
     if (ierr != 0)
     {
-        log_errorF("%s: Error initializing H5 traebuffer\n", fcnm);
+        LOG_ERRMSG("%s: Error initializing H5 traebuffer\n", fcnm);
         goto ERROR;
     }
 
@@ -134,8 +136,8 @@ int main(int argc, char *argv[])
     ntsim = (int) (props.synthetic_runtime/dtmax + 0.5); // ignore + 1;
     if (props.verbose > 0)
     {   
-        log_infoF("%s: Number of time steps in simulation: %d\n",
-                  fcnm, ntsim); 
+        LOG_INFOMSG("%s: Number of time steps in simulation: %d\n",
+                    fcnm, ntsim); 
     }
     props.processingTime = fmin(props.processingTime,
                                 (double) (ntsim - 1)*dtmax);
@@ -147,7 +149,7 @@ int main(int argc, char *argv[])
     elarms_xml_message = (char *)calloc(message_length + 1, sizeof(char));
     if (fread(elarms_xml_message, message_length, 1, elarms_xml_file) == 0)
     {
-        log_errorF("%s: Error reading xml file\n", fcnm);
+        LOG_ERRMSG("%s: Error reading xml file\n", fcnm);
         goto ERROR;
     }
     fclose(elarms_xml_file);
@@ -155,7 +157,7 @@ int main(int argc, char *argv[])
     ierr = GFAST_eewUtils_parseCoreXML(elarms_xml_message, -12345.0, &SA);
     if (ierr != 0)
     {   
-        log_errorF("%s: Error parsing XML message\n", fcnm);
+        LOG_ERRMSG("%s: Error parsing XML message\n", fcnm);
         return ierr;
     }
     t0sim = SA.time;
@@ -169,7 +171,7 @@ int main(int argc, char *argv[])
             ierr = GFAST_eewUtils_parseCoreXML(elarms_xml_message, SA_NAN, &SA);
             if (ierr != 0)
             {
-                log_errorF("%s: Error parsing XML message\n", fcnm);
+                LOG_ERRMSG("%s: Error parsing XML message\n", fcnm);
                 return ierr;
             }
             // If this is a new event we have some file handling to do
@@ -179,11 +181,13 @@ int main(int argc, char *argv[])
                 // And the logs
                 if (props.verbose > 0)
                 {
-                    log_infoF("%s: New event %s added\n", fcnm, SA.eventid);
+                    LOG_INFOMSG("%s: New event %s added\n", fcnm, SA.eventid);
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
-                eewUtils_setLogFileNames(SA.eventid);
+                eewUtils_setLogFileNames(SA.eventid,
+                                         errorLogFileName, infoLogFileName,
+                                         debugLogFileName, warnLogFileName);
                 if (os_path_isfile(errorLogFileName))
                 {
                     remove(errorLogFileName);
@@ -206,7 +210,7 @@ int main(int argc, char *argv[])
                                              props.propfilename);
                 if (ierr != 0)    
                 {
-                    log_errorF("%s: Error initializing the archive file\n",
+                    LOG_ERRMSG("%s: Error initializing the archive file\n",
                                fcnm);
                     return -1;
                 }
@@ -228,7 +232,7 @@ int main(int argc, char *argv[])
                                    &xmlMessages);
          if (ierr != 0)
          {
-             log_errorF("%s: Error calling GFAST driver!\n", fcnm);
+             LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              break;
          }
          if (xmlMessages.mmessages > 0)
@@ -259,7 +263,7 @@ int main(int argc, char *argv[])
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
          }
     }
-    log_infoF("%s: Simultation time: %f\n", fcnm, time_timeStamp() - tbeg);
+    LOG_INFOMSG("%s: Simultation time: %f\n", fcnm, time_timeStamp() - tbeg);
 ERROR:;
     if (elarms_xml_message != NULL){free(elarms_xml_message);}
     core_cmt_finalize(&props.cmt_props,

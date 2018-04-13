@@ -24,13 +24,13 @@
  *
  * @param[out] nRead         Number of traceBuffer2 messages read.
  *
- * @param[out] ierr          0 Indicates success. \n
- *                          -1 Indicates a terminate signal from the ring. \n
+ * @param[out] ierr          0 Indicates success. <br>
+ *                          -1 Indicates a terminate signal from the ring. <br>
  *                             the user should call traceBuffer_ewrr_finalize
- *                             and quit. \n
- *                          -2 Indicates a read error on the ring. \n
+ *                             and quit. <br>
+ *                          -2 Indicates a read error on the ring. <br>
  *                          -3 Indicates the ringInfo structure was not
- *                             initalized. \n
+ *                             initalized. <br> 
  *                          -4 Indicates tracebuf2 type is unknown.
  *
  * @result An array of [nRead] traceBuffer2 messages read from the Earthworm

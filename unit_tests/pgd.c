@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <math.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
 #include "iscl/memory/memory.h"
 
 int pgd_inversion_test(void);
@@ -19,7 +18,6 @@ static bool lequal(double a, double b, double tol)
 
 int pgd_inversion_test(void)
 {
-    const char *fcnm = "pgd_inversion_test\0";
     int verbose = 4;
     double dist_tol = 6.0;
     double disp_def = 0.01;
@@ -79,21 +77,21 @@ int pgd_inversion_test(void)
                                               &M, &VR, &IQR, Uest);
     if (ierr != 0)
     {
-        log_errorF("%s: Error computing scaling\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing scaling");
         return -1;
     }
     if (fabs(M - 6.6379784) > 1.e-4)
     {
-        printf("%s: Failed to compute M %f\n", fcnm, M);
+        LOG_ERRMSG("Failed to compute M %f", M);
         return -1;
     } 
 /*
     if (fabs(VR - 6.1681204583368228) > 1.e-6){
-        printf("%s: Failed to compute VR\n", fcnm);
+        printf("%s: Failed to compute VR\n", __func__);
         return -1;
     }
 */
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }
 
@@ -179,7 +177,6 @@ ERROR:;
  */
 int pgd_inversion_test2(void)
 {
-    const char *fcnm = "pgd_inversion_test2\0";
     const char *filenm = "files/final_pgd.maule.txt\0";
     struct GFAST_pgd_props_struct pgd_props;
     struct GFAST_peakDisplacementData_struct pgd_data;
@@ -198,7 +195,7 @@ int pgd_inversion_test2(void)
                         &SA_lat, &SA_lon, &SA_dep);
     if (ierr != 0)
     {
-        log_errorF("%s: Error reading input file\n", fcnm);
+        LOG_ERRMSG("%s", "Error reading input file");
         return EXIT_FAILURE;
     }
     // Set space
@@ -224,26 +221,26 @@ int pgd_inversion_test2(void)
                              pgd_data, &pgd);
     if (ierr != PGD_SUCCESS)
     {
-        log_errorF("%s: Error computing PGD!\n", fcnm);
+        LOG_ERRMSG("%s", "Error computing PGD!");
         return EXIT_FAILURE;
     }
     for (i=0; i<pgd.ndeps; i++)
     {
         if (!lequal(pgd.mpgd[i], pgd_ref.mpgd[i], tol))
         {
-            log_errorF("%s: Error mpgd is wrong %f %f %f\n", fcnm,
+            LOG_ERRMSG("Error mpgd is wrong %f %f %f",
                        pgd.srcDepths[i], pgd.mpgd[i], pgd_ref.mpgd[i]);
             return EXIT_FAILURE;
         }
         if (!lequal(pgd.mpgd_vr[i], pgd_ref.mpgd_vr[i], tol))
         {
-            log_errorF("%s: Error mpgd_vr is wrong %f %f %f\n", fcnm,
+            LOG_ERRMSG("Error mpgd_vr is wrong %f %f %f",
                        pgd.srcDepths[i], pgd.mpgd_vr[i], pgd_ref.mpgd_vr[i]);
             return EXIT_FAILURE;
         }
         if (!lequal(pgd.iqr[i], pgd_ref.iqr[i], tol))
         {
-            log_errorF("%s: Error iqr is wrong %f %f %f\n", fcnm,
+            LOG_ERRMSG("Error iqr is wrong %f %f %f",
                        pgd.srcDepths[i], pgd.iqr[i],
                        pgd_ref.iqr[i]);
             return EXIT_FAILURE;
@@ -253,6 +250,6 @@ int pgd_inversion_test2(void)
     core_scaling_pgd_finalizeData(&pgd_data);
     core_scaling_pgd_finalizeResults(&pgd);
     core_scaling_pgd_finalizeResults(&pgd_ref);
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }

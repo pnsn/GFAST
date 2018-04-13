@@ -12,7 +12,7 @@
  * @param[in] SA           shakeAlert event information to possibly remove.
  * @param[in] verbose      Controls verbosity.
  *
- * @param[in,out] events   On input contains all events. \n
+ * @param[in,out] events   On input contains all events. <br> 
  *                         On output may contain the removed SA event.
  *
  * @result If true then the event SA was removed from the events list.

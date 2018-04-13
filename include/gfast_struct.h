@@ -30,10 +30,10 @@ struct GFAST_pgd_props_struct
     int min_sites;        /*!< Minimum number of sites required to
                                proceed with PGD inversion. */
     int verbose;          /*!< Controls verbosity - errors will always
-                                be output. \n
-                               = 1 -> Output generic information. \n
+                                be output. <br> 
+                               = 1 -> Output generic information. <br> 
                                = 2 -> Output generic information and
-                                      warnings. \n
+                                      warnings. <br> 
                                = 3 -> Output generic information,
                                       warnings, and debug information
                                       and debug information. */
@@ -60,7 +60,7 @@ struct GFAST_cmt_props_struct
     int min_sites;        /*!< Minimum number of sites required to
                                proceed with CMT inversion. */
     int verbose;          /*!< Controls verbosity - errors will always
-                                be output. \n
+                                be output. <br>
                                = 1 -> Output generic information. \n
                                = 2 -> Output generic information and
                                       warnings. \n

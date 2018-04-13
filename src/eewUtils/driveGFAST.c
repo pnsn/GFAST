@@ -8,8 +8,6 @@
 #include "gfast_hdf5.h"
 #include "gfast_traceBuffer.h"
 #include "iscl/array/array.h"
-#include "iscl/log/log.h"
-#include "iscl/log/logfiles.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
@@ -62,8 +60,8 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_xmlMessages_struct *xmlMessages)
 {
     struct GFAST_shakeAlert_struct SA;
-    //char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
-    //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
+    char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
+         debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2;
     int h5k, ierr, iev, ipf, nPop, nRemoved,
@@ -110,7 +108,9 @@ int eewUtils_driveGFAST(const double currentTime,
             continue;
         }
         // Set the log file names
-        eewUtils_setLogFileNames(SA.eventid);
+        eewUtils_setLogFileNames(SA.eventid,
+                                 errorLogFileName, infoLogFileName,
+                                 debugLogFileName, warnLogFileName);
         core_log_openErrorLog(errorLogFileName);
         core_log_openInfoLog(infoLogFileName);
         core_log_openWarningLog(warnLogFileName);

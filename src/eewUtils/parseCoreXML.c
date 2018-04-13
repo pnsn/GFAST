@@ -16,7 +16,6 @@
 #include "gfast_core.h"
 #include "gfast_eewUtils.h"
 #include "gfast_xml.h"
-#include "iscl/log/log.h"
 
 /*!
  * @brief Reads a elarmS based shakeAlert message into the GFAST 

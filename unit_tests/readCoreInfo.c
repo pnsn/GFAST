@@ -3,14 +3,12 @@
 #include <string.h>
 #include <math.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
 
 int readCoreInfo_test(void);
 /*
 int GFAST_alert__parse__shakeAlertXML(const char *message, double SA_NAN,
                                       struct GFAST_shakeAlert_struct *SA)
 {
-    const char *fcnm = "GFAST_alert__parse__shakeAlertXML\0";
     struct coreInfo_struct core;
     int ierr, length;
     // Initialize
@@ -18,13 +16,13 @@ int GFAST_alert__parse__shakeAlertXML(const char *message, double SA_NAN,
     memset(&core, 0, sizeof(struct coreInfo_struct));
     length = strlen(message);
     if (length == 0){
-        printf("%s: Error the message is empty\n", fcnm);
+        printf("%s: Error the message is empty\n", __func__);
         return -1;
     }
     // Extract the pertinent shakeAlert information for GFAST
     ierr = GFAST_xml_read__SACoreInfo(message, SA_NAN, &core);
     if (ierr != 0){
-        printf("%s: Error parsing core shakeAlert information\n", fcnm);
+        printf("%s: Error parsing core shakeAlert information\n", __func__);
     }else{
         strcpy(SA->eventid, core.id);
         SA->time = core.orig_time;
@@ -39,7 +37,6 @@ int GFAST_alert__parse__shakeAlertXML(const char *message, double SA_NAN,
 
 int readCoreInfo_test(void)
 {
-    const char *fcnm = "readCoreInfo_test\0";
     FILE *xmlfl;
     struct GFAST_shakeAlert_struct SA;
     char *message = NULL;
@@ -52,7 +49,7 @@ int readCoreInfo_test(void)
     rewind(xmlfl);
     message = (char *)calloc((size_t) (fsize + 1), sizeof(char)); // +1 to null terminate
     if (fread(message, (size_t) fsize, 1, xmlfl) == 0){
-        printf("%s: Nothing read\n", fcnm);
+        printf("%s: Nothing read\n", __func__);
         return EXIT_FAILURE;
     }
     fclose(xmlfl);
@@ -61,38 +58,38 @@ int readCoreInfo_test(void)
     ierr = eewUtils_parseCoreXML(message, SA_NAN, &SA);
     free(message);
     if (ierr != 0){
-        printf("%s: Error getting shakeAlert info\n", fcnm);
+        printf("%s: Error getting shakeAlert info\n", __func__);
         return EXIT_FAILURE;
     }
     // Check it
     if (strcasecmp(SA.eventid, "4557299\0") != 0){
-        printf("%s: Couldn't parse ID\n", fcnm);
+        printf("%s: Couldn't parse ID\n", __func__);
         return EXIT_FAILURE;
     }
     if (fabs(SA.time - 1313104867.753000) > 1.e-4){
-        printf("%s: Couldn't parse time\n", fcnm);
+        printf("%s: Couldn't parse time\n", __func__);
         return EXIT_FAILURE;
     }
     if (fabs(SA.mag - 3.4) > 1.e-4){
-        printf("%s: Couldn't parse magnitude\n", fcnm);
+        printf("%s: Couldn't parse magnitude\n", __func__);
         return EXIT_FAILURE;
     }
     if (fabs(SA.lat - 38.8) > 1.e-4){
-        printf("%s: Couldn't parse latitude\n", fcnm);
+        printf("%s: Couldn't parse latitude\n", __func__);
         return EXIT_FAILURE;
     }
 
     if (!(fabs(SA.lon - -122.82) < 1.e-4 || fabs(SA.lon - (-122.82 + 360.0)) < 1.e-4))
     {
-        printf("%s: Couldn't parse longitude %f %f\n", fcnm, SA.lon, -122.82);
+        printf("%s: Couldn't parse longitude %f %f\n", __func__, SA.lon, -122.82);
         return EXIT_FAILURE;
     }
     if (fabs(SA.dep - 8.0) > 1.e-4){
-        printf("%s: Couldn't parse depth\n", fcnm);
+        printf("%s: Couldn't parse depth\n", __func__);
         return EXIT_FAILURE;
     }
     //printf("%f %f %f %f %f\n", SA.time, SA.mag, SA.lat, SA.lon, SA.dep);
-    printf("%s: Success!\n", fcnm);
+    printf("%s: Success!\n", __func__);
     return EXIT_SUCCESS;
 }
  

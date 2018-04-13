@@ -3,13 +3,11 @@
 #include <stdbool.h>
 #include <math.h>
 #include "gfast.h"
-#include "iscl/log/log.h"
 
 int coord_test_ll2utm(void);
 
 int coord_test_ll2utm(void)
 {
-    const char *fcnm = "coord_test_ll2utm\0";
     double lat, lat0, lon, lon0,utmEast0, utmEast1, utmEastReference,
            utmNorthReference, utmNorth0, utmNorth1;
     int utm_unknown_zone, utm_zone, utm_zone_ref;
@@ -28,24 +26,24 @@ int coord_test_ll2utm(void)
                                  &lnorthp, &utm_zone);
     if (!lnorthp)
     {
-        log_errorF("%s: Wrong hemisphere\n", fcnm);
+        LOG_ERRMSG("%s", "Wrong hemisphere");
         return EXIT_FAILURE;
     }
     if (utm_unknown_zone != utm_zone_ref || utm_zone != utm_zone_ref)
     {
-        log_errorF("%s: Failed to compute utm_zone\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to compute utm_zone");
         return EXIT_FAILURE;
     }
     if (fabs(utmEast0 - utmEastReference) > 0.001 ||
         fabs(utmEast1 - utmEastReference) > 0.001)
     {
-        log_errorF("%s: Failed to get easting\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to get easting");
         return EXIT_FAILURE;
     }
     if (fabs(utmNorth0 - utmNorthReference) > 0.001 ||
         fabs(utmNorth1 - utmNorthReference) > 0.001)
     {
-        log_errorF("%s: Failed to get northing\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to get northing");
         return EXIT_FAILURE;
     }
     // Recover
@@ -53,12 +51,12 @@ int coord_test_ll2utm(void)
                                  &lat0, &lon0);
     if (fabs(lat0 - lat) > 1.e-5)
     {
-        log_errorF("%s: Failed to recover lat\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to recover lat");
         return EXIT_FAILURE;
     }
     if ((fabs(lon0 - lon) > 1.e-5) && (fabs(lon0 - 360.0 - lon) > 1.e-5))
     {
-        log_errorF("%s: Failed to recover lon %f %f\n", fcnm, lon, lon0);
+        LOG_ERRMSG("Failed to recover lon %f %f", lon, lon0);
         return EXIT_FAILURE;
     }
     // Santiago 
@@ -75,24 +73,24 @@ int coord_test_ll2utm(void)
                                  &lnorthp, &utm_zone);
     if (lnorthp)
     {
-        log_errorF("%s: Wrong hemisphere 2\n", fcnm);
+        LOG_ERRMSG("%s", "Wrong hemisphere 2");
         return EXIT_FAILURE;
     }
     if (utm_unknown_zone != utm_zone_ref || utm_zone != utm_zone_ref)
     {
-        log_errorF("%s: Failed to compute utm_zone 2\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to compute utm_zone 2");
         return EXIT_FAILURE;
     }
     if (fabs(utmEast0 - utmEastReference) > 0.001 ||
         fabs(utmEast1 - utmEastReference) > 0.001)
     {
-        log_errorF("%s: Failed to get easting 2 %f %f\n", fcnm, utmEast0, utmEast1);
+        LOG_ERRMSG("Failed to get easting 2 %f %f", utmEast0, utmEast1);
         return EXIT_FAILURE;
     }
     if (fabs(utmNorth0 - utmNorthReference) > 0.001 ||
         fabs(utmNorth1 - utmNorthReference) > 0.001)
     {
-        log_errorF("%s: Failed to get northing 2\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to get northing 2");
         return EXIT_FAILURE;
     }
     // Recover
@@ -100,15 +98,15 @@ int coord_test_ll2utm(void)
                                  &lat0, &lon0);
     if (fabs(lat0 - lat) > 1.e-5)
     {
-        log_errorF("%s: Failed to recover lat 2\n", fcnm);
+        LOG_ERRMSG("%s", "Failed to recover lat 2");
         return EXIT_FAILURE;
     }
     if ((fabs(lon0 - lon) > 1.e-5) && (fabs(lon0 - 360.0 - lon) > 1.e-5))
     {
-        log_errorF("%s: Failed to recover lon 2 %f %f\n", fcnm, lon, lon0);
+        LOG_ERRMSG("Failed to recover lon 2 %f %f", lon, lon0);
         return EXIT_FAILURE;
     }
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }
 
@@ -160,7 +158,7 @@ int coord_test_ll2utm(void)
             return -1; 
         } 
     }
-    log_infoF("%s: Success!\n", fcnm);
+    LOG_INFOMSG("%s", "Success!");
     return EXIT_SUCCESS;
 }
 */

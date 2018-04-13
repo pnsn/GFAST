@@ -7,7 +7,7 @@
 /*!
  * @brief Releases memory on the tb2Data_struct data structure.
  *
- * @param[in,out] tb2data   On input the initialized tb2data structure. \n
+ * @param[in,out] tb2data   On input the initialized tb2data structure. <br>
  *                          On output the structure has been cleared.
  * 
  * @author Ben Baker (ISTI)

@@ -189,7 +189,7 @@ ELSE()
    SET(LIB_ALL ${LIB_BASE})
 ENDIF()
 # Target link the shared libraries
-TARGET_LINK_LIBRARIES(gfast_shared ${LIB_BASE})
+TARGET_LINK_LIBRARIES(gfast_shared ${LIB_BASE} ${EW_LIBRARY})
 TARGET_LINK_LIBRARIES(gfast_static ${LIB_BASE})
 # Target link the executables
 TARGET_LINK_LIBRARIES(gfast_eew      gfast_shared ${LIB_ALL})
