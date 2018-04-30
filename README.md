@@ -31,7 +31,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 
 5. [libxml2](http://xmlsoft.org/) for reading/writing ShakeAlert and QuakeML XML.
 
-6. [ISCL](https://github.com/bakerb845/libiscl) for many small computations throughout GFAST.  If not using MKL and using static libraries only then this will require [fftw](http://www.fftw.org/).  Also, depending on your configuration it may also require [GeographicLib](https://geographiclib.sourceforge.io/).
+6. [ISCL](https://gitlab.isti.com/bbaker/iscl) for many small computations throughout GFAST.  If not using MKL and using static libraries only then this will require [fftw](http://www.fftw.org/).  Also, depending on your configuration it may also require [GeographicLib](https://geographiclib.sourceforge.io/).
 
 7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
 
@@ -72,8 +72,8 @@ On a machine with MKL/IPP I might do something like
     -DINIPARSER_LIBRARY=/home/bakerb25/iniparser/libiniparser.a \
     -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/compearth/momenttensor/c_src/include \
     -DCOMPEARTH_LIBRARY=/home/bakerb25/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
-    -DISCL_INCLUDE_DIR=/home/bakerb25/libiscl/include \
-    -DISCL_LIBRARY=/home/bakerb25/libiscl/lib/libiscl_static.a \
+    -DISCL_INCLUDE_DIR=/home/bakerb25/iscl/include \
+    -DISCL_LIBRARY=/home/bakerb25/iscl/lib/libiscl_static.a \
     -DGEOLIB_LIBRARY=/home/bakerb25/GeographicLib-1.46/lib/libGeographic.a \
     -DFFTW3_LIBRARY=/home/bakerb25/fftw-3.3.5/lib/libfftw3.a \
     -DEW_INCLUDE_DIR=/home/bakerb25/earthworm/earthworm-working/include \
@@ -108,8 +108,8 @@ Another example, when building with MKL/IPP I'd do something like
     -DINIPARSER_LIBRARY=/home/bakerb25/C/iniparser/libiniparser.a \
     -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/C/compearth/momenttensor/c_src/include \
     -DCOMPEARTH_LIBRARY=/home/bakerb25/C/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
-    -DISCL_INCLUDE_DIR=/home/bakerb25/C/libiscl/include \
-    -DISCL_LIBRARY="/home/bakerb25/C/libiscl/lib/libiscl_shared.so;/opt/intel/lib/intel64/libirc.so" \
+    -DISCL_INCLUDE_DIR=/home/bakerb25/C/iscl/include \
+    -DISCL_LIBRARY="/home/bakerb25/C/iscl/lib/libiscl_shared.so;/opt/intel/lib/intel64/libirc.so" \
     -DGEOLIB_LIBRARY=/home/bakerb25/C/GeographicLib-1.46/lib/libGeographic.so \
     -DEW_INCLUDE_DIR=/home/bakerb25/C/earthworm/earthworm-working/include \
     -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/swap.o;/home/bakerb25/C/earthworm/earthworm-working/lib/libew.a" \
