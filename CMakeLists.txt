@@ -136,7 +136,9 @@ ADD_LIBRARY(gfast_static STATIC ${SRCS_CORE} ${SRCS_XML} ${SRCS_AMQ} ${SRCS_EEW}
 #ADD_LIBRARY(gfast_hdf5_static STATIC ${SRCS_HDF5})
 
 ADD_EXECUTABLE(gfast_playback src/gfast_playback.c ${SRCS_EEW})
+IF (GFAST_USE_EW)
 ADD_EXECUTABLE(gfast_eew src/gfast_eew.c ${SRCS_EEW})
+ENDIF()
 
 # These are UW development files and kind of clunky
 IF (UW_AMAZON)
@@ -152,7 +154,9 @@ ENDIF (UW_AMAZON)
 
 # Let CMake know where the binaries will live 
 SET_TARGET_PROPERTIES(gfast_playback PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+IF (GFAST_USE_EW)
 SET_TARGET_PROPERTIES(gfast_eew PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+ENDIF()
 
 # Unit tests
 ADD_EXECUTABLE(xcoreTests ${SRCS_UT})
@@ -192,7 +196,9 @@ ENDIF()
 TARGET_LINK_LIBRARIES(gfast_shared ${LIB_BASE} ${EW_LIBRARY})
 TARGET_LINK_LIBRARIES(gfast_static ${LIB_BASE})
 # Target link the executables
+IF (GFAST_USE_EW)
 TARGET_LINK_LIBRARIES(gfast_eew      gfast_shared ${LIB_ALL})
+ENDIF()
 TARGET_LINK_LIBRARIES(gfast_playback gfast_shared ${LIB_ALL})
 TARGET_LINK_LIBRARIES(xcoreTests     gfast_shared ${LIB_ALL})
 IF (UW_AMAZON)
