@@ -15,7 +15,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
   + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.  The GFAST specific buffer is targeted for deprecation and should be avoided. 
   + src/uw contains functions specific to the University of Washington and Amazon project.
   + src/xml contains functions for certainly writing and potentially reading QuakeML and ShakeAlert specific XML.
-5. unit_tests contains some simple regression tests for the core modules.
+5. unit\_tests contains some simple regression tests for the core modules.
 
 # Building GFAST 
 
@@ -46,6 +46,17 @@ To get CMake to behave I usually use configuration scripts.
 On a machine with MKL/IPP I might do something like
 
     #!/bin/bash
+    if [ -f Makefile ]; then
+       make clean
+    fi
+    if [ -f CMakeCache.txt ]; then
+       echo "Removing CMakeCache.txt"
+       rm CMakeCache.txt
+    fi
+    if [ -d CMakeFiles ]; then
+       echo "Removing CMakeFiles"
+       rm -rf CMakeFiles
+    fi
     /home/bakerb25/cmake-3.6.1/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
     -DCMAKE_INSTALL_PREFIX=./ \
     -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
@@ -84,6 +95,17 @@ On a machine with MKL/IPP I might do something like
 Another example, when building with MKL/IPP I'd do something like
 
     #!/bin/bash
+    if [ -f Makefile ]; then
+       make clean
+    fi
+    if [ -f CMakeCache.txt ]; then
+       echo "Removing CMakeCache.txt"
+       rm CMakeCache.txt
+    fi
+    if [ -d CMakeFiles ]; then
+       echo "Removing CMakeFiles"
+       rm -rf CMakeFiles
+    fi
     /usr/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
     -DCMAKE_INSTALL_PREFIX=./ \
     -DCMAKE_C_COMPILER=/usr/local/bin/clang \
