@@ -3,8 +3,15 @@
 #include <math.h>
 #include "gfast_core.h"
 #ifdef GFAST_USE_INTEL
-#include <mkl_lapacke.h>
-#include <mkl_cblas.h>
+ #ifdef __clang__
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Weverything"
+ #endif
+ #include <mkl_lapacke.h>
+ #include <mkl_cblas.h>
+ #ifdef __clang__
+  #pragma clang diagnostic pop
+ #endif
 #else
 #include <lapacke.h>
 #include <cblas.h>

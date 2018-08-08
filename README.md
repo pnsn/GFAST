@@ -77,7 +77,7 @@ On a machine with MKL/IPP I might do something like
     -DGEOLIB_LIBRARY=/home/bakerb25/GeographicLib-1.46/lib/libGeographic.a \
     -DFFTW3_LIBRARY=/home/bakerb25/fftw-3.3.5/lib/libfftw3.a \
     -DEW_INCLUDE_DIR=/home/bakerb25/earthworm/earthworm-working/include \
-    -DEW_LIBRARY="/home/bakerb25/earthworm/earthworm-working/lib/swap.o;/home/bakerb25/earthworm/earthworm-working/lib/libew.a" \
+    -DEW_LIBRARY="/home/bakerb25/earthworm/earthworm-working/lib/libew.a" \
     -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
     -DLIBXML2_LIBRARY=/usr/lib64/libxml2.so
 
@@ -112,12 +112,12 @@ Another example, when building with MKL/IPP I'd do something like
     -DISCL_LIBRARY="/home/bakerb25/C/iscl/lib/libiscl_shared.so;/opt/intel/lib/intel64/libirc.so" \
     -DGEOLIB_LIBRARY=/home/bakerb25/C/GeographicLib-1.46/lib/libGeographic.so \
     -DEW_INCLUDE_DIR=/home/bakerb25/C/earthworm/earthworm-working/include \
-    -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/swap.o;/home/bakerb25/C/earthworm/earthworm-working/lib/libew.a" \
+    -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/libew.a" \
     -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
     -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so \
     -DUW_AMAZON=TRUE \
     -DJANSSON_LIBRARY=/home/bakerb25/C/jansson/lib/libjansson.a \
-    -DJANSSON_INCLUDE=/home/bakerb25/C/jansson/include
+    -DJANSSON_INCLUDE_DIR=/home/bakerb25/C/jansson/include
 
 You'll only need Janson if making the UW source.  
 

@@ -2,13 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast_eewUtils.h"
-#ifdef GFAST_USE_INTEL
-#include <mkl_lapacke.h>
-#include <mkl_cblas.h>
-#else
-#include <lapacke.h>
-#include <cblas.h>
-#endif
 #include <stdbool.h>
 #include "gfast_core.h"
 #include "iscl/array/array.h"
