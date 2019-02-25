@@ -138,7 +138,7 @@ int core_waveformProcessor_peakDisplacement(
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff);
             // If it isn't a NaN then retain it for processing
-            if (!isnan(peakDisp))
+            if (!__builtin_isnan(peakDisp)) //isnan(peakDisp))
             {
                 pgd_data->pd[k] = peakDisp; // meters
                 pgd_data->wt[k] = 1.0;
@@ -196,7 +196,8 @@ static double __getPeakDisplacement(const int npts,
     n0 = nbuff[indx0];
     e0 = ebuff[indx0];
     // Prevent a problem
-    if (isnan(u0) || isnan(n0) || isnan(e0))
+    //if (isnan(u0) || isnan(n0) || isnan(e0))
+    if (__builtin_isnan(u0) || __builtin_isnan(n0) || __builtin_isnan(e0))
     {
         return (double) NAN;
     }
@@ -205,7 +206,9 @@ static double __getPeakDisplacement(const int npts,
     for (i=indx0; i<npts; i++)
     {
         peakDisplacement_i = PD_MAX_NAN;
-        if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) )
+        //if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) )
+        if (!__builtin_isnan(ubuff[i]) && !__builtin_isnan(nbuff[i]) &&
+            !__builtin_isnan(ebuff[i]) )
         {
             peakDisplacement_i = sqrt( pow(ubuff[i] - u0, 2)
                                      + pow(nbuff[i] - n0, 2)

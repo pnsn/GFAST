@@ -21,29 +21,62 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 
 ## Dependencies (verify with manual):
 
-1. [cmake](https://cmake.org/) >= v2.6 for generation of Makefiles
+1. [cmake](https://cmake.org/) >= v3.2 for generation of Makefiles
 
-2. [LAPACK(E)](http://www.netlib.org/lapack/) and [(C)BLAS](http://www.netlib.org/blas/) for matrix algebra.  These are available through [MKL](https://software.intel.com/en-us/mkl) and [IPP](https://software.intel.com/en-us/intel-ipp/details).
+2. [iniparser](https://github.com/ndevilla/iniparser) for parsing ini files.
 
-3. [iniparser](https://github.com/ndevilla/iniparser) for parsing ini files.
+3. [hdf5](https://support.hdfgroup.org/HDF5/) for archival of results.  Currently v1.10.1 is required but as soon the ring archiver in eewUtils is completed the required version will be downgraded.  If linking to static libraries this may also required [zlib](http://www.zlib.net) for compression.
 
-4. [hdf5](https://support.hdfgroup.org/HDF5/) for archival of results.  Currently v1.10.1 is required but as soon the ring archiver in eewUtils is completed the required version will be downgraded.  If linking to static libraries this may also required [zlib](http://www.zlib.net) for compression.
+4. [libxml2](http://xmlsoft.org/) for reading/writing ShakeAlert and QuakeML XML.
 
-5. [libxml2](http://xmlsoft.org/) for reading/writing ShakeAlert and QuakeML XML.
+5. [ISCL](https://gitlab.isti.com/bbaker/iscl) for many small computations throughout GFAST.  This will require [LAPACK(E)](http://www.netlib.org/lapack/) and [(C)BLAS](http://www.netlib.org/blas/) for matrix algebra.  These are available through [MKL](https://software.intel.com/en-us/mkl) and [IPP](https://software.intel.com/en-us/intel-ipp/details).  If not using MKL and using static libraries only then this may require [fftw](http://www.fftw.org/).  and [GeographicLib](https://geographiclib.sourceforge.io/).
 
-6. [ISCL](https://gitlab.isti.com/bbaker/iscl) for many small computations throughout GFAST.  If not using MKL and using static libraries only then this will require [fftw](http://www.fftw.org/).  Also, depending on your configuration it may also require [GeographicLib](https://geographiclib.sourceforge.io/).
-
-7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
+7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src.
 
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
-9. [ActiveMQ](http://activemq.apache.org/) both the Java and C++ portions.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
-
 ## Configuring 
 
-To get CMake to behave I usually use configuration scripts.  
+To get CMake to behave I usually use configuration scripts.  In general, shared libraries are substantially to use than static libraries.  For example,  
 
-On a machine with MKL/IPP I might do something like
+    #!/bin/bash
+    export CC=/usr/bin/clang-6.0
+    export CXX=/usr/bin/clang++-6.0
+    if [ -f Makefile ]; then
+       make clean
+    fi
+    if [ -f CMakeCache.txt ]; then
+       echo "Removing CMakeCache.txt"
+       rm CMakeCache.txt
+    fi
+    if [ -d CMakeFiles ]; then
+       echo "Removing CMakeFiles"
+       rm -rf CMakeFiles
+    fi
+    /usr/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
+    -DCMAKE_INSTALL_PREFIX=./ \
+    -DCMAKE_C_COMPILER=/usr/bin/clang-6.0 \
+    -DCMAKE_CXX_COMPILER=/usr/bin/clang++-6.0 \
+    -DCMAKE_C_FLAGS="-g3 -O2 -Weverything -Wno-documentation-unknown-command -Wno-reserved-id-macro -Wno-padded" \
+    -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
+    -DCMAKE_CXX_FLAGS="-g3 -O2 -Weverything" \
+    -DGFAST_INSTANCE="PTWC" \
+    -DGFAST_USE_INTEL=TRUE \
+    -DH5_C_INCLUDE_DIR=/home/bakerb25/C/hdf5-1.10.1_intel/include \
+    -DH5_LIBRARY=/home/bakerb25/C/hdf5-1.10.1_intel/lib/libhdf5.so \
+    -DINIPARSER_INCLUDE_DIR=/home/bakerb25/C/iniparser/src \
+    -DINIPARSER_LIBRARY=/home/bakerb25/C/iniparser/libiniparser.so.1 \
+    -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/C/compearth/momenttensor/c_src/include \
+    -DCOMPEARTH_LIBRARY=/home/bakerb25/C/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
+    -DISCL_INCLUDE_DIR=/home/bakerb25/C/iscl/include \
+    -DISCL_LIBRARY="/home/bakerb25/C/iscl/lib/libiscl_shared.so" \
+    -DGEOLIB_LIBRARY=/home/bakerb25/C/GeographicLib-1.46/lib/libGeographic.so \
+    -DEW_INCLUDE_DIR=/home/bakerb25/C/earthworm/earthworm-working/include \
+    -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/libew_shared.so" \
+    -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
+    -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so
+
+Forcing the use of static libraries to work will be much more of a nuisance.  On a machine with MKL/IPP I might do something like
 
     #!/bin/bash
     if [ -f Makefile ]; then
@@ -59,17 +92,12 @@ On a machine with MKL/IPP I might do something like
     fi
     /home/bakerb25/cmake-3.6.1/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
     -DCMAKE_INSTALL_PREFIX=./ \
-    -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
+    -DCMAKE_C_FLAGS="-g3 -O2 -Wall -Wno-unknown-pragmas" \
     -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
     -DCMAKE_CXX_FLAGS="-g3 -O2" \
     -DGFAST_INSTANCE="PNSN" \
     -DGFAST_USE_INTEL=FALSE \
-    -DGFAST_USE_AMQ=TRUE \
     -DGFAST_USE_EW=TRUE \
-    -DAPR_INCLUDE_DIR=/usr/include/apr-1 \
-    -DLIBAMQ_INCLUDE_DIR=/usr/include/activemq-cpp-3.8.2 \
-    -DLIBAMQ_LIBRARY=/usr/lib64/libactivemq-cpp.so \
-    -DLSSL_LIBRARY=/usr/lib64/libssl.so.10 \
     -DLCRYPTO_LIBRARY=/usr/lib64/libcrypto.so.10 \
     -DLAPACKE_INCLUDE_DIR=/home/bakerb25/lapack-3.6.1/LAPACKE/include \
     -DLAPACKE_LIBRARY=/home/bakerb25/lapack-3.6.1/liblapacke.a \
@@ -110,18 +138,12 @@ Another example, when building with MKL/IPP I'd do something like
     -DCMAKE_INSTALL_PREFIX=./ \
     -DCMAKE_C_COMPILER=/usr/local/bin/clang \
     -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
-    -DCMAKE_C_FLAGS="-g3 -O2 -Weverything -Wno-reserved-id-macro -Wno-padded -fopenmp" \
+    -DCMAKE_C_FLAGS="-g3 -O2 -Weverything -Wno-reserved-id-macro -Wno-padded" \
     -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
-    -DCMAKE_CXX_FLAGS="-g3 -O2 -Weverything -fopenmp" \
+    -DCMAKE_CXX_FLAGS="-g3 -O2 -Weverything" \
     -DGFAST_INSTANCE="PNSN" \
     -DGFAST_USE_INTEL=TRUE \
-    -DGFAST_USE_AMQ=TRUE \
     -DGFAST_USE_EW=TRUE \
-    -DAPR_INCLUDE_DIR=/usr/include/apr-1.0 \
-    -DLIBAMQ_INCLUDE_DIR=/home/bakerb25/cpp/activemq-cpp-library-3.9.3/include/activemq-cpp-3.9.3 \
-    -DLIBAMQ_LIBRARY=/home/bakerb25/cpp/activemq-cpp-library-3.9.3/lib/libactivemq-cpp.so \
-    -DLSSL_LIBRARY=/usr/lib/x86_64-linux-gnu/libssl.so \
-    -DLCRYPTO_LIBRARY=/usr/lib/x86_64-linux-gnu/libcrypto.so \
     -DMKL_LIBRARY="/opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so;/opt/intel/mkl/lib/intel64/libmkl_core.so;/opt/intel/mkl/lib/intel64/libmkl_sequential.so" \
     -DIPP_LIBRARY="/opt/intel/ipp/lib/intel64/libipps.so;/opt/intel/ipp/lib/intel64/libippvm.so;/opt/intel/ipp/lib/intel64/libippcore.so" \
     -DH5_C_INCLUDE_DIR=/home/bakerb25/C/hdf5-1.10.1_intel/include \
@@ -136,11 +158,7 @@ Another example, when building with MKL/IPP I'd do something like
     -DEW_INCLUDE_DIR=/home/bakerb25/C/earthworm/earthworm-working/include \
     -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/libew.a" \
     -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
-    -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so \
-    -DUW_AMAZON=TRUE \
-    -DJANSSON_LIBRARY=/home/bakerb25/C/jansson/lib/libjansson.a \
-    -DJANSSON_INCLUDE_DIR=/home/bakerb25/C/jansson/include
+    -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so
 
-You'll only need Janson if making the UW source.  
 
 
