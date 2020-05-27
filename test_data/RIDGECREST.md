@@ -1,6 +1,6 @@
 # Ridgecrest Example Instructions 
 
-  The Ridgecrest data are in playback/ridgecrest_gps_60.tnk.
+  The Ridgecrest data are in test_data/params_ridgecrest/playback/ridgecrest_gps_60.tnk.
   The data are cut so that the origin time is at 60 seconds into the
 file.
 
