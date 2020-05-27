@@ -27,11 +27,11 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 ### Overview of Dependencies
 
     GFAST 
-        -mkl/ipp  || lapacke/cblas
+        -mkl/ipp  -or- lapacke/cblas
         -compearth
-            mkl/ipp  || lapacke/cblas
+            mkl/ipp  -or- lapacke/cblas
         -ISCL
-            mkl/ipp  || lapacke/cblas/fftw
+            mkl/ipp  -or- lapacke/cblas/fftw
             geographicLib (optional)
         -activeMQ
             libssl, libcrypto
@@ -70,9 +70,9 @@ https://software.intel.com/content/www/us/en/develop/articles/installing-intel-f
 
 But here's how to do it in stand-alone
 1. Register and download the MKL/IPP tar.gz files from:
-https://software.intel.com/content/www/us/en/develop/articles/how-to-get-intel-mkl-ipp-daal.html
+    https://software.intel.com/content/www/us/en/develop/articles/how-to-get-intel-mkl-ipp-daal.html
 
-or, we'll make them available in this repository
+    or, we'll make them available in this repository
 2. Install (by default installs into /opt/intel)
 
         >cd l_mkl_2020.0.166
@@ -170,8 +170,8 @@ or, we'll make them available in this repository
         >git clone https://gitlab.isti.com/bbaker/iscl
         Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
         USE_INTEL=true
-        >Run zbuild_gcc.sh - This will run cmake and update CMakeCache.txt, etc.
-        >make - will build lib/libiscl_shared.so and lib/libiscl_static.a
+        >Run zbuild_gcc.sh // This will run cmake and update CMakeCache.txt, etc.
+        >make              // will build lib/libiscl_shared.so and lib/libiscl_static.a
 
 
 7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
@@ -181,11 +181,19 @@ or, we'll make them available in this repository
         >cd compearth/momenttensor/c_src
         Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
         USE_INTEL=false
-        >Run zbuild_gcc.sh - This will run cmake and update CMakeCache.txt, etc.
-        >make - will build lib/libcompearth_shared.so and lib/libcompearth_static.a
+        >Run zbuild_gcc.sh  // This will run cmake and update CMakeCache.txt, etc.
+        >make               // will build lib/libcompearth_shared.so and lib/libcompearth_static.a
         
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
+    Checkout latest (confirm this is public access)
+        >svn checkout svn://svn.isti.com/earthworm/trunk earthworm_svn
+        often this resides in /opt/earthworm
+        >cd /opt/earthworm/earthworm_svn
+        >source environment/ew_linux.bash
+        >cd src
+        >make unix         // Check that /opt/earthworm/earthworm_svn/lib/libew_* is present
+    
 9. [ActiveMQ](http://activemq.apache.org/) both the Java and C++ portions.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
     Note: [MTH] I haven't found the APR to be necessary
@@ -198,19 +206,21 @@ or, we'll make them available in this repository
         http://download-ib01.fedoraproject.org/pub/epel/7/aarch64/
 
     2. Install epel-release rpm:
-        >sudo rpm -Uvh epel-release*rpm
+    
+            >sudo rpm -Uvh epel-release*rpm
         
     3. Install activemq-cpp rpm package:
-        >yum install activemq-cpp-devel
+    
+            >yum install activemq-cpp-devel
         
-        >rpm -ql activemq-cpp-devel
-         ...
-         /usr/include/activemq-cpp-3.9.3/decaf/..
-         /usr/lib64/libactivemq-cpp.so
-         /usr/lib64/pkgconfig/activemq-cpp.pc
+            >rpm -ql activemq-cpp-devel
+            ...
+            /usr/include/activemq-cpp-3.9.3/decaf/..
+            /usr/lib64/libactivemq-cpp.so
+            /usr/lib64/pkgconfig/activemq-cpp.pc
          
-        > ls /usr/include/activemq-cpp-3.9.3/
-             activemq/  cms/  decaf/
+            > ls /usr/include/activemq-cpp-3.9.3/
+                  activemq/  cms/  decaf/
 
     4. If libssl and libcrypto are not present:
     
