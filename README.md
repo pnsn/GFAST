@@ -2,7 +2,9 @@
 
 This is the source code for Geodetic First Approximation of Size and Timing (GFAST) geodetic earthquake early warning module.  For more detailed instructions check the doc/manual.pdf
 
-MTH: Test change to repo.
+## Updated Instructions
+
+2020/05/27 MTH: Working on new branch (=2020) with cleaned up dependencies and build instructions.
 
 # Directories
 
@@ -22,24 +24,197 @@ MTH: Test change to repo.
 # Building GFAST 
 
 ## Dependencies (verify with manual):
+### Overview of Dependencies
+
+    GFAST 
+        -mkl/ipp  || lapacke/cblas
+        -compearth
+            mkl/ipp  || lapacke/cblas
+        -ISCL
+            mkl/ipp  || lapacke/cblas/fftw
+            geographicLib (optional)
+        -activeMQ
+            libssl, libcrypto
+        -hdf5
+        -libxml2
+        -iniparser
+    
+0. compiler versions: gcc 4.8.5 vs gcc 7.3
+gcc 4.8.5 does not recognize the #pragma omp simp directive so will generate a lot of warnings on compile.
+gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.
+
+### To install gcc 7.3 on centos 7
+    
+1. Install the CentOS SCL release file. It is part of the CentOS extras repository and can be installed by running the following command:
+
+        >sudo yum install centos-release-scl
+2. Install Developer Toolset version 7
+
+        >sudo yum install devtoolset-7
+3. Activate a new shell instance using the Software Collection scl tool:
+
+        >scl enable devtoolset-7 bash
+4. Check gcc version
+
+        >gcc --version    // gcc (GCC) 7.3.1 20180303 (Red Hat 7.3.1-5)
+
+## Which Linear Algebra package to use ?
+1. mkl/ipp - optimized for intel
+2. openBLAS - nearly as fast as 1. and a bit more general
+3. lapack/blas "classic" - slowest option but easiest to install
+
+### To install intel mkl/ipp on centos 7
+    
+Note: It may be possible to install these using the yum pkg manager as part of python:
+https://software.intel.com/content/www/us/en/develop/articles/installing-intel-free-libs-and-python-yum-repo.html
+
+But here's how to do it in stand-alone
+1. Register and download the MKL/IPP tar.gz files from:
+https://software.intel.com/content/www/us/en/develop/articles/how-to-get-intel-mkl-ipp-daal.html
+
+or, we'll make them available in this repository
+2. Install (by default installs into /opt/intel)
+
+        >cd l_mkl_2020.0.166
+        >sudo yum ./install.sh
+        >cd ../l_ipp_2020.0.166
+        >sudo yum ./install.sh
+        
+### To install lapack/blas/cblas on centos 7
+
+1. lapack/blas and lapacke are likely already installed as part of centos 7:
+
+        >ls /lib64/*lapack*
+            /lib64/liblapacke.so@	 /lib64/liblapacke.so.3.4@    /lib64/liblapack.so@    /lib64/liblapack.so.3.4@
+            /lib64/liblapacke.so.3@  /lib64/liblapacke.so.3.4.2*  /lib64/liblapack.so.3@  /lib64/liblapack.so.3.4.2*
+          
+     
+2. However, it is likely that the lapacke.h header files need to be downloaded:
+
+        > sudo yum install lapack-devel
+        > rpm -ql lapack-devel
+          /usr/include/lapacke
+          /usr/include/lapacke/lapacke.h
+          /usr/include/lapacke/lapacke_config.h
+          /usr/include/lapacke/lapacke_mangling.h
+          /usr/include/lapacke/lapacke_mangling_with_flags.h
+          /usr/include/lapacke/lapacke_utils.h
+          /usr/lib64/liblapack.so
+          /usr/lib64/liblapacke.so
+        
+3. It is still necessary to install the cblas library + headers
+
+        >sudo yum install atlas
+        >sudo yum install atlas-devel
+
+        >rpm -ql atlas
+         /usr/lib64/atlas/libsatlas.so.3
+         /usr/lib64/atlas/libsatlas.so.3.10
+         /usr/lib64/atlas/libtatlas.so.3
+         /usr/lib64/atlas/libtatlas.so.3.10
+         
+        >rpm -ql atlas-devel
+         ...
+         /usr/include/cblas.h
+         /usr/include/clapack.h
+         /usr/lib64/atlas/libsatlas.so
+         /usr/lib64/atlas/libtatlas.so
+    
+### packages
 
 1. [cmake](https://cmake.org/) >= v2.6 for generation of Makefiles
 
+   centos7 ships with cmake ver 2.8.12.8 which may be adequate.
+   Alternatively, cmake >= 3 can be installed by either:
+   
+        >sudo yum install cmake3
+        
+   or by downloading and building directly.
+
 2. [LAPACK(E)](http://www.netlib.org/lapack/) and [(C)BLAS](http://www.netlib.org/blas/) for matrix algebra.  These are available through [MKL](https://software.intel.com/en-us/mkl) and [IPP](https://software.intel.com/en-us/intel-ipp/details).
+
+    **See instructions above**
 
 3. [iniparser](https://github.com/ndevilla/iniparser) for parsing ini files.
 
+        >cd iniparser
+        >make          // builds libiniparser.a and libiniparser.so.1
+                       // include files in src/
+
 4. [hdf5](https://support.hdfgroup.org/HDF5/) for archival of results.  Currently v1.10.1 is required but as soon the ring archiver in eewUtils is completed the required version will be downgraded.  If linking to static libraries this may also required [zlib](http://www.zlib.net) for compression.
+
+        >sudo yum install hdf5
+        >sudo yum install hdf5-devel
 
 5. [libxml2](http://xmlsoft.org/) for reading/writing ShakeAlert and QuakeML XML.
 
+        >sudo yum install libxml2
+        >sudo yum install libxml2-devel
+
 6. [ISCL](https://gitlab.isti.com/bbaker/iscl) for many small computations throughout GFAST.  If not using MKL and using static libraries only then this will require [fftw](http://www.fftw.org/).  Also, depending on your configuration it may also require [GeographicLib](https://geographiclib.sourceforge.io/).
+
+        Download fftw-3.3.8.tar.gz from: http://www.fftw.org/download.html
+        >cd fftw-3.3.8
+        >./configure --enable-shared
+        >make
+        >make install
+        
+        Download GeographicLib from: https://geographiclib.sourceforge.io/html/install.html
+        >cd GeographicLib-1.50.1
+        >./configure --prefix=/usr/local/geographic [Default = /usr/local] 
+        >makedir BUILD
+        >cd BUILD
+        >cmake ..
+        
+        Clone and build ISCL
+        >git clone https://gitlab.isti.com/bbaker/iscl
+        Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
+        USE_INTEL=true
+        >Run zbuild_gcc.sh - This will run cmake and update CMakeCache.txt, etc.
+        >make - will build lib/libiscl_shared.so and lib/libiscl_static.a
+
 
 7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
 
+        Clone and build
+        >git clonehttps://github.com/bakerb845/compearth
+        >cd compearth/momenttensor/c_src
+        Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
+        USE_INTEL=false
+        >Run zbuild_gcc.sh - This will run cmake and update CMakeCache.txt, etc.
+        >make - will build lib/libcompearth_shared.so and lib/libcompearth_static.a
+        
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
 9. [ActiveMQ](http://activemq.apache.org/) both the Java and C++ portions.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
+
+    Note: [MTH] I haven't found the APR to be necessary
+    
+    https://centos.pkgs.org/7/epel-aarch64/activemq-cpp-3.9.3-3.el7.aarch64.rpm.html
+
+    The first two steps may not be necessary
+
+    1. Download latest epel-release rpm from:
+        http://download-ib01.fedoraproject.org/pub/epel/7/aarch64/
+
+    2. Install epel-release rpm:
+        >sudo rpm -Uvh epel-release*rpm
+        
+    3. Install activemq-cpp rpm package:
+        >yum install activemq-cpp-devel
+        
+        >rpm -ql activemq-cpp-devel
+         ...
+         /usr/include/activemq-cpp-3.9.3/decaf/..
+         /usr/lib64/libactivemq-cpp.so
+         /usr/lib64/pkgconfig/activemq-cpp.pc
+         
+        > ls /usr/include/activemq-cpp-3.9.3/
+             activemq/  cms/  decaf/
+
+    4. If libssl and libcrypto are not present:
+    
+
 
 ## Configuring 
 
