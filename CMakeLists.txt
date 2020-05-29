@@ -121,7 +121,7 @@ IF (EW_FOUND)
        src/traceBuffer/ewrr/freetb2Trace.c src/traceBuffer/ewrr/getMessagesFromRing.c
        src/traceBuffer/ewrr/initialize.c src/traceBuffer/ewrr/settb2Data.c
        src/traceBuffer/ewrr/unpackTraceBuf2Messages.c
-       src/traceBuffer/ewrr/swap.c # This may die in subsequent versions of EW
+       #src/traceBuffer/ewrr/swap.c # This may die in subsequent versions of EW
        )
 ENDIF()
 #ADD_SUBDIRECTORY(src/xml)

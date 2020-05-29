@@ -10,12 +10,13 @@ def main():
     '''
 
     # Where is the ridgecrest params/tankplayer.d file:
-    ew_dir = '/opt/earthworm/ridgecrest/params'
+    #ew_dir = '/opt/earthworm/ridgecrest/params'
+    ew_dir = '/opt/earthworm/run_working/params'
     # Where is the starting SA.xml file:
     xmldir_in  = '.'
     # Where should the modified SA.xml file be put:
     #   presumably where gfast_eew can find it
-    xmldir_out = './events'
+    xmldir_out = '../../events'
 
     files = glob.glob(xmldir_in + '/' + '*.xml')
     for xmlfile in files:
