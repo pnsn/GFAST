@@ -7,11 +7,17 @@
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
+#include <dirent.h>  // Needed for DIR
+
+#include <time.h>
 
 #define MAX_MESSAGES 1024
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
+
+char *check_dir_for_messages(const char *dirname, int *ierr);
+
 
 /*!
  * @brief GFAST earthquake early warning driver routine
@@ -21,6 +27,7 @@ int main(int argc, char **argv)
 {
     const char *fcnm = "gfast_eew\0";
     char propfilename[] = "gfast.props\0";
+    const char *message_dir = "./events";                // MTH: eventually move this to gfast.props
     struct GFAST_activeEvents_struct events;
     struct GFAST_cmtResults_struct cmt;
     struct GFAST_ffResults_struct ff;
@@ -36,7 +43,8 @@ int main(int argc, char **argv)
     struct ewRing_struct ringInfo;
     char *msgs;
     char *amqMessage;
-    double t0, t1, tbeg;
+    double t0, t1, tbeg, t_now;
+    int first_time = 1;
     const enum opmode_type opmode = REAL_TIME_EEW;
     const bool useTopic = true;   // Don't want durable queues
     const bool clientAck = false; // Let session acknowledge transacations
@@ -80,6 +88,7 @@ int main(int argc, char **argv)
     {   
         LOG_INFOMSG("%s: Initializing the data buffers...\n", fcnm);
     }
+
     ierr = core_data_initialize(props, &gps_data);
     if (ierr != 0)
     {
@@ -173,6 +182,7 @@ int main(int argc, char **argv)
     LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
     t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
+    t_now = (double) (long) (ISCL_time_timeStamp() + 0.5);
     tbeg = t0; 
     tstatus = t0;
     tstatus0 = t0;
@@ -186,6 +196,9 @@ int main(int argc, char **argv)
         if (t1 - t0 < props.waitTime){continue;}
         t0 = t1;
         tstatus1 = t0;
+
+printf("[t0:%f]\n", t0);
+
         if (tstatus1 - tstatus0 > 3600.0)
         {
             LOG_DEBUGMSG("%s: GFAST has been running for %d hours\n",
@@ -202,6 +215,7 @@ double tbeger0 = tbeger;
                                                     &ringInfo,
                                                     &nTracebufs2Read,
                                                     &ierr);
+printf("Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
             if (ierr ==-1)
@@ -235,6 +249,7 @@ tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
+printf("unpack the tracebuf2 messages returned ierr=%d\n", ierr);
         memory_free8c(&msgs);
         if (ierr != 0)
         {
@@ -245,10 +260,12 @@ tbeger = ISCL_time_timeStamp();
 //tbeger = ISCL_time_timeStamp();
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
+printf("call traceBuffer_h5_setData\n");
         // Update the hdf5 buffers
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
                                       h5traceBuffer);
+printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
@@ -266,6 +283,9 @@ tbeger = ISCL_time_timeStamp();
         msWait = props.activeMQ_props.msWaitForMessage;
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
+// MTH: Check dir for SA event:
+  	amqMessage = check_dir_for_messages(message_dir, &ierr);
+
         if (ierr != 0)
         {
             LOG_ERRMSG("%s: Internal error when getting message\n", fcnm);
@@ -284,8 +304,8 @@ tbeger = ISCL_time_timeStamp();
                 LOG_ERRMSG("%s\n", amqMessage);
                 goto ERROR;
             }
-printf("got one:\n");
-printf("%s\n", amqMessage);
+printf("************ Here comes the SA message:\n");
+printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
@@ -353,11 +373,18 @@ printf("%s\n", amqMessage);
              LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              goto ERROR; 
          }
+printf("MTH: pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
+pgd.nsites, pgd.ndeps, pgd.mpgd[0]);
+printf("MTH: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
+cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
+printf("MTH: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
+cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
          // Send the messages where they need to go
          if (xmlMessages.mmessages > 0)
          {
              for (im=0; im<xmlMessages.nmessages; im++)
              {
+printf("evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
                  if (xmlMessages.evids[im] != NULL)
                  {
                      free(xmlMessages.evids[im]);
@@ -464,3 +491,80 @@ static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
     tb2Data->linit = true;
     return 0;
 }
+
+char *check_dir_for_messages(const char *dirname, int *ierr)
+{
+  int i;
+  struct dirent *de; // Pointer for directory entry
+  // opendir() returns a pointer of DIR type.
+  DIR *dr = opendir(dirname);
+  char *ext;
+  char *fullpath;
+  char *buffer;
+  long length = 0;
+  FILE *f;
+  char *message = NULL;
+  int nevents=0;
+  size_t dirlen = strlen(dirname);
+
+  *ierr = 1;
+
+  if (dr == NULL) // opendir returns NULL if couldn't open directory
+  {
+   printf("Could not open directory:%s\n", dirname );
+   return NULL;
+  }
+
+  // MTH: This is currently set up to expect only 1 .xml file in dir at a time,
+  //      but could easily be modified to handle more
+  while ((de = readdir(dr)) != NULL)
+  {
+    if (de->d_name[0] != '.')
+    {
+      ext = strrchr(de->d_name, '.');
+      //printf("%s ext=[%s]\n", de->d_name, ext);
+      if (ext && !strcmp(ext+1, "xml")) {
+        //printf("%s ext=[%s] len=%ld\n", de->d_name, ext, strlen(de->d_name));
+
+        /* + 2 because of the '/' and the terminating 0 */
+        fullpath = malloc(dirlen + strlen(de->d_name) + 2);
+        sprintf(fullpath, "%s/%s", dirname, de->d_name);
+
+        f = fopen(fullpath, "r");
+        if (f)
+        {
+          fseek(f, 0, SEEK_END);
+          length = ftell(f);
+          fseek(f, 0, SEEK_SET);
+          buffer = (char *)malloc((length+1)*sizeof(char));
+          if (buffer)
+          {
+            fread(buffer,sizeof(char), length, f);
+          }
+          fclose(f);
+          buffer[length] = '\0';
+          message = buffer;
+        }
+        else {
+          printf("Error reading from file:%s\n", fullpath);
+          return NULL;
+        }
+
+	//printf(buffer);
+
+        // Now remove the event file we just read:
+        *ierr = remove(fullpath);
+        if (*ierr != 0) {
+          LOG_ERRMSG("gfast_eew: Unable to delete file:%s\n", fullpath);
+        }
+
+        free(fullpath);
+        nevents++;
+      }
+    }
+  }
+  //printf("Return nevents=%d\n" , nevents);
+  *ierr = 0;
+  return message;
+}
+

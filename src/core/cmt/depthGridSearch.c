@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "gfast_core.h"
-#ifdef GFAST_USE_ISCL
+#ifdef GFAST_USE_INTEL
  #ifdef __clang__
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Weverything"

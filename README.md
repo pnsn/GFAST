@@ -40,7 +40,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
         -iniparser
     
 0. compiler versions: gcc 4.8.5 vs gcc 7.3
-gcc 4.8.5 does not recognize the #pragma omp simp directive so will generate a lot of warnings on compile.
+gcc 4.8.5 does not recognize the *#pragma omp simp* directive so will generate a lot of warnings on compile.
 gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.
 
 ### To install gcc 7.3 on centos 7
@@ -187,16 +187,22 @@ But here's how to do it in stand-alone
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
     Checkout latest (confirm this is public access)
+    
         >svn checkout svn://svn.isti.com/earthworm/trunk earthworm_svn
-        often this resides in /opt/earthworm
+        // Assuming this resides in /opt/earthworm:
         >cd /opt/earthworm/earthworm_svn
         >source environment/ew_linux.bash
         >cd src
         >make unix         // Check that /opt/earthworm/earthworm_svn/lib/libew_* is present
     
-9. [ActiveMQ](http://activemq.apache.org/) both the Java and C++ portions.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
+9. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
     Note: [MTH] I haven't found the APR to be necessary
+    Note: For building GFAST, the instructions here for downloading and
+          installing activemq-cpp are sufficient.
+          However, as soon as gfast_eew starts, it will try to connect
+          to an activemq broker at the url and port specified in gfast.props.
+         
     
     https://centos.pkgs.org/7/epel-aarch64/activemq-cpp-3.9.3-3.el7.aarch64.rpm.html
 
@@ -223,6 +229,31 @@ But here's how to do it in stand-alone
                   activemq/  cms/  decaf/
 
     4. If libssl and libcrypto are not present:
+    
+9b. [ActiveMQ](http://activemq.apache.org/) The Java portion.
+
+For building GFAST, the instructions above for downloading and installing activemq-cpp are sufficient.
+However, as soon as gfast_eew starts, it will try to connect to an activemq broker at the url and port specified in gfast.props
+
+In practice, this AMQ section of gfast.props will presumably point to the broker at PNSN.
+However, since gfast_eew must be able to connect to an activemq broker, for the purpose of local testing and development,
+I'll describe here how to set up and run a local broker.
+
+Download the java jar from:
+https://activemq.apache.org/components/classic/download/
+
+Make sure ports in conf/activemq.xml match those specified in gfast.props.
+eg., 
+
+        [ActiveMQ]
+        # ActiveMQ hostname to access ElarmS messages
+        host=localhost
+        # ActiveMQ port to access ElarmS messages (61620)
+        port=61616
+        
+Start up the broker *before* starting gfast_eew:
+
+        >java -jar activemq-all-5.14.3.jar start
     
 
 
