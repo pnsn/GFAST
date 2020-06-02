@@ -141,8 +141,10 @@ int main(int argc, char **argv)
         printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
         message_dir = props.SAeventsDir;
         printf("MTH: message_dir=[%s]\n", message_dir);
+        printf("MTH: check_for_SA --> true\n");
         check_for_SA_events = true;
     }
+    printf("Now EXIT\n");
     exit(0);
 
     // Initialize PGD
