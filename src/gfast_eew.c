@@ -27,7 +27,8 @@ int main(int argc, char **argv)
 {
     const char *fcnm = "gfast_eew\0";
     char propfilename[] = "gfast.props\0";
-    const char *message_dir = "./events";                // MTH: eventually move this to gfast.props
+    //const char *message_dir = "./events";                // MTH: eventually move this to gfast.props
+    char *message_dir; 
     struct GFAST_activeEvents_struct events;
     struct GFAST_cmtResults_struct cmt;
     struct GFAST_ffResults_struct ff;
@@ -58,6 +59,7 @@ int main(int argc, char **argv)
     char infoLogFileName[PATH_MAX];
     char debugLogFileName[PATH_MAX];
     char warnLogFileName[PATH_MAX];
+    bool check_for_SA_events = false;
     // Initialize 
     ierr = 0;
     msgs = NULL;
@@ -134,6 +136,14 @@ int main(int argc, char **argv)
         LOG_ERRMSG("%s: Error connecting to upstream message queue\n", fcnm);
         goto ERROR;
     }
+
+    if (strlen(props.SAeventsDir)){
+        printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
+        message_dir = props.SAeventsDir;
+        printf("MTH: message_dir=[%s]\n", message_dir);
+        check_for_SA_events = true;
+    }
+    exit(0);
 
     // Initialize PGD
     ierr = core_scaling_pgd_initialize(props.pgd_props, gps_data,
@@ -284,15 +294,11 @@ printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
 // MTH: Check dir for SA event:
-    printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
-    if (props.SAeventsDir){
-      printf("Inside if\n");
-      printf("len=%d\n", strlen(props.SAeventsDir));
+
+    if (strlen(props.SAeventsDir)){
+      printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
     }
-    else {
-      printf("Failed\n");
-    }
-    exit(0);
+
   	amqMessage = check_dir_for_messages(message_dir, &ierr);
 
         if (ierr != 0)
