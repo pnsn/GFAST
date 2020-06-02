@@ -285,6 +285,12 @@ printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
                                                         msWait, &ierr);
 // MTH: Check dir for SA event:
     printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
+    if (props.SAeventsDir){
+      printf("Inside if\n");
+    }
+    else {
+      printf("Failed\n");
+    }
     exit(0);
   	amqMessage = check_dir_for_messages(message_dir, &ierr);
 
