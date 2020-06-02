@@ -74,6 +74,33 @@ int core_properties_initialize(const char *propfilename,
             memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
         }
     }
+    s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
+    if (s != NULL)
+    {
+        strcpy(props->SAeventsDir, s);
+        if (!ISCL_os_path_isdir(props->SAeventsDir))
+        {
+            LOG_ERRMSG("SA events directory %s doesn't exist",
+                       props->SAeventsDir);
+            goto ERROR; 
+        }
+        if (strlen(props->SAeventsDir) == 0)
+        {
+            strcpy(props->SAeventsDir, "./\0");
+        }
+        else
+        {
+            if (props->SAeventsDir[strlen(props->SAeventsDir)-1] != '/')
+            {
+                strcat(props->SAeventsDir, "/\0");
+            }
+        }
+    }
+    else
+    {
+        strcpy(props->SAeventsDir, "./\0");
+    }
+
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
     if (props->bufflen <= 0.0)
     {

@@ -152,6 +152,8 @@ struct GFAST_props_struct
                                       which defines the sites, locations,
                                       sampling periods, etc. to be used
                                       by GFAST. */
+    char SAeventDir[PATH_MAX]; /*!< Location of dir containing SA events 
+                                      SA.xml to trigger on */
     char siteMaskFile[PATH_MAX]; /*!< Contains a list of sites to mask from
                                       the inversions.  If not specified then
                                       all sites will be read. */

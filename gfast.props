@@ -5,6 +5,7 @@
 # File with station names
 #metaDataFile=cwu-fastlane-metadata.txt
 metaDataFile=test_data/ridgecrest/ridgecrest-stns.txt
+SA_events_dir=./events
 #siteMaskFile=ridgecrest-mask.txt
 # File with station names and sampling periods
 #dtfile=GFAST_streams_dt.txt

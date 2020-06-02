@@ -284,6 +284,8 @@ printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
 // MTH: Check dir for SA event:
+    printf("MTH: SAeventsDir=[%s]" % props.general.SAeventsDir);
+    exit(0);
   	amqMessage = check_dir_for_messages(message_dir, &ierr);
 
         if (ierr != 0)
