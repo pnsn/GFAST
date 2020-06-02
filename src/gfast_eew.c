@@ -281,6 +281,8 @@ tbeger = ISCL_time_timeStamp();
         msWait = props.activeMQ_props.msWaitForMessage;
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
+
+        // Alternatively, check for SA message trigger in message_dir
         if (check_message_dir) {
           amqMessage = check_dir_for_messages(message_dir, &ierr);
         }
@@ -302,9 +304,7 @@ tbeger = ISCL_time_timeStamp();
                 LOG_ERRMSG("%s\n", amqMessage);
                 goto ERROR;
             }
-printf("************ Here comes the SA message:\n");
-printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
-exit(0);
+//printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
@@ -549,8 +549,6 @@ char *check_dir_for_messages(const char *dirname, int *ierr)
           printf("Error reading from file:%s\n", fullpath);
           return NULL;
         }
-
-	//printf(buffer);
 
         // Now remove the event file we just read:
         *ierr = remove(fullpath);
