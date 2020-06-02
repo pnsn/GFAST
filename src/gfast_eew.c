@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     char infoLogFileName[PATH_MAX];
     char debugLogFileName[PATH_MAX];
     char warnLogFileName[PATH_MAX];
-    bool check_for_SA_events = false;
+    bool check_message_dir = false;
     // Initialize 
     ierr = 0;
     msgs = NULL;
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     if (props.verbose > 2){GFAST_core_properties_print(props);}
     // Initialize the stations locations/names/sampling periods for the module
     if (props.verbose > 0)
-    {   
+    {
         LOG_INFOMSG("%s: Initializing the data buffers...\n", fcnm);
     }
 
@@ -138,14 +138,9 @@ int main(int argc, char **argv)
     }
 
     if (strlen(props.SAeventsDir)){
-        printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
         message_dir = props.SAeventsDir;
-        printf("MTH: message_dir=[%s]\n", message_dir);
-        printf("MTH: check_for_SA --> true\n");
-        check_for_SA_events = true;
+        check_message_dir = true;
     }
-    printf("Now EXIT\n");
-    exit(0);
 
     // Initialize PGD
     ierr = core_scaling_pgd_initialize(props.pgd_props, gps_data,
@@ -209,7 +204,7 @@ int main(int argc, char **argv)
         t0 = t1;
         tstatus1 = t0;
 
-printf("[t0:%f]\n", t0);
+        printf("[t0:%f]\n", t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -217,9 +212,9 @@ printf("[t0:%f]\n", t0);
                        fcnm, (int) ((tstatus1 - tstatus)/3600.0));
             tstatus0 = tstatus1;
         } 
-//printf("start\n");
-double tbeger = ISCL_time_timeStamp();
-double tbeger0 = tbeger;
+
+        double tbeger = ISCL_time_timeStamp();
+        double tbeger0 = tbeger;
         // Read my messages off the ring
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
@@ -227,7 +222,7 @@ double tbeger0 = tbeger;
                                                     &ringInfo,
                                                     &nTracebufs2Read,
                                                     &ierr);
-printf("Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
+        printf("Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
             if (ierr ==-1)
@@ -261,7 +256,6 @@ tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
-printf("unpack the tracebuf2 messages returned ierr=%d\n", ierr);
         memory_free8c(&msgs);
         if (ierr != 0)
         {
@@ -269,15 +263,11 @@ printf("unpack the tracebuf2 messages returned ierr=%d\n", ierr);
             goto ERROR;
         }
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
-//tbeger = ISCL_time_timeStamp();
-//printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
-printf("call traceBuffer_h5_setData\n");
         // Update the hdf5 buffers
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
                                       h5traceBuffer);
-printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
@@ -286,30 +276,21 @@ printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
 //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
 //printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
- if (t1 - tbeg > 6200 && false)
-{
-//printf("premature shut down\n");
-//break;
-} 
+
         // Check my mail for an event
         msWait = props.activeMQ_props.msWaitForMessage;
         amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
                                                         msWait, &ierr);
-// MTH: Check dir for SA event:
-
-    if (strlen(props.SAeventsDir)){
-      printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
-    }
-
-  	amqMessage = check_dir_for_messages(message_dir, &ierr);
+        if (check_message_dir) {
+          amqMessage = check_dir_for_messages(message_dir, &ierr);
+        }
 
         if (ierr != 0)
         {
             LOG_ERRMSG("%s: Internal error when getting message\n", fcnm);
             goto ERROR;
         }
-//continue;
-        // If there's a message then process it
+    // If there's a message then process it
         if (amqMessage != NULL)
         {
             // Parse the event message 
@@ -317,12 +298,13 @@ printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
             if (ierr != 0)
             {
                 LOG_ERRMSG("%s: Error parsing the decision module message\n",
-                           fcnm);
+                          fcnm);
                 LOG_ERRMSG("%s\n", amqMessage);
                 goto ERROR;
             }
 printf("************ Here comes the SA message:\n");
 printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
+exit(0);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
@@ -335,8 +317,8 @@ printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon
                 }
                 // Set the log file names
                 eewUtils_setLogFileNames(SA.eventid,
-                                         errorLogFileName, infoLogFileName,
-                                         debugLogFileName, warnLogFileName);
+                                        errorLogFileName, infoLogFileName,
+                                        debugLogFileName, warnLogFileName);
                 if (os_path_isfile(errorLogFileName))
                 {
                     remove(errorLogFileName);
@@ -347,26 +329,27 @@ printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon
                 }
                 if (os_path_isfile(debugLogFileName))
                 {
-                   remove(debugLogFileName);
+                  remove(debugLogFileName);
                 }
                 if (os_path_isfile(warnLogFileName))
                 {
-                   remove(warnLogFileName);
+                  remove(warnLogFileName);
                 }
                 // Initialize the HDF5 file
                 ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
-                                             SA.eventid,
-                                             props.propfilename);
+                                            SA.eventid,
+                                            props.propfilename);
                 if (ierr != 0)
                 {
                     LOG_ERRMSG("%s: Error initializing the archive file\n",
-                               fcnm);
+                              fcnm);
                     goto ERROR;
                 }
             }
             free(amqMessage);
             amqMessage = NULL;
         } // End check on ActiveMQ message
+
         // Are there events to process?
         if (events.nev < 1){continue;} 
         if (props.verbose > 2)
