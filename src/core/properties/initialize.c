@@ -98,7 +98,8 @@ int core_properties_initialize(const char *propfilename,
     }
     else
     {
-        strcpy(props->SAeventsDir, "./\0");
+        strcpy(props->SAeventsDir, "\0");
+        /*strcpy(props->SAeventsDir, "./\0");*/
     }
 
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
