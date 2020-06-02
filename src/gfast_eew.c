@@ -287,6 +287,7 @@ printf("call traceBuffer_h5_setData DONE returned ierr=%d\n", ierr);
     printf("MTH: SAeventsDir=[%s]\n", props.SAeventsDir);
     if (props.SAeventsDir){
       printf("Inside if\n");
+      printf("len=%d\n", strlen(props.SAeventsDir));
     }
     else {
       printf("Failed\n");
