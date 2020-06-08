@@ -31,10 +31,12 @@ else()
   find_package(LAPACKE REQUIRED)
   find_package(FFTW3 REQUIRED)
 endif (GFAST_USE_INTEL)
+
 if (GFAST_USE_AMQ)
   MESSAGE("Will build GFAST ActiveMQ library")
   find_package(AMQ REQUIRED)
 endif (GFAST_USE_AMQ)
+
 if (GFAST_USE_EW)
   MESSAGE("Will use Earthworm")
   find_package(EW REQUIRED)
@@ -53,14 +55,13 @@ find_package(XML2 REQUIRED)
 # Bring in headers
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CBLAS_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${COMPEARTH_INCLUDE_DIR}
   ${H5_C_INCLUDE_DIR}
   ${INIPARSER_INCLUDE_DIR}
   ${ISCL_INCLUDE_DIR}
 )
-#INCLUDE_DIRECTORIES(cmopad)
+# ${CBLAS_INCLUDE_DIR}
 
 IF (GFAST_USE_INTEL)
 INCLUDE_DIRECTORIES(
@@ -163,6 +164,7 @@ IF (UW_AMAZON)
    INCLUDE_DIRECTORIES(${JANSSON_INCLUDE_DIR})
    SET(SRCS_GFAST2WEB src/uw/beachball.c)
 ENDIF (UW_AMAZON)
+
 # Add earthworm build flags - the earthworm `way' is to modify the system's OS flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EW_BUILD_FLAGS}" CACHE STRING "" FORCE)
 

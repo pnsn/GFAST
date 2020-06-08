@@ -285,108 +285,39 @@ Start up the broker *before* starting gfast_eew:
     
 
 
-## Configuring 
+## Configure, Build, Unit Test 
 
-To get CMake to behave I usually use configuration scripts.  
+Look in zbuild-gcc.sh for the paths to the various dependencies.
+If you downloaded/installed them as outlined above, then it's
+possible you only need to set PKG_DIR to point to whatever
+directory you put compearth, iniparser, iscl.
+In addition, the mods inside CMakeModules will attempt to find
+many of the needed dependencies on your system automatically.
 
-On a machine with MKL/IPP I might do something like
+    # Run it // This will update CMakeCache.txt, etc.
+    >zbuild-gcc.sh
 
-    #!/bin/bash
-    if [ -f Makefile ]; then
-       make clean
-    fi
-    if [ -f CMakeCache.txt ]; then
-       echo "Removing CMakeCache.txt"
-       rm CMakeCache.txt
-    fi
-    if [ -d CMakeFiles ]; then
-       echo "Removing CMakeFiles"
-       rm -rf CMakeFiles
-    fi
-    /home/bakerb25/cmake-3.6.1/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
-    -DCMAKE_INSTALL_PREFIX=./ \
-    -DCMAKE_C_FLAGS="-g3 -O2 -fopenmp -Wall -Wno-unknown-pragmas" \
-    -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
-    -DCMAKE_CXX_FLAGS="-g3 -O2" \
-    -DGFAST_INSTANCE="PNSN" \
-    -DGFAST_USE_INTEL=FALSE \
-    -DGFAST_USE_AMQ=TRUE \
-    -DGFAST_USE_EW=TRUE \
-    -DAPR_INCLUDE_DIR=/usr/include/apr-1 \
-    -DLIBAMQ_INCLUDE_DIR=/usr/include/activemq-cpp-3.8.2 \
-    -DLIBAMQ_LIBRARY=/usr/lib64/libactivemq-cpp.so \
-    -DLSSL_LIBRARY=/usr/lib64/libssl.so.10 \
-    -DLCRYPTO_LIBRARY=/usr/lib64/libcrypto.so.10 \
-    -DLAPACKE_INCLUDE_DIR=/home/bakerb25/lapack-3.6.1/LAPACKE/include \
-    -DLAPACKE_LIBRARY=/home/bakerb25/lapack-3.6.1/liblapacke.a \
-    -DLAPACK_LIBRARY=/home/bakerb25/lapack-3.6.1/liblapack.a \
-    -DCBLAS_INCLUDE_DIR=/home/bakerb25/lapack-3.6.1/CBLAS/include \
-    -DCBLAS_LIBRARY=/home/bakerb25/lapack-3.6.1/libcblas.a \
-    -DBLAS_LIBRARY=/home/bakerb25/lapack-3.6.1/libblas.a \
-    -DH5_C_INCLUDE_DIR=/home/bakerb25/hdf5-1.10.1/include \
-    -DH5_LIBRARY=/home/bakerb25/hdf5-1.10.1/lib/libhdf5.so \
-    -DINIPARSER_INCLUDE_DIR=/home/bakerb25/iniparser/src \
-    -DINIPARSER_LIBRARY=/home/bakerb25/iniparser/libiniparser.a \
-    -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/compearth/momenttensor/c_src/include \
-    -DCOMPEARTH_LIBRARY=/home/bakerb25/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
-    -DISCL_INCLUDE_DIR=/home/bakerb25/iscl/include \
-    -DISCL_LIBRARY=/home/bakerb25/iscl/lib/libiscl_static.a \
-    -DGEOLIB_LIBRARY=/home/bakerb25/GeographicLib-1.46/lib/libGeographic.a \
-    -DFFTW3_LIBRARY=/home/bakerb25/fftw-3.3.5/lib/libfftw3.a \
-    -DEW_INCLUDE_DIR=/home/bakerb25/earthworm/earthworm-working/include \
-    -DEW_LIBRARY="/home/bakerb25/earthworm/earthworm-working/lib/libew.a" \
-    -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
-    -DLIBXML2_LIBRARY=/usr/lib64/libxml2.so
+    # Make it
+    >make
 
-Another example, when building with MKL/IPP I'd do something like
+    # Run the unit tests:
+    >unit_tests/xcoreTests
 
-    #!/bin/bash
-    if [ -f Makefile ]; then
-       make clean
-    fi
-    if [ -f CMakeCache.txt ]; then
-       echo "Removing CMakeCache.txt"
-       rm CMakeCache.txt
-    fi
-    if [ -d CMakeFiles ]; then
-       echo "Removing CMakeFiles"
-       rm -rf CMakeFiles
-    fi
-    /usr/bin/cmake ./ -DCMAKE_BUILD_TYPE=DEBUG \
-    -DCMAKE_INSTALL_PREFIX=./ \
-    -DCMAKE_C_COMPILER=/usr/local/bin/clang \
-    -DCMAKE_CXX_COMPILER=/usr/local/bin/clang++ \
-    -DCMAKE_C_FLAGS="-g3 -O2 -Weverything -Wno-reserved-id-macro -Wno-padded -fopenmp" \
-    -DEW_BUILD_FLAGS="-Dlinux -D_LINUX -D_INTEL -D_USE_SCHED -D_USE_PTHREADS" \
-    -DCMAKE_CXX_FLAGS="-g3 -O2 -Weverything -fopenmp" \
-    -DGFAST_INSTANCE="PNSN" \
-    -DGFAST_USE_INTEL=TRUE \
-    -DGFAST_USE_AMQ=TRUE \
-    -DGFAST_USE_EW=TRUE \
-    -DAPR_INCLUDE_DIR=/usr/include/apr-1.0 \
-    -DLIBAMQ_INCLUDE_DIR=/home/bakerb25/cpp/activemq-cpp-library-3.9.3/include/activemq-cpp-3.9.3 \
-    -DLIBAMQ_LIBRARY=/home/bakerb25/cpp/activemq-cpp-library-3.9.3/lib/libactivemq-cpp.so \
-    -DLSSL_LIBRARY=/usr/lib/x86_64-linux-gnu/libssl.so \
-    -DLCRYPTO_LIBRARY=/usr/lib/x86_64-linux-gnu/libcrypto.so \
-    -DMKL_LIBRARY="/opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so;/opt/intel/mkl/lib/intel64/libmkl_core.so;/opt/intel/mkl/lib/intel64/libmkl_sequential.so" \
-    -DIPP_LIBRARY="/opt/intel/ipp/lib/intel64/libipps.so;/opt/intel/ipp/lib/intel64/libippvm.so;/opt/intel/ipp/lib/intel64/libippcore.so" \
-    -DH5_C_INCLUDE_DIR=/home/bakerb25/C/hdf5-1.10.1_intel/include \
-    -DH5_LIBRARY=/home/bakerb25/C/hdf5-1.10.1_intel/lib/libhdf5.so \
-    -DINIPARSER_INCLUDE_DIR=/home/bakerb25/C/iniparser/src \
-    -DINIPARSER_LIBRARY=/home/bakerb25/C/iniparser/libiniparser.a \
-    -DCOMPEARTH_INCLUDE_DIR=/home/bakerb25/C/compearth/momenttensor/c_src/include \
-    -DCOMPEARTH_LIBRARY=/home/bakerb25/C/compearth/momenttensor/c_src/lib/libcompearth_shared.so \
-    -DISCL_INCLUDE_DIR=/home/bakerb25/C/iscl/include \
-    -DISCL_LIBRARY="/home/bakerb25/C/iscl/lib/libiscl_shared.so;/opt/intel/lib/intel64/libirc.so" \
-    -DGEOLIB_LIBRARY=/home/bakerb25/C/GeographicLib-1.46/lib/libGeographic.so \
-    -DEW_INCLUDE_DIR=/home/bakerb25/C/earthworm/earthworm-working/include \
-    -DEW_LIBRARY="/home/bakerb25/C/earthworm/earthworm-working/lib/libew.a" \
-    -DLIBXML2_INCLUDE_DIR=/usr/include/libxml2 \
-    -DLIBXML2_LIBRARY=/usr/lib/x86_64-linux-gnu/libxml2.so \
-    -DUW_AMAZON=TRUE \
-    -DJANSSON_LIBRARY=/home/bakerb25/C/jansson/lib/libjansson.a \
-    -DJANSSON_INCLUDE_DIR=/home/bakerb25/C/jansson/include
+main: Beginning core tests...
+readCoreInfo_test: Success!
+[INFO] coord_test_ll2utm: Success!
 
-You'll only need Janson if making the UW source.  
+main: Beginning matrix generation tests...
+[INFO] cmt_greens_test: Success!
+[INFO] ff_greens_test: Success!
+[INFO] ff_regularizer_test: Success!
 
+main: Beginning inversions tests...
+[DEBUG] core_scaling_pgd_depthGridSearch: Beginning search on depths...
+[DEBUG] core_scaling_pgd_depthGridSearch: Grid-search time: 0.097891 (s)
+[INFO] pgd_inversion_test: Success!
+[INFO] pgd_inversion_test2: Success!
+[INFO] cmt_inversion_test: Success!
+[INFO] ff_inversion_test: Success!
+main: All tests passed
 
