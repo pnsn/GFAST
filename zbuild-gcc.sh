@@ -1,7 +1,7 @@
 #!/bin/sh
 
-USE_INTEL=false
 USE_INTEL=true
+USE_INTEL=false
 
 if [ -f Makefile ]; then
    make clean
@@ -34,7 +34,6 @@ if $USE_INTEL; then
           -DMKL_INCLUDE_DIR=${MKL_INC} \
           -DIPP_LIBRARY=${IPP_LIBS}
          "
-
 else
   LINEAR="-DGFAST_USE_INTEL=FALSE \
           -DLAPACKE_INCLUDE_DIR=/usr/include/lapacke \
