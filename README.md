@@ -303,21 +303,21 @@ many of the needed dependencies on your system automatically.
     # Run the unit tests:
     >unit_tests/xcoreTests
 
-main: Beginning core tests...
-readCoreInfo_test: Success!
-[INFO] coord_test_ll2utm: Success!
+    main: Beginning core tests...
+    readCoreInfo_test: Success!
+    [INFO] coord_test_ll2utm: Success!
 
-main: Beginning matrix generation tests...
-[INFO] cmt_greens_test: Success!
-[INFO] ff_greens_test: Success!
-[INFO] ff_regularizer_test: Success!
+    main: Beginning matrix generation tests...
+    [INFO] cmt_greens_test: Success!
+    [INFO] ff_greens_test: Success!
+    [INFO] ff_regularizer_test: Success!
 
-main: Beginning inversions tests...
-[DEBUG] core_scaling_pgd_depthGridSearch: Beginning search on depths...
-[DEBUG] core_scaling_pgd_depthGridSearch: Grid-search time: 0.097891 (s)
-[INFO] pgd_inversion_test: Success!
-[INFO] pgd_inversion_test2: Success!
-[INFO] cmt_inversion_test: Success!
-[INFO] ff_inversion_test: Success!
-main: All tests passed
+    main: Beginning inversions tests...
+    [DEBUG] core_scaling_pgd_depthGridSearch: Beginning search on depths...
+    [DEBUG] core_scaling_pgd_depthGridSearch: Grid-search time: 0.097891 (s)
+    [INFO] pgd_inversion_test: Success!
+    [INFO] pgd_inversion_test2: Success!
+    [INFO] cmt_inversion_test: Success!
+    [INFO] ff_inversion_test: Success!
+    main: All tests passed
 
