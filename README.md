@@ -321,3 +321,9 @@ many of the needed dependencies on your system automatically.
     [INFO] ff_inversion_test: Success!
     main: All tests passed
 
+## Ridgecrest example 
+
+Please read: test_data/ridgecrest/RIDGECREST.md
+for instructions on how to run the Ridgecrest example.
+
+

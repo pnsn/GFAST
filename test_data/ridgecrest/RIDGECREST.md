@@ -20,26 +20,63 @@ available right away.
 additional second of data) data that has arrived and processes it.  In
 this way we see a solution evolving over time as more data arrives.
 
-
 1. copy the playback file to the correct location
 
-    >cp ridgecrest_gps_60.tnk /opt/earthworm/ridgecrest/params/playback
+        >cp ridgecrest_gps_60.tnk /opt/earthworm/ridgecrest/params/playback
+
+1. set earthworm env vars
+
+    For example, here is where I am running the ridgecrest example:
+
+        >cd /opt/earthworm/run_working
+        >ls
+         data/  log/  params/
+        >ls params
+         earthworm_commonvars.d	earthworm_global.d  playback/	      statmgr.d     tankplayer.d
+         earthworm.d		EPIC/		    startstop_unix.d  statmgr.desc
+        >ls params/playback/
+         ridgecrest_gps_60.tnk  ridgecrest_gps.tnk  ridgecrest_gps.tnk.sniff
+
+    If you built the earthworm libs (above), then you
+    likely already have the EW envs set.
+    Here's what my EW env vars look like:
+
+        [/opt/earthworm/run_working]> env|grep EW
+        EW_PARAMS=/opt/earthworm/run_working/params/
+        EW_BITS=64
+        EW_DATA_DIR=/opt/earthworm/run_working/data/
+        EW_VERSION=earthworm_7.10
+        EW_LOG=/opt/earthworm/run_working/log/
+        EW_HOME=/opt/earthworm
+        EW_INSTALLATION=INST_UNKNOWN
+
+    The important ones are EW_PARAMS, EW_DATA_DIR, EW_LOG, which
+    must point to where the example is being run.
+    If you're starting from scratch, do something like:
+
+        >source /opt/earthworm/earthworm_svn/environment/ew_linux.bash
+
+    and then modify whichever ones are not set correctly, eg.,
+
+        >export RIDGECREST=/some/other/path
+        >export EW_PARAMS=${RIDGECREST}/params
+        >export EW_LOG=${RIDGECREST}/log
+        >export EW_DATA_DIR=${RIDGECREST}/data      // Not sure we're even using this now
+
 
 1. start earthworm
 
-    >cd /opt/earthworm/ridgecrest/params
-    >source ew env
-    >startstop startstop_unix.d
+        >startstop startstop_unix.d
 
-2. clear old SA event
+1. clear old SA event
 
-    >rm GFAST/events/*
+        >rm GFAST/events/*
 
-2. start GFAST_eew
+1. start GFAST_eew
 
-    >bin/gfast_eew
+        >bin/gfast_eew
 
-3. In a separate terminal, inject SA event 
+1. In a separate terminal, inject SA event 
 
-    >python start_it.py   // Note python has ObsPy and xml etree dependencies
+        >python start_it.py 
 
