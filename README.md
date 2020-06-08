@@ -14,9 +14,9 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 4. src contains the source code.
   + src/activeMQ contains C++ readers/writers and C interfaes for using ActiveMQ.
   + src/core contains the core GFAST computations.
-  + eewUtils contains application specific functions for performing the earthquake early warning tasks.  This may be a useful directory for developers of other applications looking for examples of how to use GFAST's core functionality.
+  + eewUtils contains application specific functions for performing the earthquake early warning tasks.
   + src/hdf5 contains the HDF5 interfaces for generating a self-describing archive or play-by-play of GFAST.
-  + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.  The GFAST specific buffer is targeted for deprecation and should be avoided. 
+  + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.
   + src/uw contains functions specific to the University of Washington and Amazon project.
   + src/xml contains functions for certainly writing and potentially reading QuakeML and ShakeAlert specific XML.
 5. unit\_tests contains some simple regression tests for the core modules.
@@ -186,14 +186,42 @@ But here's how to do it in stand-alone
         
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
-    Checkout latest (confirm this is public access)
+    Note that in order to build the gfast shared lib, we need to build an earthworm shared lib to link to.
+    Currently [June 2020] earthworm is not configured to do this by default.
+    An easy solution is given below - we compile the object code in the static libs using the -fPIC flag.
+    Then the "static" libs can be used in both static/shared mode.
     
         >svn checkout svn://svn.isti.com/earthworm/trunk earthworm_svn
         // Assuming this resides in /opt/earthworm:
         >cd /opt/earthworm/earthworm_svn
+        >vi src/libsrc/makefile.unix
+        # Add this line at top of file:
+        GLOBALFLAGS += -fPIC
+        
+        # Note where the resulting libs will be put:
+        L = $(EW_HOME)/$(EW_VERSION)/lib
+        
+        # When you source the EW environment (which you must do before trying to build the lib):
         >source environment/ew_linux.bash
+        
+        # It will set the envs:
+        EW_HOME=/opt/earthworm
+        EW_VERSION=earthworm_7.10
+        
+        Therefore, by default the EW libs that GFAST needs will be put in:
+        /opt/earthworm/earthworm_7.10/lib/{lib_mt.a, lib_util.a}
+        
+        Alternatively, you can override the EW_VERSION after sourcing the env script:
+        >export EW_VERSION=earthworm_svn
+        
+        So that the libs will be put in:
+        /opt/earthworm/earthworm_svn/lib
+
+        # Now build the libs: 
         >cd src
-        >make unix         // Check that /opt/earthworm/earthworm_svn/lib/libew_* is present
+        >make unix 
+        
+        # Confirm lib/libew_mt.a and lib/libew_util.a were created (into lib path discussed above)
     
 9. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
