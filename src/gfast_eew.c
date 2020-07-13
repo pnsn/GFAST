@@ -60,6 +60,11 @@ int main(int argc, char **argv)
     char debugLogFileName[PATH_MAX];
     char warnLogFileName[PATH_MAX];
     bool check_message_dir = false;
+    bool USE_AMQ = false;
+#ifdef GFAST_USE_AMQ
+  USE_AMQ = true;
+#endif
+
     // Initialize 
     ierr = 0;
     msgs = NULL;
@@ -119,22 +124,28 @@ int main(int argc, char **argv)
     {
         LOG_INFOMSG("%s: Initializing trigger listener...\n", fcnm);
     }
-    messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
-                                        props.activeMQ_props.password,
-                                        props.activeMQ_props.originTopic,
-                                        props.activeMQ_props.host,
-                                        props.activeMQ_props.port,
-                                        props.activeMQ_props.msReconnect,
-                                        props.activeMQ_props.maxAttempts,
-                                        useTopic,
-                                        clientAck,
-                                        luseListener,
-                                        props.verbose,
-                                        &ierr);
-    if (ierr != 0)
-    {
-        LOG_ERRMSG("%s: Error connecting to upstream message queue\n", fcnm);
-        goto ERROR;
+
+    printf("MTH: USE_AMQ=[%s]\n", USE_AMQ);
+    exit(0);
+
+    if (USE_AMQ) {
+      messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
+                                          props.activeMQ_props.password,
+                                          props.activeMQ_props.originTopic,
+                                          props.activeMQ_props.host,
+                                          props.activeMQ_props.port,
+                                          props.activeMQ_props.msReconnect,
+                                          props.activeMQ_props.maxAttempts,
+                                          useTopic,
+                                          clientAck,
+                                          luseListener,
+                                          props.verbose,
+                                          &ierr);
+      if (ierr != 0)
+      {
+          LOG_ERRMSG("%s: Error connecting to upstream message queue\n", fcnm);
+          goto ERROR;
+      }
     }
 
     if (strlen(props.SAeventsDir)){
@@ -278,9 +289,10 @@ tbeger = ISCL_time_timeStamp();
 // early quit
 
         // Check my mail for an event
-        msWait = props.activeMQ_props.msWaitForMessage;
-        amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue,
-                                                        msWait, &ierr);
+        if (USE_AMQ){
+          msWait = props.activeMQ_props.msWaitForMessage;
+          amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue, msWait, &ierr);
+        }
 
         // Alternatively, check for SA message trigger in message_dir
         if (check_message_dir) {
