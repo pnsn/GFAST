@@ -223,7 +223,11 @@ But here's how to do it in stand-alone
         
         # Confirm lib/libew_mt.a and lib/libew_util.a were created (into lib path discussed above)
     
-9. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
+9. [ActiveMQ] This is now OPTIONAL. Set use_AMQ=false in zbuild.sh
+   before running it. Then run:>make and you should need to install
+   either 9a. the C++ lib nor run the java jar in 9b.
+
+9a. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
     Note: [MTH] I haven't found the APR to be necessary
     Note: For building GFAST, the instructions here for downloading and
