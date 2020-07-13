@@ -3,6 +3,9 @@
 USE_INTEL=true
 USE_INTEL=false
 
+USE_AMQ=true
+USE_AMQ=false
+
 if [ -f Makefile ]; then
    make clean
 fi
@@ -45,19 +48,27 @@ else
          "
 fi
 
+if $USE_AMQ; then
+  ACTIVEMQ="-DGFAST_USE_AMQ=TRUE \
+            -DLIBAMQ_INCLUDE_DIR=/usr/include/activemq-cpp-3.9.3 \
+            -DLIBAMQ_LIBRARY=/usr/lib64/libactivemq-cpp.so \
+            -DLSSL_LIBRARY=/usr/lib64/libssl.so.10 \
+            -DLCRYPTO_LIBRARY=/usr//lib64/libcrypto.so.10 \
+            -DAPR_INCLUDE_DIR=/usr/include/apr-1 \
+           "
+else
+  ACTIVEMQ="-DGFAST_USE_AMQ=FALSE"
+fi
+
+# -DGFAST_USE_AMQ=TRUE \
 cmake ./ $LINEAR -DCMAKE_BUILD_TYPE=DEBUG \
   -DCMAKE_INSTALL_PREFIX=./ \
   -DCMAKE_C_FLAGS="-g3 -O2 -Wno-reserved-id-macro -Wno-padded -Wno-unknown-pragmas -fopenmp" \
   -DCMAKE_CXX_FLAGS="-g3 -O2 -fopenmp" \
   -DGFAST_INSTANCE="PNSN" \
-  -DGFAST_USE_AMQ=TRUE \
+  $ACTIVEMQ \
   -DGFAST_USE_EW=TRUE \
   -DUW_AMAZON=FALSE \
-  -DLSSL_LIBRARY=/usr/lib64/libssl.so.10 \
-  -DLCRYPTO_LIBRARY=/usr//lib64/libcrypto.so.10 \
-  -DAPR_INCLUDE_DIR=/usr/include/apr-1 \
-  -DLIBAMQ_INCLUDE_DIR=/usr/include/activemq-cpp-3.9.3 \
-  -DLIBAMQ_LIBRARY=/usr/lib64/libactivemq-cpp.so \
   -DH5_C_INCLUDE_DIR=/usr/include \
   -DH5_LIBRARY=/usr/lib64/libhdf5_cpp.so \
   -DINIPARSER_INCLUDE_DIR=${PKG_DIR}/iniparser/src \

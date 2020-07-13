@@ -16,7 +16,7 @@ def main():
     xmldir_in  = '.'
     # Where should the modified SA.xml file be put:
     #   presumably where gfast_eew can find it
-    xmldir_out = '../../events'
+    xmldir_out = '/home/mth/mth/GFAST/run/events'
 
     files = glob.glob(xmldir_in + '/' + '*.xml')
     for xmlfile in files:
@@ -30,6 +30,8 @@ def main():
         # This prints microseconds - hopefully won't matter:
         otime = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         orig_time.text = orig_time.text.replace(orig_time.text, otime)
+        print(datetime.now(tz=timezone.utc))
+        print(otime)
 
         target = os.path.join(xmldir_out, os.path.basename(xmlfile))
         tree.write(target)

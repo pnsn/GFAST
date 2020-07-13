@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     bool check_message_dir = false;
     bool USE_AMQ = false;
 #ifdef GFAST_USE_AMQ
-  USE_AMQ = true;
+    USE_AMQ = true;
 #endif
 
     // Initialize 
@@ -124,9 +124,6 @@ int main(int argc, char **argv)
     {
         LOG_INFOMSG("%s: Initializing trigger listener...\n", fcnm);
     }
-
-    printf("MTH: USE_AMQ=[%s]\n", USE_AMQ);
-    exit(0);
 
     if (USE_AMQ) {
       messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
@@ -428,7 +425,9 @@ ERROR:;
     memory_free8c(&msgs);
     traceBuffer_ewrr_freetb2Data(&tb2Data);
     traceBuffer_ewrr_finalize(&ringInfo);
-    activeMQ_consumer_finalize(messageQueue); 
+    if (USE_AMQ){
+    	activeMQ_consumer_finalize(messageQueue); 
+    }
     core_cmt_finalize(&props.cmt_props,
                       &cmt_data,
                       &cmt);
