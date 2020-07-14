@@ -213,7 +213,7 @@ int main(int argc, char **argv)
         t0 = t1;
         tstatus1 = t0;
 
-        printf("[Iter:%d t0:%f]\n", niter,t0);
+        printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
