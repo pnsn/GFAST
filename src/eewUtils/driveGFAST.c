@@ -127,6 +127,7 @@ printf("getting data\n");
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
         if (ierr != 0)
         {
+printf("Error getting the data for event --> continue\n");
             LOG_ERRMSG("Error getting the data for event %s", SA.eventid);
             continue; 
         }
@@ -378,6 +379,7 @@ printf("pgd scaling..\n");
             xmlMessages->nmessages = xmlMessages->nmessages + 1;
         } // End check on finalizing
         // Update the archive
+printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
         if (lfinalize || !props.lh5SummaryOnly)
         {
             // Get the iteration number in the H5 file
@@ -480,8 +482,10 @@ printf("pgd scaling..\n");
         } // End check on updating archive or finalizing event
         // Close the logs
         //log_closeLogs();
+printf("MTH: Line 485 closeLogs\n");
         core_log_closeLogs();
     } // Loop on the events
+printf("MTH: End loop on events, nPop=%d\n", nPop);
     // Need to down-date the events should any have expired
     if (nPop > 0)
     {
