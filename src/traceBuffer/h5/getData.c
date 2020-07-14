@@ -95,7 +95,7 @@ printf("getData: t1=%lf t2=%lf ts1=%lf ts2=%lf\n", t1, t2, ts1, ts2);
         {
 printf("getData: start time is too old\n");
             LOG_ERRMSG("%s", "Error start time is too old");
-            return -1;
+            //return -1;
         }
         // Indices in chunk to read from
         i1 = (int) ((t1 - ts1)/dt + 0.5);
