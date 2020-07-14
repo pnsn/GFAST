@@ -107,6 +107,16 @@ int eewUtils_driveGFAST(const double currentTime,
                         SA.eventid);
             continue;
         }
+
+        age_of_event = (t2 - t1)
+        if ((props.processingTime - age_of_event) < 1)
+        {
+printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop);
+            nPop = nPop + 1;
+            lfinalize = true;
+            continue;
+        }
+
         // Set the log file names
         eewUtils_setLogFileNames(SA.eventid,
                                  errorLogFileName, infoLogFileName,
