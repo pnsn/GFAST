@@ -46,8 +46,12 @@ bool core_events_removeExpiredEvent(const double maxtime,
         if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
         {
             pop_indx =-1;
+printf("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
+    currentTime, (currentTime-SA.time), maxtime);
             if ((currentTime - SA.time) > maxtime)
             {
+printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
+       currentTime, SA.eventid, SA.time);
                 if (verbose > 0)
                 {
                     LOG_INFOMSG("Removing %s %f from event list at %f",
