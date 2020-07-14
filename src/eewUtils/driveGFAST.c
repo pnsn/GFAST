@@ -262,11 +262,12 @@ printf("pgd scaling..\n");
         cmtQML = NULL;
         ffXML = NULL;
         lfinalize = false;
-        //printf("%lf %lf %lf %lf\n", t1, t2, t2 - t1, props.processingTime);
+        printf("t1=%lf t2=%lf (t2-t1)=%lf props.processingTime=%lf\n", t1, t2, t2 - t1, props.processingTime);
         if (t2 - t1 >= props.processingTime)
         {
             nPop = nPop + 1;
             lfinalize = true;
+        printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop)
         }
         if (true) //if (t2 - t1 >= props.processingTime)
         {
