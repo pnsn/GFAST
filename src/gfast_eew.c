@@ -213,7 +213,8 @@ int main(int argc, char **argv)
         t0 = t1;
         tstatus1 = t0;
 
-        printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
+        //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
+        printf("\n== [GFAST t0:%f] ==\n", t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -360,13 +361,13 @@ tbeger = ISCL_time_timeStamp();
             amqMessage = NULL;
         } // End check on ActiveMQ message
 
-printf("gfast_eew: nev=%d\n", events.nev);
         // Are there events to process?
         if (events.nev < 1){continue;} 
         if (props.verbose > 2)
         {
             LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
+printf("GFAST: t0:%lf Call driveGFAST\n", t0);
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
                                    &events,
@@ -384,19 +385,19 @@ printf("gfast_eew: nev=%d\n", events.nev);
              LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              goto ERROR; 
          }
-printf("MTH: pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
+printf("GFAST: pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
 pgd.nsites, pgd.ndeps, pgd.mpgd[0]);
-printf("MTH: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
+printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
-printf("MTH: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
+printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
-printf("MTH: xmlMessages.mmessages=%d events.nev=%d\n", xmlMessages.mmessages, events.nev);
+printf("GFAST: xmlMessages.mmessages=%d events.nev=%d\n", xmlMessages.mmessages, events.nev);
          // Send the messages where they need to go
          if (xmlMessages.mmessages > 0)
          {
              for (im=0; im<xmlMessages.nmessages; im++)
              {
-printf("evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+printf("GFAST: evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
                  if (xmlMessages.evids[im] != NULL)
                  {
                      free(xmlMessages.evids[im]);
