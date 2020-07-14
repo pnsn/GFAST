@@ -109,9 +109,10 @@ int eewUtils_driveGFAST(const double currentTime,
         }
 
         age_of_event = (t2 - t1);
+printf("driveGFAST: time:%lf evid:%s age_of_event=%f\n", t2, SA.eventid, age_of_event);
         if ((props.processingTime - age_of_event) < 1)
         {
-printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop);
+printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
             nPop = nPop + 1;
             lfinalize = true;
             continue;
@@ -133,15 +134,14 @@ printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop);
         log_initWarnLog(&__warnToLog);
 */
         // Get the data for this event
-printf("getting data\n");
+printf("driveGFAST: get data\n");
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
         if (ierr != 0)
         {
-printf("Error getting the data for event --> continue\n");
+printf("driveGFAST: Error getting the data for event --> continue\n");
             LOG_ERRMSG("Error getting the data for event %s", SA.eventid);
             continue; 
         }
-printf("copying data\n");
         // Copy the data onto the buffer
         ierr = GFAST_traceBuffer_h5_copyTraceBufferToGFAST(h5traceBuffer,
                                                            gps_data);
@@ -150,7 +150,7 @@ printf("copying data\n");
             LOG_ERRMSG("%s", "Error copying trace buffer");
             continue;
         }
-printf("waveform processing\n");
+printf("driveGFAST: Get peakDisp\n");
         // Extract the peak displacement from the waveform buffer
         nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
                                     props.pgd_props.utm_zone,
@@ -167,7 +167,7 @@ printf("waveform processing\n");
             LOG_ERRMSG("%s", "Error processing peak displacement");
             continue;
         }
-printf("waveform prcoessing 2\n");
+printf("driveGFAST: Get Offset for CMT\n");
         // Extract the offset for the CMT inversion from the buffer 
         nsites_cmt = GFAST_core_waveformProcessor_offset(
                                     props.cmt_props.utm_zone,
@@ -184,7 +184,7 @@ printf("waveform prcoessing 2\n");
             LOG_ERRMSG("%s", "Error processing CMT offset");
             continue;
         }
-printf("waveform processing 3\n");
+printf("driveGFAST: Get Offset for FF\n");
         // Extract the offset for the FF inversion from the buffer 
         nsites_ff = GFAST_core_waveformProcessor_offset(
                                     props.ff_props.utm_zone,
@@ -201,7 +201,6 @@ printf("waveform processing 3\n");
             LOG_ERRMSG("%s", "Error processing FF offset");
             continue;
         }
-printf("pgd scaling..\n");
         // Run the PGD scaling
         lpgdSuccess = false;
         if (nsites_pgd >= props.pgd_props.min_sites)
@@ -272,6 +271,7 @@ printf("pgd scaling..\n");
         cmtQML = NULL;
         ffXML = NULL;
         lfinalize = false;
+        /*
         printf("t1=%lf t2=%lf (t2-t1)=%lf props.processingTime=%lf\n", t1, t2, t2 - t1, props.processingTime);
         if (t2 - t1 >= props.processingTime)
         {
@@ -279,9 +279,10 @@ printf("pgd scaling..\n");
             lfinalize = true;
         printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop);
         }
+        */
         if (true) //if (t2 - t1 >= props.processingTime)
         {
-printf("MTH: Set lfinalize=true and make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
+printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
        lpgdSuccess, lcmtSuccess, lffSuccess);
             lfinalize = true;
             // Make the PGD xml
@@ -390,10 +391,8 @@ printf("MTH: Set lfinalize=true and make XML msgs: lpgdSuccess=%d lcmtSuccess=%d
                 = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
             strcpy(xmlMessages->evids[xmlMessages->nmessages], SA.eventid);
             xmlMessages->nmessages = xmlMessages->nmessages + 1;
-printf("Line 383 End check on finalizing\n");
         } // End check on finalizing
         // Update the archive
-printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
         if (lfinalize || !props.lh5SummaryOnly)
         {
             // Get the iteration number in the H5 file
@@ -401,6 +400,7 @@ printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
             h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
                                                 SA.eventid,
                                                 currentTime);
+printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
             if (props.verbose > 2)
             {
                 LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
@@ -430,7 +430,6 @@ printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
                                             *pgd);
                 if (pgdXML)
                 {
-printf("Line 423: Update pgdXML msg\n");
                     ierr = hdf5_updateXMLMessage(props.h5ArchiveDir,
                                                  SA.eventid,
                                                  h5k, "pgdXML\0",
@@ -494,29 +493,28 @@ printf("Line 423: Update pgdXML msg\n");
                 nPop = nPop + 1;
             }
 */
-printf("MTH: Line 487: End check on updating archive/finalizing event\n");
         } // End check on updating archive or finalizing event
         // Close the logs
         //log_closeLogs();
-printf("MTH: Line 485 closeLogs\n");
         core_log_closeLogs();
+//printf("driveGFAST: next event\n");
     } // Loop on the events
 printf("MTH: End loop on events, nPop=%d\n", nPop);
     // Need to down-date the events should any have expired
     if (nPop > 0)
     {
-        printf("MTH: call removeExpiredEvents events.nev=%d\n", events->nev);
+printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
         nRemoved = core_events_removeExpiredEvents(props.processingTime,
                                                    currentTime,
                                                    props.verbose,
                                                    events);
-        printf("MTH: removeExpiredEvents returned nRemoved=%d events.nev=%d\n", nRemoved, events->nev);
+printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
         if (nRemoved != nPop)
         {
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
     }
-    printf("MTH: driveGFAST return ierr=%d\n", ierr);
+printf("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
     return ierr;
 }
 
