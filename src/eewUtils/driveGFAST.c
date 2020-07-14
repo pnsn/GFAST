@@ -267,7 +267,7 @@ printf("pgd scaling..\n");
         {
             nPop = nPop + 1;
             lfinalize = true;
-        printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop)
+        printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop);
         }
         if (true) //if (t2 - t1 >= props.processingTime)
         {
