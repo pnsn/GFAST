@@ -63,7 +63,7 @@ int eewUtils_driveGFAST(const double currentTime,
     char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
          debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
-    double t1, t2;
+    double t1, t2, age_of_event;
     int h5k, ierr, iev, ipf, nPop, nRemoved,
         nsites_cmt, nsites_ff, nsites_pgd,
         nstrdip, pgdOpt, shakeAlertMode;
@@ -108,7 +108,7 @@ int eewUtils_driveGFAST(const double currentTime,
             continue;
         }
 
-        age_of_event = (t2 - t1)
+        age_of_event = (t2 - t1);
         if ((props.processingTime - age_of_event) < 1)
         {
 printf("MTH: Set lfinalize true=%d nPop=%d\n", lfinalize, nPop);
