@@ -50,6 +50,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         gain = memory_calloc64f(ntraces);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gain, &ierr);
+printf("getData: t1=%lf t2=%lf ts1=%lf ts2=%lf\n", t1, t2, ts1, ts2);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error reading data");
@@ -92,6 +93,7 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         }
         if (t1 < ts1)
         {
+printf("getData: start time is too old\n");
             LOG_ERRMSG("%s", "Error start time is too old");
             return -1;
         }

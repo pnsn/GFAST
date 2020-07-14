@@ -48,6 +48,7 @@ int core_events_removeExpiredEvents(const double processingTime,
         t2 = currentTime;
         ldownDate = false;
         if (t2 - t1 >= processingTime){ldownDate = true;}
+printf("removeExpiredEvents: iev=%d ldownDate=%d\n", iev, ldownDate);
         if (ldownDate)
         {
             lgone = core_events_removeExpiredEvent(processingTime,
