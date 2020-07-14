@@ -61,6 +61,7 @@ int main(int argc, char **argv)
     char warnLogFileName[PATH_MAX];
     bool check_message_dir = false;
     bool USE_AMQ = false;
+    int niter = 0;
 #ifdef GFAST_USE_AMQ
     USE_AMQ = true;
 #endif
@@ -212,7 +213,7 @@ int main(int argc, char **argv)
         t0 = t1;
         tstatus1 = t0;
 
-        printf("[t0:%f]\n", t0);
+        printf("[Iter:%d t0:%f]\n", niter,t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -420,6 +421,7 @@ printf("evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 //break;
 if (events.nev == 0){break;}
          }
+    niter ++;
     }
 ERROR:;
     memory_free8c(&msgs);
