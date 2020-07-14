@@ -505,15 +505,18 @@ printf("MTH: End loop on events, nPop=%d\n", nPop);
     // Need to down-date the events should any have expired
     if (nPop > 0)
     {
+        printf("MTH: call removeExpiredEvents events.nev=%d\n", events.nev);
         nRemoved = core_events_removeExpiredEvents(props.processingTime,
                                                    currentTime,
                                                    props.verbose,
                                                    events);
+        printf("MTH: removeExpiredEvents returned nRemoved=%d events.nev=%d\n", nRemoved, events.nev);
         if (nRemoved != nPop)
         {
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
     }
+    printf("MTH: driveGFAST return ierr=%d\n", ierr);
     return ierr;
 }
 

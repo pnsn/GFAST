@@ -360,6 +360,7 @@ tbeger = ISCL_time_timeStamp();
             amqMessage = NULL;
         } // End check on ActiveMQ message
 
+printf("gfast_eew: nev=%d\n", events.nev);
         // Are there events to process?
         if (events.nev < 1){continue;} 
         if (props.verbose > 2)
