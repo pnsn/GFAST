@@ -420,10 +420,8 @@ printf("evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
 //printf("early exit\n");
 //break;
-/*
-if (events.nev == 0){break;}
+//if (events.nev == 0){break;}
          }
-*/
     niter ++;
     }
 ERROR:;
