@@ -271,6 +271,8 @@ printf("pgd scaling..\n");
         }
         if (true) //if (t2 - t1 >= props.processingTime)
         {
+printf("MTH: Set lfinalize=true and make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
+       lpgdSuccess, lcmtSuccess, lffSuccess);
             lfinalize = true;
             // Make the PGD xml
             if (lpgdSuccess)
@@ -378,6 +380,7 @@ printf("pgd scaling..\n");
                 = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
             strcpy(xmlMessages->evids[xmlMessages->nmessages], SA.eventid);
             xmlMessages->nmessages = xmlMessages->nmessages + 1;
+printf("Line 383 End check on finalizing\n");
         } // End check on finalizing
         // Update the archive
 printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
@@ -417,6 +420,7 @@ printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
                                             *pgd);
                 if (pgdXML)
                 {
+printf("Line 423: Update pgdXML msg\n");
                     ierr = hdf5_updateXMLMessage(props.h5ArchiveDir,
                                                  SA.eventid,
                                                  h5k, "pgdXML\0",
@@ -480,6 +484,7 @@ printf("MTH: Line 382 lfinalize=%d \n", lfinalize);
                 nPop = nPop + 1;
             }
 */
+printf("MTH: Line 487: End check on updating archive/finalizing event\n");
         } // End check on updating archive or finalizing event
         // Close the logs
         //log_closeLogs();
