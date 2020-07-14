@@ -499,7 +499,6 @@ printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.e
         core_log_closeLogs();
 //printf("driveGFAST: next event\n");
     } // Loop on the events
-printf("MTH: End loop on events, nPop=%d\n", nPop);
     // Need to down-date the events should any have expired
     if (nPop > 0)
     {

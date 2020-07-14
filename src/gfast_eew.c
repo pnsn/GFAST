@@ -367,7 +367,7 @@ tbeger = ISCL_time_timeStamp();
         {
             LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
-printf("GFAST: t0:%lf Call driveGFAST\n", t0);
+printf("GFAST: Call driveGFAST\n");
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
                                    &events,
