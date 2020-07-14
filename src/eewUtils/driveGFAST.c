@@ -110,6 +110,7 @@ int eewUtils_driveGFAST(const double currentTime,
 
         age_of_event = (t2 - t1);
 printf("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
+/*
         if ((props.processingTime - age_of_event) < 1)
         {
 printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
@@ -117,6 +118,7 @@ printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid
             lfinalize = true;
             continue;
         }
+*/
 
         // Set the log file names
         eewUtils_setLogFileNames(SA.eventid,
