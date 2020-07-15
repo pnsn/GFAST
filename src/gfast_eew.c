@@ -388,10 +388,12 @@ printf("GFAST: Call driveGFAST\n");
          }
 
 
+/*
          for (iev=0;iev<events.nev;iev++){
 printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
        events.SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
          }
+*/
 /*
 printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
