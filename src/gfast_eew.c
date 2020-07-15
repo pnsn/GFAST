@@ -385,12 +385,18 @@ printf("GFAST: Call driveGFAST\n");
              LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              goto ERROR; 
          }
-printf("GFAST: pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
-pgd.nsites, pgd.ndeps, pgd.mpgd[0]);
+
+
+         for (iev=0;iev<events.nev;iev++){
+printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
+       events->SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
+         }
+/*
 printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
 printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
+*/
 printf("GFAST: xmlMessages.mmessages=%d events.nev=%d\n", xmlMessages.mmessages, events.nev);
          // Send the messages where they need to go
          if (xmlMessages.mmessages > 0)
