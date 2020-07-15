@@ -62,6 +62,7 @@ int main(int argc, char **argv)
     bool check_message_dir = false;
     bool USE_AMQ = false;
     int niter = 0;
+    int iev;
 #ifdef GFAST_USE_AMQ
     USE_AMQ = true;
 #endif
@@ -389,7 +390,7 @@ printf("GFAST: Call driveGFAST\n");
 
          for (iev=0;iev<events.nev;iev++){
 printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
-       events->SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
+       events.SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
          }
 /*
 printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
