@@ -401,7 +401,7 @@ printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n
 cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
 */
 printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
-       events.nev, xmlMessages.nmessages, xmlMessages.mmesages);
+       events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
          // Send the messages where they need to go
          if (xmlMessages.mmessages > 0)
          {
