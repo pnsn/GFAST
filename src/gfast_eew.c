@@ -579,7 +579,8 @@ char *check_dir_for_messages(const char *dirname, int *ierr)
         }
         else {
           printf("Error reading from file:%s\n", fullpath);
-          return NULL;
+          //return NULL;
+          goto ERROR;
         }
 
         // Now remove the event file we just read:
@@ -593,8 +594,13 @@ char *check_dir_for_messages(const char *dirname, int *ierr)
       }
     }
   }
+  closedir(dr);
   //printf("Return nevents=%d\n" , nevents);
   *ierr = 0;
   return message;
+
+ERROR:;
+  closedir(dr);
+  return NULL;
 }
 
