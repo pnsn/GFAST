@@ -19,6 +19,7 @@ def main():
     xmldir_out = '/home/mth/mth/GFAST/run/events'
 
     files = glob.glob(xmldir_in + '/' + '*.xml')
+    files = ['SA.xml']
     for xmlfile in files:
         print(xmlfile)
         tree = ET.parse(xmlfile)
@@ -31,7 +32,7 @@ def main():
         otime = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         orig_time.text = orig_time.text.replace(orig_time.text, otime)
         print(datetime.now(tz=timezone.utc))
-        print(otime)
+        print(datetime.now(tz=timezone.utc).timestamp())
 
         target = os.path.join(xmldir_out, os.path.basename(xmlfile))
         tree.write(target)
