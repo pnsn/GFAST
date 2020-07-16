@@ -400,13 +400,16 @@ cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
 printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
 */
-printf("GFAST: xmlMessages.mmessages=%d events.nev=%d\n", xmlMessages.mmessages, events.nev);
+printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
+       events.nev, xmlMessages.nmessages, xmlMessages.mmesages);
          // Send the messages where they need to go
          if (xmlMessages.mmessages > 0)
          {
              for (im=0; im<xmlMessages.nmessages; im++)
              {
 printf("GFAST: evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
+printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
                  if (xmlMessages.evids[im] != NULL)
                  {
                      free(xmlMessages.evids[im]);
