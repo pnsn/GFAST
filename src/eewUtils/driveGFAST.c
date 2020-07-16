@@ -212,6 +212,7 @@ printf("driveGFAST: Get Offset for FF\n");
                 LOG_INFOMSG("Estimating PGD scaling for %s...", SA.eventid);
             }
             lpgdSuccess = true;
+printf("driveGFAST: drivePGD\n");
             ierr = eewUtils_drivePGD(props.pgd_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *pgd_data,
@@ -231,6 +232,7 @@ printf("driveGFAST: Get Offset for FF\n");
                 LOG_INFOMSG("Estimating CMT for %s...", SA.eventid);
             }
             lcmtSuccess = true;
+printf("driveGFAST: driveCMT\n");
             ierr = eewUtils_driveCMT(props.cmt_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *cmt_data,
@@ -258,6 +260,7 @@ printf("driveGFAST: Get Offset for FF\n");
             ff->dip[0] = cmt->dip1[cmt->opt_indx];
             ff->dip[1] = cmt->dip2[cmt->opt_indx];
             lffSuccess = true;
+printf("driveGFAST: driveFF\n");
             ierr = eewUtils_driveFF(props.ff_props,
                                     SA.lat, SA.lon, //SA.dep,
                                     *ff_data,
