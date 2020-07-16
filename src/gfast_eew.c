@@ -297,6 +297,10 @@ tbeger = ISCL_time_timeStamp();
         // Alternatively, check for SA message trigger in message_dir
         if (check_message_dir) {
           amqMessage = check_dir_for_messages(message_dir, &ierr);
+          if (ierr != 0){
+printf("** MTH: check_dir_for_messages return ierr=%d\n", ierr);
+ierr=0;
+          }
         }
 
         if (ierr != 0)
@@ -408,8 +412,8 @@ printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n",
              for (im=0; im<xmlMessages.nmessages; im++)
              {
 printf("GFAST: evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
-printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
-printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
+//printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
+//printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
                  if (xmlMessages.evids[im] != NULL)
                  {
                      free(xmlMessages.evids[im]);
