@@ -314,7 +314,10 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         ierr = CMT_COMPUTE_ERROR;
     }
     // Get the optimimum index
-    cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn, &ierr); // TODO: cmt->ndeps = nlld
+    { /*vk needed for more stringent c++ compiler*/
+      enum isclError_enum isclerr = (enum isclError_enum)ierr;
+      cmt->opt_indx = array_argmin64f(cmt->ndeps, cmt->objfn, &isclerr); // TODO: cmt->ndeps = nlld
+    }
     if (cmt->ndeps < nlld)
     {
         LOG_WARNMSG("%s", "NEED to unpack opt_indx and make a cmt->opt_dep");

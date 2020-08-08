@@ -26,90 +26,90 @@ bool core_events_removeExpiredEvent(const double maxtime,
                                     struct GFAST_shakeAlert_struct SA,
                                     struct GFAST_activeEvents_struct *events)
 {
-    struct GFAST_activeEvents_struct SAtemp;
-    int iev, jev, nev0, pop_indx;
-    bool lpopped;
-    lpopped = false;
-    if (events == NULL)
+  struct GFAST_activeEvents_struct SAtemp;
+  int iev, jev, nev0, pop_indx;
+  bool lpopped;
+  lpopped = false;
+  if (events == NULL)
     {
-        if (verbose > 0)
+      if (verbose > 0)
         {
-            LOG_WARNMSG("%s", "Warning no events in list");
+	  LOG_WARNMSG("%s", "Warning no events in list");
         }
-        return lpopped;         
+      return lpopped;         
     }
-    // Find the event and see if I can remove it
-    pop_indx =-2;
-    nev0 = events->nev;
-    for (iev=0; iev<nev0; iev++)
+  // Find the event and see if I can remove it
+  pop_indx =-2;
+  nev0 = events->nev;
+  for (iev=0; iev<nev0; iev++)
     {
-        if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
+      if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
         {
-            pop_indx =-1;
-printf("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
-    currentTime, (currentTime-SA.time), maxtime);
-            if ((currentTime - SA.time) > maxtime)
-            {
-printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
-       currentTime, SA.eventid, SA.time);
-                if (verbose > 0)
-                {
-                    LOG_INFOMSG("Removing %s %f from event list at %f",
-                                SA.eventid, SA.time, currentTime);
-                }
-                pop_indx = iev;
-                break;
-            }
+	  pop_indx =-1;
+	  printf("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
+		 currentTime, SA.eventid, (currentTime-SA.time), maxtime);
+	  if ((currentTime - SA.time) > maxtime)
+	    {
+	      printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
+		     currentTime, SA.eventid, SA.time);
+	      if (verbose > 0)
+		{
+		  LOG_INFOMSG("Removing %s %f from event list at %f",
+			      SA.eventid, SA.time, currentTime);
+		}
+	      pop_indx = iev;
+	      break;
+	    }
         }
     }
-    // I couldn't even find the event in the event list
-    if (pop_indx ==-2)
+  // I couldn't even find the event in the event list
+  if (pop_indx ==-2)
     {
-        if (verbose > 0)
+      if (verbose > 0)
         {
-            LOG_WARNMSG("Strangely cannot find this event %s", SA.eventid);
+	  LOG_WARNMSG("Strangely cannot find this event %s", SA.eventid);
         }
-        return lpopped;
+      return lpopped;
     }
-    // Remove the event?
-    lpopped = true;
-    if (pop_indx >-1)
+  // Remove the event?
+  lpopped = true;
+  if (pop_indx >-1)
     {
-        // Only event - good bye
-        if (nev0 == 1)
+      // Only event - good bye
+      if (nev0 == 1)
         {
-            core_events_freeEvents(events);
-            events->nev = 0;
-            return lpopped;
+	  core_events_freeEvents(events);
+	  events->nev = 0;
+	  return lpopped;
         }
-        // Copy old events into workspace ignoring event at pop_indx 
-        SAtemp.nev = nev0 - 1;
-        SAtemp.SA = (struct GFAST_shakeAlert_struct *)
-                    calloc((size_t) SAtemp.nev,
-                           sizeof(struct GFAST_shakeAlert_struct));
-        jev = 0;
-        for (iev=0; iev<nev0; iev++)
+      // Copy old events into workspace ignoring event at pop_indx 
+      SAtemp.nev = nev0 - 1;
+      SAtemp.SA = (struct GFAST_shakeAlert_struct *)
+	calloc((size_t) SAtemp.nev,
+	       sizeof(struct GFAST_shakeAlert_struct));
+      jev = 0;
+      for (iev=0; iev<nev0; iev++)
         {
-            if (iev == pop_indx){continue;}
-            memcpy(&SAtemp.SA[jev], &events->SA[iev],
-                   sizeof(struct GFAST_shakeAlert_struct));
-            jev = jev + 1;
+	  if (iev == pop_indx){continue;}
+	  memcpy(&SAtemp.SA[jev], &events->SA[iev],
+		 sizeof(struct GFAST_shakeAlert_struct));
+	  jev = jev + 1;
         }
-        memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
-        // Resize events
-        core_events_freeEvents(events);
-        events->nev = SAtemp.nev;
-        events->SA = (struct GFAST_shakeAlert_struct *)
-                     calloc((size_t) events->nev,
-                            sizeof(struct GFAST_shakeAlert_struct));
-        // Copy old events back
-        for (iev=0; iev<events->nev; iev++)
+      memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
+      // Resize events
+      core_events_freeEvents(events);
+      events->nev = SAtemp.nev;
+      events->SA = (struct GFAST_shakeAlert_struct *)
+	calloc((size_t) events->nev,
+	       sizeof(struct GFAST_shakeAlert_struct));
+      // Copy old events back
+      for (iev=0; iev<events->nev; iev++)
         {
-            memcpy(&events->SA[iev], &SAtemp.SA[iev],
-                   sizeof(struct GFAST_shakeAlert_struct));
+	  memcpy(&events->SA[iev], &SAtemp.SA[iev],
+		 sizeof(struct GFAST_shakeAlert_struct));
         }
-        // Free SAtemp
-        core_events_freeEvents(&SAtemp);
+      // Free SAtemp
+      core_events_freeEvents(&SAtemp);
     }
-    return lpopped;
+  return lpopped;
 }

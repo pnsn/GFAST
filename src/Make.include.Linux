@@ -1,0 +1,255 @@
+# Makefile.env for GFASE EEW on Linux
+
+# The following environment variables can be used to override the variables here:
+# APR
+# APRUTIL
+# XERCES
+# ACTIVEMQ
+# OPENCV
+# GMT
+# GTEST
+# GMOCK
+# EW_HOME
+# ACTIVEMQ_JAR_DIR
+# BUILD_UTIL
+#Local
+EEWDIR=/home/kress/git/ShakeAlert/
+BUILD_UTILS=$(EEWDIR)/build-utils
+COMPEARTH_HOME=/home/kress/git/compearth
+COMPEARTH_INCL=-I $(COMPEARTH_HOME)/momenttensor/c_src/include
+ISCL_HOME=/home/kress/git/iscl
+ISCL_INCL=-I $(ISCL_HOME)/include
+#iniparser will be deleted later
+INIPARSER_HOME=/home/kress/git/iniparser
+INIPARSER_INCL=-I $(INIPARSER_HOME)/src
+XML_LIBDIR=/usr/lib/x86_64-linux-gnu
+XML_INCL=-I /usr/include/libxml2
+EW_HOME=/home/kress/svn/ew_v7.x
+EW_INCL=-I $(EW_HOME)/include
+HDF5_INCL=-I /usr/include/hdf5/serial
+HDF5_LIBDIR=
+ACTIVEMQ=/usr/local/activemqcpp
+
+#some GFAST-specific environment variables
+
+# Uncomment the next line to enable Earthworm support
+#ENABLE_EARTHWORM=-DENABLE_EARTHWORM
+GFAST_VERSION=-D'GFAST_VERSION="SA0.1"'
+GFAST_USE_EW=-DGFAST_USE_EW
+GFAST_USE_AMQ=-DGFAST_USE_AMQ
+
+# Uncomment the next line to enable Multicast support
+# ENABLE_MCAST=-DENABLE_MCAST
+
+# Uncomment the next line to enable static file support
+ENABLE_FLFEED=-DENABLE_FLFEED
+
+# Uncomment the next line to enable using plog library for logging
+ENABLE_PLOG=-DENABLE_PLOG
+
+# Uncomment the next line to enable SAC file writing
+ENABLE_WRITE2SAC=-DWRITE2SAC
+
+#uncomment the next line to enable mass recenter notification support
+#NOTIFY_EEW=-DNOTIFY_EEW
+
+# builder info
+HOSTNAME=`hostname | cut -d'.' -f1`
+HOSTNAME=$(shell hostname | cut -d'.' -f1)
+BUILDER=$(USER)@$(HOSTNAME)
+UNAME:=$(shell uname)
+
+# location of Id expansion scripts
+ifeq ($(BUILD_UTILS),)
+  $(error Set the BUILD_UTILS environmental variable to absolute path of build_utils directory)
+endif
+
+# 32 or 64 bit, default is 64 bit
+ifeq ($(TARGET),32)
+  BITS=
+else
+  TARGET=64
+  BITS=64
+endif
+# compiler stuff
+DEBUG=-g
+CFLAGS=-Wall -Wextra -Wno-format-truncation -Wno-deprecated-declarations -m$(TARGET) -D_LINUX -D_INTEL -fPIC
+CCFLAGS=$(CFLAGS)
+cc=gcc
+CC=g++
+CXX=g++
+AR=ar -rcsv
+
+# For Multicast
+PCAP=/usr/local
+
+# open source libraries and includes
+ifeq ($(APR),)
+  APR=/usr
+  APR_LIB=-lapr-1
+else
+  APR_LIB=-L$(APR)/lib$(BITS) -lapr-1
+endif
+APR_INCL=-I$(APR)/include/apr-1.0
+
+ifeq ($(APRUTIL),)
+  APRUTIL=/usr
+  APRUTIL_LIB=-laprutil-1
+else
+  APRUTIL_LIB=-L$(APRUTIL)/lib$(BITS) -laprutil-1
+endif
+APRUTIL_INCL=-I$(APRUTIL)/include/apr-1.0
+
+ifeq ($(XERCES),)
+  XERCES=/usr
+  XERCES_LIB=-lxerces-c
+else
+ifeq ($(XERCES_LIB),)
+  XERCES_LIB=-L$(XERCES)/lib$(BITS) -lxerces-c
+endif
+endif
+XERCES_INCL=-I$(XERCES)/include -I$(XERCES)/include/xercesc
+
+ifeq ($(ACTIVEMQ),)
+  ACTIVEMQ=/usr
+endif
+ifeq ($(ACTIVEMQ_INCL),)
+  ACTIVEMQ_INCL=-I$(ACTIVEMQ)/include/activemq-cpp-3.9.5
+endif
+ifeq ($(ACTIVEMQ_LIB),)
+  ACTIVEMQ_LIB=-L$(ACTIVEMQ)/lib$(BITS) -lactivemq-cpp
+endif
+
+# Next set of vars are for FINDER
+ifeq ($(OPENCV),)
+  OPENCV=/usr/local/opencv
+endif
+ifeq ($(OPENCV_INCL),)
+  OPENCV_INCL=-I$(OPENCV)/include
+endif
+ifeq ($(OPENCV_LIB),)
+  OPENCV_LIB=-L$(OPENCV)/lib$(BITS) -Wl,-R$(OPENCV)/lib$(BITS) -lopencv_core -lopencv_highgui -lopencv_imgproc
+endif
+
+ifeq ($(GMT),)
+  GMT=/usr
+endif
+ifeq ($(GMT_INCL),)
+  GMT_INCL=-I$(GMT)/include
+endif
+ifeq ($(GMT_LIB),)
+  GMT_LIB=-L$(GMT)/lib$(BITS) -Wl,-R$(GMT)/lib$(BITS) -lgmt
+endif
+
+ifeq ($(GTEST),)
+  GTEST=/usr
+  GTEST_LIB=-lgtest
+else
+  GTEST_LIB=-L$(GTEST) -lgtest
+endif
+GTEST_INCL=-I$(GTEST)/include
+
+ifeq ($(GMOCK),)
+  GMOCK=/usr
+  GMOCK_LIB=-lgmock
+else
+  GMOCK_LIB=-L$(GMOCK) -lgmock
+endif
+GMOCK_INCL=-I$(GMOCK)/include
+
+# Next set of vars are for BEFORES
+ifeq ($(GSL),)
+  GSL=/usr
+endif
+ifeq ($(GSL_INCL),)
+  GSL_INCL=-I$(GSL)/include
+endif
+ifeq ($(GSL_LIB),)
+  GSL_LIB=-L$(GSL)/lib$(BITS) -Wl,-R$(GSL)/lib$(BITS) -lgsl
+endif
+ifeq ($(ATLAS),)
+  ATLAS=/usr
+endif
+ifeq ($(ATLAS_INCL),)
+  ATLAS_INCL=-I$(ATLAS)/include/atlas
+endif
+ifeq ($(ATLAS_LIB),)
+  ATLAS_LIB=-L$(ATLAS)/lib$(BITS)/atlas -lsatlas
+endif
+
+# Oracle
+ORACLE_INCL=-I$(EEWDIR)/third_party/oracle/product/12.1.0.2/rdbms/public
+OTL_INCL=-I$(EEWDIR)/third_party/OTL
+ifeq ($(ORACLE_LIB),)
+  ORACLE_LIB=-L$(ORACLE_HOME)$(BITS) -lclntsh
+endif
+
+# define the Activemq class path
+ifeq ($(ACTIVEMQ_JAR_DIR),)
+  ACTIVEMQ_JAR_DIR=/app/amq/run/lib
+endif
+
+ACTIVEMQ_CLASS_PATH=$(ACTIVEMQ_JAR_DIR)/*:$(ACTIVEMQ_JAR_DIR)/optional/*:$(ACTIVEMQ_JAR_DIR)/camel/*
+
+
+# Earthworm and related
+ifeq ($(EW_HOME),)
+  EW_HOME=/app/eewdata/ew/current
+endif
+EWDIR=$(EW_HOME)/$(EW_VERSION)
+
+QMASERV=$(EWDIR)/src/libsrc/lib330
+QMASERV_INCL=-isystem$(QMASERV)
+ifeq ($(QLIB2_INCL),)
+  QLIB2_INCL = -isystem$(EEWDIR)/third_party/qlib2
+endif
+ifeq ($(QLIB2_LIB),)
+  QLIB2_LIB  = -L$(EEWDIR)/third_party/qlib2/lib$(BITS) -lqlib2
+endif
+
+# AQMS
+AQMS=$(EEWDIR)/third_party
+
+# support for recenter notifications -- if enabled, libamq most come before other aqms libs
+#ifdef NOTIFY_EEW
+AQMS_INCL=-isystem$(AQMS)/libamq
+AQMS_LIB=$(AQMS)/libamq/libamq.a
+CCFLAGS+=$(NOTIFY_EEW)
+#endif # NOTIFY_EEW
+
+# Support for plog library
+#ifdef ENABLE_PLOG
+CCFLAGS+=$(ENABLE_PLOG)
+#endif
+#ifdef GFAST_USE_EW
+CCFLAGS+=$(GFAST_USE_EW)
+#endif
+#ifdef GFAST_USE_AMQ
+CCFLAGS+=$(GFAST_USE_AMQ)
+#endif
+
+AQMS_INCL+=-isystem$(AQMS)/libtnchnl/include \
+           -isystem$(AQMS)/libtndb/include \
+           -isystem$(AQMS)/libtntime/include \
+           -isystem$(AQMS)/librtseis/include \
+           -isystem$(AQMS)/libtnwave/include \
+           -isystem$(AQMS)/libtnstd/include
+
+AQMS_LIB+=$(AQMS)/libtndb/libtndb.a \
+         $(AQMS)/libtnchnl/libtnchnl.a \
+         $(AQMS)/libtntime/libtntime.a \
+         $(AQMS)/libtnstd/libtnstd.a 
+
+
+# define initial LIBS
+LIBS=-lnsl -lm -lrt -pthread -lz
+
+# Generator script location for propertiesST files handling config variables
+EEW_SCRIPT_DIR	 = $(EEWDIR)/libs/utils
+PROPGEN = $(EEW_SCRIPT_DIR)/propertiesSTGen.py
+PROPGENNEW = $(EEW_SCRIPT_DIR)/propertiesGen_new.py
+
+# make depend stuff
+MAKEFILE=$(firstword $(MAKEFILE_LIST))
+MAKEDEPEND=makedepend
+DEPENDFILES=.$(MAKEFILE).d

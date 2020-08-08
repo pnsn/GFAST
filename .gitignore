@@ -1,6 +1,11 @@
-Makefile
-Makefile.inc
+src/*.local
 *.[oa]
 *.so
 *.pyc
-html
+*~
+doxygen/html
+doxygen/latex
+build
+lib
+bin
+

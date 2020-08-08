@@ -248,7 +248,10 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
         pgd->UPinp[i] = d[k];
         k = k + 1;
     }
-    iqrMin = array_min64f(pgd->ndeps, pgd->iqr, &ierr);
+    { /*vk needed for more stringent c++ compiler*/
+      enum isclError_enum isclerr = (enum isclError_enum)ierr;
+      iqrMin = array_min64f(pgd->ndeps, pgd->iqr, &isclerr);
+    }
     // Extract the estimates and compute weighted objective function
     for (idep=0; idep<pgd->ndeps; idep++)
     {

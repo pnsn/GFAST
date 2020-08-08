@@ -5,7 +5,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif
+#endif /*ifdef __cplusplus*/
 
 /* Helps C start and stop the ActiveMQ library */
 void activeMQ_start(void);
@@ -83,9 +83,10 @@ void *activeMQ_producer_initialize(const char AMQuser[],
               activeMQ_producer_sendMessage(__VA_ARGS__)
 #define GFAST_activeMQ_setTcpURIRequest(...)       \
               activeMQ_setTcpURIRequest(__VA_ARGS__)
-#endif
+#endif /*ifndef __cplusplus*/
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* _gfast_activemq_h__ */
