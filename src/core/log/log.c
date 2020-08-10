@@ -9,8 +9,8 @@ enum logFileType_enum
 {
     ERROR_FILE = 1,
     INFO_FILE = 2,
-    WARNING_FILE = 3, 
-    DEBUG_FILE = 4
+    WARNING_FILE = 3,
+    DEBUG_FILE = 4,
     // MTH:
     LOG_FILE = 5
 };
