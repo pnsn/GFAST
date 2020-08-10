@@ -171,6 +171,7 @@ static int core_log_openLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
+printf("MTH: Inside openLogFile fileName=%s fileType=%s\n", fileName, fileType);
     if (fileName == NULL)
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
@@ -223,6 +224,7 @@ static int core_log_openLogFile(const char *fileName,
     }   
     else if (fileType == DEBUG_FILE)
     {   
+printf("MTH: Inside openLogFile append to file=fileName=%s\n", fileName);
         debugFile = fopen(fileName, "a");
     }   
     else if (fileType == LOG_FILE)
@@ -311,6 +313,7 @@ int core_log_openWarningLog(const char *fileName)
 int core_log_openDebugLog(const char *fileName)
 {
     int ierr;
+printf("MTH: openDeugLog --> call openLogfile(fileName=%s)\n", fileName);
     ierr = core_log_openLogFile(fileName, DEBUG_FILE);
     return ierr;
 }
