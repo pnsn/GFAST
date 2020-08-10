@@ -328,6 +328,9 @@ printf("MTH: check if this is a new event\n");
 printf("MTH: This is a NEW event\n");
             else
 printf("MTH: This is NOT a new event\n");
+printf("MTH: PrintEvents\n");
+GFAST_core_events_printEvents(SA);
+printf("MTH: PrintEvents DONE\n");
 
             if (lnewEvent)
             {
