@@ -32,6 +32,7 @@ static FILE *logFile = NULL;
  */
 static int core_log_closeLogFile(const enum logFileType_enum fileType)
 {
+printf("MTH: closeLogFile fileType=%d\n", fileType);
     int ierr = 0;
     if (fileType == ERROR_FILE)
     {   
@@ -252,6 +253,7 @@ printf("MTH: Inside openLogFile append to file=fileName=%s\n", fileName);
  */
 int core_log_closeLogs(void)
 {
+printf("*** MTH: closeLogs\n");
     int ierr = 0;
     ierr += core_log_closeErrorLog();
     ierr += core_log_closeInfoLog();
@@ -459,6 +461,7 @@ int core_log_closeWarningLog(void)
  */
 int core_log_closeDebugLog(void)
 {   
+printf("MTH: closeDebugLog\n");
     int ierr;
     ierr = core_log_closeLogFile(DEBUG_FILE);
     return ierr;
