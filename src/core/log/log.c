@@ -567,6 +567,11 @@ void core_log_logDebugMessage(const char *msg)
  */
 void core_log_logMessage(const char *msg)
 {
+  printf("MTH: log_logMessage msg=%s\n", msg);
+  if (logFile == NULL) {
+    printf("MTH: logFile is NULL!\n");
+  }
+
     if (msg == NULL){return;}
     if (logFile == NULL)
     {
