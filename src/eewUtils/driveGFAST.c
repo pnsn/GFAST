@@ -131,6 +131,7 @@ LOG_DEBUGMSG("MTH: debug msg BEFORE opening file for evid=%s", SA.eventid);
 printf("driveGFAST: MTH: call openDebugLog\n");
         core_log_openDebugLog(debugLogFileName);
 LOG_DEBUGMSG("MTH: debug msg AFTER opening file for evid=%s", SA.eventid);
+LOG_MSG("MTH: This is a LOG test message from within driveGFAST for evid=%s\n", SA.eventid);
 
 /*
         log_initErrorLog(&__errorToLog);

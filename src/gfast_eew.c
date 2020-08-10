@@ -61,6 +61,7 @@ int main(int argc, char **argv)
     char infoLogFileName[PATH_MAX];
     char debugLogFileName[PATH_MAX];
     char warnLogFileName[PATH_MAX];
+    char logFileName[PATH_MAX]="mth_log\n";
     bool check_message_dir = false;
     bool USE_AMQ = false;
     int niter = 0;
@@ -88,7 +89,10 @@ int main(int argc, char **argv)
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
-LOG_DEBUGMSG("%s: MTH: This is a DEBUG test message BEFORE evid is known\n", fcnm);
+
+    core_log_openLog(logFileName);
+LOG_MSG("%s: MTH: This is a LOG test message BEFORE evid is known\n", fcnm);
+
     if (ierr != 0)
     {
         LOG_ERRMSG("%s: Error reading GFAST initialization file\n", fcnm);
