@@ -464,6 +464,7 @@ int core_log_closeLog(void)
     int ierr;
     ierr = core_log_closeLogFile(LOG_FILE);
     return ierr;
+}
 //============================================================================//
 
 /*!
