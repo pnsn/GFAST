@@ -84,7 +84,7 @@ static int core_log_createLogFile(const char *fileName,
     // Does this file name make sense?
 printf("MTH: Inside createLogFile\n");
 printf("MTH: Inside createLogFile fileName=%s\n", fileName);
-printf("MTH: Inside createLogFile fileName=%s fileType=%s\n", fileName, fileType);
+printf("MTH: Inside createLogFile fileName=%s fileType=%d\n", fileName, fileType);
     if (fileName == NULL)
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
@@ -175,7 +175,7 @@ static int core_log_openLogFile(const char *fileName,
     // Does this file name make sense?
 printf("MTH: Inside openLogFile\n");
 printf("MTH: Inside openLogFile fileName=%s\n", fileName);
-printf("MTH: Inside openLogFile fileName=%s fileType=%s\n", fileName, fileType);
+printf("MTH: Inside openLogFile fileName=%s fileType=%d\n", fileName, fileType);
     if (fileName == NULL)
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
