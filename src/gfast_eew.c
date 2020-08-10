@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
-LOG_ERRMSG("MTH: This is a test message BEFORE evid is known\n");
+LOG_ERRMSG("%s: MTH: This is a test message BEFORE evid is known\n", fcnm);
     if (ierr != 0)
     {
         LOG_ERRMSG("%s: Error reading GFAST initialization file\n", fcnm);
