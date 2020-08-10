@@ -234,6 +234,7 @@ printf("MTH: Inside openLogFile append to file=fileName=%s\n", fileName);
     }   
     else if (fileType == LOG_FILE)
     {   
+printf("MTH: Inside openLogFile append to LOG_FILE file=fileName=%s\n", fileName);
         logFile = fopen(fileName, "a");
     }   
     else
@@ -580,6 +581,7 @@ void core_log_logMessage(const char *msg)
     else
     {
         fprintf(logFile, "%s\n", msg);
+        fflush(logFile);
     }
     return;
 }

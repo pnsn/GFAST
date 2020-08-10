@@ -92,7 +92,10 @@ int main(int argc, char **argv)
 
     core_log_openLog(logFileName);
 printf("MTH: write log msg to file=%s\n", logFileName);
-LOG_MSG("%s: MTH: This is a LOG test message BEFORE evid is known\n", fcnm);
+int imsg;
+for (imsg=0;imsg<100;imsg++){
+  LOG_MSG("%s: MTH: This LOG test message:[%d] BEFORE evid is known\n", imsg,fcnm);
+}
 
     if (ierr != 0)
     {
