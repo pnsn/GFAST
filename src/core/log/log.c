@@ -82,6 +82,8 @@ static int core_log_createLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
+printf("MTH: Inside createLogFile\n");
+printf("MTH: Inside createLogFile fileName=%s\n", fileName);
 printf("MTH: Inside createLogFile fileName=%s fileType=%s\n", fileName, fileType);
     if (fileName == NULL)
     {
@@ -171,6 +173,8 @@ static int core_log_openLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
+printf("MTH: Inside openLogFile\n");
+printf("MTH: Inside openLogFile fileName=%s\n", fileName);
 printf("MTH: Inside openLogFile fileName=%s fileType=%s\n", fileName, fileType);
     if (fileName == NULL)
     {
@@ -313,6 +317,7 @@ int core_log_openWarningLog(const char *fileName)
 int core_log_openDebugLog(const char *fileName)
 {
     int ierr;
+printf("MTH: Inside openDebugLog\n");
 printf("MTH: openDeugLog --> call openLogfile(fileName=%s)\n", fileName);
     ierr = core_log_openLogFile(fileName, DEBUG_FILE);
     return ierr;
