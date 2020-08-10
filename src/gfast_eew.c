@@ -96,7 +96,6 @@ int imsg;
 for (imsg=0;imsg<10;imsg++){
   LOG_MSG("%s: This LOG test message:[%d] BEFORE evid is known", fcnm, imsg);
 }
-exit(1);
 
     if (ierr != 0)
     {
@@ -397,6 +396,7 @@ LOG_DEBUGMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
             LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
 LOG_DEBUGMSG("%s: MTH: Call driveGFAST DEBUG msg\n", fcnm);
+LOG_MSG("%s: Call driveGFAST now", fcnm);
 printf("GFAST: Call driveGFAST\n");
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
