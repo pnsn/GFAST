@@ -341,11 +341,13 @@ printf("MTH: PrintEvents DONE\n");
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
+                printf("MTH: Set logFileNames\n");
                 eewUtils_setLogFileNames(SA.eventid,
                                         errorLogFileName, infoLogFileName,
                                         debugLogFileName, warnLogFileName);
                 if (os_path_isfile(errorLogFileName))
                 {
+                printf("MTH: errorLogFile exists --> REMOVE\n");
                     remove(errorLogFileName);
                 }
                 if (os_path_isfile(infoLogFileName))

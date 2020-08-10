@@ -11,12 +11,16 @@ enum logFileType_enum
     INFO_FILE = 2,
     WARNING_FILE = 3, 
     DEBUG_FILE = 4
+    // MTH:
+    LOG_FILE = 5
 };
 
 static FILE *errorFile = NULL;
 static FILE *infoFile = NULL;
 static FILE *debugFile = NULL;
 static FILE *warningFile = NULL;
+// MTH:
+static FILE *logFile = NULL;
 
 /*!
  * @brief Closes the log file.
@@ -48,6 +52,11 @@ static int core_log_closeLogFile(const enum logFileType_enum fileType)
     {   
         if (debugFile != NULL){fclose(debugFile);}
         debugFile = NULL;
+    }   
+    else if (fileType == LOG_FILE)
+    {   
+        if (logFile != NULL){fclose(logFile);}
+        logFile = NULL;
     }   
     else
     {   
@@ -130,6 +139,10 @@ static int core_log_createLogFile(const char *fileName,
     {
         debugFile = fopen(fileName, "w");
     } 
+    else if (fileType == LOG_FILE)
+    {
+        logFile = fopen(fileName, "w");
+    } 
     else
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Invalid option\n", 
@@ -209,6 +222,10 @@ static int core_log_openLogFile(const char *fileName,
     else if (fileType == DEBUG_FILE)
     {   
         debugFile = fopen(fileName, "a");
+    }   
+    else if (fileType == LOG_FILE)
+    {   
+        logFile = fopen(fileName, "a");
     }   
     else
     {   
@@ -295,6 +312,21 @@ int core_log_openDebugLog(const char *fileName)
     ierr = core_log_openLogFile(fileName, DEBUG_FILE);
     return ierr;
 }
+/*!
+ * @brief Opens the big log file.  If the file exists then it will be
+ *        appended to.
+ *
+ * @param[in] fileName   Name of log file to open.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_openLog(const char *fileName)
+{
+    int ierr;
+    ierr = core_log_openLogFile(fileName, LOG_FILE);
+    return ierr;
+}
 //============================================================================//
 /*!
  * @brief Creates the error log file.  If the file exists then it will be
@@ -309,6 +341,7 @@ int core_log_createErrorLog(const char *fileName)
 {
     int ierr;
     ierr = core_log_createLogFile(fileName, ERROR_FILE);
+    printf("MTH: create errorlog fileName=%s\n", fileName);
     return ierr;
 }
 /*!
@@ -354,6 +387,21 @@ int core_log_createDebugLog(const char *fileName)
 {   
     int ierr;
     ierr = core_log_createLogFile(fileName, DEBUG_FILE);
+    return ierr;
+}
+/*!
+ * @brief Creates the big log file.  If the file exists then it will be
+ *        overwritten.
+ *
+ * @param[in] fileName   Name of log file to create.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_createLog(const char *fileName)
+{   
+    int ierr;
+    ierr = core_log_createLogFile(fileName, LOG_FILE);
     return ierr;
 }
 //============================================================================//
@@ -405,6 +453,17 @@ int core_log_closeDebugLog(void)
     ierr = core_log_closeLogFile(DEBUG_FILE);
     return ierr;
 }
+/*!
+ * @brief Closes the big log file.
+ *
+ * @result 0 indicates success.
+ *
+ */
+int core_log_closeLog(void)
+{   
+    int ierr;
+    ierr = core_log_closeLogFile(LOG_FILE);
+    return ierr;
 //============================================================================//
 
 /*!
@@ -482,6 +541,26 @@ void core_log_logDebugMessage(const char *msg)
     else
     {
         fprintf(debugFile, "%s\n", msg);
+    }
+    return;
+}
+
+/*!
+ * @brief Writes a message to the big log.
+ *
+ * @param[in] msg    Message to write to the log file.
+ *
+ */
+void core_log_logMessage(const char *msg)
+{
+    if (msg == NULL){return;}
+    if (logFile == NULL)
+    {
+        fprintf(stdout, "%s\n", msg);
+    }
+    else
+    {
+        fprintf(logFile, "%s\n", msg);
     }
     return;
 }
