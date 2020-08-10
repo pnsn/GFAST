@@ -127,7 +127,10 @@ printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid
         core_log_openErrorLog(errorLogFileName);
         core_log_openInfoLog(infoLogFileName);
         core_log_openWarningLog(warnLogFileName);
-        core_log_openDebugLog(warnLogFileName);
+LOG_DEBUGMSG("MTH: debug msg BEFORE opening file for evid=%s", SA.eventid);
+printf("driveGFAST: MTH: call openDebugLog\n");
+        core_log_openDebugLog(debugLogFileName);
+LOG_DEBUGMSG("MTH: debug msg AFTER opening file for evid=%s", SA.eventid);
 
 /*
         log_initErrorLog(&__errorToLog);
