@@ -86,6 +86,7 @@ int main(int argc, char **argv)
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
+LOG_ERRMSG("MTH: This is a test message BEFORE evid is known\n");
     if (ierr != 0)
     {
         LOG_ERRMSG("%s: Error reading GFAST initialization file\n", fcnm);
@@ -341,7 +342,7 @@ printf("MTH: PrintEvents DONE\n");
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
-                printf("MTH: Set logFileNames\n");
+                printf("MTH: Set logFileNames for evid=%d\n", SA.eventid);
                 eewUtils_setLogFileNames(SA.eventid,
                                         errorLogFileName, infoLogFileName,
                                         debugLogFileName, warnLogFileName);
@@ -366,6 +367,7 @@ printf("MTH: PrintEvents DONE\n");
                 ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                             SA.eventid,
                                             props.propfilename);
+LOG_ERRMSG("MTH: This message is sent AFTER evid=%d is known\n", SA.eventid);
                 if (ierr != 0)
                 {
                     LOG_ERRMSG("%s: Error initializing the archive file\n",
