@@ -94,8 +94,9 @@ int main(int argc, char **argv)
 printf("MTH: write log msg to file=%s\n", logFileName);
 int imsg;
 for (imsg=0;imsg<100;imsg++){
-  LOG_MSG("%s: MTH: This LOG test message:[%d] BEFORE evid is known\n", imsg,fcnm);
+  LOG_MSG("%s: MTH: This LOG test message:[%d] BEFORE evid is known\n", fcnm, imsg);
 }
+exit(1);
 
     if (ierr != 0)
     {
