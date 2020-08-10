@@ -374,7 +374,6 @@ int core_ff_weightObservations(const int mrows,
    {  \
      snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
    } while(0); \
-printf("MTH: Inside LOG_MSG call logMessage() msg=%s\n", debugMsg); \
    core_log_logMessage(debugMsg); \
 };
 #endif

@@ -91,7 +91,6 @@ int main(int argc, char **argv)
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
 
     core_log_openLog(logFileName);
-printf("MTH: write log msg to file=%s\n", logFileName);
 int imsg;
 for (imsg=0;imsg<10;imsg++){
   LOG_MSG("%s: This LOG test message:[%d] BEFORE evid is known", fcnm, imsg);
@@ -200,6 +199,7 @@ for (imsg=0;imsg<10;imsg++){
                                        &ringInfo);
     // Flush the buffer
     LOG_INFOMSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
+LOG_MSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
     ierr = traceBuffer_ewrr_flushRing(&ringInfo);
     if (ierr != 0)
     {
@@ -208,6 +208,7 @@ for (imsg=0;imsg<10;imsg++){
     }
     // Begin the acquisition loop
     LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
+LOG_MSG("%s: Beginning the acquisition...\n", fcnm);
     amqMessage = NULL;
     t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
     t_now = (double) (long) (ISCL_time_timeStamp() + 0.5);
@@ -227,6 +228,7 @@ for (imsg=0;imsg<10;imsg++){
 
         //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
         printf("\n== [GFAST t0:%f] ==\n", t0);
+LOG_MSG("== [GFAST t0:%f] ==", t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -322,6 +324,9 @@ ierr=0;
     // If there's a message then process it
         if (amqMessage != NULL)
         {
+LOG_MSG("%s: Got new amqMessage:", fcnm);
+LOG_MSG("%s", amqMessage);
+exit(1);
             // Parse the event message 
             ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
             if (ierr != 0)
