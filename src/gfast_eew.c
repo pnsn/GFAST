@@ -322,7 +322,13 @@ ierr=0;
             }
 //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
             // If this is a new event we have some file handling to do
+printf("MTH: check if this is a new event\n");
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
+            if (lnewEvent)
+printf("MTH: This is a NEW event\n");
+            else
+printf("MTH: This is NOT a new event\n");
+
             if (lnewEvent)
             {
                 // And the logs
