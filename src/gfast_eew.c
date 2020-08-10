@@ -342,7 +342,7 @@ printf("MTH: PrintEvents DONE\n");
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
-                printf("MTH: Set logFileNames for evid=%d\n", SA.eventid);
+                printf("MTH: Set logFileNames for evid=%s\n", SA.eventid);
                 eewUtils_setLogFileNames(SA.eventid,
                                         errorLogFileName, infoLogFileName,
                                         debugLogFileName, warnLogFileName);
@@ -367,7 +367,7 @@ printf("MTH: PrintEvents DONE\n");
                 ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                             SA.eventid,
                                             props.propfilename);
-LOG_ERRMSG("MTH: This message is sent AFTER evid=%d is known\n", SA.eventid);
+LOG_ERRMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
                 if (ierr != 0)
                 {
                     LOG_ERRMSG("%s: Error initializing the archive file\n",
