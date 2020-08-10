@@ -82,6 +82,7 @@ static int core_log_createLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
+printf("MTH: Inside createLogFile fileName=%s fileType=%s\n", fileName, fileType);
     if (fileName == NULL)
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
@@ -137,6 +138,7 @@ static int core_log_createLogFile(const char *fileName,
     }
     else if (fileType == DEBUG_FILE)
     {
+printf("MTH: open DEBUG_FILE=%s\n", fileName);
         debugFile = fopen(fileName, "w");
     } 
     else if (fileType == LOG_FILE)
