@@ -475,6 +475,7 @@ int core_log_closeLog(void)
  */
 void core_log_logErrorMessage(const char *msg)
 {
+fprintf("MTH: logErrorMessage msg=%s\n", msg);
     if (errorFile == NULL)
     {
         fprintf(stderr, "%s\n", msg);
@@ -482,6 +483,7 @@ void core_log_logErrorMessage(const char *msg)
     else
     {
         fprintf(errorFile, "%s\n", msg);
+        fflush(errorFile);
     } 
     return;
 }
