@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     ISCL_iscl_init(); // Fire up the computational library
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
-LOG_ERRMSG("%s: MTH: This is a test message BEFORE evid is known\n", fcnm);
+LOG_DEBUGMSG("%s: MTH: This is a DEBUG test message BEFORE evid is known\n", fcnm);
     if (ierr != 0)
     {
         LOG_ERRMSG("%s: Error reading GFAST initialization file\n", fcnm);
@@ -367,7 +367,7 @@ printf("MTH: PrintEvents DONE\n");
                 ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                             SA.eventid,
                                             props.propfilename);
-LOG_ERRMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
+LOG_DEBUGMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
                 if (ierr != 0)
                 {
                     LOG_ERRMSG("%s: Error initializing the archive file\n",
@@ -385,6 +385,7 @@ LOG_ERRMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
         {
             LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
+LOG_DEBUGMSG("%s: MTH: Call driveGFAST DEBUG msg\n", fcnm);
 printf("GFAST: Call driveGFAST\n");
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
