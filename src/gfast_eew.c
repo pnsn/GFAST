@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     char infoLogFileName[PATH_MAX];
     char debugLogFileName[PATH_MAX];
     char warnLogFileName[PATH_MAX];
-    char logFileName[PATH_MAX]="mth_log\n";
+    char logFileName[PATH_MAX]="mth_log\0";
     bool check_message_dir = false;
     bool USE_AMQ = false;
     int niter = 0;
@@ -91,6 +91,7 @@ int main(int argc, char **argv)
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
 
     core_log_openLog(logFileName);
+printf("MTH: write log msg to file=%s\n", logFileName);
 LOG_MSG("%s: MTH: This is a LOG test message BEFORE evid is known\n", fcnm);
 
     if (ierr != 0)
