@@ -32,7 +32,6 @@ static FILE *logFile = NULL;
  */
 static int core_log_closeLogFile(const enum logFileType_enum fileType)
 {
-printf("MTH: closeLogFile fileType=%d\n", fileType);
     int ierr = 0;
     if (fileType == ERROR_FILE)
     {   
@@ -83,8 +82,6 @@ static int core_log_createLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
-printf("MTH: Inside createLogFile\n");
-printf("MTH: Inside createLogFile fileName=%s\n", fileName);
 printf("MTH: Inside createLogFile fileName=%s fileType=%d\n", fileName, fileType);
     if (fileName == NULL)
     {
@@ -141,7 +138,6 @@ printf("MTH: Inside createLogFile fileName=%s fileType=%d\n", fileName, fileType
     }
     else if (fileType == DEBUG_FILE)
     {
-printf("MTH: open DEBUG_FILE=%s\n", fileName);
         debugFile = fopen(fileName, "w");
     } 
     else if (fileType == LOG_FILE)
@@ -174,8 +170,6 @@ static int core_log_openLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
-printf("MTH: Inside openLogFile\n");
-printf("MTH: Inside openLogFile fileName=%s\n", fileName);
 printf("MTH: Inside openLogFile fileName=%s fileType=%d\n", fileName, fileType);
     if (fileName == NULL)
     {
@@ -229,12 +223,10 @@ printf("MTH: Inside openLogFile fileName=%s fileType=%d\n", fileName, fileType);
     }   
     else if (fileType == DEBUG_FILE)
     {   
-printf("MTH: Inside openLogFile append to file=fileName=%s\n", fileName);
         debugFile = fopen(fileName, "a");
     }   
     else if (fileType == LOG_FILE)
     {   
-printf("MTH: Inside openLogFile append to LOG_FILE file=fileName=%s\n", fileName);
         logFile = fopen(fileName, "a");
     }   
     else
@@ -254,7 +246,6 @@ printf("MTH: Inside openLogFile append to LOG_FILE file=fileName=%s\n", fileName
  */
 int core_log_closeLogs(void)
 {
-printf("*** MTH: closeLogs\n");
     int ierr = 0;
     ierr += core_log_closeErrorLog();
     ierr += core_log_closeInfoLog();
@@ -320,8 +311,6 @@ int core_log_openWarningLog(const char *fileName)
 int core_log_openDebugLog(const char *fileName)
 {
     int ierr;
-printf("MTH: Inside openDebugLog\n");
-printf("MTH: openDeugLog --> call openLogfile(fileName=%s)\n", fileName);
     ierr = core_log_openLogFile(fileName, DEBUG_FILE);
     return ierr;
 }
@@ -462,7 +451,6 @@ int core_log_closeWarningLog(void)
  */
 int core_log_closeDebugLog(void)
 {   
-printf("MTH: closeDebugLog\n");
     int ierr;
     ierr = core_log_closeLogFile(DEBUG_FILE);
     return ierr;
@@ -568,7 +556,6 @@ void core_log_logDebugMessage(const char *msg)
  */
 void core_log_logMessage(const char *msg)
 {
-  printf("MTH: log_logMessage msg=%s\n", msg);
   if (logFile == NULL) {
     printf("MTH: logFile is NULL!\n");
   }
