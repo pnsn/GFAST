@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast.h"
+// MTH:
+#include "gfast_core.h"
 #include "iscl/iscl/iscl.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
