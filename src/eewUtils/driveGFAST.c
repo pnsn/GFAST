@@ -160,6 +160,7 @@ LOG_MSG("%s returned ierr=%d", "CopyTraceBufferToGFAST", ierr);
             LOG_ERRMSG("%s", "Error copying trace buffer");
             continue;
         }
+LOG_MSG("%s", "Get peakDisp");
 printf("driveGFAST: Get peakDisp\n");
         // Extract the peak displacement from the waveform buffer
         nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
@@ -172,12 +173,14 @@ printf("driveGFAST: Get peakDisp\n");
                                     *gps_data,
                                     pgd_data,
                                     &ierr);
+LOG_MSG("%s returned ierr=%d", "Get peakDisp", ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing peak displacement");
             continue;
         }
 printf("driveGFAST: Get Offset for CMT\n");
+LOG_MSG("%s", "Get Offset for CMT");
         // Extract the offset for the CMT inversion from the buffer 
         nsites_cmt = GFAST_core_waveformProcessor_offset(
                                     props.cmt_props.utm_zone,
