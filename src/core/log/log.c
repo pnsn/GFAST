@@ -35,7 +35,10 @@ static int core_log_closeLogFile(const enum logFileType_enum fileType)
     int ierr = 0;
     if (fileType == ERROR_FILE)
     {   
-        if (errorFile != NULL){fclose(errorFile);}
+        if (errorFile != NULL){
+          printf("** MTH: close the errorFile");
+          LOG_MSG("%s", "** MTH: close the errorFile");
+          fclose(errorFile);}
         errorFile = NULL;
     }   
     else if (fileType == INFO_FILE)
@@ -55,6 +58,8 @@ static int core_log_closeLogFile(const enum logFileType_enum fileType)
     }   
     else if (fileType == LOG_FILE)
     {   
+      printf("%s\n", "** fileType==LOG_FILE --> close(logFile)");
+      LOG_MSG("%s", "** fileType==LOG_FILE --> close(logFile)");
         if (logFile != NULL){fclose(logFile);}
         logFile = NULL;
     }   
@@ -463,6 +468,8 @@ int core_log_closeDebugLog(void)
  */
 int core_log_closeLog(void)
 {   
+  printf("**** MTH: close the big LOG_FILE");
+  LOG_MSG("%s", "**** MTH: close the big LOG_FILE");
     int ierr;
     ierr = core_log_closeLogFile(LOG_FILE);
     return ierr;
