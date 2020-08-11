@@ -87,10 +87,12 @@ int main(int argc, char **argv)
     memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
     memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
     ISCL_iscl_init(); // Fire up the computational library
+
+    core_log_openLog(logFileName);
+    LOG_MSG("%s: Read gfast.props file", fcnm);
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
 
-    core_log_openLog(logFileName);
 int imsg;
 for (imsg=0;imsg<10;imsg++){
   LOG_MSG("%s: This LOG test message:[%d] BEFORE evid is known", fcnm, imsg);
@@ -106,6 +108,7 @@ for (imsg=0;imsg<10;imsg++){
     if (props.verbose > 0)
     {
         LOG_INFOMSG("%s: Initializing the data buffers...\n", fcnm);
+        LOG_MSG("%s: Initializing the data buffers...", fcnm);
     }
 
     ierr = core_data_initialize(props, &gps_data);
@@ -135,6 +138,7 @@ for (imsg=0;imsg<10;imsg++){
     if (props.verbose > 0)
     {
         LOG_INFOMSG("%s: Initializing trigger listener...\n", fcnm);
+        LOG_MSG("%s: Initializing trigger listener...", fcnm);
     }
 
     if (USE_AMQ) {
@@ -199,7 +203,7 @@ for (imsg=0;imsg<10;imsg++){
                                        &ringInfo);
     // Flush the buffer
     LOG_INFOMSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
-LOG_MSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
+LOG_MSG("%s: Flushing ring %s", fcnm, ringInfo.ewRingName);
     ierr = traceBuffer_ewrr_flushRing(&ringInfo);
     if (ierr != 0)
     {
@@ -208,7 +212,7 @@ LOG_MSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
     }
     // Begin the acquisition loop
     LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
-LOG_MSG("%s: Beginning the acquisition...\n", fcnm);
+LOG_MSG("%s: Beginning the acquisition...", fcnm);
     amqMessage = NULL;
     t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
     t_now = (double) (long) (ISCL_time_timeStamp() + 0.5);
@@ -247,6 +251,7 @@ LOG_MSG("== [GFAST t0:%f] ==", t0);
                                                     &nTracebufs2Read,
                                                     &ierr);
         printf("Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
+LOG_MSG("== [GFAST t0:%f] Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", t0, ierr, nTracebufs2Read);
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
             if (ierr ==-1)
@@ -324,9 +329,8 @@ ierr=0;
     // If there's a message then process it
         if (amqMessage != NULL)
         {
-LOG_MSG("%s: Got new amqMessage:", fcnm);
+LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
 LOG_MSG("%s", amqMessage);
-exit(1);
             // Parse the event message 
             ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
             if (ierr != 0)
@@ -338,16 +342,11 @@ exit(1);
             }
 //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
             // If this is a new event we have some file handling to do
-printf("MTH: check if this is a new event\n");
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
             if (lnewEvent)
-printf("MTH: This is a NEW event\n");
+LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
             else
-printf("MTH: This is NOT a new event\n");
-printf("MTH: PrintEvents\n");
-GFAST_core_events_printEvents(SA);
-printf("MTH: PrintEvents DONE\n");
-
+LOG_MSG("This is NOT a new event: evid=%s, SA.eventid");
             if (lnewEvent)
             {
                 // And the logs
@@ -357,13 +356,11 @@ printf("MTH: PrintEvents DONE\n");
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
-                printf("MTH: Set logFileNames for evid=%s\n", SA.eventid);
                 eewUtils_setLogFileNames(SA.eventid,
                                         errorLogFileName, infoLogFileName,
                                         debugLogFileName, warnLogFileName);
                 if (os_path_isfile(errorLogFileName))
                 {
-                printf("MTH: errorLogFile exists --> REMOVE\n");
                     remove(errorLogFileName);
                 }
                 if (os_path_isfile(infoLogFileName))
@@ -382,7 +379,6 @@ printf("MTH: PrintEvents DONE\n");
                 ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                             SA.eventid,
                                             props.propfilename);
-LOG_DEBUGMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
                 if (ierr != 0)
                 {
                     LOG_ERRMSG("%s: Error initializing the archive file\n",
@@ -401,8 +397,7 @@ LOG_DEBUGMSG("MTH: This message is sent AFTER evid=%s is known\n", SA.eventid);
             LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
 LOG_DEBUGMSG("%s: MTH: Call driveGFAST DEBUG msg\n", fcnm);
-LOG_MSG("%s: Call driveGFAST now", fcnm);
-printf("GFAST: Call driveGFAST\n");
+LOG_MSG("== [GFAST t0:%f] Call driveGFAST:", t0);
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
                                    &events,
@@ -441,7 +436,7 @@ printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n",
          {
              for (im=0; im<xmlMessages.nmessages; im++)
              {
-printf("GFAST: evid:%s pgdXML=[%s]\n", xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 //printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
 //printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
                  if (xmlMessages.evids[im] != NULL)
