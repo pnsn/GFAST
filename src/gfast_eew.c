@@ -251,9 +251,9 @@ LOG_MSG("== [GFAST t0:%f] ==", t0);
                                                     &nTracebufs2Read,
                                                     &ierr);
         printf("Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
-LOG_MSG("== [GFAST t0:%f] Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", t0, ierr, nTracebufs2Read);
+LOG_MSG("== Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
 if (msgs == NULL){
-LOG_MSG("== [GFAST t0:%f] Read messages off ring returned msgs == NULL !!!!", t0);
+LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
 }
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
@@ -286,10 +286,10 @@ LOG_MSG("== [GFAST t0:%f] Read messages off ring returned msgs == NULL !!!!", t0
 //printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
-LOG_MSG("%s: unpackTraceBuf2Messages", fcnm);
+LOG_MSG("%s", "== unpackTraceBuf2Messages");
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
-LOG_MSG("%s: free msgs memory", fcnm);
+LOG_MSG("%s", "== free msgs memory");
         memory_free8c(&msgs);
         if (ierr != 0)
         {
@@ -299,10 +299,11 @@ LOG_MSG("%s: free msgs memory", fcnm);
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
-LOG_MSG("%s: Update the hdf5 buffers", fcnm);
+LOG_MSG("%s", "== Update the hdf5 buffers");
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
                                       h5traceBuffer);
+LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
