@@ -227,12 +227,12 @@ LOG_MSG("%s returned ierr=%d nsites_ff=%d", "Get Offset for FF", ierr, nsites_ff
             }
             lpgdSuccess = true;
 printf("driveGFAST: drivePGD\n");
-LOG_MSG("%s", "Run drivePGD");
+LOG_MSG("Call drivePGD eventid=%s", SA.eventid);
             ierr = eewUtils_drivePGD(props.pgd_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *pgd_data,
                                      pgd);
-LOG_MSG("%s returned ierr=%d", "Run drivePGD", ierr);
+LOG_MSG("drivePGD returned ierr=%d", ierr);
             if (ierr != PGD_SUCCESS)
             {
                 LOG_ERRMSG("%s", "Error computing PGD");

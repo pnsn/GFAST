@@ -104,11 +104,11 @@ LOG_MSG("nev0=%d SAtemp.nev=%d pop_indx=%d", nev0, SAtemp.nev, pop_indx);
             jev = jev + 1;
         }
 LOG_MSG("%s", "Copy SAtemp into SA");
-        memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
+        //memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
-LOG_MSG("Resize events: events->nev=%d", events->nev);
         core_events_freeEvents(events);
         events->nev = SAtemp.nev;
+LOG_MSG("Resize events: new events->nev=%d", events->nev);
         events->SA = (struct GFAST_shakeAlert_struct *)
                      calloc((size_t) events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
