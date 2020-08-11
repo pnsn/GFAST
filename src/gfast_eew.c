@@ -347,7 +347,7 @@ LOG_MSG("%s", amqMessage);
               LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
             }
             else{
-              LOG_MSG("This is NOT a new event: evid=%s, SA.eventid");
+              LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
             }
 
             if (lnewEvent)
