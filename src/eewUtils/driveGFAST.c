@@ -140,8 +140,9 @@ LOG_MSG("%s: time:%lf evid:%s has expired --> finalize\n", fcnm, t2, SA.eventid)
 */
         // Get the data for this event
 printf("driveGFAST: get data\n");
-LOG_MSG("%s: get data ...", fcnm);
+LOG_MSG("get data t1:%f t2:%f", t1, t2);
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
+LOG_MSG("get data t1:%f t2:%f returned ierr=%d", t1, t2, ierr);
         if (ierr != 0)
         {
 printf("driveGFAST: Error getting the data for event --> continue\n");
@@ -150,8 +151,10 @@ LOG_MSG("%s: Error getting the data for event:%s --> continue\n", fcnm, SA.event
             continue; 
         }
         // Copy the data onto the buffer
+LOG_MSG("%s", "CopyTraceBufferToGFAST");
         ierr = GFAST_traceBuffer_h5_copyTraceBufferToGFAST(h5traceBuffer,
                                                            gps_data);
+LOG_MSG("%s returned ierr=%d", "CopyTraceBufferToGFAST", ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error copying trace buffer");
