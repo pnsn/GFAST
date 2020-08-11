@@ -88,7 +88,9 @@ LOG_MSG("%s", "This is the only event --> call core_events_freeEvents");
         }
         // Copy old events into workspace ignoring event at pop_indx 
 LOG_MSG("%s", "Copy remaining events into workspace");
+LOG_MSG("nev0=%d", nev0);
         SAtemp.nev = nev0 - 1;
+LOG_MSG("SAtemp.nev=%d", SAtemp.nev);
 LOG_MSG("%s nev0=%d SAtemp.nev=%d pop_indx=%d", nev0, SAtemp.nev, pop_indx);
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
                     calloc((size_t) SAtemp.nev,
