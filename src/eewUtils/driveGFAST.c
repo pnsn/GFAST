@@ -541,7 +541,7 @@ LOG_MSG("time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nR
     }
 printf("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
 LOG_MSG("time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
-LOG_MSG("  \n");
+LOG_MSG("%s\n", "  ");
     return ierr;
 }
 
