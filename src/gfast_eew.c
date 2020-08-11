@@ -343,10 +343,13 @@ LOG_MSG("%s", amqMessage);
 //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events);
-            if (lnewEvent)
-LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
-            else
-LOG_MSG("This is NOT a new event: evid=%s, SA.eventid");
+            if (lnewEvent){
+              LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
+            }
+            else{
+              LOG_MSG("This is NOT a new event: evid=%s, SA.eventid");
+            }
+
             if (lnewEvent)
             {
                 // And the logs
@@ -381,8 +384,7 @@ LOG_MSG("This is NOT a new event: evid=%s, SA.eventid");
                                             props.propfilename);
                 if (ierr != 0)
                 {
-                    LOG_ERRMSG("%s: Error initializing the archive file\n",
-                              fcnm);
+                    LOG_ERRMSG("%s: Error initializing the archive file\n", fcnm);
                     goto ERROR;
                 }
             }
