@@ -129,10 +129,10 @@ NEXT_TRACE:;
         groupID = H5Gopen2(h5traceBuffer.fileID,
                            h5traceBuffer.dtGroupName[idt], H5P_DEFAULT);
         gains = memory_calloc64f(ntraces);
-LOG_MSG("%s", "currentTime=%f --> Call h5_readData", currentTime);
+LOG_MSG("currentTime=%f --> Call h5_readData", currentTime);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gains, &ierr);
-LOG_MSG("%s returned ts1=%f ts2=%f ierr=%d", "Call h5_readData", ts1, ts2, ierr);
+LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error reading data");

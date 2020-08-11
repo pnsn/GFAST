@@ -232,7 +232,7 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
 
         //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
         printf("\n== [GFAST t0:%f] ==\n", t0);
-LOG_MSG("\n== [GFAST t0:%f]", t0);
+LOG_MSG("== [GFAST t0:%f]", t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -445,7 +445,7 @@ printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n",
          {
              for (im=0; im<xmlMessages.nmessages; im++)
              {
-LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 //printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
 //printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
                  if (xmlMessages.evids[im] != NULL)
