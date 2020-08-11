@@ -121,6 +121,9 @@ printf("MTH: Inside createLogFile fileName=%s fileType=%d\n", fileName, fileType
         }
         memory_free8c(&dirName);
     }
+//MTH: maybe this is where the free should be ?!
+    memory_free8c(&dirName);
+
     if (ierr != 0){return ierr;}
     // Just point out this file is going to be over-written 
     if (os_path_isfile(fileName))
