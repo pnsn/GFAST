@@ -488,7 +488,7 @@ LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlM
     niter ++;
     }
 ERROR:;
-    core_log_closeLogFile(LOG_FILE);
+    core_log_closeLogFile(5);
     memory_free8c(&msgs);
     traceBuffer_ewrr_freetb2Data(&tb2Data);
     traceBuffer_ewrr_finalize(&ringInfo);
