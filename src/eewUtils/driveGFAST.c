@@ -121,6 +121,8 @@ printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid
 LOG_MSG("time:%lf evid:%s has expired --> finalize", t2, SA.eventid);
             nPop = nPop + 1;
             lfinalize = true;
+LOG_MSG("%s", "Call core_log_closeLogs() before early exit from loop");
+            core_log_closeLogs();
             continue;
         }
 
