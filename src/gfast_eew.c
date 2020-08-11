@@ -473,7 +473,7 @@ LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlM
 // MTH
          if (ierr != 0)
          {
-           free(xmlMessages);
+           free(&xmlMessages);
              LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              goto ERROR; 
          }
