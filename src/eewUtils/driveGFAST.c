@@ -112,7 +112,7 @@ int eewUtils_driveGFAST(const double currentTime,
 
         age_of_event = (t2 - t1);
 printf("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
-LOG_MSG("time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
+LOG_MSG("time:%lf evid:%s [age_of_event=%f]", t2, SA.eventid, age_of_event);
         //if ((props.processingTime - age_of_event) < 1)
 
         if (age_of_event >= props.processingTime)
@@ -424,7 +424,7 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                                                 SA.eventid,
                                                 currentTime);
 printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
-LOG_MSG("time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
+LOG_MSG("time:%lf evid:%s iteration=%d Update h5 archive", t2, SA.eventid, h5k);
             if (props.verbose > 2)
             {
                 LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
@@ -527,13 +527,13 @@ LOG_MSG("time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k
     if (nPop > 0)
     {
 printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
-LOG_MSG("time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
+LOG_MSG("time:%lf evid:%s RemoveExpiredEvents", t2, SA.eventid);
         nRemoved = core_events_removeExpiredEvents(props.processingTime,
                                                    currentTime,
                                                    props.verbose,
                                                    events);
 printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
-LOG_MSG("time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
+LOG_MSG("time:%lf evid:%s RemoveExpiredEvents nRemoved=%d", t2, SA.eventid, nRemoved);
         if (nRemoved != nPop)
         {
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
@@ -541,7 +541,6 @@ LOG_MSG("time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nR
     }
 printf("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
 LOG_MSG("time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
-LOG_MSG("%s\n", "  ");
     return ierr;
 }
 
