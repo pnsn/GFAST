@@ -526,21 +526,18 @@ LOG_MSG("time:%lf evid:%s iteration=%d Update h5 archive", t2, SA.eventid, h5k);
     // Need to down-date the events should any have expired
     if (nPop > 0)
     {
-printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
-LOG_MSG("time:%lf evid:%s RemoveExpiredEvents", t2, SA.eventid);
+LOG_MSG("time:%lf RemoveExpiredEvents", currentTime);
         nRemoved = core_events_removeExpiredEvents(props.processingTime,
                                                    currentTime,
                                                    props.verbose,
                                                    events);
-printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
-LOG_MSG("time:%lf evid:%s RemoveExpiredEvents nRemoved=%d", t2, SA.eventid, nRemoved);
+LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
         if (nRemoved != nPop)
         {
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
     }
-printf("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
-LOG_MSG("time:%lf evid:%s return ierr=%d", t2, SA.eventid, ierr);
+LOG_MSG("time:%lf return ierr=%d", currentTime, ierr);
     return ierr;
 }
 

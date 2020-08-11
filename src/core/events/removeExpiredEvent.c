@@ -48,9 +48,13 @@ bool core_events_removeExpiredEvent(const double maxtime,
             pop_indx =-1;
 printf("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
     currentTime, (currentTime-SA.time), maxtime);
+LOG_MSG("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
+    currentTime, (currentTime-SA.time), maxtime);
             if ((currentTime - SA.time) > maxtime)
             {
 printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
+       currentTime, SA.eventid, SA.time);
+LOG_MSG("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
        currentTime, SA.eventid, SA.time);
                 if (verbose > 0)
                 {
@@ -78,11 +82,13 @@ printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
         // Only event - good bye
         if (nev0 == 1)
         {
+LOG_MSG("%s", "This is the only event --> call core_events_freeEvents");
             core_events_freeEvents(events);
             events->nev = 0;
             return lpopped;
         }
         // Copy old events into workspace ignoring event at pop_indx 
+LOG_MSG("%s", "Copy remaining events into workspace");
         SAtemp.nev = nev0 - 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
                     calloc((size_t) SAtemp.nev,
@@ -97,18 +103,21 @@ printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
         }
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
+LOG_MSG("%s Resize events: events->nev=%d", events->nev);
         core_events_freeEvents(events);
         events->nev = SAtemp.nev;
         events->SA = (struct GFAST_shakeAlert_struct *)
                      calloc((size_t) events->nev,
                             sizeof(struct GFAST_shakeAlert_struct));
         // Copy old events back
+LOG_MSG("%s", "Copy old events back");
         for (iev=0; iev<events->nev; iev++)
         {
             memcpy(&events->SA[iev], &SAtemp.SA[iev],
                    sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
+LOG_MSG("%s", "Free SAtemp");
         core_events_freeEvents(&SAtemp);
     }
     return lpopped;
