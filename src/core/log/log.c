@@ -36,8 +36,6 @@ static int core_log_closeLogFile(const enum logFileType_enum fileType)
     if (fileType == ERROR_FILE)
     {   
         if (errorFile != NULL){
-          printf("** MTH: close the errorFile");
-          LOG_MSG("%s", "** MTH: close the errorFile");
           fclose(errorFile);}
         errorFile = NULL;
     }   
@@ -58,8 +56,6 @@ static int core_log_closeLogFile(const enum logFileType_enum fileType)
     }   
     else if (fileType == LOG_FILE)
     {   
-      printf("%s\n", "** fileType==LOG_FILE --> close(logFile)");
-      LOG_MSG("%s", "** fileType==LOG_FILE --> close(logFile)");
         if (logFile != NULL){fclose(logFile);}
         logFile = NULL;
     }   
@@ -87,7 +83,6 @@ static int core_log_createLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
-printf("MTH: Inside createLogFile fileName=%s fileType=%d\n", fileName, fileType);
     if (fileName == NULL)
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
@@ -119,9 +114,9 @@ printf("MTH: Inside createLogFile fileName=%s fileType=%d\n", fileName, fileType
                     __FILE__, __func__, __LINE__, dirName);
            ierr = 1;
         }
-        memory_free8c(&dirName);
+        //memory_free8c(&dirName);
     }
-//MTH: maybe this is where the free should be ?!
+//MTH: should be here
     memory_free8c(&dirName);
 
     if (ierr != 0){return ierr;}
@@ -178,7 +173,6 @@ static int core_log_openLogFile(const char *fileName,
     enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
-printf("MTH: Inside openLogFile fileName=%s fileType=%d\n", fileName, fileType);
     if (fileName == NULL)
     {
         fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Error fileName is NULL\n",
@@ -212,7 +206,7 @@ printf("MTH: Inside openLogFile fileName=%s fileType=%d\n", fileName, fileType);
                         __FILE__, __func__, __LINE__, dirName);
                 ierr = 1;
             }
-            memory_free8c(&dirName);
+            //memory_free8c(&dirName);
         }
         // MTH !!
         memory_free8c(&dirName);
@@ -353,7 +347,6 @@ int core_log_createErrorLog(const char *fileName)
 {
     int ierr;
     ierr = core_log_createLogFile(fileName, ERROR_FILE);
-    printf("MTH: create errorlog fileName=%s\n", fileName);
     return ierr;
 }
 /*!
@@ -473,8 +466,7 @@ int core_log_closeDebugLog(void)
  */
 int core_log_closeLog(void)
 {   
-  printf("**** MTH: close the big LOG_FILE");
-  LOG_MSG("%s", "**** MTH: close the big LOG_FILE");
+  LOG_MSG("%s", "Close the big LOG_FILE");
     int ierr;
     ierr = core_log_closeLogFile(LOG_FILE);
     return ierr;

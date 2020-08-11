@@ -89,6 +89,7 @@ int main(int argc, char **argv)
     ISCL_iscl_init(); // Fire up the computational library
 
     core_log_openLog(logFileName);
+    logFileName = NULL;
     LOG_MSG("%s: Read gfast.props file", fcnm);
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
@@ -476,6 +477,7 @@ LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlM
          if (ierr != 0)
          {
            //free(&xmlMessages);
+             xmlMessages = NULL;
              LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
              goto ERROR; 
          }
@@ -488,6 +490,7 @@ LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlM
     niter ++;
     }
 ERROR:;
+// Close the big logfile
     core_log_closeLog();
     memory_free8c(&msgs);
     traceBuffer_ewrr_freetb2Data(&tb2Data);
