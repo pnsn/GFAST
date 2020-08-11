@@ -214,6 +214,8 @@ printf("MTH: Inside openLogFile fileName=%s fileType=%d\n", fileName, fileType);
             }
             memory_free8c(&dirName);
         }
+        // MTH !!
+        memory_free8c(&dirName);
     }
     if (ierr != 0){return ierr;}
     // Open the desired file
