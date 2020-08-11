@@ -539,8 +539,10 @@ LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
 // MTH: Temp TEST !!!
-LOG_MSG("%s", "** Test finished event set ierr=1");
+if (events->nev == 1){ 
+LOG_MSG("%s", "** events.nev=1: Test finished event set ierr=1");
 ierr = 1;
+}
     }
 LOG_MSG("time:%lf return ierr=%d", currentTime, ierr);
     return ierr;
