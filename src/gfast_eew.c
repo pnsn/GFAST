@@ -469,6 +469,15 @@ LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlM
              if (xmlMessages.cmtQML != NULL){free(xmlMessages.cmtQML);}
              if (xmlMessages.ffXML  != NULL){free(xmlMessages.ffXML);}
              if (xmlMessages.pgdXML != NULL){free(xmlMessages.pgdXML);}
+
+// MTH
+         if (ierr != 0)
+         {
+           free(xmlMessages);
+             LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
+             goto ERROR; 
+         }
+
              memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
 //printf("early exit\n");
 //break;
