@@ -46,15 +46,14 @@ bool core_events_removeExpiredEvent(const double maxtime,
         if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
         {
             pop_indx =-1;
-printf("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
-    currentTime, (currentTime-SA.time), maxtime);
-LOG_MSG("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
-    currentTime, (currentTime-SA.time), maxtime);
+LOG_MSG("time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
+    currentTime, SA.eventid, (currentTime-SA.time), maxtime);
+
             if ((currentTime - SA.time) > maxtime)
             {
 printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
        currentTime, SA.eventid, SA.time);
-LOG_MSG("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
+LOG_MSG("time:%lf Remove evid:%s otime:%f from event list\n",
        currentTime, SA.eventid, SA.time);
                 if (verbose > 0)
                 {
@@ -90,6 +89,7 @@ LOG_MSG("%s", "This is the only event --> call core_events_freeEvents");
         // Copy old events into workspace ignoring event at pop_indx 
 LOG_MSG("%s", "Copy remaining events into workspace");
         SAtemp.nev = nev0 - 1;
+LOG_MSG("%s nev0=%d SAtemp.nev=%d pop_indx=%d", nev0, SAtemp.nev, pop_indx);
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
                     calloc((size_t) SAtemp.nev,
                            sizeof(struct GFAST_shakeAlert_struct));
@@ -101,6 +101,7 @@ LOG_MSG("%s", "Copy remaining events into workspace");
                    sizeof(struct GFAST_shakeAlert_struct));
             jev = jev + 1;
         }
+LOG_MSG("%s", "Copy SAtemp into SA");
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
 LOG_MSG("%s Resize events: events->nev=%d", events->nev);
