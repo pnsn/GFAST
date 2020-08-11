@@ -110,11 +110,13 @@ int eewUtils_driveGFAST(const double currentTime,
 
         age_of_event = (t2 - t1);
 printf("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
+LOG_MSG("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
         //if ((props.processingTime - age_of_event) < 1)
 
         if (age_of_event >= props.processingTime)
         {
 printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
+LOG_MSG("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
             nPop = nPop + 1;
             lfinalize = true;
             continue;
@@ -127,12 +129,7 @@ printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid
         core_log_openErrorLog(errorLogFileName);
         core_log_openInfoLog(infoLogFileName);
         core_log_openWarningLog(warnLogFileName);
-LOG_DEBUGMSG("MTH: debug msg BEFORE opening file for evid=%s", SA.eventid);
-printf("driveGFAST: MTH: call openDebugLog\n");
         core_log_openDebugLog(debugLogFileName);
-LOG_DEBUGMSG("MTH: debug msg AFTER opening file for evid=%s", SA.eventid);
-LOG_MSG("This is a LOG message without re-opening LOG from within driveGFAST for evid=%s\n", SA.eventid);
-
 /*
         log_initErrorLog(&__errorToLog);
         log_initInfoLog(&__infoToLog);
@@ -141,10 +138,12 @@ LOG_MSG("This is a LOG message without re-opening LOG from within driveGFAST for
 */
         // Get the data for this event
 printf("driveGFAST: get data\n");
+LOG_MSG("driveGFAST: get data");
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
         if (ierr != 0)
         {
 printf("driveGFAST: Error getting the data for event --> continue\n");
+LOG_MSG("driveGFAST: Error getting the data for event --> continue\n");
             LOG_ERRMSG("Error getting the data for event %s", SA.eventid);
             continue; 
         }
@@ -410,6 +409,7 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                                                 SA.eventid,
                                                 currentTime);
 printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
+LOG_MSG("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
             if (props.verbose > 2)
             {
                 LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
@@ -512,17 +512,20 @@ printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.e
     if (nPop > 0)
     {
 printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
+LOG_MSG("driveGFAST: time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
         nRemoved = core_events_removeExpiredEvents(props.processingTime,
                                                    currentTime,
                                                    props.verbose,
                                                    events);
 printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
+LOG_MSG("driveGFAST: time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
         if (nRemoved != nPop)
         {
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
     }
 printf("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
+LOG_MSG("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
     return ierr;
 }
 
