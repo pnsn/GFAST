@@ -173,7 +173,7 @@ printf("driveGFAST: Get peakDisp\n");
                                     *gps_data,
                                     pgd_data,
                                     &ierr);
-LOG_MSG("%s returned ierr=%d", "Get peakDisp", ierr);
+LOG_MSG("%s returned ierr=%d nsites_pgd=%d", "Get peakDisp", ierr, nsites_pgd);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing peak displacement");
@@ -192,12 +192,14 @@ LOG_MSG("%s", "Get Offset for CMT");
                                     *gps_data,
                                     cmt_data,
                                     &ierr);
+LOG_MSG("%s returned ierr=%d nsites_cmt=%d", "Get Offset for CMT", ierr, nsites_cmt);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing CMT offset");
             continue;
         }
 printf("driveGFAST: Get Offset for FF\n");
+LOG_MSG("%s", "Get Offset for FF");
         // Extract the offset for the FF inversion from the buffer 
         nsites_ff = GFAST_core_waveformProcessor_offset(
                                     props.ff_props.utm_zone,
@@ -209,6 +211,7 @@ printf("driveGFAST: Get Offset for FF\n");
                                     *gps_data,
                                     ff_data,
                                     &ierr);
+LOG_MSG("%s returned ierr=%d nsites_ff=%d", "Get Offset for FF", ierr, nsites_ff);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing FF offset");
@@ -224,10 +227,12 @@ printf("driveGFAST: Get Offset for FF\n");
             }
             lpgdSuccess = true;
 printf("driveGFAST: drivePGD\n");
+LOG_MSG("%s", "Run drivePGD");
             ierr = eewUtils_drivePGD(props.pgd_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *pgd_data,
                                      pgd);
+LOG_MSG("%s returned ierr=%d", "Run drivePGD", ierr);
             if (ierr != PGD_SUCCESS)
             {
                 LOG_ERRMSG("%s", "Error computing PGD");
@@ -244,10 +249,12 @@ printf("driveGFAST: drivePGD\n");
             }
             lcmtSuccess = true;
 printf("driveGFAST: driveCMT\n");
+LOG_MSG("%s", "driveCMT");
             ierr = eewUtils_driveCMT(props.cmt_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *cmt_data,
                                      cmt);
+LOG_MSG("%s returned ierr=%d", "driveCMT", ierr);
             if (ierr != CMT_SUCCESS || cmt->opt_indx < 0)
             {
                 LOG_ERRMSG("%s", "Error computing CMT");
