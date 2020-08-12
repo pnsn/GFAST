@@ -19,7 +19,16 @@ Baker's original branch (and many of its dependencies) use cmake in the build tr
 
 ### GCC 7.3
 
-As mentioned in the README, compiler versions: gcc 4.8.5 vs gcc 7.3 gcc 4.8.5 does not recognize the #pragma omp simp directive so will generate a lot of warnings on compile. gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.  ShakeAlert servers currently (7/8/2020) have gcc 4.8.5.  It is not clear that the SCL (Software Collections Libraries) will be available on ShakeAlert RHEL servers.  Furthermore, this may cause complications in other packages so will try to make this compile without upgrading gcc in this branch.
+As mentioned in the README, compiler versions: gcc 4.8.5 vs gcc 7.3 gcc 4.8.5 does not recognize the "#pragma omp simd" directive so will generate a lot of warnings on compile. gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.  The code als makes heavy use of the "#pragma omp parallel" directive.
+
+The "parallel" directive goes way back and is not a problem.  "simd" appears to have been introduced in OpenMP v4.0".
+
+ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this will be an option on ShakeAlert RHEL servers.  (unresolved)
+
+### libstdc++11
+
+There are string function calls in the activemqcpp routines that require c++ version 11 in the original code.  This is not an option on ShakeAlert and really kind of a gratuitous requirement.
+(unresolved)
 
 ### Lapack
 

@@ -5,8 +5,10 @@ SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils ringReader uw xml
 INCL    = -I ../include $(ISCL_INCL) $(ACTIVEMQ_INCL) $(EW_INCL) $(HDF5_INCL)
 EXE     = gfast_eew gfast_playback
 OBJS	= activeMQ/gfast_amq.a eewUtils/gfast_utils.a \
-xml/gfast_xml.a core/gfast_core.a
-SYSLIBS = -lpthread -lnsl -lrt -lz
+xml/gfast_xml.a core/gfast_core.a traceBuffer/traceBuffer.a \
+hdf5/hdf5.a $(ISCL_HOME)/lib/libiscl_static.a $(INIPARSER_HOME)/libiniparser.a \
+$(XML_LIBDIR)/libxml2.a $(HDF5_LIBDIR)/libhdf5.a
+SYSLIBS = -lpthread -lnsl -lrt -lz -lm
 
 %.o:    %.c
 	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)

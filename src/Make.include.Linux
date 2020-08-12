@@ -27,8 +27,9 @@ XML_INCL=-I /usr/include/libxml2
 EW_HOME=/home/kress/svn/ew_v7.x
 EW_INCL=-I $(EW_HOME)/include
 HDF5_INCL=-I /usr/include/hdf5/serial
-HDF5_LIBDIR=
+HDF5_LIBDIR=/usr/lib/x86_64-linux-gnu/hdf5/serial
 ACTIVEMQ=/usr/local/activemqcpp
+LIBSTDC++=/usr/lib/gcc/x86_64-linux-gnu/5/libstdc++.a
 
 #some GFAST-specific environment variables
 
