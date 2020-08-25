@@ -1,26 +1,22 @@
-# Makefile for GFAST/src/activeMQ
+# Makefile for GFAST/src/core/data
 #   CCFLAGS
 #
-GFASTROOT=../
+GFASTROOT=../..
 include $(GFASTROOT)/Make.include.$(shell uname)
 
-OBJS	= activeMQ.c.o  activeMQ.cpp.o  consumer.cpp.o producer.cpp.o readIni.c.o
-LIB	= gfast_amq.a
+OBJS	= ll2utm.o utm2ll.o
+
 DEBUG	= -g
-CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
+CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL= -I ../../include $(APR_INCL) $(ACTIVEMQ_INCL) $(ISCL_INCL) $(INIPARSER_INCL)
+INCL            = -I ../../../include $(ISCL_INCL)
 
-all: $(LIB)
-lib: $(LIB)
+SYSLIBS		= -lpthread -lnsl -lrt -lz
 
-$(LIB): $(OBJS)
-	$(AR) $(LIB) $(OBJS)
+all: $(OBJS)
 
-%.c.o:    %.c
-	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
-%.cpp.o:    %.cpp
-	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+%.o:    %.c
+	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)
@@ -40,7 +36,7 @@ cleandepend:
 	rm -rf $(DEPENDFILES)
 
 clean:
-	-rm -f *.o $(LIB)
+	-rm -f *.o $(BIN)
 
 veryclean: clean rm-ids cleandepend
 

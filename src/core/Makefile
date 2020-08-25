@@ -3,7 +3,7 @@
 GFASTROOT=..
 include $(GFASTROOT)/Make.include.$(shell uname)
 
-SDIRS	= cmt data events ff log properties scaling waveformProcessor
+SDIRS	= cmt data events ff log properties scaling waveformProcessor coordtools
 LIB	= gfast_core.a
 OBJS := $(foreach dir,$(SDIRS),$(dir)/*.o)
 

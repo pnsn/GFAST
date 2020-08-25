@@ -61,9 +61,6 @@ Already part of ShakeAlert standard install.
 
 For Ubuntu need apt install of libapr1 and libapr1-dev.
 
-Need to define APR\_INCLUDE\_DIR
-
-
 ### iniparser
 
 This is a tiny utiility from github to parse GFAST parameter files.
@@ -100,7 +97,7 @@ CMakeLists.txt in iscl compile
 
 #### - compearth
 
-This is needed for moment tensor decompositions.  Currently only availabe from baker845 github repo.  Se Mike Haggarty's README for how to get and build.  Requires cmake and one of the math library options.
+This is needed for moment tensor decompositions.  Currently only availabe from baker845 github repo.  Se Mike Haggarty's README for how to get and build.  Requires cmake and one of the math library options.  Used in core, eewUtils, uw and xml.
 
 #### - FFTw
 
@@ -114,6 +111,10 @@ This is available on Ubuntu via libftw3-bin and libftw3-dev
 Used in unit tests. I suspect that functionality may need to be re-implemented
 in current library equivalents. Could not find any mention of this
 in code, so may be obsolete. Not part of ShakeAlert install.
+
+#### - libcurl
+
+Used only in gfast2web in uw directory.  Ubuntu libcurl4-gnutls-dev.
 
 ## Additional ShakeAlert dependencies
 
