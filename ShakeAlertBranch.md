@@ -53,7 +53,9 @@ install atlas-devel' and replace '-lcblas' with '-L/usr/lib64/atlas
 
 Already part of ShakeAlert standard install.
 
-Need to define LIBAMQ\_INCLUDE\_DIR, LIBAMQ\_LIBRARIES in build tree.
+Need to define ACTIVEMQ in build tree pointing to package root.
+
+Activemq-cpp also requires libcrypto, which in Ubuntu is in libssl-dev package.
 
 ### libapr
 
@@ -80,6 +82,8 @@ Does not seem to be referenced on its own, and initial compilation
 tests do not require it. hdf5.h loaded in gfast\_hdf5.h, gfast\_traceBuffer.h 
 
 On RHEL family, yum install hdf5 and hdf5-devel.  On Ubuntu, you seem to need libhdf5-dev which will install libhdf5-cpp and hdf5-helpers among others as dependencies.
+
+Requires linking with libz and libsz.
 
 ### ISCL
 

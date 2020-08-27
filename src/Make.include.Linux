@@ -14,8 +14,6 @@
 # BUILD_UTIL
 #Local
 LIB_DIR=/usr/lib/x86_64-linux-gnu
-APR_INCL=-I /usr/include/apr-1.0
-APR_LIB=$(LIB_DIR)/libapr-1.a
 EEWDIR=/home/kress/git/ShakeAlert/
 BUILD_UTILS=$(EEWDIR)/build-utils
 COMPEARTH_HOME=/home/kress/git/compearth/momenttensor/c_src
@@ -27,17 +25,27 @@ ISCL_LIB=$(ISCL_HOME)/lib/libiscl_static.a
 INIPARSER_HOME=/home/kress/git/iniparser
 INIPARSER_INCL=-I $(INIPARSER_HOME)/src
 INIPARSER_LIB=$(INIPARSER_HOME)/libiniparser.a
-XML_INCL=-I /usr/include/libxml2
-XML_LIB=$(LIB_DIR)/libxml2.a
 EW_HOME=/home/kress/ew_v7.10
 EW_INCL=-I $(EW_HOME)/include
 EW_LIB=$(EW_HOME)/lib/libew_util.a $(EW_HOME)/lib/libew_mt.a
+APR_INCL=-I /usr/include/apr-1.0
+#APR_LIB=$(LIB_DIR)/libapr-1.a
+APR_LIB=-lapr-1
 HDF5_INCL=-I /usr/include/hdf5/serial
 HDF5_LIB=$(LIB_DIR)/hdf5/serial/libhdf5.a
 ACTIVEMQ=/usr/local/activemqcpp
 ACTIVEMQ_LIB=$(ACTIVEMQ)/lib/libactivemq-cpp.a
-CBLAS_LIB=$(LIB_DIR)/libcblas.a
-LAPACKE_LIB= $(LIB_DIR)/liblapack.a
+CBLAS_INCL=-I /usr/include/x86_64-linux-gnu
+#CBLAS_LIB=$(LIB_DIR)/libcblas.a
+#CBLAS_LIB=$(LIB_DIR)/libatlas.a
+CBLAS_LIB=-lcblas
+#LAPACKE_LIB= $(LIB_DIR)/liblapack.a $(LIB_DIR)/liblapacke.a 
+#LAPACKE_LIB= $(LIB_DIR)/liblapack_atlas.a
+LAPACKE_LIB=-llapack -llapacke
+XML_INCL=-I /usr/include/libxml2
+#XML_LIB=$(LIB_DIR)/libxml2.a
+XML_LIB=-lxml2
+FFTW_LIB=-lfftw3
 
 #some GFAST-specific environment variables
 ENABLE_EARTHWORM=-DENABLE_EARTHWORM

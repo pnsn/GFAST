@@ -20,7 +20,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)
