@@ -15,7 +15,9 @@ Here we only consider the dependencies related to running GFAST in a Shake Alert
 
 ### cmake
 
-Baker's original branch (and many of its dependencies) use cmake in the build tree.  Most of the reasons for doing this do not apply to ShakeAlert (for example we don't intend to compile on Windows) and cmake is difficult to accomodate in the standard ShakeAlert build procedure.  The goal is to create a parallel make system on this branch
+No longer a dependency in ShakeAlert branch except to build some dependencies.
+
+Baker's original branch (and many of its dependencies) use cmake in the build tree.  Most of the reasons for doing this do not apply to ShakeAlert (for example we don't intend to compile on Windows) and cmake is difficult to accomodate in the standard ShakeAlert build procedure.  The ShakeAlert branch implements a conventional Makefile tree rooted in the src/ directory.  Build-host specific paths are defined in src/Make.include.Linux which is "included" in all Makefiles. 
 
 ### GCC 7.3
 
@@ -24,11 +26,6 @@ As mentioned in the README, compiler versions: gcc 4.8.5 vs gcc 7.3 gcc 4.8.5 do
 The "parallel" directive goes way back and is not a problem.  "simd" appears to have been introduced in OpenMP v4.0".
 
 ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this will be an option on ShakeAlert RHEL servers.  (unresolved)
-
-### libstdc++11
-
-There are string function calls in the activemqcpp routines that require c++ version 11 in the original code.  This is not an option on ShakeAlert and really kind of a gratuitous requirement.
-(unresolved)
 
 ### Lapack
 
@@ -61,7 +58,7 @@ Activemq-cpp also requires libcrypto, which in Ubuntu is in libssl-dev package.
 
 Already part of ShakeAlert standard install.
 
-For Ubuntu need apt install of libapr1 and libapr1-dev.
+For Ubuntu need apt install of libapr1 and libapr1-dev.  Link to libapr-1
 
 ### iniparser
 
@@ -92,12 +89,13 @@ This is an ISTI product that may need to be added to extras (GFAST/third\_party
 functionality. May need some tweaks. ISCL headers needed by cmt, ff,
 log, properties, scaling, xml/quakeML, data. 
 
-Added ISCL dependencies include:
+Requires linking with libfftw3 or equivalent.
 
 #### - MKL
 
 To remove this dependency, add set(ISCL\_USE\_INTEL OFF) to
-CMakeLists.txt in iscl compile
+CMakeLists.txt in iscl compile.  We will likely never use this in ShakeAlert.  Using MKL will require
+CBLAS and LAPACKE _LIB and _INCL variables in Make.include.Linux to point to their mkl versions.  May be others.
 
 #### - compearth
 
