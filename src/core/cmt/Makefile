@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= decomposeMomentTensor.o gridSearch.o setDiagonalWeightMatrix.o \
 weightForwardModel.o depthGridSearch.o initialize.o setForwardModel.o \

@@ -3,7 +3,10 @@
 #
 
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= freeEvents.o newEvent.o removeCancelledEvent.o removeExpiredEvents.o\
  getMinOriginTime.o printEvent.o removeExpiredEvent.o updateEvent.o

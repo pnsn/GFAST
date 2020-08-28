@@ -1,14 +1,18 @@
 # Makefile for GFAST
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+$(info Including Make.include.$(MAKEHOST))
+include Make.include.$(MAKEHOST)
 
-include Make.include.$(shell uname)
 SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils xml
 INCL    = -I ../include $(ISCL_INCL) $(ACTIVEMQ_INCL) $(EW_INCL) $(HDF5_INCL)
 EXE     = gfast_eew gfast_playback
 OBJS	= activeMQ/gfast_amq.a eewUtils/gfast_utils.a xml/gfast_xml.a core/gfast_core.a \
 traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a
 LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
-$(ACTIVEMQ_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB)
-SYSLIBS =  -lssl -lcrypto -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++
+$(ACTIVEMQ_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) $(CRYPTO_LIB)
+SYSLIBS = -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++
 
 %.o:    %.c
 	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)

@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= ll2utm.o utm2ll.o
 

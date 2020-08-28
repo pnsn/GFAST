@@ -3,7 +3,10 @@
 # does not compile because missing gfast2json.h
 #
 GFASTROOT=..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= beachball.o gfast2web.o
 EXE     = gfast2web

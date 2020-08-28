@@ -2,7 +2,10 @@
 # 
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= copyTraceBufferToGFAST.o getDoubleArray.o readData.o \
 setScalars.o finalize.o getScalars.o setData.o setTraceBufferFromGFAST.o \

@@ -2,6 +2,10 @@
 
 The ShakeAlertDev branch is a branch of Mike H's '2020' GFAST branch at https://github.com/pnsn
 
+## Static vs dynamic linking
+
+The original ShakeAlert specification called for static linking of all non-system libraries.  That is interpretted in this implementation as staticlally linking all libraries that are not installed via yum.
+
 ## Dependencies
 
 GFAST was originally ported to c/c++ with many dependencies that cannot
@@ -31,20 +35,23 @@ ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP v
 
 /usr/lib64/liblapack.so.3.4.2 is already part of standard ShakeAlert
 install via lapack yum package. Corresponding lapacke.so also present.
-Ubuntu needs both liblapack-dev and liblapacke-dev to link.
+Ubuntu needs lapack liblapack-dev and liblapacke-dev to link.
+Centos7 needs lapack, lapack-devel, and lapacke. lapack-devel also install blas-devel as a dependency.
 
 ### BLAS
 
 /usr/lib/libblas is already installed on ShakeAlert machines via blas yum package. 
 
-libcblas.so does not seem to be available on RHEL dev machines. Manual install
-is a bit tricky. Appears to be available on Ubuntu under that name
+libcblas.so is not available via yum on RHEL dev machines. Manual install
+is a bit tricky. Available on Ubuntu under that name
 through the libatlas-base-dev. 
 
-Centos/RHEL seem to have put the cblas-provided-functions in the atlas-devel
+cblass functions are available on Centos/RHEL in the atlas-devel
 repository. They do not include libcblas, so to link you need to 'yum
 install atlas-devel' and replace '-lcblas' with '-L/usr/lib64/atlas
 -lsatlas' or '-L/usr/lib64/atlas -ltatlas'
+
+So on Centos you must install atlas and atlas-devel packages.
 
 ### Activemq-cpp
 
@@ -52,13 +59,17 @@ Already part of ShakeAlert standard install.
 
 Need to define ACTIVEMQ in build tree pointing to package root.
 
-Activemq-cpp also requires libcrypto, which in Ubuntu is in libssl-dev package.
+Must be manually installed on Ubuntu but on Centos available via yum activemq-cpp-devel package.
+
+Activemq-cpp also requires libcrypto, which in Ubuntu is in libssl-dev package. Centos provides this in several packages but the simplest is openssl-libs which is usually already installed.
 
 ### libapr
 
-Already part of ShakeAlert standard install.
+Already part of ShakeAlert standard install.  Needed by activemq-cpp packages.
 
-For Ubuntu need apt install of libapr1 and libapr1-dev.  Link to libapr-1
+For Ubuntu need apt install of libapr1 and libapr1-dev.  Link to libapr-1.
+
+On Centos, apr-dev package is installed as a dependency in the activemq-cpp-devel package.
 
 ### iniparser
 
@@ -72,6 +83,8 @@ core/scaling/pgd\_readIni.c, activeMQ/readIni.c
 /usr/lib64/libxml2.so.2 installed on dev systems. Many files reference
 libxml/{*}.h files which are provided by the libxml2-devel package
 on RHEL and libxml2-dev on Ubuntu.
+
+Centos install of libxml2 and libxml2-devel install xz and zlib-devel as dependencies.
 
 ### HDF5
 
@@ -107,6 +120,8 @@ Documentation suggests Fourier transforms are not computed in GFAST,
 so this is an artifact of including ISCL. We may want to customize this to remove dependency.
 
 This is available on Ubuntu via libftw3-bin and libftw3-dev
+
+on Centos, install fftw package which installs libfftw3.so and many other related.
 
 #### - LibGeographic
 

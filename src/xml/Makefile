@@ -1,6 +1,9 @@
 # Makefile for GFAST/xml
 GFASTROOT=..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 SDIRS	= quakeML shakeAlert
 LIB	= gfast_xml.a

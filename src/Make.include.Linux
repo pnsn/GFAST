@@ -1,19 +1,9 @@
 # Makefile.env for GFASE EEW on Linux
-
+# Centos7 version
 # The following environment variables can be used to override the variables here:
-# APR
-# APRUTIL
-# XERCES
-# ACTIVEMQ
-# OPENCV
-# GMT
-# GTEST
-# GMOCK
-# EW_HOME
-# ACTIVEMQ_JAR_DIR
 # BUILD_UTIL
 #Local
-LIB_DIR=/usr/lib/x86_64-linux-gnu
+LIB_DIR=/usr/lib64
 EEWDIR=/home/kress/git/ShakeAlert/
 BUILD_UTILS=$(EEWDIR)/build-utils
 COMPEARTH_HOME=/home/kress/git/compearth/momenttensor/c_src
@@ -28,24 +18,28 @@ INIPARSER_LIB=$(INIPARSER_HOME)/libiniparser.a
 EW_HOME=/home/kress/ew_v7.10
 EW_INCL=-I $(EW_HOME)/include
 EW_LIB=$(EW_HOME)/lib/libew_util.a $(EW_HOME)/lib/libew_mt.a
-APR_INCL=-I /usr/include/apr-1.0
+APR_INCL=-I /usr/include/apr-1
 #APR_LIB=$(LIB_DIR)/libapr-1.a
 APR_LIB=-lapr-1
-HDF5_INCL=-I /usr/include/hdf5/serial
-HDF5_LIB=$(LIB_DIR)/hdf5/serial/libhdf5.a
-ACTIVEMQ=/usr/local/activemqcpp
-ACTIVEMQ_LIB=$(ACTIVEMQ)/lib/libactivemq-cpp.a
-CBLAS_INCL=-I /usr/include/x86_64-linux-gnu
-#CBLAS_LIB=$(LIB_DIR)/libcblas.a
-#CBLAS_LIB=$(LIB_DIR)/libatlas.a
-CBLAS_LIB=-lcblas
+HDF5_INCL=-I /usr/include/
+#HDF5_LIB=$(LIB_DIR)/hdf5/serial/libhdf5.a
+HDF5_LIB=-lhdf5
+ACTIVEMQ=/usr/include/activemq-cpp-3.9.3
+ACTIVEMQ_INCL=-I $(ACTIVEMQ)
+#ACTIVEMQ_LIB=$(ACTIVEMQ)/lib/libactivemq-cpp.a
+ACTIVEMQ_LIB=-lactivemq-cpp
+CBLAS_INCL=-I /usr/include
+CBLAS_LIB=-L/usr/lib64/atlas -ltatlas
+#LAPACKE_INCL=
 #LAPACKE_LIB= $(LIB_DIR)/liblapack.a $(LIB_DIR)/liblapacke.a 
 #LAPACKE_LIB= $(LIB_DIR)/liblapack_atlas.a
 LAPACKE_LIB=-llapack -llapacke
 XML_INCL=-I /usr/include/libxml2
-#XML_LIB=$(LIB_DIR)/libxml2.a
 XML_LIB=-lxml2
-FFTW_LIB=-lfftw3
+#FFTW_INCL=
+FFTW_LIB=/usr/lib64/libfftw3.so.3
+SSL_LIB=/usr/lib64/libssl.so.10
+CRYPTO_LIB=/usr/lib64/libcrypto.so.10
 
 #some GFAST-specific environment variables
 ENABLE_EARTHWORM=-DENABLE_EARTHWORM

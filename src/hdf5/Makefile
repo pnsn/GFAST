@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= copy.o getMaxGroupNumber.o initialize.o setFileName.o \
 createType.o h5_cinter.o memory.o update.o

@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= faultPlaneGridSearch.o meshFaultPlane.o setForwardModel.o \
 weightForwardModel.o finalize.o	readIni.o setRegularizer.o \

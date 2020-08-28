@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= depth.o focalMechanism.o longitude.o momentTensor.o origin.o \
 tensor.o units.o epoch2string.o latitude.o magnitude.o nodalPlanes.o \

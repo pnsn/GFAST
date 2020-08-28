@@ -1,7 +1,10 @@
 # Makefile for GFAST/src/core
 
 GFASTROOT=..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 SDIRS	= cmt data events ff log properties scaling waveformProcessor coordtools
 LIB	= gfast_core.a
