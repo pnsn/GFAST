@@ -127,7 +127,9 @@ int core_waveformProcessor_peakDisplacement(
         currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
-printf("peakDisplacement: currentTime=%f svel_window=%f effectiveHypoDist=%f\n", currentTime, svel_window, effectiveHypoDist);
+LOG_MSG("peakDisp: time:%f effectiveHypoDist:%f %s.%s.%s.%s <%.3f, %.3f> distance:%f\n", \
+    currentTime, effectiveHypoDist, gps_data[k].netw, gps_data[k].stnm, gps_data[k].chan[0], gps_data[k].loc, \
+    gps_data[k].sta_lat, gps_data[k].sta_lon, distance);
         if (distance < effectiveHypoDist)
         {
             // Compute the peak displacement max(norm(u + n + e, 2))
