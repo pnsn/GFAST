@@ -127,6 +127,7 @@ int core_waveformProcessor_peakDisplacement(
         currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
+printf("peakDisplacement: currentTime=%f svel_window=%f effectiveHypoDist=%f\n", currentTime, svel_window, effectiveHypoDist);
         if (distance < effectiveHypoDist)
         {
             // Compute the peak displacement max(norm(u + n + e, 2))
