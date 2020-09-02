@@ -96,11 +96,11 @@ int core_waveformProcessor_peakDisplacement(
     // Get the source location
     zone_loc = utm_zone;
     if (zone_loc ==-12345){zone_loc =-1;} // Get UTM zone from source lat/lon
-LOG_MSG("peakDisp: utm_zone=%d ev_lat:%f ev_lon:%f x1:%f y1:%f\n",
-         utm_zone, ev_lat, ev_lon, x1, y1);
     GFAST_core_coordtools_ll2utm(ev_lat, ev_lon,
                                  &y1, &x1,
                                  &lnorthp, &zone_loc);
+LOG_MSG("peakDisp: utm_zone=%d ev_lat:%f ev_lon:%f x1:%f y1:%f\n",
+         utm_zone, ev_lat, ev_lon, x1, y1);
     // Loop on streams and if they satisfy the S wave mask get their PGD
     for (k=0; k<gps_data.stream_length; k++)
     {
