@@ -99,8 +99,8 @@ int core_waveformProcessor_peakDisplacement(
     GFAST_core_coordtools_ll2utm(ev_lat, ev_lon,
                                  &y1, &x1,
                                  &lnorthp, &zone_loc);
-LOG_MSG("peakDisp: utm_zone=%d ev_lat:%f ev_lon:%f x1:%f y1:%f\n",
-         utm_zone, ev_lat, ev_lon, x1, y1);
+//LOG_MSG("peakDisp: utm_zone=%d ev_lat:%f ev_lon:%f x1:%f y1:%f\n",
+         //utm_zone, ev_lat, ev_lon, x1, y1);
     // Loop on streams and if they satisfy the S wave mask get their PGD
     for (k=0; k<gps_data.stream_length; k++)
     {
@@ -134,8 +134,8 @@ LOG_MSG("peakDisp: time:%f effectiveHypoDist:%f %s.%s.%s.%s <%.3f, %.3f> distanc
          gps_data.data[k].netw, gps_data.data[k].stnm,
          gps_data.data[k].chan[0], gps_data.data[k].loc,
          gps_data.data[k].sta_lat, gps_data.data[k].sta_lon, distance);
-LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
-         x1, x2, (x1-x2), y1, y2, (y1-y2));
+//LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
+         //x1, x2, (x1-x2), y1, y2, (y1-y2));
         if (distance < effectiveHypoDist)
         {
             // Compute the peak displacement max(norm(u + n + e, 2))
@@ -146,6 +146,18 @@ LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
                                              gps_data.data[k].ubuff,
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff);
+            if (isnan(peakDisp))
+            {
+              LOG_MSG("peakDisp: Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f\n",
+                  gps_data.data[k].ubuff,
+                  gps_data.data[k].nbuff,
+                  gps_data.data[k].ebuff);
+            }
+            else
+            {
+              LOG_MSG("peakDisp: Got peakDisp = %f\n", peakDisp);
+            }
+
             // If it isn't a NaN then retain it for processing
             if (!isnan(peakDisp))
             {
