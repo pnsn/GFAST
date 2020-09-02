@@ -342,13 +342,14 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                 }
                 xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
 
-                if (int(floor(age_of_event) % 60) == 1){
+                if ((floor(age_of_event) % 60.) == 1){
+
                   LOG_MSG("%s", "Output minute 1 solution");
                 }
-                elif (int(floor(age_of_event) % 60) == 3){
+                elif ((floor(age_of_event) % 60.) == 3){
                   LOG_MSG("%s", "Output minute 3 solution");
                 }
-                elif (int(floor(age_of_event) % 60) == 5){
+                elif ((floor(age_of_event) % 60.) == 5){
                   LOG_MSG("%s", "Output minute 5 solution");
                 }
 
