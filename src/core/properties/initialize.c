@@ -105,7 +105,7 @@ int core_properties_initialize(const char *propfilename,
       //for (j=0; j<n_intervals; j++){
         //printf("min_intervals[%d] = %d\n", j, props->output_interval_mins[j]);
         //printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
-      }
+      //}
     }
 
     s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
