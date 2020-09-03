@@ -87,6 +87,7 @@ int core_properties_initialize(const char *propfilename,
       printf("parse output_interval_mins=[%s]\n", s);
       j = 0;
       for (i = 0; s[i] != '\0'; i++) {
+          printf("s[%d]=%c\n", i, s[i]);
           if (s[i] == ',') {
             j++;
           }
