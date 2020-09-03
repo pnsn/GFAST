@@ -342,18 +342,16 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                 }
                 xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
 
-    int soln_mins[] = {1, 3, 5, 10};
+    int n_intervals = sizeof(props.output_interval_mins) / sizeof(props.output_interval_min[0]);
     int mins;
     float secs;
-
     mins = (int)floor(age_of_event/60.);
     secs = age_of_event - 60.*mins;
     //printf("t:%f mins:%d secs:%f\n", t, mins, secs);
 
-    int n = sizeof(soln_mins) / sizeof(soln_mins[0]);
     int i;
-    for (i=0; i<n; i++){
-      int sol_min = soln_mins[i];
+    for (i=0; i<n_intervals; i++){
+      int sol_min = props.output_interval_mins[i];
       if (mins == sol_min && secs < 1.){
         printf("Age_of_event=%f --> Output minute %d solution\n",
                 age_of_event, sol_min);
