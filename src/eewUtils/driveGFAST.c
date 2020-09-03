@@ -65,6 +65,8 @@ int eewUtils_driveGFAST(const double currentTime,
          debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2, age_of_event;
+    int mins;
+    float secs;
     int h5k, ierr, iev, ipf, nPop, nRemoved,
         nsites_cmt, nsites_ff, nsites_pgd,
         nstrdip, pgdOpt, shakeAlertMode;
@@ -115,6 +117,9 @@ int eewUtils_driveGFAST(const double currentTime,
 printf("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
 LOG_MSG("time:%lf evid:%s [age_of_event=%f]", t2, SA.eventid, age_of_event);
         //if ((props.processingTime - age_of_event) < 1)
+
+        mins = (int)floor(age_of_event/60.);
+        secs = age_of_event - 60.*mins;
 
         if (age_of_event >= props.processingTime)
         {
@@ -343,24 +348,15 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                 }
                 xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
 
-    if (props.n_intervals > 0) {
-      int mins;
-      float secs;
-      mins = (int)floor(age_of_event/60.);
-      secs = age_of_event - 60.*mins;
-      LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
+                //LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
 
-      LOG_MSG("driveGFAST: n_intervals=%d", props.n_intervals);
-      int i;
-      for (i=0; i<props.n_intervals; i++){
-        int sol_min = props.output_interval_mins[i];
-        LOG_MSG("  i:%d sol_min=%d\n", i, sol_min);
-        if (mins == sol_min && secs < 1.){
-          LOG_MSG("Age_of_event=%f --> Output minute %d solution", age_of_event, sol_min);
-          ierr = eewUtils_writeXML("./out", SA.eventid, "pgd", pgdXML, sol_min);
-        }
-      }
-   }
+                for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution", 
+                          age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML("./out", SA.eventid, "pgd", pgdXML, props.output_interval_mins[i]);
+                    }
+                }
 
             }
             // Make the CMT quakeML
@@ -389,6 +385,13 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                     }
                 }
                 xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
+                for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution", 
+                          age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML("./out", SA.eventid, "cmt", cmtQML, props.output_interval_mins[i]);
+                    }
+                }
             }
             // Make the finite fault XML
             if (lffSuccess)
@@ -432,6 +435,13 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                     }
                 }
                 xmlMessages->ffXML[xmlMessages->nmessages] = ffXML;
+                for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d FF solution", 
+                          age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML("./out", SA.eventid, "ff", ffXML, props.output_interval_mins[i]);
+                    }
+                }
             }
             xmlMessages->evids[xmlMessages->nmessages]
                 = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
