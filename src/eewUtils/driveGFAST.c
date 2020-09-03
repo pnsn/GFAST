@@ -598,9 +598,9 @@ int eewUtils_writeXML(const char *dirname,
        eventid, interval_min, fullpath);
 
    if (access( fullpath, F_OK ) != -1 ) {
-     LOG_MSG("File already exists!\n");
+     LOG_MSG("File:%s already exists!\n", fullpath);
    } else {
-     LOG_MSG("File doesn't exist\n");
+     LOG_MSG("File:%s doesn't exist\n", fullpath);
    }
 
    fp = fopen(fullpath, "w");
