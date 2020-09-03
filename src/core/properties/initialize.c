@@ -42,6 +42,8 @@ int core_properties_initialize(const char *propfilename,
     char cwork[PATH_MAX];
     int i, ierr, itemp, lenos;
     dictionary *ini;
+    int min_intervals[10] = { 0 };
+    int j;
     //------------------------------------------------------------------------//
     // Require the properties file exists
     ierr =-1;
@@ -74,6 +76,26 @@ int core_properties_initialize(const char *propfilename,
             memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
         }
     }
+
+    s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
+    if (s != NULL)
+    {
+      //int str_length = str.length();
+      //int arr[str_length] = { 0 };
+      //traversing the string
+      //
+      j = 0;
+      for (i = 0; s[i] != '\0'; i++) {
+          if (s[i] == ', ' || s[i] == ',') {
+            j++;
+          }
+          else {
+            min_intervals[j] = (int)s[i];
+            printf("Add min_interval:%d\n", min_intervals[j]);
+          }
+    exit(0);
+    }
+
     s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
     if (s != NULL)
     {
