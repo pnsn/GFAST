@@ -85,6 +85,29 @@ int core_properties_initialize(const char *propfilename,
       //traversing the string
       //
       printf("parse output_interval_mins=[%s]\n", s);
+      int arr[10] = {0};
+      //// Traverse the string
+      for (i = 0; s[i] != '\0'; i++) {
+        if (s[i] == ',')
+            continue;
+        if (s[i] == ' '){
+        // Increment j to point to next
+        // array location
+            j++;
+        }
+        else {
+        // subtract str[i] by 48 to convert it to int
+        // Generate number by multiplying 10 and adding
+        // (int)(str[i])
+            arr[j] = arr[j] * 10 + (s[i] - 48);
+        }
+      }
+
+      for (j=0; j<4; j++){
+        printf("arr[%d] = %d\n", j, arr[j]);
+      }
+
+      /*
       j = 0;
       for (i = 0; s[i] != '\0'; i++) {
           printf("s[%d]=%c\n", i, s[i]);
@@ -96,6 +119,7 @@ int core_properties_initialize(const char *propfilename,
             printf("Add min_interval:%d\n", min_intervals[j]);
           }
       }
+      */
     exit(0);
     }
 
