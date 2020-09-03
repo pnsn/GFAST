@@ -95,12 +95,14 @@ int core_properties_initialize(const char *propfilename,
             printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
         }
       }
-      int n_intervals = j;
+      int n_intervals = j+1;
       min_intervals = (int *) calloc((size_t) n_intervals, sizeof(int));
 
       for (j=0; j<n_intervals; j++){
-        printf("arr[%d] = %d\n", j, arr[j]);
         min_intervals[j] = arr[j];
+      }
+      for (j=0; j<n_intervals; j++){
+        printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
       }
 
     exit(0);
