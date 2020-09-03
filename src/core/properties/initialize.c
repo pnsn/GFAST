@@ -100,9 +100,9 @@ int core_properties_initialize(const char *propfilename,
         // subtract str[i] by 48 to convert it to int
         // Generate number by multiplying 10 and adding
         // (int)(str[i])
-            print("Before: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
+            printf("Before: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
             arr[j] = arr[j] * 10 + (s[i] - 48);
-            print(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
+            printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
         }
       }
 
