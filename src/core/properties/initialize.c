@@ -81,7 +81,7 @@ int core_properties_initialize(const char *propfilename,
     if (s != NULL)
     {
       j=0;
-      LOG_MSG("parse output_interval_mins=[%s]\n", s);
+      LOG_MSG("Initialize properties: parse output_interval_mins=[%s]", s);
       //int arr[10] = {0};
       int *arr = props->output_interval_mins;
       //// Traverse the string
@@ -97,40 +97,9 @@ int core_properties_initialize(const char *propfilename,
       }
       props->n_intervals = j+1;
       for (j=0; j<props->n_intervals; j++){
-        LOG_MSG("GFAST: output_interval_mins[%d]=%d\n", j, props->output_interval_mins[j]);
-      }
-      exit(0);
-
-    }
-
-/*
-
-    s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
-    if (s != NULL)
-    {
-
-      min_intervals = (int *) calloc((size_t) n_intervals, sizeof(int));
-
-      for (j=0; j<n_intervals; j++){
-        min_intervals[j] = arr[j];
-      }
-
-      props->output_interval_mins = min_intervals;
-
-      int *test;
-      test = min_intervals;
-      printf("size_of(test)=%ld\n", sizeof(test));
-      for (j=0; j<n_intervals; j++){
-        printf("test[%d] = %d\n", j, test[j]);
-      }
-
-
-      for (j=0; j<n_intervals; j++){
-        //printf("min_intervals[%d] = %d\n", j, props->output_interval_mins[j]);
-        printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
+        LOG_MSG("Initialize properties: output_interval_mins[%d]=%d\n", j, props->output_interval_mins[j]);
       }
     }
-*/
 
     s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
     if (s != NULL)
