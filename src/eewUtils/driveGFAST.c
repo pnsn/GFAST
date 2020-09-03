@@ -342,16 +342,23 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                 }
                 xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
 
-                if ((floor(age_of_event) % 60.) == 1){
+    int soln_mins[] = {1, 3, 5, 10};
+    int mins;
+    float secs;
 
-                  LOG_MSG("%s", "Output minute 1 solution");
-                }
-                elif ((floor(age_of_event) % 60.) == 3){
-                  LOG_MSG("%s", "Output minute 3 solution");
-                }
-                elif ((floor(age_of_event) % 60.) == 5){
-                  LOG_MSG("%s", "Output minute 5 solution");
-                }
+    mins = (int)floor(age_of_event/60.);
+    secs = age_of_event - 60.*mins;
+    //printf("t:%f mins:%d secs:%f\n", t, mins, secs);
+
+    int n = sizeof(soln_mins) / sizeof(soln_mins[0]);
+
+    for (int i=0; i<n; i++){
+      int sol_min = soln_mins[i];
+      if (mins == sol_min && secs < 1.){
+        printf("Age_of_event=%f --> Output minute %d solution\n",
+                age_of_event, sol_min);
+      }
+    }
 
             }
             // Make the CMT quakeML
