@@ -101,8 +101,11 @@ int core_properties_initialize(const char *propfilename,
       for (j=0; j<n_intervals; j++){
         min_intervals[j] = arr[j];
       }
+
+      props->output_interval_mins = min_intervals;
       for (j=0; j<n_intervals; j++){
-        printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
+        printf("min_intervals[%d] = %d\n", j, props->output_interval_mins[j]);
+        //printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
       }
 
     exit(0);
