@@ -90,9 +90,9 @@ int core_properties_initialize(const char *propfilename,
       //// Traverse the string
       for (i = 0; s[i] != '\0'; i++) {
         printf("s[%d]=%d\n", i, s[i]);
-        if (s[i] == ',')
-            continue;
-        if (s[i] == ' '){
+        if (s[i] == ',') {
+            //continue;
+        //if (s[i] == ' '){
         // Increment j to point to next
         // array location
             j++;
