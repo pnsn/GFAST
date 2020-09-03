@@ -42,7 +42,7 @@ int core_properties_initialize(const char *propfilename,
     char cwork[PATH_MAX];
     int i, ierr, itemp, lenos;
     dictionary *ini;
-    int min_intervals[10] = { 0 };
+    int *min_intervals;
     int j;
     //------------------------------------------------------------------------//
     // Require the properties file exists
@@ -80,10 +80,6 @@ int core_properties_initialize(const char *propfilename,
     s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
     if (s != NULL)
     {
-      //int str_length = str.length();
-      //int arr[str_length] = { 0 };
-      //traversing the string
-      //
       j=0;
       printf("parse output_interval_mins=[%s]\n", s);
       int arr[10] = {0};
@@ -91,39 +87,22 @@ int core_properties_initialize(const char *propfilename,
       for (i = 0; s[i] != '\0'; i++) {
         printf("s[%d]=%d\n", i, s[i]);
         if (s[i] == ',') {
-            //continue;
-        //if (s[i] == ' '){
-        // Increment j to point to next
-        // array location
             j++;
         }
         else {
-        // subtract str[i] by 48 to convert it to int
-        // Generate number by multiplying 10 and adding
-        // (int)(str[i])
-            printf("Before: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
+            //printf("Before: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
             arr[j] = arr[j] * 10 + (s[i] - 48);
             printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
         }
       }
+      int n_intervals = j;
+      min_intervals = (int *) calloc((size_t) n_intervals, sizeof(int));
 
-      for (j=0; j<4; j++){
+      for (j=0; j<n_intervals; j++){
         printf("arr[%d] = %d\n", j, arr[j]);
+        min_intervals[j] = arr[j];
       }
 
-      /*
-      j = 0;
-      for (i = 0; s[i] != '\0'; i++) {
-          printf("s[%d]=%c\n", i, s[i]);
-          if (s[i] == ',') {
-            j++;
-          }
-          else {
-            min_intervals[j] = (int)s[i];
-            printf("Add min_interval:%d\n", min_intervals[j]);
-          }
-      }
-      */
     exit(0);
     }
 
