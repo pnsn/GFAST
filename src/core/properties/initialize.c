@@ -81,7 +81,7 @@ int core_properties_initialize(const char *propfilename,
     if (s != NULL)
     {
       j=0;
-      LOG_MSG("Initialize properties: parse output_interval_mins=[%s]", s);
+      LOG_MSG("parse output_interval_mins=[%s]", s);
       //int arr[10] = {0};
       int *arr = props->output_interval_mins;
       //// Traverse the string
@@ -97,7 +97,7 @@ int core_properties_initialize(const char *propfilename,
       }
       props->n_intervals = j+1;
       for (j=0; j<props->n_intervals; j++){
-        LOG_MSG("Initialize properties: output_interval_mins[%d]=%d\n", j, props->output_interval_mins[j]);
+        LOG_MSG("output_interval_mins[%d]=%d\n", j, props->output_interval_mins[j]);
       }
     }
 
