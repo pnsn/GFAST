@@ -307,7 +307,7 @@ printf("driveGFAST: driveFF\n");
         */
         if (true) //if (t2 - t1 >= props.processingTime)
         {
-printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
+LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
        lpgdSuccess, lcmtSuccess, lffSuccess);
             lfinalize = true;
             // Make the PGD xml
@@ -348,12 +348,15 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
     mins = (int)floor(age_of_event/60.);
     secs = age_of_event - 60.*mins;
     //printf("t:%f mins:%d secs:%f\n", t, mins, secs);
+    LOG_MSG("Age_of_event=%f [%d] mins %.3f secs\n",
+                age_of_event, mins, secs);
 
     int i;
     for (i=0; i<n_intervals; i++){
       int sol_min = props.output_interval_mins[i];
+      LOG_MSG("  i:%d sol_min=%d\n", i, sol_min);
       if (mins == sol_min && secs < 1.){
-        printf("Age_of_event=%f --> Output minute %d solution\n",
+        LOG_MSG("Age_of_event=%f --> Output minute %d solution\n",
                 age_of_event, sol_min);
       }
     }
