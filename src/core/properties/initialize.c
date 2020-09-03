@@ -86,7 +86,7 @@ int core_properties_initialize(const char *propfilename,
       //
       j = 0;
       for (i = 0; s[i] != '\0'; i++) {
-          if (s[i] == ', ' || s[i] == ',') {
+          if (s[i] == ',') {
             j++;
           }
           else {
