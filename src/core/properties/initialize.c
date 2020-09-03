@@ -77,12 +77,19 @@ int core_properties_initialize(const char *propfilename,
         }
     }
 
+/*
+~ 208     int n_intervals;
++ 209     int output_interval_mins[16];  
+*/
+
+
     s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
     if (s != NULL)
     {
       j=0;
       printf("parse output_interval_mins=[%s]\n", s);
-      int arr[10] = {0};
+      //int arr[10] = {0};
+      int *arr = props->output_interval_mins;
       //// Traverse the string
       for (i = 0; s[i] != '\0'; i++) {
         //printf("s[%d]=%d\n", i, s[i]);
@@ -94,7 +101,35 @@ int core_properties_initialize(const char *propfilename,
             //printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
         }
       }
+
       int n_intervals = j+1;
+      printf("n_intervals=%d\n", n_intervals);
+      for (j=0; j<n_intervals; j++){
+        printf("output_interval_mins[%d]=%d\n", j, props->output_interval_mins[j]);
+      }
+
+      exit(1);
+
+      props->output_interval_mins = min_intervals;
+
+      int *test;
+      test = min_intervals;
+      printf("size_of(test)=%ld\n", sizeof(test));
+      for (j=0; j<n_intervals; j++){
+        printf("test[%d] = %d\n", j, test[j]);
+      }
+
+
+      for (j=0; j<n_intervals; j++){
+        //printf("min_intervals[%d] = %d\n", j, props->output_interval_mins[j]);
+        printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
+      }
+    }
+
+    s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
+    if (s != NULL)
+    {
+
       min_intervals = (int *) calloc((size_t) n_intervals, sizeof(int));
 
       for (j=0; j<n_intervals; j++){

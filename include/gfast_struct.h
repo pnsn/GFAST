@@ -205,7 +205,8 @@ struct GFAST_props_struct
     double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode. */
     double waitTime;            /*!< Number of seconds to wait before running
                                      another iteration of the realtime code. */
-    int *output_interval_mins;   /*!< Intervals (mins) at which to output event solution XMLs */
+    int n_intervals;
+    int output_interval_mins[16];   /*!< Intervals (mins) at which to output event solution XMLs */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     //int RMQport;                /*!< RabbitMQ port to access processed GPS
