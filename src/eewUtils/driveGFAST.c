@@ -12,6 +12,7 @@
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
+int eewUtils_writeXML(const char *dirname, const char *eventid, const char *msg_type, const char *message, int interval_min);
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -352,12 +353,14 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                 age_of_event, mins, secs);
 
     int i;
+    LOG_MSG("driveGFAST: n_intervals=%d\n", n_intervals);
     for (i=0; i<n_intervals; i++){
       int sol_min = props.output_interval_mins[i];
       LOG_MSG("  i:%d sol_min=%d\n", i, sol_min);
       if (mins == sol_min && secs < 1.){
         LOG_MSG("Age_of_event=%f --> Output minute %d solution\n",
                 age_of_event, sol_min);
+        ierr = eewUtils_writeXML("./out", SA.eventid, "pgd", pgdXML, sol_min);
       }
     }
 
@@ -568,3 +571,42 @@ LOG_MSG("time:%lf return ierr=%d", currentTime, ierr);
     return ierr;
 }
 
+
+#include <unistd.h>
+int eewUtils_writeXML(const char *dirname,
+                      const char *eventid,
+                      const char *msg_type,
+                      const char *message,
+                      int interval_min
+                      )
+{
+   char fullpath[128];
+
+   //*ierr = 1;
+/*
+   char *message = "<event_message version=10> \
+<core_info id=2222_maule> \
+</core_info> \
+</event_message>";
+*/
+
+   FILE * fp;
+
+   sprintf(fullpath, "%s/%s.%s.%d_min", dirname, eventid, msg_type, interval_min);
+   puts(fullpath);
+   LOG_MSG("driveGFAST: evid=%s min=%d --> output XML to file=[%s]\n",
+       eventid, interval_min, fullpath);
+
+   if (access( fullpath, F_OK ) != -1 ) {
+     LOG_MSG("File already exists!\n");
+   } else {
+     LOG_MSG("File doesn't exist\n");
+   }
+
+   fp = fopen(fullpath, "w");
+   fprintf(fp, "%s\n", message);
+   fclose(fp);
+
+   return 0;
+
+}
