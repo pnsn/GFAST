@@ -101,7 +101,7 @@ int core_properties_initialize(const char *propfilename,
       }
     }
 
-    s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
+    s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
     if (s != NULL)
     {
         strcpy(props->SAeventsDir, s);
@@ -125,8 +125,37 @@ int core_properties_initialize(const char *propfilename,
     }
     else
     {
-        strcpy(props->SAeventsDir, "\0");
+        //strcpy(props->SAeventsDir, "\0");
+        LOG_MSG("No SA events directory specified --> Use:%s", ".");
         /*strcpy(props->SAeventsDir, "./\0");*/
+    }
+
+    s = iniparser_getstring(ini, "general:SA_output_dir\0", ".");
+    if (s != NULL)
+    {
+        strcpy(props->SAoutputDir, s);
+        if (!ISCL_os_path_isdir(props->SAoutputDir))
+        {
+            LOG_ERRMSG("SA output directory %s doesn't exist",
+                       props->SAoutputDir);
+            goto ERROR; 
+        }
+        if (strlen(props->SAoutputDir) == 0)
+        {
+            strcpy(props->SAoutputDir, "./\0");
+        }
+        else
+        {
+            if (props->SAoutputDir[strlen(props->SAoutputDir)-1] != '/')
+            {
+                strcat(props->SAoutputDir, "/\0");
+            }
+        }
+    }
+    else
+    {
+        //strcpy(props->SAoutputDir, "\0");
+        LOG_MSG("No SA output directory specified --> Use:%s", ".");
     }
 
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);

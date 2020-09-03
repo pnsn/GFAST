@@ -352,9 +352,10 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
 
                 for (i=0; i<props.n_intervals; i++){
                     if (mins == props.output_interval_mins[i] && secs < 1.){
-                      LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution", 
+                      LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
                           age_of_event, props.output_interval_mins[i]);
-                      ierr = eewUtils_writeXML("./out", SA.eventid, "pgd", pgdXML, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
+                                               pgdXML, props.output_interval_mins[i]);
                     }
                 }
 
@@ -387,9 +388,10 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                 xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
                 for (i=0; i<props.n_intervals; i++){
                     if (mins == props.output_interval_mins[i] && secs < 1.){
-                      LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution", 
+                      LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution",
                           age_of_event, props.output_interval_mins[i]);
-                      ierr = eewUtils_writeXML("./out", SA.eventid, "cmt", cmtQML, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
+                                               cmtQML, props.output_interval_mins[i]);
                     }
                 }
             }
@@ -439,7 +441,8 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                     if (mins == props.output_interval_mins[i] && secs < 1.){
                       LOG_MSG("Age_of_event=%f --> Output minute %d FF solution", 
                           age_of_event, props.output_interval_mins[i]);
-                      ierr = eewUtils_writeXML("./out", SA.eventid, "ff", ffXML, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+                                               ffXML, props.output_interval_mins[i]);
                     }
                 }
             }
