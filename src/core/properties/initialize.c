@@ -88,6 +88,7 @@ int core_properties_initialize(const char *propfilename,
       int arr[10] = {0};
       //// Traverse the string
       for (i = 0; s[i] != '\0'; i++) {
+        print("s[%d]=%d\n", i, s[i]);
         if (s[i] == ',')
             continue;
         if (s[i] == ' '){
@@ -99,7 +100,9 @@ int core_properties_initialize(const char *propfilename,
         // subtract str[i] by 48 to convert it to int
         // Generate number by multiplying 10 and adding
         // (int)(str[i])
+            print("Before: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
             arr[j] = arr[j] * 10 + (s[i] - 48);
+            print(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
         }
       }
 
