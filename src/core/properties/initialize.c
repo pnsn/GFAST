@@ -93,6 +93,7 @@ int core_properties_initialize(const char *propfilename,
             min_intervals[j] = (int)s[i];
             printf("Add min_interval:%d\n", min_intervals[j]);
           }
+      }
     exit(0);
     }
 
