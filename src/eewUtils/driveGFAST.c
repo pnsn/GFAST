@@ -351,8 +351,8 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
     //printf("t:%f mins:%d secs:%f\n", t, mins, secs);
 
     int n = sizeof(soln_mins) / sizeof(soln_mins[0]);
-
-    for (int i=0; i<n; i++){
+    int i;
+    for (i=0; i<n; i++){
       int sol_min = soln_mins[i];
       if (mins == sol_min && secs < 1.){
         printf("Age_of_event=%f --> Output minute %d solution\n",
