@@ -81,7 +81,7 @@ int core_properties_initialize(const char *propfilename,
     if (s != NULL)
     {
       j=0;
-      //printf("parse output_interval_mins=[%s]\n", s);
+      printf("parse output_interval_mins=[%s]\n", s);
       int arr[10] = {0};
       //// Traverse the string
       for (i = 0; s[i] != '\0'; i++) {
@@ -102,10 +102,10 @@ int core_properties_initialize(const char *propfilename,
       }
 
       props->output_interval_mins = min_intervals;
-      //for (j=0; j<n_intervals; j++){
+      for (j=0; j<n_intervals; j++){
         //printf("min_intervals[%d] = %d\n", j, props->output_interval_mins[j]);
-        //printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
-      //}
+        printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
+      }
     }
 
     s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
