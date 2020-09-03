@@ -88,7 +88,7 @@ int core_properties_initialize(const char *propfilename,
       int arr[10] = {0};
       //// Traverse the string
       for (i = 0; s[i] != '\0'; i++) {
-        print("s[%d]=%d\n", i, s[i]);
+        printf("s[%d]=%d\n", i, s[i]);
         if (s[i] == ',')
             continue;
         if (s[i] == ' '){
