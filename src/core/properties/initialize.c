@@ -97,7 +97,7 @@ int core_properties_initialize(const char *propfilename,
       }
       props->n_intervals = j+1;
       for (j=0; j<props->n_intervals; j++){
-        LOG_MSG("output_interval_mins[%d]=%d\n", j, props->output_interval_mins[j]);
+        LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
       }
     }
 

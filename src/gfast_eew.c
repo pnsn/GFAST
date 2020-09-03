@@ -93,15 +93,6 @@ int main(int argc, char **argv)
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
 
-
-    int n_intervals = sizeof(props.output_interval_mins) / sizeof(props.output_interval_mins[0]);
-    LOG_MSG("%s sizeof(output_interval_min)=%ld sizeof(output_interval_mins[0])=%ld n_intervals=%d\n",
-            fcnm, sizeof(props.output_interval_mins), sizeof(props.output_interval_mins[0]),
-            n_intervals);
-
-    exit(2);
-
-
 int imsg;
 for (imsg=0;imsg<10;imsg++){
   LOG_MSG("%s: This LOG test message:[%d] BEFORE evid is known", fcnm, imsg);
