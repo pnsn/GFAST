@@ -93,10 +93,12 @@ int main(int argc, char **argv)
     // Read the program properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
 
+/*
 int imsg;
 for (imsg=0;imsg<10;imsg++){
   LOG_MSG("%s: This LOG test message:[%d] BEFORE evid is known", fcnm, imsg);
 }
+*/
 
     if (ierr != 0)
     {
@@ -231,7 +233,7 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
         tstatus1 = t0;
 
         //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
-        printf("\n== [GFAST t0:%f] ==\n", t0);
+        //printf("\n== [GFAST t0:%f] ==\n", t0);
 LOG_MSG("== [GFAST t0:%f]", t0);
 
         if (tstatus1 - tstatus0 > 3600.0)
@@ -250,7 +252,6 @@ LOG_MSG("== [GFAST t0:%f]", t0);
                                                     &ringInfo,
                                                     &nTracebufs2Read,
                                                     &ierr);
-        printf("Read messages off ring returned ierr=%d nTracebufs2Read=%d\n", ierr, nTracebufs2Read);
 LOG_MSG("== Read messages off ring returned ierr=%d nTracebufs2Read=%d", ierr, nTracebufs2Read);
 if (msgs == NULL){
 LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
@@ -323,7 +324,7 @@ LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
         if (check_message_dir) {
           amqMessage = check_dir_for_messages(message_dir, &ierr);
           if (ierr != 0){
-printf("** MTH: check_dir_for_messages return ierr=%d\n", ierr);
+//printf("** MTH: check_dir_for_messages return ierr=%d\n", ierr);
 ierr=0;
           }
         }
@@ -338,6 +339,8 @@ ierr=0;
         {
 LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
 LOG_MSG("%s", amqMessage);
+printf("== [GFAST t0:%f] Got new amqMessage:\n", t0);
+printf("%s\n", amqMessage);
             // Parse the event message 
             ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
             if (ierr != 0)
@@ -440,8 +443,8 @@ cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
 printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
 cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
 */
-printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
-       events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
+//printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
+       //events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
          // Send the messages where they need to go
          if (xmlMessages.mmessages > 0)
          {
