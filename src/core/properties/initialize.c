@@ -84,6 +84,7 @@ int core_properties_initialize(const char *propfilename,
       //int arr[str_length] = { 0 };
       //traversing the string
       //
+      j=0;
       printf("parse output_interval_mins=[%s]\n", s);
       int arr[10] = {0};
       //// Traverse the string
