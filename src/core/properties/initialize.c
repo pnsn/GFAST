@@ -128,6 +128,8 @@ int core_properties_initialize(const char *propfilename,
 */
     }
 
+/*
+
     s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
     if (s != NULL)
     {
@@ -153,6 +155,7 @@ int core_properties_initialize(const char *propfilename,
         printf("min_intervals[%d] = %d\n", j, min_intervals[j]);
       }
     }
+*/
 
     s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
     if (s != NULL)
