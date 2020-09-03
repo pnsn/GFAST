@@ -65,7 +65,7 @@ int eewUtils_driveGFAST(const double currentTime,
          debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2, age_of_event;
-    int mins;
+    int mins, i;
     float secs;
     int h5k, ierr, iev, ipf, nPop, nRemoved,
         nsites_cmt, nsites_ff, nsites_pgd,
