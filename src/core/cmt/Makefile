@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= decomposeMomentTensor.o gridSearch.o setDiagonalWeightMatrix.o \
 weightForwardModel.o depthGridSearch.o initialize.o setForwardModel.o \
@@ -19,7 +22,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

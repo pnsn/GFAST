@@ -1,4 +1,4 @@
-# Makefile for GFAST/src/xml/quakeML
+# Makefile for GFAST/src/core/data
 #   CCFLAGS
 #
 GFASTROOT=../..
@@ -7,14 +7,12 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= depth.o focalMechanism.o longitude.o momentTensor.o origin.o \
-tensor.o units.o epoch2string.o latitude.o magnitude.o nodalPlanes.o \
-principalAxes.o	time.o
+OBJS	= ll2utm.o utm2ll.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(XML_INCL) $(ISCL_INCL) $(COMPEARTH_INCL)
+INCL            = -I ../../../include $(ISCL_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
@@ -45,5 +43,5 @@ clean:
 
 veryclean: clean rm-ids cleandepend
 
-install: $(BIN) | $(INSTALL_GFAST_BIN_DIR)
-	cp $(BIN) $(INSTALL_GFAST_BIN_DIR)/
+install: $(BIN) | $(INSTALL_ELARMS_BIN_DIR)
+	cp $(BIN) $(INSTALL_ELARMS_BIN_DIR)/

@@ -2,14 +2,17 @@
 #   CCFLAGS
 #
 GFASTROOT=../
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= activeMQ.c.o  activeMQ.cpp.o  consumer.cpp.o producer.cpp.o readIni.c.o
 LIB	= gfast_amq.a
 DEBUG	= -g
 CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
 
-INCL= -I ../../include $(ACTIVEMQ_INCL) $(ISCL_INCL) $(INIPARSER_INCL) $(APR_INCL)
+INCL= -I ../../include $(APR_INCL) $(ACTIVEMQ_INCL) $(ISCL_INCL) $(INIPARSER_INCL)
 
 all: $(LIB)
 lib: $(LIB)

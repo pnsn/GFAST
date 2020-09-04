@@ -2,7 +2,10 @@
 # 
 #
 GFASTROOT=..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= driveCMT.o driveFF.o drivePGD.o makeXML.o\
 parseCoreXML.o setLogFileNames.o driveGFAST.o

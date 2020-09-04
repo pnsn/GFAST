@@ -2,7 +2,10 @@
 #   CCFLAGS
 #
 GFASTROOT=../..
-include $(GFASTROOT)/Make.include.$(shell uname)
+ifndef MAKEHOST
+MAKEHOST=$(shell uname)
+endif
+include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= pgd_depthGridSearch.o pgd_gridSearch.o pgd_readIni.o \
 pgd_setForwardModel.o pgd_weightForwardModel.o pgd_finalize.o \
@@ -20,7 +23,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

@@ -1,27 +1,27 @@
-# Makefile for GFAST/src/xml/quakeML
-#   CCFLAGS
+# Makefile for GFAST/src/uw
+# Note: these will not be built by default in SA branch
+# does not compile because missing gfast2json.h
 #
-GFASTROOT=../..
+GFASTROOT=..
 ifndef MAKEHOST
 MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= depth.o focalMechanism.o longitude.o momentTensor.o origin.o \
-tensor.o units.o epoch2string.o latitude.o magnitude.o nodalPlanes.o \
-principalAxes.o	time.o
+OBJS	= beachball.o gfast2web.o
+EXE     = gfast2web
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(XML_INCL) $(ISCL_INCL) $(COMPEARTH_INCL)
+INCL = -I ../../include $(COMPEARTH_INCL) $(HDF5_INCL) $(EW_INCL)
 
-SYSLIBS		= -lpthread -lnsl -lrt -lz
+all: $(OBJS) $(EXE)
 
-all: $(OBJS)
-
-%.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+%.o: %.c
+	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+%.cpp.o: %.cpp
+	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)
@@ -41,9 +41,9 @@ cleandepend:
 	rm -rf $(DEPENDFILES)
 
 clean:
-	-rm -f *.o $(BIN)
+	-rm -f *.o $(LIB)
 
 veryclean: clean rm-ids cleandepend
 
-install: $(BIN) | $(INSTALL_GFAST_BIN_DIR)
-	cp $(BIN) $(INSTALL_GFAST_BIN_DIR)/
+#install: $(BIN) | $(INSTALL_BIN_DIR)
+#	cp $(BIN) $(INSTALL_BIN_DIR)/
