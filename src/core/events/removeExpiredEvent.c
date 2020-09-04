@@ -45,21 +45,24 @@ bool core_events_removeExpiredEvent(const double maxtime,
     {
       if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
         {
-	  pop_indx =-1;
-	  printf("RemoveExpiredEvent: time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
-		 currentTime, SA.eventid, (currentTime-SA.time), maxtime);
-	  if ((currentTime - SA.time) > maxtime)
-	    {
-	      printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
-		     currentTime, SA.eventid, SA.time);
-	      if (verbose > 0)
-		{
-		  LOG_INFOMSG("Removing %s %f from event list at %f",
-			      SA.eventid, SA.time, currentTime);
-		}
-	      pop_indx = iev;
-	      break;
-	    }
+            pop_indx =-1;
+LOG_MSG("time:%lf SA.eventid:%s (current-SA.time)=%lf vs maxtime=%lf\n",
+    currentTime, SA.eventid, (currentTime-SA.time), maxtime);
+
+            if ((currentTime - SA.time) > maxtime)
+            {
+printf("RemoveExpiredEvent: time:%lf Remove evid:%s otime:%f from event list\n",
+       currentTime, SA.eventid, SA.time);
+LOG_MSG("time:%lf Remove evid:%s otime:%f from event list\n",
+       currentTime, SA.eventid, SA.time);
+                if (verbose > 0)
+                {
+                    LOG_INFOMSG("Removing %s %f from event list at %f",
+                                SA.eventid, SA.time, currentTime);
+                }
+                pop_indx = iev;
+                break;
+            }
         }
     }
   // I couldn't even find the event in the event list
@@ -78,38 +81,47 @@ bool core_events_removeExpiredEvent(const double maxtime,
       // Only event - good bye
       if (nev0 == 1)
         {
-	  core_events_freeEvents(events);
-	  events->nev = 0;
-	  return lpopped;
+LOG_MSG("%s", "This is the only event --> call core_events_freeEvents");
+            core_events_freeEvents(events);
+            events->nev = 0;
+            return lpopped;
         }
-      // Copy old events into workspace ignoring event at pop_indx 
-      SAtemp.nev = nev0 - 1;
-      SAtemp.SA = (struct GFAST_shakeAlert_struct *)
-	calloc((size_t) SAtemp.nev,
-	       sizeof(struct GFAST_shakeAlert_struct));
-      jev = 0;
-      for (iev=0; iev<nev0; iev++)
+        // Copy old events into workspace ignoring event at pop_indx 
+LOG_MSG("%s", "Copy remaining events into workspace");
+LOG_MSG("nev0=%d", nev0);
+        SAtemp.nev = nev0 - 1;
+LOG_MSG("SAtemp.nev=%d", SAtemp.nev);
+LOG_MSG("nev0=%d SAtemp.nev=%d pop_indx=%d", nev0, SAtemp.nev, pop_indx);
+        SAtemp.SA = (struct GFAST_shakeAlert_struct *)
+                    calloc((size_t) SAtemp.nev,
+                           sizeof(struct GFAST_shakeAlert_struct));
+        jev = 0;
+        for (iev=0; iev<nev0; iev++)
         {
 	  if (iev == pop_indx){continue;}
 	  memcpy(&SAtemp.SA[jev], &events->SA[iev],
 		 sizeof(struct GFAST_shakeAlert_struct));
 	  jev = jev + 1;
         }
-      memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
-      // Resize events
-      core_events_freeEvents(events);
-      events->nev = SAtemp.nev;
-      events->SA = (struct GFAST_shakeAlert_struct *)
-	calloc((size_t) events->nev,
-	       sizeof(struct GFAST_shakeAlert_struct));
-      // Copy old events back
-      for (iev=0; iev<events->nev; iev++)
+LOG_MSG("%s", "Copy SAtemp into SA");
+        //memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
+        // Resize events
+        core_events_freeEvents(events);
+        events->nev = SAtemp.nev;
+LOG_MSG("Resize events: new events->nev=%d", events->nev);
+        events->SA = (struct GFAST_shakeAlert_struct *)
+                     calloc((size_t) events->nev,
+                            sizeof(struct GFAST_shakeAlert_struct));
+        // Copy old events back
+LOG_MSG("%s", "Copy old events back");
+        for (iev=0; iev<events->nev; iev++)
         {
 	  memcpy(&events->SA[iev], &SAtemp.SA[iev],
 		 sizeof(struct GFAST_shakeAlert_struct));
         }
-      // Free SAtemp
-      core_events_freeEvents(&SAtemp);
+        // Free SAtemp
+LOG_MSG("%s", "Free SAtemp");
+        core_events_freeEvents(&SAtemp);
     }
   return lpopped;
 }

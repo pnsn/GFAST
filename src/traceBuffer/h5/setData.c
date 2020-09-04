@@ -58,6 +58,7 @@ int traceBuffer_h5_setData(const double currentTime,
         if (!h5traceBuffer.linit){LOG_ERRMSG("%s", "h5traceBuffer not set");}
         return -1;
     }
+LOG_MSG("h5_ntraces=%d tb2Data.ntraces=%d", h5traceBuffer.ntraces, tb2Data.ntraces);
     // Nothing to do
     if (h5traceBuffer.ntraces < 1)
     {
@@ -128,8 +129,10 @@ NEXT_TRACE:;
         groupID = H5Gopen2(h5traceBuffer.fileID,
                            h5traceBuffer.dtGroupName[idt], H5P_DEFAULT);
         gains = memory_calloc64f(ntraces);
+LOG_MSG("currentTime=%f --> Call h5_readData", currentTime);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gains, &ierr);
+LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error reading data");

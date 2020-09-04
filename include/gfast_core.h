@@ -364,26 +364,52 @@ int core_ff_weightObservations(const int mrows,
 };
 #endif
 
+#ifndef LOG_MSG 
+#define LOG_MSG(fmt, ...) \
+{ \
+   char debugMsg[GFAST_MAXMSG_LEN]; \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   sprintf(debugMsg, "[MTH] %s: ", __func__); \
+   do \
+   {  \
+     snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logMessage(debugMsg); \
+};
+#endif
+
 int core_log_closeLogs(void);
 int core_log_closeErrorLog(void);
 int core_log_closeInfoLog(void);
 int core_log_closeWarningLog(void);
 int core_log_closeDebugLog(void);
+int core_log_closeLog(void);
+
+int core_log_createErrorLog(const char *fileName);
+int core_log_closeLogs(void);
+int core_log_closeErrorLog(void);
+int core_log_closeInfoLog(void);
+int core_log_closeWarningLog(void);
+int core_log_closeDebugLog(void);
+int core_log_closeLog(void);
 
 int core_log_createErrorLog(const char *fileName);
 int core_log_createInfoLog(const char *fileName);
 int core_log_createWarningLog(const char *fileName);
 int core_log_createDebugLog(const char *fileName);
+int core_log_createLog(const char *fileName);
 
 int core_log_openErrorLog(const char *fileName);
 int core_log_openInfoLog(const char *fileName);
 int core_log_openWarningLog(const char *fileName);
 int core_log_openDebugLog(const char *fileName);
+int core_log_openLog(const char *fileName);
 
 void core_log_logErrorMessage(const char *msg);
 void core_log_logWarningMessage(const char *msg);
 void core_log_logDebugMessage(const char *msg);
 void core_log_logInfoMessage(const char *msg);
+void core_log_logMessage(const char *msg);
 //----------------------------------------------------------------------------//
 //                          Properties/initialization                         //
 //----------------------------------------------------------------------------//

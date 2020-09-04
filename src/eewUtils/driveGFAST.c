@@ -12,6 +12,7 @@
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 
+int eewUtils_writeXML(const char *dirname, const char *eventid, const char *msg_type, const char *message, int interval_min);
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -64,10 +65,14 @@ int eewUtils_driveGFAST(const double currentTime,
          debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2, age_of_event;
+    int mins, i;
+    float secs;
     int h5k, ierr, iev, ipf, nPop, nRemoved,
         nsites_cmt, nsites_ff, nsites_pgd,
         nstrdip, pgdOpt, shakeAlertMode;
     bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
+
+    const char *fcnm = "driveGFAST\0";
     //------------------------------------------------------------------------//
     //
     // Nothing to do 
@@ -109,14 +114,21 @@ int eewUtils_driveGFAST(const double currentTime,
         }
 
         age_of_event = (t2 - t1);
-printf("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
+//printf("driveGFAST: time:%lf evid:%s [age_of_event=%f]\n", t2, SA.eventid, age_of_event);
+LOG_MSG("time:%lf evid:%s [age_of_event=%f]", t2, SA.eventid, age_of_event);
         //if ((props.processingTime - age_of_event) < 1)
+
+        mins = (int)floor(age_of_event/60.);
+        secs = age_of_event - 60.*mins;
 
         if (age_of_event >= props.processingTime)
         {
-printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
+//printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
+LOG_MSG("time:%lf evid:%s has expired --> finalize", t2, SA.eventid);
             nPop = nPop + 1;
             lfinalize = true;
+LOG_MSG("%s", "Call core_log_closeLogs() before early exit from loop");
+            core_log_closeLogs();
             continue;
         }
 
@@ -127,8 +139,7 @@ printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid
         core_log_openErrorLog(errorLogFileName);
         core_log_openInfoLog(infoLogFileName);
         core_log_openWarningLog(warnLogFileName);
-        core_log_openDebugLog(warnLogFileName);
-
+        core_log_openDebugLog(debugLogFileName);
 /*
         log_initErrorLog(&__errorToLog);
         log_initInfoLog(&__infoToLog);
@@ -136,23 +147,29 @@ printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid
         log_initWarnLog(&__warnToLog);
 */
         // Get the data for this event
-printf("driveGFAST: get data\n");
+//printf("driveGFAST: get data\n");
+LOG_MSG("get data t1:%f t2:%f", t1, t2);
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
+LOG_MSG("get data t1:%f t2:%f returned ierr=%d", t1, t2, ierr);
         if (ierr != 0)
         {
-printf("driveGFAST: Error getting the data for event --> continue\n");
+//printf("driveGFAST: Error getting the data for event --> continue\n");
+LOG_MSG("Error getting the data for event:%s --> continue", SA.eventid);
             LOG_ERRMSG("Error getting the data for event %s", SA.eventid);
             continue; 
         }
         // Copy the data onto the buffer
+LOG_MSG("%s", "CopyTraceBufferToGFAST");
         ierr = GFAST_traceBuffer_h5_copyTraceBufferToGFAST(h5traceBuffer,
                                                            gps_data);
+LOG_MSG("%s returned ierr=%d", "CopyTraceBufferToGFAST", ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error copying trace buffer");
             continue;
         }
-printf("driveGFAST: Get peakDisp\n");
+LOG_MSG("%s", "Get peakDisp");
+//printf("driveGFAST: Get peakDisp\n");
         // Extract the peak displacement from the waveform buffer
         nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
                                     props.pgd_props.utm_zone,
@@ -164,12 +181,14 @@ printf("driveGFAST: Get peakDisp\n");
                                     *gps_data,
                                     pgd_data,
                                     &ierr);
+LOG_MSG("%s returned ierr=%d nsites_pgd=%d", "Get peakDisp", ierr, nsites_pgd);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing peak displacement");
             continue;
         }
-printf("driveGFAST: Get Offset for CMT\n");
+//printf("driveGFAST: Get Offset for CMT\n");
+LOG_MSG("%s", "Get Offset for CMT");
         // Extract the offset for the CMT inversion from the buffer 
         nsites_cmt = GFAST_core_waveformProcessor_offset(
                                     props.cmt_props.utm_zone,
@@ -181,12 +200,14 @@ printf("driveGFAST: Get Offset for CMT\n");
                                     *gps_data,
                                     cmt_data,
                                     &ierr);
+LOG_MSG("%s returned ierr=%d nsites_cmt=%d", "Get Offset for CMT", ierr, nsites_cmt);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing CMT offset");
             continue;
         }
-printf("driveGFAST: Get Offset for FF\n");
+//printf("driveGFAST: Get Offset for FF\n");
+LOG_MSG("%s", "Get Offset for FF");
         // Extract the offset for the FF inversion from the buffer 
         nsites_ff = GFAST_core_waveformProcessor_offset(
                                     props.ff_props.utm_zone,
@@ -198,6 +219,7 @@ printf("driveGFAST: Get Offset for FF\n");
                                     *gps_data,
                                     ff_data,
                                     &ierr);
+LOG_MSG("%s returned ierr=%d nsites_ff=%d", "Get Offset for FF", ierr, nsites_ff);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error processing FF offset");
@@ -212,11 +234,13 @@ printf("driveGFAST: Get Offset for FF\n");
                 LOG_INFOMSG("Estimating PGD scaling for %s...", SA.eventid);
             }
             lpgdSuccess = true;
-printf("driveGFAST: drivePGD\n");
+//printf("driveGFAST: drivePGD\n");
+LOG_MSG("Call drivePGD eventid=%s", SA.eventid);
             ierr = eewUtils_drivePGD(props.pgd_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *pgd_data,
                                      pgd);
+LOG_MSG("drivePGD returned ierr=%d", ierr);
             if (ierr != PGD_SUCCESS)
             {
                 LOG_ERRMSG("%s", "Error computing PGD");
@@ -232,11 +256,13 @@ printf("driveGFAST: drivePGD\n");
                 LOG_INFOMSG("Estimating CMT for %s...", SA.eventid);
             }
             lcmtSuccess = true;
-printf("driveGFAST: driveCMT\n");
+//printf("driveGFAST: driveCMT\n");
+LOG_MSG("%s", "driveCMT");
             ierr = eewUtils_driveCMT(props.cmt_props,
                                      SA.lat, SA.lon, SA.dep,
                                      *cmt_data,
                                      cmt);
+LOG_MSG("%s returned ierr=%d", "driveCMT", ierr);
             if (ierr != CMT_SUCCESS || cmt->opt_indx < 0)
             {
                 LOG_ERRMSG("%s", "Error computing CMT");
@@ -260,7 +286,7 @@ printf("driveGFAST: driveCMT\n");
             ff->dip[0] = cmt->dip1[cmt->opt_indx];
             ff->dip[1] = cmt->dip2[cmt->opt_indx];
             lffSuccess = true;
-printf("driveGFAST: driveFF\n");
+//printf("driveGFAST: driveFF\n");
             ierr = eewUtils_driveFF(props.ff_props,
                                     SA.lat, SA.lon, //SA.dep,
                                     *ff_data,
@@ -287,7 +313,7 @@ printf("driveGFAST: driveFF\n");
         */
         if (true) //if (t2 - t1 >= props.processingTime)
         {
-printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
+LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
        lpgdSuccess, lcmtSuccess, lffSuccess);
             lfinalize = true;
             // Make the PGD xml
@@ -321,6 +347,18 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                     }
                 }
                 xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
+
+                //LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
+
+                for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
+                          age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
+                                               pgdXML, props.output_interval_mins[i]);
+                    }
+                }
+
             }
             // Make the CMT quakeML
             if (lcmtSuccess)
@@ -348,6 +386,14 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                     }
                 }
                 xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
+                for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution",
+                          age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
+                                               cmtQML, props.output_interval_mins[i]);
+                    }
+                }
             }
             // Make the finite fault XML
             if (lffSuccess)
@@ -391,6 +437,14 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
                     }
                 }
                 xmlMessages->ffXML[xmlMessages->nmessages] = ffXML;
+                for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d FF solution", 
+                          age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+                                               ffXML, props.output_interval_mins[i]);
+                    }
+                }
             }
             xmlMessages->evids[xmlMessages->nmessages]
                 = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
@@ -405,7 +459,8 @@ printf("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n
             h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
                                                 SA.eventid,
                                                 currentTime);
-printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
+//printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.eventid, h5k);
+LOG_MSG("time:%lf evid:%s iteration=%d Update h5 archive", t2, SA.eventid, h5k);
             if (props.verbose > 2)
             {
                 LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
@@ -507,18 +562,55 @@ printf("driveGFAST: time:%lf evid:%s iteration=%d Update h5 archive\n", t2, SA.e
     // Need to down-date the events should any have expired
     if (nPop > 0)
     {
-printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents\n", t2, SA.eventid);
+LOG_MSG("time:%lf RemoveExpiredEvents", currentTime);
         nRemoved = core_events_removeExpiredEvents(props.processingTime,
                                                    currentTime,
                                                    props.verbose,
                                                    events);
-printf("driveGFAST: time:%lf evid:%s RemoveExpiredEvents nRemoved=%d\n", t2, SA.eventid, nRemoved);
+LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
         if (nRemoved != nPop)
         {
             LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
+// MTH: Temp TEST !!!
+if (events->nev == 1){ 
+LOG_MSG("%s", "** events.nev=1: Test finished event set ierr=1");
+ierr = 1;
+}
     }
-printf("driveGFAST: time:%lf evid:%s return ierr=%d\n", t2, SA.eventid, ierr);
+LOG_MSG("time:%lf return ierr=%d", currentTime, ierr);
     return ierr;
 }
 
+
+#include <unistd.h>
+int eewUtils_writeXML(const char *dirname,
+                      const char *eventid,
+                      const char *msg_type,
+                      const char *message,
+                      int interval_min
+                      )
+{
+   char fullpath[128];
+
+   //*ierr = 1;
+   FILE * fp;
+
+   sprintf(fullpath, "%s/%s.%s.%d_min", dirname, eventid, msg_type, interval_min);
+   puts(fullpath);
+   LOG_MSG("driveGFAST: evid=%s min=%d --> output XML to file=[%s]\n",
+       eventid, interval_min, fullpath);
+
+   if (access( fullpath, F_OK ) != -1 ) {
+     LOG_MSG("File:%s already exists!\n", fullpath);
+   } else {
+     LOG_MSG("File:%s doesn't exist\n", fullpath);
+   }
+
+   fp = fopen(fullpath, "w");
+   fprintf(fp, "%s\n", message);
+   fclose(fp);
+
+   return 0;
+
+}

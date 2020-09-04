@@ -158,19 +158,28 @@ But here's how to do it in stand-alone
         >./configure --enable-shared
         >make
         >make install
-        
+
+        GeographicLib requires cmake >= 3.1.0
+        >sudo yum install cmake3
+
         Download GeographicLib from: https://geographiclib.sourceforge.io/html/install.html
         >cd GeographicLib-1.50.1
-        >./configure --prefix=/usr/local/geographic [Default = /usr/local] 
+        >./configure 
         >makedir BUILD
         >cd BUILD
-        >cmake ..
-        
+        >cmake3 ..      // If you want to change where it's installed do
+                        // >cmake3 -D CMAKE_INSTALL_PREFIX=/tmp/geographic ..
+        >make
+        >make test
+        >sudo make install   // By default will install .h files into /usr/local/include/GeographicLib
+                             //   and lib into /usr/local/lib/libGeographic.so.19.0.1
+
         Clone and build ISCL
         >git clone https://gitlab.isti.com/bbaker/iscl
         Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
-        USE_INTEL=true
-        >Run zbuild_gcc.sh // This will run cmake and update CMakeCache.txt, etc.
+        USE_INTEL=true (be sure to edit your paths to the intel MKL/IPP libs)
+        // MTH: Need to copy zbuild_gcc.sh into the ISCL repo
+        >zbuild_gcc.sh    // This will run cmake and update CMakeCache.txt, etc.
         >make              // will build lib/libiscl_shared.so and lib/libiscl_static.a
 
 
@@ -181,7 +190,8 @@ But here's how to do it in stand-alone
         >cd compearth/momenttensor/c_src
         Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
         USE_INTEL=false
-        >Run zbuild_gcc.sh  // This will run cmake and update CMakeCache.txt, etc.
+        // MTH: Need to add this zbuild_gcc.sh into the compearth/momenttensor/c_src repo!
+        >zbuild_gcc.sh      // This will run cmake and update CMakeCache.txt, etc.
         >make               // will build lib/libcompearth_shared.so and lib/libcompearth_static.a
         
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
@@ -220,9 +230,9 @@ But here's how to do it in stand-alone
         # Now build the libs: 
         >cd src
         >make unix 
-        
+
         # Confirm lib/libew_mt.a and lib/libew_util.a were created (into lib path discussed above)
-    
+
 9. [ActiveMQ] This is now OPTIONAL. Set use_AMQ=false in zbuild.sh
    before running it. Then run:>make and you should need to install
    either 9a. the C++ lib nor run the java jar in 9b.
@@ -234,8 +244,8 @@ But here's how to do it in stand-alone
           installing activemq-cpp are sufficient.
           However, as soon as gfast_eew starts, it will try to connect
           to an activemq broker at the url and port specified in gfast.props.
-         
-    
+
+
     https://centos.pkgs.org/7/epel-aarch64/activemq-cpp-3.9.3-3.el7.aarch64.rpm.html
 
     The first two steps may not be necessary
@@ -305,7 +315,8 @@ many of the needed dependencies on your system automatically.
     >make
 
     # Run the unit tests:
-    >unit_tests/xcoreTests
+    >cd xcoreTests
+    >./xcoreTests
 
     main: Beginning core tests...
     readCoreInfo_test: Success!

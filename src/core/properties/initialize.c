@@ -42,6 +42,8 @@ int core_properties_initialize(const char *propfilename,
     char cwork[PATH_MAX];
     int i, ierr, itemp, lenos;
     dictionary *ini;
+    int *min_intervals;
+    int j;
     //------------------------------------------------------------------------//
     // Require the properties file exists
     ierr =-1;
@@ -74,7 +76,32 @@ int core_properties_initialize(const char *propfilename,
             memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
         }
     }
-    s = iniparser_getstring(ini, "general:SA_events_dir\0", NULL);
+
+    s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
+    if (s != NULL)
+    {
+      j=0;
+      LOG_MSG("parse output_interval_mins=[%s]", s);
+      //int arr[10] = {0};
+      int *arr = props->output_interval_mins;
+      //// Traverse the string
+      for (i = 0; s[i] != '\0'; i++) {
+        //printf("s[%d]=%d\n", i, s[i]);
+        if (s[i] == ',') {
+            j++;
+        }
+        else {
+            arr[j] = arr[j] * 10 + (s[i] - 48);
+            //printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
+        }
+      }
+      props->n_intervals = j+1;
+      for (j=0; j<props->n_intervals; j++){
+        LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
+      }
+    }
+
+    s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
     if (s != NULL)
     {
         strcpy(props->SAeventsDir, s);
@@ -98,8 +125,37 @@ int core_properties_initialize(const char *propfilename,
     }
     else
     {
-        strcpy(props->SAeventsDir, "\0");
+        //strcpy(props->SAeventsDir, "\0");
+        LOG_MSG("No SA events directory specified --> Use:%s", ".");
         /*strcpy(props->SAeventsDir, "./\0");*/
+    }
+
+    s = iniparser_getstring(ini, "general:SA_output_dir\0", ".");
+    if (s != NULL)
+    {
+        strcpy(props->SAoutputDir, s);
+        if (!ISCL_os_path_isdir(props->SAoutputDir))
+        {
+            LOG_ERRMSG("SA output directory %s doesn't exist",
+                       props->SAoutputDir);
+            goto ERROR; 
+        }
+        if (strlen(props->SAoutputDir) == 0)
+        {
+            strcpy(props->SAoutputDir, "./\0");
+        }
+        else
+        {
+            if (props->SAoutputDir[strlen(props->SAoutputDir)-1] != '/')
+            {
+                strcat(props->SAoutputDir, "/\0");
+            }
+        }
+    }
+    else
+    {
+        //strcpy(props->SAoutputDir, "\0");
+        LOG_MSG("No SA output directory specified --> Use:%s", ".");
     }
 
     props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);

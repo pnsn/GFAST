@@ -3,9 +3,11 @@
 ################################################################################
 [general]
 # File with station names
-#metaDataFile=cwu-fastlane-metadata.txt
-metaDataFile=test_data/ridgecrest/ridgecrest-stns.txt
+# metaDataFile=test_data/ridgecrest/ridgecrest-stns.txt
+metaDataFile=/home/mhagerty/test_events/maule/Maule2010_disp.chan.txt
 SA_events_dir=./events
+SA_output_dir=./out
+output_interval_mins=1,2,3,4,5,10
 #siteMaskFile=ridgecrest-mask.txt
 # File with station names and sampling periods
 #dtfile=GFAST_streams_dt.txt
@@ -17,7 +19,8 @@ eewgfile=GFAST_output.txt
 # the SOPAC SECTOR web service.
 siteposfile=site_pos.csv 
 # Buffer length (s)
-bufflen=300.
+bufflen=620.
+processing_time=602.
 # GFAST operation mode
 #  1 -> GFAST is running in `real time' and being data through Earthworm 
 #  2 -> GFAST is running historical playbacks through Earthworm
@@ -32,7 +35,7 @@ synoutput=nisqually_output.txt
 # zone.  Otherwise, if utm_zone is set to -12345 or not specified the UTM
 # zone will be estimated from the event hpyocenter provided in the ElarmS
 # message 
-utm_zone = 10 
+utm_zone = 19 
 # Mechanism for initializing sampling period
 #  1 -> Sets GPS sampling period to default (dt_default)
 #  2 -> Obtains the sampling period from the dtfile 
@@ -63,11 +66,21 @@ dist_tolerance = 6.0
 dist_default = 0.01
 #ngridSearch_deps = 10
 ndepths_in_pgd_gridSearch = 10
+# These are the defaults:
+window_vel = 3.0
+min_sites = 4
 ################################################################################
 #                            CMT/Finite Fault Properties                       #
 ################################################################################
 [CMT]
 ndepths_in_cmt_gridSearch = 10
+# These are the defaults:
+window_vel = 2.0
+min_sites = 4
+[FF]
+# These are the defaults:
+window_vel = 3.0
+min_sites = 4
 
 ################################################################################
 #                               ActiveMQ Properties                            #

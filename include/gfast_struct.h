@@ -154,6 +154,8 @@ struct GFAST_props_struct
                                       by GFAST. */
     char SAeventsDir[PATH_MAX]; /*!< Location of dir containing SA events 
                                       SA.xml to trigger on */
+    char SAoutputDir[PATH_MAX]; /*!< Location of dir where SA XML files will be written
+                                      at output_interval_mins minutes */
     char siteMaskFile[PATH_MAX]; /*!< Contains a list of sites to mask from
                                       the inversions.  If not specified then
                                       all sites will be read. */
@@ -205,6 +207,8 @@ struct GFAST_props_struct
     double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode. */
     double waitTime;            /*!< Number of seconds to wait before running
                                      another iteration of the realtime code. */
+    int n_intervals;
+    int output_interval_mins[16];   /*!< Intervals (mins) at which to output event solution XMLs */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     //int RMQport;                /*!< RabbitMQ port to access processed GPS
