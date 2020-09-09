@@ -69,7 +69,8 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     for (i=0; i<nlines; i++){sites[i] = NULL;}
     lines = (int *)calloc((size_t) nlines, sizeof(int));
     int nl = 0;
-    for (i=0; i<nlines+1; i++)
+    //for (i=0; i<nlines+1; i++)
+    for (i=0; i<nlines; i++)
     {
         //printf("MTH: i=%d line:%s\n", i, cline);
         memset(cline, 0, sizeof(cline));
