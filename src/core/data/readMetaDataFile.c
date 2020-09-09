@@ -80,6 +80,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         }
         //if (i == 0){continue;} // Skip the header
         //MTH: skip comment lines:
+        LOG_MSG("MTH: line:%s", cline);
         if (cline[0] == '#')
           {
             LOG_MSG("MTH: skip line:%s", cline);
