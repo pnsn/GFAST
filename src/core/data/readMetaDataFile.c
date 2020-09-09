@@ -63,15 +63,15 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     }
     rewind(infl);
     // Read the text file into memory
-    nlines = nlines - 1; // remove the header
+    //nlines = nlines - 1; // remove the header
     textfl = (char **)calloc((size_t) nlines, sizeof(char *));
     sites = (char **)calloc((size_t) nlines, sizeof(char *));
     for (i=0; i<nlines; i++){sites[i] = NULL;}
     lines = (int *)calloc((size_t) nlines, sizeof(int));
-    printf("MTH: nlines=%d\n", nlines);
+    int nl = 0;
     for (i=0; i<nlines+1; i++)
     {
-        printf("MTH: i=%d line:%s\n", i, cline);
+        //printf("MTH: i=%d line:%s\n", i, cline);
         memset(cline, 0, sizeof(cline));
         k = i - 1;
         if (fgets(cline, 1024, infl) == NULL)
@@ -82,7 +82,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         }
         //if (i == 0){continue;} // Skip the header
         //MTH: skip comment lines:
-        LOG_MSG("MTH: line:%s", cline);
+        //LOG_MSG("MTH: line:%s", cline);
         if (cline[0] == '#')
           {
             LOG_MSG("MTH: skip line:%s", cline);
@@ -99,9 +99,11 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         if (cline[strlen(cline)-1] == '\n'){cline[strlen(cline)-1] = '\0';}
         textfl[k] = (char *)calloc(strlen(cline)+1, sizeof(cline));
         strcpy(textfl[k], cline);
+        nl++;
     }
     fclose(infl);
     infl = NULL;
+    nlines = nl;
     // Now match up the three component data streams
     ns = 0;
     for (i=0; i<nlines; i++)
