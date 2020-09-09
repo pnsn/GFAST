@@ -15,7 +15,7 @@ getData.o initialize.o setFileName.o
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(ISCL_INCL)
+INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(ISCL_INCL) $(CBLAS_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

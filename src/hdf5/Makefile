@@ -14,7 +14,7 @@ LIB	= hdf5.a
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL = -I ../../include $(HDF5_INCL) $(ISCL_INCL)
+INCL = -I ../../include $(HDF5_INCL) $(ISCL_INCL) $(CBLAS_INCL)
 
 all: $(LIB)
 lib: $(LIB)

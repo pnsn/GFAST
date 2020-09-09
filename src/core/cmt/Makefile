@@ -15,7 +15,7 @@ DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 #INIPARSER_INCL to be deleted later
-INCL            = -I ../../../include $(COMPEARTH_INCL) $(ISCL_INCL) $(INIPARSER_INCL)
+INCL            = -I ../../../include $(COMPEARTH_INCL) $(ISCL_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
