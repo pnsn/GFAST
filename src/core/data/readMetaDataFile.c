@@ -351,13 +351,12 @@ static int splitLine(const char *cline,
         token = strtok(NULL, split);
     }
 
-    /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used
+    /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used */
     if (i != 13 && i != 14)
     {
         LOG_ERRMSG("Failed to split line %d %s", i, cline);
         ierr = 1;
     }
-    */
     free(work);
     return ierr;
 }
