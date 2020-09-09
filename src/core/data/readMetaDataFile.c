@@ -78,7 +78,14 @@ int core_data_readMetaDataFile(const char *metaDataFile,
             LOG_ERRMSG("%s", "Premature end of file");
             goto ERROR;
         }
-        if (i == 0){continue;} // Skip the header
+        //if (i == 0){continue;} // Skip the header
+        //MTH: skip comment lines:
+        if (cline[0] == '#')
+          {
+            LOG_MSG("MTH: skip line:%s", cline);
+            continue;
+          } // Skip the header
+
         if (strlen(cline) == 0)
         {
             ierr = 0; 
@@ -341,11 +348,14 @@ static int splitLine(const char *cline,
         i = i + 1;
         token = strtok(NULL, split);
     }
+
+    /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used
     if (i != 13 && i != 14)
     {
         LOG_ERRMSG("Failed to split line %d %s", i, cline);
         ierr = 1;
     }
+    */
     free(work);
     return ierr;
 }
