@@ -243,10 +243,13 @@ LOG_MSG("== [GFAST t0:%f]", t0);
             tstatus0 = tstatus1;
         } 
 
+LOG_MSG("%s", "== get the ISCL timestamp");
         double tbeger = ISCL_time_timeStamp();
         double tbeger0 = tbeger;
         // Read my messages off the ring
+LOG_MSG("%s", "== free the msgs memory");
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
+LOG_MSG("%s", "== Get the msgs off the EW ring");
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
                                                     &ringInfo,
