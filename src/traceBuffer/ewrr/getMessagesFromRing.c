@@ -61,6 +61,9 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     *nRead = 0;
     msg = NULL;
     msgs = NULL;
+
+    return NULL;
+
     if (!ringInfo->linit)
     {
         LOG_ERRMSG("%s", "Error ringInfo not initialized");

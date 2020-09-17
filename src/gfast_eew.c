@@ -245,11 +245,9 @@ LOG_MSG("== [GFAST t0:%f]", t0);
             tstatus0 = tstatus1;
         } 
 
-LOG_MSG("%s", "== get the ISCL timestamp");
         double tbeger = ISCL_time_timeStamp();
         double tbeger0 = tbeger;
         // Read my messages off the ring
-LOG_MSG("%s", "== free the msgs memory");
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
 LOG_MSG("%s", "== Get the msgs off the EW ring");
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
@@ -259,7 +257,7 @@ LOG_MSG("%s", "== Get the msgs off the EW ring");
                                                     &ierr);
 LOG_MSG("== Read messages off ring returned ierr=%d nTracebufs2Read=%d", ierr, nTracebufs2Read);
 if (msgs == NULL){
-LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
+//LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
 }
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
