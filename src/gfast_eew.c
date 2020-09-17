@@ -236,7 +236,8 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
 
         //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
         //printf("\n== [GFAST t0:%f] ==\n", t0);
-LOG_MSG("== [GFAST t0:%f]", t0);
+//LOG_MSG("== [GFAST t0:%f]", t0);
+LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -249,13 +250,14 @@ LOG_MSG("== [GFAST t0:%f]", t0);
         double tbeger0 = tbeger;
         // Read my messages off the ring
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
-LOG_MSG("%s", "== Get the msgs off the EW ring");
+//LOG_MSG("%s", "== Get the msgs off the EW ring");
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
                                                     &ringInfo,
                                                     &nTracebufs2Read,
                                                     &ierr);
-LOG_MSG("== Read messages off ring returned ierr=%d nTracebufs2Read=%d", ierr, nTracebufs2Read);
+//LOG_MSG("== Read messages off ring returned ierr=%d nTracebufs2Read=%d", ierr, nTracebufs2Read);
+LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_timeStamp(), nTracebufs2Read);
 if (msgs == NULL){
 //LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
 }
