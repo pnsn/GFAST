@@ -62,8 +62,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     msg = NULL;
     msgs = NULL;
 
-    return NULL;
-
     if (!ringInfo->linit)
     {
         LOG_ERRMSG("%s", "Error ringInfo not initialized");
@@ -120,9 +118,11 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         {
             // Get the header
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+/*
             LOG_MSG("traceHeader: SCNL:%s.%s.%s.%s [%f - %f] nRead:%d seqNumb:%u",
                      traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan,
                      traceHeader.starttime, traceHeader.endtime, *nRead, sequenceNumber);
+*/
 
             *ierr = WaveMsg2MakeLocal(&traceHeader);
             if (*ierr < 0)
@@ -173,8 +173,9 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         if (retval == GET_NONE){break;}
     }
     memory_free8c(&msg);
+    printf("getMessagesFromRing: nRead=%d", *nRead);
     LOG_MSG("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
-    printf("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
+    //printf("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
 
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
     return msgs;
