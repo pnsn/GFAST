@@ -117,7 +117,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         {
             // Get the header
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-            LOG_MSG("traceHeader: SCNL:%s.%s %s.%s", traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan);
+            //LOG_MSG("traceHeader: SCNL:%s.%s %s.%s", traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan);
 
             *ierr = WaveMsg2MakeLocal(&traceHeader);
             if (*ierr < 0)
