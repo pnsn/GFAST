@@ -118,7 +118,8 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         {
             // Get the header
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-if tracHeader.sta == "ARUB" && traceHeader.chan == 'LYZ' {
+if (tracHeader.sta == "ARUB" && traceHeader.chan == 'LYZ') 
+{
             LOG_MSG("traceHeader: SCNL:%s.%s.%s.%s [%f - %f] nRead:%d seqNumb:%u",
                      traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan,
                      traceHeader.starttime, traceHeader.endtime, *nRead, sequenceNumber);
