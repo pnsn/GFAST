@@ -169,6 +169,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     }
     memory_free8c(&msg);
     LOG_MSG("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
+    printf("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
 
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
     return msgs;
