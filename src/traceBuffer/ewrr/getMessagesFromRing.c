@@ -144,7 +144,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             //LOG_MSG("getMessagesFromRing: nRead=%d", *nRead);
             if (*nRead == messageBlock*nblock)
             {
-                LOG_MSG("getMessagesFromRing: nRead=%d nblock=%d messageBlock=%d --> Reallocate msgs block",
+                LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Reallocate msgs block",
                          *nRead, nblock, messageBlock);
                 if (showWarnings)
                 {
