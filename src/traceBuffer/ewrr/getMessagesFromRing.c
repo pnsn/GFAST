@@ -88,7 +88,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
     nblock = 1;
     // Unpack the ring
-    printf("getMessagesFromRing: Before loop nRead=%d", *nRead);
     while (true)
     {
         // May have a kill signal from the transport layer 
@@ -119,7 +118,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             // Get the header
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
             LOG_MSG("traceHeader: SCNL:%s.%s.%s.%s nRead:%d seqNumb:%u",
-                     traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan, nRead, sequenceNumber);
+                     traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan, *nRead, sequenceNumber);
 
             *ierr = WaveMsg2MakeLocal(&traceHeader);
             if (*ierr < 0)
