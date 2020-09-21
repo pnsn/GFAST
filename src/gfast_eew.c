@@ -234,6 +234,11 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
         t0 = t1;
         tstatus1 = t0;
 
+        if ((t0 - tbeg) >= 300.) {
+LOG_MSG("== [GFAST t0:%f >= 300 sec since we started --> EXIT CODE", t0);
+          goto ERROR;
+        }
+
         //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
         //printf("\n== [GFAST t0:%f] ==\n", t0);
 //LOG_MSG("== [GFAST t0:%f]", t0);
