@@ -246,6 +246,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
             lswap = 0;
             if (nsamp0 != traceHeader.nsamp){lswap = 1;}
+if (nsamp0 != traceHeader.nsamp)
+{
+printf("** MTH: nsamp0=%d != traceHeader.nsamp=%d\n", nsamp0, traceHeader.nsamp);
+LOG_MSG("** MTH: nsamp0=%d != traceHeader.nsamp=%d", nsamp0, traceHeader.nsamp);
+}
             npts = traceHeader.nsamp;
             ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
             if (ierr != 0)
