@@ -8,6 +8,8 @@
 #include "iscl/memory/memory.h"
 #include "iscl/sorting/sorting.h"
 
+#include "iscl/time/time.h"
+
 static void fastUnpackI4(const int npts, const int lswap,
                          const char *__restrict__ msg,
                          int *__restrict__ resp);
@@ -81,6 +83,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     resp  = memory_calloc32i(maxpts);
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
     // Loop on waveforms and get workspace count
+LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs]", ISCL_time_timeStamp());
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
@@ -141,6 +144,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // will be faster
 //printf("%d\n", nRead);
     imap[nRead] =-1;
+LOG_MSG("== [unpackTraceBuf t0:%f call sorting_argsort32i_work]", ISCL_time_timeStamp());
     ierr = sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
     if (ierr != 0)
     {
@@ -154,6 +158,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
+LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs]", ISCL_time_timeStamp());
     for (i=0; i<nRead; i++)
     {
 //printf("%d\n", imap[i]);
@@ -213,6 +218,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 //printf("nReadPtr: %d\n", nReadPtr);
     // Unpack the traces
+LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_timeStamp());
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
@@ -246,11 +252,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
             lswap = 0;
             if (nsamp0 != traceHeader.nsamp){lswap = 1;}
-if (nsamp0 != traceHeader.nsamp)
-{
-printf("** MTH: nsamp0=%d != traceHeader.nsamp=%d\n", nsamp0, traceHeader.nsamp);
-LOG_MSG("** MTH: nsamp0=%d != traceHeader.nsamp=%d", nsamp0, traceHeader.nsamp);
-}
             npts = traceHeader.nsamp;
             ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
             if (ierr != 0)
@@ -311,6 +312,7 @@ LOG_MSG("** MTH: nsamp0=%d != traceHeader.nsamp=%d", nsamp0, traceHeader.nsamp);
             }
         }
     } // Loop on pointers
+LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_time_timeStamp());
 
     // Free space
     memory_free8c(&msg);
