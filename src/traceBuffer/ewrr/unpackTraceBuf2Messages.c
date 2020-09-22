@@ -54,6 +54,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //long *longData;
     //short *shortData;
     double *times, dt;
+    int *nsamps;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
         dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l,
         lswap, nchunks, nReadPtr, nsamp0, npts, nsort;
@@ -61,19 +62,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
-    for (i=0; i<nRead; i++)
-    {
-        indx = i*MAX_TRACEBUF_SIZ;
-        memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-        memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-        sprintf(msg_logos[i], "%s.%s.%s.%s",
-                &traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
-    }
-    for (i=0; i<nRead; i++)
-    {
-        puts(msg_logos[i])
-    }
-    exit(0);
+    char logo[15];
 
     //------------------------------------------------------------------------//
     //
@@ -97,9 +86,29 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     imapPtr = memory_calloc32i(nRead + 1); // worst case size
     times = memory_calloc64f(nRead);
     resp  = memory_calloc32i(maxpts);
+    nsamps= memory_calloc32i(nRead);
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
     // Loop on waveforms and get workspace count
-LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs]", ISCL_time_timeStamp());
+LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
+    char *nn = NULL;
+    char *ss = NULL;
+    char *cc = NULL;
+    char *ll = NULL;
+
+    for (i=0; i<nRead; i++)
+    {
+        indx = i*MAX_TRACEBUF_SIZ;
+        memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
+        memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+        sprintf(&msg_logos[i], "%s.%s.%s.%s",
+                traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
+        times[i] = traceHeader.starttime;
+        nsamps[i]= traceHeader.nsamp;
+        //kpts[k] = kpts[k] + traceHeader.nsamp;
+    }
+
+
+LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
@@ -114,6 +123,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs]", ISCL_time_timeStamp()
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
         {
+/*
             indx = i*MAX_TRACEBUF_SIZ;
             memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
@@ -130,6 +140,17 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs]", ISCL_time_timeStamp()
                 (strcasecmp(stat, traceHeader.sta)  == 0) &&
                 (strcasecmp(chan, traceHeader.chan) == 0) &&
                 (strcasecmp(loc,  traceHeader.loc)  == 0))
+*/
+            strcpy(logo, &msg_logos[i]);
+            nn = strtok(logo, ".");
+            ss = strtok(NULL, ".");
+            cc = strtok(NULL, ".");
+            ll = strtok(NULL, ".");
+
+            if ((strcasecmp(netw, nn)  == 0) &&
+                (strcasecmp(stat, ss)  == 0) &&
+                (strcasecmp(chan, cc) == 0) &&
+                (strcasecmp(loc,  ll)  == 0))
             {
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
@@ -138,14 +159,16 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs]", ISCL_time_timeStamp()
                 }
                 imap[i] = k;
                 imsg[i] = i;
-                npts = traceHeader.nsamp;
+                //npts = traceHeader.nsamp;
+                npts = nsamps[i];
                 if (npts < 0 || npts > maxpts)
                 {
                     LOG_ERRMSG("Invalid number of points %d %d", npts, maxpts);
                     return -1;
                 }
-                times[i] = traceHeader.starttime;
-                kpts[k] = kpts[k] + traceHeader.nsamp;
+                //times[i] = traceHeader.starttime;
+                //kpts[k] = kpts[k] + traceHeader.nsamp;
+                kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
 //printf("match %d %d %d %d\n", i, k, nRead, tb2Data->ntraces);
                 //longData  = (long *)  (msg + sizeof(TRACE2_HEADER));
@@ -154,13 +177,14 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs]", ISCL_time_timeStamp()
             }
         } // Loop on messages read
     } // Loop on waveforms
+LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
     // will be faster
 //printf("%d\n", nRead);
     imap[nRead] =-1;
-LOG_MSG("== [unpackTraceBuf t0:%f call sorting_argsort32i_work]", ISCL_time_timeStamp());
+//LOG_MSG("== [unpackTraceBuf t0:%f call sorting_argsort32i_work]", ISCL_time_timeStamp());
     ierr = sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
     if (ierr != 0)
     {
@@ -174,7 +198,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f call sorting_argsort32i_work]", ISCL_time_time
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
-LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs]", ISCL_time_timeStamp());
+LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
     for (i=0; i<nRead; i++)
     {
 //printf("%d\n", imap[i]);
@@ -220,6 +244,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs]", ISCL_time_timeSt
             nReadPtr = nReadPtr + 1;
         }
     }
+LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
     {
