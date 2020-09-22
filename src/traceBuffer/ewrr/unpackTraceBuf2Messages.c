@@ -100,7 +100,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
         indx = i*MAX_TRACEBUF_SIZ;
         memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
         memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-        sprintf(&msg_logos[i], "%s.%s.%s.%s",
+        sprintf(&msg_logos[i], "%s.%s.%s.%s\0",
                 traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
