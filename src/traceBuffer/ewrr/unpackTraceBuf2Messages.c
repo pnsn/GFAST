@@ -107,6 +107,20 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
         //kpts[k] = kpts[k] + traceHeader.nsamp;
     }
 
+LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
+    for (k=0; k<tb2Data->ntraces; k++)
+    {
+        for (i=0; i<nRead; i++)
+        {
+            strcpy(logo, &msg_logos[i]);
+            nn = strtok(logo, ".");
+            ss = strtok(NULL, ".");
+            cc = strtok(NULL, ".");
+            ll = strtok(NULL, ".");
+        } // Loop on messages read
+    } // Loop on waveforms
+
+LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs DONE", ISCL_time_timeStamp());
 
 LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
