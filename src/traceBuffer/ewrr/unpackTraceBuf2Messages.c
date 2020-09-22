@@ -112,6 +112,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
+/*
         memset(netw, 0, sizeof(netw));
         memset(stat, 0, sizeof(stat));
         memset(chan, 0, sizeof(chan));
@@ -120,6 +121,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
         strcpy(stat, tb2Data->traces[k].stnm);
         strcpy(chan, tb2Data->traces[k].chan); 
         strcpy(loc,  tb2Data->traces[k].loc);
+*/
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
         {
@@ -140,6 +142,11 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcasecmp(stat, traceHeader.sta)  == 0) &&
                 (strcasecmp(chan, traceHeader.chan) == 0) &&
                 (strcasecmp(loc,  traceHeader.loc)  == 0))
+
+            if ((strcasecmp(netw, nn)  == 0) &&
+                (strcasecmp(stat, ss)  == 0) &&
+                (strcasecmp(chan, cc) == 0) &&
+                (strcasecmp(loc,  ll)  == 0))
 */
             strcpy(logo, &msg_logos[i]);
             nn = strtok(logo, ".");
@@ -147,10 +154,10 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
             cc = strtok(NULL, ".");
             ll = strtok(NULL, ".");
 
-            if ((strcasecmp(netw, nn)  == 0) &&
-                (strcasecmp(stat, ss)  == 0) &&
-                (strcasecmp(chan, cc) == 0) &&
-                (strcasecmp(loc,  ll)  == 0))
+            if ((strcasecmp(tb2Data->traces[k].netw, nn)  == 0) &&
+                (strcasecmp(tb2Data->traces[k].stnm, ss)  == 0) &&
+                (strcasecmp(tb2Data->traces[k].chan, cc) == 0) &&
+                (strcasecmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
