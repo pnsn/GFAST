@@ -106,6 +106,12 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
         nsamps[i]= traceHeader.nsamp;
         //kpts[k] = kpts[k] + traceHeader.nsamp;
     }
+    for (i=0; i<nRead; i++)
+    {
+        printf("Logo:%s\n", msg_logos[i]);
+    }
+    printf("That's all folks!\n");
+    exit(0);
 
 LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
@@ -181,8 +187,8 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
-              printf("logo=%s matches %s.%s.%s.%s\n",
-                  logo, nn, ss, cc, ll);
+                //printf("logo=%s matches %s.%s.%s.%s\n",
+                        //logo, nn, ss, cc, ll);
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
