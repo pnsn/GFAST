@@ -104,19 +104,21 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
 
         msg_logos[i] = (char *)malloc(15);
         //char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
-        sprintf(&msg_logos[i], "%s.%s.%s.%s",
+        sprintf(msg_logos[i], "%s.%s.%s.%s",
                 traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
         //kpts[k] = kpts[k] + traceHeader.nsamp;
         //puts(&msg_logos[i]);
     }
+/*
     for (i=0; i<nRead; i++)
     {
         printf("Logo:%s\n", msg_logos[i]);
     }
     printf("That's all folks!\n");
     exit(0);
+*/
 
 LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
@@ -180,8 +182,9 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcasecmp(tb2Data->traces[k].stnm, ss)  == 0) &&
                 (strcasecmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcasecmp(tb2Data->traces[k].loc,  ll)  == 0))
-*/
             strcpy(logo, &msg_logos[i]);
+*/
+            strcpy(logo, msg_logos[i]);
             nn = strtok(logo, ".");
             ss = strtok(NULL, ".");
             cc = strtok(NULL, ".");
@@ -192,8 +195,8 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
-                //printf("logo=%s matches %s.%s.%s.%s\n",
-                        //logo, nn, ss, cc, ll);
+                printf("logo=%s matches %s.%s.%s.%s\n",
+                        logo, nn, ss, cc, ll);
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
