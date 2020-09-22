@@ -195,8 +195,9 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
-                printf("logo=%s matches %s.%s.%s.%s\n",
-                        logo, nn, ss, cc, ll);
+                printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
+                        tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+                        tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
