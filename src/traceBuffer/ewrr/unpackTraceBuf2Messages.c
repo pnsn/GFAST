@@ -61,8 +61,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = false;
 
-    char **msg_logos = (char **)malloc(nRead * sizeof(char*));
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
+    char **msg_logos = malloc(nRead * sizeof(char*));
     char logo[15];
 
     //------------------------------------------------------------------------//
@@ -102,8 +102,9 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
         memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
         memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
 
-        char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
-        sprintf(&msg_logos[i], "%s.%s.%s.%s\0",
+        msg_logos[i] = (char *)malloc(15);
+        //char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
+        sprintf(&msg_logos[i], "%s.%s.%s.%s",
                 traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
@@ -112,7 +113,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
     }
     for (i=0; i<nRead; i++)
     {
-        printf("Logo:%s\n", &msg_logos[i]);
+        printf("Logo:%s\n", msg_logos[i]);
     }
     printf("That's all folks!\n");
     exit(0);
