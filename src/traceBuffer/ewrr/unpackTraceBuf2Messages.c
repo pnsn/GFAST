@@ -272,7 +272,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_t
             }
             nReadPtr = nReadPtr + 1;
         }
-    free(&msg_logos[i]);
+    //free(&msg_logos[i]);
     }
 LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
     // Now set the workspace
