@@ -59,6 +59,22 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         lswap, nchunks, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = false;
+
+    char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
+    for (i=0; i<nRead; i++)
+    {
+        indx = i*MAX_TRACEBUF_SIZ;
+        memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
+        memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+        sprintf(msg_logos[i], "%s.%s.%s.%s",
+                &traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
+    }
+    for (i=0; i<nRead; i++)
+    {
+        puts(msg_logos[i])
+    }
+    exit(0);
+
     //------------------------------------------------------------------------//
     //
     // Check the tb2data was initialized
