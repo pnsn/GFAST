@@ -105,7 +105,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
         //kpts[k] = kpts[k] + traceHeader.nsamp;
-        puts(msg_logos[i]);
+        puts(&msg_logos[i]);
     }
     for (i=0; i<nRead; i++)
     {
