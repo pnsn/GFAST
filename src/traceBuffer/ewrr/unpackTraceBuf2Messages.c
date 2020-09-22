@@ -147,6 +147,11 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcasecmp(stat, ss)  == 0) &&
                 (strcasecmp(chan, cc) == 0) &&
                 (strcasecmp(loc,  ll)  == 0))
+
+            if ((strcasecmp(tb2Data->traces[k].netw, nn)  == 0) &&
+                (strcasecmp(tb2Data->traces[k].stnm, ss)  == 0) &&
+                (strcasecmp(tb2Data->traces[k].chan, cc) == 0) &&
+                (strcasecmp(tb2Data->traces[k].loc,  ll)  == 0))
 */
             strcpy(logo, &msg_logos[i]);
             nn = strtok(logo, ".");
@@ -154,10 +159,10 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
             cc = strtok(NULL, ".");
             ll = strtok(NULL, ".");
 
-            if ((strcasecmp(tb2Data->traces[k].netw, nn)  == 0) &&
-                (strcasecmp(tb2Data->traces[k].stnm, ss)  == 0) &&
-                (strcasecmp(tb2Data->traces[k].chan, cc) == 0) &&
-                (strcasecmp(tb2Data->traces[k].loc,  ll)  == 0))
+            if ((strcmp(tb2Data->traces[k].netw, nn)  == 0) &&
+                (strcmp(tb2Data->traces[k].stnm, ss)  == 0) &&
+                (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
+                (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
