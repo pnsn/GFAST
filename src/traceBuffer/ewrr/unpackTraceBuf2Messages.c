@@ -298,8 +298,10 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
                  LOG_ERRMSG("%s", "Error flipping bytes");
             }
             dtype = 4;
-            if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
-                strcasecmp(traceHeader.datatype, "i2\0") == 0)
+            //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
+                //strcasecmp(traceHeader.datatype, "i2\0") == 0)
+            if (strcmp(traceHeader.datatype, "s2\0") == 0 ||
+                strcmp(traceHeader.datatype, "i2\0") == 0)
             {
                 dtype = 2;
             }
@@ -377,6 +379,8 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_
     memory_free32i(&resp);
     memory_free64f(&times);
     memory_free32i(&imapPtr);
+    memory_free32i(&nsamps);
+    free(msg_logos);
     return 0;
 }
 //============================================================================//
