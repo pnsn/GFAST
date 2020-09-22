@@ -112,11 +112,14 @@ LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", I
     {
         for (i=0; i<nRead; i++)
         {
+          int j = 1;
+          /*
             strcpy(logo, &msg_logos[i]);
             nn = strtok(logo, ".");
             ss = strtok(NULL, ".");
             cc = strtok(NULL, ".");
             ll = strtok(NULL, ".");
+          */
         } // Loop on messages read
     } // Loop on waveforms
 
