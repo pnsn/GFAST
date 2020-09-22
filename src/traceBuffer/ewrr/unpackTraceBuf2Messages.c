@@ -380,7 +380,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_
     memory_free64f(&times);
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
-    free(msg_logos);
+    free(&msg_logos);
     return 0;
 }
 //============================================================================//
