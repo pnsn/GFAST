@@ -314,6 +314,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
             }
             npts = traceHeader.nsamp;
 */
+            dtype = 4;
             lswap = 0;
             //if (nsamp0 != traceHeader.nsamp){lswap = 1;}
 
