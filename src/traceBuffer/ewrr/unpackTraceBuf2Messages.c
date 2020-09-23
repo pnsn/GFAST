@@ -154,7 +154,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                  return -1;
             }
 */
-            memcpy(logo, msg_logos[i]);
+            memcpy(logo, msg_logos[i], 15);
             nn = strtok(logo, ".");
             ss = strtok(NULL, ".");
             cc = strtok(NULL, ".");
