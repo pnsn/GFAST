@@ -51,6 +51,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 {
     char *msg, netw[64], stat[64], chan[64], loc[64];
     TRACE2_HEADER traceHeader;
+    TRACE2_HEADER  *trh;
     //long *longData;
     //short *shortData;
     double *times, dt;
@@ -101,23 +102,27 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
         indx = i*MAX_TRACEBUF_SIZ;
         memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
         memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+        trh  = (TRACE2_HEADER *) msgs[indx];
 
         msg_logos[i] = (char *)malloc(15);
         //char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
+        //sprintf(msg_logos[i], "%s.%s.%s.%s",
+                //traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
         sprintf(msg_logos[i], "%s.%s.%s.%s",
-                traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
+                trh->net, trh->sta, trh->chan, trh->loc);
+
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
         //kpts[k] = kpts[k] + traceHeader.nsamp;
         //puts(&msg_logos[i]);
     }
-/*
     for (i=0; i<nRead; i++)
     {
         printf("Logo:%s\n", msg_logos[i]);
     }
     printf("That's all folks!\n");
     exit(0);
+/*
 */
 
 LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
@@ -195,9 +200,11 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
+              /*
                 printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                         tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
+              */
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
