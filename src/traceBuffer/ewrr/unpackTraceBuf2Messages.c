@@ -64,9 +64,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
     char **msg_logos = malloc(nRead * sizeof(char*));
-    //char logo[15];
     char *logo;
-    char target_logo[15];
 
     //------------------------------------------------------------------------//
     //
@@ -91,6 +89,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     times = memory_calloc64f(nRead);
     resp  = memory_calloc32i(maxpts);
     nsamps= memory_calloc32i(nRead);
+    logo  = memory_calloc8c(15);
+
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
     // Loop on waveforms and get workspace count
 LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
@@ -155,6 +155,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
             }
 */
             memcpy(logo, msg_logos[i], 15);
+            //puts(logo);
             nn = strtok(logo, ".");
             ss = strtok(NULL, ".");
             cc = strtok(NULL, ".");
@@ -170,8 +171,6 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
         if (strcmp(msg_logos[i], target_logo) == 0)
 */
             {
-              printf("Match: msg_logos[%d]=%s and k=%d target_logo=%s\n",
-                  i, msg_logos[i], k, target_logo);
               /*
                 printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
