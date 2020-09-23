@@ -65,6 +65,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
     char **msg_logos = malloc(nRead * sizeof(char*));
     char *logo;
+    char *nn = NULL;
+    char *ss = NULL;
+    char *cc = NULL;
+    char *ll = NULL;
 
     //------------------------------------------------------------------------//
     //
@@ -92,25 +96,20 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     logo  = memory_calloc8c(15);
 
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
-    // Loop on waveforms and get workspace count
-LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
-    char *nn = NULL;
-    char *ss = NULL;
-    char *cc = NULL;
-    char *ll = NULL;
 
+
+    // MTH: load up the msg logos once
     for (i=0; i<nRead; i++)
     {
         indx = i*MAX_TRACEBUF_SIZ;
         trh  = (TRACE2_HEADER *) &msgs[indx];
 
-        msg_logos[i] = (char *)malloc(15);
         //char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
         //sprintf(msg_logos[i], "%s.%s.%s.%s",
                 //traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
+        msg_logos[i] = (char *)malloc(15);
         sprintf(msg_logos[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
-
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
     }
@@ -123,17 +122,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
     exit(0);
 */
 
-LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
-    for (k=0; k<tb2Data->ntraces; k++)
-    {
-        for (i=0; i<nRead; i++)
-        {
-          int j = 1;
-        } // Loop on messages read
-    } // Loop on waveforms
-
-LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs DONE", ISCL_time_timeStamp());
-
+    // Loop on waveforms and get workspace count
 LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
     {
@@ -165,11 +154,6 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                 (strcmp(tb2Data->traces[k].stnm, ss)  == 0) &&
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
-/*
-        sprintf(target_logo, "%s.%s.%s.%s", tb2Data->traces[k].netw, 
-                tb2Data->traces[k].stnm, tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-        if (strcmp(msg_logos[i], target_logo) == 0)
-*/
             {
               /*
                 printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
@@ -406,6 +390,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_
     memory_free64f(&times);
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
+    memory_free8c(&logo);
     free(msg_logos);
     return 0;
 }
