@@ -169,7 +169,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
 */
 
         sprintf(target_logo, "%s.%s.%s.%s", tb2Data->traces[k].netw, 
-                tb2Data->traces[k].ss, tb2Data->traces[k].cc, tb2Data->traces[k].ll);
+                tb2Data->traces[k].stnm, tb2Data->traces[k].chan, tb2Data->traces[k].loc);
         if (strcmp(msg_logos[i], target_logo))
             {
               /*
