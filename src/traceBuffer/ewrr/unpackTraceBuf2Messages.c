@@ -65,6 +65,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
     char **msg_logos = malloc(nRead * sizeof(char*));
     char logo[15];
+    char target_logo[15];
 
     //------------------------------------------------------------------------//
     //
@@ -152,16 +153,24 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                  return -1;
             }
 */
+
+/*
             strcpy(logo, msg_logos[i]);
             nn = strtok(logo, ".");
             ss = strtok(NULL, ".");
             cc = strtok(NULL, ".");
             ll = strtok(NULL, ".");
 
+
             if ((strcmp(tb2Data->traces[k].netw, nn)  == 0) &&
                 (strcmp(tb2Data->traces[k].stnm, ss)  == 0) &&
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
+*/
+
+        sprintf(target_logo, "%s.%s.%s.%s", tb2Data->traces[k].netw, 
+                tb2Data->traces[k].ss, tb2Data->traces[k].cc, tb2Data->traces[k].ll);
+        if (strcmp(msg_logos[i], target_logo))
             {
               /*
                 printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
