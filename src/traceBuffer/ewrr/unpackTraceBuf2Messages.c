@@ -100,9 +100,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
     for (i=0; i<nRead; i++)
     {
         indx = i*MAX_TRACEBUF_SIZ;
-        memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-        memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-        trh  = (TRACE2_HEADER *) msgs[indx];
+        trh  = (TRACE2_HEADER *) &msgs[indx];
 
         msg_logos[i] = (char *)malloc(15);
         //char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
@@ -113,16 +111,14 @@ LOG_MSG("== [unpackTraceBuf t0:%f Zero Loop over SCNLs ntraces=%d nRead=%d]", IS
 
         times[i] = traceHeader.starttime;
         nsamps[i]= traceHeader.nsamp;
-        //kpts[k] = kpts[k] + traceHeader.nsamp;
-        //puts(&msg_logos[i]);
     }
+/*
     for (i=0; i<nRead; i++)
     {
         printf("Logo:%s\n", msg_logos[i]);
     }
     printf("That's all folks!\n");
     exit(0);
-/*
 */
 
 LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
@@ -131,13 +127,6 @@ LOG_MSG("== [unpackTraceBuf t0:%f Xirst Loop over SCNLs ntraces=%d nRead=%d]", I
         for (i=0; i<nRead; i++)
         {
           int j = 1;
-          /*
-            strcpy(logo, &msg_logos[i]);
-            nn = strtok(logo, ".");
-            ss = strtok(NULL, ".");
-            cc = strtok(NULL, ".");
-            ll = strtok(NULL, ".");
-          */
         } // Loop on messages read
     } // Loop on waveforms
 
@@ -147,16 +136,6 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
-/*
-        memset(netw, 0, sizeof(netw));
-        memset(stat, 0, sizeof(stat));
-        memset(chan, 0, sizeof(chan));
-        memset(loc,  0, sizeof(loc));
-        strcpy(netw, tb2Data->traces[k].netw);
-        strcpy(stat, tb2Data->traces[k].stnm);
-        strcpy(chan, tb2Data->traces[k].chan); 
-        strcpy(loc,  tb2Data->traces[k].loc);
-*/
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
         {
@@ -172,22 +151,6 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                  LOG_ERRMSG("%s", "Error flipping bytes");
                  return -1;
             }
-            // This is a match - update the 
-            if ((strcasecmp(netw, traceHeader.net)  == 0) &&
-                (strcasecmp(stat, traceHeader.sta)  == 0) &&
-                (strcasecmp(chan, traceHeader.chan) == 0) &&
-                (strcasecmp(loc,  traceHeader.loc)  == 0))
-
-            if ((strcasecmp(netw, nn)  == 0) &&
-                (strcasecmp(stat, ss)  == 0) &&
-                (strcasecmp(chan, cc) == 0) &&
-                (strcasecmp(loc,  ll)  == 0))
-
-            if ((strcasecmp(tb2Data->traces[k].netw, nn)  == 0) &&
-                (strcasecmp(tb2Data->traces[k].stnm, ss)  == 0) &&
-                (strcasecmp(tb2Data->traces[k].chan, cc) == 0) &&
-                (strcasecmp(tb2Data->traces[k].loc,  ll)  == 0))
-            strcpy(logo, &msg_logos[i]);
 */
             strcpy(logo, msg_logos[i]);
             nn = strtok(logo, ".");
@@ -331,8 +294,10 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
                 continue;
             }
             indx = i*MAX_TRACEBUF_SIZ;
-            memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+            trh  = (TRACE2_HEADER *) &msgs[indx];
+/*
+            //memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
+            //memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
             nsamp0 = traceHeader.nsamp;
             ierr = WaveMsg2MakeLocal(&traceHeader);
             if (ierr < 0)
@@ -347,22 +312,29 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
             {
                 dtype = 2;
             }
-            lswap = 0;
-            if (nsamp0 != traceHeader.nsamp){lswap = 1;}
             npts = traceHeader.nsamp;
+*/
+            lswap = 0;
+            //if (nsamp0 != traceHeader.nsamp){lswap = 1;}
+
+            npts = trh->nsamp;
+
             ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
             if (ierr != 0)
             {
                 LOG_ERRMSG("%s", "Error unpacking data");
             }
             // Update the points
-            dt = 1.0/traceHeader.samprate;
+            //dt = 1.0/traceHeader.samprate;
+            dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
             // Is a new chunk beginning?
             if (im > i1)
             {
+                //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
+                        //- traceHeader.starttime ) < 1.e-6)
                 if (fabs( (tb2Data->traces[k].times[kndx] + dt)
-                        - traceHeader.starttime ) < 1.e-6)
+                        - trh->starttime ) < 1.e-6)
                 {
                     tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
                     nchunks = tb2Data->traces[k].nchunks;
@@ -376,14 +348,15 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
             for (l=0; l<npts; l++)
             {
                 tb2Data->traces[k].data[kndx+l] = resp[l];
-                tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
+                //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
+                tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
             }
             kndx = kndx + npts; 
-// printf("%16.8f %s %s %s %s %d %f\n", traceHeader.starttime,
-//                                traceHeader.net, traceHeader.sta,
-//                                traceHeader.chan, traceHeader.loc,
-//                                traceHeader.nsamp, (double) resp[0]/1000000); 
+printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
+                                trh->net, trh->sta,
+                                trh->chan, trh->loc,
+                                trh->nsamp, (double) resp[0]/1000000); 
         } // Loop on messages for this SNCL
         // Special case for one message
         if (i2 - i1 == 1 && kpts[k] > 0)
