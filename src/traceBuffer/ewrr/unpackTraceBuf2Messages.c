@@ -170,7 +170,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
 
         sprintf(target_logo, "%s.%s.%s.%s", tb2Data->traces[k].netw, 
                 tb2Data->traces[k].stnm, tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-        if (strcmp(msg_logos[i], target_logo))
+        if (strcmp(msg_logos[i], target_logo) == 0)
             {
               printf("Match: msg_logos[%d]=%s and k=%d target_logo=%s\n",
                   i, msg_logos[i], k, target_logo);
