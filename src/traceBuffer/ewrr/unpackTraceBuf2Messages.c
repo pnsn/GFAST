@@ -354,10 +354,12 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
                                                  + (double) l*dt;
             }
             kndx = kndx + npts; 
+/*
 printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
                                 trh->net, trh->sta,
                                 trh->chan, trh->loc,
                                 trh->nsamp, (double) resp[0]/1000000); 
+*/
         } // Loop on messages for this SNCL
         // Special case for one message
         if (i2 - i1 == 1 && kpts[k] > 0)
