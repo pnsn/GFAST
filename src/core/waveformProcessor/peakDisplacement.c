@@ -70,6 +70,7 @@ int core_waveformProcessor_peakDisplacement(
     double currentTime, distance, effectiveHypoDist, epoch,
            peakDisp, x1, x2, y1, y2;
     int k, nsites, zone_loc;
+    int i;
     bool lnorthp;
     //------------------------------------------------------------------------//
     //
