@@ -129,10 +129,10 @@ int core_waveformProcessor_peakDisplacement(
         currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
-LOG_MSG("peakDisp: time:%f effectiveHypoDist:%f %s.%s.%s.%s <%.3f, %.3f> distance:%f\n",
+LOG_MSG("time:%f effectiveHypoDist:%f %s.%s.%s.%s <%.3f, %.3f> distance:%f",
          currentTime, effectiveHypoDist,
-         gps_data.data[k].netw, gps_data.data[k].stnm,
-         gps_data.data[k].chan[0], gps_data.data[k].loc,
+         gps_data.data[k].stnm, gps_data.data[k].chan[0],
+         gps_data.data[k].netw, gps_data.data[k].loc,
          gps_data.data[k].sta_lat, gps_data.data[k].sta_lon, distance);
 //LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
          //x1, x2, (x1-x2), y1, y2, (y1-y2));
@@ -148,14 +148,14 @@ LOG_MSG("peakDisp: time:%f effectiveHypoDist:%f %s.%s.%s.%s <%.3f, %.3f> distanc
                                              gps_data.data[k].ebuff);
             if (isnan(peakDisp))
             {
-              LOG_MSG("peakDisp: Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f\n",
+              LOG_MSG("Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
                   gps_data.data[k].ubuff,
                   gps_data.data[k].nbuff,
                   gps_data.data[k].ebuff);
             }
             else
             {
-              LOG_MSG("peakDisp: Got peakDisp = %f\n", peakDisp);
+              LOG_MSG("Got peakDisp = %f", peakDisp);
             }
 
             // If it isn't a NaN then retain it for processing
