@@ -136,6 +136,15 @@ LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
          gps_data.data[k].sta_lat, gps_data.data[k].sta_lon, distance);
 //LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
          //x1, x2, (x1-x2), y1, y2, (y1-y2));
+         if (strcmp(gps_data.data[k].stnm, "CONZ") == 0) {
+            for (i=0; i<gps_data.data[k].npts; i++) {
+              LOG_MSG("<MTH> time:%f CONZ i=%2d ubuf=%f nbuf=%f ebuf=%f", currentTime, i,
+                      gps_data.data[k].ubuff[i],
+                      gps_data.data[k].nbuff[i],
+                      gps_data.data[k].ebuff[i]);
+            }
+         }
+
         if (distance < effectiveHypoDist)
         {
             // Compute the peak displacement max(norm(u + n + e, 2))

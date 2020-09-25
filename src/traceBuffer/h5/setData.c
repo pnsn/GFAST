@@ -159,7 +159,7 @@ LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
         dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
-printf("%d\n", ishift);
+printf("ishift=%d\n", ishift);
         for (k=0; k<ntraces; k++)
         {
             indx = k*maxpts + ishift;
