@@ -78,17 +78,24 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 ierr = ierr + 1;
             }
             for (i=0; i<gps_data->data[k].npts; i++){
-              printf("Before: %s.%s.%s.%s data=%e\n", 
+
+              LOG_MSG("copyTB2GFAST Before: %s.%s.%s.%s i=%4d (npts:%4d) t:%f (dbl) data=%f\n",
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
+                  i,
+                  gps_data->data[k].npts,
+                  gps_data->data[k].tbuff[i],
                   gps_data->data[k].ubuff[i]);
             }
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
             for (i=0; i<gps_data->data[k].npts; i++){
-              printf(" After: %s.%s.%s.%s data=%e gain=%e\n", 
+              LOG_MSG("copyTB2GFAST  After: %s.%s.%s.%s i=%4d (npts:%4d) t:%f (dbl) data=%f\n",
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
-                  gps_data->data[k].ubuff[i], gain);
+                  i,
+                  gps_data->data[k].npts,
+                  gps_data->data[k].tbuff[i],
+                  gps_data->data[k].ubuff[i]);
             }
 
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
