@@ -148,14 +148,24 @@ LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
                                              gps_data.data[k].ebuff);
             if (isnan(peakDisp))
             {
-              LOG_MSG("Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
-                  gps_data.data[k].ubuff,
-                  gps_data.data[k].nbuff,
-                  gps_data.data[k].ebuff);
+LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
+         currentTime,
+         gps_data.data[k].stnm, gps_data.data[k].chan[0],
+         gps_data.data[k].netw, gps_data.data[k].loc,
+         gps_data.data[k].ubuff,
+         gps_data.data[k].nbuff,
+         gps_data.data[k].ebuff);
             }
             else
             {
-              LOG_MSG("Got peakDisp = %f", peakDisp);
+LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp=%f ubuf=%f nbuf=%f ebuf=%f",
+         currentTime,
+         gps_data.data[k].stnm, gps_data.data[k].chan[0],
+         gps_data.data[k].netw, gps_data.data[k].loc,
+         peakDisp,
+         gps_data.data[k].ubuff,
+         gps_data.data[k].nbuff,
+         gps_data.data[k].ebuff);
             }
 
             // If it isn't a NaN then retain it for processing
