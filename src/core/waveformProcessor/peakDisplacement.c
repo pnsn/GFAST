@@ -137,6 +137,7 @@ LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
          gps_data.data[k].sta_lat, gps_data.data[k].sta_lon, distance);
 //LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
          //x1, x2, (x1-x2), y1, y2, (y1-y2));
+/*
          if (strcmp(gps_data.data[k].stnm, "CONZ") == 0) {
             for (i=0; i<gps_data.data[k].npts; i++) {
               LOG_MSG("<MTH> time:%f CONZ i=%2d ubuf=%f nbuf=%f ebuf=%f", currentTime, i,
@@ -145,6 +146,7 @@ LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
                       gps_data.data[k].ebuff[i]);
             }
          }
+*/
 
         if (distance < effectiveHypoDist)
         {
@@ -162,9 +164,9 @@ LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
          currentTime,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
-         gps_data.data[k].ubuff,
-         gps_data.data[k].nbuff,
-         gps_data.data[k].ebuff);
+         gps_data.data[k].ubuff[gps_data.data[k].npts-1],
+         gps_data.data[k].nbuff[gps_data.data[k].npts-1],
+         gps_data.data[k].ebuff[gps_data.data[k].npts-1]);
             }
             else
             {
@@ -173,9 +175,9 @@ LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp=%f ubuf=%f nbuf=%f ebuf=%f",
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
          peakDisp,
-         gps_data.data[k].ubuff,
-         gps_data.data[k].nbuff,
-         gps_data.data[k].ebuff);
+         gps_data.data[k].ubuff[gps_data.data[k].npts-1],
+         gps_data.data[k].nbuff[gps_data.data[k].npts-1],
+         gps_data.data[k].ebuff[gps_data.data[k].npts-1]);
             }
 
             // If it isn't a NaN then retain it for processing
