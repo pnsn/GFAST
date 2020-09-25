@@ -351,7 +351,7 @@ static int splitLine(const char *cline,
         token = strtok(NULL, split);
     }
 
-    printf("spliteLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
+    //printf("spliteLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
 
     /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used */
     if (i != 13 && i != 14)

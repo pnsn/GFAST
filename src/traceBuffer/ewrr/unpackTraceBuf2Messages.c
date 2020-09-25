@@ -341,6 +341,9 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
             for (l=0; l<npts; l++)
             {
                 tb2Data->traces[k].data[kndx+l] = resp[l];
+                printf("Update data %s.%s.%s.%s t:%f data:%f\n", 
+                    trh->net, trh->sta, trh->chan, trh->loc, trh->starttime + (double) l*dt, resp[l]);
+
                 //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
