@@ -36,6 +36,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
 {
     double dt, gain;
     int i, ierr, ierr1, j, k, l;
+    int ii;
     bool *ltInit;
     ierr = 0;
     if (traceBuffer->ntraces < 1){return ierr;} // Nothing to do
@@ -45,6 +46,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     }
     ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/3, 1)));
     // Copy the data back
+    LOG_MSG("copyTB2GFAST Copy the data back traceBuffer->ntraces=%d", traceBuffer->ntraces);
     for (i=0; i<traceBuffer->ntraces; i++)
     {
         j = (int) (fmod(traceBuffer->traces[i].idest, 3));
@@ -77,25 +79,25 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 LOG_ERRMSG("%s", "Division by zero");
                 ierr = ierr + 1;
             }
-            for (i=0; i<gps_data->data[k].npts; i++){
+            for (ii=0; ii<gps_data->data[k].npts; ii++){
 
-              LOG_MSG("copyTB2GFAST Before: %s.%s.%s.%s i=%4d (npts:%4d) t:%f (dbl) data=%f\n",
+              LOG_MSG("copyTB2GFAST Before: %s.%s.%s.%s i=%d (npts:%4d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
-                  i,
+                  ii,
                   gps_data->data[k].npts,
-                  gps_data->data[k].tbuff[i],
-                  gps_data->data[k].ubuff[i]);
+                  gps_data->data[k].tbuff[ii],
+                  gps_data->data[k].ubuff[ii]);
             }
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
-            for (i=0; i<gps_data->data[k].npts; i++){
-              LOG_MSG("copyTB2GFAST  After: %s.%s.%s.%s i=%4d (npts:%4d) t:%f (dbl) data=%f\n",
+            for (ii=0; ii<gps_data->data[k].npts; ii++){
+              LOG_MSG("copyTB2GFAST  After: %s.%s.%s.%s i=%d (npts:%4d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
-                  i,
+                  ii,
                   gps_data->data[k].npts,
-                  gps_data->data[k].tbuff[i],
-                  gps_data->data[k].ubuff[i]);
+                  gps_data->data[k].tbuff[ii],
+                  gps_data->data[k].ubuff[ii]);
             }
 
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
