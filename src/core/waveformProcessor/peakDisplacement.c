@@ -148,6 +148,8 @@ LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
          }
 */
 
+LOG_MSG("<MTH> ev_time:%f epoch:%f", ev_time, epoch);
+
         if (distance < effectiveHypoDist)
         {
             // Compute the peak displacement max(norm(u + n + e, 2))
