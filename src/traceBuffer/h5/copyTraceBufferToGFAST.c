@@ -46,7 +46,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     }
     ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/3, 1)));
     // Copy the data back
-    LOG_MSG("copyTB2GFAST Copy the data back traceBuffer->ntraces=%d", traceBuffer->ntraces);
+    LOG_MSG("Copy the data back traceBuffer->ntraces=%d", traceBuffer->ntraces);
     for (i=0; i<traceBuffer->ntraces; i++)
     {
         j = (int) (fmod(traceBuffer->traces[i].idest, 3));
@@ -81,7 +81,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             }
             for (ii=0; ii<gps_data->data[k].npts; ii++){
 
-              LOG_MSG("copyTB2GFAST Before: %s.%s.%s.%s i=%d (npts:%4d) t:%f (dbl) data=%f",
+              LOG_MSG("Before: %s.%s.%s.%s i=%d (npts:%4d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
                   ii,
                   gps_data->data[k].npts,
@@ -92,7 +92,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
             for (ii=0; ii<gps_data->data[k].npts; ii++){
-              LOG_MSG("copyTB2GFAST  After: %s.%s.%s.%s i=%d (npts:%4d) t:%f (dbl) data=%f",
+              LOG_MSG(" After: %s.%s.%s.%s i=%d (npts:%4d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
                   ii,
                   gps_data->data[k].npts,
