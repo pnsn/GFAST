@@ -241,6 +241,8 @@ static double __getPeakDisplacement(const int npts,
     // Prevent a problem
     if (isnan(u0) || isnan(n0) || isnan(e0))
     {
+      LOG_MSG("Returning NAN instead of calculating epoch:%f diffT=%f indx0=%d",
+          epoch, diffT, indx0)
         return (double) NAN;
     }
     // Compute the maximum peak ground displacement 
