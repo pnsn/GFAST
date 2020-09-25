@@ -78,7 +78,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 ierr = ierr + 1;
             }
             for (i=0; i<gps_data->data[k].npts; i++){
-              printf("Before: %s.%s.%s.%s data=%d\n", 
+              printf("Before: %s.%s.%s.%s data=%e\n", 
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
                   gps_data->data[k].ubuff[i]);
             }
