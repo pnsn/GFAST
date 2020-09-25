@@ -129,7 +129,7 @@ int core_waveformProcessor_peakDisplacement(
         currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
-LOG_MSG("time:%f effectiveHypoDist:%f %s.%s.%s.%s <%.3f, %.3f> distance:%f",
+LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
          currentTime, effectiveHypoDist,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
