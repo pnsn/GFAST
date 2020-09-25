@@ -85,13 +85,12 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
+            for (i=0; i<gps_data->data[k].npts; i++){
               prinft(" After: %s.%s.%s.%s data=%e gain=%e\n", 
                   gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
                   gps_data->data[k].ubuff[i], gain);
             }
 
-            for (i=0; i<gps_data->data[k].npts; i++){
-            }
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
 #ifdef _OPENMP
             #pragma omp simd
