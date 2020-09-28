@@ -19,7 +19,8 @@ static double __getPeakDisplacement(const int npts,
                                     const double epoch,
                                     const double *__restrict__ ubuff,
                                     const double *__restrict__ nbuff,
-                                    const double *__restrict__ ebuff);
+                                    const double *__restrict__ ebuff,
+                                    const int nMaxLeader);
 /*!
  * @brief Computes the peak displacement for each GPS precise point position
  *        data stream with the additional requirement that the shear wave
@@ -74,7 +75,7 @@ int core_waveformProcessor_peakDisplacement(
     bool lnorthp;
 
     double s_arr_time;
-    int i_s;
+    int nMaxLeader;
 
     //------------------------------------------------------------------------//
     //
@@ -140,15 +141,15 @@ int core_waveformProcessor_peakDisplacement(
         //      then all subsequent PGD displacement measurements are fixed to nan.
         //      Let's calc where in the buff the S wave arrives and allow u0/n0/e0 
         //        up to this point
-        s_arr_time = distance / svel_window;
-        i_s = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/gps_data.data[k].dt;
+        s_arr_time = distance / svel_window - 2.0;
+
+        nMaxLeader = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/gps_data.data[k].dt;
 
 LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f %s.%s.%s.%s dist:%.1f",
          currentTime, epoch, effectiveHypoDist,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
          distance);
-LOG_MSG("s_arr_time = %.1f/%f = %f --> i_s=%d", distance, svel_window, s_arr_time, i_s);
 
 //LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
          //x1, x2, (x1-x2), y1, y2, (y1-y2));
@@ -174,7 +175,8 @@ LOG_MSG("<MTH> ev_time:%f epoch:%f", ev_time, epoch);
                                              epoch,
                                              gps_data.data[k].ubuff,
                                              gps_data.data[k].nbuff,
-                                             gps_data.data[k].ebuff);
+                                             gps_data.data[k].ebuff,
+                                             nMaxLeader);
             if (isnan(peakDisp))
             {
 LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
@@ -237,7 +239,8 @@ static double __getPeakDisplacement(const int npts,
                                     const double epoch,
                                     const double *__restrict__ ubuff,
                                     const double *__restrict__ nbuff,
-                                    const double *__restrict__ ebuff)
+                                    const double *__restrict__ ebuff,
+                                    const int nMaxLeader)
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
     int i, indx0;
@@ -254,6 +257,21 @@ static double __getPeakDisplacement(const int npts,
     u0 = ubuff[indx0];
     n0 = nbuff[indx0];
     e0 = ebuff[indx0];
+
+    if (isnan(u0) || isnan(n0) || isnan(e0)){
+      for (i=indx0; i<nMaxLeader; i++){
+        if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i])){
+            indx0 = i;
+            u0 = ubuff[indx0];
+            n0 = nbuff[indx0];
+            e0 = ebuff[indx0];
+            LOG_MSG("Set nMax:%d indx0:%d u0:%f n0:%f e0:%f", nMaxLeader, indx0, u0, n0, e0);
+            break;
+        }
+      }
+    }
+
+
     // Prevent a problem
     //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
              //diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
