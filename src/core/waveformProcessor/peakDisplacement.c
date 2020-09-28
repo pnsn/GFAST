@@ -141,7 +141,7 @@ int core_waveformProcessor_peakDisplacement(
         //      Let's calc where in the buff the S wave arrives and allow u0/n0/e0 
         //        up to this point
         s_arr_time = distance / svel_window;
-        i_s = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/dt;
+        i_s = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/gps_data.data[k].dt;
 
 LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f %s.%s.%s.%s dist:%.1f",
          currentTime, epoch, effectiveHypoDist,
