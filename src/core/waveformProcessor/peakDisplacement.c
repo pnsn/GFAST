@@ -236,7 +236,6 @@ static double __getPeakDisplacement(const int npts,
     indx0 = MAX(0, (int) (diffT/dt + 0.5));
     indx0 = MIN(npts-1, indx0);
     // Compute the offset
-    diffT = ev_time - epoch;
     u0 = ubuff[indx0];
     n0 = nbuff[indx0];
     e0 = ebuff[indx0];
@@ -247,6 +246,8 @@ static double __getPeakDisplacement(const int npts,
           epoch, diffT, indx0)
         return (double) NAN;
     }
+    LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f u=%f n=%f e=%f", 
+             diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
     for (i=indx0; i<npts; i++)
