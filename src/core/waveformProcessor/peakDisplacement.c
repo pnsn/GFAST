@@ -228,6 +228,7 @@ static double __getPeakDisplacement(const int npts,
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
     int i, indx0;
+    int ipeak=0;
     //------------------------------------------------------------------------//
     //
     // Set the initial position
@@ -275,6 +276,7 @@ static double __getPeakDisplacement(const int npts,
             peakDisplacement_i = sqrt( pow(ubuff[i] - u0, 2)
                                      + pow(nbuff[i] - n0, 2)
                                      + pow(ebuff[i] - e0, 2));
+            ipeak = i;
         }
         peakDisplacement = fmax(peakDisplacement_i, peakDisplacement);
     } // Loop on data points
@@ -283,5 +285,10 @@ static double __getPeakDisplacement(const int npts,
          LOG_MSG("%s", "Returning NAN because peakDisp is ~ PD_MAX_NAN");
          peakDisplacement = (double) NAN;
     }
+    if (!(isnan(peakDisplacement)){
+    LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
+             peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
+    }
+
     return peakDisplacement;
 }
