@@ -145,26 +145,10 @@ int core_waveformProcessor_peakDisplacement(
 
         nMaxLeader = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/gps_data.data[k].dt;
 
-LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f %s.%s.%s.%s dist:%.1f",
-         currentTime, epoch, effectiveHypoDist,
+LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f -vs- dist:%.1f %s.%s.%s.%s",
+         currentTime, epoch, effectiveHypoDist, distance,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
-         gps_data.data[k].netw, gps_data.data[k].loc,
-         distance);
-
-//LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
-         //x1, x2, (x1-x2), y1, y2, (y1-y2));
-/*
-         if (strcmp(gps_data.data[k].stnm, "CONZ") == 0) {
-            for (i=0; i<gps_data.data[k].npts; i++) {
-              LOG_MSG("<MTH> time:%f CONZ i=%2d ubuf=%f nbuf=%f ebuf=%f", currentTime, i,
-                      gps_data.data[k].ubuff[i],
-                      gps_data.data[k].nbuff[i],
-                      gps_data.data[k].ebuff[i]);
-            }
-         }
-*/
-
-LOG_MSG("<MTH> ev_time:%f epoch:%f", ev_time, epoch);
+         gps_data.data[k].netw, gps_data.data[k].loc);
 
         if (distance < effectiveHypoDist)
         {
@@ -179,7 +163,7 @@ LOG_MSG("<MTH> ev_time:%f epoch:%f", ev_time, epoch);
                                              nMaxLeader);
             if (isnan(peakDisp))
             {
-LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
+LOG_MSG("currentTime:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
          currentTime,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
@@ -189,7 +173,7 @@ LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
             }
             else
             {
-LOG_MSG("time:%f %s.%s.%s.%s Got peakDisp=%f ubuf=%f nbuf=%f ebuf=%f",
+LOG_MSG("currentTimeime:%f %s.%s.%s.%s Got peakDisp=%f ubuf=%f nbuf=%f ebuf=%f",
          currentTime,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
@@ -265,22 +249,16 @@ static double __getPeakDisplacement(const int npts,
             u0 = ubuff[indx0];
             n0 = nbuff[indx0];
             e0 = ebuff[indx0];
-            LOG_MSG("Set nMax:%d indx0:%d u0:%f n0:%f e0:%f", nMaxLeader, indx0, u0, n0, e0);
+            LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
+                    nMaxLeader, indx0, u0, n0, e0);
             break;
         }
       }
     }
 
-
     // Prevent a problem
     //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
              //diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
-    LOG_MSG("ev_time:%f epoch:%f diffT:%f indx0=%d npts=%d", diffT, indx0, npts);
-    if (isnan(u0) || isnan(n0) || isnan(e0))
-    {
-    LOG_MSG("%s", "u0 || n0 || e0 is NaN!");
-    }
-
     if (isnan(u0) || isnan(n0) || isnan(e0))
     {
       LOG_MSG("Returning NAN instead of calculating epoch:%f diffT=%f indx0=%d",
@@ -302,6 +280,7 @@ static double __getPeakDisplacement(const int npts,
     } // Loop on data points
     if (fabs(peakDisplacement - PD_MAX_NAN)/fabs(PD_MAX_NAN) < 1.e-10)
     {
+         LOG_MSG("%s", "Returning NAN because peakDisp is ~ PD_MAX_NAN");
          peakDisplacement = (double) NAN;
     }
     return peakDisplacement;
