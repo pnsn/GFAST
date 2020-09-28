@@ -240,14 +240,20 @@ static double __getPeakDisplacement(const int npts,
     n0 = nbuff[indx0];
     e0 = ebuff[indx0];
     // Prevent a problem
+    //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
+             //diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
+    LOG_MSG("diffT=%f indx0=%d npts=%d", diffT, indx0, npts);
+    if (isnan(u0) || isnan(n0) || isnan(e0))
+    {
+    LOG_MSG("%s", "u0 || n0 || e0 is NaN!");
+    }
+
     if (isnan(u0) || isnan(n0) || isnan(e0))
     {
       LOG_MSG("Returning NAN instead of calculating epoch:%f diffT=%f indx0=%d",
           epoch, diffT, indx0)
         return (double) NAN;
     }
-    LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f u=%f n=%f e=%f", 
-             diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
     for (i=indx0; i<npts; i++)
