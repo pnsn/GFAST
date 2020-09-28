@@ -72,6 +72,10 @@ int core_waveformProcessor_peakDisplacement(
     int k, nsites, zone_loc;
     int i;
     bool lnorthp;
+
+    double s_arr_time;
+    int i_s;
+
     //------------------------------------------------------------------------//
     //
     // Error handling
@@ -130,11 +134,22 @@ int core_waveformProcessor_peakDisplacement(
         currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
+
+        // MTH: Right now gps_data[k].tbuff[0] has previously been set = ev_time
+        //      So if for some reason n/e/ubuff[0] = nan at ev_time,
+        //      then all subsequent PGD displacement measurements are fixed to nan.
+        //      Let's calc where in the buff the S wave arrives and allow u0/n0/e0 
+        //        up to this point
+        s_arr_time = distance / svel_window;
+        i_s = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/dt;
+
 LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f %s.%s.%s.%s dist:%.1f",
          currentTime, epoch, effectiveHypoDist,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
          distance);
+LOG_MSG("s_arr_time = %.1f/%f = %f --> i_s=%d", distance, svel_window, s_arr_time, i_s);
+
 //LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
          //x1, x2, (x1-x2), y1, y2, (y1-y2));
 /*
