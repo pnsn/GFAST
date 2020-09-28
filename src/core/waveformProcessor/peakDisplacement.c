@@ -285,7 +285,7 @@ static double __getPeakDisplacement(const int npts,
          LOG_MSG("%s", "Returning NAN because peakDisp is ~ PD_MAX_NAN");
          peakDisplacement = (double) NAN;
     }
-    if (!(isnan(peakDisplacement)){
+    if (!isnan(peakDisplacement)){
     LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
              peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
     }
