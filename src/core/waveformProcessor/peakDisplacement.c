@@ -130,11 +130,11 @@ int core_waveformProcessor_peakDisplacement(
         currentTime = epoch
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
-LOG_MSG("time:%f effHypoDst:%.1f %s.%s.%s.%s <%.3f, %.3f> dist:%.1f",
-         currentTime, effectiveHypoDist,
+LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f %s.%s.%s.%s dist:%.1f",
+         currentTime, epoch, effectiveHypoDist,
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
-         gps_data.data[k].sta_lat, gps_data.data[k].sta_lon, distance);
+         distance);
 //LOG_MSG("peakDisp: x1:%f x2:%f (x1-x2):%f y1:%f y2:%f (y1-y2):%f\n",
          //x1, x2, (x1-x2), y1, y2, (y1-y2));
 /*
@@ -242,7 +242,7 @@ static double __getPeakDisplacement(const int npts,
     // Prevent a problem
     //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
              //diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
-    LOG_MSG("diffT=%f indx0=%d npts=%d", diffT, indx0, npts);
+    LOG_MSG("ev_time:%f epoch:%f diffT:%f indx0=%d npts=%d", diffT, indx0, npts);
     if (isnan(u0) || isnan(n0) || isnan(e0))
     {
     LOG_MSG("%s", "u0 || n0 || e0 is NaN!");
