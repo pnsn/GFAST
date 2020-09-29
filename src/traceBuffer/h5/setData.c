@@ -157,6 +157,7 @@ LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
         }
         // Copy the old traces onto the new traces
         dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+printf("maxpts=%d * ntraces=%d = %f doubles. ierr=%d\n", maxpts, ntraces, ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("ishift=%d\n", ishift);
@@ -199,6 +200,7 @@ printf("ishift=%d\n", ishift);
                     // insert it
                     indx = k*maxpts
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
+                    printf("k=%d indx=%d set dwork[indx]\n", k, indx);
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
                 }
             } // Loop on data chunks 
