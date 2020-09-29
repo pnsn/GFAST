@@ -345,13 +345,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
+                /*
                 LOG_MSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
                     tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
                     tb2Data->traces[k].netw, tb2Data->traces[k].loc,
                     tb2Data->traces[k].times[kndx+l],
                     npts,
                     tb2Data->traces[k].data[kndx+l]);
-                /*
                 */
             }
             kndx = kndx + npts; 

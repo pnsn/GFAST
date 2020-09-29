@@ -157,8 +157,8 @@ LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
         }
         // Copy the old traces onto the new traces
         //dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+        // MTH: quick hack to prevent mem leak on line 205
         dwork = array_set64f(2*maxpts*ntraces, (double) NAN, &ierr);
-printf("maxpts=%d * ntraces=%d = %d doubles. ierr=%d\n", maxpts, ntraces, (maxpts*ntraces), ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("ishift=%d\n", ishift);
