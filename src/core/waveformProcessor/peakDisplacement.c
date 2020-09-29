@@ -145,10 +145,10 @@ int core_waveformProcessor_peakDisplacement(
 
         nMaxLeader = (int)(ev_time + s_arr_time - gps_data.data[k].tbuff[0])/gps_data.data[k].dt;
 
-LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f -vs- dist:%.1f %s.%s.%s.%s",
-         currentTime, epoch, effectiveHypoDist, distance,
-         gps_data.data[k].stnm, gps_data.data[k].chan[0],
-         gps_data.data[k].netw, gps_data.data[k].loc);
+        // LOG_MSG("currentTime:%f epoch:%f effHypoDst:%.1f -vs- dist:%.1f %s.%s.%s.%s",
+              //currentTime, epoch, effectiveHypoDist, distance,
+              //gps_data.data[k].stnm, gps_data.data[k].chan[0],
+              //gps_data.data[k].netw, gps_data.data[k].loc);
 
         if (distance < effectiveHypoDist)
         {
