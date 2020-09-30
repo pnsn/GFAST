@@ -82,7 +82,8 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             /*
             for (ii=0; ii<gps_data->data[k].npts; ii++){
               LOG_MSG("Before: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
-                  gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
+                  gps_data->data[k].stnm, gps_data->data[k].chan[j],
+                  gps_data->data[k].netw, gps_data->data[k].loc,
                   ii,
                   gps_data->data[k].npts,
                   gps_data->data[k].tbuff[ii],
@@ -92,16 +93,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
-            /*
-            for (ii=0; ii<gps_data->data[k].npts; ii++){
-              LOG_MSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
-                  gps_data->data[k].stnm, gps_data->data[k].chan, gps_data->data[k].netw, gps_data->data[k].loc,
-                  ii,
-                  gps_data->data[k].npts,
-                  gps_data->data[k].tbuff[ii],
-                  gps_data->data[k].ubuff[ii]);
-            }
-            */
 
             //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
 #ifdef _OPENMP
@@ -111,6 +102,17 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             {
                 gps_data->data[k].tbuff[l] = traceBuffer->traces[i].t1 + l*dt;
             }
+            for (ii=0; ii<gps_data->data[k].npts; ii++){
+              LOG_MSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
+                  gps_data->data[k].stnm, gps_data->data[k].chan[j],
+                  gps_data->data[k].netw, gps_data->data[k].loc,
+                  ii,
+                  gps_data->data[k].npts,
+                  gps_data->data[k].tbuff[ii],
+                  gps_data->data[k].ubuff[ii]);
+            }
+            /*
+            */
         }
         else if (j == 1)
         {
@@ -219,8 +221,10 @@ static int copyTrace(const int npts,
 #ifdef _OPENMP
     #pragma omp simd
 #endif
+printf("copyTrace: npts=%d ndest=%d =================\n", npts, ndest);
     for (i=0; i<npts; i++)
     {
+        printf("copyTrace: i=%d origin[i]=%f\n", i, origin[i]);
         dest[i] = origin[i];
     }
 #ifdef _OPENMP
