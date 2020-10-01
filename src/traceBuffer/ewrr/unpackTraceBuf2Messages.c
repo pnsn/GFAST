@@ -209,7 +209,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeSta
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
-//LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
+LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
     for (i=0; i<nRead; i++)
     {
 //printf("%d\n", imap[i]);
@@ -256,7 +256,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeSta
         }
     //free(&msg_logos[i]);
     }
-//LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
+LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
     {
@@ -271,7 +271,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeSta
     }
 //printf("nReadPtr: %d\n", nReadPtr);
     // Unpack the traces
-//LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_timeStamp());
+LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_timeStamp());
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
@@ -314,6 +314,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeSta
             //if (nsamp0 != traceHeader.nsamp){lswap = 1;}
 
             npts = trh->nsamp;
+LOG_MSG("Call fastUnpack: npts=%d lswap=%d dtype=%d indx=%d", npts, lswap, dtype, indx);
 
             ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
             if (ierr != 0)
