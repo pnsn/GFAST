@@ -347,7 +347,7 @@ LOG_MSG("im:%d > i1:%d --> New chunk", im, i1);
 LOG_MSG("Update the points: npts=%d dt=%f", npts, dt);
             for (l=0; l<npts; l++)
             {
-LOG_MSG("Update the points: l=%d resp[l]=%f", l, resp[l]);
+LOG_MSG("Update the points: l=%d resp[l]=%d", l, resp[l]);
                 tb2Data->traces[k].data[kndx+l] = resp[l];
                 //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
