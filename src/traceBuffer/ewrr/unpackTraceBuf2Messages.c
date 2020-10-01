@@ -130,7 +130,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
     for (k=0; k<tb2Data->ntraces; k++)
     {
 LOG_MSG("k=%d : %s.%s.%s.%s --> Loop over nRead=%d msgs to search for matching SCNLs",
-    tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+    k, tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
     tb2Data->traces[k].chan, tb2Data->traces[k].loc, nRead);
         // Copy on the SNCL
         // Loop on the messages and hunt for matching SNCL
