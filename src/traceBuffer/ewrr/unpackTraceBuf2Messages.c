@@ -263,6 +263,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_t
         traceBfufer_ewrr_freetb2Trace(clearSNCL, &tb2Data->traces[k]);
         if (kpts[k] > 0)
         {
+LOG_MSG("k=%d allocate kpts[k]=%d 32-bit ints to tb2Data->traces[k].data", k, kpts[k]);
             tb2Data->traces[k].data  = memory_calloc32i(kpts[k]);
             tb2Data->traces[k].times = memory_calloc64f(kpts[k]);
             tb2Data->traces[k].chunkPtr = memory_calloc32i(nmsg[k]+1);
