@@ -290,6 +290,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_
             }
             indx = i*MAX_TRACEBUF_SIZ;
             trh  = (TRACE2_HEADER *) &msgs[indx];
+LOG_MSG("i=%d indx=%d %s.%s.%s.%s", i, indx, trh->net, trh->sta, trh->chan, trh->loc);
 /*
             //memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
             //memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
@@ -325,9 +326,11 @@ LOG_MSG("Call fastUnpack: npts=%d lswap=%d dtype=%d indx=%d", npts, lswap, dtype
             //dt = 1.0/traceHeader.samprate;
             dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
+LOG_MSG("Update the points: dt=%f", dt);
             // Is a new chunk beginning?
             if (im > i1)
             {
+LOG_MSG("im:%d > i1:%d --> New chunk", im, i1);
                 //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
                         //- traceHeader.starttime ) < 1.e-6)
                 if (fabs( (tb2Data->traces[k].times[kndx] + dt)
