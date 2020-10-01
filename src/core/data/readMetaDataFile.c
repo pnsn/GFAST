@@ -224,6 +224,10 @@ NEXT_LINE:; // Try another site to match
             ierr = 1;
             goto ERROR;
         }
+        if (lon <-180.0)
+        {
+            lon += 360;
+        }
         if (lon <-180.0 || lon > 360.0)
         {
             LOG_ERRMSG("Input longitude %f is invalid", lon);
