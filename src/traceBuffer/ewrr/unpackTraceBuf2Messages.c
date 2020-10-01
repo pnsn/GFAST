@@ -95,8 +95,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     nsamps= memory_calloc32i(nRead);
     logo  = memory_calloc8c(15);
 
+    LOG_MSG("Inside: set the workspace DONE. nRead=%d", nRead);
+
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
 
+    LOG_MSG("%s", "Load up the msg logos once");
 
     // MTH: load up the msg logos once
     for (i=0; i<nRead; i++)
@@ -123,7 +126,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 */
 
     // Loop on waveforms and get workspace count
-//LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
+LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
@@ -185,7 +188,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
         } // Loop on messages read
     } // Loop on waveforms
-//LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
+LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
