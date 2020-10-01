@@ -129,6 +129,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
     {
+LOG_MSG("k=%d : %s.%s.%s.%s --> Loop over nRead=%d msgs to search for matching SCNLs",
+    tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+    tb2Data->traces[k].chan, tb2Data->traces[k].loc, nRead);
         // Copy on the SNCL
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
@@ -163,6 +166,8 @@ LOG_MSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", I
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                         tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
               */
+LOG_MSG("i=%d --> msg matches SCNL nsamps=%d", i, nsamps[i]);
+
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
