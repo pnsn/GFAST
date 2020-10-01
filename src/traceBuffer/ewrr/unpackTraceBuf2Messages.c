@@ -260,6 +260,7 @@ LOG_MSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_t
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
     {
+LOG_MSG("k=%d kpts[k]=%d", k, kpts[k]);
         traceBfufer_ewrr_freetb2Trace(clearSNCL, &tb2Data->traces[k]);
         if (kpts[k] > 0)
         {
