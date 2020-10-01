@@ -203,6 +203,8 @@ printf("ishift=%d\n", ishift);
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
+                    LOG_MSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
+                             i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
                 }
             } // Loop on data chunks 
         } // Loop on waveforms in this group
