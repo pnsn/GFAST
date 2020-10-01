@@ -326,7 +326,6 @@ LOG_MSG("Call fastUnpack: npts=%d lswap=%d dtype=%d indx=%d", npts, lswap, dtype
             //dt = 1.0/traceHeader.samprate;
             dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
-LOG_MSG("Update the points: dt=%f", dt);
             // Is a new chunk beginning?
             if (im > i1)
             {
@@ -345,8 +344,10 @@ LOG_MSG("im:%d > i1:%d --> New chunk", im, i1);
 #ifdef _OPENMP
             #pragma omp simd
 #endif
+LOG_MSG("Update the points: npts=%d dt=%f", npts, dt);
             for (l=0; l<npts; l++)
             {
+LOG_MSG("Update the points: l=%d resp[l]=%f", l, resp[l]);
                 tb2Data->traces[k].data[kndx+l] = resp[l];
                 //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
