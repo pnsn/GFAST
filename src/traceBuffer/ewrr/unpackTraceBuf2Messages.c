@@ -155,7 +155,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                         tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
               */
-LOG_DEBUGMSG("i=%d --> msg matches SCNL nsamps=%d", i, nsamps[i]);
 
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
@@ -337,19 +336,18 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_
 #endif
             for (l=0; l<npts; l++)
             {
-LOG_DEBUGMSG("Update the points: k=%d l=%d resp[l]=%d kndx=%d", k, l, resp[l], kndx);
                 tb2Data->traces[k].data[kndx+l] = resp[l];
                 //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
+                /*
                 LOG_DEBUGMSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
                     tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
                     tb2Data->traces[k].netw, tb2Data->traces[k].loc,
                     tb2Data->traces[k].times[kndx+l],
                     npts,
                     tb2Data->traces[k].data[kndx+l]);
-                /*
                 */
             }
             kndx = kndx + npts; 
