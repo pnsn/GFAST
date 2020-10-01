@@ -102,7 +102,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             {
                 gps_data->data[k].tbuff[l] = traceBuffer->traces[i].t1 + l*dt;
             }
-            /*
             for (ii=0; ii<gps_data->data[k].npts; ii++){
               LOG_MSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan[j],
@@ -112,6 +111,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                   gps_data->data[k].tbuff[ii],
                   gps_data->data[k].ubuff[ii]);
             }
+            /*
             */
         }
         else if (j == 1)
@@ -223,7 +223,7 @@ static int copyTrace(const int npts,
 #endif
     for (i=0; i<npts; i++)
     {
-        //printf("copyTrace: i=%d origin[i]=%f\n", i, origin[i]);
+        printf("copyTrace: i=%d origin[i]=%f\n", i, origin[i]);
         dest[i] = origin[i];
     }
 #ifdef _OPENMP
