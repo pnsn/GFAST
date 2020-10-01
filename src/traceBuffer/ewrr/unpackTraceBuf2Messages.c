@@ -118,7 +118,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     // Loop on waveforms and get workspace count
 
-LOG_DEBUG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
@@ -155,7 +155,7 @@ LOG_DEBUG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]",
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                         tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
               */
-LOG_DEBUG("i=%d --> msg matches SCNL nsamps=%d", i, nsamps[i]);
+LOG_DEBUGMSG("i=%d --> msg matches SCNL nsamps=%d", i, nsamps[i]);
 
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
@@ -182,7 +182,7 @@ LOG_DEBUG("i=%d --> msg matches SCNL nsamps=%d", i, nsamps[i]);
             }
         } // Loop on messages read
     } // Loop on waveforms
-LOG_DEBUG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
@@ -203,7 +203,7 @@ LOG_DEBUG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeS
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
-LOG_DEBUG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
     for (i=0; i<nRead; i++)
     {
 //printf("%d\n", imap[i]);
@@ -250,7 +250,7 @@ LOG_DEBUG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL
         }
     //free(&msg_logos[i]);
     }
-LOG_DEBUG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
     {
@@ -265,7 +265,7 @@ LOG_DEBUG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time
     }
 //printf("nReadPtr: %d\n", nReadPtr);
     // Unpack the traces
-LOG_DEBUG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_timeStamp());
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_timeStamp());
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
@@ -337,13 +337,13 @@ LOG_DEBUG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_tim
 #endif
             for (l=0; l<npts; l++)
             {
-LOG_DEBUG("Update the points: k=%d l=%d resp[l]=%d kndx=%d", k, l, resp[l], kndx);
+LOG_DEBUGMSG("Update the points: k=%d l=%d resp[l]=%d kndx=%d", k, l, resp[l], kndx);
                 tb2Data->traces[k].data[kndx+l] = resp[l];
                 //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
-                LOG_DEBUG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
+                LOG_DEBUGMSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
                     tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
                     tb2Data->traces[k].netw, tb2Data->traces[k].loc,
                     tb2Data->traces[k].times[kndx+l],

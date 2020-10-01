@@ -222,7 +222,7 @@ static int copyTrace(const int npts,
 #endif
     for (i=0; i<npts; i++)
     {
-        //LOG_DEBUG("copyTrace: i=%d origin[i]=%f", i, origin[i]);
+        //LOG_DEBUGMSG("copyTrace: i=%d origin[i]=%f", i, origin[i]);
         dest[i] = origin[i];
     }
 #ifdef _OPENMP
