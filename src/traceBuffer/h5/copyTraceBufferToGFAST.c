@@ -46,7 +46,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     }
     ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/3, 1)));
     // Copy the data back
-    LOG_MSG("Copy the data back traceBuffer->ntraces=%d", traceBuffer->ntraces);
     for (i=0; i<traceBuffer->ntraces; i++)
     {
         j = (int) (fmod(traceBuffer->traces[i].idest, 3));
@@ -223,7 +222,7 @@ static int copyTrace(const int npts,
 #endif
     for (i=0; i<npts; i++)
     {
-        LOG_MSG("copyTrace: i=%d origin[i]=%f", i, origin[i]);
+        //LOG_DEBUG("copyTrace: i=%d origin[i]=%f", i, origin[i]);
         dest[i] = origin[i];
     }
 #ifdef _OPENMP

@@ -118,12 +118,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         {
             // Get the header
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-if (strcmp(traceHeader.sta, "ARUB")==0 && strcmp(traceHeader.chan, "LYZ")==0)
-{
-            LOG_MSG("traceHeader: SCNL:%s.%s.%s.%s [%f - %f] nRead:%d seqNumb:%u",
-                     traceHeader.net, traceHeader.sta, traceHeader.loc, traceHeader.chan,
-                     traceHeader.starttime, traceHeader.endtime, *nRead, sequenceNumber);
-}
 
             *ierr = WaveMsg2MakeLocal(&traceHeader);
             if (*ierr < 0)
@@ -142,7 +136,6 @@ if (strcmp(traceHeader.sta, "ARUB")==0 && strcmp(traceHeader.chan, "LYZ")==0)
             //                  + (size_t) (traceHeader.nsamp)*nbytes);
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
-LOG_MSG("nRead=%d kdx=%d messageBlock=%d copy msg to msgs[kdx]", *nRead, kdx, messageBlock);
 
             memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
             // Reallocate space 
