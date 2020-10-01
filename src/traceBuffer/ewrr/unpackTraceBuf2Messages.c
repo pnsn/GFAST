@@ -114,6 +114,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         sprintf(msg_logos[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = traceHeader.starttime;
+LOG_MSG("i=%d msg_logos[i]=%s nsamps[i]=%d", i, msg_logos[i], traceHeader.nsamp);
         nsamps[i]= traceHeader.nsamp;
     }
 /*
