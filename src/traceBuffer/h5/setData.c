@@ -220,7 +220,7 @@ LOG_DEBUGMSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                                   tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
                                   tb2Data.traces[i].netw, tb2Data.traces[i].loc,
                                   tb2Data.traces[i].times[is], tb2Data.traces[i].data[is], indx);
-                    /*
+                    */
                 }
             } // Loop on data chunks 
         } // Loop on waveforms in this group
