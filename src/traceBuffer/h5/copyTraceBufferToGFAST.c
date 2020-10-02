@@ -78,6 +78,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 LOG_ERRMSG("%s", "Division by zero");
                 ierr = ierr + 1;
             }
+            /*
             for (ii=0; ii<gps_data->data[k].npts; ii++){
               LOG_MSG("Before: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan[j],
@@ -87,7 +88,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                   gps_data->data[k].tbuff[ii],
                   gps_data->data[k].ubuff[ii]);
             }
-            /*
             */
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
@@ -102,7 +102,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 gps_data->data[k].tbuff[l] = traceBuffer->traces[i].t1 + l*dt;
             }
             for (ii=0; ii<gps_data->data[k].npts; ii++){
-              LOG_MSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
+              LOG_DEBUGMSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan[j],
                   gps_data->data[k].netw, gps_data->data[k].loc,
                   ii,
