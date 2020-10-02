@@ -174,6 +174,7 @@ LOG_DEBUGMSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         // Update the times
         ts2 = currentTime;
         ts1 = currentTime - (double) (maxpts - 1)*dt;
+LOG_DEBUGMSG("currentTime:%f ts1:%f  (maxpts:%d)", currentTime, ts1, maxpts);
         // Insert the new data
         for (k=k1; k<k2; k++)
         {
@@ -204,10 +205,16 @@ LOG_DEBUGMSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
                              //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
 
-                    LOG_DEBUGMSG("   Insert tb2Data %s.%s.%s.%s t:%f data:%d into dwork[indx=%d] chunk:%d",
+                    LOG_DEBUGMSG("%s.%s.%s.%s t:%f (t-ts1):%f k:%d k*maxpts:%d indx:%d",
                                   tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
                                   tb2Data.traces[i].netw, tb2Data.traces[i].loc,
-                                  tb2Data.traces[i].times[is], tb2Data.traces[i].data[is], indx, chunk);
+                                  tb2Data.traces[i].times[is], (tb2Data.traces[i].times[is] - ts1),
+                                  k, (k*maxpts), indx);
+
+                    LOG_DEBUGMSG("   Insert tb2Data %s.%s.%s.%s t:%f data:%d into dwork[indx=%d]",
+                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
+                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
+                                  tb2Data.traces[i].times[is], tb2Data.traces[i].data[is], indx);
                 }
             } // Loop on data chunks 
         } // Loop on waveforms in this group
