@@ -153,9 +153,9 @@ NEXT_TRACE:;
             return -1;
         }
         // Copy the old traces onto the new traces
-        dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+        //dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
         // MTH: quick hack to prevent mem leak on line 205
-        //dwork = array_set64f(2*maxpts*ntraces, (double) NAN, &ierr);
+        dwork = array_set64f((maxpts+1)*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("ishift=%d\n", ishift);
@@ -200,14 +200,6 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     indx = k*maxpts
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
-        dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
-if (k==0){
-  LOG_MSG("MTHMTH: k=0 is=%d indx:%d", is, indx);
-}
-if (indx >= (maxpts*ntraces)){
-  LOG_MSG("MTHMTH: k=%d is=%d indx:%d > (maxpts*ntraces)=%d --> THIS IS WRONG",
-          k, is, indx, (maxpts*ntraces));
-}
 
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
                     //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
