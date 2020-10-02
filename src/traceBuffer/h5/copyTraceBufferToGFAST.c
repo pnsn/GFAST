@@ -101,15 +101,22 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             {
                 gps_data->data[k].tbuff[l] = traceBuffer->traces[i].t1 + l*dt;
             }
-            for (ii=0; ii<gps_data->data[k].npts; ii++){
-              LOG_MSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
+            //for (ii=0; ii<gps_data->data[k].npts; ii++){
+            ii=0;
+              LOG_MSG(" After: %s.%s.%s.%s (npts=%d) i=%d t:%f data=%f",
                   gps_data->data[k].stnm, gps_data->data[k].chan[j],
                   gps_data->data[k].netw, gps_data->data[k].loc,
-                  ii,
-                  gps_data->data[k].npts,
+                  gps_data->data[k].npts, ii,
                   gps_data->data[k].tbuff[ii],
                   gps_data->data[k].ubuff[ii]);
-            }
+            ii=gps_data->data[k].npts-1;
+              LOG_MSG(" After: %s.%s.%s.%s (npts=%d) i=%d t:%f data=%f",
+                  gps_data->data[k].stnm, gps_data->data[k].chan[j],
+                  gps_data->data[k].netw, gps_data->data[k].loc,
+                  gps_data->data[k].npts, ii,
+                  gps_data->data[k].tbuff[ii],
+                  gps_data->data[k].ubuff[ii]);
+            //}
             /*
             */
         }
