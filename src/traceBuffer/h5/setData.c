@@ -201,9 +201,12 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
         dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+if (k==0){
+  LOG_MSG("MTHMTH: k=0 is=%d indx:%d", is, indx);
+}
 if (indx >= (maxpts*ntraces)){
-  LOG_MSG("MTHMTH: indx:%d > (maxpts*ntraces)=%d --> THIS IS WRONG",
-          indx, (maxpts*ntraces));
+  LOG_MSG("MTHMTH: k=%d is=%d indx:%d > (maxpts*ntraces)=%d --> THIS IS WRONG",
+          k, is, indx, (maxpts*ntraces));
 }
 
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
