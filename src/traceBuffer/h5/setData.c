@@ -159,6 +159,7 @@ NEXT_TRACE:;
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("ishift=%d\n", ishift);
+LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         for (k=0; k<ntraces; k++)
         {
             indx = k*maxpts + ishift;
