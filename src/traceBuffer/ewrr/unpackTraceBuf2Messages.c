@@ -109,8 +109,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         msg_logos[i] = (char *)malloc(15);
         sprintf(msg_logos[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
-        //times[i] = traceHeader.starttime;
-        //nsamps[i]= traceHeader.nsamp;
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
         //LOG_MSG("i=%d msg_logos[i]=%s times[i]=%f nsamps[i]=%d", 

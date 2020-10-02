@@ -140,7 +140,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
             // Reallocate space 
             *nRead = *nRead + 1;
-            //LOG_MSG("getMessagesFromRing: nRead=%d", *nRead);
+
             if (*nRead == messageBlock*nblock)
             {
                 LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Reallocate msgs block",
@@ -169,9 +169,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         if (retval == GET_NONE){break;}
     }
     memory_free8c(&msg);
-    //printf("getMessagesFromRing: nRead=%d", *nRead);
-    //LOG_MSG("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
-    //printf("getMessagesFromRing: sequenceNumber=%u nRead=%d", sequenceNumber, *nRead);
 
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
     return msgs;

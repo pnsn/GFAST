@@ -159,7 +159,7 @@ NEXT_TRACE:;
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("ishift=%d\n", ishift);
-LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
+LOG_DEBUGMSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         for (k=0; k<ntraces; k++)
         {
             indx = k*maxpts + ishift;
@@ -201,8 +201,13 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
-                    //LOG_DEBUG("i:%d is:%d time:%f insert dwork[%d]=%f", 
+                    //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
                              //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
+
+                    LOG_DEBUGMSG("Insert tb2Data %s.%s.%s.%s t:%f data:%d into dwork[indx=%d] chunk:%d",
+                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
+                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
+                                  tb2Data.traces[i].times[is], tb2Data.traces[i].data[is], indx, chunk);
                 }
             } // Loop on data chunks 
         } // Loop on waveforms in this group
