@@ -154,10 +154,10 @@ printf("getData: start time is too old\n");
             ierr = array_copy64f_work(ncopy, &work[ibeg],
                                       &h5traceBuffer->traces[k].data[0]);
 
-            LOG_MSG("%s.%s.%s.%s  t1:%f gain:%e ibeg:%d iend:%d ncopy:%d data[0]:%f",
+            LOG_MSG("%s.%s.%s.%s  t1:%f ibeg:%d iend:%d ncopy:%d data[0]:%f",
                 h5traceBuffer->traces[k].stnm, h5traceBuffer->traces[k].chan,
                 h5traceBuffer->traces[k].netw, h5traceBuffer->traces[k].loc,
-                h5traceBuffer->traces[k].t1, h5traceBuffer->traces[k].gain,
+                h5traceBuffer->traces[k].t1,
                 ibeg, iend, ncopy,
                 h5traceBuffer->traces[k].data[0]);
 
