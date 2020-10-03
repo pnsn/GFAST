@@ -247,6 +247,12 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
         }
     //free(&msg_logos[i]);
     }
+
+    for (i=0; i<nRead; i++)
+      free(&msg_logos[i]);
+    }
+    free(msg_logos);
+
 LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
@@ -394,7 +400,6 @@ printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
     memory_free8c(&logo);
-    free(msg_logos);
     return 0;
 }
 //============================================================================//
