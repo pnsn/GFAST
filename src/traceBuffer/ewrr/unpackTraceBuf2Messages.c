@@ -249,7 +249,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
     }
 
     for (i=0; i<nRead; i++){
-      free(&msg_logos[i]);
+      free(msg_logos[i]);
     }
     free(msg_logos);
 
