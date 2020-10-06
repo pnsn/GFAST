@@ -63,7 +63,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
-    char **msg_logos = (const char **)malloc(sizeof(char * [nRead + 1]));
+    const char **msg_logos = (const char **)malloc(sizeof(char * [nRead + 1]));
+    char msg_logos2[256][15];
     char *logo;
     char *nn = NULL;
     char *ss = NULL;
@@ -109,12 +110,21 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         msg_logos[i] = (char *)malloc(15);
         sprintf(msg_logos[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
+        sprintf(msg_logos2[i], "%s.%s.%s.%s",
+                trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
         //LOG_MSG("i=%d msg_logos[i]=%s times[i]=%f nsamps[i]=%d", 
             //i, msg_logos[i], times[i], nsamps[i]);
     }
     msg_logos[nRead] = '\0';
+    msg_logos2[nRead] = '\0';
+    for (i=0;i<nRead;i++){
+      puts(msg{logos[i]);
+      puts(msg{logos2[i]);
+    }
+    exit(0);
+
     // Loop on waveforms and get workspace count
 
 LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
