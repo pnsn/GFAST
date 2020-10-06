@@ -118,10 +118,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             //i, msg_logos[i], times[i], nsamps[i]);
     }
     msg_logos[nRead] = '\0';
-    msg_logos2[nRead] = '\0';
+    *msg_logos2[nRead] = '\0';
     for (i=0;i<nRead;i++){
-      puts(msg{logos[i]);
-      puts(msg{logos2[i]);
+      puts(msg_logos[i]);
+      puts(msg_logos2[i]);
     }
     exit(0);
 
