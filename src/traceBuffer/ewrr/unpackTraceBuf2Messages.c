@@ -119,11 +119,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     msg_logos[nRead] = '\0';
     *msg_logos2[nRead] = '\0';
+    /*
     for (i=0;i<nRead;i++){
       puts(msg_logos[i]);
       puts(msg_logos2[i]);
     }
     exit(0);
+    */
 
     // Loop on waveforms and get workspace count
 
