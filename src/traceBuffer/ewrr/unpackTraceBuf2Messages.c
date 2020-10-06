@@ -63,8 +63,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
-    const char **msg_logos = (const char **)malloc(sizeof(char * [nRead + 1]));
-    char msg_logos2[256][15];
+    //const char **msg_logos = (const char **)malloc(sizeof(char * [nRead + 1]));
+    char msg_logos[256][15];
     char *logo;
     char *nn = NULL;
     char *ss = NULL;
@@ -107,18 +107,16 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         //char *msg_logos[i] = (char *)malloc(15 * sizeof(char));
         //sprintf(msg_logos[i], "%s.%s.%s.%s",
                 //traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
-        msg_logos[i] = (char *)malloc(15);
+        //msg_logos[i] = (char *)malloc(15);
         sprintf(msg_logos[i], "%s.%s.%s.%s",
-                trh->net, trh->sta, trh->chan, trh->loc);
-        sprintf(msg_logos2[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
         //LOG_MSG("i=%d msg_logos[i]=%s times[i]=%f nsamps[i]=%d", 
             //i, msg_logos[i], times[i], nsamps[i]);
     }
-    msg_logos[nRead] = '\0';
-    *msg_logos2[nRead] = '\0';
+    //msg_logos[nRead] = '\0';
+    *msg_logos[nRead] = '\0';
     /*
     for (i=0;i<nRead;i++){
       puts(msg_logos[i]);
@@ -261,10 +259,12 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
     //free(&msg_logos[i]);
     }
 
+    /*
     for (i=0; i<nRead; i++){
       free(msg_logos[i]);
     }
     free(msg_logos);
+    */
 
 LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
     // Now set the workspace
