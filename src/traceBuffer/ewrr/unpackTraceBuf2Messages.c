@@ -63,7 +63,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     //char *msg_logos = (char *)malloc(nRead * 15 * sizeof(char));
-    char **msg_logos = malloc(nRead * sizeof(char*));
+    char **msg_logos = (char **)malloc(nRead * sizeof(char *));
     char *logo;
     char *nn = NULL;
     char *ss = NULL;
