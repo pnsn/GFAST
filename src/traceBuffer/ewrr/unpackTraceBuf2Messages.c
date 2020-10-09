@@ -174,9 +174,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 //kpts[k] = kpts[k] + traceHeader.nsamp;
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
-//printf("match %d %d %d %d\n", i, k, nRead, tb2Data->ntraces);
-                //longData  = (long *)  (msg + sizeof(TRACE2_HEADER));
-                //shortData = (short *) (msg + sizeof(TRACE2_HEADER));
                 break;
             }
         } // Loop on messages read
@@ -186,7 +183,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_ti
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
     // will be faster
-//printf("%d\n", nRead);
+
     imap[nRead] =-1;
 //LOG_MSG("== [unpackTraceBuf t0:%f call sorting_argsort32i_work]", ISCL_time_timeStamp());
     ierr = sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
@@ -205,7 +202,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_ti
 LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
     for (i=0; i<nRead; i++)
     {
-//printf("%d\n", imap[i]);
         if (imap[i] == tb2Data->ntraces + 1){break;} // Out of things to do 
         // update next station
         if (imap[i+1] != imap[i])
@@ -217,7 +213,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
             nsort = i2 - i1;
             if (nsort > 1)
             {
-//printf("sorting %d %d\n", i1, i2);
                 // Verify sort is necessary (benefit of stable sort) 
                 if (!sorting_issorted64f(nsort, &times[i1],
                                               SORT_ASCENDING, &ierr))
@@ -304,8 +299,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_
                 //strcasecmp(traceHeader.datatype, "i2\0") == 0)
             if (strcmp(traceHeader.datatype, "s2\0") == 0 ||
                 strcmp(traceHeader.datatype, "i2\0") == 0)
-            {
-                dtype = 2;
             }
             npts = traceHeader.nsamp;
 */
