@@ -50,8 +50,8 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         gain = memory_calloc64f(ntraces);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gain, &ierr);
-LOG_MSG("Request: t1:%f - t2:%f", t1, t2);
-LOG_MSG("h5 has  ts1:%f -ts2:%f", ts1, ts2);
+//LOG_MSG("Request: t1:%f - t2:%f", t1, t2);
+//LOG_MSG("h5 has  ts1:%f -ts2:%f", ts1, ts2);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error reading data");
@@ -154,6 +154,7 @@ printf("getData: start time is too old\n");
             ierr = array_copy64f_work(ncopy, &work[ibeg],
                                       &h5traceBuffer->traces[k].data[0]);
 
+            /*
             LOG_MSG("%s.%s.%s.%s  t1:%f ibeg:%d iend:%d ncopy:%d work[ibeg]:%f work[iend]:%f",
                 h5traceBuffer->traces[k].stnm, h5traceBuffer->traces[k].chan,
                 h5traceBuffer->traces[k].netw, h5traceBuffer->traces[k].loc,
@@ -161,6 +162,7 @@ printf("getData: start time is too old\n");
                 ibeg, iend, ncopy,
                 work[ibeg],
                 work[iend]);
+            */
             /*
                 h5traceBuffer->traces[k].data[ibeg+1],
                 h5traceBuffer->traces[k].data[iend-1]);
