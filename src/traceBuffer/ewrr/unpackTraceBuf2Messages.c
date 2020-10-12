@@ -107,6 +107,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
+        LOG_MSG("Unpack msg: %s packet starttime:%f (nsamp:%d)\n",
+                msg_logos[i], trh->starttime, trh->nsamp);
     }
     /*
     for (i=0;i<nRead;i++){

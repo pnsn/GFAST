@@ -159,8 +159,8 @@ printf("getData: start time is too old\n");
                 h5traceBuffer->traces[k].netw, h5traceBuffer->traces[k].loc,
                 h5traceBuffer->traces[k].t1,
                 ibeg, iend, ncopy,
-                h5traceBuffer->traces[k].data[ibeg],
-                h5traceBuffer->traces[k].data[iend]);
+                h5traceBuffer->traces[k].data[ibeg+1],
+                h5traceBuffer->traces[k].data[iend-1]);
 
         } // Loop on streams in this group
         // Release temporary memory 
