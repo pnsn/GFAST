@@ -205,11 +205,12 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
                              //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
                              //
-                    LOG_MSG("   Insert tb2Data %s.%s.%s.%s t:%f (npts:%d) (int) data:%d into dwork",
+                    LOG_MSG("   Insert tb2Data %s.%s.%s.%s t:%f (npts:%d) (int) data:%d ts1:%f indx:%d",
                                   tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
                                   tb2Data.traces[i].netw, tb2Data.traces[i].loc,
                                   tb2Data.traces[i].times[is],
-                                  tb2Data.traces[i].npts, tb2Data.traces[i].data[is]);
+                                  tb2Data.traces[i].npts, tb2Data.traces[i].data[is],
+                                  ts1, indx);
                     /*
                     */
                     /*
