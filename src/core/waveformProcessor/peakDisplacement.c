@@ -175,14 +175,11 @@ LOG_MSG("currentTime:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
             }
             else
             {
-LOG_MSG("currentTimeime:%f %s.%s.%s.%s Got peakDisp=%f ubuf=%f nbuf=%f ebuf=%f",
-         currentTime,
+LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f",
          gps_data.data[k].stnm, gps_data.data[k].chan[0],
          gps_data.data[k].netw, gps_data.data[k].loc,
          peakDisp,
-         gps_data.data[k].ubuff[gps_data.data[k].npts-1],
-         gps_data.data[k].nbuff[gps_data.data[k].npts-1],
-         gps_data.data[k].ebuff[gps_data.data[k].npts-1]);
+         distance);
             }
 
             // If it isn't a NaN then retain it for processing
