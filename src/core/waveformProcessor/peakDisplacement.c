@@ -163,6 +163,21 @@ int core_waveformProcessor_peakDisplacement(
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff,
                                              nMaxLeader);
+
+            /*
+The Crowell et al. [2016] coefficients are
+log10(PGD) = A + B*M + C*M*log10(distance)
+A = -6.687
+B = 1.500
+C = -0.214
+            */
+            float mag;
+            float logPD;
+
+            mag = 7.8;
+            logPD = -6.687 + 1.5*mag - 0.214*mag*log10(distance);
+            peakDisp = pow(10., logPD);
+
             if (isnan(peakDisp))
             {
 LOG_MSG("currentTime:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
