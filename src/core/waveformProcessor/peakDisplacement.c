@@ -172,6 +172,7 @@ B = 1.500
 C = -0.214
 M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
             */
+/*
             float mag;
             float logPD;
 
@@ -179,7 +180,6 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
             logPD = -6.687 + 1.5*mag - 0.214*mag*log10(distance);
             peakDisp = pow(10., logPD);
             peakDisp /= 100; // Pretty sure gfast wants peakDisp in meters
-/*
 */
 
             if (isnan(peakDisp))
