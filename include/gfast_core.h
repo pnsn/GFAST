@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -369,7 +370,9 @@ int core_ff_weightObservations(const int mrows,
 { \
    char debugMsg[GFAST_MAXMSG_LEN]; \
    memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(debugMsg, "[MTH] %s: ", __func__); \
+   time_t now; \
+   time(&now); \
+   sprintf(debugMsg, "%s [MTH] %s: ", ctime(&now), __func__); \
    do \
    {  \
      snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
