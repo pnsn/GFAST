@@ -374,8 +374,8 @@ int core_ff_weightObservations(const int mrows,
    time_t now; \
    time(&now); \
    gtime = gmtime(&now); \
-   sprintf(debugMsg, "%4d-%02d-%02d %2d:%02d:%02d [MTH] %s: ",
-           gtime->tm_year+1900, gtime->tm_mon + 1, gtime->tm_mday,
+   sprintf(debugMsg, "%4d-%02d-%02d %2d:%02d:%02d [MTH] %s: ",   \
+           gtime->tm_year+1900, gtime->tm_mon + 1, gtime->tm_mday,   \
            gtime->tm_hour % 24, gtime->tm_min, gtime->tm_sec, __func__); \
 
    do \
