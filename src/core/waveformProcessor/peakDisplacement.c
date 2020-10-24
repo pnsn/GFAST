@@ -73,6 +73,7 @@ int core_waveformProcessor_peakDisplacement(
     int k, nsites, zone_loc;
     int i;
     bool lnorthp;
+    bool lnorthp_event;
 
     double s_arr_time;
     int nMaxLeader;
@@ -104,7 +105,7 @@ int core_waveformProcessor_peakDisplacement(
     if (zone_loc ==-12345){zone_loc =-1;} // Get UTM zone from source lat/lon
     GFAST_core_coordtools_ll2utm(ev_lat, ev_lon,
                                  &y1, &x1,
-                                 &lnorthp, &zone_loc);
+                                 &lnorthp_event, &zone_loc);
 //LOG_MSG("peakDisp: utm_zone=%d ev_lat:%f ev_lon:%f x1:%f y1:%f\n",
          //utm_zone, ev_lat, ev_lon, x1, y1);
     // Loop on streams and if they satisfy the S wave mask get their PGD
@@ -129,6 +130,15 @@ int core_waveformProcessor_peakDisplacement(
                        + pow(y1 - y2, 2)
                        + pow(ev_dep*1000.0 + gps_data.data[k].sta_alt, 2));
         distance = distance*1.e-3; // convert to km
+        if (lnorthp != lnorthp_event) {
+          LOG_MSG("Ignore: %s.%s.%s.%s lnorthp=%d != lnorthp_event=%d",
+                  gps_data.data[k].stnm, gps_data.data[k].chan[0],
+                  gps_data.data[k].netw, gps_data.data[k].loc,
+                  lnorthp, lnorthp_event);
+
+          distance = 99999;  // Don't use this station
+        }
+
         // Apply an S wave window mask to preclude likely outliers in
         // the ensuing PGD inversion 
         epoch = gps_data.data[k].tbuff[0]; //gps_data.data[k].epoch;
