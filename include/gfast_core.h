@@ -514,6 +514,14 @@ int core_scaling_pgd_setRHS(const int n,
                             const double A,
                             const double *__restrict__ d,
                             double *__restrict__ b);
+
+/* MTH: Check dist/amp */
+int core_scaling_pgd_sanityChecks(const int n,
+                            const double dist_tol,
+                            const double dist_def,
+                            const double *__restrict__ repi,
+                            const double *__restrict__ d);
+
 /* Weight the PGD forward modeling operator */
 int core_scaling_pgd_weightForwardModel(const int l1, 
                                         const double *__restrict__ W,
@@ -666,6 +674,8 @@ int core_waveformProcessor_peakDisplacement(
               core_scaling_pgd_setForwardModel(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_setRHS(...)       \
               core_scaling_pgd_setRHS(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_sanityChecks(...)       \
+              core_scaling_pgd_sanityChecks(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_weightForwardModel(...)       \
               core_scaling_pgd_weightForwardModel(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_weightObservations(...)       \
