@@ -182,7 +182,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     printf("Call core_scaling_pgd_sanityChecks\n");
     ierr = core_scaling_pgd_sanityChecks(l1,
                                          dist_tol,
-                                         dist_def,
+                                         disp_def,
                                          repi, d);
     printf("Call core_scaling_pgd_sanityChecks DONE\n");
     exit(0);
