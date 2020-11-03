@@ -5,7 +5,7 @@
 
 void swap_floats(float *, float *);
 void swap_ints(int *, int *);
-void selectionSort(float unsorted[], int n, int mth_indx[]);
+void selectionSort(float unsorted[], int n, int index[]);
 
 /*!
  * @brief Computes the right hand side in the peak ground displacement 
@@ -65,7 +65,7 @@ int core_scaling_pgd_sanityChecks(const int n,
     }
     //LOG_MSG("\n ");
 
-    selectionSort(repi, n, mth_indx);
+    selectionSort(repi, n, index_sort);
 
     LOG_MSG("%s", "Sorted PGD amps by increasing distance:");
     for (i=0; i < n; i++){
@@ -96,7 +96,7 @@ void swap_ints(int* xp, int* yp)
   *yp = temp;
 }
 
-void selectionSort(float unsorted[], int n, int mth_indx[])
+void selectionSort(float unsorted[], int n, int index[])
 {
   int i, j, min_idx;
   float sorted[n];
@@ -114,7 +114,7 @@ void selectionSort(float unsorted[], int n, int mth_indx[])
     // Swap the found minimum element with the first element
     //LOG_MSG("swap a[%d]=%f with a[%d]=%f\n", min_idx, sorted[min_idx], i, sorted[i]);
     swap_floats(&sorted[min_idx], &sorted[i]);
-    swap_ints(&mth_indx[min_idx], &mth_indx[i]);
+    swap_ints(&index[min_idx], &index[i]);
   }
 }
 
