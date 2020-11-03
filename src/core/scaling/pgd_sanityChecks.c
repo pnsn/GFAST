@@ -5,7 +5,8 @@
 
 void swap_floats(float *, float *);
 void swap_ints(int *, int *);
-void selectionSort(float unsorted[], int n, int index[]);
+//void selectionSort(float unsorted[], int n, int index[]);
+void selectionSort(const double *__restrict__ unsorted, int n, int index[]);
 
 /*!
  * @brief Computes the right hand side in the peak ground displacement 
@@ -96,7 +97,7 @@ void swap_ints(int* xp, int* yp)
   *yp = temp;
 }
 
-void selectionSort(float unsorted[], int n, int index[])
+void selectionSort(const double *__restrict__ unsorted, int n, int index[])
 {
   int i, j, min_idx;
   float sorted[n];
