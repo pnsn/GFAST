@@ -146,6 +146,13 @@ int core_waveformProcessor_peakDisplacement(
                     + (gps_data.data[k].npts - 1)*gps_data.data[k].dt;
         effectiveHypoDist = (currentTime - ev_time)*svel_window;
 
+        // MTH: I want to open up the props.processingTime so that it will still
+        //      process a delayed PDL event, but I don't want to include stations
+        //      that are >> from epicenter.  This seems to be a solution:
+        if effectiveHypoDist > 1000.{
+          effectiveHypoDist = 1000.;    // Don't include stations > 1000 km 
+        }
+
         // MTH: Right now gps_data[k].tbuff[0] has previously been set = ev_time
         //      So if for some reason n/e/ubuff[0] = nan at ev_time,
         //      then all subsequent PGD displacement measurements are fixed to nan.
