@@ -149,7 +149,7 @@ int core_waveformProcessor_peakDisplacement(
         // MTH: I want to open up the props.processingTime so that it will still
         //      process a delayed PDL event, but I don't want to include stations
         //      that are >> from epicenter.  This seems to be a solution:
-        if effectiveHypoDist > 1000.{
+        if (effectiveHypoDist > 1000.){
           effectiveHypoDist = 1000.;    // Don't include stations > 1000 km 
         }
 
