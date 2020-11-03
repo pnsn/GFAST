@@ -179,14 +179,12 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     }
     // Sort and print
     //
-    printf("Call core_scaling_pgd_sanityChecks\n");
+    LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks");
     ierr = core_scaling_pgd_sanityChecks(l1,
                                          dist_tol,
                                          disp_def,
                                          repi, d);
-    printf("Call core_scaling_pgd_sanityChecks DONE\n");
-    exit(0);
-
+    LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks DONE");
 
     // Set the RHS log10(d) - A
     ierr = core_scaling_pgd_setRHS(l1,

@@ -101,6 +101,7 @@ SET(SRCS_CORE
     src/core/scaling/pgd_gridSearch.c src/core/scaling/pgd_readIni.c
     src/core/scaling/pgd_setDiagonalWeightMatrix.c src/core/scaling/pgd_setForwardModel.c
     src/core/scaling/pgd_setRHS.c src/core/scaling/pgd_weightForwardModel.c
+    src/core/scaling/pgd_sanityChecks.c 
     src/core/scaling/pgd_weightObservations.c 
     src/core/waveformProcessor/offset.c src/core/waveformProcessor/peakDisplacement.c
 )
