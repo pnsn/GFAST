@@ -98,7 +98,15 @@ enum alert_units_enum
         enum_units = METERS;
     }
     // Moment-magnitude
-    else if (strcasecmp(char_units, "Mw\0") == 0)
+    //else if (strcasecmp(char_units, "Mw\0") == 0)
+    // MTH: Temp hack to prevent complaints for PDL mag units != 'Mw':
+    else if (strcasecmp(char_units, "Mw\0") == 0 ||
+             strcasecmp(char_units, "Mww\0") == 0 ||
+             strcasecmp(char_units, "Mwr\0") == 0 ||
+             strcasecmp(char_units, "Ml\0") == 0 ||
+             strcasecmp(char_units, "Mb\0") == 0 ||
+             strcasecmp(char_units, "Ms\0") == 0 ||
+             strcasecmp(char_units, "Md\0") == 0 )
     {
         enum_units = MOMENT_MAGNITUDE;
     }

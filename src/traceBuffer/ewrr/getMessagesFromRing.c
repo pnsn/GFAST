@@ -61,6 +61,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     *nRead = 0;
     msg = NULL;
     msgs = NULL;
+
     if (!ringInfo->linit)
     {
         LOG_ERRMSG("%s", "Error ringInfo not initialized");
@@ -117,6 +118,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         {
             // Get the header
             memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+
             *ierr = WaveMsg2MakeLocal(&traceHeader);
             if (*ierr < 0)
             {
@@ -134,11 +136,15 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             //                  + (size_t) (traceHeader.nsamp)*nbytes);
             // Copy the message
             kdx = *nRead*MAX_TRACEBUF_SIZ;
+
             memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
             // Reallocate space 
             *nRead = *nRead + 1;
+
             if (*nRead == messageBlock*nblock)
             {
+                LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Reallocate msgs block",
+                         *nRead, nblock, messageBlock);
                 if (showWarnings)
                 {
                     LOG_WARNMSG("%s", "Reallocating msgs block");
@@ -163,6 +169,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         if (retval == GET_NONE){break;}
     }
     memory_free8c(&msg);
+
     if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
     return msgs;
 }

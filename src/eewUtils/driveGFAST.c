@@ -150,7 +150,7 @@ LOG_MSG("%s", "Call core_log_closeLogs() before early exit from loop");
 //printf("driveGFAST: get data\n");
 LOG_MSG("get data t1:%f t2:%f", t1, t2);
         ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
-LOG_MSG("get data t1:%f t2:%f returned ierr=%d", t1, t2, ierr);
+//LOG_MSG("get data t1:%f t2:%f returned ierr=%d", t1, t2, ierr);
         if (ierr != 0)
         {
 //printf("driveGFAST: Error getting the data for event --> continue\n");

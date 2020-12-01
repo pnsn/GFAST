@@ -1,6 +1,8 @@
+CMakeLists.txt
 src/gfast_eew
 src/gfast_playback
 src/*.local
+src/Make.include.*
 *.[oa]
 *.so
 *.pyc

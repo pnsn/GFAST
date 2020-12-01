@@ -165,7 +165,7 @@ But here's how to do it in stand-alone
         Download GeographicLib from: https://geographiclib.sourceforge.io/html/install.html
         >cd GeographicLib-1.50.1
         >./configure 
-        >makedir BUILD
+        >mkdir BUILD
         >cd BUILD
         >cmake3 ..      // If you want to change where it's installed do
                         // >cmake3 -D CMAKE_INSTALL_PREFIX=/tmp/geographic ..
@@ -315,7 +315,7 @@ many of the needed dependencies on your system automatically.
     >make
 
     # Run the unit tests:
-    >cd xcoreTests
+    >cd unit_tests
     >./xcoreTests
 
     main: Beginning core tests...

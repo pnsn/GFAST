@@ -58,7 +58,6 @@ int traceBuffer_h5_setData(const double currentTime,
         if (!h5traceBuffer.linit){LOG_ERRMSG("%s", "h5traceBuffer not set");}
         return -1;
     }
-LOG_MSG("h5_ntraces=%d tb2Data.ntraces=%d", h5traceBuffer.ntraces, tb2Data.ntraces);
     // Nothing to do
     if (h5traceBuffer.ntraces < 1)
     {
@@ -129,10 +128,8 @@ NEXT_TRACE:;
         groupID = H5Gopen2(h5traceBuffer.fileID,
                            h5traceBuffer.dtGroupName[idt], H5P_DEFAULT);
         gains = memory_calloc64f(ntraces);
-LOG_MSG("currentTime=%f --> Call h5_readData", currentTime);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gains, &ierr);
-LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error reading data");
@@ -156,10 +153,13 @@ LOG_MSG("currentTime=%f ts1=%f ts2=%f ierr=%d", currentTime, ts1, ts2, ierr);
             return -1;
         }
         // Copy the old traces onto the new traces
-        dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+        //dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
+        // MTH: quick hack to prevent mem leak on line 205
+        dwork = array_set64f((maxpts+1)*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
-printf("%d\n", ishift);
+printf("ishift=%d\n", ishift);
+LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         for (k=0; k<ntraces; k++)
         {
             indx = k*maxpts + ishift;
@@ -199,7 +199,32 @@ printf("%d\n", ishift);
                     // insert it
                     indx = k*maxpts
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
+                    //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
+
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
+                    //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
+                             //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
+                             //
+                    /*
+                    LOG_MSG("   Insert tb2Data %s.%s.%s.%s t:%f (npts:%d) (int) data:%d ts1:%f indx:%d",
+                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
+                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
+                                  tb2Data.traces[i].times[is],
+                                  tb2Data.traces[i].npts, tb2Data.traces[i].data[is],
+                                  ts1, indx);
+                    */
+                    /*
+                    LOG_DEBUGMSG("%s.%s.%s.%s t:%f (t-ts1):%f k:%d k*maxpts:%d indx:%d",
+                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
+                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
+                                  tb2Data.traces[i].times[is], (tb2Data.traces[i].times[is] - ts1),
+                                  k, (k*maxpts), indx);
+
+                    LOG_DEBUGMSG("   Insert tb2Data %s.%s.%s.%s t:%f data:%d into dwork[indx=%d]",
+                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
+                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
+                                  tb2Data.traces[i].times[is], tb2Data.traces[i].data[is], indx);
+                    */
                 }
             } // Loop on data chunks 
         } // Loop on waveforms in this group

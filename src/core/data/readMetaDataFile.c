@@ -79,6 +79,15 @@ int core_data_readMetaDataFile(const char *metaDataFile,
             goto ERROR;
         }
         if (i == 0){continue;} // Skip the header
+        //MTH: skip comment lines:
+        /*
+        if (cline[0] == '#')
+          {
+            LOG_MSG("MTH: skip line:%s", cline);
+            continue;
+          }
+        */
+
         if (strlen(cline) == 0)
         {
             ierr = 0; 
@@ -215,6 +224,10 @@ NEXT_LINE:; // Try another site to match
             ierr = 1;
             goto ERROR;
         }
+        if (lon <-180.0)
+        {
+            lon += 360;
+        }
         if (lon <-180.0 || lon > 360.0)
         {
             LOG_ERRMSG("Input longitude %f is invalid", lon);
@@ -341,6 +354,10 @@ static int splitLine(const char *cline,
         i = i + 1;
         token = strtok(NULL, split);
     }
+
+    //printf("spliteLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
+
+    /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used */
     if (i != 13 && i != 14)
     {
         LOG_ERRMSG("Failed to split line %d %s", i, cline);

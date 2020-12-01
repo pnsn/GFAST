@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -369,7 +370,13 @@ int core_ff_weightObservations(const int mrows,
 { \
    char debugMsg[GFAST_MAXMSG_LEN]; \
    memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
-   sprintf(debugMsg, "[MTH] %s: ", __func__); \
+   struct tm *gtime; \
+   time_t now; \
+   time(&now); \
+   gtime = gmtime(&now); \
+   sprintf(debugMsg, "%4d-%02d-%02d %2d:%02d:%02d [MTH] %s: ",   \
+           gtime->tm_year+1900, gtime->tm_mon + 1, gtime->tm_mday,   \
+           gtime->tm_hour % 24, gtime->tm_min, gtime->tm_sec, __func__); \
    do \
    {  \
      snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
@@ -507,6 +514,14 @@ int core_scaling_pgd_setRHS(const int n,
                             const double A,
                             const double *__restrict__ d,
                             double *__restrict__ b);
+
+/* MTH: Check dist/amp */
+int core_scaling_pgd_sanityChecks(const int n,
+                            const double dist_tol,
+                            const double dist_def,
+                            const double *__restrict__ repi,
+                            const double *__restrict__ d);
+
 /* Weight the PGD forward modeling operator */
 int core_scaling_pgd_weightForwardModel(const int l1, 
                                         const double *__restrict__ W,
@@ -659,6 +674,8 @@ int core_waveformProcessor_peakDisplacement(
               core_scaling_pgd_setForwardModel(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_setRHS(...)       \
               core_scaling_pgd_setRHS(__VA_ARGS__)
+#define GFAST_core_scaling_pgd_sanityChecks(...)       \
+              core_scaling_pgd_sanityChecks(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_weightForwardModel(...)       \
               core_scaling_pgd_weightForwardModel(__VA_ARGS__)
 #define GFAST_core_scaling_pgd_weightObservations(...)       \

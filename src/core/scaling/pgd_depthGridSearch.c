@@ -177,6 +177,15 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
                       + pow(utmSrcNorthing - utmRecvNorthing[i], 2) );
         repi[i] = repi[i]*1.e-3; // m -> km
     }
+    // Sort and print
+    //
+    LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks");
+    ierr = core_scaling_pgd_sanityChecks(l1,
+                                         dist_tol,
+                                         disp_def,
+                                         repi, d);
+    LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks DONE");
+
     // Set the RHS log10(d) - A
     ierr = core_scaling_pgd_setRHS(l1,
                                    dist_tol, disp_def,

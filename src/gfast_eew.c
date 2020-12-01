@@ -13,7 +13,9 @@
 
 #include <time.h>
 
-#define MAX_MESSAGES 1024
+//#define MAX_MESSAGES 1024
+//#define MAX_MESSAGES 183000
+#define MAX_MESSAGES 200000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
@@ -69,6 +71,9 @@ int main(int argc, char **argv)
 #ifdef GFAST_USE_AMQ
     USE_AMQ = true;
 #endif
+
+// MTH: FIX THIS !!!
+    USE_AMQ = false;
 
     // Initialize 
     ierr = 0;
@@ -232,9 +237,17 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
         t0 = t1;
         tstatus1 = t0;
 
+/*
+        if ((t0 - tbeg) >= 300.) {
+LOG_MSG("== [GFAST t0:%f >= 300 sec since we started --> EXIT CODE", t0);
+          goto ERROR;
+        }
+*/
+
         //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
         //printf("\n== [GFAST t0:%f] ==\n", t0);
-LOG_MSG("== [GFAST t0:%f]", t0);
+//LOG_MSG("== [GFAST t0:%f]", t0);
+LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -247,15 +260,14 @@ LOG_MSG("== [GFAST t0:%f]", t0);
         double tbeger0 = tbeger;
         // Read my messages off the ring
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
+//LOG_MSG("%s", "== Get the msgs off the EW ring");
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
                                                     &ringInfo,
                                                     &nTracebufs2Read,
                                                     &ierr);
-LOG_MSG("== Read messages off ring returned ierr=%d nTracebufs2Read=%d", ierr, nTracebufs2Read);
-if (msgs == NULL){
-LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
-}
+LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_timeStamp(), nTracebufs2Read);
+
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
             if (ierr ==-1)
@@ -280,10 +292,7 @@ LOG_MSG("%s", "== Read messages off ring returned msgs == NULL !!!!");
             }
             goto ERROR;
         }
-        if (nTracebufs2Read == 0)
-        {
-            //LOG_WARNMSG("%s: No data acquired\n", fcnm);
-        }
+
 //printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages

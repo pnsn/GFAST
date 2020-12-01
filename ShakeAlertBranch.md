@@ -187,9 +187,21 @@ Used only in gfast2web in uw directory.  Ubuntu libcurl4-gnutls-dev.
 
 The following must be added to make GFAST conform to ShakeAlert standards
 
+## Merging with the latest master branch
+
+As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the latest changes in the master branch into the SAdev branch:
+
+*> git checkout 2020
+*> git pull [remotetag 2020] 
+*> git checkout SAdev
+*> git pull [remotetag SAdev]
+*> git merge 2020
+
 ### make
 
-This requires Makefiles in all relevant directories
+This requires Makefiles in all relevant directories.
+
+All the machine specific paths and variables are defined in the file Make.include.  The default version in the git checkout is set up for a generic ShakeAlert machine (or how one might eventually be set up).  If the environment variable $MAKEHOST is defined at the time make is invoked, make will instead include a host-specific file with the name 'Make.include.$MAKEHOST'.  This allows development compilation on non-ShakeAlert machines.
 
 ### makedepend
 
@@ -198,3 +210,4 @@ require Makefile modifications.
 
 # To do
 
+There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
