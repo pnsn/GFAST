@@ -1,10 +1,9 @@
 ################################################################################
-#                             Overall G-FAST properties                        #
+#                             Global G-FAST properties                         #
 ################################################################################
 [general]
 # File with station names
-# metaDataFile=test_data/ridgecrest/ridgecrest-stns.txt
-metaDataFile=/home/mhagerty/test_events/maule/Maule2010_disp.chan.txt
+metaDataFile=./metadata/SAstations.txt
 SA_events_dir=./events
 SA_output_dir=./out
 output_interval_mins=1,2,3,4,5,10
@@ -25,11 +24,11 @@ processing_time=602.
 #  1 -> GFAST is running in `real time' and being data through Earthworm 
 #  2 -> GFAST is running historical playbacks through Earthworm
 #  3 -> GFAST is running offline and is obtaining data purely from files
-opmode = 3
+opmode = 1
 # The synthetic mode driver file
-syndriver=nisqually_driver.txt
+#syndriver=nisqually_driver.txt
 # The synthetic mode output file
-synoutput=nisqually_output.txt
+#synoutput=nisqually_output.txt
 # If working in specific area where the fault may straddle a UTM zone large
 # distortions can arise.  In this case it may be beneficial to set the UTM
 # zone.  Otherwise, if utm_zone is set to -12345 or not specified the UTM
@@ -40,7 +39,7 @@ utm_zone = 19
 #  1 -> Sets GPS sampling period to default (dt_default)
 #  2 -> Obtains the sampling period from the dtfile 
 #  3 -> Obtains the sampling period from Earthworm
-dt_init = 2
+dt_init = 3
 # Default GPS sampling period (s)
 dt_default = 1.0
 # Location initialization strategy
@@ -55,6 +54,24 @@ loc_init = 1
 # 3 -> Output errors, generic information, and debug information
 verbose=3
 
+synthetic_runtime = 0.0 
+processing_time = 300.0
+default_event_depth = 8.0
+
+h5ArchiveDirectory = /tmp
+H5SummaryOnly = 0
+
+anssNetwork = UW
+anssDomain = anss.org
+
+################################################################################
+#                              Earthworm Properties                            #
+################################################################################
+[earthworm]
+
+gpsRingName = GPS_RING
+moduleName = geojson2ew
+
 ################################################################################
 #                                  PGD Properties                              #
 ################################################################################
@@ -62,59 +79,75 @@ verbose=3
 # PGD source-receiver distance tolerance in km (cannot be negative)
 dist_tolerance = 6.0
 # If PGD source-receiver distance tolerance falls below dist_tol this is the
-# default value given in km (must be positive)
-dist_default = 0.01
-#ngridSearch_deps = 10
+# default PGD distance value given in km (must be positive)
+disp_default = 0.01
+#some search variables
+deltaLatitiude = 0.1
+deltaLongitude = 0.1
+nlats_in_pgd_gridSearch = 1
+nlons_in_pgd_gridSearch = 1
 ndepths_in_pgd_gridSearch = 10
 # These are the defaults:
-window_vel = 3.0
-min_sites = 4
+pgd_window_vel = 3.0
+pgd_min_sites = 4
+
 ################################################################################
 #                            CMT/Finite Fault Properties                       #
 ################################################################################
 [CMT]
+#some search variables
+deltaLatitiude = 0.1
+deltaLongitude = 0.1
+nlats_in_cmt_gridSearch = 1
+nlons_in_cmt_gridSearch = 1
 ndepths_in_cmt_gridSearch = 10
 # These are the defaults:
-window_vel = 2.0
-min_sites = 4
+cmt_window_vel = 2.0
+cmt_min_sites = 4
+# Error window average must be positive
+cmt_window_avg = 0.0
+# Error general CMT inversions not yet programmed
+ldeviatoric_cmt = 1
+
+################################################################################
+#                             FF/Finite Fault Properties                       #
+################################################################################
 [FF]
-# These are the defaults:
-window_vel = 3.0
-min_sites = 4
+ff_number_of_faultplanes = 2
+# Number of fault patches along strike
+ff_nstr = 10
+# Number of fault patches down dip
+ff_ndip = 5
+# Min number of sites (must be greater than CMT)
+ff_min_sites = 4
+# Error window velocity
+ff_window_vel = 3.0
+# error window average time
+ff_window_avg = 10.0
+ff_flen_pct = 10.0
+ff_fwid_pct = 10.0
 
 ################################################################################
 #                               ActiveMQ Properties                            #
 ################################################################################
-[general]
-verbose=4
-
 [ActiveMQ]
 # ActiveMQ hostname to access ElarmS messages
-#host=siren
-host=localhost
-# ActiveMQ port to access ElarmS messages (61620)
-#port=61620
-#port=5672
-#  MTH: I see it it connecting via tcp://localhost:port - seems like this has to be channel = openwire tcp: 61616
+host = localhost
+# ActiveMQ port to access ElarmS messages
+#  openwire tcp://localhost:61616
 port=61616
 # ActiveMQ topic to access ElarmS messages (eew.alg.elarms.data)
 originTopic=eew.alg.elarms.data
-#AMQtopic=eew.alg.elarms.data
-#MTH: no idea what this should be:
-destinationTopic=eew.alg.elarms.data
+# ActiveMQ topic to publish events on.
+destinationTopic=eew.alg.gfast.data
 # ActiveMQ username to access ElarmS messages
-user=elarms
+user=gfast
 # ActiveMQ password to access ElarmS messages
-password=pnsnIsOK
+password=quackLikeADuck
 
-################################################################################
-#                              RabbitMQ Properties                             #
-################################################################################
-[RabbitMQ]
-RMQhost=/CWU-ppp
-RMQport=5672
-RMQtopic=www.panga.org
-RMQuser=uw
-RMQpassword=MynManAp
-RMQexchange=nev-cov
+# connection settings
+msReconnect = 500
+maxAttempts = 5
+msWaitForMessage = 1
+
 

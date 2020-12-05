@@ -191,17 +191,17 @@ The following must be added to make GFAST conform to ShakeAlert standards
 
 As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the latest changes in the master branch into the SAdev branch:
 
-*> git checkout 2020
-*> git pull [remotetag 2020] 
-*> git checkout SAdev
-*> git pull [remotetag SAdev]
-*> git merge 2020
+1. > git checkout 2020
+2. > git pull [ remote-name 2020 ] 
+3. > git checkout SAdev
+4. > git pull [ remote-name SAdev ]
+5. > git merge 2020
 
 ### make
 
 This requires Makefiles in all relevant directories.
 
-All the machine specific paths and variables are defined in the file Make.include.  The default version in the git checkout is set up for a generic ShakeAlert machine (or how one might eventually be set up).  If the environment variable $MAKEHOST is defined at the time make is invoked, make will instead include a host-specific file with the name 'Make.include.$MAKEHOST'.  This allows development compilation on non-ShakeAlert machines.
+All the machine specific paths and variables are defined in the file Make.include.Linux  The default version in the git checkout is set up for a generic ShakeAlert machine (or how one might eventually be set up).  If the environment variable $MAKEHOST is defined at the time make is invoked, make will instead include a host-specific file with the name 'Make.include.$MAKEHOST'.  This allows development compilation on non-ShakeAlert machines.
 
 ### makedepend
 
@@ -210,4 +210,12 @@ require Makefile modifications.
 
 # To do
 
-There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
+- [ ] There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
+- [ ] The parameter file name needs to be read from command arguments.
+- [ ] The log file name needs to be read from the parameter file.
+- [ ] ActiveMQ disable must be removed from code.
+- [x] earthworm parameters need to be added to parameter file.
+- [x] full activemq host specification needs to be added to parameter file
+- [x] all other parameter names need to be added to example file
+- [ ] Metadata reader needs to be converted to ShakeAlert file format.
+

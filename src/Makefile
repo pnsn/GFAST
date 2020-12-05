@@ -1,6 +1,6 @@
 # Makefile for GFAST
 ifndef MAKEHOST
-MAKEHOST=$(shell uname)
+MAKEHOST=Linux
 endif
 $(info Including Make.include.$(MAKEHOST))
 include Make.include.$(MAKEHOST)

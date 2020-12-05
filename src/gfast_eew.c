@@ -72,9 +72,6 @@ int main(int argc, char **argv)
     USE_AMQ = true;
 #endif
 
-// MTH: FIX THIS !!!
-    USE_AMQ = false;
-
     // Initialize 
     ierr = 0;
     msgs = NULL;
