@@ -213,9 +213,7 @@ require Makefile modifications.
 - [ ] There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
 - [ ] The parameter file name needs to be read from command arguments.
 - [ ] The log file name needs to be read from the parameter file.
-- [ ] ActiveMQ disable must be removed from code.
-- [x] earthworm parameters need to be added to parameter file.
-- [x] full activemq host specification needs to be added to parameter file
-- [x] all other parameter names need to be added to example file
+- [ ] Should convert to use dmlib
+- [ ] Documentation!
 - [ ] Metadata reader needs to be converted to ShakeAlert file format.
 
