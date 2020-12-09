@@ -3,9 +3,9 @@
 ################################################################################
 [general]
 # File with station names
-metaDataFile=./metadata/SAstations.txt
-SA_events_dir=./events
-SA_output_dir=./out
+metaDataFile=/home/kress/GFAST/etc/GFASTmeta.dat
+SA_events_dir=/home/kress/GFAST/events
+SA_output_dir=/home/kress/GFAST/out
 output_interval_mins=1,2,3,4,5,10
 #siteMaskFile=ridgecrest-mask.txt
 # File with station names and sampling periods
@@ -141,9 +141,9 @@ originTopic=eew.alg.elarms.data
 # ActiveMQ topic to publish events on.
 destinationTopic=eew.alg.gfast.data
 # ActiveMQ username to access ElarmS messages
-user=gfast
+user=glarms
 # ActiveMQ password to access ElarmS messages
-password=quackLikeADuck
+password=12345
 
 # connection settings
 msReconnect = 500

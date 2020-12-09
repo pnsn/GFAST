@@ -1,12 +1,12 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 #temporary program to convert ShakeAlert geodetic metadata to
 #format GFAST can understand
 #Victor Kress, PNSN 12/2020
 
 
-SAcoordDir="/home/kress/git/WCEEW-geodetic/"
-SAcoordFile="station_coords.dat"
-SAchanFiles=["chanfile_pw.dat"]
+SAcoordDir='/app/share/etc/geodetic/'
+SAcoordFile='station_coords.dat'
+SAchanFiles=['chanfile_pw.dat']
 
 GFASTmetaFile="/home/kress/temp/GFASTmeta.dat"
 
