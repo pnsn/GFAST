@@ -24,7 +24,7 @@ InterMessageDelayMillisecs 0   # Number of ms to sleep between inserting tracebu
 Debug         1                # for verbosity
 
 # List of files to play (up to 1000 allowed):
-WaveFile      /home/mhagerty/test_events/nicoya/nicoya.tankplayer
+WaveFile      ../../test_data/nicoya/nicoya.tankplayer
 
 # Directory to scan for wave files. If you specify WaveFiles individually above, you
 # may not use GetFromDir at the same time. GetFromDir uses the parameters CheckPeriod,
