@@ -33,9 +33,9 @@ The sequence to run the tests is:
     >./start.sh   // This will start the earthworm ring
     ```
  5. start gfast
-    - edit GFAST/gfast.props
+    - edit GFAST/gfast.props - select the playback metadata file that
+      matches the SCNLs that tankplayer will put on the WAVE_RING, e.g.,:
     - set metaDataFile=../test_data/ridgecrest/ridgecrest-stns.txt
-    or whatever test you want to run
     -  start gfast_eew:
     ```
     >gfast_eew

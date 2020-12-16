@@ -119,6 +119,10 @@ Descriptor  statmgr.desc
 Descriptor  in/slink2ew.desc
 Descriptor  in/slink2ew_gs.desc
 Descriptor  in/slink2ew_ok.desc
+Descriptor  kansas/pick_ew_kan.desc
+Descriptor  kansas/pick_nq_kan.desc
+Descriptor  kansas/binder_kan.desc
+Descriptor  kansas/eqassemble_kan.desc
 Descriptor  web/ewhtmlemail_kan.desc
 Descriptor  web/ewhtmlreport.desc
 Descriptor  eqk/localmag.desc
