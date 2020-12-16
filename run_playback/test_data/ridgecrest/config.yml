@@ -1,10 +1,5 @@
 #offset_time = OT - tankplayer_starttime
 offset_time: 60.0
-# Where is the tankfile:
-ew_dir: '/home/mhagerty/run_playback/run_earthworm/params'
 tankfile: "tankplayer.d.ridgecrest"
 # Where is the starting SA.xml file:
 SA_file: './SA.xml'
-# Where should the modified SA.xml file be put:
-#   (presumably where gfast_eew can find it)
-xmldir_out: '/home/mhagerty/run_playback/run_GFAST/ridgecrest/events'

@@ -20,6 +20,14 @@ def main():
                             #required=True)
     #args, unknown = parser.parse_known_args()
 
+    params_dir = os.environ.get('EW_PARAMS')
+    cwd = os.getcwd()
+    target_dir = os.path.join(cwd, GFAST_EVENTS_DIR)
+
+    if params_dir is None:
+        print("You must source an EW env before running this!")
+        exit(2)
+
     usage = "start_it.py kaikoura (or some other event in known_events)"
     known_events = ['iquique', 'kaikoura', 'maule', 'nicoya', 'ridgecrest']
     if len(sys.argv) != 2 or sys.argv[1] not in known_events:
@@ -28,6 +36,11 @@ def main():
 
     event = sys.argv[1]
     configFile = os.path.join(event, 'config.yml')
+    tankfile = "tankplayer.d.%s" % event
+    #tankfile = os.path.join(params_dir, tankfile)
+    #if not os.path.isfile(tankfile):
+        #print("Can't find tankfile=%s")
+        #exit(2)
 
     configuration = {}
     with open(configFile, 'r') as ymlfile:
@@ -35,11 +48,8 @@ def main():
 
     try:
         offset_time = float(config['offset_time'])
-        ew_dir = config['ew_dir']
         tankfile = config['tankfile']
-        #SAfile = config['SA_file']
         SAfile = os.path.join(event, os.path.basename(config['SA_file']))
-        xmldir_out = config['xmldir_out']
     except:
         raise
 
@@ -48,6 +58,9 @@ def main():
     files = [SAfile]
     for xmlfile in files:
         print(xmlfile)
+        #target = os.path.join(xmldir_out, os.path.basename(xmlfile))
+        target = os.path.join(target_dir, os.path.basename(xmlfile))
+
         tree = ET.parse(xmlfile)
         root = tree.getroot()
         core = root.find('core_info')
@@ -63,13 +76,16 @@ def main():
         print("Stamp origin time:%s   [%f]" % (otime, timestamp))
         orig_time.text = orig_time.text.replace(orig_time.text, otime)
 
-        os.chdir(ew_dir)
-
+        print("chdir to:%s and look for tankfile:%s" % (params_dir, tankfile))
+        print(os.path.join(params_dir, tankfile))
+        os.chdir(params_dir)
         thread = myThread(1, "Thread-1", 1, tankfile)
         thread.start()
 
+        #os.chdir(cwd)
+        #target = os.path.join(xmldir_out, os.path.basename(xmlfile))
+
         time.sleep(30)
-        target = os.path.join(xmldir_out, os.path.basename(xmlfile))
         tree.write(target)
 
     return
