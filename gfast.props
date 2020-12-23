@@ -2,13 +2,15 @@
 #                             Global G-FAST properties                         #
 ################################################################################
 [general]
+# File for log output
+logFileName=logs/gfast.log
 # File with station names
-metaDataFile=/home/kress/GFAST/etc/GFASTmeta.dat
+metaDataFile=etc/GFASTmeta.dat
 # Not sure what this is but can be specified
 #siteMaskFile=
 # note: if SA_events_dir is set, activemq will be ignored!
 SA_events_dir=
-SA_output_dir=/home/kress/GFAST/out
+SA_output_dir=out
 output_interval_mins=1,2,3,4,5,10
 #siteMaskFile=ridgecrest-mask.txt
 # File with station names and sampling periods

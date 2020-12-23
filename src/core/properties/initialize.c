@@ -59,6 +59,23 @@ int core_properties_initialize(const char *propfilename,
     ini = iniparser_load(propfilename);
     strcpy(props->propfilename, propfilename);
     //-------------------------GFAST General Parameters-----------------------//
+
+    // set open output log file.
+    s = iniparser_getstring(ini, "general:logFileName\0",
+                            "gfast.log\0");
+    printf("Opening %s for log output",s);
+    core_log_openLog(s);
+    if (!ISCL_os_path_isfile(s))
+    {
+        printf("Cannot open log output file %s", s);
+        return -1;
+    }
+
+    if (!ISCL_os_path_isfile(props->metaDataFile))
+    {
+        LOG_ERRMSG("Cannot find station list %s", props->metaDataFile);
+        return -1;
+    }
     s = iniparser_getstring(ini, "general:metaDataFile\0",
                             "GFAST_streams.txt\0");
     strcpy(props->metaDataFile, s);

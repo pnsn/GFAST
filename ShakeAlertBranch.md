@@ -211,9 +211,7 @@ require Makefile modifications.
 # To do
 
 - [ ] There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
-- [x] The parameter file name needs to be read from command arguments.
-- [x] The log file name needs to be read from command arguments.
-- [ ] More logging and debugging of activemq activity.
+- [ ] Find out why activemq not seeing events.
 - [ ] Should convert to use dmlib
 - [ ] Documentation!
 - [ ] Metadata reader needs to be converted to ShakeAlert file format.

@@ -62,7 +62,6 @@ int main(int argc, char **argv)
   char infoLogFileName[PATH_MAX];
   char debugLogFileName[PATH_MAX];
   char warnLogFileName[PATH_MAX];
-  char logFileName[PATH_MAX];
   bool check_message_dir = false;
   bool USE_AMQ = true;
   int niter = 0;
@@ -77,12 +76,7 @@ int main(int argc, char **argv)
   } else {
     strcpy(propfilename,"gfast.props\0");
   }
-  if (argc>1) {
-    strncpy(logFileName,argv[2],PATH_MAX-1);
-  } else {
-    strcpy(logFileName,"gfast.log\0");
-  }
-  
+
   ierr = 0;
   msgs = NULL;
   memset(&props,    0, sizeof(struct GFAST_props_struct));
@@ -100,22 +94,15 @@ int main(int argc, char **argv)
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
   ISCL_iscl_init(); // Fire up the computational library
 
-  core_log_openLog(logFileName);
-  LOG_MSG("%s: Read gfast.props file %s", fcnm, propfilename);
+  printf("%s: Reading configuration from %s", fcnm, propfilename);
   // Read the program properties
   ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
-  /*
-    int imsg;
-    for (imsg=0;imsg<10;imsg++){
-    LOG_MSG("%s: This LOG test message:[%d] BEFORE evid is known", fcnm, imsg);
-    }
-  */
-
   if (ierr != 0)
     {
-      LOG_ERRMSG("%s: Error reading GFAST initialization file: %s\n", fcnm, propfilename);
+      printf("%s: Error reading GFAST initialization file: %s\n", fcnm, propfilename);
       goto ERROR;
     }
+
   if (props.verbose > 2){GFAST_core_properties_print(props);}
   // Initialize the stations locations/names/sampling periods for the module
   if (props.verbose > 0)
