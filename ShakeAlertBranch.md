@@ -1,5 +1,5 @@
-# ShakeAlert Branch
 
+# ShakeAlert Branch
 The ShakeAlertDev branch is a branch of Mike H's '2020' GFAST branch at https://github.com/pnsn
 
 ## Static vs dynamic linking
@@ -27,11 +27,13 @@ Not required for GFAST, but required to compile [ISCL](#ISCL) and [compearth](#c
 
 ### GCC 7.3
 
+Not a dependency in ShakeAlert branch.
+
 As mentioned in the README, compiler versions: gcc 4.8.5 vs gcc 7.3 gcc 4.8.5 does not recognize the "#pragma omp simd" directive so will generate a lot of warnings on compile. gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.  The code als makes heavy use of the "#pragma omp parallel" directive.
 
 The "parallel" directive goes way back and is not a problem.  "simd" appears to have been introduced in OpenMP v4.0".
 
-ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this will be an option on ShakeAlert RHEL servers.  (unresolved)
+ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this is not necessary in the ShakeAlert RHEL servers.  (unresolved)
 
 This seems to only be a problem when compiling the [ISCL](#ISCL) dependency.
 
@@ -102,9 +104,6 @@ eew-uw-dev1 required yum install of libxml2-devel package.  libxml2 package alre
 
 ### HDF5
 
-Does not seem to be referenced on its own, and initial compilation
-tests do not require it. hdf5.h loaded in gfast\_hdf5.h, gfast\_traceBuffer.h 
-
 On RHEL family, yum install hdf5 and hdf5-devel.  On Ubuntu, you seem to need libhdf5-dev which will install libhdf5-cpp and hdf5-helpers among others as dependencies.
 
 eew-uw-dev1 required yum install of hdf5-devel package.  hdf5 package already installed.
@@ -115,8 +114,7 @@ Requires linking with libz and libsz.
 
 This is an ISTI product that may need to be added to extras (GFAST/third\_party
 ?). Unfortunately, this adds several difficult dependencies not related to GFAST
-functionality. May need some tweaks. ISCL headers needed by cmt, ff,
-log, properties, scaling, xml/quakeML, data. 
+functionality. Most of these are not required for our compile (see below). 
 
 Requires linking with libfftw3 or equivalent.
 
@@ -165,7 +163,7 @@ eew-uw-dev1 [cmake](#cmake) build went fairly smoothly using following cmake scr
 #### - FFTw
 
 Documentation suggests Fourier transforms are not computed in GFAST,
-so this is an artifact of including ISCL. We may want to customize this to remove dependency.
+so this is an artifact of including ISCL. We may want to customize ISCL to remove dependency in the future.
 
 This is available on Ubuntu via libftw3-bin and libftw3-dev
 
@@ -181,9 +179,11 @@ in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile w
 
 #### - libcurl
 
+Not a dependency for ShakeAlert install.
+
 Used only in gfast2web in uw directory.  Ubuntu libcurl4-gnutls-dev.
 
-## Additional ShakeAlert dependencies
+## Additional ShakeAlert dependenciesx
 
 The following must be added to make GFAST conform to ShakeAlert standards
 
@@ -211,8 +211,9 @@ require Makefile modifications.
 # To do
 
 - [ ] There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
-- [ ] The parameter file name needs to be read from command arguments.
-- [ ] The log file name needs to be read from the parameter file.
+- [x] The parameter file name needs to be read from command arguments.
+- [x] The log file name needs to be read from command arguments.
+- [ ] More logging and debugging of activemq activity.
 - [ ] Should convert to use dmlib
 - [ ] Documentation!
 - [ ] Metadata reader needs to be converted to ShakeAlert file format.
