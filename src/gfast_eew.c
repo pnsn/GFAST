@@ -10,7 +10,6 @@
 #include "iscl/os/os.h"
 #include "iscl/time/time.h"
 #include <dirent.h>  // Needed for DIR
-#include "gfast_traceBuffer.h"
 
 #include <time.h>
 
@@ -131,9 +130,6 @@ int main(int argc, char **argv)
       LOG_ERRMSG("%s: Error initializing data buffers\n", fcnm);
       goto ERROR;
     }
-
-  // initialize earthworm logit
-  logit_init(fcnm,0,300,1);
 
   // Set the trace buffer names and open the HDF5 datafile
   ierr = GFAST_traceBuffer_h5_setTraceBufferFromGFAST(props.bufflen,
