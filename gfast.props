@@ -153,6 +153,6 @@ password=12345
 # connection settings
 msReconnect = 500
 maxAttempts = 5
-msWaitForMessage = 1
+msWaitForMessage = 0
 
-
+maxMessages = 5

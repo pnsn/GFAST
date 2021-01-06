@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast.h"
-// MTH:
 #include "gfast_core.h"
 #include "iscl/iscl/iscl.h"
 #include "iscl/memory/memory.h"
@@ -19,12 +18,18 @@
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
-
+/*!
+ * @brief poll directory for new messages.
+ * @param[in] dirname directory to search for messages
+ * @param[out] error code
+ * @return contents of message(s?) read from directory
+ */
 char *check_dir_for_messages(const char *dirname, int *ierr);
 
 
 /*!
  * @brief GFAST earthquake early warning driver routine
+ * First argument assumed to be configuration file name.  Defaults to gfast.props.
  *
  */
 int main(int argc, char **argv)
@@ -46,15 +51,21 @@ int main(int argc, char **argv)
   struct GFAST_xmlMessages_struct xmlMessages;
   struct ewRing_struct ringInfo;
   char *msgs;
-  char *amqMessage;
-  double t0, t1, tbeg, t_now;
+  double t0, t1;
+  /* vck: unused variables
+  double tbeg, t_now;
   int first_time = 1;
+  */
   const enum opmode_type opmode = REAL_TIME_EEW;
-  const bool useTopic = true;   // Don't want durable queues
-  const bool clientAck = false; // Let session acknowledge transacations
-  const bool luseListener = false; // C can't trigger so turn this off
+  /*activeMQ variables*/
+  char *eventMessage;
+  const bool useTopic = true;              /**< ShakeAlert uses topics */
+  const bool clientAck = false;            /**< False means set session acknowledge transacations */
+  const bool luseListener = false;         /**< C can't trigger so turn this off (remove?) */
   double tstatus, tstatus0, tstatus1;
-  void *messageQueue = NULL;
+  static void *amqMessageListener = NULL;  /**< pointer to ShakeAlertConsumer object */
+  /*Todo static void *amqMessagePublisher = NULL; **< pointer to ShakeAlertProducer object for messages */
+  /*Todo static void *amqHbPublisher = NULL;      **< pointer to ShakeAlertProducer object for heartbeats */
   int ierr, im, msWait, nTracebufs2Read;
   bool lacquire, lnewEvent;
   const int rdwt = 2; // H5 file is read/write
@@ -65,7 +76,6 @@ int main(int argc, char **argv)
   bool check_message_dir = false;
   bool USE_AMQ = true;
   int niter = 0;
-  int iev;
 #ifdef GFAST_USE_AMQ
   USE_AMQ = true;
 #endif
@@ -143,26 +153,29 @@ int main(int argc, char **argv)
     }
 
   if (USE_AMQ) {
-    messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
-						props.activeMQ_props.password,
-						props.activeMQ_props.originTopic,
-						props.activeMQ_props.host,
-						props.activeMQ_props.port,
-						props.activeMQ_props.msReconnect,
-						props.activeMQ_props.maxAttempts,
-						useTopic,
-						clientAck,
-						luseListener,
-						props.verbose,
-						&ierr);
+    activeMQ_start();  // start library
+    amqMessageListener = activeMQ_consumer_initialize(props.activeMQ_props.user,
+						      props.activeMQ_props.password,
+						      props.activeMQ_props.originTopic,
+						      props.activeMQ_props.host,
+						      props.activeMQ_props.port,
+						      props.activeMQ_props.msReconnect,
+						      props.activeMQ_props.maxAttempts,
+						      useTopic,
+						      clientAck,
+						      luseListener,
+						      props.activeMQ_props.maxMessages,
+						      props.verbose,
+						      &ierr);
     if (ierr != 0)
       {
-	LOG_ERRMSG("%s: Error connecting to upstream message queue\n", fcnm);
+	LOG_ERRMSG("%s: Error connecting listener to ActiveMQ\n", fcnm);
 	goto ERROR;
       }
+    // Todo: vck: initialize heartbeat publisher here
   }
 
-  if (strlen(props.SAeventsDir)){
+  if (strlen(props.SAeventsDir)) {
     message_dir = props.SAeventsDir;
     check_message_dir = true;
   }
@@ -212,17 +225,20 @@ int main(int argc, char **argv)
   // Begin the acquisition loop
   LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
   LOG_MSG("%s: Beginning the acquisition...", fcnm);
-  amqMessage = NULL;
+  eventMessage = NULL;
   t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
-  t_now = (double) (long) (ISCL_time_timeStamp() + 0.5);
-  tbeg = t0; 
+  //unused: t_now = (double) (long) (ISCL_time_timeStamp() + 0.5);
+  //unused: tbeg = t0; 
   tstatus = t0;
   tstatus0 = t0;
   lacquire = true;
+  /***************************************************
+   * Start of main acquisition loop
+   ***************************************************/
   while(lacquire)
     {
       // Initialize the iteration
-      amqMessage = NULL;
+      eventMessage = NULL;
       // Run through the machine every second
       t1 = (double) (long) (ISCL_time_timeStamp() + 0.5);
       if (t1 - t0 < props.waitTime){continue;}
@@ -249,7 +265,7 @@ int main(int argc, char **argv)
         } 
 
       double tbeger = ISCL_time_timeStamp();
-      double tbeger0 = tbeger;
+      /* vck unused variable      double tbeger0 = tbeger;*/
       // Read my messages off the ring
       memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
@@ -284,9 +300,9 @@ int main(int argc, char **argv)
             }
 	  goto ERROR;
         }
-
-      //printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
+      LOG_MSG("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
       tbeger = ISCL_time_timeStamp();
+     
       // Unpackage the tracebuf2 messages
       LOG_MSG("%s", "== unpackTraceBuf2Messages");
       ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
@@ -298,7 +314,7 @@ int main(int argc, char **argv)
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
 	  goto ERROR;
         }
-      //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
+      printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
       tbeger = ISCL_time_timeStamp();
       // Update the hdf5 buffers
       LOG_MSG("%s", "== Update the hdf5 buffers");
@@ -318,15 +334,16 @@ int main(int argc, char **argv)
 	  LOG_MSG("%s: Checking Activemq for events", fcnm);
 	}
 	msWait = props.activeMQ_props.msWaitForMessage;
-	amqMessage = GFAST_activeMQ_consumer_getMessage(messageQueue, msWait, &ierr);
-	if ((props.verbose > 2)&&(amqMessage == NULL)) {
+	eventMessage = GFAST_activeMQ_consumer_getMessage(amqMessageListener, msWait, &ierr);
+	if ((props.verbose > 2)&&(eventMessage == NULL)) {
 	  LOG_MSG("%s: Activemq returned NULL", fcnm);
 	}
+	// Todo: vck: insert heartbeat send here
       } else if (check_message_dir) {
 	// Alternatively, check for SA message trigger in message_dir
-	amqMessage = check_dir_for_messages(message_dir, &ierr);
-	if (ierr != 0) {
-	  //MTH: check_dir_for_messages return ierr=%d\n", ierr);
+	eventMessage = check_dir_for_messages(message_dir, &ierr);
+	if ((ierr != 0)&&(props.verbose > 2)) {
+	  LOG_MSG("check_dir_for_messages returned ierr=%d\n", ierr);
 	  ierr=0;
 	}
       }
@@ -337,19 +354,19 @@ int main(int argc, char **argv)
 	  goto ERROR;
         }
       // If there's a message then process it
-      if (amqMessage != NULL)
+      if (eventMessage != NULL)
         {
-	  LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
-	  LOG_MSG("%s", amqMessage);
-	  printf("== [GFAST t0:%f] Got new amqMessage:\n", t0);
-	  printf("%s\n", amqMessage);
+	  LOG_MSG("== [GFAST t0:%f] Got new eventMessage:", t0);
+	  LOG_MSG("%s", eventMessage);
+	  printf("== [GFAST t0:%f] Got new eventMessage:\n", t0);
+	  printf("%s\n", eventMessage);
 	  // Parse the event message 
-	  ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
+	  ierr = GFAST_eewUtils_parseCoreXML(eventMessage, -12345.0, &SA);
 	  if (ierr != 0)
             {
 	      LOG_ERRMSG("%s: Error parsing the decision module message\n",
 			 fcnm);
-	      LOG_ERRMSG("%s\n", amqMessage);
+	      LOG_ERRMSG("%s\n", eventMessage);
 	      goto ERROR;
             }
 	  //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
@@ -400,8 +417,8 @@ int main(int argc, char **argv)
 		  goto ERROR;
                 }
             }
-	  free(amqMessage);
-	  amqMessage = NULL;
+	  free(eventMessage);
+	  eventMessage = NULL;
         } // End check on ActiveMQ message
 
       // Are there events to process?
@@ -424,29 +441,26 @@ int main(int argc, char **argv)
 				 &cmt,
 				 &ff,
 				 &xmlMessages);
-      /*
-	if (ierr != 0)
+      if (ierr != 0)
 	{
-	LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
-	goto ERROR; 
+	  LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
+	  goto ERROR; 
 	}
-      */
-
-
-      /*
+      /* does not compile.
+      if (props.verbose > 2) {
 	for (iev=0;iev<events.nev;iev++){
-	printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
-	events.SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
+	  printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
+		 events.SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
 	}
-      */
-      /*
 	printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
-	cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
+	       cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
 	printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
-	cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
+	       cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
+	printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
+	       events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
+      }
       */
-      //printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
-      //events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
+
       // Send the messages where they need to go
       if (xmlMessages.mmessages > 0)
 	{
@@ -490,7 +504,10 @@ int main(int argc, char **argv)
 	  //if (events.nev == 0){break;}
 	}
       niter ++;
-    }
+      }
+  /***************************************************
+   * End of main acquisition loop
+   ***************************************************/
  ERROR:;
   // Close the big logfile
   core_log_closeLog();
@@ -498,9 +515,11 @@ int main(int argc, char **argv)
   core_events_freeEvents(&events);
   traceBuffer_ewrr_freetb2Data(&tb2Data);
   traceBuffer_ewrr_finalize(&ringInfo);
-  if (USE_AMQ){
-    activeMQ_consumer_finalize(messageQueue); 
-  }
+  if (USE_AMQ)
+    {
+      activeMQ_consumer_finalize(amqMessageListener);
+      activeMQ_stop();
+    }
   core_cmt_finalize(&props.cmt_props,
 		    &cmt_data,
 		    &cmt);
@@ -521,6 +540,7 @@ int main(int argc, char **argv)
     }
   return EXIT_SUCCESS;
 }
+
 //============================================================================//
 /*!
  * @brief Sets the tb2Data structure and desired SNCL's from the input gpsData
@@ -578,7 +598,6 @@ static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
 
 char *check_dir_for_messages(const char *dirname, int *ierr)
 {
-  int i;
   struct dirent *de; // Pointer for directory entry
   // opendir() returns a pointer of DIR type.
   DIR *dr = opendir(dirname);

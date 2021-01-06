@@ -7,7 +7,9 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= activeMQ.c.o  activeMQ.cpp.o  consumer.cpp.o producer.cpp.o readIni.c.o
+OBJS	= activeMQ.c.o  activeMQ.cpp.o \
+ShakeAlertConsumer.cpp.o ShakeAlertProducer.cpp.o \
+consumer.cpp.o producer.cpp.o readIni.c.o
 LIB	= gfast_amq.a
 DEBUG	= -g
 CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config

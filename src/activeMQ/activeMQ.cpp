@@ -23,80 +23,17 @@
 #pragma clang diagnostic pop
 #endif
 
-using namespace std;
-
-class SAActiveMQ
-{
-    public:
-
-        SAActiveMQ(void)
-        {
-            initialize();
-            activeMQ_setInit(); 
-        }
-
-        ~SAActiveMQ(void)
-        {
-            finalize();
-            activeMQ_setUninit();
-        }
-
-        void initialize(void)
-        {
-            activemq::library::ActiveMQCPP::initializeLibrary();
-            activeMQ_setInit();
-            return;
-        }
-
-        bool isInitialized()
-        {
-            return activeMQ_isInit();
-        }
- 
-        void finalize(void)
-        {
-            activemq::library::ActiveMQCPP::shutdownLibrary();
-            activeMQ_setUninit();
-            return;
-        }
-};
-
-static SAActiveMQ saAMQ;
-
+/*! @brief c wrapper on activeMQCPP library initialization */
 extern "C" void activeMQ_initialize(void)
 {
-    activemq::library::ActiveMQCPP::initializeLibrary();
-/*
-    if (!activeMQ_isInit())
-    {
-        printf("activeMQ_initialize: Library already initialized\n");
-        return;
-    }
-    activemq::library::ActiveMQCPP::initializeLibrary();
-    return;
-*/
+  activemq::library::ActiveMQCPP::initializeLibrary();
+  return;
 }
 
-extern "C" bool activeMQ_isInitialized(void)
-{
-    return activeMQ_isInit();
-}
-
+/*! @brief c wrapper on activeMQCPP library shutdown */
 extern "C" void activeMQ_finalize(void)
 {
-    //activemq::library::ActiveMQCPP::shutdownLibrary();
-/*
-    if (!activeMQ_isInit()) // TODO this is wrong - but program hangs otherwise
-    {
-        activemq::library::ActiveMQCPP::shutdownLibrary();
-        activeMQ_setUninit();
-    }
-    else
-    {
-        printf("activeMQ_finalize: Library already finalized\n");
-        return;
-    }
-*/
-    return;
+  activemq::library::ActiveMQCPP::shutdownLibrary();
+  return;
 }
 

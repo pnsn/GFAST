@@ -17,7 +17,6 @@ bool activeMQ_isInit(void);
 
 /* Initialize and finalize activeMQ library */
 void activeMQ_initialize(void);
-bool activeMQ_isInitialized(void);
 void activeMQ_finalize(void);
 
 /* Read parmaeters from the ini file */
@@ -36,6 +35,7 @@ void *activeMQ_consumer_initialize(const char AMQuser[],
                                    const bool useTopic,
                                    const bool clientAck,
                                    const bool luseListener,
+				   const unsigned int maxMessages,
                                    const int verbose,
                                    int *ierr);
 /* Get a message from activeMQ */

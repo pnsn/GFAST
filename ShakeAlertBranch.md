@@ -112,9 +112,11 @@ Requires linking with libz and libsz.
 
 ### ISCL
 
-This is an ISTI product that may need to be added to extras (GFAST/third\_party
-?). Unfortunately, this adds several difficult dependencies not related to GFAST
-functionality. Most of these are not required for our compile (see below). 
+It appears that this library is used for timestamps (ISCL_time_timestamp()) and file manipulation (ICSL_os_path_isfile() and ISCL_os_path_isdir()).  Given that these are available in standard c. it seems likely that this dependency can be easily removed.
+
+This is an ISTI product that would need to be added to extras (GFAST/third\_party
+). Unfortunately, this package also adds several difficult dependencies not related to GFAST
+functionality. Fortunately, most of these are not required for our SA compile (see below). 
 
 Requires linking with libfftw3 or equivalent.
 
@@ -163,7 +165,7 @@ eew-uw-dev1 [cmake](#cmake) build went fairly smoothly using following cmake scr
 #### - FFTw
 
 Documentation suggests Fourier transforms are not computed in GFAST,
-so this is an artifact of including ISCL. We may want to customize ISCL to remove dependency in the future.
+so this is an artifact of including ISCL. We may want to customize ISCL or eliminate ISCL all together to remove dependency in the future.
 
 This is available on Ubuntu via libftw3-bin and libftw3-dev
 
@@ -175,7 +177,7 @@ eew-uw-dev1 required fftw package install.  fftw-devel was also needed to compil
 
 Used in unit tests. I suspect that functionality may need to be re-implemented
 in current library equivalents. Could not find any mention of this
-in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile
+in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile.  Looks like this is a dependency of a dependency, not of the main code.
 
 #### - libcurl
 
@@ -210,9 +212,9 @@ require Makefile modifications.
 
 # To do
 
-- [ ] There are LOTS of compile warnings that will have to be cleaned up before branch is ready for production.
-- [ ] Find out why activemq not seeing events.
-- [ ] Should convert to use dmlib
-- [ ] Documentation!
-- [ ] Metadata reader needs to be converted to ShakeAlert file format.
+- Find out why activemq not seeing events.
+- Should convert to use dmlib
+- Documentation
+- Metadata reader needs to be converted to ShakeAlert file format. Should 
+- ShakeAlertConsumer should be revamped to allow asynchronous read loop.
 
