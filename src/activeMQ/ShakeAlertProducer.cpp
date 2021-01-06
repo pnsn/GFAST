@@ -208,6 +208,14 @@ int ShakeAlertProducer::sendBytesMessage(const unsigned char *cbytes,
 }
 */
 
+void ShakeAlertProducer::onException(const cms::CMSException& ex AMQCPP_UNUSED)
+{
+  fprintf(stderr, "%s",
+	  "CMS Exception occurred.  Shutting down client.\n");
+  ex.printStackTrace();
+  exit(1); // This looks dangerous
+}
+
 void ShakeAlertProducer::cleanup()
 {
   const char *fcnm = "cleanup\0";

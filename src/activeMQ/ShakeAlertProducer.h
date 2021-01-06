@@ -124,6 +124,7 @@ public:
    *
    */
   int sendMessage(const char *message);
+
   /*
   / *!
    * @brief Sends a bytes message.
@@ -136,6 +137,12 @@ public:
    * /
   int sendBytesMessage(const unsigned char *cbytes, int bsize);
   */
+
+  /*!
+   * @brief In asynchronous implementations, method will be called on exception.
+   *        This class is registered as an ExceptionListener with the connection.
+   */ 
+  virtual void onException(const cms::CMSException& ex AMQCPP_UNUSED);
   
 private:
 
