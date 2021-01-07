@@ -36,7 +36,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
 {
     double dt, gain;
     int i, ierr, ierr1, j, k, l;
-    int ii;
     bool *ltInit;
     ierr = 0;
     if (traceBuffer->ntraces < 1){return ierr;} // Nothing to do

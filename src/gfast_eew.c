@@ -102,7 +102,7 @@ int main(int argc, char **argv)
   memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
   memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
-  ISCL_iscl_init(); // Fire up the computational library
+  // vck delete candidate ISCL_iscl_init(); // Fire up the computational library
 
   printf("%s: Reading configuration from %s", fcnm, propfilename);
   // Read the program properties

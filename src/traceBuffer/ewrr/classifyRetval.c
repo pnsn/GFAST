@@ -32,7 +32,7 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval)
     if (retval == GET_MISS)
     {   
         sprintf(msg, "%s: Some messages were missed\n", __func__);
-        LOG_MSG("et", msg);
+        LOG_MSG("%s", msg);
         LOG_WARNMSG("%s", msg);
         return -1; 
     }
@@ -40,7 +40,7 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval)
     if (retval == GET_NOTRACK)
     {   
         sprintf(msg, "%s: Message exceeded NTRACK_GET\n", __func__);
-        LOG_MSG("et", msg);
+        LOG_MSG("%s", msg);
         LOG_WARNMSG("%s", msg);
         return -1; 
     }   
@@ -49,7 +49,7 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval)
     {
         sprintf(msg,
                "%s: Next message of requested logo(s) is too big\n", __func__);
-        LOG_MSG("et", msg);
+        LOG_MSG("%s", msg);
         LOG_WARNMSG("%s", msg);
         return -2;
     }
@@ -57,7 +57,7 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval)
     if (retval == GET_MISS_LAPPED)
     {
         sprintf(msg, "%s: Some messages were overwritten\n", __func__);
-        LOG_MSG("et", msg);
+        LOG_MSG("%s", msg);
         LOG_WARNMSG("%s", msg);
         return -1;
     }
@@ -65,13 +65,13 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval)
     if (retval == GET_MISS_SEQGAP)
     {
         sprintf(msg, "%s: A gap in messages was detected\n", __func__);
-        LOG_MSG("et", msg);
+        LOG_MSG("%s", msg);
         LOG_WARNMSG("%s", msg);
         return -1;
     }
     // I don't know
     sprintf(msg, "%s: Could not classify return value\n", __func__);
-    LOG_MSG("et", msg);
+    LOG_MSG("%s", msg);
     LOG_WARNMSG("%s", msg);
     return -2;
 }
