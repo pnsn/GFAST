@@ -102,15 +102,15 @@ int core_properties_initialize(const char *propfilename,
     }
 
     //metadata file
-    if (!cfileexists(props->metaDataFile))
-    {
-        LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
-        return -1;
-    }
     s = iniparser_getstring(ini, "general:metaDataFile\0",
                             "GFAST_streams.txt\0");
     strcpy(props->metaDataFile, s);
-
+    if (!cfileexists(props->metaDataFile))
+      {
+        LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
+        return -1;
+      }
+    
     //site mask file
     s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
     if (s != NULL)

@@ -104,7 +104,7 @@ int main(int argc, char **argv)
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
   // vck delete candidate ISCL_iscl_init(); // Fire up the computational library
 
-  printf("%s: Reading configuration from %s", fcnm, propfilename);
+  printf("%s: Reading configuration from %s\n", fcnm, propfilename);
   // Read the program properties
   ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
   if (ierr != 0)
