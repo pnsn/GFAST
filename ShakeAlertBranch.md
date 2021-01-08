@@ -85,12 +85,12 @@ On Centos, apr-dev package is installed as a dependency in the activemq-cpp-deve
 
 ### iniparser
 
-This is a tiny utiility from github to parse GFAST parameter files.
+This is a small utiility from github to parse GFAST parameter files.
 Will replace this functionality to use standard ShakeAlert versions.
 iniparser.h loaded in core/cmt/readIni.c, core/properties/initialize.c,
 core/scaling/pgd\_readIni.c, activeMQ/readIni.c.
 
-This is a tiny little compile with no unusual dependencies.
+This is a small self-contained compile with no unusual dependencies.
 
 ### libxml2
 
@@ -215,6 +215,9 @@ require Makefile modifications.
 - Find out why activemq not seeing events.
 - Should convert to use dmlib
 - Documentation
-- Metadata reader needs to be converted to ShakeAlert file format. Should 
+- Metadata reader needs to be converted to ShakeAlert file format.
 - ShakeAlertConsumer should be revamped to allow asynchronous read loop.
+- remove last ISCL calls
+- add ActiveMQ maxMessages to param reader.
+- 
 

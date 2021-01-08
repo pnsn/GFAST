@@ -136,6 +136,14 @@ int activeMQ_readIni(const char *propfilename,
                     __func__);
         activeMQ_props->msWaitForMessage = 1;
     }
+    setVarName(group, "maxMessages\0", var);
+    activeMQ_props->maxMessages  = iniparser_getint(ini, var, 5);
+    if (activeMQ_props->maxMessages <= 0)
+    {
+        LOG_WARNMSG("%s: ActiveMQ message buffer must be >0, overriding to 5\n",
+                    __func__);
+        activeMQ_props->maxMessages = 5;
+    }
     ierr = 0;
     ERROR:;
     iniparser_freedict(ini);

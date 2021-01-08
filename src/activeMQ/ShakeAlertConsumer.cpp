@@ -49,7 +49,7 @@ void ShakeAlertConsumer::initialize(const string username,
   __useTopic = useTopic;
   __clientAck = clientAck;
   __luseListener = luseListener;
-  __maxMessages = maxMessages;
+  __maxMessages = (maxMessages>0)?maxMessages:5; //error trap
   __verbose = verbose;
   __isInitialized = true;
   __lconnected = false;

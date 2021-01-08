@@ -127,7 +127,7 @@ struct GFAST_activeMQ_struct
                                      (default is 5). */
     int msWaitForMessage;       /*!< Milliseconds to wait for a message
                                      (default is 0). */
-    int maxMessages;            /*!< Maximum messages in consumer FIFO buffer 
+    unsigned int maxMessages;   /*!< Maximum messages in consumer FIFO buffer 
 				     (default is 5). */
 };
 
