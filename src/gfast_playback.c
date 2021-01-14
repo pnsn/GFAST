@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
                     if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
                 // Set the log file names
-                eewUtils_setLogFileNames(SA.eventid,
+                eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
                                          errorLogFileName, infoLogFileName,
                                          debugLogFileName, warnLogFileName);
                 if (cfileexists(errorLogFileName))
