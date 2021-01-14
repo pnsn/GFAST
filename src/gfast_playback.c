@@ -6,8 +6,8 @@
 #include "gfast.h"
 #include "gfast_eewUtils.h"
 #include "iscl/iscl/iscl.h"
-#include "iscl/os/os.h"
-#include "iscl/time/time.h"
+#include "fileutils.h"
+#include "timeutils.h"
 
 int main(int argc, char *argv[])
 {
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     }
     memset(propfilename, 0, sizeof(propfilename));
     strcpy(propfilename, argv[1]);
-    if (!os_path_isfile(propfilename))
+    if (!cfileexists(propfilename))
     {
         LOG_ERRMSG("%s: Properties file %s doesn't exist\n",
                    fcnm, propfilename);
@@ -188,19 +188,19 @@ int main(int argc, char *argv[])
                 eewUtils_setLogFileNames(SA.eventid,
                                          errorLogFileName, infoLogFileName,
                                          debugLogFileName, warnLogFileName);
-                if (os_path_isfile(errorLogFileName))
+                if (cfileexists(errorLogFileName))
                 {
                     remove(errorLogFileName);
                 }
-                if (os_path_isfile(infoLogFileName))
+                if (cfileexists(infoLogFileName))
                 {
                     remove(infoLogFileName);
                 }
-                if (os_path_isfile(debugLogFileName))
+                if (cfileexists(debugLogFileName))
                 {
                    remove(debugLogFileName);
                 }
-                if (os_path_isfile(warnLogFileName))
+                if (cfileexists(warnLogFileName))
                 {
                    remove(warnLogFileName);
                 }

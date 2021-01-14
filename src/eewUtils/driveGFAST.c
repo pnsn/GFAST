@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #include "gfast.h"
 #include "gfast_core.h"
 #include "gfast_eewUtils.h"
@@ -9,8 +10,7 @@
 #include "gfast_traceBuffer.h"
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
-#include "iscl/os/os.h"
-#include "iscl/time/time.h"
+#include "iscl_time.h"
 
 /*!
  * @brief writes xml message to flat file
@@ -143,7 +143,7 @@ int eewUtils_driveGFAST(const double currentTime,
         }
 
       // Set the log file names
-      eewUtils_setLogFileNames(SA.eventid,
+      eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
 			       errorLogFileName, infoLogFileName,
 			       debugLogFileName, warnLogFileName);
       core_log_openErrorLog(errorLogFileName);
@@ -582,11 +582,6 @@ int eewUtils_driveGFAST(const double currentTime,
         {
 	  LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
-      // MTH: Temp TEST !!!
-      if (events->nev == 1){ 
-	LOG_MSG("%s", "** events.nev=1: Test finished event set ierr=1");
-	ierr = 1;
-      }
     }
   LOG_MSG("time:%lf return ierr=%d", currentTime, ierr);
   return ierr;

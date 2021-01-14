@@ -5,11 +5,11 @@ endif
 $(info Including Make.include.$(MAKEHOST))
 include Make.include.$(MAKEHOST)
 
-SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils xml
+SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils xml utils
 INCL    = -I ../include $(ISCL_INCL) $(ACTIVEMQ_INCL) $(EW_INCL) $(HDF5_INCL)
 EXE     = gfast_eew gfast_playback
 OBJS	= activeMQ/gfast_amq.a eewUtils/gfast_utils.a xml/gfast_xml.a core/gfast_core.a \
-traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a
+traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a utils/timeutils.o utils/fileutils.o
 LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
 $(ACTIVEMQ_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) $(CRYPTO_LIB)
 SYSLIBS = -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++

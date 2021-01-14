@@ -95,7 +95,7 @@ int eewUtils_parseCoreXML(const char *message,
                           const double saNaN,
                           struct GFAST_shakeAlert_struct *SA);
 /* Make the EEW log file names */
-void eewUtils_setLogFileNames(const char *eventid,
+  void eewUtils_setLogFileNames(const char *eventid, const char *outputDir,
                               char errorLogFileName[PATH_MAX],
                               char infoLogFileName[PATH_MAX],
                               char debugLogFileName[PATH_MAX],

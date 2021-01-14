@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <libgen.h>
 #include "gfast_core.h"
-#include "iscl/os/os.h"
-#include "iscl/memory/memory.h"
+#include "fileutils.h"
 
 enum logFileType_enum
 {
@@ -80,7 +82,7 @@ static int core_log_createLogFile(const char *fileName,
                                   const enum logFileType_enum fileType)
 {
     char *dirName;
-    enum isclError_enum isclError;
+
     int ierr = 0;
     // Does this file name make sense?
     if (fileName == NULL)
@@ -104,24 +106,23 @@ static int core_log_createLogFile(const char *fileName,
         return ierr;
     }
     // Check the output
-    dirName = os_dirname(fileName, &isclError); 
-    if (!os_path_isdir(dirName))
+    char *dirc = strdup(fileName);
+    dirName = dirname(dirc); 
+    if (!cdirexists(dirName))
     {
-        isclError = os_makedirs(dirName);
-        if (isclError != ISCL_SUCCESS)
+      ierr = mkdir(dirName,0755);
+      if (ierr)
         {
-            fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Failed to make %s\n",
-                    __FILE__, __func__, __LINE__, dirName);
-           ierr = 1;
+	  fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Failed to make %s\n",
+		  __FILE__, __func__, __LINE__, dirName);
         }
-        //memory_free8c(&dirName);
     }
-//MTH: should be here
-    memory_free8c(&dirName);
+
+    free(dirc);
 
     if (ierr != 0){return ierr;}
     // Just point out this file is going to be over-written 
-    if (os_path_isfile(fileName))
+    if (cfileexists(fileName))
     {
         fprintf(stdout, "[WARNING]: (%s:%s:line=%d) Overwriting file %s\n",
                  __FILE__, __func__, __LINE__, fileName);
@@ -170,7 +171,6 @@ static int core_log_openLogFile(const char *fileName,
                                 const enum logFileType_enum fileType)
 {
     char *dirName;
-    enum isclError_enum isclError;
     int ierr = 0;
     // Does this file name make sense?
     if (fileName == NULL)
@@ -194,22 +194,20 @@ static int core_log_openLogFile(const char *fileName,
         return ierr;
     }
     // Does the file exist?  If not then give it an output directory
-    if (!os_path_isfile(fileName))
+    if (!cfileexists(fileName))
     {
-        dirName = os_dirname(fileName, &isclError);
-        if (!os_path_isdir(dirName))
-        {
-            isclError = os_makedirs(dirName);
-            if (isclError != ISCL_SUCCESS)
+      char *dirc = strdup(fileName);
+      dirName = dirname(dirc);
+      if (!cdirexists(dirName))
+	{
+	  ierr = mkdir(dirName, 0755);
+	  if (ierr)
             {
-                fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Failed to make %s\n",
-                        __FILE__, __func__, __LINE__, dirName);
-                ierr = 1;
+	      fprintf(stderr, "[ERROR]: (%s:%s:line=%d) Failed to make %s\n",
+		      __FILE__, __func__, __LINE__, dirName);
             }
-            //memory_free8c(&dirName);
         }
-        // MTH !!
-        memory_free8c(&dirName);
+      free(dirc);
     }
     if (ierr != 0){return ierr;}
     // Open the desired file

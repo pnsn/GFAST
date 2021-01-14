@@ -17,26 +17,6 @@ still operating within the standard ShakeAlert infrastructure.
 
 Here we only consider the dependencies related to running GFAST in a Shake Alert environment.  Earthworm, ActiveMQ and other peripheral packages are assumed.
 
-### cmake
-
-No longer a dependency in ShakeAlert branch except to build some dependencies.
-
-Baker's original branch (and many of its dependencies) use cmake in the build tree.  Most of the reasons for doing this do not apply to ShakeAlert (for example we don't intend to compile on Windows) and cmake is difficult to accomodate in the standard ShakeAlert build procedure.  The ShakeAlert branch implements a conventional Makefile tree rooted in the src/ directory.  Build-host specific paths are defined in src/Make.include.Linux which is "included" in all Makefiles.
-
-Not required for GFAST, but required to compile [ISCL](#ISCL) and [compearth](#compearth) dependencies. 
-
-### GCC 7.3
-
-Not a dependency in ShakeAlert branch.
-
-As mentioned in the README, compiler versions: gcc 4.8.5 vs gcc 7.3 gcc 4.8.5 does not recognize the "#pragma omp simd" directive so will generate a lot of warnings on compile. gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.  The code als makes heavy use of the "#pragma omp parallel" directive.
-
-The "parallel" directive goes way back and is not a problem.  "simd" appears to have been introduced in OpenMP v4.0".
-
-ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this is not necessary in the ShakeAlert RHEL servers.  (unresolved)
-
-This seems to only be a problem when compiling the [ISCL](#ISCL) dependency.
-
 ### Lapack
 
 /usr/lib64/liblapack.so.3.4.2 is already part of standard ShakeAlert
@@ -110,6 +90,24 @@ eew-uw-dev1 required yum install of hdf5-devel package.  hdf5 package already in
 
 Requires linking with libz and libsz.
 
+### compearth
+
+This is needed for moment tensor decompositions.  Currently only availabe from baker845 github repo.  Se Mike Haggarty's README for how to get and build.  Requires [cmake](#cmake) and one of the math library options.  Used in core, eewUtils, uw and xml.
+
+eew-uw-dev1 [cmake](#cmake) build went fairly smoothly using following cmake script:
+
+~~~~
+#!/bin/bash
+/usr/bin/cmake $( dirname "$0" ) -DCMAKE_BUILD_TYPE=Release \
+-DCMAKE_INSTALL_PREFIX=./ \
+-DCMAKE_C_FLAGS="-g3 -O2 -fopenmp" \
+-DCOMPEARTH_USE_MKL=FALSE \
+-DCOMPEARTH_BUILD_PYTHON_MODULE=OFF \
+-DCBLAS_INCLUDE_DIR="/usr/include/openblas" \
+-DCBLAS_LIBRARY="/usr/lib64/atlas/libsatlas.so.3" \
+-DLAPACKE_INCLUDE_DIR="/usr/include/openblas" 
+~~~~
+
 ### ISCL
 
 It appears that this library is used for timestamps (ISCL_time_timestamp()) and file manipulation (ICSL_os_path_isfile() and ISCL_os_path_isdir()).  Given that these are available in standard c. it seems likely that this dependency can be easily removed.
@@ -138,31 +136,7 @@ Still have not eliminated [cmake](#cmake) dependency.  To make this compile on e
 -DCBLAS_LIBRARY="/usr/lib64/atlas/libsatlas.so.3"
 ~~~~
 
-#### - MKL
-
-To remove this dependency, add set(ISCL\_USE\_INTEL OFF) to
-CMakeLists.txt in iscl compile.  We will likely never use this in ShakeAlert.  Using MKL will require
-CBLAS and LAPACKE _LIB and _INCL variables in Make.include.Linux to point to their mkl versions.  May be others.
-
-#### - compearth
-
-This is needed for moment tensor decompositions.  Currently only availabe from baker845 github repo.  Se Mike Haggarty's README for how to get and build.  Requires [cmake](#cmake) and one of the math library options.  Used in core, eewUtils, uw and xml.
-
-eew-uw-dev1 [cmake](#cmake) build went fairly smoothly using following cmake script:
-
-~~~~
-#!/bin/bash
-/usr/bin/cmake $( dirname "$0" ) -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_PREFIX=./ \
--DCMAKE_C_FLAGS="-g3 -O2 -fopenmp" \
--DCOMPEARTH_USE_MKL=FALSE \
--DCOMPEARTH_BUILD_PYTHON_MODULE=OFF \
--DCBLAS_INCLUDE_DIR="/usr/include/openblas" \
--DCBLAS_LIBRARY="/usr/lib64/atlas/libsatlas.so.3" \
--DLAPACKE_INCLUDE_DIR="/usr/include/openblas" 
-~~~~
-
-#### - FFTw
+### FFTw
 
 Documentation suggests Fourier transforms are not computed in GFAST,
 so this is an artifact of including ISCL. We may want to customize ISCL or eliminate ISCL all together to remove dependency in the future.
@@ -173,31 +147,9 @@ on Centos, install fftw package which installs libfftw3.so and many other relate
 
 eew-uw-dev1 required fftw package install.  fftw-devel was also needed to compile iscl dependency.
 
-#### - LibGeographic
-
-Used in unit tests. I suspect that functionality may need to be re-implemented
-in current library equivalents. Could not find any mention of this
-in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile.  Looks like this is a dependency of a dependency, not of the main code.
-
-#### - libcurl
-
-Not a dependency for ShakeAlert install.
-
-Used only in gfast2web in uw directory.  Ubuntu libcurl4-gnutls-dev.
-
-## Additional ShakeAlert dependenciesx
+## Additional ShakeAlert dependencies
 
 The following must be added to make GFAST conform to ShakeAlert standards
-
-## Merging with the latest master branch
-
-As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the latest changes in the master branch into the SAdev branch:
-
-1. > git checkout 2020
-2. > git pull [ remote-name 2020 ] 
-3. > git checkout SAdev
-4. > git pull [ remote-name SAdev ]
-5. > git merge 2020
 
 ### make
 
@@ -210,14 +162,71 @@ All the machine specific paths and variables are defined in the file Make.includ
 Other than having the executable available, this does not seem to
 require Makefile modifications.
 
+## Dependencies not required in ShakeAlert branch
+
+The following software packages are required by the main branch but not in the ShakeAlert branch.
+
+### cmake
+
+No longer a dependency in ShakeAlert branch except to build some dependencies.
+
+Baker's original branch (and many of its dependencies) use cmake in the build tree.  Most of the reasons for doing this do not apply to ShakeAlert (for example we don't intend to compile on Windows) and cmake is difficult to accomodate in the standard ShakeAlert build procedure.  The ShakeAlert branch implements a conventional Makefile tree rooted in the src/ directory.  Build-host specific paths are defined in src/Make.include.Linux which is "included" in all Makefiles.
+
+Not required for GFAST, but required to compile [ISCL](#ISCL) and [compearth](#compearth) dependencies. 
+
+### GCC 7.3
+
+Not a dependency in ShakeAlert branch.
+
+As mentioned in the README, compiler versions: gcc 4.8.5 vs gcc 7.3 gcc 4.8.5 does not recognize the "#pragma omp simd" directive so will generate a lot of warnings on compile. gcc 7.3 will use this directive to auto vectorize the loops, which may improve performance.  The code als makes heavy use of the "#pragma omp parallel" directive.
+
+The "parallel" directive goes way back and is not a problem.  "simd" appears to have been introduced in OpenMP v4.0".
+
+ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this is not necessary in the ShakeAlert RHEL servers.  (unresolved)
+
+This seems to only be a problem when compiling the [ISCL](#ISCL) dependency.
+
+### MKL
+
+To remove this dependency, add set(ISCL\_USE\_INTEL OFF) to
+CMakeLists.txt in iscl compile.  We will likely never use this in ShakeAlert.  Using MKL will require
+CBLAS and LAPACKE _LIB and _INCL variables in Make.include.Linux to point to their mkl versions.  May be others.
+
+### libcurl
+
+Not a dependency for ShakeAlert install.
+
+Used only in gfast2web in uw directory which ShakeAlert does not use.  Ubuntu libcurl4-gnutls-dev.
+
+### LibGeographic
+
+Used in unit tests. I suspect that functionality may need to be re-implemented
+in current library equivalents. Could not find any mention of this
+in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile.  Looks like this is a dependency of a dependency, not of the main code.
+
+# Managing the git repository
+
+## Merging with the latest master branch
+
+As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the latest changes in the master branch into the SAdev branch:
+
+1. > git checkout 2020
+2. > git pull [ remote-name 2020 ] 
+3. > git checkout SAdev
+4. > git pull [ remote-name SAdev ]
+5. > git merge 2020
+
+
 # To do
 
-- Find out why activemq not seeing events.
-- Should convert to use dmlib
-- Documentation
 - Metadata reader needs to be converted to ShakeAlert file format.
 - ShakeAlertConsumer should be revamped to allow asynchronous read loop.
-- remove last ISCL calls
-- add ActiveMQ maxMessages to param reader.
-- 
+- figure out why remove_expired_event kills program.
+- replace ISCL timestamp calls
+- Make event logs go to configured directory
+- compile without ISCL
+- - memory
+- - array
+- modify producer to use dmlib
+- dmlib heartbeat sender
 

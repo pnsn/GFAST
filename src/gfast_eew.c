@@ -4,10 +4,9 @@
 #include <string.h>
 #include "gfast.h"
 #include "gfast_core.h"
-#include "iscl/iscl/iscl.h"
 #include "iscl/memory/memory.h"
-#include "iscl/os/os.h"
-#include "iscl/time/time.h"
+#include "timeutils.h"
+#include "fileutils.h"
 #include <dirent.h>  // Needed for DIR
 
 #include <time.h>
@@ -102,7 +101,6 @@ int main(int argc, char **argv)
   memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
   memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
-  // vck delete candidate ISCL_iscl_init(); // Fire up the computational library
 
   printf("%s: Reading configuration from %s\n", fcnm, propfilename);
   // Read the program properties
@@ -226,8 +224,8 @@ int main(int argc, char **argv)
   LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
   LOG_MSG("%s: Beginning the acquisition...", fcnm);
   eventMessage = NULL;
-  t0 = (double) (long) (ISCL_time_timeStamp() + 0.5);
-  //unused: t_now = (double) (long) (ISCL_time_timeStamp() + 0.5);
+  t0 = time_timeStamp();
+  //unused: t_now = (double) (long) (time_timeStamp() + 0.5);
   //unused: tbeg = t0; 
   tstatus = t0;
   tstatus0 = t0;
@@ -240,7 +238,7 @@ int main(int argc, char **argv)
       // Initialize the iteration
       eventMessage = NULL;
       // Run through the machine every second
-      t1 = (double) (long) (ISCL_time_timeStamp() + 0.5);
+      t1 = time_timeStamp();
       if (t1 - t0 < props.waitTime){continue;}
       t0 = t1;
       tstatus1 = t0;
@@ -255,7 +253,7 @@ int main(int argc, char **argv)
       //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
       //printf("\n== [GFAST t0:%f] ==\n", t0);
       //LOG_MSG("== [GFAST t0:%f]", t0);
-      LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
+      LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", time_timeStamp());
 
       if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -264,17 +262,17 @@ int main(int argc, char **argv)
 	  tstatus0 = tstatus1;
         } 
 
-      double tbeger = ISCL_time_timeStamp();
+      double tbeger = time_timeStamp();
       /* vck unused variable      double tbeger0 = tbeger;*/
       // Read my messages off the ring
-      memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
+      memory_free8c(&msgs); 
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
       msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
 						  false,
 						  &ringInfo,
 						  &nTracebufs2Read,
 						  &ierr);
-      LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_timeStamp(), nTracebufs2Read);
+LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
       if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
@@ -300,8 +298,8 @@ int main(int argc, char **argv)
             }
 	  goto ERROR;
         }
-      LOG_MSG("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
-      tbeger = ISCL_time_timeStamp();
+      LOG_MSG("scrounge %8.4f\n", time_timeStamp() - tbeger);
+      tbeger = time_timeStamp();
      
       // Unpackage the tracebuf2 messages
       LOG_MSG("%s", "== unpackTraceBuf2Messages");
@@ -314,8 +312,8 @@ int main(int argc, char **argv)
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
 	  goto ERROR;
         }
-      printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
-      tbeger = ISCL_time_timeStamp();
+printf("end %d %8.4f\n", nTracebufs2Read, time_timeStamp() - tbeger);
+tbeger = time_timeStamp();
       // Update the hdf5 buffers
       LOG_MSG("%s", "== Update the hdf5 buffers");
       ierr = traceBuffer_h5_setData(t1,
@@ -388,22 +386,22 @@ int main(int argc, char **argv)
 		  if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                 }
 	      // Set the log file names
-	      eewUtils_setLogFileNames(SA.eventid,
+	      eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
 				       errorLogFileName, infoLogFileName,
 				       debugLogFileName, warnLogFileName);
-	      if (os_path_isfile(errorLogFileName))
+	      if (cfileexists(errorLogFileName))
                 {
 		  remove(errorLogFileName);
                 }
-	      if (os_path_isfile(infoLogFileName))
+	      if (cfileexists(infoLogFileName))
                 {
 		  remove(infoLogFileName);
                 }
-	      if (os_path_isfile(debugLogFileName))
+	      if (cfileexists(debugLogFileName))
                 {
                   remove(debugLogFileName);
                 }
-	      if (os_path_isfile(warnLogFileName))
+	      if (cfileexists(warnLogFileName))
                 {
                   remove(warnLogFileName);
                 }
@@ -532,7 +530,7 @@ int main(int argc, char **argv)
   GFAST_core_data_finalize(&gps_data);
   GFAST_core_properties_finalize(&props);
   traceBuffer_h5_finalize(&h5traceBuffer);
-  iscl_finalize();
+  //vck delete candidate iscl_finalize();
   if (ierr != 0)
     {
       printf("%s: Terminating with error\n", fcnm);

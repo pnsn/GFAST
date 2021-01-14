@@ -3,7 +3,7 @@
 #include <string.h>
 #include "gfast_core.h"
 #include "iscl/memory/memory.h"
-#include "iscl/os/os.h"
+#include "fileutils.h"
 
 /*!
  * @brief Initializes the GPS data streams
@@ -33,7 +33,7 @@ int core_data_initialize(struct GFAST_props_struct props,
         LOG_ERRMSG("%s", "Error reading sites file!");
         return -1;
     }
-    if (os_path_isfile(props.siteMaskFile))
+    if (cfileexists(props.siteMaskFile))
     {
         ierr = core_data_readSiteMaskFile(props.siteMaskFile,
                                           props.verbose, gps_data);
