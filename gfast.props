@@ -30,6 +30,8 @@ processing_time=602.
 #  2 -> GFAST is running historical playbacks through Earthworm
 #  3 -> GFAST is running offline and is obtaining data purely from files
 opmode = 1
+# minimum time for main loop (defaults to 1 second)
+#waitTime=1.0
 # The synthetic mode driver file
 #syndriver=nisqually_driver.txt
 # The synthetic mode output file

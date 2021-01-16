@@ -237,7 +237,7 @@ int main(int argc, char **argv)
     {
       // Initialize the iteration
       eventMessage = NULL;
-      // Run through the machine every second
+      // Don't start loop until prop.waitTime has elapsed (default 1 second)
       t1 = time_timeStamp();
       if (t1 - t0 < props.waitTime){continue;}
       t0 = t1;
@@ -312,8 +312,8 @@ LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeSta
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
 	  goto ERROR;
         }
-printf("end %d %8.4f\n", nTracebufs2Read, time_timeStamp() - tbeger);
-tbeger = time_timeStamp();
+      printf("end %d %8.4f\n", nTracebufs2Read, time_timeStamp() - tbeger);
+      tbeger = time_timeStamp();
       // Update the hdf5 buffers
       LOG_MSG("%s", "== Update the hdf5 buffers");
       ierr = traceBuffer_h5_setData(t1,
