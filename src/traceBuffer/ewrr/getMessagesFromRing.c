@@ -95,7 +95,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
 	  LOG_ERRMSG("Receiving kill signal from ring %s",
 		     ringInfo->ewRingName);
 	  *ierr =-1;
-	  return msgs;
+	  break;
         }
       // Copy from the memory
       retval = tport_copyfrom(&ringInfo->region,
@@ -108,7 +108,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         {
 	  LOG_ERRMSG("%s", "An error was encountered getting message");
 	  *ierr =-2;
-	  return msgs;
+	  break;
         }
       // Verify i want this message
       if (gotLogo.type == ringInfo->traceBuffer2Type)
@@ -121,7 +121,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             {
 	      LOG_ERRMSG("%s", "Error flipping bytes");
 	      *ierr =-2;
-	      return msgs;
+	      break;
             }
 	  //nbytes = sizeof(int); 
 	  //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
@@ -135,21 +135,21 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
 	  kdx = *nRead*MAX_TRACEBUF_SIZ;
 
 	  memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
-	  (*nRead)++;
+	  (*nRead)+=1;
 	  
 	  //check if sane allocation limits reached
-	  if (*nRead>=maxMessages) {
+	  if (*nRead >= maxMessages) {
 	    LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Single-call message limits reached.",
 		    *nRead, nblock, messageBlock);
 	    if (showWarnings)
 		{
 		  LOG_WARNMSG("%s", "Single-call message limits reached");
 		}
-	    return msgs;
+	    break;
 	  }
 	  // Filled current allocation. Reallocate space if possible
 	  //vck should revisit this later and see if we can just use realloc()
-	  if (*nRead == messageBlock*nblock)
+	  if (*nRead >= messageBlock*nblock)
 	    {
 	      LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Reallocating msgs block",
 		      *nRead, nblock, messageBlock);
@@ -163,7 +163,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
 		nwork = maxSpace;
 	      } else {
 		nwork = ncopy + MAX_TRACEBUF_SIZ*messageBlock;
-		nblock++;
+		nblock+=1;
 	      }
 	      // set workspace and copy old messages
 	      msgWork = memory_calloc8c(ncopy);
