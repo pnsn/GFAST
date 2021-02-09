@@ -40,6 +40,8 @@ XML_LIB=-lxml2
 FFTW_LIB=/usr/lib64/libfftw3.so.3
 SSL_LIB=/usr/lib64/libssl.so.10
 CRYPTO_LIB=/usr/lib64/libcrypto.so.10
+DM_LIB=/app/share/lib64/libdm.a
+DMLIB_INCL=/app/share/include
 
 #some GFAST-specific environment variables
 ENABLE_EARTHWORM=-DENABLE_EARTHWORM

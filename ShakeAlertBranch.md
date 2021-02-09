@@ -204,6 +204,24 @@ Used in unit tests. I suspect that functionality may need to be re-implemented
 in current library equivalents. Could not find any mention of this
 in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile.  Looks like this is a dependency of a dependency, not of the main code.
 
+# dmlib
+
+One feature that is requested by the SA development group is that GFAST use the ShakeAlert dmlib for its communication with activemq, including heartbeat and message publishing.
+
+Among many advantages of this approach are that the current dmlib is available on all ShakeAlert servers.
+
+## compiling dmlib on non-SA computers.
+
+You will need xerces and earthworm dev resources to compile dmlib.
+
+The Makefile in ShakeAlert root is configured to compile various subsets of the full ShakeAlert package.  From the checkout root, we will be running 'make dmlib' to just make the libdmlib.a file.
+
+### Ubuntu
+
+You need libxerces-c-dev package.
+
+In Make.include.Linux had to respecify EW_HOME, ACTIVEMQ, ACTIVEMQ_INCL, ACTIVEMQ_LIB, APR_INCL (and comment later redefinition) and APR_LIB.  earthworm logit.o was not compiled in standard dist.
+
 # Managing the git repository
 
 ## Merging with the latest master branch

@@ -170,8 +170,31 @@ int main(int argc, char **argv)
 	LOG_ERRMSG("%s: Error connecting listener to ActiveMQ\n", fcnm);
 	goto ERROR;
       }
-    // Todo: vck: initialize heartbeat publisher here
-  }
+    /* dmlib startup */
+    /* start connection */
+    ierr=startAMQconnection(props.activeMQ_props.user,
+			    props.activeMQ_props.password,
+			    props.activeMQ_props.host,
+			    props.activeMQ_props.port,
+			    props.activeMQ_props.msReconnect,
+			    props.activeMQ_props.maxAttempts);
+    if (ierr==0) {
+      LOG_ERRMSG("%s: Attemted to re-initialize activeMQ connection object", fcnm);
+    }
+    if (ierr<0) {
+      LOG_ERRMSG("%s: Error initializing activeMQ connection object", fcnm);
+      goto ERROR;
+    }
+    /* start heartbeat producer and set to manual heartbeats */
+    ierr=startHBProducer("GFAST", props.activeMQ_props.topic, 0, props.verbose);
+    if (ierr==0) {
+      LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
+    }
+    if (ierr<0) {
+      LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
+      goto ERROR;
+    }
+  } /* end if USE_AMQ */
 
   if (strlen(props.SAeventsDir)) {
     message_dir = props.SAeventsDir;
@@ -239,16 +262,16 @@ int main(int argc, char **argv)
       eventMessage = NULL;
       // Don't start loop until prop.waitTime has elapsed (default 1 second)
       t1 = time_timeStamp();
-      if (t1 - t0 < props.waitTime){continue;}
+      double tloop = t1-t0;
+      if (tloop < props.waitTime) {
+	continue;
+      }
+      elif ((tloop) >= 2*props.waitTime) {
+	LOG_MSG("== [GFAST main loop took %fs >= 2x%fs waitTimes. not keeping up", tloop, props.waitTime);
+      }
+
       t0 = t1;
       tstatus1 = t0;
-
-      /*
-        if ((t0 - tbeg) >= 300.) {
-	LOG_MSG("== [GFAST t0:%f >= 300 sec since we started --> EXIT CODE", t0);
-	goto ERROR;
-        }
-      */
 
       //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
       //printf("\n== [GFAST t0:%f] ==\n", t0);
@@ -272,7 +295,7 @@ int main(int argc, char **argv)
 						  &ringInfo,
 						  &nTracebufs2Read,
 						  &ierr);
-LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
+      LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
       if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
@@ -328,6 +351,7 @@ LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeSta
 
       // Check for an event
       if (USE_AMQ){
+	sendHeartbeat();
 	if (props.verbose > 2) {
 	  LOG_MSG("%s: Checking Activemq for events", fcnm);
 	}
@@ -336,7 +360,6 @@ LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeSta
 	if ((props.verbose > 2)&&(eventMessage == NULL)) {
 	  LOG_MSG("%s: Activemq returned NULL", fcnm);
 	}
-	// Todo: vck: insert heartbeat send here
       } else if (check_message_dir) {
 	// Alternatively, check for SA message trigger in message_dir
 	eventMessage = check_dir_for_messages(message_dir, &ierr);
@@ -517,6 +540,8 @@ LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeSta
     {
       activeMQ_consumer_finalize(amqMessageListener);
       activeMQ_stop();
+      stopHBProducer();
+      stopAMQconnection();
     }
   core_cmt_finalize(&props.cmt_props,
 		    &cmt_data,
