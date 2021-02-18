@@ -100,6 +100,9 @@ int core_properties_initialize(const char *propfilename,
         LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
       }
     }
+    else{
+	props->output_interval_mins[0] = 0;
+    }
 
     s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
     if (s != NULL)
