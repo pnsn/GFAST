@@ -210,6 +210,8 @@ One feature that is requested by the SA development group is that GFAST use the 
 
 Among many advantages of this approach are that the current dmlib is available on all ShakeAlert servers.
 
+Adding dmlib also adds a libxerces and qlib2 dependencies, which are naturally already on ShakeAlert machines.
+
 ## compiling dmlib on non-SA computers.
 
 You will need xerces and earthworm dev resources to compile dmlib.
