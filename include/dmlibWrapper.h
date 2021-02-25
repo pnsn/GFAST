@@ -100,18 +100,18 @@ extern "C" {
     @brief create dmlib CoreEventInfo object and store in static variable
     @return 1 for success, 0 if already exists or -1 for error
   */
-  int createDMEventObject(string evid, double mag, double lat, double lon, double depth, double otime);
+  int createDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime);
 
   /*!
     @brief modify existing dmlib CoreEventInfo object
     @return 1 for success, 0 if no object exists or -1 for error
   */
-  int modifyDMEventObject(string evid, double mag, double lat, double lon, double depth, double otime);
+  int modifyDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime);
   /*!
     @brief delete stored dmlib CoreEventInfo object
     @return 1 for success, 0 no object exists or -1 for error
   */
-  int deleteDMEventObject(string evid);
+  int deleteDMEventObject(const char evid[]);
 
   
 #ifdef __cplusplus

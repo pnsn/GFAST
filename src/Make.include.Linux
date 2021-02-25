@@ -40,8 +40,11 @@ XML_LIB=-lxml2
 FFTW_LIB=/usr/lib64/libfftw3.so.3
 SSL_LIB=/usr/lib64/libssl.so.10
 CRYPTO_LIB=/usr/lib64/libcrypto.so.10
-DM_LIB=/app/share/lib64/libdm.a
-DMLIB_INCL=/app/share/include
+#DM_LIB=/app/share/lib64/libdm.a
+#DMLIB_INCL=/app/share/include
+DMLIB_DIR=/home/kress/git/ShakeAlert/libs/dmlib
+DM_LIB=$(DMLIB_DIR)/libdm.a
+DMLIB_INCL=-I $(DMLIB_DIR)
 
 #some GFAST-specific environment variables
 ENABLE_EARTHWORM=-DENABLE_EARTHWORM
@@ -155,13 +158,13 @@ AQMS=$(EEWDIR)/third_party
 
 # Support for plog library
 #ifdef ENABLE_PLOG
-CCFLAGS+=$(ENABLE_PLOG)
+CFLAGS+=$(ENABLE_PLOG)
 #endif
 #ifdef GFAST_USE_EW
-CCFLAGS+=$(GFAST_USE_EW)
+CFLAGS+=$(GFAST_USE_EW)
 #endif
 #ifdef GFAST_USE_AMQ
-CCFLAGS+=$(GFAST_USE_AMQ)
+CFLAGS+=$(GFAST_USE_AMQ)
 #endif
 
 AQMS_INCL+=-isystem$(AQMS)/libtnchnl/include \

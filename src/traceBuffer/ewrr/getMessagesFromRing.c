@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <limits.h>
+#include "transport.h"
+#include "trace_buf.h"
 #include "gfast_traceBuffer.h"
 #include "gfast_core.h"
 #include "iscl/memory/memory.h"

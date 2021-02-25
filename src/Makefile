@@ -13,7 +13,8 @@ OBJS	= activeMQ/gfast_amq.a eewUtils/gfast_utils.a xml/gfast_xml.a core/gfast_co
 traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a utils/timeutils.o utils/fileutils.o \
 dmlib/dmlibWrapper.cpp.o
 LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
-$(ACTIVEMQ_LIB) $(DM_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) $(CRYPTO_LIB)
+$(ACTIVEMQ_LIB) $(DM_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) \
+$(XERCES_LIB) $(QLIB2_LIB) $(CRYPTO_LIB)
 SYSLIBS = -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++
 
 %.o:    %.c
