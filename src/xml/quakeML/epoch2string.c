@@ -3,6 +3,7 @@
 #include <string.h>
 #include "gfast_xml.h"
 #include "gfast_core.h"
+#include "iscl/iscl/iscl_enum.h"
 #include "iscl/time/time.h"
 /*!
  * @brief Converts the epochal time (s) to YYYY-MM-DDThh:mm:ss.sssZ

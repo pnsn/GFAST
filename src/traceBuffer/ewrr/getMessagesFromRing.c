@@ -5,7 +5,7 @@
 #include <limits.h>
 #include "gfast_traceBuffer.h"
 #include "gfast_core.h"
-#include "iscl_memory.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * @brief Reads the tracebuffer2 messages from the Earthworm ring specified

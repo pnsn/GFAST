@@ -149,7 +149,7 @@ FOUND_TRACE:;
     else
     {
         // Set the time to now
-        tbeg = (double) ((long) (ISCL_time_timeStamp())); 
+        tbeg = (double) ((long) (time_timeStamp())); 
         // If scratch file was saved then remove it 
         if (os_path_isfile(h5name))
         {

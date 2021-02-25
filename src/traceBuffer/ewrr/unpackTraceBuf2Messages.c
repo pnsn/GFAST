@@ -118,7 +118,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     // Loop on waveforms and get workspace count
 
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", ISCL_time_timeStamp(), tb2Data->ntraces, nRead);
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", time_timeStamp(), tb2Data->ntraces, nRead);
     for (k=0; k<tb2Data->ntraces; k++)
     {
         // Copy on the SNCL
@@ -178,7 +178,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
             }
         } // Loop on messages read
     } // Loop on waveforms
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
@@ -199,7 +199,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_ti
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", ISCL_time_timeStamp(), nRead);
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", time_timeStamp(), nRead);
     for (i=0; i<nRead; i++)
     {
         if (imap[i] == tb2Data->ntraces + 1){break;} // Out of things to do 
@@ -251,7 +251,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
     free(msg_logos);
     */
 
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_time_timeStamp());
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", time_timeStamp());
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
     {
@@ -266,7 +266,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", ISCL_t
     }
 //printf("nReadPtr: %d\n", nReadPtr);
     // Unpack the traces
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_time_timeStamp());
+LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", time_timeStamp());
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];

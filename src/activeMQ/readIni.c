@@ -107,6 +107,18 @@ int activeMQ_readIni(const char *propfilename,
     {
         strcpy(activeMQ_props->destinationTopic, s);
     }
+    setVarName(group, "hbTopic\0", var);
+    s = iniparser_getstring(ini, var, NULL);
+    if (s == NULL)
+    {
+        LOG_ERRMSG("%s: Could not find ActiveMQ hbTopic!\n",
+                   __func__);
+        goto ERROR;
+    }
+    else
+    {
+        strcpy(activeMQ_props->destinationTopic, s);
+    }
     setVarName(group, "port\0", var);
     activeMQ_props->port = iniparser_getint(ini, var, -12345);
     if (activeMQ_props->port ==-12345)

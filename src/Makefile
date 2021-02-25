@@ -5,17 +5,19 @@ endif
 $(info Including Make.include.$(MAKEHOST))
 include Make.include.$(MAKEHOST)
 
-SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils xml utils
+SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils xml utils dmlib
 INCL    = -I ../include $(ISCL_INCL) $(ACTIVEMQ_INCL) $(EW_INCL) $(HDF5_INCL)
-EXE     = gfast_eew gfast_playback
+EXE     = gfast_eew
+#gfast_playback
 OBJS	= activeMQ/gfast_amq.a eewUtils/gfast_utils.a xml/gfast_xml.a core/gfast_core.a \
-traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a utils/timeutils.o utils/fileutils.o
+traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a utils/timeutils.o utils/fileutils.o \
+dmlib/dmlibWrapper.cpp.o
 LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
-$(ACTIVEMQ_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) $(CRYPTO_LIB) $(DM_LIB)
+$(ACTIVEMQ_LIB) $(DM_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) $(CRYPTO_LIB)
 SYSLIBS = -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++
 
 %.o:    %.c
-	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< -o $@ $(CFLAGS) $(DEBUG) $(INCL)
 
 all: $(SUBDIRS) $(EXE)
 $(SUBDIRS):
@@ -24,10 +26,10 @@ $(SUBDIRS):
 .PHONY: $(SUBDIRS)
 
 gfast_playback: gfast_playback.o $(OBJS)
-	$(cc) -o $@ $(CCFLAGS) gfast_eew.o $(OBJS) $(LIBS) $(SYSLIBS)
+	$(CC) -o $@ $(CCFLAGS) gfast_eew.o $(OBJS) $(LIBS) $(SYSLIBS)
 
 gfast_eew: gfast_eew.o $(OBJS)
-	$(cc) -o $@ $(CCFLAGS) gfast_eew.o $(OBJS) $(LIBS) $(SYSLIBS)
+	$(CC) -o $@ $(CCFLAGS) gfast_eew.o $(OBJS) $(LIBS) $(SYSLIBS)
 
 activeMQ/gfast_amq.a:
 	make -C activeMQ lib

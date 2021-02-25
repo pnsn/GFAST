@@ -7,7 +7,6 @@ endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 INCL            = -I ../../include $(HDF5_INCL) $(EW_INCL) $(ISCL_INCL) $(CBLAS_INCL)
 
@@ -20,7 +19,7 @@ OBJS := $(foreach dir,$(SDIRS),$(dir)/*.o)
 all: $(LIB)
 lib: $(LIB)
 %.o:    %.c
-	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

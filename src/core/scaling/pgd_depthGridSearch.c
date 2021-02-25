@@ -217,7 +217,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
         goto ERROR;
     }
     // Grid search on source depths
-    ISCL_time_tic();
+    time_tic();
     if (verbose > 2)
     {   
         LOG_DEBUGMSG("%s", "Beginning search on depths...");

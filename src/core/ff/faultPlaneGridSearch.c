@@ -266,7 +266,7 @@ int core_ff_faultPlaneGridSearch(const int l1, const int l2,
     }
     // Begin the grid search on fault planes
     ierr = 0;
-    ISCL_time_tic();
+    time_tic();
     if (verbose > 2)
     {
         LOG_DEBUGMSG("%s", "Beginning search on fault planes...");

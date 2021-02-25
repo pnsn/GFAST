@@ -1,26 +1,15 @@
 #ifndef _dmlibWrapper_h
 #define _dmlibWrapper_h
 
+#include "gfast_struct.h"
+
 /*!
  * @file dmlibWrapper.h
  * @brief variables and functions to expose dmlib functionality to GFAST c code
  */
 
 #ifdef __cplusplus
-#include "DMLib.h"
-#include "AlgMessage.h"
-#include "CoreEventInfo.h"
-#include "HBProducer.h"
-
-/*static variables local to this file*/
-static cms::Connection *amqconnection=NULL;
-static HBProducer *hbproducer=NULL;
-static char *hbSender;
-static int conVerbose=0;
-static int hbVerbose=0;
-
-extern "C"
-{
+extern "C" {
 #endif /*ifdef __cplusplus*/
   
   /*!
@@ -40,13 +29,13 @@ extern "C"
     if unsuccessful.
     @return 1 if success, 0 if already connected and -1 for error
   */
-  int startAMQconnection((const char AMQuser[],
-				  const char AMQpassword[],
-				  const char AMQhostname[],
-				  const int port,
-				  const int msReconnect,
-				  const int maxAttempts,
-				  const int verbose=1);
+  int startAMQconnection(const char AMQuser[],
+			 const char AMQpassword[],
+			 const char AMQhostname[],
+			 const int port,
+			 const int msReconnect,
+			 const int maxAttempts,
+			 const int verbose);
   /*!
     @brief stops active activemq connection
     Stops and destroys connection and sets amqconnection pointer to NULL
@@ -57,18 +46,44 @@ extern "C"
     @brief tests if connection is started
     @return true if connected, false if not
   */
-  boolean isAMQconnected();
+  bool isAMQconnected();
+  /*!
+    @brief instantiates and starts new DMMessageSender for events.
+    @return 1 if success, 0 if already connected and -1 for error
+  */
+  int startEventSender(const char topic[]);
+  /*!
+    @brief stops active DMMessageSender for events.
+    Stops and destroys DMMessageSender object.
+    @return 1 if success, 0 if not initialized and -1 for error
+  */
+  int stopEventSender();
+  
+  /*!
+    @brief sends static event message
+    Message must first be created with createDMEventObject
+    @return 1 if success, 0 if not initialized and -1 for error
+  */
+  int sendEventMessage();
+  
+  /*!
+    @brief sends event message as preformatted xml
+    @param xmlstr preformatted xml message to send to ShakeAlert
+    @return 1 if success, 0 if not initialized and -1 for error (todo. currently dummy)
+  */
+  int sendEventXML(const char xmlstr[]);
+
   /*!
     @brief start heartbeat producer
     Points new HBProducer to static hbproducer pointer or sets pointer to NULL
     if unsuccessful.
     @param[in] sender      identifier string for sending instance
-    @param[in] topic       target topic for heartbeats
+    @param[in] hbtopic     target topic for heartbeats
     @param[in] interval    heartbeat interval in seconds (0=manual heartbeats)
     @param[in] verbose     logging verbosity. default=1
     @return 1 if success, 0 if already initialized and -1 for error
   */
-  int startHBProducer(const char *sender, const char *topic, int interval, int verbose);
+  int startHBProducer(const char sender[], const char hbtopic[], int interval, int verbose);
   /*!
     @brief stops active HBProducer
     Stops and destroys HBProducer object and sets amqconnection pointer to NULL
@@ -80,9 +95,27 @@ extern "C"
     @return 1 if success, 0 if not initialized and -1 for error
   */
   int sendHeartbeat();
-    
+
+  /*!
+    @brief create dmlib CoreEventInfo object and store in static variable
+    @return 1 for success, 0 if already exists or -1 for error
+  */
+  int createDMEventObject(string evid, double mag, double lat, double lon, double depth, double otime);
+
+  /*!
+    @brief modify existing dmlib CoreEventInfo object
+    @return 1 for success, 0 if no object exists or -1 for error
+  */
+  int modifyDMEventObject(string evid, double mag, double lat, double lon, double depth, double otime);
+  /*!
+    @brief delete stored dmlib CoreEventInfo object
+    @return 1 for success, 0 no object exists or -1 for error
+  */
+  int deleteDMEventObject(string evid);
+
+  
 #ifdef __cplusplus
-}
+} /*end of extern "C"*/
 #endif
 
 #endif /*_dmlibWrapper_h*/

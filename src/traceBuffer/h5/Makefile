@@ -13,7 +13,6 @@ getData.o initialize.o setFileName.o
 
 
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(ISCL_INCL) $(CBLAS_INCL)
 
@@ -22,7 +21,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

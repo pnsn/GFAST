@@ -10,7 +10,7 @@
 #include "gfast_traceBuffer.h"
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
-#include "iscl_time.h"
+//#include "iscl_time.h"
 
 /*!
  * @brief writes xml message to flat file
@@ -133,11 +133,11 @@ int eewUtils_driveGFAST(const double currentTime,
 
       if (age_of_event >= props.processingTime)
         {
-	  //printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
-	  LOG_MSG("time:%lf evid:%s has expired --> finalize", t2, SA.eventid);
+	  //printf("%s: time:%lf evid:%s has expired --> finalize\n", fcnm, t2, SA.eventid);
+	  LOG_MSG("%s: time:%lf evid:%s has expired --> finalize", fcnm, t2, SA.eventid);
 	  nPop = nPop + 1;
 	  lfinalize = true;
-	  LOG_MSG("%s", "Call core_log_closeLogs() before early exit from loop");
+	  LOG_MSG("%s: Call core_log_closeLogs() before early exit from loop", fcnm);
 	  core_log_closeLogs();
 	  continue;
         }
@@ -164,8 +164,8 @@ int eewUtils_driveGFAST(const double currentTime,
       if (ierr != 0)
         {
 	  //printf("driveGFAST: Error getting the data for event --> continue\n");
-	  LOG_MSG("Error getting the data for event:%s --> continue", SA.eventid);
-	  LOG_ERRMSG("Error getting the data for event %s", SA.eventid);
+	  LOG_MSG("%s: Error getting the data for event:%s --> continue", fcnm, SA.eventid);
+	  LOG_ERRMSG("%s: Error getting the data for event %s", fcnm,  SA.eventid);
 	  continue; 
         }
       // Copy the data onto the buffer
@@ -178,11 +178,17 @@ int eewUtils_driveGFAST(const double currentTime,
 	  LOG_ERRMSG("%s", "Error copying trace buffer");
 	  continue;
         }
+      if (gps_data->stream_length == 0)
+        {
+	  LOG_MSG("%s: No gps data available for event:%s --> continue", fcnm, SA.eventid);
+	  LOG_ERRMSG("%s: No gps data available for event %s", fcnm,  SA.eventid);
+	  continue; 
+        }
+	
       LOG_MSG("%s", "Get peakDisp");
       //printf("driveGFAST: Get peakDisp\n");
       // Extract the peak displacement from the waveform buffer
-      nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
-								 props.pgd_props.utm_zone,
+      nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(props.pgd_props.utm_zone,
 								 props.pgd_props.window_vel,
 								 SA.lat,
 								 SA.lon,

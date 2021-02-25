@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/traceBuffer/ewrr
-#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -12,7 +11,6 @@ unpackTraceBuf2Messages.o finalize.o freetb2Data.o getMessagesFromRing.o \
 settb2Data.o
 
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(ISCL_INCL)
 
@@ -21,7 +19,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

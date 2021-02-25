@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/hdf5
-#   CCFLAGS
 #
 GFASTROOT=..
 ifndef MAKEHOST
@@ -12,7 +11,6 @@ createType.o h5_cinter.o memory.o update.o
 
 LIB	= hdf5.a
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 INCL = -I ../../include $(HDF5_INCL) $(ISCL_INCL) $(CBLAS_INCL)
 
@@ -23,7 +21,7 @@ $(LIB): $(OBJS)
 	$(AR) $(LIB) $(OBJS)
 
 %.o: %.c
-	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< -o $@ $(CFLAGS) $(DEBUG) $(INCL)
 %.cpp.o: %.cpp
 	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
 

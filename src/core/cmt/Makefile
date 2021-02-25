@@ -12,7 +12,6 @@ weightForwardModel.o depthGridSearch.o initialize.o setForwardModel.o \
 weightObservations.o finalize.o readIni.o setRHS.o
 
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 #INIPARSER_INCL to be deleted later
 INCL            = -I ../../../include $(COMPEARTH_INCL) $(ISCL_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL)
@@ -22,7 +21,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

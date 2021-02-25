@@ -22,7 +22,7 @@ void time_tic(void);
  *  @return time since last time_tic() call
  */
 double time_toc(void);
-
+  
 #ifdef __cplusplus
 }
 #endif

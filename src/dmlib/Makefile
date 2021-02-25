@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/dmlib
-#   CCFLAGS
 #
 GFASTROOT=../
 ifndef MAKEHOST
@@ -7,21 +6,21 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= dmlibwrapper.cpp.o
+OBJS	= dmlibWrapper.cpp.o
 LIB	= 
 DEBUG	= -g
-CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
+#CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
 
-INCL= -I ../../include $(DMLIB_INCL)
+INCL= -I ../../include $(DMLIB_INCL) $(ACTIVEMQ_INCL) $(APR_INCL)
 
-all: $(OBJ)
+all: $(OBJS)
 #lib: $(LIB)
 
 #$(LIB): $(OBJS)
 #	$(AR) $(LIB) $(OBJS)
 
 %.c.o:    %.c
-	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< -o $@ $(CFLAGS) $(DEBUG) $(INCL)
 %.cpp.o:    %.cpp
 	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
 

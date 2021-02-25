@@ -237,14 +237,19 @@ As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the l
 
 # To do
 
+##Concrete tasks
+
 - Metadata reader needs to be converted to ShakeAlert file format.
 - ShakeAlertConsumer should be revamped to allow asynchronous read loop.
 - figure out why remove_expired_event kills program.
 - replace ISCL timestamp calls
-- Make event logs go to configured directory
 - compile without ISCL
 - - memory
 - - array
-- modify producer to use dmlib
 - dmlib heartbeat sender
+- dmlib message sender
+- move xml message writing out of driveGFAST in into gfast_eew so we can use the dmlib xml writer.
 
+##more substantial tasks
+
+As it stands now, the only values in the core-info xml output that aren't just hard coded are latitude, longitude, depth (I think), moment magnitude and origin time.  All the uncertainties are made up.  This is troubling from a science perspective.  Better to just leave these values as a NAN or equivalent.

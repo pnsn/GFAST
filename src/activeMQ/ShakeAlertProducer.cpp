@@ -82,6 +82,8 @@ void ShakeAlertProducer::startMessageSender()
       auto_ptr<cms::ConnectionFactory> connectionFactory(
 	      cms::ConnectionFactory::createCMSConnectionFactory(__brokerURI));
 
+      connectionFactory.reset();  //destroy
+
       if (__verbose > 2)
 	{
 	  printf("%s: Creating connection for username (%s)\n",

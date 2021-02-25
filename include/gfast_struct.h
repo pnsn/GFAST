@@ -119,6 +119,8 @@ struct GFAST_activeMQ_struct
                                      to and GFAST.  */
     char destinationTopic[512]; /*!< This is the topic (ActiveMQ destination)
                                      that GFAST will send messages to. */
+    char hbTopic[512];          /*!< This is the topic (ActiveMQ destination)
+                                     that GFAST will send heartbeats to. */
     int port;                   /*!< Port number of host machine. */
     int msReconnect;            /*!< milliseconds to wait before reconnect
                                      (default is 500). */

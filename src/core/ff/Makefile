@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/core/ff
-#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -7,12 +6,12 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
+DEBUG = -g
+
 OBJS	= faultPlaneGridSearch.o meshFaultPlane.o setForwardModel.o \
 weightForwardModel.o finalize.o	readIni.o setRegularizer.o \
 weightObservations.o initialize.o setDiagonalWeightMatrix.o setRHS.o
 
-DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 #iniparser will be deleted later
 INCL            = -I ../../../include $(ISCL_INCL) $(INIPARSER_INCL) $(CBLAS_INCL)
@@ -22,7 +21,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(cc) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

@@ -20,6 +20,8 @@
 #endif
 #include "gfast_xml.h"
 #include "gfast_core.h"
+#include "iscl/iscl/iscl_defs.h"
+#include "iscl/iscl/iscl_enum.h"
 #include "iscl/time/time.h"
 
 /*!

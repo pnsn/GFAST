@@ -8,6 +8,7 @@
 #include "timeutils.h"
 #include "fileutils.h"
 #include <dirent.h>  // Needed for DIR
+#include "dmlibWrapper.h"
 
 #include <time.h>
 
@@ -63,8 +64,9 @@ int main(int argc, char **argv)
   const bool luseListener = false;         /**< C can't trigger so turn this off (remove?) */
   double tstatus, tstatus0, tstatus1;
   static void *amqMessageListener = NULL;  /**< pointer to ShakeAlertConsumer object */
-  /*Todo static void *amqMessagePublisher = NULL; **< pointer to ShakeAlertProducer object for messages */
-  /*Todo static void *amqHbPublisher = NULL;      **< pointer to ShakeAlertProducer object for heartbeats */
+  //static void *amqConnection = NULL;       /**< pointer to ActiveMQ connection object */
+  //static void *amqMessagePublisher = NULL; **< pointer to ShakeAlertProducer object for messages */
+  //static void *amqHBProducer = NULL;       /**< pointer to dmlib producer object for heartbeats */
   int ierr, im, msWait, nTracebufs2Read;
   bool lacquire, lnewEvent;
   const int rdwt = 2; // H5 file is read/write
@@ -177,7 +179,8 @@ int main(int argc, char **argv)
 			    props.activeMQ_props.host,
 			    props.activeMQ_props.port,
 			    props.activeMQ_props.msReconnect,
-			    props.activeMQ_props.maxAttempts);
+			    props.activeMQ_props.maxAttempts,
+			    props.verbose);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize activeMQ connection object", fcnm);
     }
@@ -186,12 +189,21 @@ int main(int argc, char **argv)
       goto ERROR;
     }
     /* start heartbeat producer and set to manual heartbeats */
-    ierr=startHBProducer("GFAST", props.activeMQ_props.topic, 0, props.verbose);
+    ierr=startHBProducer("GFAST", props.activeMQ_props.hbTopic, 0, props.verbose);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
     }
     if (ierr<0) {
       LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
+      goto ERROR;
+    }
+    /*start message sender*/
+    ierr=startEventSender(props.activeMQ_props.destinationTopic);
+    if (ierr==0) {
+      LOG_ERRMSG("%s: Attemted to re-initialize active event sender object", fcnm);
+    }
+    if (ierr<0) {
+      LOG_ERRMSG("%s: Error initializing event sender object", fcnm);
       goto ERROR;
     }
   } /* end if USE_AMQ */
@@ -266,7 +278,7 @@ int main(int argc, char **argv)
       if (tloop < props.waitTime) {
 	continue;
       }
-      elif ((tloop) >= 2*props.waitTime) {
+      else if ((tloop) >= 2*props.waitTime) {
 	LOG_MSG("== [GFAST main loop took %fs >= 2x%fs waitTimes. not keeping up", tloop, props.waitTime);
       }
 
@@ -487,6 +499,9 @@ int main(int argc, char **argv)
 	{
 	  for (im=0; im<xmlMessages.nmessages; im++)
 	    {
+	      if (USE_AMQ) {
+		sendEventXML(xmlMessages.pgdXML[im]);
+	      }
 	      LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 	      //printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
 	      //printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
@@ -539,9 +554,10 @@ int main(int argc, char **argv)
   if (USE_AMQ)
     {
       activeMQ_consumer_finalize(amqMessageListener);
-      activeMQ_stop();
       stopHBProducer();
+      stopEventSender();
       stopAMQconnection();
+      activeMQ_stop();
     }
   core_cmt_finalize(&props.cmt_props,
 		    &cmt_data,

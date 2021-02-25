@@ -80,7 +80,7 @@ void ShakeAlertConsumer::startMessageListener()
       // Create a connection
       __connection = connectionFactory->createConnection(__user.c_str(),
 							 __password.c_str());
-      //delete connectionFactory;
+      connectionFactory.reset();  //destroy
 
       activemq::core::ActiveMQConnection *amqConnection;
       amqConnection =
