@@ -105,6 +105,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     ns = 0;
     for (i=0; i<nlines; i++)
     {
+printf("readMetaDataFile: textfl[%d]=%s\n",i,textfl[i]);
         // Get the root name (ignoring the channel orientation) 
         ierr = splitLine(textfl[i],
                          netw, stat, loc, chan,
