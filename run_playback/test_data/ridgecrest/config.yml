@@ -1,5 +1,0 @@
-#offset_time = OT - tankplayer_starttime
-offset_time: 60.0
-tankfile: "tankplayer.d.ridgecrest"
-# Where is the starting SA.xml file:
-SA_file: './SA.xml'
