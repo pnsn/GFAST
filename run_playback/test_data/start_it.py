@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 
 GFAST_EVENTS_DIR = "../GFAST/events"
 
+known_events = ['iquique', 'kaikoura', 'maule', 'nicoya', 'ridgecrest', 'anchorage', 'kumamoto', 'ibaraki']
+
 def main():
     '''
         Simple script to modify playback event ShakeAlert SA.xml with time = now
@@ -29,7 +31,6 @@ def main():
         exit(2)
 
     usage = "start_it.py kaikoura (or some other event in known_events)"
-    known_events = ['iquique', 'kaikoura', 'maule', 'nicoya', 'ridgecrest']
     if len(sys.argv) != 2 or sys.argv[1] not in known_events:
         print(usage)
         exit(2)

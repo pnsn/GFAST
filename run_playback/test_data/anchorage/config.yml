@@ -1,0 +1,6 @@
+#
+#offset_time = OT - tankplayer_starttime
+offset_time: 1.33
+tankfile: "tankplayer.d.anchorage"
+#starting SA file
+SA_file: './SA.xml'
