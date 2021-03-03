@@ -105,7 +105,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     ns = 0;
     for (i=0; i<nlines; i++)
     {
-printf("readMetaDataFile: textfl[%d]=%s\n",i,textfl[i]);
+//printf("readMetaDataFile: textfl[%d]=%s\n",i,textfl[i]);
         // Get the root name (ignoring the channel orientation) 
         ierr = splitLine(textfl[i],
                          netw, stat, loc, chan,
@@ -132,7 +132,7 @@ printf("readMetaDataFile: textfl[%d]=%s\n",i,textfl[i]);
         strncat(site, chan, 2);
         strcat(site, "_\0");
         strcat(site, loc);
-printf("readMetaDataFile: %s.%s.%s.%s gain:%e site:%s\n",netw, stat, chan, loc, gain, site);
+//printf("readMetaDataFile: %s.%s.%s.%s gain:%e site:%s\n",netw, stat, chan, loc, gain, site);
         // Does this site exist?
         for (k=0; k<ns; k++)
         {
