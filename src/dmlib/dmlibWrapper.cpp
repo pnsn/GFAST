@@ -20,8 +20,8 @@ namespace {
   static HBProducer *hbproducer=NULL;
   static DMMessageSender *eventsender=NULL;
   static CoreEventInfo *eventmessage=NULL;
-  static std::string hbSender=NULL;
-  static std::string hbTopic=NULL;
+  static std::string hbSender="";
+  static std::string hbTopic="";
   static int conVerbose=0;
   static int hbVerbose=0;
 }
