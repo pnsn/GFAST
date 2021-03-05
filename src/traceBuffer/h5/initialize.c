@@ -64,6 +64,7 @@ int traceBuffer_h5_initialize(const int job,
     // In this instance the file is simply opened for reading
     if (job == 1)
     {
+      printf("MTH: job == 1 !!!\n");
         // If scratch file was saved then remove it
         if (!os_path_isfile(h5name))
         {
@@ -162,6 +163,7 @@ FOUND_TRACE:;
         }
         // Space estimate
         maxpts = 0;
+      printf("MTH: Loop over h5traceBuffer->ntraces=%d\n", h5traceBuffer->ntraces);
         for (i=0; i<h5traceBuffer->ntraces; i++)
         {
             maxpts = (int) (fmax(h5traceBuffer->traces[i].maxpts, maxpts));
