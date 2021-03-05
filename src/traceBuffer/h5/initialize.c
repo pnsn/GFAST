@@ -120,17 +120,20 @@ int traceBuffer_h5_initialize(const int job,
         for (i=0; i<h5traceBuffer->ntraces; i++)
         {
             memset(temp, 0, sizeof(temp));
-            strcpy(temp, h5traceBuffer->traces[i].netw);
             strcat(temp, ".\0");
+            strcpy(temp, h5traceBuffer->traces[i].netw);
             strcat(temp, h5traceBuffer->traces[i].stnm);
             strcat(temp, ".\0");
             strcat(temp, h5traceBuffer->traces[i].chan);
             strcat(temp, ".\0");
             strcat(temp, h5traceBuffer->traces[i].loc);
+            printf("MTH: traceBuffer/h5/initialize: h5traceBuffer=%s\n", temp);
             for (j=0; j<h5traceBuffer->ntraces; j++)
             {
+printf("MTH: traceBuffer/h5/initialize: compare to traces[%d]=%s\n", j, traces[j]);
                 if (strcasecmp(traces[j], temp) == 0)
                 {
+printf("MTH: traceBuffer/h5/initialize: compare to traces[%d]=%s ===> FOUND!\n", j, traces[j]);
                     h5traceBuffer->traces[i].traceNumber = j;
                     goto FOUND_TRACE;
                 }
