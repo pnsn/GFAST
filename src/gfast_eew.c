@@ -271,7 +271,7 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
                                                     &nTracebufs2Read,
                                                     &ierr);
 LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_timeStamp(), nTracebufs2Read);
-if nTracebufs2Read > 0 {
+if (nTracebufs2Read > 0) {
   printf("MTH: nTracebufs2Read=%d --> now exit\n", nTracebufs2Read);
   exit(0);
 }
