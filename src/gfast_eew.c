@@ -149,6 +149,8 @@ for (imsg=0;imsg<10;imsg++){
         LOG_MSG("%s: Initializing trigger listener...", fcnm);
     }
 
+exit(0);
+
     if (USE_AMQ) {
       messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
                                           props.activeMQ_props.password,
