@@ -154,6 +154,7 @@ FOUND_TRACE:;
     // Otherwise the file size must be estimated and opened for writing
     else
     {
+ printf("MTH: open work.h5 for writing\n");
         // Set the time to now
         tbeg = (double) ((long) (ISCL_time_timeStamp())); 
         // If scratch file was saved then remove it 
@@ -163,10 +164,11 @@ FOUND_TRACE:;
         }
         // Space estimate
         maxpts = 0;
-      printf("MTH: Loop over h5traceBuffer->ntraces=%d\n", h5traceBuffer->ntraces);
+      printf("MTH: traceBuffer/h5/initialize: Loop over h5traceBuffer->ntraces=%d\n", h5traceBuffer->ntraces);
         for (i=0; i<h5traceBuffer->ntraces; i++)
         {
             maxpts = (int) (fmax(h5traceBuffer->traces[i].maxpts, maxpts));
+printf("MTH: i=%d maxpts=%d\n", i, maxpts);
             if (maxpts <= 0)
             {
                 if (maxpts < 0)
@@ -201,6 +203,7 @@ FOUND_TRACE:;
                 return -1;
             }
         }
+        printf("MTH: call H5Fcreate\n");
         h5traceBuffer->fileID = H5Fcreate(h5name, H5F_ACC_TRUNC,
                                           H5P_DEFAULT, properties);
         status = H5Pclose(properties);
@@ -237,6 +240,7 @@ FOUND_TRACE:;
             LOG_WARNMSG("%s", "Multiple dt not tested");
             return -1;
         }
+        printf("MTH: create the groups ndtGroups=%d\n", ndtGroups);
         for (i=0; i<ndtGroups; i++)
         {
             k = h5traceBuffer->dtPtr[i];
@@ -259,6 +263,7 @@ FOUND_TRACE:;
             return -1;
         }
         // Make the data
+        printf("MTH: initialize: Finally make the data\n");
         for (i=0; i<h5traceBuffer->ndtGroups; i++)
         {
             k = h5traceBuffer->dtPtr[i];
