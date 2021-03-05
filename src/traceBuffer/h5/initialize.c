@@ -47,8 +47,10 @@ int traceBuffer_h5_initialize(const int job,
     size_t blockSize;
     const bool lsave = true;;
     // Make sure there is data
+    printf("MTH: Inside traceBuffer_h5_initialize\n");
     if (h5traceBuffer->traces == NULL || h5traceBuffer->ntraces < 1)
     {
+      printf("MTH: h5traceBuffer->traces == NULL !!!!\n");
         LOG_ERRMSG("%s", "Input traces do not exist");
         return -1;
     }

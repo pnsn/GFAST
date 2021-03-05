@@ -134,6 +134,7 @@ for (imsg=0;imsg<10;imsg++){
         goto ERROR;
     }
     // Initialize the tracebuffer h5 archive
+    printf("*** MTH: Call traceBuffer_h5_initialize\n");
     ierr = traceBuffer_h5_initialize(rdwt, true, "./\0", "work.h5\0", 
                                      &h5traceBuffer);
     if (ierr != 0)
