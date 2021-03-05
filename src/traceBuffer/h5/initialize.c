@@ -278,6 +278,7 @@ printf("MTH: i=%d maxpts=%d\n", i, maxpts);
             dataSet = H5Dcreate2(h5traceBuffer->fileID, cwork,
                                  H5T_NATIVE_DOUBLE, dataSpace,
                                  H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+printf("MTH: initialize: call H5Dwrite\n");
             status = H5Dwrite(dataSet, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
                               H5P_DEFAULT, work);
             ierr = h5_write_attribute__double("SamplingPeriod\0", dataSet,
@@ -289,6 +290,7 @@ printf("MTH: i=%d maxpts=%d\n", i, maxpts);
                                            1, &maxpts);
             ierr = h5_write_attribute__int("NumberOfTraces\0", dataSet,
                                            1, &ntraces);
+printf("MTH: initialize: call H5Dclose and H5Sclose\n");
             H5Sclose(dataSpace);
             H5Dclose(dataSet);
             // Make the gain

@@ -134,7 +134,6 @@ for (imsg=0;imsg<10;imsg++){
         goto ERROR;
     }
     // Initialize the tracebuffer h5 archive
-    printf("*** MTH: Call traceBuffer_h5_initialize\n");
     ierr = traceBuffer_h5_initialize(rdwt, true, "./\0", "work.h5\0", 
                                      &h5traceBuffer);
     if (ierr != 0)
@@ -263,7 +262,6 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
         // Read my messages off the ring
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
 //LOG_MSG("%s", "== Get the msgs off the EW ring");
-    printf("Get the msgs off the ring\n");
 
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
@@ -271,10 +269,6 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
                                                     &nTracebufs2Read,
                                                     &ierr);
 LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_timeStamp(), nTracebufs2Read);
-if (nTracebufs2Read > 0) {
-  printf("MTH: nTracebufs2Read=%d --> now exit\n", nTracebufs2Read);
-  exit(0);
-}
 
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
