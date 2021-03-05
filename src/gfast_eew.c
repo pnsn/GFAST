@@ -149,8 +149,6 @@ for (imsg=0;imsg<10;imsg++){
         LOG_MSG("%s: Initializing trigger listener...", fcnm);
     }
 
-exit(0);
-
     if (USE_AMQ) {
       messageQueue = activeMQ_consumer_initialize(props.activeMQ_props.user,
                                           props.activeMQ_props.password,
@@ -208,6 +206,7 @@ exit(0);
         goto ERROR;
     }
     // Connect to the earthworm ring
+
     ierr = traceBuffer_ewrr_initialize(props.ew_props.gpsRingName,
                                        10,
                                        &ringInfo);
@@ -264,6 +263,9 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
         // Read my messages off the ring
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
 //LOG_MSG("%s", "== Get the msgs off the EW ring");
+    printf("Get the msgs off the ring\n");
+    exit(0);
+
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
                                                     &ringInfo,
