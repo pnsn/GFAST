@@ -264,7 +264,6 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
 //LOG_MSG("%s", "== Get the msgs off the EW ring");
     printf("Get the msgs off the ring\n");
-    exit(0);
 
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
@@ -272,6 +271,10 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
                                                     &nTracebufs2Read,
                                                     &ierr);
 LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_timeStamp(), nTracebufs2Read);
+if nTracebufs2Read > 0 {
+  printf("MTH: nTracebufs2Read=%d --> now exit\n", nTracebufs2Read);
+  exit(0);
+}
 
         if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
