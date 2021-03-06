@@ -312,7 +312,7 @@ static double __getPeakDisplacement(const int npts,
             peakDisplacement_i = sqrt( pow(ubuff[i] - u0, 2)
                                      + pow(nbuff[i] - n0, 2)
                                      + pow(ebuff[i] - e0, 2));
-    LOG_MSG("  i=%d peakdDisplacement_i=%f\n", i, peakDisp);
+    LOG_MSG("  i=%d peakdDisplacement_i=%f\n", i, peakDisplacement_i);
         }
         if (peakDisplacement_i > peakDisplacement) {
             ipeak = i;
