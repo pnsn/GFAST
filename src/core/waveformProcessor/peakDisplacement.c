@@ -78,8 +78,6 @@ int core_waveformProcessor_peakDisplacement(
     double s_arr_time;
     int nMaxLeader;
 
-    int debug;
-
     //------------------------------------------------------------------------//
     //
     // Error handling
@@ -266,6 +264,7 @@ static double __getPeakDisplacement(const int npts,
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
     int i, indx0;
     int ipeak=0;
+    int debug=0;
     //------------------------------------------------------------------------//
     //
     // Set the initial position
@@ -305,7 +304,6 @@ static double __getPeakDisplacement(const int npts,
     }
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
-    debug = 0;
     if (debug){
       LOG_MSG("Loop to find peakDisp: from i=indx0=%d to i<npts=%d", indx0, npts);
     }
