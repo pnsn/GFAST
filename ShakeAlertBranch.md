@@ -55,6 +55,10 @@ Must be manually installed on Ubuntu but on Centos available via yum activemq-cp
 
 Activemq-cpp also requires libcrypto, which in Ubuntu is in libssl-dev package. Centos provides this in several packages but the simplest is openssl-libs which is usually already installed.
 
+#### xerces
+
+Installed on all EEW machines.  Other Centos machines will need xerces-c and xerces-c-devel packages.
+
 ### libapr
 
 Already part of ShakeAlert standard install.  Needed by activemq-cpp packages.
@@ -217,6 +221,10 @@ Adding dmlib also adds a libxerces and qlib2 dependencies, which are naturally a
 You will need xerces and earthworm dev resources to compile dmlib.
 
 The Makefile in ShakeAlert root is configured to compile various subsets of the full ShakeAlert package.  From the checkout root, we will be running 'make dmlib' to just make the libdmlib.a file.
+
+### Centos7
+
+Need xerces-c package.
 
 ### Ubuntu
 

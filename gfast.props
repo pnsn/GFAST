@@ -11,7 +11,8 @@ metaDataFile=etc/GFASTmeta.dat
 # note: if SA_events_dir is set, activemq will be ignored!
 SA_events_dir=
 SA_output_dir=out
-output_interval_mins=1,2,3,4,5,10
+#if output_interval commented, it will output as available.
+#output_interval_mins=1,2,3,4,5,10
 #siteMaskFile=ridgecrest-mask.txt
 # File with station names and sampling periods
 #dtfile=GFAST_streams_dt.txt
@@ -23,8 +24,8 @@ eewgfile=GFAST_output.txt
 # the SOPAC SECTOR web service.
 siteposfile=site_pos.csv 
 # Buffer length (s)
-bufflen=620.
-processing_time=602.
+bufflen=320.
+processing_time=302.
 # GFAST operation mode
 #  1 -> GFAST is running in `real time' and being data through Earthworm 
 #  2 -> GFAST is running historical playbacks through Earthworm
@@ -140,13 +141,16 @@ ff_fwid_pct = 10.0
 [ActiveMQ]
 # ActiveMQ hostname to access ElarmS messages
 host = localhost
-# ActiveMQ port to access ElarmS messages
-#  openwire tcp://localhost:61616
+# ActiveMQ port
+# amq_dm openwire tcp://localhost:61616
+# amq_sa openwire tcp://localhost:63616
 port=61616
-# ActiveMQ topic to access ElarmS messages (eew.alg.elarms.data)
+# ActiveMQ topic to read event trigger messages from
 originTopic=eew.alg.elarms.data
 # ActiveMQ topic to publish events on.
 destinationTopic=eew.alg.gfast.data
+# ActiveMQ topic to publish heartbeats on
+hbTopic=eew.alg.gfast.hb
 # ActiveMQ username to access ElarmS messages
 user=glarms
 # ActiveMQ password to access ElarmS messages
