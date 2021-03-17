@@ -11,7 +11,10 @@
 #
  nRing  2
  Ring   STATUS_RING    192
- Ring   WAVE_RING      10000
+ #Ring   WAVE_RING      4096
+ Ring   WAVE_RING      800000
+ #Ring   WAVE_RING      16384
+ #Ring   WAVE_RING      32768
 #
  MyModuleId    MOD_STARTSTOP  # Module Id for this program
  HeartbeatInt  50             # Heartbeat interval in seconds
@@ -28,12 +31,9 @@
                               # to wait after starting statmgr 
                               # default is 1 second
 
-# Process          "tankplayer tankplayer.d"  
-# Class/Priority    NONE 0
+ Process          "geojson2ew geojson2ew.d"  
+ Class/Priority    NONE 0
 
  Process          "copystatus WAVE_RING STATUS_RING"
  Class/Priority    NONE 0
 
-#Process          "wave_serverV wsv/wave_serverV.d"
-#Class/Priority	NONE 0
- 

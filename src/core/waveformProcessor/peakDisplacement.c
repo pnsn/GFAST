@@ -264,6 +264,7 @@ static double __getPeakDisplacement(const int npts,
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
     int i, indx0;
     int ipeak=0;
+    int debug=0;
     //------------------------------------------------------------------------//
     //
     // Set the initial position
@@ -303,6 +304,9 @@ static double __getPeakDisplacement(const int npts,
     }
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
+    if (debug){
+      LOG_MSG("Loop to find peakDisp: from i=indx0=%d to i<npts=%d", indx0, npts);
+    }
     for (i=indx0; i<npts; i++)
     {
         peakDisplacement_i = PD_MAX_NAN;
@@ -311,6 +315,12 @@ static double __getPeakDisplacement(const int npts,
             peakDisplacement_i = sqrt( pow(ubuff[i] - u0, 2)
                                      + pow(nbuff[i] - n0, 2)
                                      + pow(ebuff[i] - e0, 2));
+    if (debug){
+    LOG_MSG("  i=%d peakdDisplacement_i=%f ubuff:%f u0:%f nbuff:%f n0:%f ebuff:%f e0:%f",
+        i, peakDisplacement_i, ubuff[i],u0,nbuff[i],n0,ebuff[i],e0);
+    }
+        }
+        if (peakDisplacement_i > peakDisplacement) {
             ipeak = i;
         }
         peakDisplacement = fmax(peakDisplacement_i, peakDisplacement);

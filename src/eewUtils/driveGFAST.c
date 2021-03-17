@@ -17,12 +17,14 @@
  * Need to poke at this more.
  * @param[in] dirname output directory
  * @param[in] eventid
- * @param[in] message type
+ * @param[in] msg_type message type
  * @param[in] message xml message
- * @param[in] interval_min interval in minutes?
+ * @param[in] interval write interval
+ * @param[in] interval_min is interval in minutes?
  * @return status code.
  */
-int eewUtils_writeXML(const char *dirname, const char *eventid, const char *msg_type, const char *message, int interval_min);
+
+int eewUtils_writeXML(const char *dirname, const char *eventid, const char *msg_type, const char *message, int interval, bool interval_in_mins);
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -357,62 +359,75 @@ int eewUtils_driveGFAST(const double currentTime,
                 {
 		  LOG_ERRMSG("%s", "Error generating PGD XML");
 		  if (pgdXML != NULL)
-                    {   
+                    {
 		      free(pgdXML);
 		      pgdXML = NULL;
                     }
                 }
 	      xmlMessages->pgdXML[xmlMessages->nmessages] = pgdXML;
-
+	      
 	      //LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
-
-	      for (i=0; i<props.n_intervals; i++){
-		if (mins == props.output_interval_mins[i] && secs < 1.){
-		  LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
-                          age_of_event, props.output_interval_mins[i]);
-		  ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
-					   pgdXML, props.output_interval_mins[i]);
+	      
+	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
+		int index = (int)(currentTime - SA.time);
+		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
+	      }
+	      else {
+		for (i=0; i<props.n_intervals; i++){
+		  if (mins == props.output_interval_mins[i] && secs < 1.){
+		    LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
+			    age_of_event, props.output_interval_mins[i]);
+		    ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
+					     pgdXML, props.output_interval_mins[i], true);
+		  }
 		}
 	      }
-
-            }
-	  // Make the CMT quakeML
-	  if (lcmtSuccess)
-            {
-	      if (props.verbose > 2)
-                {
-		  LOG_DEBUGMSG("%s", "Generating CMT QuakeML");
+            } //if lpgdSuccess
+            // Make the CMT quakeML
+            if (lcmtSuccess)
+	      {
+		if (props.verbose > 2)
+		  {
+		    LOG_DEBUGMSG("%s", "Generating CMT QuakeML");
+		  }
+		cmtQML = eewUtils_makeXML__quakeML(props.anssNetwork,
+						   props.anssDomain,
+						   SA.eventid,
+						   SA.lat,
+						   SA.lon,
+						   cmt->srcDepths[cmt->opt_indx],
+						   SA.time,
+						   &cmt->mts[6*cmt->opt_indx],
+						   &ierr);
+		if (ierr != 0)
+		  {
+		    LOG_ERRMSG("%s", "Error generating CMT quakeML");
+		    if (cmtQML != NULL)
+		      {
+			free(cmtQML);
+			cmtQML = NULL;
+		      }
+		  }
+		xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
+                if (props.output_interval_mins[0] == 0) { // Output at every iteration
+		  int index = (int)(currentTime - SA.time);
+                  LOG_MSG("Age_of_event=%f --> Output CMT solution at iter:%d", age_of_event, index);
+                  ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
+                                           cmtQML, index, false);
                 }
-	      cmtQML = eewUtils_makeXML__quakeML(props.anssNetwork,
-						 props.anssDomain,
-						 SA.eventid,
-						 SA.lat,
-						 SA.lon,
-						 cmt->srcDepths[cmt->opt_indx],
-						 SA.time,
-						 &cmt->mts[6*cmt->opt_indx],
-						 &ierr);
-	      if (ierr != 0)
-                {
-		  LOG_ERRMSG("%s", "Error generating CMT quakeML");
-		  if (cmtQML != NULL)
-                    {
-		      free(cmtQML);
-		      cmtQML = NULL;
+                else {
+                  for (i=0; i<props.n_intervals; i++){
+                    if (mins == props.output_interval_mins[i] && secs < 1.){
+                      LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution",
+			      age_of_event, props.output_interval_mins[i]);
+                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
+                                               cmtQML, props.output_interval_mins[i], true);
                     }
+                  }
                 }
-	      xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
-	      for (i=0; i<props.n_intervals; i++){
-		if (mins == props.output_interval_mins[i] && secs < 1.){
-		  LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution",
-                          age_of_event, props.output_interval_mins[i]);
-		  ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
-					   cmtQML, props.output_interval_mins[i]);
-		}
 	      }
-            }
-	  // Make the finite fault XML
-	  if (lffSuccess)
+	    // Make the finite fault XML
+	    if (lffSuccess)
             {
 	      if (props.verbose > 2)
                 {
@@ -453,12 +468,20 @@ int eewUtils_driveGFAST(const double currentTime,
                     }
                 }
 	      xmlMessages->ffXML[xmlMessages->nmessages] = ffXML;
-	      for (i=0; i<props.n_intervals; i++){
-		if (mins == props.output_interval_mins[i] && secs < 1.){
-		  LOG_MSG("Age_of_event=%f --> Output minute %d FF solution", 
-                          age_of_event, props.output_interval_mins[i]);
-		  ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
-					   ffXML, props.output_interval_mins[i]);
+	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
+		int index = (int)(currentTime - SA.time);
+		LOG_MSG("Age_of_event=%f --> Output FF solution at iter:%d", age_of_event, index);
+		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+					 ffXML, index, false);
+	      }
+	      else {
+		for (i=0; i<props.n_intervals; i++){
+		  if (mins == props.output_interval_mins[i] && secs < 1.){
+		    LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
+			    age_of_event, props.output_interval_mins[i]);
+		    ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+					     ffXML, props.output_interval_mins[i], true);
+		  }
 		}
 	      }
             }
@@ -593,13 +616,13 @@ int eewUtils_driveGFAST(const double currentTime,
   return ierr;
 }
 
-
 #include <unistd.h>
 int eewUtils_writeXML(const char *dirname,
                       const char *eventid,
                       const char *msg_type,
                       const char *message,
-                      int interval_min
+                      int interval,
+		      bool interval_in_mins
                       )
 {
   char fullpath[128];
@@ -607,10 +630,17 @@ int eewUtils_writeXML(const char *dirname,
   //*ierr = 1;
   FILE * fp;
 
-  sprintf(fullpath, "%s/%s.%s.%d_min", dirname, eventid, msg_type, interval_min);
-  puts(fullpath);
-  LOG_MSG("driveGFAST: evid=%s min=%d --> output XML to file=[%s]\n",
-	  eventid, interval_min, fullpath);
+  if (interval_in_mins){
+    sprintf(fullpath, "%s/%s.%s.%d_min", dirname, eventid, msg_type, interval);
+    LOG_MSG("driveGFAST: evid=%s SA xml index=%d --> output XML to file=[%s]\n",
+	    eventid, interval, fullpath);
+  }
+  else {
+    sprintf(fullpath, "%s/%s.%s.%d", dirname, eventid, msg_type, interval);
+    LOG_MSG("driveGFAST: evid=%s min=%d --> output XML to file=[%s]\n",
+	    eventid, interval, fullpath);
+  }
+  //puts(fullpath);
 
   if (access( fullpath, F_OK ) != -1 ) {
     LOG_MSG("File:%s already exists!\n", fullpath);

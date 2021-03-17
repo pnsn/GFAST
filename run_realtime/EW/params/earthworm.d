@@ -26,34 +26,14 @@
 # The maximum length of ring string is 32 characters.
 #--------------------------------------------------------------------------
      
- Ring   WAVE_RING        1800    # near-real-time waveform data
- Ring   TEST_WAVE_RING   1809    # test waveform data
- Ring   RAW_RING         1802    # public data
- Ring   NQWAVE_RING      1803    # NetQuakes waveform data (late-arriving in clumps)
- Ring   PICK_RING        1805    # public parametric data (Decatur)
- Ring   HYPO_RING        1815    # public hypocenters etc. (all zones)
- Ring   BINDER_RING      1820    # private buffer for binder_ew (Decatur)
- Ring   TEST_BINDER_RING 1821    # private buffer for binder_ew (test)
- Ring   EQALARM_EW_RING  1825    # private buffer for eqalam_ew
- Ring	  STATUS_RING    1863    # buffer used for notifications
-#
- Ring   PICK_KAN_RING    1183    # public picks for Kansas
- Ring   BINDER_KAN_RING  1188    # private buffer for binder_ew (Kansas)_
-#
- Ring   PICK_AZL_RING    1282    # public picks for Azle TX
- Ring   BINDER_AZL_RING  1285    # private buffer for binder_ew (Azle TX)_
- Ring   MAG_RING         1286
-#
-# Do not put FLAG_RING in starstop*.d
- Ring   FLAG_RING        2080    # a private ring for Startstop 7.5 and later to use
-                                 # for flags. If this doesn't exist, startstop will 
-                                 # create the ring automatically at key 9999
-                                 # If you run multiple startstops, you'll need to change
-                                 # all ring keys values here in earthworm.d, including
-                                 # this one. Do NOT include this private ring in
-                                 # the ring area in startstop*d
-  Ring NAMED_EVENT_RING  2089
-
+ Ring   WAVE_RING        9800    # near-real-time waveform data
+ Ring   PICK_RING        9805    # public parametric data (Decatur)
+ Ring   HYPO_RING        9815    # public hypocenters etc. (all zones)
+ Ring   BINDER_RING      9820    # private buffer for binder_ew (Decatur)
+ Ring   EQALARM_EW_RING  9825    # private buffer for eqalam_ew
+ Ring	STATUS_RING      9863    # buffer used for notifications
+ Ring   MAG_RING         9286
+ Ring   FLAG_RING        9080    # a private ring for Startstop 7.5 and later to use
 
 #--------------------------------------------------------------------------
 #                           Module IDs
@@ -125,6 +105,8 @@
  Module   MOD_FILE2EW_MW        201
  Module   MOD_SPECMAG           203
  Module   MOD_EW2FILE_SPECMAG   205
+
+ Module   MOD_GEOJSON2EW        207
 
 #--------------------------------------------------------------------------
 #                          Message Types
