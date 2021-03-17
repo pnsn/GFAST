@@ -14,7 +14,7 @@ weightObservations.o initialize.o setDiagonalWeightMatrix.o setRHS.o
 
 
 #iniparser will be deleted later
-INCL            = -I ../../../include $(ISCL_INCL) $(INIPARSER_INCL) $(CBLAS_INCL)
+INCL            = -I ../../../include $(ISCL_INCL) $(INIPARSER_INCL) $(CBLAS_INCL) $(LAPACKE_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
