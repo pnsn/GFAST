@@ -28,6 +28,8 @@ eew-uw-dev1 cannot find lapack-devel or lapacke which breaks the [ISCL](#ISCL) c
 
 ### BLAS
 
+libblas and libcblas are required by the [ISCL](#ISCL) compile.
+
 /usr/lib/libblas is already installed on ShakeAlert machines via blas yum package. 
 
 libcblas.so is not available via yum on RHEL dev machines. Manual install
@@ -42,8 +44,6 @@ install atlas-devel' and replace '-lcblas' with '-L/usr/lib64/atlas
 So on Centos you must install atlas and atlas-devel packages.
 
 eew-uw-dev1 could not find atlas-devel package despite having epel and atlas packages installed.  /usr/include/openblas/cblas.h was provided by openblas-devel which was already installed.
-
-Similarly, RHEL7 does not seem to provide a atlas-devel package which breaks the [ISCL](#ISCL) compile.
 
 ### Activemq-cpp
 
@@ -65,7 +65,7 @@ Already part of ShakeAlert standard install.  Needed by activemq-cpp packages.
 
 For Ubuntu need apt install of libapr1 and libapr1-dev.  Link to libapr-1.
 
-On Centos, apr-dev package is installed as a dependency in the activemq-cpp-devel package.
+On Centos, apr-dev package is required and may be installed as a dependency in the activemq-cpp-devel package.
 
 ### iniparser
 
@@ -221,6 +221,8 @@ Adding dmlib also adds a libxerces and qlib2 dependencies, which are naturally a
 You will need xerces and earthworm dev resources to compile dmlib.
 
 The Makefile in ShakeAlert root is configured to compile various subsets of the full ShakeAlert package.  From the checkout root, we will be running 'make dmlib' to just make the libdmlib.a file.
+
+There will be a huge number of compile warnings on the third-party compiles.
 
 ### Centos7
 
