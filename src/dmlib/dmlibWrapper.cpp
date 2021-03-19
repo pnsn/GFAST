@@ -39,7 +39,7 @@ int startAMQconnection(const char AMQuser[],
   brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
 					msReconnect, maxAttempts);
   if (amqconnection!=NULL) {
-    printf("%s: connection already exists",fcnm);
+    printf("%s: connection already exists\n",fcnm);
     return 0;
   }
   try
@@ -76,7 +76,7 @@ int stopAMQconnection() {
   const char *fcnm = "stopAMQconnection\0";
 
   if (amqconnection==NULL) {
-    printf("%s: connection already dead",fcnm);
+    printf("%s: connection already dead\n",fcnm);
     return 0;
   }
   amqconnection->close();
@@ -91,7 +91,7 @@ bool isAMQconnected() {
     return false;
   }
   //vck: add real connected test here and make default -1
-  printf("%s: dummy function call",fcnm);
+  printf("%s: dummy function call\n",fcnm);
   return true;
 }
 
@@ -102,7 +102,7 @@ int startEventSender(const char eventtopic[]) {
       return -1;
     }
   if (eventsender != NULL) {
-      printf("%s: Event sender already initalized.",fcnm);
+      printf("%s: Event sender already initalized\n",fcnm);
       return 0;
     }
   try {
@@ -119,7 +119,7 @@ int startEventSender(const char eventtopic[]) {
 int stopEventSender() {
   const char *fcnm = "stopEventSender\0";
   if (eventsender==NULL) {
-    printf("%s: Event sender not running",fcnm);
+    printf("%s: Event sender not running\n",fcnm);
     return 0;
   } else {
     delete eventsender;
@@ -135,7 +135,7 @@ int stopEventSender() {
 int sendEventMessage() {
   const char *fcnm = "sendEventMessage\0";
   if (eventmessage==NULL) {
-    printf("%s: No message to send",fcnm);
+    printf("%s: No message to send\n",fcnm);
     return 0;
   }
   try {
@@ -145,7 +145,7 @@ int sendEventMessage() {
     printf("%s: DMMessageSender error: %s",fcnm,e.what());
   }
   if (conVerbose>1) {
-    printf("%s: sent GFAST message to activemqfor evid:%s",fcnm,eventmessage->getID().c_str());
+    printf("%s: sent GFAST message to activemqfor evid:%s\n",fcnm,eventmessage->getID().c_str());
   }
   return 1;
 }
@@ -154,7 +154,7 @@ int sendEventXML(const char xmlstr[]) {
   const char *fcnm = "sendEventXML\0";
   eventsender->sendString(xmlstr);
   if (conVerbose>1) {
-    printf("%s: sent xml message to activemq",fcnm);
+    printf("%s: sent xml message to activemq\n",fcnm);
   }
   return 1;
 }
@@ -165,11 +165,11 @@ int startHBProducer(const char sender[],
 		    int verbose=1){
   const char *fcnm = "startHBProducer\0";
   if (amqconnection==NULL) {
-    printf("%s: Error: AMQ connection must be started before HBProducer.",fcnm);
+    printf("%s: Error: AMQ connection must be started before HBProducer\n",fcnm);
     return -1;
   }
   if (hbproducer!=NULL) {
-    printf("%s: HBProducer already started.",fcnm);
+    printf("%s: HBProducer already started\n",fcnm);
     return 0;
   }
   hbVerbose=verbose;
@@ -182,7 +182,7 @@ int startHBProducer(const char sender[],
 int stopHBProducer(){
   const char *fcnm = "stopHBProducer\0";
   if (hbproducer==NULL) {
-    printf("%s: HB producer not running",fcnm);
+    printf("%s: HB producer not running\n",fcnm);
       return 0;
   }
   delete hbproducer;
@@ -194,7 +194,7 @@ int sendHeartbeat(){
   const char *fcnm = "sendHeartbeat\0";
   std::string timestr;
   if (hbproducer==NULL) {
-    printf("%s: HB producer not running",fcnm);
+    printf("%s: HB producer not running\n",fcnm);
       return 0;
   }
   hbproducer->sendHeartbeat("","","");
@@ -208,7 +208,7 @@ int createDMEventObject(const char evid[], double mag, double lat, double lon, d
   const char *fcnm = "createDMEventObject\0";
 
   if (eventmessage!=NULL) {
-    printf("%s: DMEventObject already started.",fcnm);
+    printf("%s: DMEventObject already started\n",fcnm);
     return 0;
   }
   eventmessage = new CoreEventInfo(GFAST, evid, mag, 0.0, lat, 0.0, lon, 0.0, depth, 0.0, otime, 0.0);
@@ -218,11 +218,11 @@ int createDMEventObject(const char evid[], double mag, double lat, double lon, d
 int modifyDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime) {
   const char *fcnm = "modifyDMEventObject\0";
   if (eventmessage==NULL) {
-    printf("%s: DMEventObject must exist.  Call createDMEventObject first.",fcnm);
+    printf("%s: DMEventObject must exist.  Call createDMEventObject first\n",fcnm);
     return 0;
   }
   if (evid!=eventmessage->getID()) {
-    printf("%s: event id's do not match. %s!=%s",fcnm,evid,eventmessage->getID().c_str());
+    printf("%s: event id's do not match. %s!=%s\n",fcnm,evid,eventmessage->getID().c_str());
     return -1;
   }
   eventmessage->setMagnitude(mag);
@@ -240,7 +240,7 @@ int deleteDMEventObject(const char evid[]) {
     return 0;
   }
   if (evid!=eventmessage->getID()) {
-    printf("%s: event id's do not match. %s!=%s",fcnm,evid,eventmessage->getID().c_str());
+    printf("%s: event id's do not match. %s!=%s\n",fcnm,evid,eventmessage->getID().c_str());
     return -1;
   }
   delete eventmessage;

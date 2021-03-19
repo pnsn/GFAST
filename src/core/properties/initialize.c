@@ -39,65 +39,65 @@ int core_properties_initialize(const char *propfilename,
                                const enum opmode_type opmode,
                                struct GFAST_props_struct *props)
 {
-    const char *s;
-    char cwork[PATH_MAX];
-    int i, j, ierr, itemp, lenos;
-    dictionary *ini;
-    //------------------------------------------------------------------------//
-    // Require the properties file exists
-    if (!cfileexists(propfilename))
+  const char *s;
+  char cwork[PATH_MAX];
+  int i, j, ierr, itemp, lenos;
+  dictionary *ini;
+  //------------------------------------------------------------------------//
+  // Require the properties file exists
+  if (!cfileexists(propfilename))
     {
-        printf("properties file (%s) does not exist\n", propfilename);
-        return -1;
+      printf("properties file (%s) does not exist\n", propfilename);
+      return -1;
     }
    
-    ierr =-1;
-    memset(props, 0, sizeof(struct GFAST_props_struct));
-    props->opmode = opmode;
+  ierr =-1;
+  memset(props, 0, sizeof(struct GFAST_props_struct));
+  props->opmode = opmode;
 
-    // Load the ini file
-    ini = iniparser_load(propfilename);
-    if (ini == NULL) {
-        printf("Iniparser could not read: %s\n", propfilename);
-        return -1;
-    }
-    strcpy(props->propfilename, propfilename);
-    //-------------------------GFAST General Parameters-----------------------//
+  // Load the ini file
+  ini = iniparser_load(propfilename);
+  if (ini == NULL) {
+    printf("Iniparser could not read: %s\n", propfilename);
+    return -1;
+  }
+  strcpy(props->propfilename, propfilename);
+  //-------------------------GFAST General Parameters-----------------------//
 
-    // set open output log file.
-    s = iniparser_getstring(ini, "general:logFileName\0",
-                            "gfast.log\0");
-    printf("Opening %s for log output\n",s);
-    core_log_openLog(s);
-    if (!cfileexists(s))
+  // set open output log file.
+  s = iniparser_getstring(ini, "general:logFileName\0",
+			  "gfast.log\0");
+  printf("Opening %s for log output\n",s);
+  core_log_openLog(s);
+  if (!cfileexists(s))
     {
-        printf("Cannot open log output file %s\n", s);
-        return -1;
+      printf("Cannot open log output file %s\n", s);
+      return -1;
     }
 
-    //metadata file
-    s = iniparser_getstring(ini, "general:metaDataFile\0",
-                            "GFAST_streams.txt\0");
-    strcpy(props->metaDataFile, s);
-    if (!cfileexists(props->metaDataFile))
-      {
-        LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
-        return -1;
-      }
+  //metadata file
+  s = iniparser_getstring(ini, "general:metaDataFile\0",
+			  "GFAST_streams.txt\0");
+  strcpy(props->metaDataFile, s);
+  if (!cfileexists(props->metaDataFile))
+    {
+      LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
+      return -1;
+    }
     
-    //site mask file
-    s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
-    if (s != NULL)
+  //site mask file
+  s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
+  if (s != NULL)
     {
-        strcpy(props->siteMaskFile, s);
-        if (!cfileexists(props->siteMaskFile))
+      strcpy(props->siteMaskFile, s);
+      if (!cfileexists(props->siteMaskFile))
         {
-            memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
+	  memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
         }
     }
 
-    s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
-    if (s != NULL)
+  s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
+  if (s != NULL)
     {
       j=0;
       LOG_MSG("parse output_interval_mins=[%s]", s);
@@ -107,11 +107,11 @@ int core_properties_initialize(const char *propfilename,
       for (i = 0; s[i] != '\0'; i++) {
         //printf("s[%d]=%d\n", i, s[i]);
         if (s[i] == ',') {
-            j++;
+	  j++;
         }
         else {
-            arr[j] = arr[j] * 10 + (s[i] - 48);
-            //printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
+	  arr[j] = arr[j] * 10 + (s[i] - 48);
+	  //printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
         }
       }
       props->n_intervals = j+1;
@@ -119,344 +119,335 @@ int core_properties_initialize(const char *propfilename,
         LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
       }
     }
-    else{
-	props->output_interval_mins[0] = 0;
+  else{
+    props->output_interval_mins[0] = 0;
+  }
+
+  s = iniparser_getstring(ini, "general:SA_events_dir\0", "");
+  strcpy(props->SAeventsDir, s);
+  if (s[0] != '\0')
+    {
+      if (!cdirexists(props->SAeventsDir))
+	{
+	  LOG_ERRMSG("SA events directory %s doesn't exist",
+		     props->SAeventsDir);
+	  goto ERROR; 
+	}
+      if (props->SAeventsDir[strlen(props->SAeventsDir)-1] != '/')
+	{
+	  strcat(props->SAeventsDir, "/\0");
+	}
+    }
+  else
+    {
+      LOG_MSG("No directory for input triggering events specified. Using activemq");
     }
 
-    s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
-    if (s != NULL)
+  s = iniparser_getstring(ini, "general:SA_output_dir\0", ".");
+  if (s != NULL)
     {
-        strcpy(props->SAeventsDir, s);
-        if (!cdirexists(props->SAeventsDir))
-        {
-            LOG_ERRMSG("SA events directory %s doesn't exist",
-                       props->SAeventsDir);
-            goto ERROR; 
-        }
-        if (strlen(props->SAeventsDir) == 0)
-        {
-            strcpy(props->SAeventsDir, "./\0");
-        }
-        else
-        {
-            if (props->SAeventsDir[strlen(props->SAeventsDir)-1] != '/')
-            {
-                strcat(props->SAeventsDir, "/\0");
-            }
-        }
+      strcpy(props->SAoutputDir, s);
+      if (!cdirexists(props->SAoutputDir))
+	{
+	  LOG_ERRMSG("SA output directory %s doesn't exist",
+		     props->SAoutputDir);
+	  goto ERROR; 
+	}
+      if (strlen(props->SAoutputDir) == 0)
+	{
+	  strcpy(props->SAoutputDir, "./\0");
+	}
+      else
+	{
+	  if (props->SAoutputDir[strlen(props->SAoutputDir)-1] != '/')
+	    {
+	      strcat(props->SAoutputDir, "/\0");
+	    }
+	}
     }
-    else
+  else
     {
-        //strcpy(props->SAeventsDir, "\0");
-        LOG_MSG("No SA events directory specified --> Use:%s", ".");
-        /*strcpy(props->SAeventsDir, "./\0");*/
-    }
-
-    s = iniparser_getstring(ini, "general:SA_output_dir\0", ".");
-    if (s != NULL)
-    {
-        strcpy(props->SAoutputDir, s);
-        if (!cdirexists(props->SAoutputDir))
-        {
-            LOG_ERRMSG("SA output directory %s doesn't exist",
-                       props->SAoutputDir);
-            goto ERROR; 
-        }
-        if (strlen(props->SAoutputDir) == 0)
-        {
-            strcpy(props->SAoutputDir, "./\0");
-        }
-        else
-        {
-            if (props->SAoutputDir[strlen(props->SAoutputDir)-1] != '/')
-            {
-                strcat(props->SAoutputDir, "/\0");
-            }
-        }
-    }
-    else
-    {
-        //strcpy(props->SAoutputDir, "\0");
-        LOG_MSG("No SA output directory specified --> Use:%s", ".");
+      //strcpy(props->SAoutputDir, "\0");
+      LOG_MSG("No SA output directory specified --> Use:%s", ".");
     }
 
-    props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
-    if (props->bufflen <= 0.0)
+  props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
+  if (props->bufflen <= 0.0)
     {
-        LOG_ERRMSG("Buffer lengths=%f must be positive!", props->bufflen);
-        goto ERROR;
+      LOG_ERRMSG("Buffer lengths=%f must be positive!", props->bufflen);
+      goto ERROR;
     }
-    if (props->opmode == OFFLINE)
+  if (props->opmode == OFFLINE)
     {
-        s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
-        if (s == NULL)
+      s = iniparser_getstring(ini, "general:eewsfile\0", NULL);
+      if (s == NULL)
         {
-            LOG_ERRMSG("%s", "Could not find decision module XML file!");
-            goto ERROR;
+	  LOG_ERRMSG("%s", "Could not find decision module XML file!");
+	  goto ERROR;
         }
-        strcpy(props->eewsfile, s);
-        s = iniparser_getstring(ini, "general:observed_data_dir\0", NULL);
-        if (s != NULL)
+      strcpy(props->eewsfile, s);
+      s = iniparser_getstring(ini, "general:observed_data_dir\0", NULL);
+      if (s != NULL)
         {
-            strcpy(props->obsdataDir, s);
-            if (!cdirexists(props->obsdataDir))
+	  strcpy(props->obsdataDir, s);
+	  if (!cdirexists(props->obsdataDir))
             {
-                LOG_ERRMSG("Observed data directory %s doesn't exist",
-                           props->obsdataDir);
-                goto ERROR; 
+	      LOG_ERRMSG("Observed data directory %s doesn't exist",
+			 props->obsdataDir);
+	      goto ERROR; 
             }
-            if (strlen(props->obsdataDir) == 0)
+	  if (strlen(props->obsdataDir) == 0)
             {
-                strcpy(props->obsdataDir, "./\0");
+	      strcpy(props->obsdataDir, "./\0");
             }
-            else
+	  else
             {
-                if (props->obsdataDir[strlen(props->obsdataDir)-1] != '/')
+	      if (props->obsdataDir[strlen(props->obsdataDir)-1] != '/')
                 {
-                    strcat(props->obsdataDir, "/\0");
+		  strcat(props->obsdataDir, "/\0");
                 }
             }
         }
-        else
+      else
         {
-            strcpy(props->obsdataDir, "./\0");
+	  strcpy(props->obsdataDir, "./\0");
         }
-        s = iniparser_getstring(ini, "general:observed_data_file\0", NULL);
-        if (s != NULL)
+      s = iniparser_getstring(ini, "general:observed_data_file\0", NULL);
+      if (s != NULL)
         {
-            strcpy(props->obsdataFile, s);
-            memset(cwork, 0, sizeof(cwork));
-            strcpy(cwork, props->obsdataDir);
-            strcat(cwork, props->obsdataFile);
-            if (!cfileexists(cwork))
+	  strcpy(props->obsdataFile, s);
+	  memset(cwork, 0, sizeof(cwork));
+	  strcpy(cwork, props->obsdataDir);
+	  strcat(cwork, props->obsdataFile);
+	  if (!cfileexists(cwork))
             {
-                LOG_ERRMSG("Observed data file %s doesn't exist", cwork);
-                goto ERROR;
+	      LOG_ERRMSG("Observed data file %s doesn't exist", cwork);
+	      goto ERROR;
             }
         }
-        else
+      else
         {
-            LOG_ERRMSG("%s", "Must specify observed data file!");
+	  LOG_ERRMSG("%s", "Must specify observed data file!");
         }
-        s = iniparser_getstring(ini, "general:synthetic_data_prefix\0", "LX\0");
+      s = iniparser_getstring(ini, "general:synthetic_data_prefix\0", "LX\0");
     }
-    // UTM zone
-    props->utm_zone = iniparser_getint(ini, "general:utm_zone\0", -12345);
-    if (props->utm_zone < 0 || props->utm_zone > 60)
+  // UTM zone
+  props->utm_zone = iniparser_getint(ini, "general:utm_zone\0", -12345);
+  if (props->utm_zone < 0 || props->utm_zone > 60)
     {
-        if (props->utm_zone !=-12345)
+      if (props->utm_zone !=-12345)
         {
-            LOG_WARNMSG("UTM zone %d is invalid estimating from hypocenter",
-                        props->utm_zone);
-            props->utm_zone =-12345;
+	  LOG_WARNMSG("UTM zone %d is invalid estimating from hypocenter",
+		      props->utm_zone);
+	  props->utm_zone =-12345;
         } 
     }
-    // Verbosity
-    props->verbose = iniparser_getint(ini, "general:verbose\0", 2);
-    // Sampling period
-    props->dt_default = iniparser_getdouble(ini, "general:dt_default\0", 1.0);
-    if (props->dt_default <= 0.0)
+  // Verbosity
+  props->verbose = iniparser_getint(ini, "general:verbose\0", 2);
+  // Sampling period
+  props->dt_default = iniparser_getdouble(ini, "general:dt_default\0", 1.0);
+  if (props->dt_default <= 0.0)
     {
-        LOG_WARNMSG("Default sampling period %f invalid; defaulting to %f!",
-                    props->dt_default, 1.0);
-        props->dt_default = 1.0;
+      LOG_WARNMSG("Default sampling period %f invalid; defaulting to %f!",
+		  props->dt_default, 1.0);
+      props->dt_default = 1.0;
     }
-    itemp = iniparser_getint(ini, "general:dt_init\0", 3);
-    props->dt_init = (enum dtinit_type) itemp; //iniparser_getint(ini, "general:dt_init\0", 3);
-    if (props->opmode != OFFLINE)
+  itemp = iniparser_getint(ini, "general:dt_init\0", 3);
+  props->dt_init = (enum dtinit_type) itemp; //iniparser_getint(ini, "general:dt_init\0", 3);
+  if (props->opmode != OFFLINE)
     {
-        if (props->dt_init != INIT_DT_FROM_TRACEBUF)
+      if (props->dt_init != INIT_DT_FROM_TRACEBUF)
         {
-            LOG_WARNMSG("%s", "Obtaining sampling period from tracebuf");
-            props->dt_init = INIT_DT_FROM_TRACEBUF; //3;
+	  LOG_WARNMSG("%s", "Obtaining sampling period from tracebuf");
+	  props->dt_init = INIT_DT_FROM_TRACEBUF; //3;
         }
     }
-    if (props->opmode == OFFLINE)
+  if (props->opmode == OFFLINE)
     {
-        // Make sure the EEW XML file exists
-        if (!cfileexists(props->eewsfile))
+      // Make sure the EEW XML file exists
+      if (!cfileexists(props->eewsfile))
         {
-            LOG_ERRMSG("Cannot find EEW XML file %s!", props->eewsfile);
-            goto ERROR;
+	  LOG_ERRMSG("Cannot find EEW XML file %s!", props->eewsfile);
+	  goto ERROR;
         }
-        // Figure out how to initialize sampling period
-        if (props->dt_init == INIT_DT_FROM_FILE)
+      // Figure out how to initialize sampling period
+      if (props->dt_init == INIT_DT_FROM_FILE)
         {
-            itemp = iniparser_getint(ini, "general:dt_init\0", 1);
-            props->dt_init = (enum dtinit_type) itemp;
-            if (s == NULL)
+	  itemp = iniparser_getint(ini, "general:dt_init\0", 1);
+	  props->dt_init = (enum dtinit_type) itemp;
+	  if (s == NULL)
             {
-                LOG_ERRMSG("%s", "Must specify metaDataFile!");
-                goto ERROR; 
+	      LOG_ERRMSG("%s", "Must specify metaDataFile!");
+	      goto ERROR; 
             }
         }
-        else if (props->dt_init == INIT_DT_FROM_SAC)
+      else if (props->dt_init == INIT_DT_FROM_SAC)
         {
-            props->dt_init = INIT_DT_FROM_SAC;
+	  props->dt_init = INIT_DT_FROM_SAC;
         }
-        else
+      else
         {
-            if (props->dt_init != INIT_DT_FROM_DEFAULT)
+	  if (props->dt_init != INIT_DT_FROM_DEFAULT)
             {
-                LOG_WARNMSG("%s", "Setting dt from default");
-                props->dt_init = INIT_DT_FROM_DEFAULT;
+	      LOG_WARNMSG("%s", "Setting dt from default");
+	      props->dt_init = INIT_DT_FROM_DEFAULT;
             }
         }
     }
-    else
+  else
     {
-        if (props->dt_init != INIT_DT_FROM_TRACEBUF)
+      if (props->dt_init != INIT_DT_FROM_TRACEBUF)
         {
-            LOG_WARNMSG("%s", "Will get GPS sampling period from tracebuffer!");
-            props->dt_init = INIT_DT_FROM_TRACEBUF;
+	  LOG_WARNMSG("%s", "Will get GPS sampling period from tracebuffer!");
+	  props->dt_init = INIT_DT_FROM_TRACEBUF;
         }
     }
-    // Wait time
-    props->waitTime = 1.0;
-    if (props->opmode == REAL_TIME_EEW)
+  // Wait time
+  props->waitTime = 1.0;
+  if (props->opmode == REAL_TIME_EEW)
     {
-        props->waitTime = iniparser_getdouble(ini, "general:waitTime\0", 1.0);
-        if (props->waitTime < 0.0)
+      props->waitTime = iniparser_getdouble(ini, "general:waitTime\0", 1.0);
+      if (props->waitTime < 0.0)
         {
-            LOG_ERRMSG("Invalid wait time %f!", props->waitTime);
-            goto ERROR;
+	  LOG_ERRMSG("Invalid wait time %f!", props->waitTime);
+	  goto ERROR;
         } 
     }        
-    // Location initialization
-    itemp = iniparser_getint(ini, "general:loc_init\0", 1);
-    props->loc_init = (enum locinit_type) itemp;
-    if (props->opmode == OFFLINE)
+  // Location initialization
+  itemp = iniparser_getint(ini, "general:loc_init\0", 1);
+  props->loc_init = (enum locinit_type) itemp;
+  if (props->opmode == OFFLINE)
     {
-        if (props->loc_init == INIT_LOCS_FROM_TRACEBUF)
+      if (props->loc_init == INIT_LOCS_FROM_TRACEBUF)
         {
-            LOG_ERRMSG("%s", "offline cant initialize locations from tracebuf");
-            goto ERROR;
+	  LOG_ERRMSG("%s", "offline cant initialize locations from tracebuf");
+	  goto ERROR;
         }
     }
-    // Synthetic runtime
-    if (props->opmode == OFFLINE)
+  // Synthetic runtime
+  if (props->opmode == OFFLINE)
     {
-        props->synthetic_runtime
-           = iniparser_getdouble(ini, "general:synthetic_runtime\0", 0.0); 
+      props->synthetic_runtime
+	= iniparser_getdouble(ini, "general:synthetic_runtime\0", 0.0); 
     } 
-    // Processing time
-    props->processingTime
-       = iniparser_getdouble(ini, "general:processing_time\0", 300.0);
-    if (props->processingTime > props->bufflen)
+  // Processing time
+  props->processingTime
+    = iniparser_getdouble(ini, "general:processing_time\0", 300.0);
+  if (props->processingTime > props->bufflen)
     {
-        LOG_ERRMSG("%s", "Error processing time cannot exceed buffer length");
-        goto ERROR;
+      LOG_ERRMSG("%s", "Error processing time cannot exceed buffer length");
+      goto ERROR;
     }
-    // Default earthquake depth
-    props->eqDefaultDepth
-        = iniparser_getdouble(ini, "general:default_event_depth\0", 8.0);
-    if (props->eqDefaultDepth < 0.0)
+  // Default earthquake depth
+  props->eqDefaultDepth
+    = iniparser_getdouble(ini, "general:default_event_depth\0", 8.0);
+  if (props->eqDefaultDepth < 0.0)
     {
-        LOG_ERRMSG("Error default earthquake depth must be positive %f",
-                   props->eqDefaultDepth);
-        goto ERROR;
+      LOG_ERRMSG("Error default earthquake depth must be positive %f",
+		 props->eqDefaultDepth);
+      goto ERROR;
     }
-    // H5 archive directory
-    s = iniparser_getstring(ini, "general:h5ArchiveDirectory\0", NULL);
-    if (s == NULL)
+  // H5 archive directory
+  s = iniparser_getstring(ini, "general:h5ArchiveDirectory\0", NULL);
+  if (s == NULL)
     {
-        strcpy(props->h5ArchiveDir, "./\0");
+      strcpy(props->h5ArchiveDir, "./\0");
     }
-    else
+  else
     {
-        strcpy(props->h5ArchiveDir, s);
-        if (!cdirexists(props->h5ArchiveDir))
+      strcpy(props->h5ArchiveDir, s);
+      if (!cdirexists(props->h5ArchiveDir))
         {
-            LOG_WARNMSG("Archive directory %s doesn't exist",
-                        props->h5ArchiveDir);
-            LOG_WARNMSG("%s", "Will use current working directory");
-            memset(props->h5ArchiveDir, 0, sizeof(props->h5ArchiveDir));
-            strcpy(props->h5ArchiveDir, "./\0");
+	  LOG_WARNMSG("Archive directory %s doesn't exist",
+		      props->h5ArchiveDir);
+	  LOG_WARNMSG("%s", "Will use current working directory");
+	  memset(props->h5ArchiveDir, 0, sizeof(props->h5ArchiveDir));
+	  strcpy(props->h5ArchiveDir, "./\0");
         }
     }
-    // Only write summary HDF5 files?
-    props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
-                                                 false);
-    // ANSS informaiton
-    s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
-    strcpy(props->anssNetwork, s);
-    lenos = (int) (strlen(props->anssNetwork));
+  // Only write summary HDF5 files?
+  props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
+					       false);
+  // ANSS informaiton
+  s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
+  strcpy(props->anssNetwork, s);
+  lenos = (int) (strlen(props->anssNetwork));
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
 #endif
-    for (i=0; i<lenos; i++)
+  for (i=0; i<lenos; i++)
     {
-        putchar(props->anssNetwork[i]);
+      putchar(props->anssNetwork[i]);
     }
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-    s = iniparser_getstring(ini, "general:anssDomain\0", "anss.org\0"); 
-    strcpy(props->anssDomain, s);
-    //---------------------------Earthworm parameters-------------------------//
-    if (props->opmode == REAL_TIME_EEW)
+  s = iniparser_getstring(ini, "general:anssDomain\0", "anss.org\0"); 
+  strcpy(props->anssDomain, s);
+  //---------------------------Earthworm parameters-------------------------//
+  if (props->opmode == REAL_TIME_EEW)
     {
-        s = iniparser_getstring(ini, "earthworm:gpsRingName\0", "WAVE_RING\0");
-        strcpy(props->ew_props.gpsRingName, s);
-        if (strlen(props->ew_props.gpsRingName) < 1)
+      s = iniparser_getstring(ini, "earthworm:gpsRingName\0", "WAVE_RING\0");
+      strcpy(props->ew_props.gpsRingName, s);
+      if (strlen(props->ew_props.gpsRingName) < 1)
         {
-            LOG_WARNMSG("%s", "GPS ring name may not be specified");
+	  LOG_WARNMSG("%s", "GPS ring name may not be specified");
         }
-        s = iniparser_getstring(ini, "earthworm:moduleName\0", "geojson2ew\0");
-        strcpy(props->ew_props.moduleName, s);
-        if (strlen(props->ew_props.moduleName) < 1)
+      s = iniparser_getstring(ini, "earthworm:moduleName\0", "geojson2ew\0");
+      strcpy(props->ew_props.moduleName, s);
+      if (strlen(props->ew_props.moduleName) < 1)
         {
-            LOG_ERRMSG("%s", "Module name is not specified");
-            goto ERROR;
+	  LOG_ERRMSG("%s", "Module name is not specified");
+	  goto ERROR;
         }
     }
-    // Free the ini file
-    iniparser_freedict(ini);
-    //------------------------------PGD Parameters----------------------------//
-    ierr = core_scaling_pgd_readIni(propfilename, "PGD\0",
-                                    props->verbose, props->utm_zone,
-                                    &props->pgd_props);
-    if (ierr != 0)
+  // Free the ini file
+  iniparser_freedict(ini);
+  //------------------------------PGD Parameters----------------------------//
+  ierr = core_scaling_pgd_readIni(propfilename, "PGD\0",
+				  props->verbose, props->utm_zone,
+				  &props->pgd_props);
+  if (ierr != 0)
     {
-        LOG_ERRMSG("%s", "Error reading PGD parameters");
-        goto ERROR;
+      LOG_ERRMSG("%s", "Error reading PGD parameters");
+      goto ERROR;
     }
-    //----------------------------CMT Parameters------------------------------//
-    ierr = core_cmt_readIni(propfilename, "CMT\0",
-                            props->verbose, props->utm_zone,
-                            &props->cmt_props); 
-    if (ierr != 0)
+  //----------------------------CMT Parameters------------------------------//
+  ierr = core_cmt_readIni(propfilename, "CMT\0",
+			  props->verbose, props->utm_zone,
+			  &props->cmt_props); 
+  if (ierr != 0)
     {
-        LOG_ERRMSG("%s", "Error reading CMT parameters");
-        goto ERROR;
+      LOG_ERRMSG("%s", "Error reading CMT parameters");
+      goto ERROR;
     } 
-    //------------------------------FF Parameters-----------------------------//
-    ierr = core_ff_readIni(propfilename, "FF\0",
-                           props->verbose, props->utm_zone,
-                           props->cmt_props.min_sites,
-                           &props->ff_props);
-    if (ierr != 0)
+  //------------------------------FF Parameters-----------------------------//
+  ierr = core_ff_readIni(propfilename, "FF\0",
+			 props->verbose, props->utm_zone,
+			 props->cmt_props.min_sites,
+			 &props->ff_props);
+  if (ierr != 0)
     {
-        LOG_ERRMSG("%s", "Error reading FF parameters");
-        goto ERROR; 
+      LOG_ERRMSG("%s", "Error reading FF parameters");
+      goto ERROR; 
     }
-    //---------------------------ActiveMQ Parameters--------------------------//
+  //---------------------------ActiveMQ Parameters--------------------------//
 #ifdef GFAST_USE_AMQ
-    if (props->opmode == REAL_TIME_EEW) 
+  if (props->opmode == REAL_TIME_EEW) 
     {
-        ierr = activeMQ_readIni(propfilename, "ActiveMQ",
-                                &props->activeMQ_props);
-        if (ierr != 0)
+      ierr = activeMQ_readIni(propfilename, "ActiveMQ",
+			      &props->activeMQ_props);
+      if (ierr != 0)
         {
-            LOG_ERRMSG("%s", "Error reading FF parameters");
-            goto ERROR; 
+	  LOG_ERRMSG("%s", "Error reading FF parameters");
+	  goto ERROR; 
         }
     } // End check on need for ActiveMQ
 #endif
-    // Success!
-    ierr = 0;
-    return ierr;
-ERROR:;
-    return ierr;
+  // Success!
+  ierr = 0;
+  return ierr;
+ ERROR:;
+  return ierr;
 }
