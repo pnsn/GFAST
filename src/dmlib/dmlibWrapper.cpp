@@ -66,6 +66,7 @@ int startAMQconnection(const char AMQuser[],
     }
   catch (cms::CMSException &e)
     {
+      printf("%s: Exception encountered creating dmlib connection\n%s",fcnm,e.what());
       e.printStackTrace();
       return -1;
     }
@@ -91,12 +92,17 @@ bool isAMQconnected() {
     return false;
   }
   //vck: add real connected test here and make default -1
-  printf("%s: dummy function call\n",fcnm);
+  printf("%s: dummy placeholder function call\n",fcnm);
   return true;
 }
 
 int startEventSender(const char eventtopic[]) {
   const char *fcnm = "startEventSender\0";
+  if (conVerbose > 2)
+    {
+      printf("%s: Creating dmlib DMMessageSender on topic: %s\n",
+	     fcnm, eventtopic);
+    }
   if (not isAMQconnected()) {
       printf("%s: Cannot start event sender without activeMQ connection.",fcnm);
       return -1;
@@ -134,6 +140,11 @@ int stopEventSender() {
 
 int sendEventMessage() {
   const char *fcnm = "sendEventMessage\0";
+  if (conVerbose > 2)
+    {
+      printf("%s: Sending event message to activemq topic.\n",
+	     fcnm);
+    }
   if (eventmessage==NULL) {
     printf("%s: No message to send\n",fcnm);
     return 0;
@@ -152,6 +163,12 @@ int sendEventMessage() {
 
 int sendEventXML(const char xmlstr[]) {
   const char *fcnm = "sendEventXML\0";
+  if (conVerbose > 2)
+    {
+      printf("%s: Sending preformatted xml message to event topic.\n",
+	     fcnm);
+    }
+
   eventsender->sendString(xmlstr);
   if (conVerbose>1) {
     printf("%s: sent xml message to activemq\n",fcnm);
@@ -175,12 +192,28 @@ int startHBProducer(const char sender[],
   hbVerbose=verbose;
   hbSender=string(sender);
   hbTopic=string(hbtopic);
-  hbproducer = new HBProducer(amqconnection,hbSender,hbTopic,interval);
+  if (hbVerbose > 2)
+    {
+      printf("%s: Starting heartbeat prodicer on topic: %s\n",fcnm, hbtopic);
+    }
+  try {
+    hbproducer = new HBProducer(amqconnection,hbSender,hbTopic,interval);
+  }
+  catch (exception &e)
+    {
+      printf("%s: Encountered Exception creating dmlib HB producer\n%s",fcnm,e.what());
+      return -1;
+    }
   return (hbproducer==NULL)?-1:1;
 }
 
 int stopHBProducer(){
   const char *fcnm = "stopHBProducer\0";
+  if (hbVerbose > 2)
+    {
+      printf("%s: killing heartbeat producer\n",fcnm);
+    }
+
   if (hbproducer==NULL) {
     printf("%s: HB producer not running\n",fcnm);
       return 0;

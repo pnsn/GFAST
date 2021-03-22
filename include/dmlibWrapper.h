@@ -25,9 +25,9 @@ extern "C" {
     @param[in] maxAttempts     Number of attempts to connect before giving up.
                                If 0 this command will be ignored.
     @param[in] verbose         logging verbosity. default=1
+    @return 1 if success, 0 if already connected and -1 for error
     Points new connection to static amqconnection pointer or sets pointer to NULL
     if unsuccessful.
-    @return 1 if success, 0 if already connected and -1 for error
   */
   int startAMQconnection(const char AMQuser[],
 			 const char AMQpassword[],
