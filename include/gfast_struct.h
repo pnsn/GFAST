@@ -115,8 +115,7 @@ struct GFAST_activeMQ_struct
     char user[512];             /*!< Username for ActiveMQ host computer. */
     char password[512];         /*!< Password to ActiveMQ host computer. */
     char originTopic[512];      /*!< This is the topic (ActiveMQ destination)
-                                     that the decision module sends messages
-                                     to and GFAST.  */
+				  that GFAST reads event trigger messages from*/
     char destinationTopic[512]; /*!< This is the topic (ActiveMQ destination)
                                      that GFAST will send messages to. */
     char hbTopic[512];          /*!< This is the topic (ActiveMQ destination)

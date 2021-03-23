@@ -66,7 +66,7 @@ synthetic_runtime = 0.0
 processing_time = 300.0
 default_event_depth = 8.0
 
-h5ArchiveDirectory = /tmp
+h5ArchiveDirectory = /home/kress/gfasttest/h5archive
 H5SummaryOnly = 0
 
 anssNetwork = UW
