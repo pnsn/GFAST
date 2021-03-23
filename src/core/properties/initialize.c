@@ -436,11 +436,11 @@ int core_properties_initialize(const char *propfilename,
 #ifdef GFAST_USE_AMQ
   if (props->opmode == REAL_TIME_EEW) 
     {
-      ierr = activeMQ_readIni(propfilename, "ActiveMQ",
+      ierr = activeMQ_readIni(propfilename, "ActiveMQ\0",
 			      &props->activeMQ_props);
       if (ierr != 0)
         {
-	  LOG_ERRMSG("%s", "Error reading FF parameters");
+	  LOG_ERRMSG("%s", "Error reading ActiveMQ group parameters");
 	  goto ERROR; 
         }
     } // End check on need for ActiveMQ
