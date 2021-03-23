@@ -145,14 +145,16 @@ int main(int argc, char **argv)
       LOG_ERRMSG("%s: Error initializing the HDF5 wave file\n", fcnm);
       goto ERROR;
     }
-  // Fire up the listener
-  if (props.verbose > 0)
-    {
-      LOG_INFOMSG("%s: Initializing trigger listener...\n", fcnm);
-      LOG_MSG("%s: Initializing trigger listener...", fcnm);
-    }
 
   if (USE_AMQ) {
+    // Fire up the listener
+    if (props.verbose > 0)
+      {
+	LOG_INFOMSG("%s: Initializing trigger listener on %s...\n", fcnm,
+		    props.activeMQ_props.originTopic);
+	LOG_MSG("%s: Initializing trigger listener on %s...", fcnm,
+		props.activeMQ_props.originTopic);
+      }
     activeMQ_start();  // start library
     amqMessageListener = activeMQ_consumer_initialize(props.activeMQ_props.user,
 						      props.activeMQ_props.password,
@@ -189,6 +191,13 @@ int main(int argc, char **argv)
       goto ERROR;
     }
     /* start heartbeat producer and set to manual heartbeats */
+    if (props.verbose > 0)
+      {
+	LOG_INFOMSG("%s: Initializing heartbeat sender on %s...\n", fcnm,
+		    props.activeMQ_props.hbTopic);
+	LOG_MSG("%s: Initializing heartbeat sender on %s...", fcnm,
+		props.activeMQ_props.hbTopic);
+      }
     ierr=startHBProducer("GFAST", props.activeMQ_props.hbTopic, 0, props.verbose);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
@@ -198,6 +207,13 @@ int main(int argc, char **argv)
       goto ERROR;
     }
     /*start message sender*/
+    if (props.verbose > 0)
+      {
+	LOG_INFOMSG("%s: Initializing event sender on %s...\n", fcnm,
+		    props.activeMQ_props.hbTopic);
+	LOG_MSG("%s: Initializing event sender on %s...", fcnm,
+		props.activeMQ_props.destinationTopic);
+      }
     ierr=startEventSender(props.activeMQ_props.destinationTopic);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize active event sender object", fcnm);
@@ -243,9 +259,16 @@ int main(int argc, char **argv)
       goto ERROR;
     }
   // Connect to the earthworm ring
+  LOG_INFOMSG("%s: Connecting to earthworm ring %s\n", fcnm, ringInfo.ewRingName);
+  LOG_MSG("%s: Connecting to earthworm ring %s", fcnm, ringInfo.ewRingName);
   ierr = traceBuffer_ewrr_initialize(props.ew_props.gpsRingName,
 				     10,
 				     &ringInfo);
+  if (ierr != 0)
+    {
+      LOG_ERRMSG("%s: Error initializing tracebuf reader\n", fcnm);
+      goto ERROR;
+    }
   // Flush the buffer
   LOG_INFOMSG("%s: Flushing ring %s\n", fcnm, ringInfo.ewRingName);
   LOG_MSG("%s: Flushing ring %s", fcnm, ringInfo.ewRingName);

@@ -100,7 +100,7 @@ int startEventSender(const char eventtopic[]) {
   const char *fcnm = "startEventSender\0";
   if (conVerbose > 2)
     {
-      printf("%s: Creating dmlib DMMessageSender on topic: %s\n",
+      printf("%s: Stargint dmlib DMMessageSender on topic: %s\n",
 	     fcnm, eventtopic);
     }
   if (not isAMQconnected()) {
