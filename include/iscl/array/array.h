@@ -1,9 +1,9 @@
 #ifndef ARRAY_ARRAY_H
 #define ARRAY_ARRAY_H 1
 #include <stdbool.h>
-#include "iscl/config.h"
+// #include "iscl/config.h"
 #include "iscl/iscl/iscl.h"
-#include "iscl/statistics/statistics.h"
+// #include "iscl/statistics/statistics.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -735,10 +735,12 @@ enum isclError_enum array_zeros8c_work(const int n, char *__restrict__ zeros);
 #define ISCL_array_maxAbs64z(...)       \
              array_maxAbs64z(__VA_ARGS__)
 
+/*
 #define ISCL_array_mean__double(...)            \
              statistics_mean__double(__VA_ARGS__)
 #define array_mean__double(...)            \
         statistics_mean__double(__VA_ARGS__)
+*/
 
 #define ISCL_array_min64f(...)       \
              array_min64f(__VA_ARGS__)

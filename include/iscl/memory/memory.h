@@ -1,7 +1,7 @@
 #ifndef MEMORY_MEMORY_H__
 #define MEMORY_MEMORY_H__ 1
 #include <stdbool.h>
-#include "iscl/config.h"
+// #include "iscl/config.h"
 #include "iscl/iscl/iscl.h"
 #include "iscl/iscl/iscl_enum.h"
 #include "iscl/iscl/iscl_defs.h"
@@ -78,9 +78,9 @@ void memory_free64z(double complex **p);
 void memory_free8c(char **p);
 void memory_free8l(bool **p);
 void memory_free32f(float **p);
-void memory_freeZPK(struct signalZPK_struct *zpk);
-void memory_freeBA(struct signalBA_struct *ba);
-void memory_freeSOS(struct signalSOS_struct *sos);
+// void memory_freeZPK(struct signalZPK_struct *zpk);
+// void memory_freeBA(struct signalBA_struct *ba);
+// void memory_freeSOS(struct signalSOS_struct *sos);
 
 /*
 #ifdef ISCL_USE_C11

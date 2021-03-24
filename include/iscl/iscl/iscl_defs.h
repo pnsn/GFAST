@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <math.h>
-#include "iscl/config.h"
+// #include "iscl/config.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
