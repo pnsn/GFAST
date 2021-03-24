@@ -140,7 +140,7 @@ int core_properties_initialize(const char *propfilename,
     }
   else
     {
-      LOG_MSG("No directory for input triggering events specified. Using activemq");
+      LOG_MSG("No directory for input triggering events specified. Using activemq%s", "");
     }
 
   s = iniparser_getstring(ini, "general:SA_output_dir\0", ".");
