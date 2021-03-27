@@ -117,7 +117,7 @@ int activeMQ_readIni(const char *propfilename,
     }
     else
     {
-        strcpy(activeMQ_props->destinationTopic, s);
+        strcpy(activeMQ_props->hbTopic, s);
     }
     setVarName(group, "port\0", var);
     activeMQ_props->port = iniparser_getint(ini, var, -12345);
