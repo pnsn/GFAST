@@ -123,25 +123,34 @@ int core_properties_initialize(const char *propfilename,
     props->output_interval_mins[0] = 0;
   }
 
-  s = iniparser_getstring(ini, "general:SA_events_dir\0", "");
-  strcpy(props->SAeventsDir, s);
-  if (s[0] != '\0')
+  s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
+  if (s != NULL)
     {
+      strcpy(props->SAeventsDir, s);
       if (!cdirexists(props->SAeventsDir))
-	{
+        {
 	  LOG_ERRMSG("SA events directory %s doesn't exist",
 		     props->SAeventsDir);
 	  goto ERROR; 
-	}
-      if (props->SAeventsDir[strlen(props->SAeventsDir)-1] != '/')
-	{
-	  strcat(props->SAeventsDir, "/\0");
-	}
+        }
+      if (strlen(props->SAeventsDir) == 0)
+        {
+	  strcpy(props->SAeventsDir, "./\0");
+        }
+      else
+        {
+	  if (props->SAeventsDir[strlen(props->SAeventsDir)-1] != '/')
+            {
+	      strcat(props->SAeventsDir, "/\0");
+            }
+        }
     }
-  else
-    {
-      LOG_MSG("No directory for input triggering events specified. Using activemq%s", "");
-    }
+    else
+      {
+        //strcpy(props->SAeventsDir, "\0");
+        LOG_MSG("No SA events directory specified --> Use:%s", ".");
+        /*strcpy(props->SAeventsDir, "./\0");*/
+      }
 
   s = iniparser_getstring(ini, "general:SA_output_dir\0", ".");
   if (s != NULL)

@@ -76,6 +76,8 @@ core/scaling/pgd\_readIni.c, activeMQ/readIni.c.
 
 This is a small self-contained compile with no unusual dependencies.
 
+But beware.  There are several iniparser packages written in c even if you confine yourself to github.  They are not the same.  Make sure you are using the one at https://github.com/ndevilla/iniparser.  Also, on github ndeville is a German who writes in python and ndevilla is a Frenchman who writes in c.
+
 ### libxml2
 
 /usr/lib64/libxml2.so.2 installed on dev systems. Many files reference
