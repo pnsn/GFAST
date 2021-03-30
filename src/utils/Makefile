@@ -8,13 +8,19 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= timeutils.o fileutils.o
+OBJS	= timeutils.o fileutils.o\
+	iscl_applyPermutations.o iscl_argmax.o iscl_argmin.o \
+	iscl_argsort.o iscl_calloc.o iscl_free.o iscl_issorted.o \
+    iscl_isfile.o iscl_isdir.o iscl_makedirs.o iscl_lstsq.o \
+	iscl_percentile.o iscl_verbosity.o iscl_malloc.o iscl_mkdir.o\
+	iscl_sort.o iscl_abs.o iscl_set.o iscl_copy.o iscl_min.o\
+	iscl_zeros.o iscl_absArgmin.o iscl_reverse.o
 
 LIB     =
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config ${GFAST_VERSION}
 
-INCL     = -I ../../include/
+INCL     = -I ../../include/ $(LAPACKE_INCL)
 
 SYSLIBS	 = -lpthread -lnsl -lrt -lz
 

@@ -11,8 +11,14 @@ EXE     = gfast_eew
 #gfast_playback
 OBJS	= activeMQ/gfast_amq.a eewUtils/gfast_utils.a xml/gfast_xml.a core/gfast_core.a \
 traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a utils/timeutils.o utils/fileutils.o \
-dmlib/dmlibWrapper.cpp.o
-LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
+dmlib/dmlibWrapper.cpp.o \
+utils/iscl_applyPermutations.o utils/iscl_argsort.o utils/iscl_isdir.o utils/iscl_lstsq.o \
+utils/iscl_verbosity.o utils/iscl_argmax.o utils/iscl_calloc.o utils/iscl_isfile.o \
+utils/iscl_makedirs.o utils/iscl_argmin.o utils/iscl_free.o utils/iscl_issorted.o \
+utils/iscl_percentile.o utils/iscl_malloc.o utils/iscl_mkdir.o utils/iscl_sort.o\
+utils/iscl_abs.o utils/iscl_set.o utils/iscl_copy.o utils/iscl_min.o utils/iscl_zeros.o\
+utils/iscl_absArgmin.o utils/iscl_reverse.o
+LIBS    =  $(EW_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
 $(ACTIVEMQ_LIB) $(DM_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) \
 $(XERCES_LIB) $(QLIB2_LIB) $(CRYPTO_LIB)
 SYSLIBS = -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++
