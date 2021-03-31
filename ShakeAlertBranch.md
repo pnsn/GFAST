@@ -260,8 +260,10 @@ As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the l
 - compile without ISCL
 - - memory
 - - array
+- Properly flag non-existant SA_events_dir and disable looking for trigger file.
 - dmlib heartbeat sender
 - dmlib message sender
+- replace fcnm defs and refs with \_\_func__
 - move xml message writing out of driveGFAST in into gfast_eew so we can use the dmlib xml writer.
 
 ##more substantial tasks
