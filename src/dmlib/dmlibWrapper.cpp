@@ -201,6 +201,7 @@ int startHBProducer(const char sender[],
     printf("%s: Encountered Exception creating dmlib HB producer\n%s",fcnm,e.what());
     return -1;
   }
+  /* this part is not working (steals the program) 
   if (interval > 0) {
     try {
       hbproducer->run();
@@ -210,6 +211,7 @@ int startHBProducer(const char sender[],
       return -1;
     }
   }
+  */
 
   return (hbproducer==NULL)?-1:1;
 }
