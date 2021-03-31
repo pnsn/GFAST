@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include "gfast_enum.h"
 #ifndef PATH_MAX
-#define PATH_MAX 4096
+#define PATH_MAX 512
 #endif
 #include "gfast_config.h"
 
@@ -140,17 +140,11 @@ struct GFAST_ew_struct
 
 struct GFAST_props_struct
 {
-  struct GFAST_pgd_props_struct
-  pgd_props;            /*!< PGD properties structure. */
-  struct GFAST_cmt_props_struct
-  cmt_props;            /*!< CMT properties structure. */
-  struct GFAST_ff_props_struct
-  ff_props;             /*!< FF properties structure. */
-  struct GFAST_activeMQ_struct
-  activeMQ_props;       /*!< ActiveMQ properties (required for 
-			  earthquake early warning). */
-  struct GFAST_ew_struct
-  ew_props;             /*!< Earthworm properties. */
+  struct GFAST_pgd_props_struct pgd_props;  /*!< PGD properties structure. */
+  struct GFAST_cmt_props_struct cmt_props;  /*!< CMT properties structure. */
+  struct GFAST_ff_props_struct ff_props;    /*!< FF properties structure. */
+  struct GFAST_activeMQ_struct activeMQ_props; /*!< ShakeAlert ActiveMQ properties */
+  struct GFAST_ew_struct ew_props;          /*!< Earthworm properties. */
   char metaDataFile[PATH_MAX]; /*!< Contains the GPS metadata file 
 				 which defines the sites, locations,
 				 sampling periods, etc. to be used
@@ -162,9 +156,6 @@ struct GFAST_props_struct
   char siteMaskFile[PATH_MAX]; /*!< Contains a list of sites to mask from
 				 the inversions.  If not specified then
 				 all sites will be read. */
-  //    char sitefile[PATH_MAX];     /*!< Contains all sites, locations, and 
-  //                                       sampling periods of streams to be 
-  //                                       used by GFAST. */
   char eewsfile[PATH_MAX];     /*!< In playback mode this XML decision
 				 module style module has the event
 				 hypocenter and origin time. */ 
@@ -176,26 +167,6 @@ struct GFAST_props_struct
 				 (e.g. UW, PM, etc.). */
   char anssDomain[512];        /*!< ANSS domain when writing quake ML
 				 (e.g. anss.org, tsunami.gov, etc) */
-  //    char AMQhost[512];          /*!< ActiveMQ hostname to access ElarmS messages
-  //                                     (siren). */
-  //    char AMQtopic[512];         /*!< ActiveMQ topic to access ElarmS messages
-  //                                     (eew.alg.elarms.data). */
-  //    char AMQuser[512];          /*!< ActiveMQ username to access ElarmS
-  //                                     messages */
-  //    char AMQpassword[512];      /*!< ActiveMQ password to access ElarmS
-  //                                     messages */
-  //    char RMQhost[512];          /*!< RabbitMQ hostname to acceess processed GPS
-  //                                     positions.  PANGA separates this into two 
-  //                                     distinct processing groups, CWU-ppp and
-  //                                     UNAVCO-rtx */
-  //    char RMQtopic[512];         /*!< RabbitMQ topic to access processed GPS
-  //                                     positions (www.panga.org) */
-  //    char RMQuser[512];          /*!< RabbitMQ username to acess processed GPS
-  //                                     positions */
-  //    char RMQpassword[512];      /*!< RabbitMQ password to access processed GPS
-  //                                     positions */
-  //    char RMQexchange[512];      /*!< RabbitMQ exchange to access processed GPS
-  //                                     positions (nev-cor) */
   double dt_default;          /*!< Default sampling period (s) for GPS
 				stations. */
   double bufflen;             /*!< The number of seconds to keep in the data
@@ -212,10 +183,6 @@ struct GFAST_props_struct
 				another iteration of the realtime code. */
   int n_intervals;
   int output_interval_mins[16];   /*!< Intervals (mins) at which to output event solution XMLs */
-  int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
-				(61620). */
-  //int RMQport;                /*!< RabbitMQ port to access processed GPS
-  //                                 positions (5672). */
   int utm_zone;               /*!< UTM zone.  If this is -12345 then will 
 				extract the UTM zone from the event
 				origin. */

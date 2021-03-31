@@ -3,9 +3,10 @@
 ################################################################################
 [general]
 # File for log output
-logFileName=logs/gfast.log
+logFileName = logs/gfast.log
 # File with station names
-metaDataFile=etc/GFASTmeta.dat
+metaDataFile = etc/GFASTmeta.dat
+SA_output_dir = out
 # Not sure what this is but can be specified
 #siteMaskFile=
 # note: if SA_events_dir is set, activemq will be ignored!
@@ -139,12 +140,9 @@ ff_fwid_pct = 10.0
 #                               ActiveMQ Properties                            #
 ################################################################################
 [ActiveMQ]
-# ActiveMQ hostname to access ElarmS messages
-#host = localhost
-# ActiveMQ port
+# ActiveMQ host:port
 ### amq_dm openwire 61616
 ### amq_sa openwire 63616
-#port=61616
 #URL for event trigger messages
 originURL=tcp://localhost:63616)
 # ActiveMQ topic to read event trigger messages from
@@ -152,7 +150,7 @@ originTopic=eew.agg.sa.data
 #URL to publish event messages and heartbeats on
 destinationURL=tcp://localhost:61616
 # ActiveMQ topic to publish events on.
-destinationTopic=eew.alg.gfast.data
+destinationTopic = eew.alg.gfast.data
 # ActiveMQ topic to publish heartbeats on
 hbTopic=eew.alg.gfast.hb
 # heartbeat interval

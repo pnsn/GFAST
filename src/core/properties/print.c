@@ -76,14 +76,18 @@ void core_properties_print(struct GFAST_props_struct props)
                    props.dt_default);
         if (props.opmode == REAL_TIME_EEW)
         {
-            LOG_DEBUGMSG("%s GFAST host name: %s", lspace,
-                         props.activeMQ_props.host);
+            LOG_DEBUGMSG("%s GFAST trigger origin url: %s", lspace,
+                         props.activeMQ_props.originURL);
             LOG_DEBUGMSG("%s GFAST origin topic: %s",
                          lspace, props.activeMQ_props.originTopic);
+            LOG_DEBUGMSG("%s GFAST results destination url: %s", lspace,
+                         props.activeMQ_props.destinationURL);
             LOG_DEBUGMSG("%s GFAST destination topic: %s",
                          lspace, props.activeMQ_props.destinationTopic);
-            LOG_DEBUGMSG("%s Will connect to port %d", lspace,
-                         props.activeMQ_props.port);
+            LOG_DEBUGMSG("%s GFAST heartbeat topic: %s",
+                         lspace, props.activeMQ_props.hbTopic);
+            LOG_DEBUGMSG("%s heartbeat interval (seconds) %d", lspace,
+                         props.activeMQ_props.hbInterval);
             if (props.activeMQ_props.maxAttempts > 0)
             {
                 LOG_DEBUGMSG("%s Milliseconds before reconnect %d",

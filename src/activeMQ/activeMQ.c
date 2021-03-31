@@ -60,9 +60,9 @@ char *activeMQ_setTcpURIRequest(const char *AMQurl,
     char cwork[4096], cbuff[64];
     memset(cwork,  0, sizeof(cwork));
     memset(cbuff,  0, sizeof(cbuff));
-    strcpy(cwork, "failover:(tcp://\0");
+    strcpy(cwork, "failover:(\0");
     strcat(cwork, AMQurl);
-    strcat(cwork, ":\0");
+    strcat(cwork, ")\0");
     // Max milliseconds for reconnect
     if (msReconnect > 0 && maxAttempts > 0)
     {
