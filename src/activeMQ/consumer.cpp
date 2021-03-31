@@ -29,16 +29,16 @@
 //static bool linit_amqlib = false;
 
 /*!
- * @brief C interface function to initialize the ActiveMQ shakeAlert
+ * @brief C interface function to initialize a ShakeAlertConsumer class instance
  *        decision module message listener.  This function must be called
  *        first.
  *
+ * This is a AMQ connection strategy which will be deprecated in the future in favor of dmlib.
+ *
  * @param[in] AMQuser         Authenticating username.
  * @param[in] AMQpassword     Authenticating password.
+ * @param[in] AMQurl          URL string specifying target broker host and port (e.g. tcp://localhost:61616)
  * @param[in] AMQdestination  Queue or topic name on the broker.
- * @param[in] AMQhostname     URL of host computer (e.g. computer.abc.def.edu).
- * @param[in] port            Port number which is accepting connections on
- *                            host computer.
  * @param[in] msReconnect     Number of milliseconds to wait for a reconnect
  *                            attempt.  If 0 or if maxAttempts is 0 then this
  *                            command will be ignored.
@@ -67,16 +67,15 @@
  * @param[in] maxMessages     Max number of messages in local message buffer
  * @param[in] verbose         controls verobosity.
  *
- * @result 0 indicates success.
+ * @return pointer to ShakeAlertConsumer class instance cast to (void *) so it can be passed in c.
  *
  * @author Ben Baker, ISTI
  *
  */
 extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
                                               const char AMQpassword[],
+					      const char AMQurl[],
                                               const char AMQdestination[],
-                                              const char AMQhostname[],
-                                              const int port,
                                               const int msReconnect,
                                               const int maxAttempts,
                                               const bool useTopic,
@@ -88,7 +87,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
 {
     const char *fcnm = "activeMQ_consumer_initialize\0";
     ShakeAlertConsumer *consumer = NULL;
-    string brokerURI, destination, hostname, password, username;
+    string brokerURI, destination, password, username;
     *ierr = 0;
     if (AMQuser != NULL)
     {
@@ -106,14 +105,6 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     {
         password = "";
     }
-    if (AMQhostname != NULL)
-    {
-        hostname = string(AMQhostname);
-    }
-    else
-    {
-        hostname = "";
-    }
     if (AMQdestination != NULL)
     {
         destination = string(AMQdestination);
@@ -124,8 +115,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     }
     // Set the URI 
     char *brokerURIchar;
-    brokerURIchar = activeMQ_setTcpURIRequest(AMQhostname, port,
-                                                 msReconnect, maxAttempts);
+    brokerURIchar = activeMQ_setTcpURIRequest(AMQurl,msReconnect, maxAttempts);
     brokerURI = string(brokerURIchar);
     delete[] brokerURIchar;
     // Make sure the library is initialized
@@ -151,7 +141,6 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     }
     brokerURI = "";
     destination = "";
-    hostname = "";
     password = "";
     username = "";
     return static_cast<void *> (consumer);
@@ -209,57 +198,5 @@ extern "C" char *activeMQ_consumer_getMessage(void *consumerIn,
     }
     consumer = NULL;
     return message;
-}
-//============================================================================//
-/*!
- * @brief Sets the tcp URI from the host name, port number, max milliseconds
- *        for a reconnect, and max number of attempts to connect.
- *
- * @param[in] host         Host name (e.g. mycomputer.abc.def.edu).
- * @param[in] port         Port number.
- * @param[in] msReconnect  Number of milliseconds to wait for a reconnect
- *                         attempt.  If 0 or if maxAttempts is 0 then this
- *                         command will be ignored.
- * @param[in] maxAttempts  Number of attempts to connect before giving up
- *                         if 0 this command will be ignored.
- *
- * @result tcp URI request for ActiveMQ connection.
- *
- */
-extern "C" char *activeMQ_setTcpURIRequest(const char *host,
-                                           const int port,
-                                           const int msReconnect,
-                                           const int maxAttempts)
-{
-    char *uri = NULL;
-    char cwork[4096], cbuff[64];
-    memset(cwork,  0, sizeof(cwork));
-    memset(cbuff,  0, sizeof(cbuff));
-    strcpy(cwork, "failover:(tcp://\0");
-    strcat(cwork, host);
-    strcat(cwork, ":\0");
-    sprintf(cbuff, "%d", port);
-    strcat(cwork, cbuff);
-    strcat(cwork, ")\0");
-    // Max milliseconds for reconnect
-    if (msReconnect > 0 && maxAttempts > 0)
-    {
-        memset(cbuff, 0, sizeof(cbuff));
-        sprintf(cbuff, "%d", msReconnect);
-        strcat(cwork, "?initialReconnectDelay=\0");
-        strcat(cwork, cbuff);
-    }
-    // Max number of attempts
-    if (maxAttempts > 0)
-    {
-        memset(cbuff, 0, sizeof(cbuff));
-        sprintf(cbuff, "%d", maxAttempts);
-        strcat(cwork, "?startupMaxReconnectAttempts=\0");
-        strcat(cwork, cbuff);
-    }
-    uri = new char[strlen(cwork)+1]; 
-    memset(uri, 0, strlen(cwork)+1);
-    strcpy(uri, cwork);
-    return uri;
 }
 

@@ -16,7 +16,7 @@
 
 /*static variables local to this file*/
 namespace {
-  static cms::Connection *amqconnection=NULL;
+  static cms::Connection *destinationConnection=NULL;
   static HBProducer *hbproducer=NULL;
   static DMMessageSender *eventsender=NULL;
   static CoreEventInfo *eventmessage=NULL;
@@ -26,19 +26,18 @@ namespace {
   static int hbVerbose=0;
 }
 
-int startAMQconnection(const char AMQuser[],
-		       const char AMQpassword[],
-		       const char AMQhostname[],
-		       const int port,
-		       const int msReconnect,
-		       const int maxAttempts,
-		       const int verbose=1) {
+int startDestinationConnection(const char AMQuser[],
+			       const char AMQpassword[],
+			       const char destinationURL[],
+			       const int msReconnect,
+			       const int maxAttempts,
+			       const int verbose=1) {
   conVerbose=verbose;
-  const char *fcnm = "startAMQconnection\0";
+  const char *fcnm = "startDestinationConnection\0";
   char *brokerURI;
-  brokerURI = activeMQ_setTcpURIRequest(AMQhostname, port,
+  brokerURI = activeMQ_setTcpURIRequest(destinationURL,
 					msReconnect, maxAttempts);
-  if (amqconnection!=NULL) {
+  if (destinationConnection!=NULL) {
     printf("%s: connection already exists\n",fcnm);
     return 0;
   }
@@ -59,10 +58,10 @@ int startAMQconnection(const char AMQuser[],
 		 fcnm, AMQuser);
 	}
       // Create a connection
-      amqconnection = connectionFactory->createConnection(AMQuser, AMQpassword);
+      destinationConnection = connectionFactory->createConnection(AMQuser, AMQpassword);
       connectionFactory.reset();
       delete[] brokerURI;
-      if (amqconnection==NULL) return -1;
+      if (destinationConnection==NULL) return -1;
     }
   catch (cms::CMSException &e)
     {
@@ -73,22 +72,22 @@ int startAMQconnection(const char AMQuser[],
   return 1;
 }
 
-int stopAMQconnection() {
-  const char *fcnm = "stopAMQconnection\0";
+int stopDestinationConnection() {
+  const char *fcnm = "stopDestinationConnection\0";
 
-  if (amqconnection==NULL) {
+  if ( destinationConnection==NULL ) {
     printf("%s: connection already dead\n",fcnm);
     return 0;
   }
-  amqconnection->close();
-  delete amqconnection;
-  amqconnection=NULL;
+  destinationConnection->close();
+  delete destinationConnection;
+  destinationConnection=NULL;
   return 1;
 }
 
 bool isAMQconnected() {
   const char *fcnm = "isAMQconnected\0";
-  if (amqconnection==NULL) {
+  if (destinationConnection==NULL) {
     return false;
   }
   //vck: add real connected test here and make default -1
@@ -112,7 +111,7 @@ int startEventSender(const char eventtopic[]) {
       return 0;
     }
   try {
-    eventsender = new DMMessageSender(amqconnection,eventtopic);
+    eventsender = new DMMessageSender(destinationConnection,eventtopic);
   }
   catch (exception &e)
     {
@@ -179,9 +178,9 @@ int sendEventXML(const char xmlstr[]) {
 int startHBProducer(const char sender[],
 		    const char hbtopic[],
 		    int interval=0,
-		    int verbose=1){
+		    int verbose=1) {
   const char *fcnm = "startHBProducer\0";
-  if (amqconnection==NULL) {
+  if (destinationConnection==NULL) {
     printf("%s: Error: AMQ connection must be started before HBProducer\n",fcnm);
     return -1;
   }
@@ -192,22 +191,30 @@ int startHBProducer(const char sender[],
   hbVerbose=verbose;
   hbSender=string(sender);
   hbTopic=string(hbtopic);
-  if (hbVerbose > 2)
-    {
-      printf("%s: Starting heartbeat prodicer on topic: %s\n",fcnm, hbtopic);
-    }
-  try {
-    hbproducer = new HBProducer(amqconnection,hbSender,hbTopic,interval);
+  if (hbVerbose > 2) {
+    printf("%s: Starting heartbeat prodicer on topic: %s\n",fcnm, hbtopic);
   }
-  catch (exception &e)
-    {
-      printf("%s: Encountered Exception creating dmlib HB producer\n%s",fcnm,e.what());
+  try {
+    hbproducer = new HBProducer(destinationConnection,hbSender,hbTopic,interval);
+  }
+  catch (exception &e) {
+    printf("%s: Encountered Exception creating dmlib HB producer\n%s",fcnm,e.what());
+    return -1;
+  }
+  if (interval > 0) {
+    try {
+      hbproducer->run();
+    }
+    catch (exception &e) {
+      printf("%s: Encountered Exception in dmlib HB producer\n%s",fcnm,e.what());
       return -1;
     }
+  }
+
   return (hbproducer==NULL)?-1:1;
 }
 
-int stopHBProducer(){
+int stopHBProducer() {
   const char *fcnm = "stopHBProducer\0";
   if (hbVerbose > 2)
     {
@@ -218,6 +225,7 @@ int stopHBProducer(){
     printf("%s: HB producer not running\n",fcnm);
       return 0;
   }
+  hbproducer->stop();
   delete hbproducer;
   hbproducer=NULL;
   return 1;

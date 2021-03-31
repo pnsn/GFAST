@@ -27,9 +27,8 @@ int activeMQ_readIni(const char *propfilename,
 /* Initialize activeMQ parameters */
 void *activeMQ_consumer_initialize(const char AMQuser[],
                                    const char AMQpassword[],
+				   const char AMQurl[],
                                    const char AMQdestination[],
-                                   const char AMQhostname[],
-                                   const int port,
                                    const int msReconnect,
                                    const int maxAttempts,
                                    const bool useTopic,
@@ -52,19 +51,15 @@ void activeMQ_producer_finalize(void *producerIn);
 int activeMQ_producer_sendMessage(void *producerIn,
                                   const char *message);
 /* Convenience function to set the tcp URI request */
-char *activeMQ_setTcpURIRequest(const char *host,
-                                const int port,
+char *activeMQ_setTcpURIRequest(const char *url,
                                 const int msReconnect,
                                 const int maxAttempts);
 
-/* Convenience function to set the tcp URI for the producer */
-char *activeMQ_producer_setTcpURI(const char *host, const int port);
 /* Initialize the ActiveMQ producer */
 void *activeMQ_producer_initialize(const char AMQuser[],
                                    const char AMQpassword[],
+				   const char AMQurl[],
                                    const char AMQdestination[],
-                                   const char AMQhostname[],
-                                   const int port,
                                    const bool useTopic,
                                    const bool clientAck,
                                    const int verbose,

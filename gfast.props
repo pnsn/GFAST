@@ -140,17 +140,23 @@ ff_fwid_pct = 10.0
 ################################################################################
 [ActiveMQ]
 # ActiveMQ hostname to access ElarmS messages
-host = localhost
+#host = localhost
 # ActiveMQ port
-# amq_dm openwire tcp://localhost:61616
-# amq_sa openwire tcp://localhost:63616
-port=61616
+### amq_dm openwire 61616
+### amq_sa openwire 63616
+#port=61616
+#URL for event trigger messages
+originURL=tcp://localhost:63616)
 # ActiveMQ topic to read event trigger messages from
-originTopic=eew.alg.elarms.data
+originTopic=eew.agg.sa.data
+#URL to publish event messages and heartbeats on
+destinationURL=tcp://localhost:61616
 # ActiveMQ topic to publish events on.
 destinationTopic=eew.alg.gfast.data
 # ActiveMQ topic to publish heartbeats on
 hbTopic=eew.alg.gfast.hb
+# heartbeat interval
+hbInterval=5
 # ActiveMQ username to access ElarmS messages
 user=glarms
 # ActiveMQ password to access ElarmS messages

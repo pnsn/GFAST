@@ -16,9 +16,7 @@ extern "C" {
     @brief Start connection to activemq instance
     @param[in] AMQuser         Authenticating username.
     @param[in] AMQpassword     Authenticating password.
-    @param[in] AMQhostname     URL of host computer (e.g. computer.abc.def.edu).
-    @param[in] port            Port number which is accepting connections on
-                               host computer.
+    @param[in] destinationURL  URL of host computer (e.g. tcp://localhost:61616).
     @param[in] msReconnect     Number of milliseconds to wait for a reconnect
                                attempt.  If 0 or if maxAttempts is 0 then this
                                command will be ignored.
@@ -29,24 +27,23 @@ extern "C" {
     Points new connection to static amqconnection pointer or sets pointer to NULL
     if unsuccessful.
   */
-  int startAMQconnection(const char AMQuser[],
-			 const char AMQpassword[],
-			 const char AMQhostname[],
-			 const int port,
-			 const int msReconnect,
-			 const int maxAttempts,
-			 const int verbose);
+  int startDestinationConnection(const char AMQuser[],
+				 const char AMQpassword[],
+				 const char destinationURL[],
+				 const int msReconnect,
+				 const int maxAttempts,
+				 const int verbose);
   /*!
     @brief stops active activemq connection
     Stops and destroys connection and sets amqconnection pointer to NULL
     @return 1 if success, 0 if not connected and -1 for error
   */
-  int stopAMQconnection();
+  int stopDestinationConnection();
   /*!
     @brief tests if connection is started
     @return true if connected, false if not
   */
-  bool isAMQconnected();
+  bool isDestinationConnected();
   /*!
     @brief instantiates and starts new DMMessageSender for events.
     @return 1 if success, 0 if already connected and -1 for error

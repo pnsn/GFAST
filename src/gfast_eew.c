@@ -64,9 +64,6 @@ int main(int argc, char **argv)
   const bool luseListener = false;         /**< C can't trigger so turn this off (remove?) */
   double tstatus, tstatus0, tstatus1;
   static void *amqMessageListener = NULL;  /**< pointer to ShakeAlertConsumer object */
-  //static void *amqConnection = NULL;       /**< pointer to ActiveMQ connection object */
-  //static void *amqMessagePublisher = NULL; **< pointer to ShakeAlertProducer object for messages */
-  //static void *amqHBProducer = NULL;       /**< pointer to dmlib producer object for heartbeats */
   int ierr, im, msWait, nTracebufs2Read;
   bool lacquire, lnewEvent;
   const int rdwt = 2; // H5 file is read/write
@@ -158,9 +155,8 @@ int main(int argc, char **argv)
     activeMQ_start();  // start library
     amqMessageListener = activeMQ_consumer_initialize(props.activeMQ_props.user,
 						      props.activeMQ_props.password,
+						      props.activeMQ_props.originURL,
 						      props.activeMQ_props.originTopic,
-						      props.activeMQ_props.host,
-						      props.activeMQ_props.port,
 						      props.activeMQ_props.msReconnect,
 						      props.activeMQ_props.maxAttempts,
 						      useTopic,
@@ -176,13 +172,12 @@ int main(int argc, char **argv)
       }
     /* dmlib startup */
     /* start connection */
-    ierr=startAMQconnection(props.activeMQ_props.user,
-			    props.activeMQ_props.password,
-			    props.activeMQ_props.host,
-			    props.activeMQ_props.port,
-			    props.activeMQ_props.msReconnect,
-			    props.activeMQ_props.maxAttempts,
-			    props.verbose);
+    ierr=startDestinationConnection(props.activeMQ_props.user,
+				    props.activeMQ_props.password,
+				    props.activeMQ_props.destinationURL,
+				    props.activeMQ_props.msReconnect,
+				    props.activeMQ_props.maxAttempts,
+				    props.verbose);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize activeMQ connection object", fcnm);
     }
@@ -198,7 +193,7 @@ int main(int argc, char **argv)
 	LOG_MSG("%s: Initializing heartbeat sender on %s...", fcnm,
 		props.activeMQ_props.hbTopic);
       }
-    ierr=startHBProducer("GFAST", props.activeMQ_props.hbTopic, 0, props.verbose);
+    ierr=startHBProducer("GFAST", props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
     }
@@ -386,7 +381,6 @@ int main(int argc, char **argv)
 
       // Check for an event
       if (USE_AMQ){
-	sendHeartbeat();
 	if (props.verbose > 2) {
 	  LOG_MSG("%s: Checking Activemq for events", fcnm);
 	}
@@ -579,7 +573,7 @@ int main(int argc, char **argv)
       activeMQ_consumer_finalize(amqMessageListener);
       stopHBProducer();
       stopEventSender();
-      stopAMQconnection();
+      stopDestinationConnection();
       activeMQ_stop();
     }
   core_cmt_finalize(&props.cmt_props,

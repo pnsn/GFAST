@@ -26,45 +26,20 @@
 #include "gfast_activeMQ.h"
 #include "ShakeAlertProducer.h"
 
-//using namespace decaf::lang;
-//using namespace activemq::core;
-//using namespace activemq::transport;
-//using namespace activemq::util;
-//using namespace cms;
-//using namespace std;
-
 //static ShakeAlertProducer producer;
 //static bool linit_amqlib = false;
-
-/*!
- * @brief Sets the tcp URI for the producer.
- *
- * @param[in] host       Host name (e.g. mycomputer.abc.def.edu).
- * @param[in] port       Port number.
- *
- * @result tcp URI request for ActiveMQ connection.
- *
- * @author Ben Baker, ISTI
- *
- */
-extern "C" char *activeMQ_producer_setTcpURI(const char *host, const int port)
-{
-  char *uri = NULL;
-  uri = activeMQ_setTcpURIRequest(host, port, -1, -1);
-  return uri;
-}
 
 /*!
  * @brief C interface function to initialize the ActiveMQ producer. 
  *        This function must be called prior to any other functions in this
  *        class.
  *
+ * This is a AMQ connection strategy which is deprecated in current SA in favor of dmlib.
+ *
  * @param[in] AMQuser         Authenticating username.
  * @param[in] AMQpassword     Authenticating password.
+ * @param[in] AMQurl          URL string specifying target broker host and port (e.g. tcp://localhost:61616)
  * @param[in] AMQdestination  Queue or topic name on the broker.
- * @param[in] AMQhostname     URL of host computer (e.g. computer.abc.def.edu)
- * @param[in] port            port number which is accepting connections on
- *                            host computer.
  * @param[in] useTopic        If true then the message receiver connects
  *                            to a topic (default).
  *                            If false then the message receiver connects
@@ -82,16 +57,15 @@ extern "C" char *activeMQ_producer_setTcpURI(const char *host, const int port)
  *                            handled internally.
  * @param[in] verbose         Controls verobosity.  0 is quiet.
  *
- * @result Session ID number.
+ * @return pointer to ShakeAlertProducer class instance cast to (void *) so it can be passed in c.
  *
  * @author Ben Baker, ISTI
  *
  */
 extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
                                               const char AMQpassword[],
+					      const char AMQurl[],
                                               const char AMQdestination[],
-                                              const char AMQhostname[],
-                                              const int port,
                                               const bool useTopic,
                                               const bool clientAck,
                                               const int verbose,
@@ -99,7 +73,7 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
 {
   const char *fcnm = "activeMQ_producer_initialize\0";
   ShakeAlertProducer *producer = NULL;
-  string brokerURI, destination, hostname, password, username;
+  string brokerURI, destination, password, username;
   *ierr = 0;
   if (AMQuser != NULL)
     {
@@ -117,14 +91,6 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
     {
       password = "";
     }
-  if (AMQhostname != NULL)
-    {
-      hostname = AMQhostname;
-    }
-  else
-    {
-      hostname = "";
-    }
   if (AMQdestination != NULL)
     {
       destination = AMQdestination;
@@ -137,7 +103,7 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
   //string prodID = IdGenerator().generateId();
   // Set the URI
   char *brokerURIchar;
-  brokerURIchar = activeMQ_producer_setTcpURI(AMQhostname, port);
+  brokerURIchar = activeMQ_setTcpURIRequest(AMQurl, 0 , 0);
   brokerURI = string(brokerURIchar);
   delete[] brokerURIchar;
   // Make sure the library is initialized
