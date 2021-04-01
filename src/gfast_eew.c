@@ -516,7 +516,7 @@ int main(int argc, char **argv)
 	{
 	  for (im=0; im<xmlMessages.nmessages; im++)
 	    {
-	      if (USE_AMQ) {
+	      if ((USE_AMQ)&&(xmlMessages.pgdXML[im] != NULL)) {
 		sendEventXML(xmlMessages.pgdXML[im]);
 	      }
 	      LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
