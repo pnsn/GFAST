@@ -118,6 +118,14 @@ int startEventSender(const char eventtopic[]) {
       printf("%s: Encountered Exception creating DMMessageSender\n%s",fcnm,e.what());
       return -1;
     }
+  try {
+    eventsender->run();
+  }
+  catch (exception &e)
+    {
+      printf("%s: Encountered Exception running DMMessageSender\n%s",fcnm,e.what());
+      return -1;
+    }
   return 1;
 }
 
