@@ -193,7 +193,7 @@ int main(int argc, char **argv)
 	LOG_MSG("%s: Initializing heartbeat sender on %s...", fcnm,
 		props.activeMQ_props.hbTopic);
       }
-    ierr=startHBProducer("GFAST", props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
+    ierr=startHBProducer("gfast", props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
     if (ierr==0) {
       LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
     }

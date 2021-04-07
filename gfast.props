@@ -86,7 +86,7 @@ moduleName = geojson2ew
 ################################################################################
 [PGD]
 # PGD source-receiver distance tolerance in km (cannot be negative)
-dist_tolerance = 6.0
+dist_tolerance = 0.5
 # If PGD source-receiver distance tolerance falls below dist_tol this is the
 # default PGD distance value given in km (must be positive)
 disp_default = 0.01
