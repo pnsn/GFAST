@@ -654,14 +654,6 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
     core.likelihood = 0.8;
     core.lhaveLikelihood = true;
     rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
-    //---------------------------------magnitude------------------------------//
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "magnitude\0");
-    //rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "pgd\0",
-    //                                 BAD_CAST "false\0");
-    rc = xmlTextWriterWriteFormatElement(writer,
-                                         BAD_CAST "value\0",
-                                         "%f", SA_mag);
-    rc = xmlTextWriterEndElement(writer);
     // </event_message>
     rc = xmlTextWriterEndElement(writer); // </event_message>
     if (rc < 0)
