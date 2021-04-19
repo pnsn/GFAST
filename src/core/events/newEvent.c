@@ -20,7 +20,7 @@
  *
  */
 bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
-                          struct GFAST_activeEvents_struct *events)
+                          struct GFAST_activeEvents_struct *events,
                           struct GFAST_activeEvents_xml_intervals *xml_intervals)
 {
     struct GFAST_activeEvents_struct SAtemp;
