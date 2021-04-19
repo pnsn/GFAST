@@ -59,7 +59,11 @@ bool core_events_updateEvent(struct GFAST_shakeAlert_struct SA,
     {
         LOG_WARNMSG("Warning will try to append event %s to list",
                      SA.eventid);
-        lnew_event = core_events_newEvent(SA, events);
+        // MTH: I don't believe updateEvent is used, but just in case:
+        //lnew_event = core_events_newEvent(SA, events);
+        print("MTH: ERROR: updateEvent was called!! --> Exit!\n");
+        exit(2);
+
         if (!lnew_event)
         {
             LOG_WARNMSG("%s", "This is really weird");
