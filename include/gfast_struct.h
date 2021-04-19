@@ -488,6 +488,20 @@ struct GFAST_activeEvents_struct
     char pad1[4];
 };
 
+struct GFAST_xml_output_interval
+{
+    char eventid[128];  /*!< Event ID. */
+    int output_complete[16];
+    int n_intervals;
+};
+
+struct GFAST_activeEvents_xml_intervals
+{
+    struct GFAST_xml_output_interval *SA_out;
+    int nev;       /*!< Number of events. */ 
+    char pad1[4];  /* MTH: seems to be for byte alignment but **check this** */
+};
+
 struct coreInfo_struct
 {
     char id[128];                          /*!< Event ID */

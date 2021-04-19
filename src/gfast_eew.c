@@ -34,6 +34,7 @@ int main(int argc, char **argv)
     //const char *message_dir = "./events";                // MTH: eventually move this to gfast.props
     char *message_dir; 
     struct GFAST_activeEvents_struct events;
+    struct GFAST_activeEvents_xml_intervals xml_intervals;
     struct GFAST_cmtResults_struct cmt;
     struct GFAST_ffResults_struct ff;
     struct h5traceBuffer_struct h5traceBuffer;
@@ -81,6 +82,8 @@ int main(int argc, char **argv)
     memset(&props,    0, sizeof(struct GFAST_props_struct));
     memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
     memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
+    memset(&xml_intervals, 0, sizeof(struct GFAST_activeEvents_xml_intervals));
+
     memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
     memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
     memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
@@ -361,7 +364,7 @@ printf("%s\n", amqMessage);
             }
 //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
             // If this is a new event we have some file handling to do
-            lnewEvent = GFAST_core_events_newEvent(SA, &events);
+            lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_intervals);
             if (lnewEvent){
               LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
             }
@@ -430,7 +433,8 @@ LOG_MSG("== [GFAST t0:%f] Call driveGFAST:", t0);
                                    &pgd,
                                    &cmt,
                                    &ff,
-                                   &xmlMessages);
+                                   &xmlMessages,
+                                   &xml_intervals);
 /*
          if (ierr != 0)
          {

@@ -35,7 +35,8 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_pgdResults_struct *pgd,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_ffResults_struct *ff,
-                        struct GFAST_xmlMessages_struct *xmlMessages);
+                        struct GFAST_xmlMessages_struct *xmlMessages,
+                        struct GFAST_activeEvents_xml_intervals);
 /* Drive the PGD computation */
 int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
                       const double SA_lat,

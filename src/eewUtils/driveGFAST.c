@@ -58,7 +58,8 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_pgdResults_struct *pgd,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_ffResults_struct *ff,
-                        struct GFAST_xmlMessages_struct *xmlMessages)
+                        struct GFAST_xmlMessages_struct *xmlMessages,
+                        struct GFAST_activeEvents_xml_intervals)
 {
     struct GFAST_shakeAlert_struct SA;
     char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 

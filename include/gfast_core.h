@@ -157,7 +157,8 @@ double core_events_getMinOriginTime(struct GFAST_props_struct props,
                                     bool *lnoEvents);
 /* Adds a new event to the event list */
 bool core_events_newEvent(struct GFAST_shakeAlert_struct SA, 
-                          struct GFAST_activeEvents_struct *events);
+                          struct GFAST_activeEvents_struct *events,
+                          struct GFAST_activeEvents_xml_intervals *xml_intervals);
 /* Print the events in the event list */
 void core_events_printEvents(struct GFAST_shakeAlert_struct SA);
 /* Remove a cancelled event from the events list */
