@@ -357,16 +357,16 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                 }
 		            else {
 
-                  if (strcmp(SA.eventid, xml_status.SA_status[iev].eventid) == 0){
+                  if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
                     // We have the same one
                     for (i=0; i<props.n_intervals-1; i++){
                       if (mins >= props.output_intervals_mins[i] && mins < props.output_intervals_mins[i+1]) {
-                        if (xml_status.SA_status[iev].interval_complete[i] == false) {
+                        if (xml_status->SA_status[iev].interval_complete[i] == false) {
                           LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
                                   age_of_event, props.output_interval_mins[i]);
                           ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
                                                   pgdXML, props.output_interval_mins[i], true);
-                          xml_status.SA_status[iev].interval_complete[i] = true;
+                          xml_status->SA_status[iev].interval_complete[i] = true;
                           break;
                         }
                       }
@@ -384,9 +384,9 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   }
                   else {
                     LOG_MSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
-                             SA.eventid, iev, xml_status.SA_status[iev].eventid);
+                             SA.eventid, iev, xml_status->SA_status[iev].eventid);
                     LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
-                             SA.eventid, iev, xml_status.SA_status[iev].eventid);
+                             SA.eventid, iev, xml_status->SA_status[iev].eventid);
                   }
 
 		            }
