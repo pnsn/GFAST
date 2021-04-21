@@ -360,7 +360,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
                     // We have the same one
                     for (i=0; i<props.n_intervals-1; i++){
-                      if (mins >= props.output_intervals_mins[i] && mins < props.output_intervals_mins[i+1]) {
+                      if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
                         if (xml_status->SA_status[iev].interval_complete[i] == false) {
                           LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
                                   age_of_event, props.output_interval_mins[i]);
