@@ -89,6 +89,7 @@ SET(SRCS_CORE
     src/core/events/newEvent.c src/core/events/printEvent.c
     src/core/events/removeCancelledEvent.c src/core/events/removeExpiredEvent.c
     src/core/events/removeExpiredEvents.c src/core/events/updateEvent.c
+    src/core/events/syncXMLStatusWithEvents.c
     src/core/ff/faultPlaneGridSearch.c src/core/ff/finalize.c src/core/ff/initialize.c
     src/core/ff/meshFaultPlane.c src/core/ff/readIni.c
     src/core/ff/setDiagonalWeightMatrix.c src/core/ff/setForwardModel.c
