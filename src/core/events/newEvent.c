@@ -57,6 +57,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         {
             memcpy(&SAtemp.SA[iev], &events->SA[iev], sizeof(struct GFAST_shakeAlert_struct));
         }
+        LOG_MSG("MTH: nev0=%d --> Copy SA to SAtemp.SA", nev0);
         memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
         // Resize events
         core_events_freeEvents(events);
@@ -90,6 +91,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         LOG_MSG("MTH: SA.eventid=%s --> free xml_status", SA.eventid);
         // Free xml_status and copy Xtemp back in
         if (xml_status->nev > 0) {
+          LOG_MSG("MTH: SA.eventid=%s --> xml_status->nev > 0 --> free(xml_status)", SA.eventid);
           free(xml_status->SA_status);
           //memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
         }
@@ -97,6 +99,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         xml_status->nev = Xtemp.nev;
 
         LOG_MSG("MTH: SA.eventid=%s --> Copy Xtemp back to xml_status nev=%d", SA.eventid, xml_status->nev);
+        printf("Copy from Xtemp.SA_status eventid:%s\n", Xtemp.SA_status[0].eventid);
         // Copy new list back to xml_status:
         for (iev=0; iev<xml_status->nev; iev++){
           memcpy(&xml_status->SA_status[iev], &Xtemp.SA_status[iev], sizeof(struct GFAST_xml_output_status));
