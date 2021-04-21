@@ -704,7 +704,7 @@ bool check_mins_against_intervals(
       char * suffix,
       char * xml,
       int * interval_complete,
-      float age;
+      float age
       )
 {
    int i;
