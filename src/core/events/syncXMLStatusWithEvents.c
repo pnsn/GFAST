@@ -34,10 +34,10 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
       strcpy(eventid, events->SA[iev].eventid);
 
       found = false;
-      for (i=0; i<nstats; i++){
-        if (strcasecmp(xml_status->SA_status[i].eventid, eventid) == 0){
+      for (jev=0; jev<nstats; jev++){
+        if (strcasecmp(xml_status->SA_status[jev].eventid, eventid) == 0){
           found = true;
-          ifound = i;
+          ifound = jev;
           break;
         }
       }
