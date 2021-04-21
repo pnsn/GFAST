@@ -28,8 +28,6 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
     struct GFAST_xml_output_status output_status;
     struct GFAST_activeEvents_xml_status Xtemp;
 
-    int i=0;
-    LOG_MSG("MTH: in newEvent: call output_status i=%d", i);
     memset(&output_status, 0, sizeof( struct GFAST_xml_output_status));
 
     int iev, nev0;
@@ -54,6 +52,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
                     calloc((size_t) SAtemp.nev,
                            sizeof(struct GFAST_shakeAlert_struct));
 
+        LOG_MSG("MTH: nev0=%d --> Copy new event into workspace" % nev0);
         for (iev=0; iev<nev0; iev++)
         {
             memcpy(&SAtemp.SA[iev], &events->SA[iev], sizeof(struct GFAST_shakeAlert_struct));
@@ -74,16 +73,19 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         // Free SAtemp
         core_events_freeEvents(&SAtemp);
 
+        LOG_MSG("MTH: nev0=%d --> Copy new event into workspace DONE" % nev0);
         // MTH: Same thing for xml output status structs
         // Create a status output_status from incoming SA eventid
         strcpy(output_status.eventid, SA.eventid);
         // Append this output_status to the incoming xml_status list of records
+        LOG_MSG("MTH: SA.eventid=%s --> Create new xml status" % SA.eventid);
         Xtemp.nev = nev0 + 1;
         Xtemp.SA_status = (struct GFAST_xml_output_status *) calloc((size_t) Xtemp.nev, sizeof(struct GFAST_xml_output_status));
         for (iev=0; iev<nev0; iev++){
           memcpy(&Xtemp.SA_status[iev], &xml_status->SA_status[iev], sizeof(struct GFAST_xml_output_status));
         }
         memcpy(&Xtemp.SA_status[nev0], &output_status, sizeof(struct GFAST_xml_output_status));
+        LOG_MSG("MTH: SA.eventid=%s --> Create new xml status DONE" % SA.eventid);
 
         // Free xml_status and copy Xtemp back in
         if (xml_status->nev > 0) {
