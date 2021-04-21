@@ -28,6 +28,8 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
     struct GFAST_xml_output_status output_status;
     struct GFAST_activeEvents_xml_status Xtemp;
 
+    int i=0;
+    LOG_MSG("MTH: in newEvent: call output_status i=%d", i);
     memset(&output_status, 0, sizeof( struct GFAST_xml_output_status));
 
     int iev, nev0;
@@ -35,6 +37,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
     lnewEvent = true;
     // New event -> copy and update
     nev0 = events->nev;
+    LOG_MSG("MTH: in newEvent: nev0=%d", nev0);
     for (iev=0; iev<nev0; iev++)
     {
         if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
