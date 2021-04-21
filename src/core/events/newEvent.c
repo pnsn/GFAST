@@ -95,10 +95,15 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
           free(xml_status->SA_status);
           //memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
         }
-        LOG_MSG("MTH: SA.eventid=%s --> free xml_status DONE", SA.eventid);
-        memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
-        xml_status->SA_status = (struct GFAST_xml_output_status *) calloc((size_t) 1, sizeof(struct GFAST_xml_output_status));
+        /*
+        else {  // xml_status is empty
+          memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
+          xml_status->SA_status = (struct GFAST_xml_output_status *) calloc((size_t) 1, sizeof(struct GFAST_xml_output_status));
+        }
+        */
         xml_status->nev = Xtemp.nev;
+        xml_status->SA_status = (struct GFAST_xml_output_status *) calloc((size_t) xml_status->nev,
+                                      sizeof(struct GFAST_xml_output_status));
 
         LOG_MSG("MTH: SA.eventid=%s --> Copy Xtemp back to xml_status nev=%d", SA.eventid, xml_status->nev);
         printf("Copy from Xtemp.SA_status eventid:%s\n", Xtemp.SA_status[0].eventid);
