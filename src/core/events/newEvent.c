@@ -87,11 +87,13 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         memcpy(&Xtemp.SA_status[nev0], &output_status, sizeof(struct GFAST_xml_output_status));
         LOG_MSG("MTH: SA.eventid=%s --> Create new xml status DONE", SA.eventid);
 
+        LOG_MSG("MTH: SA.eventid=%s --> free xml_status", SA.eventid);
         // Free xml_status and copy Xtemp back in
         if (xml_status->nev > 0) {
           free(xml_status->SA_status);
           //memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
         }
+        LOG_MSG("MTH: SA.eventid=%s --> free xml_status DONE", SA.eventid);
         xml_status->nev = Xtemp.nev;
 
         // Copy new list back to xml_status:
