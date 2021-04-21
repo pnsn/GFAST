@@ -41,7 +41,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
           break;
         }
       }
-      if found {
+      if (found) {
         // copy this xml_status output_status record to Xtemp
         LOG_MSG("Events iev:%d eventid:%s : Copy xml_status SA_status[%d] to Xtemp SA_status[%d]",
             iev, eventid, ifound, iev);
@@ -65,7 +65,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
           break;
         }
       }
-      if !found {
+      if (!found) {
         LOG_MSG("Eventid:%s was removed from xml_status", xml_status->SA_status[iev].eventid);
       }
     }
