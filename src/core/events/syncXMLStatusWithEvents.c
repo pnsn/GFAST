@@ -75,7 +75,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
     //memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
     xml_status->nev = Xtemp.nev;
     xml_status->SA_status = (struct GFAST_xml_output_status *) calloc((size_t) 
-                      xml_status.nev, sizeof(struct GFAST_xml_output_status));
+                      xml_status->nev, sizeof(struct GFAST_xml_output_status));
 
     // Copy new list back to xml_status:
     for (iev=0; iev<xml_status->nev; iev++){
