@@ -208,7 +208,7 @@ struct GFAST_props_struct
     double waitTime;            /*!< Number of seconds to wait before running
                                      another iteration of the realtime code. */
     int n_intervals;
-    int output_interval_mins[16];   /*!< Intervals (mins) at which to output event solution XMLs */
+    int output_interval_mins[MAX_OUTPUT_INTERVALS];   /*!< Intervals (mins) at which to output event solution XMLs */
     int AMQport;                /*!< ActiveMQ port to access ElarmS messages 
                                     (61620). */
     //int RMQport;                /*!< RabbitMQ port to access processed GPS
@@ -488,18 +488,17 @@ struct GFAST_activeEvents_struct
     char pad1[4];
 };
 
-struct GFAST_xml_output_interval
+struct GFAST_xml_output_status
 {
     char eventid[128];  /*!< Event ID. */
-    int output_complete[16];
-    int n_intervals;
+    bool interval_complete[MAX_OUTPUT_INTERVALS];
 };
 
-struct GFAST_activeEvents_xml_intervals
+struct GFAST_activeEvents_xml_status
 {
-    struct GFAST_xml_output_interval *SA_out;
-    int nev;       /*!< Number of events. */ 
-    char pad1[4];  /* MTH: seems to be for byte alignment but **check this** */
+    struct GFAST_xml_output_status *SA_status;
+    int nev;
+    //char pad1[4];  /* MTH: seems to be for byte alignment but **check this** */
 };
 
 struct coreInfo_struct
