@@ -40,8 +40,8 @@ bool core_events_removeExpiredEvent(const double maxtime,
     }
     // Find the event and see if I can remove it
     pop_indx =-2;
-    for (iev=0; iev<nev0; iev++)
     nev0 = events->nev;
+    for (iev=0; iev<nev0; iev++)
     {
         if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
         {
