@@ -21,7 +21,7 @@ bool check_mins_against_intervals(
       char * suffix,
       char * xml,
       int * interval_complete,
-      float age
+      double age
       );
 
 //static void setFileNames(const char *eventid);
@@ -704,7 +704,7 @@ bool check_mins_against_intervals(
       char * suffix,
       char * xml,
       int * interval_complete,
-      float age
+      double age
       )
 {
    int i;
