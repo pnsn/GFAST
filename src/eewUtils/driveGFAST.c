@@ -418,7 +418,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                 else if (secs < 3.) {
                   LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
                            SA.eventid, age_of_event, mins, secs);
-                  check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtXML,
+                  check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtQML,
                                                xml_status->SA_status[iev].interval_complete[1],
                                                age_of_event);
                 }
