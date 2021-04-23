@@ -709,6 +709,16 @@ bool check_mins_against_intervals(
       )
 {
    int i, ierr;
+   LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
+       eventid, suffix, age);
+   for (i=0;i<props.n_intervals;i++){
+     printf("output_interval_mins[%d]=%d\n", i, props.output_interval_mins[i]);
+   }
+   for (i=0;i<16;i++){
+     printf("interval_complete[%d]=%d\n", i, interval_complete[i]);
+   }
+   LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
+       eventid, suffix, age);
 
    for (i=0; i<props.n_intervals-1; i++){
       if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
