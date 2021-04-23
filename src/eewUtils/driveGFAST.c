@@ -367,7 +367,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
                 }
                 else {
-                  LOG_MSG("eventid:%s age:%f --> check_mins_against_intervals\n", SA.eventid, age_of_event);
+                  LOG_MSG("eventid:%s age:%f mins:%d secs:%f\n", SA.eventid, age_of_event, mins, secs);
                   if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
                       check_mins_against_intervals(props, mins, SA.eventid, "pgd", pgdXML,
                                                    xml_status->SA_status[iev].interval_complete,
@@ -709,29 +709,26 @@ bool check_mins_against_intervals(
       )
 {
    int i, ierr;
-   LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
-       eventid, suffix, age);
-   for (i=0;i<16;i++){
-     printf("interval_complete[%d]=%d\n", i, interval_complete[i]);
+
+   i = props.n_intervals - 1;
+   if (mins == props.outout_interval[i]) {
+    if (interval_complete[i] == false) {
+      LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s [FINAL MIN INTERVAL]",
+                  eventid, age, props.output_interval_mins[i], suffix);
+      ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
+                               props.output_interval_mins[i], true);
+      interval_complete[i] = true;
+      return true;
    }
-   LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
-       eventid, suffix, age);
-   printf("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f mins:%d\n",
-       eventid, suffix, age, mins);
 
    for (i=0; i<props.n_intervals-1; i++){
-      printf("i=%d output_interval[%d]=%d\n",
-          i, i, props.output_interval_mins[i]);
       if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
-      printf("mins > output_interval[%d]=%d and mins < output_interval[%d]=%d\n",
-          i, props.output_interval_mins[i], i+1, props.output_interval_mins[i+1]);
         if (interval_complete[i] == false) {
           LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s",
                   eventid, age, props.output_interval_mins[i], suffix);
 
           ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
                                    props.output_interval_mins[i], true);
-
           interval_complete[i] = true;
           return true;
       }
