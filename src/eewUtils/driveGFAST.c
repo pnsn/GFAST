@@ -711,17 +711,20 @@ bool check_mins_against_intervals(
    int i, ierr;
    LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
        eventid, suffix, age);
-   for (i=0;i<props.n_intervals;i++){
-     printf("output_interval_mins[%d]=%d\n", i, props.output_interval_mins[i]);
-   }
    for (i=0;i<16;i++){
      printf("interval_complete[%d]=%d\n", i, interval_complete[i]);
    }
    LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
        eventid, suffix, age);
+   print("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f mins:%d\n",
+       eventid, suffix, age, mins);
 
    for (i=0; i<props.n_intervals-1; i++){
+      printf("i=%d output_interval[%d]=%d\n",
+          i, i, props.output_interval_mins[i]);
       if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
+      printf("mins > output_interval[%d]=%d and mins < output_interval[%d]=%d\n",
+          i, props.output_interval_mins[i], i+1, props.outpu_interval_mins[i+1]);
         if (interval_complete[i] == false) {
           LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s",
                   age, props.output_interval_mins[i], suffix);
