@@ -367,51 +367,22 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
                 }
                 else {
-                  LOG_MSG("eventid:%s age:%f mins:%d secs:%f\n", SA.eventid, age_of_event, mins, secs);
                   if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
-                      check_mins_against_intervals(props, mins, SA.eventid, "pgd", pgdXML,
-                                                   xml_status->SA_status[iev].interval_complete,
-                                                   age_of_event);
-                                                   //xml_status->SA_status[iev].interval_complete,
-
-                  /*
-
-                  if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
-                    // We have the same one
-                    for (i=0; i<props.n_intervals-1; i++){
-                      if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
-                        if (xml_status->SA_status[iev].interval_complete[i] == false) {
-                          LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
-                                  age_of_event, props.output_interval_mins[i]);
-                          ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
-                                                  pgdXML, props.output_interval_mins[i], true);
-                          xml_status->SA_status[iev].interval_complete[i] = true;
-                          break;
-                        }
-                      }
-                    }
-                  */
-
-                    /*
-                    for (i=0; i<props.n_intervals; i++){
-                      if (mins == props.output_interval_mins[i] && secs < 1.){
-                        LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
-                                age_of_event, props.output_interval_mins[i]);
-                        ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
-                                                pgdXML, props.output_interval_mins[i], true);
-                      }
-                    }
-                    */
-                  }
-                  else {
                     LOG_MSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
                              SA.eventid, iev, xml_status->SA_status[iev].eventid);
                     LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
                              SA.eventid, iev, xml_status->SA_status[iev].eventid);
                   }
-
+                  if (secs < 3.) {
+                    LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check PGD writeXML\n",
+                             SA.eventid, age_of_event, mins, secs);
+                    check_mins_against_intervals(props, mins, SA.eventid, "pgd", pgdXML,
+                                                 xml_status->SA_status[iev].interval_complete[0],
+                                                 age_of_event);
+                  }
 		            }
             } //if lpgdSuccess
+
             // Make the CMT quakeML
             if (lcmtSuccess)
             {
@@ -444,6 +415,15 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
                                            cmtQML, index, false);
                 }
+                /*
+                elif (secs < 3.) {
+                  LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
+                           SA.eventid, age_of_event, mins, secs);
+                  check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtXML,
+                                               xml_status->SA_status[iev].interval_complete,
+                                               age_of_event);
+                }
+                */
                 else {
                   for (i=0; i<props.n_intervals; i++){
                     if (mins == props.output_interval_mins[i] && secs < 1.){

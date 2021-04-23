@@ -491,7 +491,7 @@ struct GFAST_activeEvents_struct
 struct GFAST_xml_output_status
 {
     char eventid[128];  /*!< Event ID. */
-    bool interval_complete[MAX_OUTPUT_INTERVALS];
+    bool interval_complete[3][MAX_OUTPUT_INTERVALS]; /*!< intervals_complete[] for pgd + cmt + ff = 3 */
 };
 
 struct GFAST_activeEvents_xml_status
