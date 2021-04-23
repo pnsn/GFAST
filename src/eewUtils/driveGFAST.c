@@ -20,7 +20,7 @@ bool check_mins_against_intervals(
       char * eventid,
       char * suffix,
       char * xml,
-      int * interval_complete,
+      bool * interval_complete,
       double age
       );
 
@@ -372,6 +372,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                       check_mins_against_intervals(props, mins, SA.eventid, "pgd", pgdXML,
                                                    xml_status->SA_status[iev].interval_complete,
                                                    age_of_event);
+                                                   //xml_status->SA_status[iev].interval_complete,
 
                   /*
 
@@ -703,7 +704,7 @@ bool check_mins_against_intervals(
       char * eventid,
       char * suffix,
       char * xml,
-      int * interval_complete,
+      bool * interval_complete,
       double age
       )
 {
