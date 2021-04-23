@@ -96,7 +96,7 @@ int core_properties_initialize(const char *propfilename,
         }
       }
       props->n_intervals = j+1;
-      if props->n_intervals > MAX_OUTPUT_INTERVALS{
+      if (props->n_intervals > MAX_OUTPUT_INTERVALS){
         LOG_MSG("ERROR: props->n_intervals=%d exceeds MAX_OUTPUT_INTERVALS=%d\n",
             props->n_intervals, MAX_OUTPUT_INTERVALS);
       }
