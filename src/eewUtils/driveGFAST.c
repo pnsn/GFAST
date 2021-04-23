@@ -362,24 +362,24 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
 
                 //LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
 
+                // MTH: This is just a sanity check, could be done anywhere:
+                if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
+                  LOG_MSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
+                           SA.eventid, iev, xml_status->SA_status[iev].eventid);
+                  LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
+                             SA.eventid, iev, xml_status->SA_status[iev].eventid);
+                }
+
                 if (props.output_interval_mins[0] == 0) { // Output at every iteration
                   int index = (int)(currentTime - SA.time);
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
                 }
-                else {
-                  if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
-                    LOG_MSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
-                             SA.eventid, iev, xml_status->SA_status[iev].eventid);
-                    LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
-                             SA.eventid, iev, xml_status->SA_status[iev].eventid);
-                  }
-                  if (secs < 3.) {
+                else if (secs < 3.) {
                     LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check PGD writeXML\n",
                              SA.eventid, age_of_event, mins, secs);
                     check_mins_against_intervals(props, mins, SA.eventid, "pgd", pgdXML,
                                                  xml_status->SA_status[iev].interval_complete[0],
                                                  age_of_event);
-                  }
 		            }
             } //if lpgdSuccess
 
@@ -415,7 +415,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
                                            cmtQML, index, false);
                 }
-                elif (secs < 3.) {
+                else if (secs < 3.) {
                   LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
                            SA.eventid, age_of_event, mins, secs);
                   check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtXML,
@@ -483,7 +483,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
                                            ffXML, index, false);
                 }
-                elif (secs < 3.) {
+                else if (secs < 3.) {
                   LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check FF writeXML\n",
                            SA.eventid, age_of_event, mins, secs);
                   check_mins_against_intervals(props, mins, SA.eventid, "ff", ffXML,
