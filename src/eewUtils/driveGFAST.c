@@ -708,7 +708,7 @@ bool check_mins_against_intervals(
       double age
       )
 {
-   int i;
+   int i, ierr;
 
    for (i=0; i<props.n_intervals-1; i++){
       if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
