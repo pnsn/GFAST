@@ -415,15 +415,14 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
                                            cmtQML, index, false);
                 }
-                /*
                 elif (secs < 3.) {
                   LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
                            SA.eventid, age_of_event, mins, secs);
                   check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtXML,
-                                               xml_status->SA_status[iev].interval_complete,
+                                               xml_status->SA_status[iev].interval_complete[1],
                                                age_of_event);
                 }
-                */
+                /*
                 else {
                   for (i=0; i<props.n_intervals; i++){
                     if (mins == props.output_interval_mins[i] && secs < 1.){
@@ -434,6 +433,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                     }
                   }
                 }
+                */
             }
             // Make the finite fault XML
             if (lffSuccess)
@@ -483,6 +483,14 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
                                            ffXML, index, false);
                 }
+                elif (secs < 3.) {
+                  LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check FF writeXML\n",
+                           SA.eventid, age_of_event, mins, secs);
+                  check_mins_against_intervals(props, mins, SA.eventid, "ff", ffXML,
+                                               xml_status->SA_status[iev].interval_complete[2],
+                                               age_of_event);
+                }
+                /*
                 else {
                   for (i=0; i<props.n_intervals; i++){
                       if (mins == props.output_interval_mins[i] && secs < 1.){
@@ -493,6 +501,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                     }
                   }
                 }
+                */
             }
             xmlMessages->evids[xmlMessages->nmessages]
                 = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
