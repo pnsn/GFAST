@@ -716,7 +716,7 @@ bool check_mins_against_intervals(
    }
    LOG_MSG("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f\n",
        eventid, suffix, age);
-   print("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f mins:%d\n",
+   printf("MTH: check_mins_agains_intervals: eventid:%s suffix:%s age:%f mins:%d\n",
        eventid, suffix, age, mins);
 
    for (i=0; i<props.n_intervals-1; i++){
