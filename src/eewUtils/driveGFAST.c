@@ -727,7 +727,7 @@ bool check_mins_against_intervals(
           i, props.output_interval_mins[i], i+1, props.output_interval_mins[i+1]);
         if (interval_complete[i] == false) {
           LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s",
-                  age, props.output_interval_mins[i], suffix);
+                  eventid, age, props.output_interval_mins[i], suffix);
 
           ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
                                    props.output_interval_mins[i], true);
