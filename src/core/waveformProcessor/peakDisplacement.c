@@ -268,7 +268,7 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ebuff,
                                     const int nMaxLeader,
                                     const double tmin,
-                                    const double tmax,
+                                    const double tmax
                                     )
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
