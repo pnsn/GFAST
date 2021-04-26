@@ -186,6 +186,7 @@ LOG_MSG("%s", "Get peakDisp");
         nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
                                     props.pgd_props.utm_zone,
                                     props.pgd_props.window_vel,
+                                    props.pgd_props.min_window_vel,
                                     SA.lat,
                                     SA.lon,
                                     SA.dep,
