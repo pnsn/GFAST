@@ -554,6 +554,7 @@ int core_waveformProcessor_offset(const int utm_zone,
 int core_waveformProcessor_peakDisplacement(
     const int utm_zone,
     const double svel_window,
+    const double min_svel_window,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,

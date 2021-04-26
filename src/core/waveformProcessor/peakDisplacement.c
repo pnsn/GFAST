@@ -20,7 +20,9 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ubuff,
                                     const double *__restrict__ nbuff,
                                     const double *__restrict__ ebuff,
-                                    const int nMaxLeader);
+                                    const int nMaxLeader,
+                                    const double tmin,
+                                    const double tmax);
 /*!
  * @brief Computes the peak displacement for each GPS precise point position
  *        data stream with the additional requirement that the shear wave
@@ -264,9 +266,10 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ubuff,
                                     const double *__restrict__ nbuff,
                                     const double *__restrict__ ebuff,
+                                    const int nMaxLeader,
                                     const double tmin,
                                     const double tmax,
-                                    const int nMaxLeader)
+                                    )
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
     int i, indx0, indx1;
