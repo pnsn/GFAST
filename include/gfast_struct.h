@@ -19,6 +19,7 @@ struct GFAST_pgd_props_struct
     double window_vel;    /*!< Velocity (km/s) used in determining if enough
                                data has arrived at a station in PGD
                                inversion. */
+    double min_window_vel; /*!< min S vel to use for tmax=dist/min_s_vel PGD peak search*/
     double dist_tol;      /*!< Source-receiver distance tolerance (km). */
     double disp_def;      /*!< If the source receiver epicentral distance
                                is less than dist_tol this is the value assigned
