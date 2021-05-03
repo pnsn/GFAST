@@ -1057,6 +1057,8 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
         strcpy(loc, data->loc);
         h5_data->loc.len = 1;
         h5_data->loc.p = loc;
+    printf("MTH: hdf5_copyWaveform3CData stnm=%s chan[0]=%s npts=%d --> copy data->ubuff to h5_data->ubuff.p\n",
+            stnm, data->chan[0], npts);
 
     }
     else if (job == COPY_H5_TO_DATA)
@@ -1164,6 +1166,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
                   calloc((size_t) nstreams,
                          sizeof(struct h5_waveform3CData_struct));
         h5_gpsData->stream_length = nstreams;
+        printf("MTH: copy gpsData: h5_gpsData->stream_length=%d\n", h5_gpsData->stream_length);
         for (k=0; k<nstreams; k++)
         {
             ierr = GFAST_hdf5_copyWaveform3CData(job,

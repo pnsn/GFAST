@@ -8,6 +8,7 @@ metaDataFile=/home/mhagerty/test_events/maule/Maule2010_disp.chan.txt
 SA_events_dir=./events
 SA_output_dir=./out
 output_interval_mins=1,2,3,4,5,10
+h5ArchiveDirectory=.
 #siteMaskFile=ridgecrest-mask.txt
 # File with station names and sampling periods
 #dtfile=GFAST_streams_dt.txt

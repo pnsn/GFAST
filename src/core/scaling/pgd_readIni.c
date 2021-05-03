@@ -135,7 +135,7 @@ int core_scaling_pgd_readIni(const char *propfilename,
         goto ERROR;
     }
     setVarName(group, "pgd_min_window_vel\0", var);
-    pgd_props->min_window_vel = iniparser_getdouble(ini, var, 1.0);
+    pgd_props->min_window_vel = iniparser_getdouble(ini, var, 0.01);
     if (pgd_props->min_window_vel <= 0.0)
     {
         LOG_ERRMSG("%s", "Error min window velocity must be positive!");
