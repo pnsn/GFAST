@@ -1169,9 +1169,10 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
             ierr = GFAST_hdf5_copyWaveform3CData(job,
                                                  &gps_data->data[k],
                                                  &h5_data[k]); 
-            printf("MTH: h5_data[%d] stnm=%s chan=%s sta_lat:%8.3f sta_lon:%8.3f npts:%d ubuff.len:%d\n", 
+            // h5_data[].npts == h5_data[].ubuff.len
+            printf("MTH: h5_data[%d] stnm=%s chan=%s sta_lat:%8.3f sta_lon:%8.3f npts:%d ubuff.len:%d ubuff[last]:%9.6f\n", 
                 k, h5_data[k].stnm.p, h5_data[k].chan.p, h5_data[k].sta_lat, h5_data[k].sta_lon,
-                h5_data[k].npts, h5_data[k].ubuff.len);
+                h5_data[k].npts, h5_data[k].ubuff.len, h5_data[k].ubuff.p[npts-1]);
             if (ierr != 0)
             {
                 LOG_ERRMSG("%s", "Error copying 3C data");
