@@ -74,7 +74,7 @@ int hdf5_copyPeakDisplacementData(
             lactiveTemp[i] = pgd_data->lactive[i];
             lmaskTemp[i] = pgd_data->lmask[i];
             strcpy(&ctemp[i*64], pgd_data->stnm[i]);
-            printf("MTH*: pgd_data->stnm[%d]=%s\n", i, pgd_data->stnm[i]);
+            //printf("MTH*: pgd_data->stnm[%d]=%s\n", i, pgd_data->stnm[i]);
         }
         h5_pgd_data->stnm.p = ctemp;
         h5_pgd_data->lactive.p = lactiveTemp;
@@ -1047,11 +1047,17 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
         h5_data->stnm.len = 1;
         h5_data->stnm.p = stnm;
 
+        // MTH: h5py segfaults reading array of strings
+        /*
         chan = (char *)calloc(3*64, sizeof(char));
         strcpy(&chan[0],   data->chan[0]);
         strcpy(&chan[64],  data->chan[1]);
         strcpy(&chan[128], data->chan[2]);
         h5_data->chan.len = 3;
+        */
+        chan = (char *)calloc(64, sizeof(char));
+        strcpy(chan,   data->chan[0]);
+        h5_data->chan.len = 1;
         h5_data->chan.p = chan;
 
         loc = (char *)calloc(64, sizeof(char));
