@@ -994,6 +994,7 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
     char *netw, *stnm, *chan, *loc;
     double nanv[1] = {(double) NAN};
     int ierr, npts;
+    int i;
     size_t nalloc;
     //------------------------------------------------------------------------//
     ierr = 0;
