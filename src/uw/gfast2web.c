@@ -79,7 +79,8 @@ int main()
     const char *fcnm = "gfast2web\0";
     struct GFAST_shakeAlert_struct SA;
     struct eventList_struct events;
-    char message[PATH_MAX], evid[128];
+    char message[PATH_MAX];
+    char evid[128]="1111";
     char archiveFile[PATH_MAX] = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
     double lastPublished, t0;
     int ierr, iev;
