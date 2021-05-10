@@ -123,7 +123,7 @@ int main()
             {
                 fprintf(stderr, "%s: Error archive file %s does not exist\n",
                         fcnm, archiveFile);
-                continue;
+                //continue;
             }
 
         // Open the HDF5 file and read the latest entry
@@ -171,7 +171,7 @@ iopt =-1;
             {
                 LOG_ERRMSG("%s", "Data structure group doesn't exist");
                 H5Fclose(h5fl);
-                continue;
+                //continue;
             }
             trigger0 = DBL_MAX;
             // Scrounge the magnitude and strike/dip/rake time series
@@ -521,12 +521,14 @@ printf("done it\n");
             curl_easy_cleanup(curl);
 */
         } // Loop on events
-        break;
+        //break;
 
     }
+    /* MTH: not using this
     freeEvents(&events);
     activeMQ_consumer_finalize(consumer);
     if (ldebug){activeMQ_producer_finalize(webProduct);}
+    */
     //curl_easy_cleanup(curl);
     iscl_finalize();
     return EXIT_SUCCESS;
