@@ -79,7 +79,8 @@ int main()
     const char *fcnm = "gfast2web\0";
     struct GFAST_shakeAlert_struct SA;
     struct eventList_struct events;
-    char message[PATH_MAX], evid[128], archiveFile[PATH_MAX];
+    char message[PATH_MAX], evid[128];
+    char archiveFile[PATH_MAX] = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
     double lastPublished, t0;
     int ierr, iev;
     bool lhaveEvent, leventExists;
@@ -113,7 +114,7 @@ int main()
     memset(&events, 0, sizeof(struct eventList_struct));
     // Begin the acquisition
     //while (true)
-    archiveFile = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
+    //archiveFile = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
     puts(archiveFile);
     if (1)
     {
