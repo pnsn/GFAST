@@ -180,7 +180,8 @@ ENDIF()
 
 # These are UW development files and kind of clunky
 IF (UW_AMAZON)
-   ADD_EXECUTABLE(gfast2web src/uw/gfast2web.c src/uw/beachball.c)
+   #ADD_EXECUTABLE(gfast2web src/uw/gfast2web.c src/uw/beachball.c)
+   ADD_EXECUTABLE(gfast2web src/uw/gfast2web.c ${SRCS_GFAST2WEB})
    #ADD_EXECUTABLE(gfast2web src/uw/gfast2web.c src/uw/beachball.c src/uw/gfast2json.c)
    SET_TARGET_PROPERTIES(gfast2web PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
    #ADD_SUBDIRECTORY(debug)

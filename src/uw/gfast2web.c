@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <float.h>
-//#include <curl/curl.h>
+#include <curl/curl.h>
 #include <sys/stat.h>
 #include "gfast.h"
 #include "gfast_activeMQ.h"
