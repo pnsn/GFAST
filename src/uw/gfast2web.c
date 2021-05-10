@@ -520,7 +520,7 @@ printf("done it\n");
             }
             curl_easy_cleanup(curl);
 */
-        } // Loop on events
+        //} // Loop on events
         //break;
 
     }
@@ -530,7 +530,7 @@ printf("done it\n");
     if (ldebug){activeMQ_producer_finalize(webProduct);}
     */
     //curl_easy_cleanup(curl);
-    iscl_finalize();
+    //iscl_finalize();
     return EXIT_SUCCESS;
 }
 
