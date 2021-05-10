@@ -183,6 +183,7 @@ iopt =-1;
             {
                 memset(groupName, 0, 512*sizeof(char));
                 sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
+                printf("/GFAST_History/Iteration_%d\n", igroup);
                 groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
                 memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
                 memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
@@ -375,8 +376,8 @@ iopt =-1;
             iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
             idep =-1;
             getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
-printf("%d %d\n", iopt, idep);
-printf("%f %f %f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
+printf("iopt=%d idep=%d\n", iopt, idep);
+printf("cmt.str1:%f cmt.dip1:%f cmt.rak1:%f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
             beachball_plotDefaults(&beachball);
 /*
 */
@@ -387,6 +388,7 @@ printf("%f %f %f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
                                       &beachball);
             memset(cmtFile, 0, PATH_MAX*sizeof(char)); 
             sprintf(cmtFile, "%s.png", evid); 
+            printf("cmtFile: %s.png\n", evid);
             beachball_draw(cmtFile, beachball);
             hdf5_memory_freeCMTResults(&h5cmt);
             H5Sclose(memSpace);
@@ -417,6 +419,7 @@ printf("%f %f %f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
             H5Tclose(dataType);
             // clean up
             core_ff_finalizeResults(&ff);
+            printf("MTH: call core_data_finalize gpsData\n");
             core_data_finalize(&gpsData);
 
             // Final publication until manual review
