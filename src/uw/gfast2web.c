@@ -4,13 +4,13 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <float.h>
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include <sys/stat.h>
 #include "gfast.h"
 #include "gfast_activeMQ.h"
 #include "beachball.h"
 #include "compearth.h"
-#include "gfast2json.h"
+//#include "gfast2json.h"
 #include "iscl/array/array.h"
 #include "iscl/iscl/iscl.h"
 #include "iscl/memory/memory.h"
@@ -328,11 +328,13 @@ iopt =-1;
             H5Tclose(ffDataType);
             H5Tclose(pgdDataType);
             // Make json summary
+            /*
             cts = gfast2json_packTimeSeriesMetrics(evid, kgroup,
                                                    times,
                                                    Meew, Mpgd, Mcmt, Mff,
                                                    str1, str2, dip1, dip2,
                                                    rak1, rak2, dep);
+            */
             memory_free64f(&times);
             memory_free64f(&Mcmt);
             memory_free64f(&Meew);
@@ -359,7 +361,7 @@ iopt =-1;
             memSpace = H5Screate_simple(1, dims, NULL);
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
             hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
-            chypo = gfast2json_packTriggeringHypocenter(hypo);
+            //chypo = gfast2json_packTriggeringHypocenter(hypo);
             //printf("%s\n", chypo);
             //if (chypo != NULL){free(chypo);}
             H5Sclose(memSpace);
@@ -380,7 +382,7 @@ iopt =-1;
             memSpace = H5Screate_simple(1, dims, NULL);
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5gpsData);
             hdf5_copyGPSData(COPY_H5_TO_DATA, &gpsData, &h5gpsData);
-            cdata = gfast2json_packGPSData(gpsData);
+            //cdata = gfast2json_packGPSData(gpsData);
             if (cdata != NULL){free(cdata);}
             hdf5_memory_freeGPSData(&h5gpsData);
             H5Sclose(memSpace);
@@ -396,7 +398,7 @@ iopt =-1;
             memSpace = H5Screate_simple(1, dims, NULL);
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
             hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
-            cpgd = gfast2json_packPGD(evid, gpsData, pgd);
+            //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
             hdf5_memory_freePGDResults(&h5pgd);
             H5Sclose(memSpace);
             H5Sclose(dataSpace);
@@ -416,7 +418,7 @@ iopt =-1;
             memSpace = H5Screate_simple(1, dims, NULL);
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5cmt);
             hdf5_copyCMTResults(COPY_H5_TO_DATA, &cmt, &h5cmt);
-            ccmt = gfast2json_packCMT(evid, gpsData, cmt);
+            //ccmt = gfast2json_packCMT(evid, gpsData, cmt);
             //if (ccmt != NULL){printf("%s\n", ccmt);}
             //if (ccmt != NULL){free(ccmt);}
             iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
@@ -454,7 +456,7 @@ printf("%f %f %f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
             memSpace = H5Screate_simple(1, dims, NULL);
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5ff);
             hdf5_copyFFResults(COPY_H5_TO_DATA, &ff, &h5ff);
-            cff = gfast2json_packFF(evid, gpsData, ff); 
+            //cff = gfast2json_packFF(evid, gpsData, ff); 
             //if (cff != NULL){printf("%s\n", cff);}
             //if (cff != NULL){free(cff);}
             hdf5_memory_freeFFResults(&h5ff);
