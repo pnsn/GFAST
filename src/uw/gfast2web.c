@@ -342,6 +342,7 @@ iopt =-1;
             H5Sclose(dataSpace);
             H5Dclose(dataSet);
             H5Tclose(dataType);
+            printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
             // pgd
             memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
             memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
