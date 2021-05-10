@@ -108,49 +108,15 @@ int main()
     // For debugging purposes create the producer
 
     // Create the ActiveMQ consumer (failover:(tcp://localhost:61616)"
-    if (ldebug)
-    {
-        webProduct = activeMQ_producer_initialize(user, password, destination, "localhost",
-                                     port, useTopic, clientAck, 0, &ierr);
-        //bogusID = activeMQ_producer_initialize(user, password, "aNewProduct", "localhost",
-        //                             port, useTopic, clientAck, 0);
-    }
-    consumer = activeMQ_consumer_initialize(user, password, destination, "localhost",
-                                 port, 1, 5, useTopic, clientAck, false, 0, &ierr);
-    // Send message
-    if (ldebug)
-    {
-        cm = packMessage("2435", "./2435_archive.h5");
-        if (cm == NULL){printf("error packing message\n");}
-        activeMQ_producer_sendMessage(webProduct, cm);
-        free(cm);
-    }
     //if (ldebug){activeMQ_producer_sendMessage( );}
     memset(&SA, 0, sizeof(struct GFAST_shakeAlert_struct));
     memset(&events, 0, sizeof(struct eventList_struct));
     // Begin the acquisition
-    while (true)
+    //while (true)
+    archiveFile = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
+    puts(archiveFile);
+    if (1)
     {
-        // Check messages for published files
-        lhaveEvent = false;
-        cm = activeMQ_consumer_getMessage(consumer, ms_wait, &ierr);
-        if (cm != NULL)
-        {
-            ierr = parseMessage(cm, evid, archiveFile);
-            if (ierr == 0)
-            {
-                printf("Processing: %s %s\n", evid, archiveFile);
-                lhaveEvent = true;
-            }
-            else
-            {
-                printf("Error unpacking messages %s\n", cm);
-            }
-            free(cm);
-        }
-        //lhaveEvent = checkMessages(evid, archiveFile);
-        if (lhaveEvent)
-        {
             // Verify the archive file exists
             if (!os_path_isfile(archiveFile))
             {
@@ -158,27 +124,11 @@ int main()
                         fcnm, archiveFile);
                 continue;
             }
-            // Determine if the event exists and possibly add it
-            leventExists = eventExists(evid, events);
-            if (!leventExists){addEvent(evid, archiveFile, &events);}
-        }
+
         // Open the HDF5 file and read the latest entry
         t0 = time_timeStamp();
-        for (iev=0; iev<events.nevents; iev++)
-        {
-            // Look at the last publication time 
-            lastPublished = events.events[iev].lastPublished;
-            memset(evid, 0, 128*sizeof(char));
-            memset(archiveFile, 0, PATH_MAX*sizeof(char));
-            strcpy(evid, events.events[iev].evid);
-            strcpy(archiveFile, events.events[iev].archiveFile);
-            // Verify the archive file exists
-            if (!os_path_isfile(archiveFile))
-            {
-                LOG_ERRMSG("Error: archive file %s does not exist",
-                           archiveFile);
-                continue;
-            }
+        //for (iev=0; iev<events.nevents; iev++)
+        //{
             // Get the most recently published group 
             h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
 char groupName[512], structGroup[512];
@@ -467,7 +417,9 @@ printf("%f %f %f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
             // clean up
             core_ff_finalizeResults(&ff);
             core_data_finalize(&gpsData);
+
             // Final publication until manual review
+            /*
             if (t0 - lastPublished > 300.0)
             {
                 // Remove event
@@ -488,6 +440,7 @@ printf("%f %f %f\n", cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt]);
             {
  
             }
+            */
             H5Gclose(groupID);
             H5Fclose(h5fl);
             // Curl it the interweb
