@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
           case 'i':
             printf("scan int from argv[i+1]=%s\n", argv[i+1]);
             //output_interval = atoi(&argv[i][2]);
-            output_interval = atoi(&argv[i+1]);
+            output_interval = atoi(argv[i+1]);
             printf("-i: Output i:[%d] interval\n", output_interval);
             break;
 
