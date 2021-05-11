@@ -76,6 +76,7 @@ static void getCMTopt(const struct GFAST_cmtResults_struct cmt,
 void usage(void)
 {
 	printf("Usage:\n");
+	printf(" --filename <h5 filename>\n");
 	printf(" -i<interval>\n");
 	printf(" -a //Output all intervals\n");
 	exit (8);
@@ -112,6 +113,7 @@ int main(int argc, char *argv[])
     void *webProduct;
     iscl_init();
     int output_interval;
+    bool output_all = false;
     // Initialize curl
     //curl = curl_easy_init();
     //curl_easy_setopt(curl, CURLOPT_URL, "https://gfast.pnsn.org");
@@ -131,21 +133,24 @@ int main(int argc, char *argv[])
           printf("-a: Output all intervals\n");
           break;
 
-          case 'i':
-            output_interval = atoi(&argv[1][2]);
-            printf("-i: Output i:[%d] interval\n", output_interval);
-            break;
+        case 'i':
+          output_interval = atoi(&argv[1][2]);
+          printf("-i: Output i:[%d] interval\n", output_interval);
+          break;
 
-          default:
-            printf("Wrong Argument: %s\n", argv[1]);
-            usage();
+        case '-':
+          if (strcmp(argv[1], "--filename") == 0){
+            printf("Got filename=%s\n", argv[1][2]);
+          }
+          break;
+
+        default:
+          printf("Wrong Argument: %s\n", argv[1]);
+          usage();
       }
       ++argv;
       --argc;
     }
-
-    exit(0);
-
 
     // Create the ActiveMQ consumer (failover:(tcp://localhost:61616)"
     //if (ldebug){activeMQ_producer_sendMessage( );}
