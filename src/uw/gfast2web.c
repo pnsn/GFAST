@@ -488,6 +488,7 @@ printf("cmt.str1:%f cmt.dip1:%f cmt.rak1:%f\n", cmt.str1[iopt], cmt.dip1[iopt], 
             core_ff_finalizeResults(&ff);
             printf("MTH: call core_data_finalize gpsData\n");
             core_data_finalize(&gpsData);
+            printf("MTH: call core_data_finalize gpsData DONE\n");
 
             // Final publication until manual review
             /*
@@ -515,6 +516,8 @@ printf("cmt.str1:%f cmt.dip1:%f cmt.rak1:%f\n", cmt.str1[iopt], cmt.dip1[iopt], 
             H5Gclose(groupID);
             H5Fclose(h5fl);
             // Curl it the interweb
+            printf("Don't call postJson!\n");
+            exit(0);
 //printf("%s\n", chypo);
             ierr = postJson(chypo, gfastURL, gfastUserName, gfastPassword);
             if (chypo != NULL)
