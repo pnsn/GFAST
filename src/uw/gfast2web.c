@@ -113,9 +113,11 @@ int main(int argc, char *argv[])
     for (i=0; i<argc; i++){
       printf("argv[%d]=%s\n", i, argv[i]);
     }
-    exit(0);
+
     while ((argc > 1) && (argv[1][0] == '-'))
     {
+      printf("Look at argv[1][1]=%c\n", argv[1][1]);
+      /*
       switch (argv[1][1])
       {
         case 'f':
@@ -131,6 +133,7 @@ int main(int argc, char *argv[])
             printf("Wrong Argument: %s\n", argv[1]);
             usage();
       }
+      */
 
       ++argv;
       --argc;
