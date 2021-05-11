@@ -346,7 +346,7 @@ iopt =-1;
             H5Tclose(dataType);
             printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
             for (i=0;i<gpsData.stream_length; i++){
-              wdata = gpsData[i].data;
+              wdata = gpsData.data[i];
               printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
                       wdata.sta_lat, wdata.sta_lon, wdata.npts);
             }
