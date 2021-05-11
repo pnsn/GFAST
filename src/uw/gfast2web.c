@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
           break;
 
           case 'i':
-            output_interval = atoi(argv[1][2]);
+            output_interval = atoi(&argv[1][2]);
             printf("-i: Output i:[%d] interval\n", output_interval);
             break;
 
