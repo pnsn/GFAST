@@ -117,24 +117,20 @@ int main(int argc, char *argv[])
     while ((argc > 1) && (argv[1][0] == '-'))
     {
       printf("Look at argv[1][1]=%c\n", argv[1][1]);
-      /*
       switch (argv[1][1])
       {
-        case 'f':
-          printf("%s\n",&argv[1][2]);
+        case 'a':
+          printf("-a: Output all intervals\n");
           break;
 
-          case 'd':
-            printf("%s\n",&argv[1][2]);
-            printf("%s\n",&argv[1][2]);
+          case 'i':
+            printf("-i: Output [%d] intervals\n", argv[1][2]);
             break;
 
           default:
             printf("Wrong Argument: %s\n", argv[1]);
             usage();
       }
-      */
-
       ++argv;
       --argc;
     }
