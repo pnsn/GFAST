@@ -83,7 +83,7 @@ int main()
     char evid[128]="1111";
     char archiveFile[PATH_MAX] = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
     double lastPublished, t0;
-    int ierr, iev;
+    int ierr, iev, i;
     bool lhaveEvent, leventExists;
     hid_t h5fl;
     char *cm;
@@ -343,6 +343,10 @@ iopt =-1;
             H5Dclose(dataSet);
             H5Tclose(dataType);
             printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
+            for (i=0;i<gpsData.stream_length; i++){
+              printf("%s.%s.%s %8.3f %8.3f %d\n", gpsData[i].netw, gpsData[i].stnm, gpsData[i].chan[0],
+                      gpsData[i].sta_lat, gpsData[i].sta_lon, gpsData[i].npts);
+            }
             // pgd
             memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
             memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
