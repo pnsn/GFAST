@@ -73,6 +73,13 @@ int postImage(const char *fileName, const char *url,
 static void getCMTopt(const struct GFAST_cmtResults_struct cmt,
                       int *iopt, int *depOpt, int *latOpt, int *lonOpt);
 
+void usage(void)
+{
+	printf("Usage:\n");
+	printf(" -i<interval>\n");
+	printf(" -a //Output all intervals\n");
+	exit (8);
+}
 
 int main(int argc, char *argv[])
 {
