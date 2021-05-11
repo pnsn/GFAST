@@ -350,7 +350,7 @@ iopt =-1;
               printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
                       wdata.sta_lat, wdata.sta_lon, wdata.npts);
               for (j=0; j<10; j++){
-                printf("%s ", wdata.ubuff[j]);
+                printf("%f ", wdata.ubuff[j]);
               }
               printf("\n");
             }
