@@ -135,7 +135,6 @@ int main(int argc, char *argv[])
             break;
 
           case 'i':
-            printf("scan int from argv[i+1]=%s\n", argv[i+1]);
             //output_interval = atoi(&argv[i][2]);
             output_interval = atoi(argv[i+1]);
             printf("-i: Output i:[%d] interval\n", output_interval);
@@ -156,7 +155,6 @@ int main(int argc, char *argv[])
         //--argc;
       }
     }
-    exit(0);
 
     // Create the ActiveMQ consumer (failover:(tcp://localhost:61616)"
     //if (ldebug){activeMQ_producer_sendMessage( );}
@@ -173,6 +171,7 @@ int main(int argc, char *argv[])
             {
                 fprintf(stderr, "%s: Error archive file %s does not exist\n",
                         fcnm, archiveFile);
+                exit(8);
                 //continue;
             }
 
