@@ -124,32 +124,35 @@ int main(int argc, char *argv[])
       printf("argv[%d]=%s\n", i, argv[i]);
     }
 
-    while ((argc > 1) && (argv[1][0] == '-'))
+    //while ((argc > 1) && (argv[argc][0] == '-'))
+    for (i=0; i<argc; i++)
     {
-      printf("Look at argv[1][1]=%c\n", argv[1][1]);
-      switch (argv[1][1])
-      {
-        case 'a':
-          printf("-a: Output all intervals\n");
-          break;
+      if (argv[i][0] == '-') {
+        switch (argv[i][1])
+        {
+          case 'a':
+            printf("-a: Output all intervals\n");
+            break;
 
-        case 'i':
-          output_interval = atoi(&argv[1][2]);
-          printf("-i: Output i:[%d] interval\n", output_interval);
-          break;
+          case 'i':
+            output_interval = atoi(&argv[i][2]);
+            printf("-i: Output i:[%d] interval\n", output_interval);
+            break;
 
-        case '-':
-          if (strcmp(argv[1], "--filename") == 0){
-            printf("Got filename=%s\n", argv[1][2]);
-          }
-          break;
+          case '-':
+            if (strcmp(argv[i], "--filename") == 0){
+              strcpy(archiveFile, argv[i+1]);
+              printf("Got --filename = [%s]\n", archiveFile);
+            }
+            break;
 
-        default:
-          printf("Wrong Argument: %s\n", argv[1]);
-          usage();
+          default:
+            printf("Wrong Argument: %s\n", argv[i]);
+            usage();
+        }
+        //++argv;
+        //--argc;
       }
-      ++argv;
-      --argc;
     }
 
     // Create the ActiveMQ consumer (failover:(tcp://localhost:61616)"
