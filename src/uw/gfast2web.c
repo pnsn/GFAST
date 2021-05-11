@@ -146,6 +146,7 @@ struct GFAST_pgdResults_struct pgd;
 struct GFAST_cmtResults_struct cmt;
 struct GFAST_ffResults_struct ff;
 struct GFAST_data_struct gpsData;
+struct GFAST_waveform3CData_struct wdata;
 char *ccmt, *cdata, *cff, *chypo, *cpgd, *cts;
 double *dep, *dip1, *dip2, *Mcmt, *Mpgd, *Meew, *Mff, *rak1, *rak2, *str1, *str2, *times, trigger0;
 hid_t cmtDataType, dataSet, dataSpace, dataType, ffDataType, hypoDataType, groupID, memSpace, pgdDataType;
@@ -326,6 +327,7 @@ iopt =-1;
             {
                 LOG_WARNMSG("%s", "gpsData does not exists");
             }
+            memset(&wdata, 0, sizeof(struct GFAST_waveform3CData_struct));
             memset(&gpsData, 0, sizeof(struct GFAST_data_struct));
             memset(&h5gpsData, 0, sizeof(struct h5_gpsData_struct));
             dataType = H5Topen(h5fl, "/DataStructures/gpsDataStructure\0",
@@ -344,8 +346,9 @@ iopt =-1;
             H5Tclose(dataType);
             printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
             for (i=0;i<gpsData.stream_length; i++){
-              printf("%s.%s.%s %8.3f %8.3f %d\n", gpsData[i].netw, gpsData[i].stnm, gpsData[i].chan[0],
-                      gpsData[i].sta_lat, gpsData[i].sta_lon, gpsData[i].npts);
+              wdata = gpsData[i].data;
+              printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
+                      wdata.sta_lat, wdata.sta_lon, wdata.npts);
             }
             // pgd
             memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
