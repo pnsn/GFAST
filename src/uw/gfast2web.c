@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
     void *consumer;
     void *webProduct;
     iscl_init();
+    int output_interval;
     // Initialize curl
     //curl = curl_easy_init();
     //curl_easy_setopt(curl, CURLOPT_URL, "https://gfast.pnsn.org");
@@ -131,7 +132,8 @@ int main(int argc, char *argv[])
           break;
 
           case 'i':
-            printf("-i: Output [%d] intervals\n", argv[1][2]);
+            output_interval = atoi(argv[1][2]);
+            printf("-i: Output i:[%d] interval\n", output_interval);
             break;
 
           default:
