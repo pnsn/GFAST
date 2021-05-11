@@ -83,7 +83,7 @@ int main()
     char evid[128]="1111";
     char archiveFile[PATH_MAX] = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
     double lastPublished, t0;
-    int ierr, iev, i;
+    int ierr, iev, i, j;
     bool lhaveEvent, leventExists;
     hid_t h5fl;
     char *cm;
