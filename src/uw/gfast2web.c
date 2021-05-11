@@ -166,21 +166,22 @@ int main(int argc, char *argv[])
     puts(archiveFile);
     if (1)
     {
-            // Verify the archive file exists
-            if (!os_path_isfile(archiveFile))
-            {
-                fprintf(stderr, "%s: Error archive file %s does not exist\n",
-                        fcnm, archiveFile);
-                exit(8);
-                //continue;
-            }
+        // Verify the archive file exists
+        if (!os_path_isfile(archiveFile))
+        {
+            fprintf(stderr, "%s: Error archive file %s does not exist\n",
+                    fcnm, archiveFile);
+            exit(8);
+            //continue;
+        }
 
         // Open the HDF5 file and read the latest entry
         t0 = time_timeStamp();
         //for (iev=0; iev<events.nevents; iev++)
         //{
             // Get the most recently published group 
-            h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
+        h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
+
 char groupName[512], structGroup[512];
 int idep, iopt, igroup, kgroup, latOpt, lonOpt, nlocs;
 hsize_t dims[1] = {1};
@@ -230,7 +231,10 @@ iopt =-1;
             cmtDataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
             ffDataType = H5Topen(h5fl, FF_STRUCT, H5P_DEFAULT);
             pgdDataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
-            for (igroup=1; igroup<=kgroup; igroup++)
+
+            //for (igroup=1; igroup<=kgroup; igroup++)
+            igroup = output_interval;
+            if (1)
             {
                 memset(groupName, 0, 512*sizeof(char));
                 sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
@@ -412,6 +416,7 @@ iopt =-1;
             memSpace = H5Screate_simple(1, dims, NULL);
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
             hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
+            printf("MTH: pgdResults.nsites=%d\n", pgd.nsites);
             //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
             hdf5_memory_freePGDResults(&h5pgd);
             H5Sclose(memSpace);
