@@ -154,6 +154,7 @@ int main(int argc, char *argv[])
         //--argc;
       }
     }
+    exit(0);
 
     // Create the ActiveMQ consumer (failover:(tcp://localhost:61616)"
     //if (ldebug){activeMQ_producer_sendMessage( );}
