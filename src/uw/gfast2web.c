@@ -74,7 +74,7 @@ static void getCMTopt(const struct GFAST_cmtResults_struct cmt,
                       int *iopt, int *depOpt, int *latOpt, int *lonOpt);
 
 
-int main()
+int main(int argc, char *argv[])
 {
     const char *fcnm = "gfast2web\0";
     struct GFAST_shakeAlert_struct SA;
@@ -108,6 +108,36 @@ int main()
     //curl = curl_easy_init();
     //curl_easy_setopt(curl, CURLOPT_URL, "https://gfast.pnsn.org");
     // For debugging purposes create the producer
+    //
+    printf("argc=%d\n", argc);
+    for (i=0, i<argc;i++){
+      printf("argv[%d]=%s\n", i, argv[i]);
+    }
+    exit(0);
+    while ((argc > 1) && (argv[1][0] == '-'))
+    {
+      switch (argv[1][1])
+      {
+        case 'f':
+          printf("%s\n",&argv[1][2]);
+          break;
+
+          case 'd':
+            printf("%s\n",&argv[1][2]);
+            printf("%s\n",&argv[1][2]);
+            break;
+
+          default:
+            printf("Wrong Argument: %s\n", argv[1]);
+            usage();
+      }
+
+      ++argv;
+      --argc;
+    }
+
+    exit(0);
+
 
     // Create the ActiveMQ consumer (failover:(tcp://localhost:61616)"
     //if (ldebug){activeMQ_producer_sendMessage( );}
@@ -152,6 +182,7 @@ double *dep, *dip1, *dip2, *Mcmt, *Mpgd, *Meew, *Mff, *rak1, *rak2, *str1, *str2
 hid_t cmtDataType, dataSet, dataSpace, dataType, ffDataType, hypoDataType, groupID, memSpace, pgdDataType;
 iopt =-1;
             kgroup = hdf5_getMaxGroupNumber(h5fl);
+            printf("MTH: kgroup=%d\n", kgroup);
             times = array_set64f(kgroup, __builtin_nan(""), &ierr);
             Mcmt = array_set64f(kgroup,  __builtin_nan(""), &ierr);
             Meew = array_set64f(kgroup,  __builtin_nan(""), &ierr);
@@ -186,7 +217,7 @@ iopt =-1;
                 memset(groupName, 0, 512*sizeof(char));
                 sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
                 printf("/GFAST_History/Iteration_%d\n", igroup);
-                groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
+                //groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
                 memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
                 memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
                 memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
