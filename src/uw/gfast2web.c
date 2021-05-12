@@ -433,7 +433,7 @@ iopt =-1;
                 H5Sclose(dataSpace);
                 H5Dclose(dataSet);
                 //core_scaling_pgd_finalizeData(&pgd_data);
-                printf("MTH: pgd_data.nsites=%d\n", pgd_data.nites);
+                printf("MTH: pgd_data.nsites=%d\n", pgd_data.nsites);
                 for (i=0; i<pgd_data.nsites; i++){
                   printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
                 }
