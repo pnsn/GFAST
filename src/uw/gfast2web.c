@@ -430,6 +430,7 @@ iopt =-1;
                 H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
                 printf("Read pgdData h5pgd_data.nsites=%d\n", h5pgd_data.nsites);
                 printf("Call hdf5_copyPeakDisplacementData\n");
+                /*
                 for (i=0; i<h5pgd_data.nsites; i++){
                   printf("scnl:%s lat:%8.3f lon:%8.3f active:%d\n",
                       h5pgd_data.stnm[i],
@@ -437,6 +438,7 @@ iopt =-1;
                       h5pgd_data.sta_lon[i],
                       h5pgd_data.lactive[i]);
                 }
+                */
                 hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
 
                 //hdf5_memory_freePGDData(&h5pgd_data);
@@ -460,6 +462,11 @@ iopt =-1;
             H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
             hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
             printf("MTH: pgdResults.nsites=%d\n", pgd.nsites);
+            printf("MTH: pgdResults.nlats=%d\n", pgd.nlats);
+            printf("MTH: pgdResults.ndeps=%d\n", pgd.ndeps);
+            for (i=0; i<pgdResults.ndeps; i+){
+              printf("dep %i:%f\n", i, pgdResults.srcDepths[i]);
+            }
             //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
             hdf5_memory_freePGDResults(&h5pgd);
             H5Sclose(memSpace);
