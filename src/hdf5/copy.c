@@ -84,9 +84,48 @@ int hdf5_copyPeakDisplacementData(
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        LOG_ERRMSG("job = %d not yet done\n", job);
-        ierr = 1;
+        memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
+
+        // Make sure there is something to do
+        nsites = (size_t)  h5_pgd_data->nsites;
+        if (nsites < 1)
+        {
+            LOG_ERRMSG("%s", "No sites!");
+            ierr = 1;
+            return ierr;
+        }
+
+        pgd_data->nsites = nsites;
+
+        pgd_data->pd = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->pd.p, 1, pgd_data->pd, 1);
+
+        pgd_data->wt = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->wt.p, 1, pgd_data->wt, 1);
+
+        pgd_data->sta_lat = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_lat.p, 1, pgd_data->sta_lat, 1);
+
+        pgd_data->sta_lon = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_lon.p, 1, pgd_data->sta_lon, 1);
+
+        pgd_data->sta_alt = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_alt.p, 1, pgd_data->sta_alt, 1);
+
+        lsiteUsedTemp = (int *) h5_pgd_data->lmask.p;
+        pgd_data->lmask = memory_calloc8l(pgd_data->nsites);
+        for (i=0; i<pgd_data->nsites; i++)
+        {
+            pgd_data->lmask[i] = (bool) lsiteUsedTemp[i];
+        }
+        lsiteUsedTemp = (int *) h5_pgd_data->lactive.p;
+        pgd_data->lactive = memory_calloc8l(pgd_data->nsites);
+        for (i=0; i<pgd_data->nsites; i++)
+        {
+            pgd_data->lactive[i] = (bool) lsiteUsedTemp[i];
+        }
     }
+
     else
     {
         LOG_ERRMSG("Invalid job=%d", job);
