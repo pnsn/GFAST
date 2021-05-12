@@ -473,6 +473,10 @@ iopt =-1;
             for (i=0; i<pgd.ndeps; i++){
               printf("dep %i:%f\n", i, pgd.srcDepths[i]);
             }
+            for (i=0; i<pgd.nsites; i++){
+              printf("lsiteUsed[%i]: %d\n", i, pgd.lsiteUsed[i]);
+            }
+            exit(0);
             //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
             hdf5_memory_freePGDResults(&h5pgd);
             H5Sclose(memSpace);
