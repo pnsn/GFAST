@@ -440,6 +440,8 @@ iopt =-1;
                 }
                 */
                 hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
+                printf("Call hdf5_copyPeakDisplacementData DONE\n");
+                printf("Close mem/dataSpace\n");
 
                 //hdf5_memory_freePGDData(&h5pgd_data);
                 H5Sclose(memSpace);
@@ -447,6 +449,7 @@ iopt =-1;
                 H5Dclose(dataSet);
                 //core_scaling_pgd_finalizeData(&pgd_data);
                 printf("MTH: pgd_data.nsites=%d\n", pgd_data.nsites);
+
                 for (i=0; i<pgd_data.nsites; i++){
                   printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
                 }
