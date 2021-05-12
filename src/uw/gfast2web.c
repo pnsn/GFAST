@@ -464,7 +464,7 @@ iopt =-1;
             printf("MTH: pgdResults.nsites=%d\n", pgd.nsites);
             printf("MTH: pgdResults.nlats=%d\n", pgd.nlats);
             printf("MTH: pgdResults.ndeps=%d\n", pgd.ndeps);
-            for (i=0; i<pgd.ndeps; i+){
+            for (i=0; i<pgd.ndeps; i++){
               printf("dep %i:%f\n", i, pgd.srcDepths[i]);
             }
             //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
