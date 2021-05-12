@@ -451,7 +451,8 @@ iopt =-1;
                 printf("MTH: pgd_data.nsites=%d\n", pgd_data.nsites);
 
                 for (i=0; i<pgd_data.nsites; i++){
-                  printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
+                  //printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
+                  printf("MTH: pgd_data sta_lat:%8.3f sta_lon:%8.3f\n", pgd_data.sta_lat[i], pgd_data.sta_lon[i]);
                 }
             }
 

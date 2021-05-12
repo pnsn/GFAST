@@ -130,10 +130,13 @@ int hdf5_copyPeakDisplacementData(
         }
 
         stnTemp = (char *) h5_pgd_data->stnm.p;
+
+        /*
         for (i=0; i<pgd_data->nsites; i++)
         {
-          printf("stnm:%s\n", stnTemp[i]);
+          printf("stnm:%s\n", (char *) stnTemp[i]);
         }
+        */
 
     }
 
