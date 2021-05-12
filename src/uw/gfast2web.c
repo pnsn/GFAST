@@ -379,7 +379,6 @@ iopt =-1;
     printf("igroup:%d hypo eventid:%s lat:%8.2f lon:%8.2f dep:%5.2f mag:%4.2f time:%f\n",
         igroup, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
 
-    exit(0);
     //chypo = gfast2json_packTriggeringHypocenter(hypo);
     //printf("%s\n", chypo);
     //if (chypo != NULL){free(chypo);}
@@ -387,77 +386,79 @@ iopt =-1;
     H5Sclose(dataSpace);
     H5Dclose(dataSet);
     H5Tclose(dataType);
+
     // gps data
     if (H5Lexists(groupID, "gpsData\0", H5P_DEFAULT) < 1)
     {
         LOG_WARNMSG("%s", "gpsData does not exists");
     }
-            memset(&wdata, 0, sizeof(struct GFAST_waveform3CData_struct));
-            memset(&gpsData, 0, sizeof(struct GFAST_data_struct));
-            memset(&h5gpsData, 0, sizeof(struct h5_gpsData_struct));
-            dataType = H5Topen(h5fl, "/DataStructures/gpsDataStructure\0",
-                               H5P_DEFAULT);
-            dataSet = H5Dopen(groupID, "gpsData\0", H5P_DEFAULT);
-            dataSpace = H5Dget_space(dataSet);
-            memSpace = H5Screate_simple(1, dims, NULL);
-            H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5gpsData);
-            hdf5_copyGPSData(COPY_H5_TO_DATA, &gpsData, &h5gpsData);
-            //cdata = gfast2json_packGPSData(gpsData);
-            if (cdata != NULL){free(cdata);}
-            hdf5_memory_freeGPSData(&h5gpsData);
-            H5Sclose(memSpace);
-            H5Sclose(dataSpace);
-            H5Dclose(dataSet);
-            H5Tclose(dataType);
+    memset(&wdata, 0, sizeof(struct GFAST_waveform3CData_struct));
+    memset(&gpsData, 0, sizeof(struct GFAST_data_struct));
+    memset(&h5gpsData, 0, sizeof(struct h5_gpsData_struct));
+    dataType = H5Topen(h5fl, "/DataStructures/gpsDataStructure\0", H5P_DEFAULT);
+    dataSet = H5Dopen(groupID, "gpsData\0", H5P_DEFAULT);
+    dataSpace = H5Dget_space(dataSet);
+    memSpace = H5Screate_simple(1, dims, NULL);
+    H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5gpsData);
+    hdf5_copyGPSData(COPY_H5_TO_DATA, &gpsData, &h5gpsData);
+    //cdata = gfast2json_packGPSData(gpsData);
+    if (cdata != NULL){free(cdata);}
+    hdf5_memory_freeGPSData(&h5gpsData);
+    H5Sclose(memSpace);
+    H5Sclose(dataSpace);
+    H5Dclose(dataSet);
+    H5Tclose(dataType);
 
-            printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
-            /*
-            for (i=0;i<gpsData.stream_length; i++){
-              wdata = gpsData.data[i];
-              printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
-                      wdata.sta_lat, wdata.sta_lon, wdata.npts);
-              for (j=0; j<10; j++){
-                printf("%f ", wdata.ubuff[j]);
-              }
-              printf("\n");
-            }
-            */
-            if (H5Lexists(groupID, "pgdData", H5P_DEFAULT) > 0)
-            {
-                dataType = H5Topen(h5fl, "/DataStructures/peakDisplacementDataStructure\0", H5P_DEFAULT);
-                dataSet = H5Dopen(groupID, "pgdData", H5P_DEFAULT);
-                dataSpace = H5Dget_space(dataSet);
-                memSpace = H5Screate_simple(1, dims, NULL);
-                H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
-                printf("Read pgdData h5pgd_data.nsites=%d\n", h5pgd_data.nsites);
-                printf("Call hdf5_copyPeakDisplacementData\n");
-                /*
-                for (i=0; i<h5pgd_data.nsites; i++){
-                  printf("scnl:%s lat:%8.3f lon:%8.3f active:%d\n",
-                      h5pgd_data.stnm[i],
-                      h5pgd_data.sta_lat[i],
-                      h5pgd_data.sta_lon[i],
-                      h5pgd_data.lactive[i]);
-                }
-                */
-                hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
-                printf("Call hdf5_copyPeakDisplacementData DONE\n");
-                printf("Close mem/dataSpace\n");
+    printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
+    printf("MTH: gpsData.data[0].npts=%d\n", gpsData.data[0].npts);
+    /*
+    for (i=0;i<gpsData.stream_length; i++){
+      wdata = gpsData.data[i];
+      printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
+              wdata.sta_lat, wdata.sta_lon, wdata.npts);
+      for (j=0; j<10; j++){
+        printf("%f ", wdata.ubuff[j]);
+      }
+      printf("\n");
+    }
+    */
+    exit(0);
+    if (H5Lexists(groupID, "pgdData", H5P_DEFAULT) > 0)
+    {
+        dataType = H5Topen(h5fl, "/DataStructures/peakDisplacementDataStructure\0", H5P_DEFAULT);
+        dataSet = H5Dopen(groupID, "pgdData", H5P_DEFAULT);
+        dataSpace = H5Dget_space(dataSet);
+        memSpace = H5Screate_simple(1, dims, NULL);
+        H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
+        printf("Read pgdData h5pgd_data.nsites=%d\n", h5pgd_data.nsites);
+        printf("Call hdf5_copyPeakDisplacementData\n");
+        /*
+        for (i=0; i<h5pgd_data.nsites; i++){
+          printf("scnl:%s lat:%8.3f lon:%8.3f active:%d\n",
+              h5pgd_data.stnm[i],
+              h5pgd_data.sta_lat[i],
+              h5pgd_data.sta_lon[i],
+              h5pgd_data.lactive[i]);
+        }
+        */
+        hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
+        printf("Call hdf5_copyPeakDisplacementData DONE\n");
+        printf("Close mem/dataSpace\n");
 
-                //hdf5_memory_freePGDData(&h5pgd_data);
-                H5Sclose(memSpace);
-                H5Sclose(dataSpace);
-                H5Dclose(dataSet);
-                //core_scaling_pgd_finalizeData(&pgd_data);
-                printf("MTH: pgd_data.nsites=%d\n", pgd_data.nsites);
+        //hdf5_memory_freePGDData(&h5pgd_data);
+        H5Sclose(memSpace);
+        H5Sclose(dataSpace);
+        H5Dclose(dataSet);
+        //core_scaling_pgd_finalizeData(&pgd_data);
+        printf("MTH: pgd_data.nsites=%d\n", pgd_data.nsites);
 
-                for (i=0; i<pgd_data.nsites; i++){
-                  //printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
-                  if (pgd_data.lactive[i]){
-                    printf("MTH: pgd_data sta_lat:%8.3f sta_lon:%8.3f\n", pgd_data.sta_lat[i], pgd_data.sta_lon[i]);
-                  }
-                }
-            }
+        for (i=0; i<pgd_data.nsites; i++){
+          //printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
+          if (pgd_data.lactive[i]){
+            printf("MTH: pgd_data sta_lat:%8.3f sta_lon:%8.3f\n", pgd_data.sta_lat[i], pgd_data.sta_lon[i]);
+          }
+        }
+    }
 
             // pgd
             memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
