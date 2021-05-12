@@ -84,10 +84,12 @@ int hdf5_copyPeakDisplacementData(
     }
     else if (job == COPY_H5_TO_DATA)
     {
+      printf("MTH: copy h5 peakDisplacementData to GFAST struct\n");
         memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
 
         // Make sure there is something to do
         nsites = (size_t)  h5_pgd_data->nsites;
+      printf("MTH: copy h5 peakDisplacementData nsites=%d\n", nsites);
         if (nsites < 1)
         {
             LOG_ERRMSG("%s", "No sites!");
@@ -112,6 +114,7 @@ int hdf5_copyPeakDisplacementData(
         pgd_data->sta_alt = memory_calloc64f(pgd_data->nsites);
         cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_alt.p, 1, pgd_data->sta_alt, 1);
 
+      printf("MTH: copy h5 peakDisplacementData lactive/lmask\n");
         lmaskTemp = (int *) h5_pgd_data->lmask.p;
         pgd_data->lmask = memory_calloc8l(pgd_data->nsites);
         for (i=0; i<pgd_data->nsites; i++)
