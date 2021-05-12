@@ -196,6 +196,14 @@ struct GFAST_cmtResults_struct cmt;
 struct GFAST_ffResults_struct ff;
 struct GFAST_data_struct gpsData;
 struct GFAST_waveform3CData_struct wdata;
+
+
+struct GFAST_peakDisplacementData_struct pgd_data;
+struct h5_peakDisplacementData_struct h5pgd_data;
+memset(&pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
+memset(&h5pgd_data, 0, sizeof(struct h5_peakDisplacementData_struct));
+
+
 char *ccmt, *cdata, *cff, *chypo, *cpgd, *cts;
 double *dep, *dip1, *dip2, *Mcmt, *Mpgd, *Meew, *Mff, *rak1, *rak2, *str1, *str2, *times, trigger0;
 hid_t cmtDataType, dataSet, dataSpace, dataType, ffDataType, hypoDataType, groupID, memSpace, pgdDataType;
@@ -248,6 +256,7 @@ iopt =-1;
                 memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
                 memset(&h5ff, 0, sizeof(struct h5_ffResults_struct));
                 memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
+
                 groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
                 if (H5Lexists(groupID, TRIGGER_HYPO, H5P_DEFAULT) > 0)
                 {
@@ -287,6 +296,8 @@ iopt =-1;
                     hdf5_memory_freePGDResults(&h5pgd);
                     core_scaling_pgd_finalizeResults(&pgd);
                 }
+
+
                 if (H5Lexists(groupID, CMT_RES, H5P_DEFAULT) > 0)
                 {
                     cmtDataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
@@ -397,6 +408,7 @@ iopt =-1;
             H5Sclose(dataSpace);
             H5Dclose(dataSet);
             H5Tclose(dataType);
+
             printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
             for (i=0;i<gpsData.stream_length; i++){
               wdata = gpsData.data[i];
@@ -407,6 +419,26 @@ iopt =-1;
               }
               printf("\n");
             }
+            if (H5Lexists(groupID, "pgdData", H5P_DEFAULT) > 0)
+            {
+                dataType = H5Topen(h5fl, "/DataStructures/peakDisplacementDataStructure\0", H5P_DEFAULT);
+                dataSet = H5Dopen(groupID, "pgdData", H5P_DEFAULT);
+                dataSpace = H5Dget_space(dataSet);
+                memSpace = H5Screate_simple(1, dims, NULL);
+                H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
+                hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
+
+                hdf5_memory_freePGDData(&h5pgd_data);
+                H5Sclose(memSpace);
+                H5Sclose(dataSpace);
+                H5Dclose(dataSet);
+                //core_scaling_pgd_finalizeData(&pgd_data);
+                printf("MTH: pgd_data.nsites=%d\n", pgd_data.nites);
+                for (i=0; i<pgd_data.nsites; i++){
+                  printf("MTH: pgd_data[%d]=%s\n", i, pgd_data[i].stnm);
+                }
+            }
+
             // pgd
             memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
             memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
