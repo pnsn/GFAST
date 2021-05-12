@@ -134,6 +134,7 @@ int hdf5_copyPeakDisplacementData(
         LOG_ERRMSG("Invalid job=%d", job);
         ierr = 1;
     }
+    printf("MTH: copy h5 peakDisplacementData return ierr=%d\n", ierr);
     return ierr;
 }
 //============================================================================//
