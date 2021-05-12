@@ -112,17 +112,17 @@ int hdf5_copyPeakDisplacementData(
         pgd_data->sta_alt = memory_calloc64f(pgd_data->nsites);
         cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_alt.p, 1, pgd_data->sta_alt, 1);
 
-        lsiteUsedTemp = (int *) h5_pgd_data->lmask.p;
+        lmaskTemp = (int *) h5_pgd_data->lmask.p;
         pgd_data->lmask = memory_calloc8l(pgd_data->nsites);
         for (i=0; i<pgd_data->nsites; i++)
         {
-            pgd_data->lmask[i] = (bool) lsiteUsedTemp[i];
+            pgd_data->lmask[i] = (bool) lmaskTemp[i];
         }
-        lsiteUsedTemp = (int *) h5_pgd_data->lactive.p;
+        lactiveTemp = (int *) h5_pgd_data->lactive.p;
         pgd_data->lactive = memory_calloc8l(pgd_data->nsites);
         for (i=0; i<pgd_data->nsites; i++)
         {
-            pgd_data->lactive[i] = (bool) lsiteUsedTemp[i];
+            pgd_data->lactive[i] = (bool) lactiveTemp[i];
         }
     }
 
