@@ -435,7 +435,7 @@ iopt =-1;
                 //core_scaling_pgd_finalizeData(&pgd_data);
                 printf("MTH: pgd_data.nsites=%d\n", pgd_data.nites);
                 for (i=0; i<pgd_data.nsites; i++){
-                  printf("MTH: pgd_data[%d]=%s\n", i, pgd_data[i].stnm);
+                  printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
                 }
             }
 
