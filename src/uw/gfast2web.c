@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     struct eventList_struct events;
     char message[PATH_MAX];
     char evid[128]="1111";
-    char archiveFile[PATH_MAX] = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
+    char archiveFile[PATH_MAX];
     double lastPublished, t0;
     int ierr, iev, i, j;
     bool lhaveEvent, leventExists;
@@ -119,10 +119,6 @@ int main(int argc, char *argv[])
     //curl_easy_setopt(curl, CURLOPT_URL, "https://gfast.pnsn.org");
     // For debugging purposes create the producer
     //
-    printf("argc=%d\n", argc);
-    for (i=0; i<argc; i++){
-      printf("argv[%d]=%s\n", i, argv[i]);
-    }
 
     //while ((argc > 1) && (argv[argc][0] == '-'))
     for (i=0; i<argc; i++)
@@ -164,23 +160,22 @@ int main(int argc, char *argv[])
     //while (true)
     //archiveFile = "/home/mhagerty/gfast/run_playback/run/tohoku/zold/1111_archive.h5";
     puts(archiveFile);
-    if (1)
-    {
-        // Verify the archive file exists
-        if (!os_path_isfile(archiveFile))
-        {
-            fprintf(stderr, "%s: Error archive file %s does not exist\n",
-                    fcnm, archiveFile);
-            exit(8);
-            //continue;
-        }
 
-        // Open the HDF5 file and read the latest entry
-        t0 = time_timeStamp();
-        //for (iev=0; iev<events.nevents; iev++)
-        //{
-            // Get the most recently published group 
-        h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
+    // Verify the archive file exists
+    if (!os_path_isfile(archiveFile))
+    {
+        fprintf(stderr, "%s: Error archive file %s does not exist\n",
+                fcnm, archiveFile);
+        exit(8);
+        //continue;
+    }
+
+    // Open the HDF5 file and read the latest entry
+    t0 = time_timeStamp();
+    //for (iev=0; iev<events.nevents; iev++)
+    //{
+        // Get the most recently published group 
+    h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
 
 char groupName[512], structGroup[512];
 int idep, iopt, igroup, kgroup, latOpt, lonOpt, nlocs;
@@ -197,202 +192,206 @@ struct GFAST_ffResults_struct ff;
 struct GFAST_data_struct gpsData;
 struct GFAST_waveform3CData_struct wdata;
 
-
 struct GFAST_peakDisplacementData_struct pgd_data;
 struct h5_peakDisplacementData_struct h5pgd_data;
 memset(&pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
 memset(&h5pgd_data, 0, sizeof(struct h5_peakDisplacementData_struct));
 
-
 char *ccmt, *cdata, *cff, *chypo, *cpgd, *cts;
 double *dep, *dip1, *dip2, *Mcmt, *Mpgd, *Meew, *Mff, *rak1, *rak2, *str1, *str2, *times, trigger0;
 hid_t cmtDataType, dataSet, dataSpace, dataType, ffDataType, hypoDataType, groupID, memSpace, pgdDataType;
 iopt =-1;
-            kgroup = hdf5_getMaxGroupNumber(h5fl);
-            printf("MTH: kgroup=%d\n", kgroup);
-            times = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            Mcmt = array_set64f(kgroup,  __builtin_nan(""), &ierr);
-            Meew = array_set64f(kgroup,  __builtin_nan(""), &ierr);
-            Mff  = array_set64f(kgroup,  __builtin_nan(""), &ierr);
-            Mpgd = array_set64f(kgroup,  __builtin_nan(""), &ierr);
-            str1 = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            str2 = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            dip1 = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            dip2 = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            rak1 = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            rak2 = array_set64f(kgroup, __builtin_nan(""), &ierr);
-            dep  = array_set64f(kgroup, __builtin_nan(""), &ierr);
 
-            memset(structGroup, 0, 512*sizeof(char));
-            memset(groupName, 0, 512*sizeof(char)); 
-            memset(structGroup, 0, 512*sizeof(char));
-            strcpy(structGroup, "/DataStructures\0");
-            if (H5Lexists(h5fl, structGroup, H5P_DEFAULT) < 1)
-            {
-                LOG_ERRMSG("%s", "Data structure group doesn't exist");
-                H5Fclose(h5fl);
-                //continue;
-            }
-            trigger0 = DBL_MAX;
-            // Scrounge the magnitude and strike/dip/rake time series
-            hypoDataType = H5Topen(h5fl, HYPO_STRUCT, H5P_DEFAULT);
-            cmtDataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
-            ffDataType = H5Topen(h5fl, FF_STRUCT, H5P_DEFAULT);
-            pgdDataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
+    kgroup = hdf5_getMaxGroupNumber(h5fl);
+    times = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    Mcmt = array_set64f(kgroup,  __builtin_nan(""), &ierr);
+    Meew = array_set64f(kgroup,  __builtin_nan(""), &ierr);
+    Mff  = array_set64f(kgroup,  __builtin_nan(""), &ierr);
+    Mpgd = array_set64f(kgroup,  __builtin_nan(""), &ierr);
+    str1 = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    str2 = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    dip1 = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    dip2 = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    rak1 = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    rak2 = array_set64f(kgroup, __builtin_nan(""), &ierr);
+    dep  = array_set64f(kgroup, __builtin_nan(""), &ierr);
 
-            //for (igroup=1; igroup<=kgroup; igroup++)
-            igroup = output_interval;
-            // MTH:
-            igroup = 18;
-            if (1)
-            {
-                memset(groupName, 0, 512*sizeof(char));
-                sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
-                printf("/GFAST_History/Iteration_%d\n", igroup);
-                //groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
-                memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
-                memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
-                memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
-                memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
-                memset(&h5cmt, 0, sizeof(struct h5_cmtResults_struct));
-                memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
-                memset(&h5ff, 0, sizeof(struct h5_ffResults_struct));
-                memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
+    memset(structGroup, 0, 512*sizeof(char));
+    memset(groupName, 0, 512*sizeof(char)); 
+    memset(structGroup, 0, 512*sizeof(char));
+    strcpy(structGroup, "/DataStructures\0");
+    if (H5Lexists(h5fl, structGroup, H5P_DEFAULT) < 1)
+    {
+        LOG_ERRMSG("%s", "Data structure group doesn't exist");
+        H5Fclose(h5fl);
+        //continue;
+    }
+    trigger0 = DBL_MAX;
+    // Scrounge the magnitude and strike/dip/rake time series
+    hypoDataType = H5Topen(h5fl, HYPO_STRUCT, H5P_DEFAULT);
+    cmtDataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
+    ffDataType = H5Topen(h5fl, FF_STRUCT, H5P_DEFAULT);
+    pgdDataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
 
-                groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
-                if (H5Lexists(groupID, TRIGGER_HYPO, H5P_DEFAULT) > 0)
-                {
-                    dataSet = H5Dopen(groupID, TRIGGER_HYPO, H5P_DEFAULT);
-                    dataSpace = H5Dget_space(dataSet);
-                    memSpace = H5Screate_simple(1, dims, NULL);
-                    H5Dread(dataSet, hypoDataType, memSpace, dataSpace,
-                            H5P_DEFAULT, &h5hypo);
-                    hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
-                    H5Sclose(memSpace);
-                    H5Sclose(dataSpace);
-                    H5Dclose(dataSet);
-                    Meew[igroup-1] = hypo.mag;
-                    times[igroup-1] = (double) (igroup - 1);
-                    if (trigger0 == DBL_MAX){trigger0 = hypo.time;}
-                    //trigger0 = fmin(trigger0, hypo.time);
-                    times[igroup-1] = trigger0 + (double) (igroup - 1);
-                }
-                else
-                {
-                    printf("this is strange - no hypo; things will probably break\n");
-                }
-                if (H5Lexists(groupID, PGD_RES, H5P_DEFAULT) > 0)
-                {
-                    dataSet = H5Dopen(groupID, PGD_RES, H5P_DEFAULT);
-                    dataSpace = H5Dget_space(dataSet);
-                    memSpace = H5Screate_simple(1, dims, NULL);
-                    H5Dread(dataSet, pgdDataType, memSpace, dataSpace,
-                            H5P_DEFAULT, &h5pgd);
-                    hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
-                    nlocs = pgd.nlats*pgd.nlons*pgd.ndeps;
-                    iopt = array_argmin64f(nlocs, pgd.dep_vr_pgd, &ierr);
-                    Mpgd[igroup-1] = pgd.mpgd[iopt];
-                    H5Sclose(memSpace);
-                    H5Sclose(dataSpace);
-                    H5Dclose(dataSet);
-                    hdf5_memory_freePGDResults(&h5pgd);
-                    core_scaling_pgd_finalizeResults(&pgd);
-                }
+    //for (igroup=1; igroup<=kgroup; igroup++)
+    if (0)
+    {
+        memset(groupName, 0, 512*sizeof(char));
+        sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
+        printf("/GFAST_History/Iteration_%d\n", igroup);
+        //groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
+        memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
+        memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
+        memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
+        memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+        memset(&h5cmt, 0, sizeof(struct h5_cmtResults_struct));
+        memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+        memset(&h5ff, 0, sizeof(struct h5_ffResults_struct));
+        memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
 
-
-                if (H5Lexists(groupID, CMT_RES, H5P_DEFAULT) > 0)
-                {
-                    cmtDataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
-                    dataSet = H5Dopen(groupID, CMT_RES, H5P_DEFAULT);
-                    dataSpace = H5Dget_space(dataSet);
-                    memSpace = H5Screate_simple(1, dims, NULL);
-                    H5Dread(dataSet, cmtDataType, memSpace, dataSpace,
-                            H5P_DEFAULT, &h5cmt);
-                    hdf5_copyCMTResults(COPY_H5_TO_DATA, &cmt, &h5cmt);
-                    H5Sclose(memSpace);
-                    H5Sclose(dataSpace);
-                    H5Dclose(dataSet);
-                    nlocs = cmt.nlats*cmt.nlons*cmt.ndeps;
-                    getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
-                    Mcmt[igroup-1] = cmt.Mw[iopt]; //printf("%f\n", cmt.Mw[iopt]);
-                    str1[igroup-1] = cmt.str1[iopt];
-                    dip1[igroup-1] = cmt.dip1[iopt];
-                    rak1[igroup-1] = cmt.rak1[iopt];
-                    str2[igroup-1] = cmt.str2[iopt];
-                    dip2[igroup-1] = cmt.dip2[iopt];
-                    rak2[igroup-1] = cmt.rak2[iopt];
-                    dep[igroup-1]  = cmt.srcDepths[idep];
-                    hdf5_memory_freeCMTResults(&h5cmt);
-                    core_cmt_finalizeResults(&cmt);
-                }
-                if (H5Lexists(groupID, FF_RES, H5P_DEFAULT) > 0)
-                {
-                    dataSet = H5Dopen(groupID, FF_RES, H5P_DEFAULT);
-                    dataSpace = H5Dget_space(dataSet);
-                    memSpace = H5Screate_simple(1, dims, NULL);
-                    H5Dread(dataSet, ffDataType, memSpace, dataSpace,
-                            H5P_DEFAULT, &h5ff);
-                    hdf5_copyFFResults(COPY_H5_TO_DATA, &ff, &h5ff);
-                    H5Sclose(memSpace);
-                    H5Sclose(dataSpace);
-                    H5Dclose(dataSet);
-                    Mff[igroup-1] = ff.Mw[ff.preferred_fault_plane];
-                    hdf5_memory_freeFFResults(&h5ff);
-                    core_ff_finalizeResults(&ff);
-                }
-                //printf("%f %f %f %f\n", Meew[igroup-1], Mpgd[igroup-1], Mcmt[igroup-1], Mff[igroup-1]);
-                H5Gclose(groupID);
-            }
-            H5Tclose(hypoDataType);
-            H5Tclose(cmtDataType);
-            H5Tclose(ffDataType);
-            H5Tclose(pgdDataType);
-            // Make json summary
-            /*
-            cts = gfast2json_packTimeSeriesMetrics(evid, kgroup,
-                                                   times,
-                                                   Meew, Mpgd, Mcmt, Mff,
-                                                   str1, str2, dip1, dip2,
-                                                   rak1, rak2, dep);
-            */
-            memory_free64f(&times);
-            memory_free64f(&Mcmt);
-            memory_free64f(&Meew);
-            memory_free64f(&Mff);
-            memory_free64f(&Mpgd);
-            memory_free64f(&str1);
-            memory_free64f(&str2);
-            memory_free64f(&dip1);
-            memory_free64f(&dip2);
-            memory_free64f(&rak1);
-            memory_free64f(&rak2);
-            memory_free64f(&dep);
-
-
-            memset(groupName, 0, 512*sizeof(char));
-            sprintf(groupName, "/GFAST_History/Iteration_%d", kgroup);
-            groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
-            // hypocenter
-            memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
-            memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
-            dataType = H5Topen(h5fl, HYPO_STRUCT, H5P_DEFAULT);
+        groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
+        if (H5Lexists(groupID, TRIGGER_HYPO, H5P_DEFAULT) > 0)
+        {
             dataSet = H5Dopen(groupID, TRIGGER_HYPO, H5P_DEFAULT);
             dataSpace = H5Dget_space(dataSet);
             memSpace = H5Screate_simple(1, dims, NULL);
-            H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
+            H5Dread(dataSet, hypoDataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
             hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
-            //chypo = gfast2json_packTriggeringHypocenter(hypo);
-            //printf("%s\n", chypo);
-            //if (chypo != NULL){free(chypo);}
             H5Sclose(memSpace);
             H5Sclose(dataSpace);
             H5Dclose(dataSet);
-            H5Tclose(dataType);
-            // gps data
-            if (H5Lexists(groupID, "gpsData\0", H5P_DEFAULT) < 1)
-            {
-                LOG_WARNMSG("%s", "gpsData does not exists");
-            }
+            Meew[igroup-1] = hypo.mag;
+            times[igroup-1] = (double) (igroup - 1);
+            if (trigger0 == DBL_MAX){trigger0 = hypo.time;}
+            //trigger0 = fmin(trigger0, hypo.time);
+            times[igroup-1] = trigger0 + (double) (igroup - 1);
+        }
+        else
+        {
+            printf("this is strange - no hypo; things will probably break\n");
+        }
+
+        if (H5Lexists(groupID, PGD_RES, H5P_DEFAULT) > 0)
+        {
+            dataSet = H5Dopen(groupID, PGD_RES, H5P_DEFAULT);
+            dataSpace = H5Dget_space(dataSet);
+            memSpace = H5Screate_simple(1, dims, NULL);
+            H5Dread(dataSet, pgdDataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
+            hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
+            nlocs = pgd.nlats*pgd.nlons*pgd.ndeps;
+            iopt = array_argmin64f(nlocs, pgd.dep_vr_pgd, &ierr);
+            Mpgd[igroup-1] = pgd.mpgd[iopt];
+            H5Sclose(memSpace);
+            H5Sclose(dataSpace);
+            H5Dclose(dataSet);
+            hdf5_memory_freePGDResults(&h5pgd);
+            core_scaling_pgd_finalizeResults(&pgd);
+        }
+
+        if (H5Lexists(groupID, CMT_RES, H5P_DEFAULT) > 0)
+        {
+            cmtDataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
+            dataSet = H5Dopen(groupID, CMT_RES, H5P_DEFAULT);
+            dataSpace = H5Dget_space(dataSet);
+            memSpace = H5Screate_simple(1, dims, NULL);
+            H5Dread(dataSet, cmtDataType, memSpace, dataSpace,
+                    H5P_DEFAULT, &h5cmt);
+            hdf5_copyCMTResults(COPY_H5_TO_DATA, &cmt, &h5cmt);
+            H5Sclose(memSpace);
+            H5Sclose(dataSpace);
+            H5Dclose(dataSet);
+            nlocs = cmt.nlats*cmt.nlons*cmt.ndeps;
+            getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
+            Mcmt[igroup-1] = cmt.Mw[iopt]; //printf("%f\n", cmt.Mw[iopt]);
+            str1[igroup-1] = cmt.str1[iopt];
+            dip1[igroup-1] = cmt.dip1[iopt];
+            rak1[igroup-1] = cmt.rak1[iopt];
+            str2[igroup-1] = cmt.str2[iopt];
+            dip2[igroup-1] = cmt.dip2[iopt];
+            rak2[igroup-1] = cmt.rak2[iopt];
+            dep[igroup-1]  = cmt.srcDepths[idep];
+            hdf5_memory_freeCMTResults(&h5cmt);
+            core_cmt_finalizeResults(&cmt);
+        }
+
+        if (H5Lexists(groupID, FF_RES, H5P_DEFAULT) > 0)
+        {
+            dataSet = H5Dopen(groupID, FF_RES, H5P_DEFAULT);
+            dataSpace = H5Dget_space(dataSet);
+            memSpace = H5Screate_simple(1, dims, NULL);
+            H5Dread(dataSet, ffDataType, memSpace, dataSpace,
+                            H5P_DEFAULT, &h5ff);
+            hdf5_copyFFResults(COPY_H5_TO_DATA, &ff, &h5ff);
+            H5Sclose(memSpace);
+            H5Sclose(dataSpace);
+            H5Dclose(dataSet);
+            Mff[igroup-1] = ff.Mw[ff.preferred_fault_plane];
+            hdf5_memory_freeFFResults(&h5ff);
+            core_ff_finalizeResults(&ff);
+        }
+        //printf("%f %f %f %f\n", Meew[igroup-1], Mpgd[igroup-1], Mcmt[igroup-1], Mff[igroup-1]);
+        H5Gclose(groupID);
+    }
+    H5Tclose(hypoDataType);
+    H5Tclose(cmtDataType);
+    H5Tclose(ffDataType);
+    H5Tclose(pgdDataType);
+
+    // Make json summary
+    /*
+    cts = gfast2json_packTimeSeriesMetrics(evid, kgroup,
+                                           times,
+                                           Meew, Mpgd, Mcmt, Mff,
+                                           str1, str2, dip1, dip2,
+                                           rak1, rak2, dep);
+    */
+    memory_free64f(&times);
+    memory_free64f(&Mcmt);
+    memory_free64f(&Meew);
+    memory_free64f(&Mff);
+    memory_free64f(&Mpgd);
+    memory_free64f(&str1);
+    memory_free64f(&str2);
+    memory_free64f(&dip1);
+    memory_free64f(&dip2);
+    memory_free64f(&rak1);
+    memory_free64f(&rak2);
+    memory_free64f(&dep);
+
+
+    // MTH:
+    igroup = output_interval;
+    igroup = 18;
+
+    memset(groupName, 0, 512*sizeof(char));
+    sprintf(groupName, "/GFAST_History/Iteration_%d", kgroup);
+    groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
+    // hypocenter
+    memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
+    memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
+    dataType = H5Topen(h5fl, HYPO_STRUCT, H5P_DEFAULT);
+    dataSet = H5Dopen(groupID, TRIGGER_HYPO, H5P_DEFAULT);
+    dataSpace = H5Dget_space(dataSet);
+    memSpace = H5Screate_simple(1, dims, NULL);
+    H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
+    hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
+
+    printf("igroup:%d hypo eventid:%s lat:%8.2f lon:%8.2f dep:%5.2f mag:%4.2f time:%f\n",
+        hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
+
+    exit(0);
+    //chypo = gfast2json_packTriggeringHypocenter(hypo);
+    //printf("%s\n", chypo);
+    //if (chypo != NULL){free(chypo);}
+    H5Sclose(memSpace);
+    H5Sclose(dataSpace);
+    H5Dclose(dataSet);
+    H5Tclose(dataType);
+    // gps data
+    if (H5Lexists(groupID, "gpsData\0", H5P_DEFAULT) < 1)
+    {
+        LOG_WARNMSG("%s", "gpsData does not exists");
+    }
             memset(&wdata, 0, sizeof(struct GFAST_waveform3CData_struct));
             memset(&gpsData, 0, sizeof(struct GFAST_data_struct));
             memset(&h5gpsData, 0, sizeof(struct h5_gpsData_struct));
@@ -658,7 +657,6 @@ printf("done it\n");
         //} // Loop on events
         //break;
 
-    }
     /* MTH: not using this
     freeEvents(&events);
     activeMQ_consumer_finalize(consumer);
