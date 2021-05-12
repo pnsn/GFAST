@@ -242,6 +242,8 @@ iopt =-1;
 
             //for (igroup=1; igroup<=kgroup; igroup++)
             igroup = output_interval;
+            // MTH:
+            igroup = 18;
             if (1)
             {
                 memset(groupName, 0, 512*sizeof(char));
