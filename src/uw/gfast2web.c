@@ -377,7 +377,7 @@ iopt =-1;
     hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
 
     printf("igroup:%d hypo eventid:%s lat:%8.2f lon:%8.2f dep:%5.2f mag:%4.2f time:%f\n",
-        hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
+        igroup, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
 
     exit(0);
     //chypo = gfast2json_packTriggeringHypocenter(hypo);
