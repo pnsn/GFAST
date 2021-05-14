@@ -364,7 +364,9 @@ iopt =-1;
     igroup = 18;
 
     memset(groupName, 0, 512*sizeof(char));
-    sprintf(groupName, "/GFAST_History/Iteration_%d", kgroup);
+    //sprintf(groupName, "/GFAST_History/Iteration_%d", kgroup);
+    sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
+
     groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
     // hypocenter
     memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
@@ -434,18 +436,10 @@ iopt =-1;
         H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
         printf("Read pgdData h5pgd_data.nsites=%d\n", h5pgd_data.nsites);
         printf("Call hdf5_copyPeakDisplacementData\n");
-        /*
-        for (i=0; i<h5pgd_data.nsites; i++){
-          printf("scnl:%s lat:%8.3f lon:%8.3f active:%d\n",
-              h5pgd_data.stnm[i],
-              h5pgd_data.sta_lat[i],
-              h5pgd_data.sta_lon[i],
-              h5pgd_data.lactive[i]);
-        }
-        */
         hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
         for (i=0; i<pgd_data.nsites; i++){
-          printf("sta scnl:%s lat:%8.3f lon:%8.3f\n", pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i]);
+          printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d\n", 
+              i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i], pgd_data.wt[i], pgd_data.lactive[i]);
         }
         printf("Call hdf5_copyPeakDisplacementData DONE\n");
         printf("Close mem/dataSpace\n");
