@@ -363,6 +363,7 @@ iopt =-1;
     // MTH:
     igroup = output_interval;
     igroup = 18;
+    igroup = 120;
 
     memset(groupName, 0, 512*sizeof(char));
     //sprintf(groupName, "/GFAST_History/Iteration_%d", kgroup);
