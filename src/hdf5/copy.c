@@ -1071,12 +1071,6 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
         h5_data->gain.len  = 3;
         if (npts > 0)
         {
-          // MTH: test h5py nan read by removing them:
-          for (i=0;i<npts;i++){
-           data->ubuff[i] = 1.0;
-           data->nbuff[i] = 1.0;
-           data->ebuff[i] = 1.0;
-          }
             cblas_dcopy(npts, data->ubuff, 1, h5_data->ubuff.p, 1);
             cblas_dcopy(npts, data->nbuff, 1, h5_data->nbuff.p, 1);
             cblas_dcopy(npts, data->ebuff, 1, h5_data->ebuff.p, 1);
