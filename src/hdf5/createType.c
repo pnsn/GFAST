@@ -669,7 +669,6 @@ herr_t hdf5_createType_waveform3CData(hid_t group_id)
     // Build the data structure
     dataType = H5Tcreate(H5T_COMPOUND,
                          sizeof(struct h5_waveform3CData_struct));
-    /*
     ierr += H5Tinsert(dataType, "Network\0",
                       HOFFSET(struct h5_waveform3CData_struct, netw),
                       vlenCData);
@@ -682,7 +681,6 @@ herr_t hdf5_createType_waveform3CData(hid_t group_id)
     ierr += H5Tinsert(dataType, "Location\0",
                       HOFFSET(struct h5_waveform3CData_struct, loc),
                       vlenCData);
-    */
     ierr += H5Tinsert(dataType, "UpPrecisePointPosition\0",
                       HOFFSET(struct h5_waveform3CData_struct, ubuff),
                       vlenDData);
