@@ -442,19 +442,21 @@ iopt =-1;
             printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
                     i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
-            if (0){
+            if (1){
             for (k=0;k<gpsData.stream_length; k++){
                 wdata = gpsData.data[k];
                 memset(temp, 0, sizeof(temp));
-                strcat(temp, wdata.netw);
-                strcat(temp, ".\0");
-                strcat(temp, wdata.stnm);
-                strcat(temp, ".?.\0");
-                //strcat(temp, gpsData.data[k].chan[j]);
-                //strcat(temp, ".\0");
-                strcat(temp, wdata.loc);
-                strcat(temp, "\0");
-                puts(temp);
+                sprintf(temp, "%s.%s.%s.%s",
+                    wdata.netw, wdata.stnm, wdata.chan[0], wdata.loc);
+                if (strcmp(pgd_data.stnm[i], temp) == 0) {
+                  printf("  Found match %s lat:%8.3f lon:%8.3f npts:%d\n",
+                         temp, wdata.sta_lat, wdata.sta_lon, wdata.npts);
+      for (j=0; j<10; j++){
+        printf("%f ", wdata.ubuff[j]);
+      }
+      printf("\n");
+                  break;
+                }
             }
             }
 
