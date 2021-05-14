@@ -115,8 +115,14 @@ int hdf5_copyPeakDisplacementData(
         pgd_data->sta_alt = memory_calloc64f(pgd_data->nsites);
         cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_alt.p, 1, pgd_data->sta_alt, 1);
 
-        pgd_data->stnm = (char *)calloc(64*pgd_data->nsites, sizeof(char));
-        cblas_dcopy(pgd_data->nsites, h5_pgd_data->stnm.p, 1, pgd_data->stnm, 1);
+        //pgd_data->stnm = (char **)calloc(64*pgd_data->nsites, sizeof(char));
+        //
+        pgd_data->stnm = (char **)calloc((size_t)pgd_data->nsites, sizeof(char *));
+
+        printf("stnm.p add:%u val:%s\n", h5_pgd_data->stnm.p, h5_pgd_data->stnm.p);
+        stnTemp = (char *) h5_pgd_data->stnm.p;
+
+        // (pgd_data->nsites, h5_pgd_data->stnm.p, 1, pgd_data->stnm, 1);
 
       printf("MTH: copy h5 peakDisplacementData lactive/lmask\n");
         lmaskTemp = (int *) h5_pgd_data->lmask.p;
@@ -124,6 +130,7 @@ int hdf5_copyPeakDisplacementData(
         for (i=0; i<pgd_data->nsites; i++)
         {
             pgd_data->lmask[i] = (bool) lmaskTemp[i];
+            strcpy(pgd_data->stnm[i], stnTemp[i]);
         }
         lactiveTemp = (int *) h5_pgd_data->lactive.p;
         pgd_data->lactive = memory_calloc8l(pgd_data->nsites);
