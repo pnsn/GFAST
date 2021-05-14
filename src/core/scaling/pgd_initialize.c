@@ -88,13 +88,14 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
             strcat(pgd_data->stnm[i], gps_data.data[i].loc);
         }
         */
+
+        /*
         printf("pgd_initialize: gps_data: netw:%s stnm:%s chan[0]:%s loc:%s --> pgd_data.stnm:%s\n",
             gps_data.data[i].netw, gps_data.data[i].stnm, gps_data.data[i].chan[0], gps_data.data[i].loc,
             pgd_data->stnm[i]);
+        */
         if (gps_data.data[i].lskip_pgd){pgd_data->lmask[i] = true;}
     }
-    printf("MTH: Early EXIT\n");
-    exit(0);
 
     nloc = pgd->ndeps*pgd->nlats*pgd->nlons;
     pgd->mpgd       = memory_calloc64f(nloc);
