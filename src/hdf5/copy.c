@@ -1103,17 +1103,15 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
         h5_data->stnm.len = 1;
         h5_data->stnm.p = stnm;
 
-        // MTH: h5py segfaults reading array of strings
-        /*
+        // MTH: h5py segfaults reading array of strings (??)
+        //chan = (char *)calloc(64, sizeof(char));
+        //strcpy(chan,   data->chan[0]);
+        //h5_data->chan.len = 1;
         chan = (char *)calloc(3*64, sizeof(char));
         strcpy(&chan[0],   data->chan[0]);
         strcpy(&chan[64],  data->chan[1]);
         strcpy(&chan[128], data->chan[2]);
         h5_data->chan.len = 3;
-        */
-        chan = (char *)calloc(64, sizeof(char));
-        strcpy(chan,   data->chan[0]);
-        h5_data->chan.len = 1;
         h5_data->chan.p = chan;
 
         loc = (char *)calloc(64, sizeof(char));
