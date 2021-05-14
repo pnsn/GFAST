@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
     iscl_init();
     int output_interval;
     bool output_all = false;
+    char temp[64];
     // Initialize curl
     //curl = curl_easy_init();
     //curl_easy_setopt(curl, CURLOPT_URL, "https://gfast.pnsn.org");
