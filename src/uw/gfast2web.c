@@ -438,7 +438,7 @@ iopt =-1;
         printf("Call hdf5_copyPeakDisplacementData\n");
         hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
         for (i=0; i<pgd_data.nsites; i++){
-          if (pd_data.lactive[i]){
+          if (pgd_data.lactive[i]){
             printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
                     i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
