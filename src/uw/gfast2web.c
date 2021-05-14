@@ -442,53 +442,61 @@ iopt =-1;
             printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
                     i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
+            for (k=0;k<gpsData.stream_length; k++){
+                wdata = gpsData.data[k];
+                memset(temp, 0, sizeof(temp));
+                strcat(temp, wdata.netw);
+                strcat(temp, ".\0");
+                strcat(temp, wdata.stnm);
+                strcat(temp, ".?.\0");
+                //strcat(temp, gpsData.data[k].chan[j]);
+                //strcat(temp, ".\0");
+                strcat(temp, wdata.loc);
+                strcat(temp, ".\0");
+                puts(temp);
+
+              //printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
+                      //wdata.sta_lat, wdata.sta_lon, wdata.npts);
+              //for (j=0; j<10; j++){
+                //printf("%f ", wdata.ubuff[j]);
+              //}
+
+            }
           }
         }
-        printf("Call hdf5_copyPeakDisplacementData DONE\n");
-        printf("Close mem/dataSpace\n");
-        exit(0);
 
-        //hdf5_memory_freePGDData(&h5pgd_data);
+        printf("Call hdf5_copyPeakDisplacementData DONE\n");
+        hdf5_memory_freePGDData(&h5pgd_data);
         H5Sclose(memSpace);
         H5Sclose(dataSpace);
         H5Dclose(dataSet);
         //core_scaling_pgd_finalizeData(&pgd_data);
         printf("MTH: pgd_data.nsites=%d\n", pgd_data.nsites);
 
-        for (i=0; i<pgd_data.nsites; i++){
-          //printf("MTH: pgd_data.stnm[%d]=%s\n", i, pgd_data.stnm[i]);
-          if (pgd_data.lactive[i]){
-            printf("MTH: pgd_data sta_lat:%8.3f sta_lon:%8.3f\n", pgd_data.sta_lat[i], pgd_data.sta_lon[i]);
-          }
-        }
     }
 
-            // pgd
-            memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
-            memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
-            dataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
-            dataSet = H5Dopen(groupID, PGD_RES, H5P_DEFAULT);
-            dataSpace = H5Dget_space(dataSet);
-            memSpace = H5Screate_simple(1, dims, NULL);
-            H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
-            hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
-            printf("MTH: pgdResults.nsites=%d\n", pgd.nsites);
-            printf("MTH: pgdResults.nlats=%d\n", pgd.nlats);
-            printf("MTH: pgdResults.ndeps=%d\n", pgd.ndeps);
-            for (i=0; i<pgd.ndeps; i++){
-              printf("dep %i:%f\n", i, pgd.srcDepths[i]);
-            }
-            for (i=0; i<pgd.nsites; i++){
-              printf("lsiteUsed[%i]: %d\n", i, pgd.lsiteUsed[i]);
-            }
-            exit(0);
-            //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
-            hdf5_memory_freePGDResults(&h5pgd);
-            H5Sclose(memSpace);
-            H5Sclose(dataSpace);
-            H5Dclose(dataSet);
-            H5Tclose(dataType);
-            core_scaling_pgd_finalizeResults(&pgd);
+    // pgdResults
+    memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
+    memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+    dataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
+    dataSet = H5Dopen(groupID, PGD_RES, H5P_DEFAULT);
+    dataSpace = H5Dget_space(dataSet);
+    memSpace = H5Screate_simple(1, dims, NULL);
+    H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
+    hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
+
+    //printf("MTH: pgdResults.nsites=%d\n", pgd.nsites);
+    //for (i=0; i<pgd.nsites; i++){
+      //printf("lsiteUsed[%i]: %d\n", i, pgd.lsiteUsed[i]);
+    //}
+    //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
+    hdf5_memory_freePGDResults(&h5pgd);
+    H5Sclose(memSpace);
+    H5Sclose(dataSpace);
+    H5Dclose(dataSet);
+    H5Tclose(dataType);
+    //core_scaling_pgd_finalizeResults(&pgd);
+
             // cmt
             if (H5Lexists(groupID, CMT_RES, H5P_DEFAULT) < 1)
             {
@@ -555,111 +563,10 @@ printf("cmt.str1:%f cmt.dip1:%f cmt.rak1:%f\n", cmt.str1[iopt], cmt.dip1[iopt], 
             core_data_finalize(&gpsData);
             printf("MTH: call core_data_finalize gpsData DONE\n");
 
-            // Final publication until manual review
-            /*
-            if (t0 - lastPublished > 300.0)
-            {
-                // Remove event
-                memset(evid, 0, 128*sizeof(char));
-                strcpy(evid, events.events[iev].evid);
-                deleteEvent(evid, &events);
-            }
-            else if (t0 - lastPublished > 180.0)
-            {
 
-            }
-            else if (t0 - lastPublished > 60.0)
-            {
-
-            }
-            // Initial publication
-            else if (t0 - lastPublished > 30.0)
-            {
- 
-            }
-            */
             H5Gclose(groupID);
             H5Fclose(h5fl);
-            // Curl it the interweb
-            printf("Don't call postJson!\n");
-            exit(0);
-//printf("%s\n", chypo);
-            ierr = postJson(chypo, gfastURL, gfastUserName, gfastPassword);
-            if (chypo != NULL)
-            {
-                free(chypo);
-                chypo = NULL;
-            }
-//printf("%s\n", cpgd);
-            ierr = postJson(cpgd, gfastURL, gfastUserName, gfastPassword);
-            if (cpgd != NULL)
-            {
-                free(cpgd);
-                cpgd = NULL;
-            }
-//printf("%s\n", ccmt);
-            ierr = postJson(ccmt, gfastURL, gfastUserName, gfastPassword);
-            if (ccmt != NULL)
-            {
-                free(ccmt);
-                ccmt = NULL;
-            }
-//printf("%s\n", cff);
-            ierr = postJson(cff,  gfastURL, gfastUserName, gfastPassword);
-            if (cff != NULL)
-            {
-                free(cff);
-                cff = NULL;
-            }
-printf("%s\n", cts);
-            ierr = postJson(cts,  gfastURL, gfastUserName, gfastPassword);
-            if (cts != NULL)
-            {
-                free(cts);
-                cts = NULL;
-            }
-            postImage(cmtFile, gfastURL, gfastUserName, gfastPassword);
 
-/*
-            curl = curl_easy_init();
-            curl_easy_setopt(curl, CURLOPT_URL, "https://gfast.pnsn.org");
-            struct curl_httppost *firstItem = NULL;
-            struct curl_htttpost *lastItem  = NULL;
-            long len = strlen(cpgd);
-printf("%ld\n", len);
-getchar();
-            const char *buffer = cpgd;
-            result = curl_formadd(&firstItem, &lastItem,
-                                  CURLFORM_BUFFER, "pdgData\0", 
-                                  CURLFORM_BUFFERPTR, buffer,
-                                  CURLFORM_BUFFERLENGTH, len,
-                                  CURLFORM_END);
-printf("%d %d\n", result, CURL_FORMADD_INCOMPLETE);
-            if (result != 0)
-            {
-                LOG_ERRMSG("%s", "Error adding cpgd\n");
-            }
-
-            if (curl)
-            {
-printf("do it\n");
-                curl_easy_setopt(curl, CURLOPT_HTTPPOST, firstItem);
-                res = curl_easy_perform(curl);
-                if (res != CURLE_OK)
-                {
-                    LOG_ERRMSG("%s", curl_easy_strerror(res));
-                }
-printf("done it\n");
-                
-            }
-            else
-            {
-                LOG_ERRMSG("%s", "Failed initialize curl");
-            }
-            curl_easy_cleanup(curl);
-*/
-        //} // Loop on events
-        //break;
 
     /* MTH: not using this
     freeEvents(&events);
