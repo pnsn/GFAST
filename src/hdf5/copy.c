@@ -76,8 +76,7 @@ int hdf5_copyPeakDisplacementData(
             lactiveTemp[i] = pgd_data->lactive[i];
             lmaskTemp[i] = pgd_data->lmask[i];
             strcpy(&ctemp[i*64], pgd_data->stnm[i]);
-            //printf("MTH*: pgd_data->stnm[%d]=%s\n", i, pgd_data->stnm[i]);
-            printf("copy peakDisplacement pgd_data to h5: pgd_data->stnm[%d]=%s\n", i, pgd_data->stnm[i]);
+            //printf("copy peakDisplacement pgd_data to h5: pgd_data->stnm[%d]=%s\n", i, pgd_data->stnm[i]);
         }
         h5_pgd_data->stnm.p = ctemp;
         h5_pgd_data->lactive.p = lactiveTemp;
