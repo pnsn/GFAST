@@ -414,17 +414,16 @@ iopt =-1;
 
     printf("MTH: gpsData.stream_length=%d\n", gpsData.stream_length);
     printf("MTH: gpsData.data[0].npts=%d maxpts=%d\n", gpsData.data[0].npts, gpsData.data[0].maxpts);
-    /*
-    for (i=0;i<gpsData.stream_length; i++){
+    //for (i=0;i<gpsData.stream_length; i++){
+    for (i=0;i<5; i++){
       wdata = gpsData.data[i];
-      printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
+      printf("GPS:%s.%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0], wdata.loc,
               wdata.sta_lat, wdata.sta_lon, wdata.npts);
-      for (j=0; j<10; j++){
-        printf("%f ", wdata.ubuff[j]);
-      }
-      printf("\n");
+      //for (j=0; j<10; j++){
+        //printf("%f ", wdata.ubuff[j]);
+      //}
+      //printf("\n");
     }
-    */
 
 
     // peakDisplacementData
@@ -443,6 +442,7 @@ iopt =-1;
             printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
                     i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
+            if (0){
             for (k=0;k<gpsData.stream_length; k++){
                 wdata = gpsData.data[k];
                 memset(temp, 0, sizeof(temp));
@@ -453,18 +453,14 @@ iopt =-1;
                 //strcat(temp, gpsData.data[k].chan[j]);
                 //strcat(temp, ".\0");
                 strcat(temp, wdata.loc);
-                strcat(temp, ".\0");
+                strcat(temp, "\0");
                 puts(temp);
-
-              //printf("%s.%s.%s %8.3f %8.3f %d\n", wdata.netw, wdata.stnm, wdata.chan[0],
-                      //wdata.sta_lat, wdata.sta_lon, wdata.npts);
-              //for (j=0; j<10; j++){
-                //printf("%f ", wdata.ubuff[j]);
-              //}
-
             }
+            }
+
           }
         }
+        exit(0);
 
         printf("Call hdf5_copyPeakDisplacementData DONE\n");
         hdf5_memory_freePGDData(&h5pgd_data);
