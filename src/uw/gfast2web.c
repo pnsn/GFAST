@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     char evid[128]="1111";
     char archiveFile[PATH_MAX];
     double lastPublished, t0;
-    int ierr, iev, i, j;
+    int ierr, iev, i, j, k;
     bool lhaveEvent, leventExists;
     hid_t h5fl;
     char *cm;
