@@ -133,7 +133,9 @@ LOG_MSG("time:%lf evid:%s [age_of_event=%f]", t2, SA.eventid, age_of_event);
         mins = (int)floor(age_of_event/60.);
         secs = age_of_event - 60.*mins;
 
-        if (age_of_event >= props.processingTime)
+        // MTH: Fix this!
+        //if (age_of_event >= props.processingTime)
+        if (age_of_event >= 100.)
         {
 //printf("driveGFAST: time:%lf evid:%s has expired --> finalize\n", t2, SA.eventid);
 LOG_MSG("time:%lf evid:%s has expired --> finalize", t2, SA.eventid);
@@ -141,6 +143,8 @@ LOG_MSG("time:%lf evid:%s has expired --> finalize", t2, SA.eventid);
             lfinalize = true;
 LOG_MSG("%s", "Call core_log_closeLogs() before early exit from loop");
             core_log_closeLogs();
+            traceBuffer_h5_finalize(&h5traceBuffer);
+            return -1;
             continue;
         }
 
