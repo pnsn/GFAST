@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 {
     const char *fcnm = "gfast2web\0";
     struct GFAST_shakeAlert_struct SA;
-    struct eventList_struct events;
+    //struct eventList_struct events;
     char message[PATH_MAX];
     char evid[128]="1111";
     char archiveFile[PATH_MAX];
