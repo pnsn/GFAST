@@ -70,6 +70,9 @@ int main(int argc, char *argv[])
     bool output_all = false;
     char temp[64];
 
+    int indx0;
+    double u0, n0, e0, peakDisplacement_i;
+
     //while ((argc > 1) && (argv[argc][0] == '-'))
     for (i=0; i<argc; i++)
     {
@@ -234,30 +237,44 @@ iopt =-1;
                     i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
 
+
             for (k=0;k<gpsData.stream_length; k++){
                 wdata = gpsData.data[k];
                 memset(temp, 0, sizeof(temp));
                 sprintf(temp, "%s.%s.%s.%s", wdata.netw, wdata.stnm, wdata.chan[0], wdata.loc);
                 if (strcmp(pgd_data.stnm[i], temp) == 0) {
 
-                  printf("nscl:%s lat:%8.3f lon:%8.3f npts:%d pd:%f\n",
-                         temp, wdata.sta_lat, wdata.sta_lon, wdata.npts, pgd_data.pd[i]);
+                  indx0 = 0;
+                  u0 = wdata.ubuff[indx0];
+                  n0 = wdata.nbuff[indx0];
+                  e0 = wdata.ebuff[indx0];
 
-                  printf("cha:%s ubuff:", wdata.chan[0]);
-                  for (j=0; j<wdata.npts; j++){
-                    printf("%f ", wdata.ubuff[j]);
+                  if (isnan(u0) || isnan(n0) || isnan(e0)){
+                    for (j=indx0; j<wdata.npts; j++){
+                      if (!isnan(wdata.ubuff[j]) && !isnan(wdata.nbuff[j]) && !isnan(wdata.ebuff[j])){
+                          indx0 = j;
+                          u0 = wdata.ubuff[indx0];
+                          n0 = wdata.nbuff[indx0];
+                          e0 = wdata.ebuff[indx0];
+                          LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
+                                  nMaxLeader, indx0, u0, n0, e0);
+                          break;
+                      }
+                    }
                   }
-                  printf("\n");
-                  printf("cha:%s nbuff:", wdata.chan[1]);
+
+                  printf("nscl:%s lat:%8.3f lon:%8.3f npts:%d indx0:%d pd:%f\n",
+                         temp, wdata.sta_lat, wdata.sta_lon, wdata.npts, indx0, pgd_data.pd[i]);
+
+                  printf("%9s %9s %9s %9s %9s\n", "tbuff", "ubuff", "nbuff", "ebuff", "PGD");
                   for (j=0; j<wdata.npts; j++){
-                    printf("%f ", wdata.nbuff[j]);
+                    peakDisplacement_i = sqrt( pow(wdata.ubuff[j] - u0, 2)
+                                             + pow(wdata.nbuff[j] - n0, 2)
+                                             + pow(wdata.ebuff[j] - e0, 2));
+
+                    printf("%9.6f %9.6f %9.6f %9.6f %9.6f\n", wdata.tbuff[j], wdata.ubuff[j], 
+                        wdata.nbuff[j], wdata.ebuff[j], peakDisplacement_i);
                   }
-                  printf("\n");
-                  printf("cha:%s ebuff:", wdata.chan[2]);
-                  for (j=0; j<wdata.npts; j++){
-                    printf("%f ", wdata.ebuff[j]);
-                  }
-                  printf("\n");
 
                  break;
                 }
