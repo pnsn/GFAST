@@ -266,13 +266,13 @@ iopt =-1;
                   printf("nscl:%s lat:%8.3f lon:%8.3f npts:%d indx0:%d pd:%f\n",
                          temp, wdata.sta_lat, wdata.sta_lon, wdata.npts, indx0, pgd_data.pd[i]);
 
-                  printf("%9s %9s %9s %9s %9s\n", "tbuff", "ubuff", "nbuff", "ebuff", "PGD");
+                  printf("%15s %9s %9s %9s %9s\n", "tbuff", "ubuff", "nbuff", "ebuff", "PGD");
                   for (j=0; j<wdata.npts; j++){
                     peakDisplacement_i = sqrt( pow(wdata.ubuff[j] - u0, 2)
                                              + pow(wdata.nbuff[j] - n0, 2)
                                              + pow(wdata.ebuff[j] - e0, 2));
 
-                    printf("%9.6f %9.6f %9.6f %9.6f %9.6f\n", wdata.tbuff[j], wdata.ubuff[j], 
+                    printf("%.3f %9.6f %9.6f %9.6f %9.6f\n", wdata.tbuff[j], wdata.ubuff[j], 
                         wdata.nbuff[j], wdata.ebuff[j], peakDisplacement_i);
                   }
 
