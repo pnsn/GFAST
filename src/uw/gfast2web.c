@@ -31,7 +31,7 @@
 #define FF_RES "finiteFaultResults"
 #define PGD_RES "pgdResults"
 
-int getEventIndex(const char *evid, const struct eventList_struct events);
+//int getEventIndex(const char *evid, const struct eventList_struct events);
 
 static void getCMTopt(const struct GFAST_cmtResults_struct cmt,
                       int *iopt, int *depOpt, int *latOpt, int *lonOpt);
@@ -378,6 +378,7 @@ printf("cmt.str1:%f cmt.dip1:%f cmt.rak1:%f\n", cmt.str1[iopt], cmt.dip1[iopt], 
 }
 
 
+/*
 int getEventIndex(const char *evid, const struct eventList_struct events) 
 {
     int i;
@@ -387,6 +388,7 @@ int getEventIndex(const char *evid, const struct eventList_struct events)
     }
     return -1;
 }
+*/
 
 
 
