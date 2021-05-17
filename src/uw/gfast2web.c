@@ -257,7 +257,7 @@ iopt =-1;
                           n0 = wdata.nbuff[indx0];
                           e0 = wdata.ebuff[indx0];
                           LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
-                                  nMaxLeader, indx0, u0, n0, e0);
+                                  wdata.npts, indx0, u0, n0, e0);
                           break;
                       }
                     }
