@@ -70,6 +70,7 @@ int main(int argc, char **argv)
     bool USE_AMQ = false;
     int niter = 0;
     int iev;
+    int i;
 #ifdef GFAST_USE_AMQ
     USE_AMQ = true;
 #endif
