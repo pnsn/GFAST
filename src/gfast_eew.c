@@ -337,7 +337,7 @@ for (i=0;i<tb2Data.ntraces;i++){
       printf("  tb2Data t:%f val:%f\n", tb2Data.traces[i].times[j], tb2Data.traces[i].data[j]);
     }
 }
-exit(0);
+//exit(0);
 //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
 //printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
