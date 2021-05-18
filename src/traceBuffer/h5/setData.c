@@ -205,13 +205,24 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                 for (is=i1; is<i2; is++)
                 {
                     // data expired
-                    if (tb2Data.traces[i].times[is] < ts1){continue;}
+                    if (tb2Data.traces[i].times[is] < ts1){
+                      printf("******* MTH: ts1=%f > trace time=%f ===> SKIP IT!\n",
+                          ts1, tb2Data.traces[i].times[is]);
+                      continue;
+                    }
                     // insert it
                     indx = k*maxpts
                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
 
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
+
+      printf("%s.%s.%s.%s npts:%d val:%f t:%f ts1:%f indx:%d\n",
+        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+        tb2Data.traces[i].npts, (double)tb2Data.traces[i].data[is], 
+        tb2Data.traces[i].times[is], ts1, indx);
+
                     //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
                              //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
                              //

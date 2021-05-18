@@ -316,7 +316,6 @@ tbeger = ISCL_time_timeStamp();
 
         // Update the hdf5 buffers
 
-/*
 LOG_MSG("%s", "== Update the hdf5 buffers");
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
@@ -327,9 +326,9 @@ LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
-*/
 
-for (i=0;i<tb2Data.ntraces;i++){
+if (0) {
+  for (i=0;i<tb2Data.ntraces;i++){
     printf("%s.%s.%s.%s npts:%d nchunks:%d\n",
       tb2Data.traces[i].netw,
       tb2Data.traces[i].stnm,
@@ -341,11 +340,11 @@ for (i=0;i<tb2Data.ntraces;i++){
         i1 = tb2Data.traces[i].chunkPtr[chunk];
         i2 = tb2Data.traces[i].chunkPtr[chunk+1];
         for (is=i1; is<i2; is++) {
-    //for (j=0; j<tb2Data.traces[i].npts; j++){
           printf("  tb2Data chunk:%d i1:%d i2:%d is:%d t:%f val:%f\n", 
               chunk, i1, i2, is, tb2Data.traces[i].times[is], (double)tb2Data.traces[i].data[is]);
       }
     }
+  }
 }
 //exit(0);
 //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
