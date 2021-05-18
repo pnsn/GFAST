@@ -317,9 +317,6 @@ tbeger = ISCL_time_timeStamp();
 if (1) {
   for (i=0;i<tb2Data.ntraces;i++){
     if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
-      printf("%s.%s.%s.%s Match\n",
-              tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-              tb2Data.traces[i].chan, tb2Data.traces[i].loc);
       for (chunk=0;chunk<tb2Data.traces[i].nchunks; chunk++){
         i1 = tb2Data.traces[i].chunkPtr[chunk];
         i2 = tb2Data.traces[i].chunkPtr[chunk+1];
