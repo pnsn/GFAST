@@ -317,7 +317,7 @@ tbeger = ISCL_time_timeStamp();
 
 if (1) {
   for (i=0;i<tb2Data.ntraces;i++){
-    if (tb2Data.traces[i].stnm == "0001" && tb2Data.traces[i].chan == "LYZ") {
+    if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
       printf("%s.%s.%s.%s time:%f val:%8.2f [tb2Data]\n",
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
