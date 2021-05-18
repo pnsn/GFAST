@@ -320,7 +320,7 @@ if (1) {
       printf("%s.%s.%s.%s Match\n",
               tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
               tb2Data.traces[i].chan, tb2Data.traces[i].loc);
-      for (chunk=0;chunk<tb2Data.tracesi[i].nchunks; chunk++){
+      for (chunk=0;chunk<tb2Data.traces[i].nchunks; chunk++){
         i1 = tb2Data.traces[i].chunkPtr[chunk];
         i2 = tb2Data.traces[i].chunkPtr[chunk+1];
         for (is=i1; is<i2; is++) {
