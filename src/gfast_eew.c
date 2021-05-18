@@ -313,8 +313,10 @@ LOG_MSG("%s", "== free msgs memory");
         }
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
+
         // Update the hdf5 buffers
 
+/*
 LOG_MSG("%s", "== Update the hdf5 buffers");
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
@@ -325,6 +327,7 @@ LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
+*/
 
 for (i=0;i<tb2Data.ntraces;i++){
     printf("%s.%s.%s.%s npts:%d\n",
