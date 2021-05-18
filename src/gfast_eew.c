@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     bool USE_AMQ = false;
     int niter = 0;
     int iev;
-    int i, j;
+    int i, j, i1, i2, is, chunk;
 #ifdef GFAST_USE_AMQ
     USE_AMQ = true;
 #endif
@@ -330,14 +330,20 @@ LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
 */
 
 for (i=0;i<tb2Data.ntraces;i++){
-    printf("%s.%s.%s.%s npts:%d\n",
+    printf("%s.%s.%s.%s npts:%d nchunks:%d\n",
       tb2Data.traces[i].netw,
       tb2Data.traces[i].stnm,
       tb2Data.traces[i].chan,
       tb2Data.traces[i].loc,
-      tb2Data.traces[i].npts);
-    for (j=0; j<tb2Data.traces[i].npts; j++){
-      printf("  tb2Data t:%f val:%f\n", tb2Data.traces[i].times[j], tb2Data.traces[i].data[j]);
+      tb2Data.traces[i].npts,
+      tb2Data.traces[i].nchunks);
+      for (chunk=0; chunk<nchunks; chunk++) {
+        i1 = tb2Data.traces[i].chunkPtr[chunk];
+        i2 = tb2Data.traces[i].chunkPtr[chunk+1];
+        for (is=i1; is<i2; is++) {
+    //for (j=0; j<tb2Data.traces[i].npts; j++){
+          printf("  tb2Data chunk:%d i1:%d i2:%d is:%d t:%f val:%f\n", 
+              chunk, i1, i2, is, tb2Data.traces[i].times[is], tb2Data.traces[i].data[is]);
     }
 }
 //exit(0);
