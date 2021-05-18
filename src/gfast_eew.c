@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     bool USE_AMQ = false;
     int niter = 0;
     int iev;
-    int i;
+    int i, j;
 #ifdef GFAST_USE_AMQ
     USE_AMQ = true;
 #endif
@@ -315,15 +315,6 @@ LOG_MSG("%s", "== free msgs memory");
 tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
 
-for (i=0;i<tb2Data.ntraces;i++){
-  printf("%s.%s.%s.%s npts:%d\n",
-      tb2Data.traces[i].netw,
-      tb2Data.traces[i].stnm,
-      tb2Data.traces[i].chan,
-      tb2Data.traces[i].loc,
-      tb2Data.traces[i].npts);
-}
-exit(0);
 LOG_MSG("%s", "== Update the hdf5 buffers");
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
@@ -334,6 +325,19 @@ LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
+
+for (i=0;i<tb2Data.ntraces;i++){
+    printf("%s.%s.%s.%s npts:%d\n",
+      tb2Data.traces[i].netw,
+      tb2Data.traces[i].stnm,
+      tb2Data.traces[i].chan,
+      tb2Data.traces[i].loc,
+      tb2Data.traces[i].npts);
+    for (j=0; j<tb2Data.traces[i].npts; j++){
+      printf("  tb2Data t:%f val:%f\n", tb2Data.traces[i].times[j], tb2Data.traces[i].data[j]);
+    }
+}
+exit(0);
 //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
 //printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
 // early quit
