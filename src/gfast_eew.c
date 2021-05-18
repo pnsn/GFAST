@@ -314,6 +314,18 @@ LOG_MSG("%s", "== free msgs memory");
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
 
+
+if (1) {
+  for (i=0;i<tb2Data.ntraces;i++){
+    if (tb2Data.traces[i].stnm == "0001" && tb2Data.traces[i].chan == "LYZ") {
+      printf("%s.%s.%s.%s time:%f val:%8.2f [tb2Data]\n",
+        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+        tb2Data.traces[i].times[0], (double)tb2Data.traces[i].data[0]);
+    }
+  }
+}
+
         // Update the hdf5 buffers
 
 LOG_MSG("%s", "== Update the hdf5 buffers");
@@ -326,26 +338,6 @@ LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
             goto ERROR;
         }
-
-if (0) {
-  for (i=0;i<tb2Data.ntraces;i++){
-    printf("%s.%s.%s.%s npts:%d nchunks:%d\n",
-      tb2Data.traces[i].netw,
-      tb2Data.traces[i].stnm,
-      tb2Data.traces[i].chan,
-      tb2Data.traces[i].loc,
-      tb2Data.traces[i].npts,
-      tb2Data.traces[i].nchunks);
-      for (chunk=0; chunk < tb2Data.traces[i].nchunks; chunk++) {
-        i1 = tb2Data.traces[i].chunkPtr[chunk];
-        i2 = tb2Data.traces[i].chunkPtr[chunk+1];
-        for (is=i1; is<i2; is++) {
-          printf("  tb2Data chunk:%d i1:%d i2:%d is:%d t:%f val:%f\n", 
-              chunk, i1, i2, is, tb2Data.traces[i].times[is], (double)tb2Data.traces[i].data[is]);
-      }
-    }
-  }
-}
 //exit(0);
 //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
 //printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
