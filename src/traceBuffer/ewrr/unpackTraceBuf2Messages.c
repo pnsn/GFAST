@@ -108,10 +108,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
         if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0) {
-          printf("unpackTraceBufs nRead=%d scnl[%d]=%s.%s.%s.%s time:%f nsamps:%d\n",
-              nRead,
+          printf("%s unpackTraceBufs: i=%d nRead=%d time:%f nsamps:%d\n",
+              msg_logos[i],
               i,
-              trh->sta, trh->chan, trh->net, trh->loc,
+              nRead,
               times[i], nsamps[i]);
         }
     }
