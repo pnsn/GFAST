@@ -337,7 +337,7 @@ for (i=0;i<tb2Data.ntraces;i++){
       tb2Data.traces[i].loc,
       tb2Data.traces[i].npts,
       tb2Data.traces[i].nchunks);
-      for (chunk=0; chunk<nchunks; chunk++) {
+      for (chunk=0; chunk < tb2Data.traces[i].nchunks; chunk++) {
         i1 = tb2Data.traces[i].chunkPtr[chunk];
         i2 = tb2Data.traces[i].chunkPtr[chunk+1];
         for (is=i1; is<i2; is++) {
