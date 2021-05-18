@@ -115,7 +115,14 @@ int traceBuffer_h5_setData(const double currentTime,
             }
         }
 NEXT_TRACE:;
+           printf("setData: %s.%s.%s.%s map[%d]=%d\n",
+               h5traceBuffer.traces[i].netw,
+               h5traceBuffer.traces[i].stnm,
+               h5traceBuffer.traces[i].chan,
+               h5traceBuffer.traces[i].loc,
+               i, map[i]);
     }
+
     for (idt=0; idt<h5traceBuffer.ndtGroups; idt++)
     {
         gains = NULL;
