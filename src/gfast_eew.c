@@ -313,6 +313,16 @@ LOG_MSG("%s", "== free msgs memory");
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Update the hdf5 buffers
+
+for (i=0;i<tb2Data.ntraces;i++){
+  printf("%s.%s.%s.%s npts:%d\n",
+      tb2Data.traces[i].netw,
+      tb2Data.traces[i].stnm,
+      tb2Data.traces[i].chan,
+      tb2Data.traces[i].loc,
+      tb2Data.traces[i].npts);
+}
+exit(0);
 LOG_MSG("%s", "== Update the hdf5 buffers");
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,

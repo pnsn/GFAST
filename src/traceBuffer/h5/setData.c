@@ -115,14 +115,15 @@ int traceBuffer_h5_setData(const double currentTime,
             }
         }
 NEXT_TRACE:;
+           /*
            printf("setData: %s.%s.%s.%s map[%d]=%d\n",
                h5traceBuffer.traces[i].netw,
                h5traceBuffer.traces[i].stnm,
                h5traceBuffer.traces[i].chan,
                h5traceBuffer.traces[i].loc,
                i, map[i]);
+           */
     }
-    printf("setData: currentTime:%f\n", currentTime);
 
     for (idt=0; idt<h5traceBuffer.ndtGroups; idt++)
     {
@@ -131,6 +132,7 @@ NEXT_TRACE:;
         k1 = h5traceBuffer.dtPtr[idt];
         k2 = h5traceBuffer.dtPtr[idt+1];
         ntraces = k2 - k1;
+        printf("MTH: idt=%d ntraces=%d\n", idt, ntraces);
         if (ntraces == 0){continue;}
         // Open + read the data and attributes for this dataset 
         groupID = H5Gopen2(h5traceBuffer.fileID,
