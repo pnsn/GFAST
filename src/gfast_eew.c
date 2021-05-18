@@ -314,14 +314,36 @@ LOG_MSG("%s", "== free msgs memory");
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
 
+206                 {
+207                     // data expired
+208                     if (tb2Data.traces[i].times[is] < ts1){
+209                       printf("******* MTH: ts1=%f > trace time=%f ===> SKIP IT!\n",
+210                           ts1, tb2Data.traces[i].times[is]);
+211                       continue;
+212                     }
+213                     // insert it
+214                     indx = k*maxpts
+215                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
+216                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
+217
+218                     dwork[indx] = (double) tb2Data.traces[i].data[is];
 
 if (1) {
   for (i=0;i<tb2Data.ntraces;i++){
     if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
-      printf("%s.%s.%s.%s time:%f val:%8.2f [tb2Data]\n",
-        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-        tb2Data.traces[i].times[0], (double)tb2Data.traces[i].data[0]);
+      printf("%s.%s.%s.%s Match\n",
+              tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+              tb2Data.traces[i].chan, tb2Data.traces[i].loc);
+      for (chunk=0;chunk<tb2Data.tracesi[i].nchunks; chunk++){
+        i1 = tb2Data.traces[i].chunkPtr[chunk];
+        i2 = tb2Data.traces[i].chunkPtr[chunk+1];
+        for (is=i1; is<i2; is++) {
+          printf("%s.%s.%s.%s time:%f val:%8.2f [tb2Data]\n",
+                  tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+                  tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+                  tb2Data.traces[i].times[is], (double)tb2Data.traces[i].data[is]);
+        }
+      }
     }
   }
 }
