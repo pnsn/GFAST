@@ -122,6 +122,7 @@ NEXT_TRACE:;
                h5traceBuffer.traces[i].loc,
                i, map[i]);
     }
+    printf("setData: currentTime:%f\n", currentTime);
 
     for (idt=0; idt<h5traceBuffer.ndtGroups; idt++)
     {
