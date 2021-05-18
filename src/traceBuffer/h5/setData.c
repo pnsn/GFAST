@@ -217,11 +217,14 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
 
                     dwork[indx] = (double) tb2Data.traces[i].data[is];
 
-      printf("%s.%s.%s.%s npts:%d val:%f t:%f ts1:%f indx:%d\n",
+      printf("%s.%s.%s.%s val:%8.2f ts1:%f time:%f offset:%d\n",
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-        tb2Data.traces[i].npts, (double)tb2Data.traces[i].data[is], 
-        tb2Data.traces[i].times[is], ts1, indx);
+        (double)tb2Data.traces[i].data[is],
+        ts1,
+        tb2Data.traces[i].times[is],
+        (int)((tb2Data.traces[i].times[is] - ts1)/dt + 0.5)
+        );
 
                     //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
                              //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
