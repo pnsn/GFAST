@@ -143,7 +143,7 @@ LOG_MSG("time:%lf evid:%s has expired --> finalize", t2, SA.eventid);
             lfinalize = true;
 LOG_MSG("%s", "Call core_log_closeLogs() before early exit from loop");
             core_log_closeLogs();
-            //traceBuffer_h5_finalize(h5traceBuffer);
+            traceBuffer_h5_finalize(h5traceBuffer);
             return -1;
             continue;
         }
