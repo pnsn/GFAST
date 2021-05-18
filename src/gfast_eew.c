@@ -314,20 +314,6 @@ LOG_MSG("%s", "== free msgs memory");
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
 
-206                 {
-207                     // data expired
-208                     if (tb2Data.traces[i].times[is] < ts1){
-209                       printf("******* MTH: ts1=%f > trace time=%f ===> SKIP IT!\n",
-210                           ts1, tb2Data.traces[i].times[is]);
-211                       continue;
-212                     }
-213                     // insert it
-214                     indx = k*maxpts
-215                          + (int) ((tb2Data.traces[i].times[is] - ts1)/dt + 0.5);
-216                     //printf("k=%d indx=%d set dwork[indx]\n", k, indx);
-217
-218                     dwork[indx] = (double) tb2Data.traces[i].data[is];
-
 if (1) {
   for (i=0;i<tb2Data.ntraces;i++){
     if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
