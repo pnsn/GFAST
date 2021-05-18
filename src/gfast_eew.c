@@ -343,7 +343,7 @@ for (i=0;i<tb2Data.ntraces;i++){
         for (is=i1; is<i2; is++) {
     //for (j=0; j<tb2Data.traces[i].npts; j++){
           printf("  tb2Data chunk:%d i1:%d i2:%d is:%d t:%f val:%f\n", 
-              chunk, i1, i2, is, tb2Data.traces[i].times[is], tb2Data.traces[i].data[is]);
+              chunk, i1, i2, is, tb2Data.traces[i].times[is], (double)tb2Data.traces[i].data[is]);
       }
     }
 }
