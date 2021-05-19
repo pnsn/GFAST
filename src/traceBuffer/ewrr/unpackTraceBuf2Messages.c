@@ -71,6 +71,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *cc = NULL;
     char *ll = NULL;
 
+    bool found = false;
+
     //------------------------------------------------------------------------//
     //
     // Check the tb2data was initialized
@@ -133,6 +135,28 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
     }
     printf("** nmultiples=%d\n", nmultiples);
+
+    int unfound = 0;
+    for (i=0; i<nRead; i++)
+    {
+      found = false;
+      for (k=0; k<tb2Data->ntraces; k++)
+      {
+        sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+            tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+        if (strcmp(msg_logos[i], buf)==0) {
+          found = true;
+          break;
+        }
+      }
+      if (!found){
+        printf("** Unable to find home for msg_logos[%d] %s\n",
+            i, msg_logos[i]);
+        unfound++;
+      }
+    }
+    printf("** unfound=%d\n", unfound);
+    exit(0);
 
     // Loop on waveforms and get workspace count
 
