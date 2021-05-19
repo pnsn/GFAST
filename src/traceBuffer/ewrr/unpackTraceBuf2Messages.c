@@ -162,10 +162,10 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
                   sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                             tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-                  printf("unpackTB2 %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
+                  printf("unpackTB2 %s k=%d i=%d imap[%d]=%d kpts[k]=%d nmsg[k]=%d\n",
                       buf, k, i, i, imap[i], kpts[k], nmsg[k]);
                 }
-                break;
+                //break;
             }
         } // Loop on messages read
     } // Loop on waveforms
@@ -235,6 +235,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
         }
     }
 
+    // MTH
     for (i=0; i<nRead; i++)
     {
       k = imap[i];
