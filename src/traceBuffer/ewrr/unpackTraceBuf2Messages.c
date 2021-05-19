@@ -135,11 +135,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
-              /*
-                printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
-                        tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-                        tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
-              */
+              printf("Match k=%d logo:%s to imsg=%d\n", k, logo, i);
 
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
@@ -155,10 +151,9 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                     LOG_ERRMSG("Invalid number of points %d %d", npts, maxpts);
                     return -1;
                 }
-                //times[i] = traceHeader.starttime;
-                //kpts[k] = kpts[k] + traceHeader.nsamp;
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
+
                 if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
                   sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                             tb2Data->traces[k].chan, tb2Data->traces[k].loc);
