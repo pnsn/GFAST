@@ -159,8 +159,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 //kpts[k] = kpts[k] + traceHeader.nsamp;
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
-                if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 &&
-                    strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
+                if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
                   sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                             tb2Data->traces[k].chan, tb2Data->traces[k].loc);
                   printf("unpackTB2 %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
@@ -332,17 +331,17 @@ printf("%s.%s.%s.%s unpackTB2Msg trh time:%.3f val:%d\n",
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
+                  /*
                 if (strcmp(tb2Data->traces[k].stnm, "0001")==0 && 
                     strcmp(tb2Data->traces[k].chan, "LYZ")==0) {
-                  /*
                     printf("%s.%s.%s.%s im=%d: t:%f  (int) data:%d\n",
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                         tb2Data->traces[k].chan, tb2Data->traces[k].loc,
                         im,
                         tb2Data->traces[k].times[kndx+l],
                         tb2Data->traces[k].data[kndx+l]);
-                  */
                 }
+                  */
             }
             kndx = kndx + npts; 
 /*
