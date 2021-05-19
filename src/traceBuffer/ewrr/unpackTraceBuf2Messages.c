@@ -235,6 +235,16 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
         }
     }
 
+    for (i=0; i<nRead; i++)
+    {
+      k = imap[i];
+      if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0)
+      {
+        printf("unpackTB2 After sort %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
+                      buf, k, i, i, imap[i], kpts[k], nmsg[k]);
+      }
+    }
+
     /*
     for (i=0; i<nRead; i++){
       free(msg_logos[i]);
