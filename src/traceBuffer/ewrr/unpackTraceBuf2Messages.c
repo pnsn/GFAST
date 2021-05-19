@@ -113,13 +113,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
               i, msg_logos[i], times[i], nsamps[i], nRead);
         }
     }
-    /*
-    for (i=0;i<nRead;i++){
-      puts(msg_logos[i]);
-      puts(msg_logos2[i]);
-    }
-    exit(0);
-    */
 
     // Loop on waveforms and get workspace count
 
@@ -130,19 +123,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
         {
-/*
-            indx = i*MAX_TRACEBUF_SIZ;
-            memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-            // Get the bytes in right endianness
-            nsamp0 = traceHeader.nsamp;
-            ierr = WaveMsg2MakeLocal(&traceHeader);
-            if (ierr < 0)
-            {
-                 LOG_ERRMSG("%s", "Error flipping bytes");
-                 return -1;
-            }
-*/
             memcpy(logo, msg_logos[i], 15);
             //puts(logo);
             nn = strtok(logo, ".");
@@ -179,6 +159,12 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 //kpts[k] = kpts[k] + traceHeader.nsamp;
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
+                if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
+                  sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+                            tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+                  printf("unpackTB2 %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
+                      buf, k, i, i, imap[i], kpts[k], nmsg[k]);
+                }
                 break;
             }
         } // Loop on messages read
