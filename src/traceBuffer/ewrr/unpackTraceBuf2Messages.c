@@ -308,20 +308,23 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
     // MTH
-    for (i=0; i<nRead; i++)
+    //for (i=0; i<nRead; i++)
+    for (k=0; k<tb2Data->ntraces; k++)
     {
-      k = imap[i];
-      //if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0)
-      {
-        sprintf(buf, "%s.%s.%s.%s",
+      sprintf(buf, "%s.%s.%s.%s",
                 tb2Data->traces[k].netw,
                 tb2Data->traces[k].stnm,
                 tb2Data->traces[k].chan,
                 tb2Data->traces[k].loc);
 
-        printf("unpackTB2 After sort i=%d k=imap[i]=%d msg_logos[i]=%s tb2Data[k]=%s kpts[k]=%d nmsg[k]=%d\n",
-                      i, k, msg_logos[i], buf, kpts[k], nmsg[k]);
+      for (i=0;i<nRead; i++){
+        if (imap[i] == k){
+            printf("unpackTB2 After sort buf:%s k=%4d == imap[i=%4d]\n", buf, k, i);
+        }
       }
+
+        //printf("unpackTB2 After sort i=%d k=imap[i]=%d msg_logos[i]=%s tb2Data[k]=%s kpts[k]=%d nmsg[k]=%d\n",
+                      //i, k, msg_logos[i], buf, kpts[k], nmsg[k]);
     }
     /*
     */
