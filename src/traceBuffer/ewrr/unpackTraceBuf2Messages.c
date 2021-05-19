@@ -98,7 +98,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
 
-    printf("unpackTB2: Enter  nRead:%d\n", nRead);
+    printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
 
     // MTH: load up the msg logos once
     for (i=0; i<nRead; i++)
@@ -123,11 +123,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     {
         // Copy on the SNCL
         // Loop on the messages and hunt for matching SNCL
-        printf("unpackTB2: k=%d %s.%s.%s.%s Loop over msgs\n",
-            k, tb2Data->traces[k].netw,
-            tb2Data->traces[k].stnm,
-            tb2Data->traces[k].chan,
-            tb2Data->traces[k].loc);
         for (i=0; i<nRead; i++)
         {
             memcpy(logo, msg_logos[i], 15);
@@ -137,13 +132,16 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             cc = strtok(NULL, ".");
             ll = strtok(NULL, ".");
 
-            printf("unpackTB2: i=%d logo:%s\n", i, msg_logos[i]);
-
             if ((strcmp(tb2Data->traces[k].netw, nn)  == 0) &&
                 (strcmp(tb2Data->traces[k].stnm, ss)  == 0) &&
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
+
+            if (k==0) {
+              printf("unpackTB2: i=%d k=0: logo:%s matches\n", i, msg_logos[i]);
+            }
+
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
