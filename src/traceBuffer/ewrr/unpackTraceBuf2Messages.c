@@ -121,6 +121,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     {
         // Copy on the SNCL
         // Loop on the messages and hunt for matching SNCL
+        printf("unpackTB2: k=%d %s.%s.%s.%s Loop over msgs\n",
+            k, tb2Data->traces[k].netw,
+            tb2Data->traces[k].stnm,
+            tb2Data->traces[k].chan,
+            tb2Data->traces[k].loc);
         for (i=0; i<nRead; i++)
         {
             memcpy(logo, msg_logos[i], 15);
@@ -129,6 +134,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             ss = strtok(NULL, ".");
             cc = strtok(NULL, ".");
             ll = strtok(NULL, ".");
+
+            printf("unpackTB2: i=%d logo:%s\n", i, msg_logos[i]);
 
             if ((strcmp(tb2Data->traces[k].netw, nn)  == 0) &&
                 (strcmp(tb2Data->traces[k].stnm, ss)  == 0) &&
@@ -154,7 +161,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 nmsg[k] = nmsg[k] + 1;
 
                 if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0){
-                  printf("unpackTB2 msg_logos[%d]=%s imap[i=%d]=%d=k kpts[k]=%d nmsg[k]=%d\n",
+                  printf("unpackTB2: msg_logos[%d]=%s imap[i=%d]=%d=k kpts[k]=%d nmsg[k]=%d\n",
                       i, msg_logos[i], i, imap[i], kpts[k], nmsg[k]);
                 }
                 //break;
