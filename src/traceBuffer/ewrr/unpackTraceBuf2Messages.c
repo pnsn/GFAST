@@ -135,8 +135,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
-              printf("Match k=%d logo:%s to imsg=%d\n", k, logo, i);
-
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
@@ -148,17 +146,16 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 npts = nsamps[i];
                 if (npts < 0 || npts > maxpts)
                 {
+                  printf("MTH EARLY EXIT !!!!!!!!!!\n");
                     LOG_ERRMSG("Invalid number of points %d %d", npts, maxpts);
                     return -1;
                 }
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
 
-                if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
-                  sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-                            tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-                  printf("unpackTB2 %s k=%d i=%d imap[%d]=%d kpts[k]=%d nmsg[k]=%d\n",
-                      buf, k, i, i, imap[i], kpts[k], nmsg[k]);
+                if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0){
+                  printf("unpackTB2 msg_logos[%d]=%s imap[i=%d]=%d=k kpts[k]=%d nmsg[k]=%d\n",
+                      i, msg_logos[i], i, imap[i], kpts[k], nmsg[k]);
                 }
                 //break;
             }
