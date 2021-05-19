@@ -98,6 +98,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
 
+    printf("unpackTB2: Enter  nRead:%d\n", nRead);
+
     // MTH: load up the msg logos once
     for (i=0; i<nRead; i++)
     {
@@ -168,6 +170,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
         } // Loop on messages read
     } // Loop on waveforms
+    printf("unpackTB2: Finished First Loop on SCNLs. nRead:%d\n", nRead);
 //LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
