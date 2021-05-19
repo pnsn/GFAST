@@ -295,6 +295,14 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_
             dtype = 4;
             lswap = 0;
 
+            if (strcmp(trh->sta, "0001")==0 && strcmp(trh->chan, "LYZ")==0) {
+printf("%s.%s.%s.%s unpackTB2Msg trh time:%.3f val:%d\n",
+                                trh->net, trh->sta,
+                                trh->chan, trh->loc,
+                                trh->starttime,
+                                trh->nsamp, (double) resp[0]/1000000); 
+            }
+
             npts = trh->nsamp;
 
             ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
