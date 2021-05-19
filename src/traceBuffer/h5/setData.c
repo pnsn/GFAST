@@ -132,7 +132,7 @@ NEXT_TRACE:;
         k1 = h5traceBuffer.dtPtr[idt];
         k2 = h5traceBuffer.dtPtr[idt+1];
         ntraces = k2 - k1;
-        printf("MTH: idt=%d ntraces=%d\n", idt, ntraces);
+        //printf("MTH: idt=%d ntraces=%d\n", idt, ntraces);
         if (ntraces == 0){continue;}
         // Open + read the data and attributes for this dataset 
         groupID = H5Gopen2(h5traceBuffer.fileID,
@@ -219,13 +219,13 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     // MTH: The current data point is always getting inserted to the same indx as
                     // the buffer moves along, so does ts1, ts2, tb2Data[i].times[is], maintaining their offset
 
+        /*
       printf("%s.%s.%s.%s time:%f dwork[%d]:%8.2f dwork[%d]:%8.2f\n", 
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
         tb2Data.traces[i].times[is],
         indx, dwork[indx], (indx-1), dwork[indx-1]);
 
-        /*
 
       printf("%s.%s.%s.%s val:%8.2f ts1:%f time:%f offset:%d\n",
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
