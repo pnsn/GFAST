@@ -327,7 +327,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
-                CI.0001.LYZ.20
                 if (strcmp(tb2Data->traces[k].stnm, "0001")==0 && 
                     strcmp(tb2Data->traces[k].chan, "LYZ")==0) {
                     printf("%s.%s.%s.%s npts=%d l=%d: t:%f  (int) data:%d",
