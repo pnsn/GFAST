@@ -63,7 +63,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     //char **msg_logos = (char **)malloc(sizeof(char *) * nRead);
-    char buf[15];
     char msg_logos[nRead][15];
     char *logo;
     char *nn = NULL;
@@ -108,11 +107,14 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
-        if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0) {
-          printf("unpackTB2: msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
-              i, msg_logos[i], times[i], nsamps[i], nRead);
-        }
     }
+    /*
+    for (i=0;i<nRead;i++){
+      puts(msg_logos[i]);
+      puts(msg_logos2[i]);
+    }
+    exit(0);
+    */
 
     // Loop on waveforms and get workspace count
 
@@ -123,6 +125,19 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
         // Loop on the messages and hunt for matching SNCL
         for (i=0; i<nRead; i++)
         {
+/*
+            indx = i*MAX_TRACEBUF_SIZ;
+            memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
+            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+            // Get the bytes in right endianness
+            nsamp0 = traceHeader.nsamp;
+            ierr = WaveMsg2MakeLocal(&traceHeader);
+            if (ierr < 0)
+            {
+                 LOG_ERRMSG("%s", "Error flipping bytes");
+                 return -1;
+            }
+*/
             memcpy(logo, msg_logos[i], 15);
             //puts(logo);
             nn = strtok(logo, ".");
@@ -159,12 +174,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                 //kpts[k] = kpts[k] + traceHeader.nsamp;
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
-                if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
-                  sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-                            tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-                  printf("unpackTB2 %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
-                      buf, k, i, i, imap[i], kpts[k], nmsg[k]);
-                }
                 break;
             }
         } // Loop on messages read
@@ -235,16 +244,6 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", I
         }
     }
 
-    // MTH
-    for (i=0; i<nRead; i++)
-    {
-      k = imap[i];
-      if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0) {
-        printf("unpackTB2 After sort %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
-                      buf, k, i, i, imap[i], kpts[k], nmsg[k]);
-      }
-    }
-
     /*
     for (i=0; i<nRead; i++){
       free(msg_logos[i]);
@@ -286,18 +285,26 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_
             }
             indx = i*MAX_TRACEBUF_SIZ;
             trh  = (TRACE2_HEADER *) &msgs[indx];
+/*
+            //memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
+            //memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+            nsamp0 = traceHeader.nsamp;
+            ierr = WaveMsg2MakeLocal(&traceHeader);
+            if (ierr < 0)
+            {
+                 LOG_ERRMSG("%s", "Error flipping bytes");
+            }
+            dtype = 4;
+            //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
+                //strcasecmp(traceHeader.datatype, "i2\0") == 0)
+            if (strcmp(traceHeader.datatype, "s2\0") == 0 ||
+                strcmp(traceHeader.datatype, "i2\0") == 0)
+            }
+            npts = traceHeader.nsamp;
+*/
             dtype = 4;
             lswap = 0;
-
-            /*
-            if (strcmp(trh->sta, "0001")==0 && strcmp(trh->chan, "LYZ")==0) {
-printf("%s.%s.%s.%s unpackTB2Msg trh time:%.3f val:%d\n",
-                                trh->net, trh->sta,
-                                trh->chan, trh->loc,
-                                trh->starttime,
-                                trh->nsamp, (double) resp[0]/1000000); 
-            */
-            }
+            //if (nsamp0 != traceHeader.nsamp){lswap = 1;}
 
             npts = trh->nsamp;
 
@@ -307,11 +314,14 @@ printf("%s.%s.%s.%s unpackTB2Msg trh time:%.3f val:%d\n",
                 LOG_ERRMSG("%s", "Error unpacking data");
             }
             // Update the points
+            //dt = 1.0/traceHeader.samprate;
             dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
             // Is a new chunk beginning?
             if (im > i1)
             {
+                //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
+                        //- traceHeader.starttime ) < 1.e-6)
                 if (fabs( (tb2Data->traces[k].times[kndx] + dt)
                         - trh->starttime ) < 1.e-6)
                 {
@@ -331,17 +341,14 @@ printf("%s.%s.%s.%s unpackTB2Msg trh time:%.3f val:%d\n",
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
-                  /*
-                if (strcmp(tb2Data->traces[k].stnm, "0001")==0 && 
-                    strcmp(tb2Data->traces[k].chan, "LYZ")==0) {
-                    printf("%s.%s.%s.%s im=%d: t:%f  (int) data:%d\n",
-                        tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-                        tb2Data->traces[k].chan, tb2Data->traces[k].loc,
-                        im,
-                        tb2Data->traces[k].times[kndx+l],
-                        tb2Data->traces[k].data[kndx+l]);
-                }
-                  */
+                /*
+                LOG_MSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
+                    tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
+                    tb2Data->traces[k].netw, tb2Data->traces[k].loc,
+                    tb2Data->traces[k].times[kndx+l],
+                    npts,
+                    tb2Data->traces[k].data[kndx+l]);
+                */
             }
             kndx = kndx + npts; 
 /*
