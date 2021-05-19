@@ -116,8 +116,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
               i, msg_logos[i], times[i], nsamps[i], nRead);
         }
         */
-        printf("unpackTB2: Before sort msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
-              i, msg_logos[i], times[i], nsamps[i], nRead);
+        printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
+              i, msg_logos[i], times[i], nsamps[i]);
     }
 
     // Loop on waveforms and get workspace count
@@ -164,15 +164,25 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
 
+                /*
                 if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0){
                   printf("unpackTB2: msg_logos[%d]=%s imap[i=%d]=%d=k kpts[k]=%d nmsg[k]=%d\n",
                       i, msg_logos[i], i, imap[i], kpts[k], nmsg[k]);
                 }
+                */
                 //break;
             }
         } // Loop on messages read
     } // Loop on waveforms
-    printf("unpackTB2: Finished First Loop on SCNLs. nRead:%d\n", nRead);
+    //printf("unpackTB2: Finished First Loop on SCNLs. nRead:%d\n", nRead);
+    // MTH
+    for (k=0; k<tb2Data->ntraces; k++){
+      sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+          tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+      printf("tb2Data->traces[%4d] %s kpts:%d nmsg:%d\n",
+              k, buf, kpts[k], nmsg[k]);
+    }
+    exit(0);
 //LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
