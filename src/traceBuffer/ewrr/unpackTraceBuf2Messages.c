@@ -329,10 +329,10 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", ISCL_
 
                 if (strcmp(tb2Data->traces[k].stnm, "0001")==0 && 
                     strcmp(tb2Data->traces[k].chan, "LYZ")==0) {
-                    printf("%s.%s.%s.%s npts=%d l=%d: t:%f  (int) data:%d",
+                    printf("%s.%s.%s.%s im=%d: t:%f  (int) data:%d\n",
                         tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                         tb2Data->traces[k].chan, tb2Data->traces[k].loc,
-                        npts, l,
+                        im,
                         tb2Data->traces[k].times[kndx+l],
                         tb2Data->traces[k].data[kndx+l]);
                 }
