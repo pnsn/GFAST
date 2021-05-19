@@ -123,8 +123,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     // MTH
     int nmultiples = 0;
-    for (i=0; i<nRead; i++)
-    {
+
+    for (i=0; i<nRead; i++) {
       for (k=0; k<nRead; k++)
       {
         if ((strcmp(msg_logos[i], msg_logos[k])==0) && (i != k) ) {
@@ -156,7 +156,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
     }
     printf("** unfound=%d\n", unfound);
-    exit(0);
+    if (nRead > 5000)
+      exit(0);
 
     // Loop on waveforms and get workspace count
 
