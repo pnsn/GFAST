@@ -187,6 +187,14 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         LOG_ERRMSG("%s", "Error sorting messages");
         return -1;
     }
+
+    // MTH
+    for (i=0; i<nRead; i++){
+      printf("imap[%d]=%d msg_logos[%d]=%s iperm[%d]=%d logo:%s\n",
+          i, imap[i], i, msg_logos[i], i, iperm[i], msg_logos[iperm[i]]);
+    }
+    exit(0);
+
     // Apply the permutations
     ierr = sorting_applyPermutation32i_work(nRead, iperm, imap,  imap);
     ierr = sorting_applyPermutation32i_work(nRead, iperm, imsg,  imsg);
