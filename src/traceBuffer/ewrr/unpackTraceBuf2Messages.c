@@ -63,6 +63,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     //char **msg_logos = (char **)malloc(sizeof(char *) * nRead);
+    char buf[15];
     char msg_logos[nRead][15];
     char *logo;
     char *nn = NULL;
@@ -107,6 +108,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
+        if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0) {
+          printf("unpackTB2: msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
+              i, msg_logos[i], times[i], nsamps[i], nRead);
+        }
     }
     /*
     for (i=0;i<nRead;i++){
