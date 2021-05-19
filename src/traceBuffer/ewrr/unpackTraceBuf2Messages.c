@@ -125,7 +125,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     {
       for (k=0; k<nRead; k++)
       {
-        if (strcmp(msg_logos[i], msg_logos[k])==0){
+        if (strcmp(msg_logos[i], msg_logos[k])==0) && (i != k) {
           printf("unpackTB2: msg_logos[%4d] == msg_logos[%4d] %s\n",
               i, k, msg_logos[i]);
           nmultiples++;
