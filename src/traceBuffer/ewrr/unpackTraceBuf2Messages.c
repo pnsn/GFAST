@@ -136,6 +136,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     printf("** nmultiples=%d\n", nmultiples);
 
+    /*
     int unfound = 0;
     for (i=0; i<nRead; i++)
     {
@@ -156,8 +157,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
     }
     printf("** unfound=%d\n", unfound);
-    if (nRead > 5000)
+    */
+
+    if (nRead > 5000) {
+      printf("MTH: nRead=%d > 5000 --> Exit\n", nRead);
       exit(0);
+    }
 
     // Loop on waveforms and get workspace count
 
@@ -221,7 +226,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       printf("tb2Data->traces[%4d] %s kpts:%d nmsg:%d\n",
               k, buf, kpts[k], nmsg[k]);
     }
-    exit(0);
+    //exit(0);
 //LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
@@ -253,7 +258,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       printf("imap[%d]=%d iperm[%d]=%d imsg[%d]=%d\n",
           i, imap[i], i, iperm[i], i, imsg[i]);
     }
-    exit(0);
+    //exit(0);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
     nReadPtr = 0;
