@@ -110,10 +110,14 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
+        /*
         if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0) {
           printf("unpackTB2: msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
               i, msg_logos[i], times[i], nsamps[i], nRead);
         }
+        */
+        printf("unpackTB2: Before sort msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
+              i, msg_logos[i], times[i], nsamps[i], nRead);
     }
 
     // Loop on waveforms and get workspace count
@@ -239,14 +243,20 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     for (i=0; i<nRead; i++)
     {
       k = imap[i];
-      if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0)
+      //if (strcmp(tb2Data->traces[k].stnm, "0001")  == 0 && strcmp(tb2Data->traces[k].chan, "LYZ") == 0)
       {
-        /*
-        printf("unpackTB2 After sort %s k=%d i=%d imap[%d]=k kpts[k]=%d nmsg[k]=%d\n",
-                      buf, k, i, i, imap[i], kpts[k], nmsg[k]);
-        */
+        sprintf(buf, "%s.%s.%s.%s",
+                tb2Data->traces[k].netw,
+                tb2Data->traces[k].stnm,
+                tb2Data->traces[k].chan,
+                tb2Data->traces[k].loc);
+
+        printf("unpackTB2 After sort i=%d k=imap[i]=%d msg_logos[i]=%s tb2Data[k]=%s kpts[k]=%d nmsg[k]=%d\n",
+                      i, k, msg_logos[i], buf, kpts[k], nmsg[k]);
       }
     }
+    /*
+    */
 
     /*
     for (i=0; i<nRead; i++){
