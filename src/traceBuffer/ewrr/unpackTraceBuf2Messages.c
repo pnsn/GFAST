@@ -157,7 +157,7 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d
                   printf("unpackTB2 msg_logos[%d]=%s imap[i=%d]=%d=k kpts[k]=%d nmsg[k]=%d\n",
                       i, msg_logos[i], i, imap[i], kpts[k], nmsg[k]);
                 }
-                //break;
+                break;
             }
         } // Loop on messages read
     } // Loop on waveforms
