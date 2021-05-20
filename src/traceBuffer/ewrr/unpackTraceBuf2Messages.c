@@ -394,9 +394,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             {
                 //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
                         //- traceHeader.starttime ) < 1.e-6)
+                printf("    compare tb2Data->traces[%d].times[kndx]=%f + dt=%f to trh->starttime=%f\n",
+                    k, tb2Data->traces[k].times[kndx], dt, trh->starttime);
+
                 if (fabs( (tb2Data->traces[k].times[kndx] + dt)
                         - trh->starttime ) < 1.e-6)
                 {
+                  printf("  ** Inside **\n");
                     tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
                     nchunks = tb2Data->traces[k].nchunks;
                     tb2Data->traces[k].chunkPtr[nchunks] = kndx + 1;
