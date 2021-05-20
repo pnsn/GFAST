@@ -85,7 +85,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Nothing to do
     if (tb2Data->ntraces == 0){return 0;}
     if (nRead == 0){return 0;}
-//printf("%d\n", nRead);
+
     // Set the workspace
     msg   = memory_calloc8c(MAX_TRACEBUF_SIZ);
     imap  = memory_calloc32i(nRead+1);
@@ -205,12 +205,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 kpts[k] = kpts[k] + nsamps[i];
                 nmsg[k] = nmsg[k] + 1;
 
-                /*
-                if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0){
-                  printf("unpackTB2: msg_logos[%d]=%s imap[i=%d]=%d=k kpts[k]=%d nmsg[k]=%d\n",
-                      i, msg_logos[i], i, imap[i], kpts[k], nmsg[k]);
-                }
-                */
                 //break;
             }
         } // Loop on messages read
@@ -227,6 +221,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     //exit(0);
 //LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
+
     // Argsort the messages to their destinations (SNCLs).  Note, if using
     // intel performance primitives the sort will be stable.  Therefore, if
     // the messages are ordered temporally (more likely case) the unpacking
