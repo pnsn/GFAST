@@ -206,7 +206,6 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                 {
                     // data expired
                     if (tb2Data.traces[i].times[is] < ts1){
-                          ts1, tb2Data.traces[i].times[is]);
                       continue;
                     }
                     // insert it
