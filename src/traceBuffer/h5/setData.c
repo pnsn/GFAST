@@ -219,13 +219,14 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     // MTH: The current data point is always getting inserted to the same indx as
                     // the buffer moves along, so does ts1, ts2, tb2Data[i].times[is], maintaining their offset
 
-      printf("%s.%s.%s.%s time:%f dwork[%d]:%8.2f dwork[%d]:%8.2f\n", 
+      printf("%s.%s.%s.%s indx0:%4d buf_ts1:%.3f msg time:%.3f =indx:%4d set dwork[%4d]:%8.2f chk:dwork[%4d]:%8.2f\n", 
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+        ts1,
         tb2Data.traces[i].times[is],
         indx, dwork[indx], (indx-1), dwork[indx-1]);
 
-
+        /*
       printf("%s.%s.%s.%s val:%8.2f ts1:%f time:%f offset:%d\n",
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
@@ -234,7 +235,6 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         tb2Data.traces[i].times[is],
         (int)((tb2Data.traces[i].times[is] - ts1)/dt + 0.5)
         );
-        /*
         */
 
                     //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
