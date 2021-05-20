@@ -227,7 +227,11 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         (k*maxpts),
         ts1,
         tb2Data.traces[i].times[is],
-        indx, dwork[indx], indx-1, dwork[indx-1]);
+        indx,
+        indx,
+        dwork[indx],
+        indx-1,
+        dwork[indx-1]);
 
         /*
       printf("%s.%s.%s.%s val:%8.2f ts1:%f time:%f offset:%d\n",
