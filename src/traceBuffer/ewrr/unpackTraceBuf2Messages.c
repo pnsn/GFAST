@@ -394,8 +394,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             {
                 //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
                         //- traceHeader.starttime ) < 1.e-6)
-                printf("    compare tb2Data->traces[%d].times[kndx]=%f + dt=%f to trh->starttime=%f\n",
-                    k, tb2Data->traces[k].times[kndx], dt, trh->starttime);
+                printf("    compare tb2Data->traces[%d].times[kndx=%d]=%.2f + dt=%f to trh->starttime=%.2f\n",
+                    k, kndx, tb2Data->traces[k].times[kndx], dt, trh->starttime);
 
                 if (fabs( (tb2Data->traces[k].times[kndx] + dt)
                         - trh->starttime ) < 1.e-6)
@@ -416,6 +416,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
+
+                printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
 
                 /*
                 LOG_MSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
