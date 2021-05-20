@@ -314,7 +314,7 @@ LOG_MSG("%s", "== free msgs memory");
 //printf("end %d %8.4f\n", nTracebufs2Read, ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
 
-if (1) {
+if (0) {
   for (i=0;i<tb2Data.ntraces;i++){
     if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
       for (chunk=0;chunk<tb2Data.traces[i].nchunks; chunk++){
