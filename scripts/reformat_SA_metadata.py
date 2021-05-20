@@ -4,17 +4,21 @@
 #Victor Kress, PNSN 12/2020
 
 
-SAcoordDir='/app/share/etc/geodetic/'
-SAcoordFile='station_coords.dat'
-SAchanFiles=['chanfile_pw.dat']
+#SAmetaDir='/app/share/etc/geodetic/'
+SAmetaDir='/home/kress/geodeticMetadata/'
+SAcoordFile=SAmetaDir+'station_coords.dat'
+SAnetList=['bk','ci','nc','pw']
+SAchanFile=SAmetaDir+'chanfile_%s.dat'
 
-GFASTmetaFile="/home/kress/temp/GFASTmeta.dat"
+GFASTmetaDir='/home/kress/temp/'
+GFASTmetaFile=GFASTmetaDir+'GFASTmeta_%s.dat'
 
 coord={'000':7*['-']}
 
 #read coordinate file
 # Site Lat(deg) Long(deg) EllipElev(m) X(m) Y(m) Z(m) Epoch(yr)
-with open(SAcoordDir+SAcoordFile, "r") as fh:
+print 'reading coordinates from %s'%SAcoordFile
+with open(SAcoordFile, "r") as fh:
     for line in fh.readlines():
         if not line.isspace() and not line[0]=='#':
             toks=line.split()
@@ -25,9 +29,10 @@ with open(SAcoordDir+SAcoordFile, "r") as fh:
 #net sta loc chan rate(1/sec) multiplier units PPP|(DIF sta refsta)
 #and output to GFASTmetaFile which has lines like:
 #PB BEPK  00 LXN 35.8784 -118.0741 2471.1 1.00 1.000000e+06 PPP nan nan
-outf=open(GFASTmetaFile,'w')
-for cf in SAchanFiles:
-    with open(SAcoordDir+cf, "r") as inf:
+for net in SAnetList:
+    print SAchanFile%net + ' -> ' + GFASTmetaFile%net
+    outf=open(GFASTmetaFile%net,'w')
+    with open(SAchanFile%net, "r") as inf:
         for line in inf.readlines():
             if not line.isspace() and not line[0]=='#':
                 toks=line.split()
@@ -35,7 +40,9 @@ for cf in SAchanFiles:
                 if toks[1] in coord:
                     outstr += ' '.join(coord[toks[1]][0:3])+' '
                 else:
-                    outstr += 'nan nan nan '
+                    #outstr += 'nan nan nan '
+                    print '%s has no coordinate metadata for %s. Skipping.'%(SAchanFile%net,toks[1])
+                    continue
                 outstr += ' '.join(toks[4:8])+' '
                 if toks[7] == 'DIF':
                     outstr += ' '.join(toks[8:])
@@ -44,5 +51,5 @@ for cf in SAchanFiles:
                 #print(outstr)
                 outf.write(outstr+'\n')
     inf.close()
-outf.close()
+    outf.close()
 print("done")
