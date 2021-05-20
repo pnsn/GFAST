@@ -121,7 +121,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
               i, msg_logos[i], times[i], nsamps[i]);
     }
+
+    printf("mth1\n");
     // MTH
+    /*
     int nmultiples = 0;
 
     for (i=0; i<nRead; i++) {
@@ -135,6 +138,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
     }
     printf("** nmultiples=%d\n", nmultiples);
+    */
 
     /*
     int unfound = 0;
@@ -158,11 +162,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     printf("** unfound=%d\n", unfound);
     */
-
-    if (nRead > 5000) {
-      printf("MTH: nRead=%d > 5000 --> Exit\n", nRead);
-      exit(0);
-    }
 
     // Loop on waveforms and get workspace count
 
