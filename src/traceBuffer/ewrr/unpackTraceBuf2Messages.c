@@ -364,6 +364,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 tb2Data->traces[k].chan, tb2Data->traces[k].loc);
         printf("unpackTB2: set ptrs: %s ir=%4d i1=%4d i2=%4d\n k=imap[i1]=%4d", buf, ir, i1, i2, k);
 
+        tb2Data->traces[k].nchunks = 1;
+
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
@@ -389,23 +391,26 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             // Update the points
             dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
+
             // Is a new chunk beginning?
             if (im > i1)
             {
-                //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
-                        //- traceHeader.starttime ) < 1.e-6)
                 printf("    compare tb2Data->traces[%d].times[kndx=%d]=%.2f + dt=%f to trh->starttime=%.2f\n",
                     k, kndx, tb2Data->traces[k].times[kndx], dt, trh->starttime);
 
-                if (fabs( (tb2Data->traces[k].times[kndx] + dt)
-                        - trh->starttime ) < 1.e-6)
+                //if (fabs( (tb2Data->traces[k].times[kndx] + dt) - trh->starttime ) < 1.e-6)
+                if (fabs( (tb2Data->traces[k].times[kndx-1] + dt) - trh->starttime ) < 1.e-6)
                 {
-                  printf("  ** Inside **\n");
-                    tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
-                    nchunks = tb2Data->traces[k].nchunks;
-                    tb2Data->traces[k].chunkPtr[nchunks] = kndx + 1;
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx;
+                    tb2Data->traces[k].nchunks += 1;
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
+                }
+                else
+                {
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
             }
+
             // Update the points
 #ifdef _OPENMP
             #pragma omp simd
@@ -417,25 +422,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
-                printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
+                //printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
 
-                /*
-                LOG_MSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
-                    tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
-                    tb2Data->traces[k].netw, tb2Data->traces[k].loc,
-                    tb2Data->traces[k].times[kndx+l],
-                    npts,
-                    tb2Data->traces[k].data[kndx+l]);
-                */
             }
             kndx = kndx + npts; 
-/*
-printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
-                                trh->net, trh->sta,
-                                trh->chan, trh->loc,
-                                trh->nsamp, (double) resp[0]/1000000); 
-*/
+
         } // Loop on messages for this SNCL
+
         // Special case for one message
         if (i2 - i1 == 1 && kpts[k] > 0)
         {
@@ -453,14 +446,18 @@ printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
             nchunks = tb2Data->traces[k].nchunks;
             if (tb2Data->traces[k].chunkPtr[nchunks] != tb2Data->traces[k].npts)
             {
+                printf("**** Inconsistent number of points %d %d\n",
+                           tb2Data->traces[k].chunkPtr[nchunks],
+                           tb2Data->traces[k].npts);
                 LOG_ERRMSG("Inconsistent number of points %d %d",
                            tb2Data->traces[k].chunkPtr[nchunks],
                            tb2Data->traces[k].npts);
                 return -1;
             }
         }
-        printf("    tb2Data->traces[%d] nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d\n",
-            k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks]);
+        printf("    tb2Data->traces[%d] nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
+            k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks],
+            tb2Data->traces[k].npts);
 
     } // Loop on pointers
     exit(0);
