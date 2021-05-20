@@ -359,6 +359,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         k = imap[i1];
         kndx = 0;
 //printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
+//
+        sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+                tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+        printf("unpackTB2: set ptrs: %s ir=%4d i1=%4d i2=%4d\n k=imap[i1]=%4d", buf, ir, i1, i2, k);
+
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
@@ -370,23 +375,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             }
             indx = i*MAX_TRACEBUF_SIZ;
             trh  = (TRACE2_HEADER *) &msgs[indx];
-/*
-            //memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            //memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-            nsamp0 = traceHeader.nsamp;
-            ierr = WaveMsg2MakeLocal(&traceHeader);
-            if (ierr < 0)
-            {
-                 LOG_ERRMSG("%s", "Error flipping bytes");
-            }
-            dtype = 4;
-            //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
-                //strcasecmp(traceHeader.datatype, "i2\0") == 0)
-            if (strcmp(traceHeader.datatype, "s2\0") == 0 ||
-                strcmp(traceHeader.datatype, "i2\0") == 0)
-            }
-            npts = traceHeader.nsamp;
-*/
             dtype = 4;
             lswap = 0;
             //if (nsamp0 != traceHeader.nsamp){lswap = 1;}
@@ -467,6 +455,7 @@ printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
             }
         }
     } // Loop on pointers
+    exit(0);
 //LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_time_timeStamp());
 
     // Free space
