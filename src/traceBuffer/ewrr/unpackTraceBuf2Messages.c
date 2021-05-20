@@ -72,6 +72,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
+    int debug = 0;
 
     //------------------------------------------------------------------------//
     //
@@ -118,11 +119,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
               i, msg_logos[i], times[i], nsamps[i], nRead);
         }
         */
-        printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
+        if (debug){
+          printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
               i, msg_logos[i], times[i], nsamps[i]);
+        }
     }
 
-    printf("mth1\n");
     // MTH
     /*
     int nmultiples = 0;
@@ -185,10 +187,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
             {
 
-            if (k==0) {
-              printf("unpackTB2: i=%d k=0: logo:%s matches\n", i, msg_logos[i]);
-            }
-
                 if (imap[i] < tb2Data->ntraces + 1)
                 {
                     LOG_ERRMSG("%s", "Error multiply mapped wave");
@@ -219,11 +217,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     } // Loop on waveforms
     //printf("unpackTB2: Finished First Loop on SCNLs. nRead:%d\n", nRead);
     // MTH
-    for (k=0; k<tb2Data->ntraces; k++){
-      sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-          tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-      printf("tb2Data->traces[%4d] %s kpts:%d nmsg:%d\n",
-              k, buf, kpts[k], nmsg[k]);
+    if (debug){
+      for (k=0; k<tb2Data->ntraces; k++){
+        sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+            tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+        printf("tb2Data->traces[%4d] %s kpts:%d nmsg:%d\n",
+                k, buf, kpts[k], nmsg[k]);
+      }
     }
     //exit(0);
 //LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
@@ -242,9 +242,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
     // MTH
-    for (i=0; i<nRead; i++){
-      printf("imap[%d]=%d msg_logos[%d]=%s iperm[%d]=%d logo:%s\n",
-          i, imap[i], i, msg_logos[i], i, iperm[i], msg_logos[iperm[i]]);
+    if (debug){
+      for (i=0; i<nRead; i++){
+        printf("imap[%d]=%d msg_logos[%d]=%s iperm[%d]=%d logo:%s\n",
+            i, imap[i], i, msg_logos[i], i, iperm[i], msg_logos[iperm[i]]);
+      }
     }
 
     // Apply the permutations
@@ -252,10 +254,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     ierr = sorting_applyPermutation32i_work(nRead, iperm, imsg,  imsg);
     ierr = sorting_applyPermutation64f_work(nRead, iperm, times, times);
 
-    printf("Print out newly sorted imap:\n");
-    for (i=0; i<nRead; i++){
-      printf("imap[%d]=%d iperm[%d]=%d imsg[%d]=%d\n",
-          i, imap[i], i, iperm[i], i, imsg[i]);
+    if (debug) {
+      for (i=0; i<nRead; i++){
+        printf("imap[%d]=%d iperm[%d]=%d imsg[%d]=%d\n",
+                i, imap[i], i, iperm[i], i, imsg[i]);
+      }
     }
     //exit(0);
     // Make a list so that the messages will be unpacked in order of
@@ -306,28 +309,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         }
     }
 
-    // MTH
-    //for (i=0; i<nRead; i++)
-    for (k=0; k<tb2Data->ntraces; k++)
-    {
-      sprintf(buf, "%s.%s.%s.%s",
-                tb2Data->traces[k].netw,
-                tb2Data->traces[k].stnm,
-                tb2Data->traces[k].chan,
-                tb2Data->traces[k].loc);
-
-      for (i=0;i<nRead; i++){
-        if (imap[i] == k){
-            printf("unpackTB2 After sort buf:%s k=%4d == imap[i=%4d]\n", buf, k, i);
-        }
-      }
-
-        //printf("unpackTB2 After sort i=%d k=imap[i]=%d msg_logos[i]=%s tb2Data[k]=%s kpts[k]=%d nmsg[k]=%d\n",
-                      //i, k, msg_logos[i], buf, kpts[k], nmsg[k]);
-    }
-    /*
-    */
-
     /*
     for (i=0; i<nRead; i++){
       free(msg_logos[i]);
@@ -359,9 +340,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         kndx = 0;
 //printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
 //
-        sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-                tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-        printf("unpackTB2: set ptrs: %s ir=%4d i1=%4d i2=%4d\n k=imap[i1]=%4d", buf, ir, i1, i2, k);
+        if (debug) {
+          sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+                  tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+          printf("unpackTB2: set ptrs: %s ir=%4d i1=%4d i2=%4d\n k=imap[i1]=%4d", buf, ir, i1, i2, k);
+        }
 
         tb2Data->traces[k].nchunks = 1;
 
@@ -394,20 +377,17 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             // Is a new chunk beginning?
             if (im > i1)
             {
-                printf("    compare tb2Data->traces[%d].times[kndx-1=%d]=%.2f + dt=%.2f to trh->starttime=%.2f\n",
-                    k, kndx, tb2Data->traces[k].times[kndx-1], dt, trh->starttime);
-
                 //if (fabs( (tb2Data->traces[k].times[kndx] + dt) - trh->starttime ) < 1.e-6)
                 if (fabs( (tb2Data->traces[k].times[kndx-1] + dt) - trh->starttime ) > 1.e-6)
                 {
-                printf("    starttime exceeds dt --> start a new chunk\n");
+                //printf("    starttime exceeds dt --> start a new chunk\n");
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx;
                     tb2Data->traces[k].nchunks += 1;
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
                 else
                 {
-                printf("    starttime is within dt --> simply extend current chunk\n");
+                //printf("    starttime is within dt --> simply extend current chunk\n");
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
             }
@@ -456,9 +436,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 return -1;
             }
         }
-        printf("    tb2Data->traces[%d] nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
-            k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks],
-            tb2Data->traces[k].npts);
+        if (debug) {
+          printf("    tb2Data->traces[%d] nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
+                   k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks],
+                  tb2Data->traces[k].npts);
+        }
 
     } // Loop on pointers
     //exit(0);
