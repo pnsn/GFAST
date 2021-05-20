@@ -387,7 +387,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 LOG_ERRMSG("%s", "Error unpacking data");
             }
             // Update the points
-            //dt = 1.0/traceHeader.samprate;
             dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
             // Is a new chunk beginning?
@@ -454,6 +453,9 @@ printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
                 return -1;
             }
         }
+        printf("    tb2Data->traces[%d] nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d\n",
+            k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks]);
+
     } // Loop on pointers
     exit(0);
 //LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_time_timeStamp());
