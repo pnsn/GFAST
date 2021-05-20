@@ -395,18 +395,20 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             // Is a new chunk beginning?
             if (im > i1)
             {
-                printf("    compare tb2Data->traces[%d].times[kndx=%d]=%.2f + dt=%f to trh->starttime=%.2f\n",
-                    k, kndx, tb2Data->traces[k].times[kndx], dt, trh->starttime);
+                printf("    compare tb2Data->traces[%d].times[kndx-1=%d]=%.2f + dt=%.2f to trh->starttime=%.2f\n",
+                    k, kndx, tb2Data->traces[k].times[kndx-1], dt, trh->starttime);
 
                 //if (fabs( (tb2Data->traces[k].times[kndx] + dt) - trh->starttime ) < 1.e-6)
                 if (fabs( (tb2Data->traces[k].times[kndx-1] + dt) - trh->starttime ) < 1.e-6)
                 {
+                printf("    starttime exceeds dt --> start a new chunk\n");
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx;
                     tb2Data->traces[k].nchunks += 1;
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
                 else
                 {
+                printf("    starttime is within dt --> simply extend current chunk\n");
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
             }
