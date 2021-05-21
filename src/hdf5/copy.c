@@ -86,12 +86,12 @@ int hdf5_copyPeakDisplacementData(
     }
     else if (job == COPY_H5_TO_DATA)
     {
-      printf("MTH: copy h5 peakDisplacementData to GFAST struct\n");
-        memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
+      //printf("MTH: copy h5 peakDisplacementData to GFAST struct\n");
+        //memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
 
         // Make sure there is something to do
         nsites = (size_t)  h5_pgd_data->nsites;
-      printf("MTH: copy h5 peakDisplacementData nsites=%d\n", nsites);
+      //printf("MTH: copy h5 peakDisplacementData nsites=%d\n", nsites);
         if (nsites < 1)
         {
             LOG_ERRMSG("%s", "No sites!");
@@ -146,7 +146,7 @@ int hdf5_copyPeakDisplacementData(
         LOG_ERRMSG("Invalid job=%d", job);
         ierr = 1;
     }
-    printf("MTH: copy h5 peakDisplacementData return ierr=%d\n", ierr);
+    //printf("MTH: copy h5 peakDisplacementData return ierr=%d\n", ierr);
     return ierr;
 }
 //============================================================================//
@@ -1229,7 +1229,7 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
         {
             ierr = GFAST_hdf5_copyWaveform3CData(job,
                                                  &gps_data->data[k],
-                                                 &h5_data[k]); 
+                                                 &h5_data[k]);
             // h5_data[].npts == h5_data[].ubuff.len
             /*
             printf("MTH: h5_data[%d] stnm=%s chan=%s sta_lat:%8.3f sta_lon:%8.3f npts:%d ubuff.len:%d ubuff[last]:%9.6f\n", 

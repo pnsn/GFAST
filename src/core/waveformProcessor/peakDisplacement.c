@@ -309,8 +309,8 @@ static double __getPeakDisplacement(const int npts,
       return (double) NAN;
     }
     if (indx1 > npts) {
-      LOG_MSG("ERROR: npts=%d <= indx1=%d (tmax=%f)", npts, indx1, tmax);
-      return (double) NAN;
+      LOG_MSG("npts=%d <= indx1=%d --> Set indx1=npts", npts, indx1);
+      indx1 = npts;
     }
 
     // Prevent a problem

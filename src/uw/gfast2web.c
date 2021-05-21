@@ -179,6 +179,23 @@ iopt =-1;
     sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
     groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
 
+    /*
+    hid_t attr;
+    int32 attr_data;
+    attr=H5Aopen(dataset, "epoch", H5P_DEFAULT);
+    H5Aread(attr,H5T_INT32,attr_data);
+    H5Aclose(attr);
+    */
+
+    hid_t attr;
+    double epoch;
+    dataSet   = H5Dopen("/GFAST_History", "Iteration_120", H5P_DEFAULT);
+    attr=H5Aopen(dataset, "epoch", H5P_DEFAULT);
+    H5Aread(attr, H5T_IEEE_F64LE, epoch);
+    H5Aclose(attr);
+    H5Dclose(dataSet);
+    printf("MTH: got epoch:%ld\n", epoch);
+
     // hypocenter
     memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
     memset(&hypo, 0, sizeof(struct GFAST_shakeAlert_struct));
