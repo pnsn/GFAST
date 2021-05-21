@@ -236,9 +236,9 @@ iopt =-1;
     iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
     idep =-1;
     getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
-#printf("iopt=%d idep=%d\n", iopt, idep);
-#printf("cmt.opt_indx=%d\n", cmt.opt_indx);
-#printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
+//printf("iopt=%d idep=%d\n", iopt, idep);
+//printf("cmt.opt_indx=%d\n", cmt.opt_indx);
+//printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
 
     printf("Mw:%.2f plane1: (%.1f, %.1f, %.1f) plane2: (%.1f, %.1f, %.1f) nsites:%d\n", 
         cmt.Mw[iopt], cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt],
