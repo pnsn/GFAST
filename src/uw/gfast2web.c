@@ -36,10 +36,12 @@
 static void getCMTopt(const struct GFAST_cmtResults_struct cmt,
                       int *iopt, int *depOpt, int *latOpt, int *lonOpt);
 
+const char *fcnm = "gfast2web\0";
+
 void usage(void)
 {
 	printf("Usage:\n");
-	printf(" --filename <h5 filename>\n");
+	printf(" %s --filename <h5 filename>\n", fcnm);
 	printf(" -i<interval>\n");
 	printf(" -a //Output all intervals\n");
 	exit (8);
@@ -47,7 +49,6 @@ void usage(void)
 
 int main(int argc, char *argv[])
 {
-    const char *fcnm = "gfast2web\0";
     struct GFAST_shakeAlert_struct SA;
     //struct eventList_struct events;
     char message[PATH_MAX];
@@ -118,12 +119,6 @@ int main(int argc, char *argv[])
         //continue;
     }
 
-    // Open the HDF5 file and read the latest entry
-    //for (iev=0; iev<events.nevents; iev++)
-    //{
-        // Get the most recently published group 
-    h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
-
 char groupName[512], structGroup[512];
 int idep, iopt, igroup, kgroup, latOpt, lonOpt, nlocs;
 hsize_t dims[1] = {1};
@@ -149,6 +144,13 @@ double *dep, *dip1, *dip2, *Mcmt, *Mpgd, *Meew, *Mff, *rak1, *rak2, *str1, *str2
 hid_t cmtDataType, dataSet, dataSpace, dataType, ffDataType, hypoDataType, groupID, memSpace, pgdDataType;
 iopt =-1;
 
+    // Open the HDF5 file and read the latest entry
+    //for (iev=0; iev<events.nevents; iev++)
+    //{
+        // Get the most recently published group 
+
+    h5fl = H5Fopen(archiveFile, H5F_ACC_RDONLY, H5P_DEFAULT);
+
     kgroup = hdf5_getMaxGroupNumber(h5fl);
     times = array_set64f(kgroup, __builtin_nan(""), &ierr);
     Mcmt = array_set64f(kgroup,  __builtin_nan(""), &ierr);
@@ -167,6 +169,7 @@ iopt =-1;
     memset(groupName, 0, 512*sizeof(char)); 
     memset(structGroup, 0, 512*sizeof(char));
     strcpy(structGroup, "/DataStructures\0");
+
     if (H5Lexists(h5fl, structGroup, H5P_DEFAULT) < 1)
     {
         LOG_ERRMSG("%s", "Data structure group doesn't exist");
@@ -175,9 +178,17 @@ iopt =-1;
     }
 
     // MTH:
-    igroup = output_interval;
-    igroup = 18;
-    igroup = 120;
+    //
+
+    if (output_interval > 0){
+      printf("Extract Interval:%d\n", output_interval);
+      igroup = output_interval;
+    }
+    else {
+      printf("Default: Get Last Interval:%d\n", kgroup);
+      igroup = kgroup;
+    }
+    //igroup = 120;
 
     memset(groupName, 0, 512*sizeof(char));
     sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
