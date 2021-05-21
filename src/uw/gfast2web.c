@@ -211,8 +211,10 @@ iopt =-1;
     H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
     hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
 
-    printf("igroup:%d epoch:%.2f hypo eventid:%s lat:%.2f lon:%.2f dep:%.2f mag:%.2f time:%.2f\n",
-        igroup, epoch, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
+    double age;
+    age = epoch - hypo.time;
+    printf("igroup:%d epoch:%.2f age:%.2f hypo eventid:%s lat:%.2f lon:%.2f dep:%.2f mag:%.2f time:%.2f\n",
+        igroup, age, epoch, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
 
     H5Sclose(memSpace);
     H5Sclose(dataSpace);
@@ -267,6 +269,7 @@ iopt =-1;
 
 
     // peakDisplacementData
+    int npgd_used = 0;
     if (H5Lexists(groupID, "pgdData", H5P_DEFAULT) > 0)
     {
         dataType  = H5Topen(h5fl, "/DataStructures/peakDisplacementDataStructure\0", H5P_DEFAULT);
@@ -285,6 +288,7 @@ iopt =-1;
                     i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
 
+            npgd_used += 1;
 
             for (k=0;k<gpsData.stream_length; k++){
                 wdata = gpsData.data[k];
@@ -336,6 +340,8 @@ iopt =-1;
         H5Tclose(dataType);
         //core_scaling_pgd_finalizeData(&pgd_data);
     }
+
+    printf("npgd_used:%d\n", npgd_used);
 
     exit(0);
 
