@@ -238,7 +238,7 @@ iopt =-1;
     getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
 printf("iopt=%d idep=%d\n", iopt, idep);
 printf("cmt.opt_indx=%d\n", cmt.opt_indx);
-printf("Mw[opt_indx]=%.2f\n", cmt.Mw[opt_indx]);
+printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
 
 
     // gps data
