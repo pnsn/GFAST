@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
     int indx0;
     double u0, n0, e0, peakDisplacement_i;
 
+    printf("argc:%d\n", argc);
+
     //while ((argc > 1) && (argv[argc][0] == '-'))
     for (i=0; i<argc; i++)
     {
@@ -179,22 +181,11 @@ iopt =-1;
     sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
     groupID = H5Gopen2(h5fl, groupName, H5P_DEFAULT);
 
-    /*
-    hid_t attr;
-    int32 attr_data;
-    attr=H5Aopen(dataset, "epoch", H5P_DEFAULT);
-    H5Aread(attr,H5T_INT32,attr_data);
-    H5Aclose(attr);
-    */
-
     hid_t attr;
     double epoch;
-    dataSet   = H5Dopen2(h5fl, groupName, H5P_DEFAULT);
-    attr=H5Aopen(dataSet, "epoch", H5P_DEFAULT);
+    attr=H5Aopen(groupID, "epoch", H5P_DEFAULT);
     H5Aread(attr, H5T_IEEE_F64LE, &epoch);
     H5Aclose(attr);
-    H5Dclose(dataSet);
-    printf("MTH: got epoch:%ld\n", epoch);
 
     // hypocenter
     memset(&h5hypo, 0, sizeof(struct h5_hypocenter_struct));
@@ -206,8 +197,8 @@ iopt =-1;
     H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
     hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
 
-    printf("igroup:%d hypo eventid:%s lat:%8.2f lon:%8.2f dep:%5.2f mag:%4.2f time:%f\n",
-        igroup, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
+    printf("igroup:%d epoch:%.2f hypo eventid:%s lat:%8.2f lon:%8.2f dep:%5.2f mag:%4.2f time:%f\n",
+        igroup, epoch, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
 
     H5Sclose(memSpace);
     H5Sclose(dataSpace);
