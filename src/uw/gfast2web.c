@@ -189,7 +189,7 @@ iopt =-1;
 
     hid_t attr;
     double epoch;
-    dataSet   = H5Dopen2("/GFAST_History", "Iteration_120", H5P_DEFAULT);
+    dataSet   = H5Dopen2(h5fl, groupName, H5P_DEFAULT);
     attr=H5Aopen(dataSet, "epoch", H5P_DEFAULT);
     H5Aread(attr, H5T_IEEE_F64LE, epoch);
     H5Aclose(attr);
