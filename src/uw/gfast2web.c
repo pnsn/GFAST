@@ -73,7 +73,9 @@ int main(int argc, char *argv[])
     int indx0;
     double u0, n0, e0, peakDisplacement_i;
 
-    printf("argc:%d\n", argc);
+    if (argc < 3){
+      usage();
+    }
 
     //while ((argc > 1) && (argv[argc][0] == '-'))
     for (i=0; i<argc; i++)
