@@ -211,7 +211,7 @@ iopt =-1;
     H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5hypo);
     hdf5_copyHypocenter(COPY_H5_TO_DATA, &hypo, &h5hypo);
 
-    printf("igroup:%d epoch:%.2f hypo eventid:%s lat:%8.2f lon:%8.2f dep:%5.2f mag:%4.2f time:%f\n",
+    printf("igroup:%d epoch:%.2f hypo eventid:%s lat:%.2f lon:%.2f dep:%.2f mag:%.2f time:%.2f\n",
         igroup, epoch, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
 
     H5Sclose(memSpace);
@@ -236,10 +236,13 @@ iopt =-1;
     iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
     idep =-1;
     getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
-printf("iopt=%d idep=%d\n", iopt, idep);
-printf("cmt.opt_indx=%d\n", cmt.opt_indx);
-printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
+#printf("iopt=%d idep=%d\n", iopt, idep);
+#printf("cmt.opt_indx=%d\n", cmt.opt_indx);
+#printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
 
+    printf("Mw:%.2f plane1: (%.1f, %.1f, %.1f) plane2: (%.1f, %.1f, %.1f) nsites:%d\n", 
+        cmt.Mw[iopt], cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt],
+                      cmt.str2[iopt], cmt.dip2[iopt], cmt.rak2[iopt], cmt.nsites);
 
     // gps data
     if (H5Lexists(groupID, "gpsData\0", H5P_DEFAULT) < 1)
@@ -272,6 +275,8 @@ printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
         memSpace  = H5Screate_simple(1, dims, NULL);
         H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
         hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
+
+        printf("pgd_data.nsites:%d\n", pgd_data.nsites);
 
         // Print out raw GPS data for PGD active sites
         for (i=0; i<pgd_data.nsites; i++){
