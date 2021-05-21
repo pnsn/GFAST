@@ -191,7 +191,7 @@ iopt =-1;
     double epoch;
     dataSet   = H5Dopen2(h5fl, groupName, H5P_DEFAULT);
     attr=H5Aopen(dataSet, "epoch", H5P_DEFAULT);
-    H5Aread(attr, H5T_IEEE_F64LE, epoch);
+    H5Aread(attr, H5T_IEEE_F64LE, &epoch);
     H5Aclose(attr);
     H5Dclose(dataSet);
     printf("MTH: got epoch:%ld\n", epoch);
