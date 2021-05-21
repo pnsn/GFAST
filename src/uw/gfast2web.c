@@ -174,6 +174,7 @@ iopt =-1;
     {
         LOG_ERRMSG("%s", "Data structure group doesn't exist");
         H5Fclose(h5fl);
+        exit(2);
         //continue;
     }
 
@@ -217,6 +218,27 @@ iopt =-1;
     H5Sclose(dataSpace);
     H5Dclose(dataSet);
     H5Tclose(dataType);
+
+    // cmt
+    if (H5Lexists(groupID, CMT_RES, H5P_DEFAULT) < 1)
+    {
+        LOG_WARNMSG("%s", "cmt not yet computed");
+    }
+    memset(&h5cmt, 0, sizeof(struct h5_cmtResults_struct));
+    memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+    dataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
+    dataSet = H5Dopen(groupID, CMT_RES, H5P_DEFAULT);
+    dataSpace = H5Dget_space(dataSet);
+    memSpace = H5Screate_simple(1, dims, NULL);
+    H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5cmt);
+    hdf5_copyCMTResults(COPY_H5_TO_DATA, &cmt, &h5cmt);
+
+    iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
+    idep =-1;
+    getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
+printf("iopt=%d idep=%d\n", iopt, idep);
+printf("cmt.opt_indx=%d\n", cmt.opt_indx);
+printf("Mw[opt_indx]=%.2f\n", cmt.Mw[opt_indx]);
 
 
     // gps data
