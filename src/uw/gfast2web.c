@@ -42,7 +42,7 @@ void usage(void)
 {
 	printf("Usage:\n");
 	printf(" %s --filename <h5 filename>\n", fcnm);
-	printf(" -i<interval>\n");
+	printf(" -i<interval>  // Default = last interval\n");
 	printf(" -a //Output all intervals\n");
 	exit (8);
 }
@@ -189,7 +189,6 @@ iopt =-1;
       printf("Default: Get Last Interval:%d\n", kgroup);
       igroup = kgroup;
     }
-    //igroup = 120;
 
     memset(groupName, 0, 512*sizeof(char));
     sprintf(groupName, "/GFAST_History/Iteration_%d", igroup);
@@ -213,13 +212,14 @@ iopt =-1;
 
     double age;
     age = epoch - hypo.time;
-    printf("igroup:%d epoch:%.2f age:%.2f hypo eventid:%s lat:%.2f lon:%.2f dep:%.2f mag:%.2f time:%.2f\n",
-        igroup, age, epoch, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
+    printf("igroup:%d epoch:%.2f age:%.2f eventid:%s lat:%.2f lon:%.2f dep:%.2f mag:%.2f otime:%.2f\n",
+        igroup, epoch, age, hypo.eventid, hypo.lat, hypo.lon, hypo.dep, hypo.mag, hypo.time);
 
     H5Sclose(memSpace);
     H5Sclose(dataSpace);
     H5Dclose(dataSet);
     H5Tclose(dataType);
+
 
     // cmt
     if (H5Lexists(groupID, CMT_RES, H5P_DEFAULT) < 1)
@@ -245,6 +245,7 @@ iopt =-1;
     printf("Mw:%.2f plane1: (%.1f, %.1f, %.1f) plane2: (%.1f, %.1f, %.1f) nsites:%d\n", 
         cmt.Mw[iopt], cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt],
                       cmt.str2[iopt], cmt.dip2[iopt], cmt.rak2[iopt], cmt.nsites);
+
 
     // gps data
     if (H5Lexists(groupID, "gpsData\0", H5P_DEFAULT) < 1)
@@ -284,9 +285,9 @@ iopt =-1;
         // Print out raw GPS data for PGD active sites
         for (i=0; i<pgd_data.nsites; i++){
           if (pgd_data.lactive[i]){
-            printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
-                    i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
-                    pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
+            //printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
+                    //i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
+                    //pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
 
             npgd_used += 1;
 
@@ -315,7 +316,7 @@ iopt =-1;
                     }
                   }
 
-                  printf("nscl:%s lat:%8.3f lon:%8.3f npts:%d indx0:%d pd:%f\n",
+                  printf("nscl:%s lat:%.3f lon:%.3f npts:%d indx0:%d pd:%f\n",
                          temp, wdata.sta_lat, wdata.sta_lon, wdata.npts, indx0, pgd_data.pd[i]);
 
                   printf("%10s %9s %9s %9s %9s\n", "tbuff", "ubuff", "nbuff", "ebuff", "PGD");
@@ -324,7 +325,7 @@ iopt =-1;
                                              + pow(wdata.nbuff[j] - n0, 2)
                                              + pow(wdata.ebuff[j] - e0, 2));
 
-                    printf("%.3f %9.6f %9.6f %9.6f %9.6f\n", wdata.tbuff[j], wdata.ubuff[j], 
+                    printf("%4d %.3f %9.6f %9.6f %9.6f %9.6f\n", j, wdata.tbuff[j], wdata.ubuff[j], 
                         wdata.nbuff[j], wdata.ebuff[j], peakDisplacement_i);
                   }
 
@@ -342,6 +343,7 @@ iopt =-1;
     }
 
     printf("npgd_used:%d\n", npgd_used);
+
 
     exit(0);
 
@@ -487,7 +489,7 @@ static void getCMTopt(const struct GFAST_cmtResults_struct cmt,
         }
     }
     return;
-} 
+}
 
 
 #ifdef __clang__
