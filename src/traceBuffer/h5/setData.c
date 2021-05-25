@@ -307,8 +307,6 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
     // Free memory
     memory_free32i(&map);
     memory_free8l(&lhaveData);
-printf("MTH: setData Exit Early\n");
-exit(0);
     return ierrAll;
 }
 //============================================================================//
