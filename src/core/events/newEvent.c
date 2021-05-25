@@ -30,20 +30,31 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
 
     memset(&output_status, 0, sizeof( struct GFAST_xml_output_status));
 
-    int iev, nev0;
-    bool lnewEvent;
-    lnewEvent = true;
+    int iev, nev0, imodified;
+    bool lnewEvent = true;
+    bool lupdateEvent = false;
+
     // New event -> copy and update
     nev0 = events->nev;
-    LOG_MSG("MTH: in newEvent: nev0=%d", nev0);
+
     for (iev=0; iev<nev0; iev++)
     {
         if (strcasecmp(SA.eventid, events->SA[iev].eventid) == 0)
         {
             lnewEvent = false;
+            if (fabs(SA.lat  - events->SA[iev].lat)  > 1.e-10 ||
+                fabs(SA.lon  - events->SA[iev].lon)  > 1.e-10 ||
+                fabs(SA.dep  - events->SA[iev].dep)  > 1.e-10 ||
+                fabs(SA.mag  - events->SA[iev].mag)  > 1.e-10 ||
+                fabs(SA.time - events->SA[iev].time) > 1.e-5)
+                {
+                  lupdateEvent = true;
+                  imodified = iev;
+                }
             break;
         }
     }
+
     if (lnewEvent)
     {
         // Copy new event into workspace
@@ -115,6 +126,12 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         LOG_MSG("MTH: SA.eventid=%s --> Free Xtemp.SA_status", SA.eventid);
         // Free Xtemp
         free(Xtemp.SA_status);
+    }
+    else {
+      if (lupdateEvent){
+        LOG_MSG("MTH: SA.eventid=%s xml has changed --> update events->SA[%d]", SA.eventid, imodified);
+        memcpy(&events->SA[imodified], &SA, sizeof(struct GFAST_shakeAlert_struct));
+      }
     }
     return lnewEvent;
 }
