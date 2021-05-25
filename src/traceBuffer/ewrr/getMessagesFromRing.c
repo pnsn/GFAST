@@ -96,6 +96,10 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         *ierr =-1;
         break;
       }
+      if (retval == GET_NONE){
+        printf("MTH: retval=GET_NONE --> Terminate!\n");
+        break;
+      }
       // Copy from the memory
       retval = tport_copyfrom(&ringInfo->region, ringInfo->getLogo, ringInfo->nlogo,
                               &gotLogo, &gotSize, msg, MAX_TRACEBUF_SIZ, &sequenceNumber);
