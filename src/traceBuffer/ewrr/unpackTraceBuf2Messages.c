@@ -406,9 +406,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 tb2Data->traces[k].times[kndx+l] = trh->starttime
                                                  + (double) l*dt;
 
-                //printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
                 if (debug) {
-                  printf("  tb2Data->traces[k=%4d] scnl=%s time:%.2f val:%d\n", 
+                  printf("unpackTB2 k:%4d scnl:%s time:%.2f val:%d\n", 
                             k, buf, tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
                 }
 
@@ -443,8 +442,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 return -1;
             }
         }
-        if (debug) {
-          printf("    tb2Data->traces[%d] nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
+
+
+        if (0) {
+          printf("unpackTB2  k:%4d nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
                    k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks],
                   tb2Data->traces[k].npts);
         }
