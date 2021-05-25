@@ -90,95 +90,80 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     {
       // May have a kill signal from the transport layer 
       retval = tport_getflag(&ringInfo->region);
-      if (retval == TERMINATE)
-        {
-	  LOG_ERRMSG("Receiving kill signal from ring %s",
-		     ringInfo->ewRingName);
-	  *ierr =-1;
-	  break;
-        }
+      if (retval == TERMINATE) {
+        LOG_ERRMSG("Receiving kill signal from ring %s", ringInfo->ewRingName);
+        *ierr =-1;
+        break;
+      }
       // Copy from the memory
-      retval = tport_copyfrom(&ringInfo->region,
-			      ringInfo->getLogo, ringInfo->nlogo,
-			      &gotLogo, &gotSize, msg, MAX_TRACEBUF_SIZ,
-			      &sequenceNumber);
+      retval = tport_copyfrom(&ringInfo->region, ringInfo->getLogo, ringInfo->nlogo,
+                              &gotLogo, &gotSize, msg, MAX_TRACEBUF_SIZ, &sequenceNumber);
       // Classify my message
       retval = traceBuffer_ewrr_classifyGetRetval(retval);
-      if (retval ==-2)
-        {
-	  LOG_ERRMSG("%s", "An error was encountered getting message");
-	  *ierr =-2;
-	  break;
-        }
+      if (retval ==-2) {
+        LOG_ERRMSG("%s", "An error was encountered getting message");
+        *ierr =-2;
+        break;
+      }
       // Verify i want this message
       if (gotLogo.type == ringInfo->traceBuffer2Type)
-        {
-	  // Get the header
-	  memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-
-	  *ierr = WaveMsg2MakeLocal(&traceHeader);
-	  if (*ierr < 0)
-            {
-	      LOG_ERRMSG("%s", "Error flipping bytes");
-	      *ierr =-2;
-	      break;
-            }
-	  //nbytes = sizeof(int); 
-	  //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
-	  //    strcasecmp(traceHeader.datatype, "i2\0") == 0)
-	  //{
-	  //    nbytes = sizeof(short);
-	  //}
-	  //npcopy = (size_t) ( sizeof(TRACE2_HEADER)*sizeof(char)
-	  //                  + (size_t) (traceHeader.nsamp)*nbytes);
-	  // Copy the message
-	  kdx = *nRead*MAX_TRACEBUF_SIZ;
-
-	  memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
-	  (*nRead)+=1;
-	  
-	  //check if sane allocation limits reached
-	  if (*nRead >= maxMessages) {
-	    LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Single-call message limits reached.",
-		    *nRead, nblock, messageBlock);
-	    if (showWarnings)
-		{
-		  LOG_WARNMSG("%s", "Single-call message limits reached");
-		}
-	    break;
-	  }
-	  // Filled current allocation. Reallocate space if possible
-	  //vck should revisit this later and see if we can just use realloc()
-	  if (*nRead >= messageBlock*nblock)
-	    {
-	      LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Reallocating msgs block",
-		      *nRead, nblock, messageBlock);
-	      if (showWarnings)
-		{
-		  LOG_WARNMSG("%s", "Reallocating msgs block");
-		}
-	      ncopy = MAX_TRACEBUF_SIZ*(*nRead);
-	      //avoid exceeding limits
-	      if (maxSpace-ncopy < MAX_TRACEBUF_SIZ*messageBlock) {
-		nwork = maxSpace;
-	      } else {
-		nwork = ncopy + MAX_TRACEBUF_SIZ*messageBlock;
-		nblock+=1;
-	      }
-	      // set workspace and copy old messages
-	      msgWork = memory_calloc8c(ncopy);
-	      memcpy(msgWork, msgs, (size_t) ncopy);
-	      // resize msgs
-	      memory_free8c(&msgs);
-	      msgs = memory_calloc8c(nwork);
-	      // copy back and free workspace
-	      memcpy(msgs, msgWork, (size_t) ncopy);
-	      memory_free8c(&msgWork);
-	    }
+      {
+        // Get the header
+        memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
+        *ierr = WaveMsg2MakeLocal(&traceHeader);
+        if (*ierr < 0) {
+          LOG_ERRMSG("%s", "Error flipping bytes");
+          *ierr =-2;
+          break;
         }
+        kdx = *nRead*MAX_TRACEBUF_SIZ;
+        memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
+        (*nRead)+=1;
+
+        //check if sane allocation limits reached
+        if (*nRead >= maxMessages) {
+          LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Single-call message limits reached.",
+          *nRead, nblock, messageBlock);
+          if (showWarnings) {
+            LOG_WARNMSG("%s", "Single-call message limits reached");
+          }
+          break;
+        }
+
+        // Filled current allocation. Reallocate space if possible
+        //vck should revisit this later and see if we can just use realloc()
+        if (*nRead >= messageBlock*nblock)
+        {
+          LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Reallocating msgs block",
+                   *nRead, nblock, messageBlock);
+          if (showWarnings) {
+            LOG_WARNMSG("%s", "Reallocating msgs block");
+          }
+          ncopy = MAX_TRACEBUF_SIZ*(*nRead);
+
+          //avoid exceeding limits
+          if (maxSpace-ncopy < MAX_TRACEBUF_SIZ*messageBlock) {
+            nwork = maxSpace;
+          } else {
+            nwork = ncopy + MAX_TRACEBUF_SIZ*messageBlock;
+            nblock+=1;
+          }
+          // set workspace and copy old messages
+          msgWork = memory_calloc8c(ncopy);
+          memcpy(msgWork, msgs, (size_t) ncopy);
+          // resize msgs
+          memory_free8c(&msgs);
+          msgs = memory_calloc8c(nwork);
+          // copy back and free workspace
+          memcpy(msgs, msgWork, (size_t) ncopy);
+          memory_free8c(&msgWork);
+        }
+      }
+
       // End of ring - time to leave
       if (retval == GET_NONE){break;}
-    }
+    } // while true
+
   memory_free8c(&msg);
 
   if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
