@@ -346,7 +346,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         if (debug) {
           sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                   tb2Data->traces[k].chan, tb2Data->traces[k].loc);
-          printf("unpackTB2: set ptrs: %s ir=%4d i1=%4d i2=%4d\n k=imap[i1]=%4d", buf, ir, i1, i2, k);
+          //printf("unpackTB2: set ptrs: %s ir=%4d i1=%4d i2=%4d\n k=imap[i1]=%4d", buf, ir, i1, i2, k);
         }
 
         tb2Data->traces[k].nchunks = 1;
