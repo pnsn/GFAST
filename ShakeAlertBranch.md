@@ -116,15 +116,13 @@ eew-uw-dev1 [cmake](#cmake) build went fairly smoothly using following cmake scr
 
 ### ISCL
 
-It appears that this library is used for timestamps (ISCL_time_timestamp()) and file manipulation (ICSL_os_path_isfile() and ISCL_os_path_isdir()).  Given that these are available in standard c. it seems likely that this dependency can be easily removed.
-
 This is an ISTI product that would need to be added to extras (GFAST/third\_party
 ). Unfortunately, this package also adds several difficult dependencies not related to GFAST
-functionality. Fortunately, most of these are not required for our SA compile (see below). 
+functionality. Fortunately, most of these are not required for our SA compile.
 
-Requires linking with libfftw3 or equivalent.
+In the latest iteration, we have moved all needed iscl files into GFAST/src/iscl with include files in GFAST/include/iscl.  Only the most minor modifications in the code were required to removed the libfftw3 dependency.  Makefiles have been added so that this all compiles and links in the standard build.
 
-Still have not eliminated [cmake](#cmake) dependency.  To make this compile on eew-uw-dev1, required following to cmake script:
+Alternatively, to make the full package compile on eew-uw-dev1, required following to cmake script:
 ~~~~
 /usr/bin/cmake $( dirname "$0" ) \
 -DCMAKE_BUILD_TYPE=DEBUG \
@@ -140,18 +138,9 @@ Still have not eliminated [cmake](#cmake) dependency.  To make this compile on e
 -DLAPACK_LIBRARY="/usr/lib64/liblapack.so.3" \
 -DBLAS_LIBRARY="/usr/lib64/libblas.so.3" \
 -DCBLAS_LIBRARY="/usr/lib64/atlas/libsatlas.so.3"
+
+libfft3.so is satisfied as a dynamic link in this build.
 ~~~~
-
-### FFTw
-
-Documentation suggests Fourier transforms are not computed in GFAST,
-so this is an artifact of including ISCL. We may want to customize ISCL or eliminate ISCL all together to remove dependency in the future.
-
-This is available on Ubuntu via libftw3-bin and libftw3-dev
-
-on Centos, install fftw package which installs libfftw3.so and many other related.
-
-eew-uw-dev1 required fftw package install.  fftw-devel was also needed to compile iscl dependency.
 
 ## Additional ShakeAlert dependencies
 
@@ -210,6 +199,16 @@ Used in unit tests. I suspect that functionality may need to be re-implemented
 in current library equivalents. Could not find any mention of this
 in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile.  Looks like this is a dependency of a dependency, not of the main code.
 
+### FFTw
+
+FFTw is no longer needed in ShakeAlert branch.  The dependency was eliminated with minor non-functional changes to the iscl/iscl code. Documentation suggests Fourier transforms are not computed in GFAST, so this is an artifact of including ISCL. We may want to customize ISCL or eliminate ISCL all together to remove dependency in the future.
+
+This is available on Ubuntu via libftw3-bin and libftw3-dev
+
+on Centos, install fftw package which installs libfftw3.so and many other related.
+
+eew-uw-dev1 required fftw package install.  fftw-devel was also needed to compile iscl dependency.
+
 # dmlib
 
 One feature that is requested by the SA development group is that GFAST use the ShakeAlert dmlib for its communication with activemq, including heartbeat and message publishing.
@@ -248,7 +247,6 @@ As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the l
 4. > git pull [ remote-name SAdev ]
 5. > git merge 2020
 
-
 # To do
 
 ##Concrete tasks
@@ -256,10 +254,6 @@ As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the l
 - Metadata reader needs to be converted to ShakeAlert file format.
 - ShakeAlertConsumer should be revamped to allow asynchronous read loop.
 - figure out why remove_expired_event kills program.
-- replace ISCL timestamp calls
-- compile without ISCL
-- - memory
-- - array
 - Investigate why the main loop requires 5-6 seconds to complete.  Are we actually processing all the data?  Optimize.
 - Properly flag non-existant SA_events_dir and disable looking for trigger file in SA deployments.
 - unify and clean up the various logging systems.

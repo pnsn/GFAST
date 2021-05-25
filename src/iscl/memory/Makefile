@@ -1,4 +1,5 @@
-# Makefile for GFAST/src/core/properties
+# Makefile for GFAST/src/iscl/memory
+#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -6,13 +7,12 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= finalize.o initialize.o print.o
+OBJS	= calloc.o malloc.o free.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-#iniparser will be deleted
-INCL            = -I ../../../include $(ISCL_INCL) $(INIPARSER_INCL)
+INCL            = -I ../../../include
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

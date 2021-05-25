@@ -1,27 +1,25 @@
-# Makefile for GFAST/src/uw
-# Note: these will not be built by default in SA branch
-# does not compile because missing gfast2json.h
+# Makefile for GFAST/src/iscl/array
+#   CCFLAGS
 #
-GFASTROOT=..
+GFASTROOT=../..
 ifndef MAKEHOST
 MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= beachball.o gfast2web.o
-EXE     = gfast2web
+OBJS	= argmin.o argmax.o copy.o min.o set.o zeros.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL = -I ../../include $(COMPEARTH_INCL) $(HDF5_INCL) $(EW_INCL)
+INCL            = -I ../../../include
 
-all: $(OBJS) $(EXE)
+SYSLIBS		= -lpthread -lnsl -lrt -lz
 
-%.o: %.c
-	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
-%.cpp.o: %.cpp
-	$(CXX) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+all: $(OBJS)
+
+%.o:    %.c
+	$(CC) -c $< $(CFLAGS) -Wno-unknown-pragmas $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)
@@ -41,9 +39,9 @@ cleandepend:
 	rm -rf $(DEPENDFILES)
 
 clean:
-	-rm -f *.o $(LIB)
+	-rm -f *.o $(BIN)
 
 veryclean: clean rm-ids cleandepend
 
-#install: $(BIN) | $(INSTALL_BIN_DIR)
-#	cp $(BIN) $(INSTALL_BIN_DIR)/
+install: $(BIN) | $(INSTALL_ELARMS_BIN_DIR)
+	cp $(BIN) $(INSTALL_ELARMS_BIN_DIR)/

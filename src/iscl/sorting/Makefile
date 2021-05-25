@@ -1,4 +1,5 @@
-# Makefile for GFAST/src/core/properties
+# Makefile for GFAST/src/iscl/sorting
+#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -6,20 +7,19 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= finalize.o initialize.o print.o
+OBJS	= applyPermutation.o argsort.o issorted.o sort.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-#iniparser will be deleted
-INCL            = -I ../../../include $(ISCL_INCL) $(INIPARSER_INCL)
+INCL            = -I ../../../include
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
 all: $(OBJS)
 
 %.o:    %.c
-	$(CC) -c $< $(CFLAGS) $(DEBUG) $(INCL)
+	$(CC) -c $< $(CFLAGS) -Wno-unknown-pragmas $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

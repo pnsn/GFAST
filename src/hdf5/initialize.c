@@ -5,7 +5,7 @@
 #include <math.h>
 #include "gfast_hdf5.h"
 #include "gfast_core.h"
-#include "iscl/os/os.h"
+#include "fileutils.h"
 
 static void obscureVariable(char *buffer, const char *variable);
 
@@ -41,7 +41,7 @@ int hdf5_initialize(const char *adir,
         return -1;
     }
     // If file exists then let user know it is about to be deleted
-    if (os_path_isfile(fname))
+    if (cfileexists(fname))
     {
         LOG_WARNMSG("H5 archive file %s will be overwritten", fname);
     }
@@ -62,7 +62,7 @@ int hdf5_initialize(const char *adir,
     ierr = ierr + H5Gclose(groupID);
     // Save the ini file
     ierr = ierr + h5_create_group(fileID, "/InitializationFile\0");
-    if (os_path_isfile(propfilename))
+    if (cfileexists(propfilename))
     {
         ifl = fopen(propfilename, "rb");
         fseek(ifl, 0L, SEEK_END);

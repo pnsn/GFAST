@@ -5,7 +5,7 @@ endif
 $(info Including Make.include.$(MAKEHOST))
 include Make.include.$(MAKEHOST)
 
-SUBDIRS     = activeMQ hdf5 traceBuffer core eewUtils xml utils dmlib
+SUBDIRS     = activeMQ hdf5 iscl traceBuffer core eewUtils xml utils dmlib
 INCL    = -I ../include $(ISCL_INCL) $(ACTIVEMQ_INCL) $(EW_INCL) $(HDF5_INCL)
 EXE     = gfast_eew
 #gfast_playback

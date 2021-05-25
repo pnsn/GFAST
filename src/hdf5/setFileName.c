@@ -5,7 +5,7 @@
 #include <math.h>
 #include "gfast_hdf5.h"
 #include "gfast_core.h"
-#include "iscl/os/os.h"
+#include "fileutils.h"
 
 /*!
  * @brief Sets the HDF5 archive filename
@@ -54,9 +54,9 @@ int hdf5_setFileName(const char *adir,
         else
         {
             // Require the directory exists - if not make it
-            if (!os_path_isdir(adir))
+            if (!cdirexists(adir))
             {
-                ierr = os_makedirs(adir);
+	      ierr = mkdir(adir,0755);
                 if (ierr != 0)
                 {
                     LOG_ERRMSG("Failed making directory %s\n", adir);

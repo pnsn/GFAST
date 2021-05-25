@@ -28,4 +28,4 @@ int cdirexists(const char* dirname);
 #ifdef __cplusplus
 }
 #endif
-#endif /* _iscl_time_h__ */
+#endif /* fileutils_h__ */

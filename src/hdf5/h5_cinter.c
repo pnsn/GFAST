@@ -12,7 +12,7 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-#include "iscl/os/os.h"
+#include "fileutils.h"
 
 /*!
  * @brief Opens an HDF5 file and returns handle for reading only
@@ -27,7 +27,7 @@
 hid_t h5_open_rdonly(const char *flname)
 {
     hid_t file_id;
-    if (!os_path_isfile(flname))
+    if (!cfileexists(flname))
     {
         LOG_ERRMSG("HDF5 file %s does not exist!\n", flname);
     }
