@@ -77,7 +77,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
 
   if (messageBlock < 1)
     {
-      LOG_ERRMSG("%s", "messageBlock allocator must be postiive");
+      LOG_ERRMSG("%s", "messageBlock allocator must be positive");
       *ierr =-4;
       return msgs;
     }
@@ -96,10 +96,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         *ierr =-1;
         break;
       }
-      if (retval == GET_NONE){
-        printf("MTH: retval=GET_NONE --> Terminate!\n");
-        break;
-      }
       // Copy from the memory
       retval = tport_copyfrom(&ringInfo->region, ringInfo->getLogo, ringInfo->nlogo,
                               &gotLogo, &gotSize, msg, MAX_TRACEBUF_SIZ, &sequenceNumber);
@@ -110,6 +106,13 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         *ierr =-2;
         break;
       }
+
+      // MTH: This is where we should break:
+      if (retval == GET_NONE){
+        printf("MTH: Break out of while loop!\n");
+        break;
+      }
+
       // Verify i want this message
       if (gotLogo.type == ringInfo->traceBuffer2Type)
       {
@@ -173,7 +176,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
       }
 
       // End of ring - time to leave
-      if (retval == GET_NONE){break;}
+      //if (retval == GET_NONE){break;}
     } // while true
 
   memory_free8c(&msg);
