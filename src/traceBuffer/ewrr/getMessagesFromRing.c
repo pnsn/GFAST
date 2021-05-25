@@ -54,6 +54,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
   unsigned char sequenceNumber;
   long gotSize;
   int kdx, nblock, ncopy, nwork, retval, maxMessages, maxSpace;
+  int debug = 1;
   //size_t nbytes; //, npcopy;
   //------------------------------------------------------------------------//
   //  
@@ -116,6 +117,13 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
           *ierr =-2;
           break;
         }
+
+        if (debug){
+          printf("getMsgs: %s.%s.%s.%s time:%f npts:%d\n",
+          traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc,
+          traceHeader.starttime, traceHeader.nsamp);
+        }
+
         kdx = *nRead*MAX_TRACEBUF_SIZ;
         memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
         (*nRead)+=1;

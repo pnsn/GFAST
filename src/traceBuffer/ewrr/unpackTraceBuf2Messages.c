@@ -72,7 +72,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 0;
+    int debug = 1;
 
     //------------------------------------------------------------------------//
     //
