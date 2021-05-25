@@ -280,16 +280,21 @@ iopt =-1;
         H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd_data);
         hdf5_copyPeakDisplacementData(COPY_H5_TO_DATA, &pgd_data, &h5pgd_data);
 
-        printf("pgd_data.nsites:%d\n", pgd_data.nsites);
+        //printf("pgd_data.nsites:%d\n", pgd_data.nsites);
 
         // Print out raw GPS data for PGD active sites
+        for (i=0; i<pgd_data.nsites; i++){
+          if (pgd_data.lactive[i]){
+            npgd_used += 1;
+          }
+        }
+        printf("pgd_data.nsites_used:%d\n", npgd_used);
+
         for (i=0; i<pgd_data.nsites; i++){
           if (pgd_data.lactive[i]){
             //printf("i:%4d scnl:%s lat:%8.3f lon:%8.3f wt:%.1f active:%d pd:%12.4e\n", 
                     //i, pgd_data.stnm[i], pgd_data.sta_lat[i], pgd_data.sta_lon[i],
                     //pgd_data.wt[i], pgd_data.lactive[i], pgd_data.pd[i]);
-
-            npgd_used += 1;
 
             for (k=0;k<gpsData.stream_length; k++){
                 wdata = gpsData.data[k];
@@ -319,7 +324,7 @@ iopt =-1;
                   printf("nscl:%s lat:%.3f lon:%.3f npts:%d indx0:%d pd:%f\n",
                          temp, wdata.sta_lat, wdata.sta_lon, wdata.npts, indx0, pgd_data.pd[i]);
 
-                  printf("%10s %9s %9s %9s %9s\n", "tbuff", "ubuff", "nbuff", "ebuff", "PGD");
+                  printf("%13s %9s %9s %9s %9s\n", "tbuff", "ubuff", "nbuff", "ebuff", "PGD");
                   for (j=0; j<wdata.npts; j++){
                     peakDisplacement_i = sqrt( pow(wdata.ubuff[j] - u0, 2)
                                              + pow(wdata.nbuff[j] - n0, 2)
@@ -341,9 +346,6 @@ iopt =-1;
         H5Tclose(dataType);
         //core_scaling_pgd_finalizeData(&pgd_data);
     }
-
-    printf("npgd_used:%d\n", npgd_used);
-
 
     exit(0);
 
