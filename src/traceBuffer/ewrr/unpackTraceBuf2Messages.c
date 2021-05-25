@@ -407,8 +407,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                                                  + (double) l*dt;
 
                 //printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
-                printf("  tb2Data->traces[k=%4d] scnl=%s time:%.2f val:%.2f\n", 
-                          k, buf, tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
+                if (debug) {
+                  printf("  tb2Data->traces[k=%4d] scnl=%s time:%.2f val:%d\n", 
+                            k, buf, tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
+                }
 
             }
             kndx = kndx + npts; 
@@ -463,6 +465,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
     memory_free8c(&logo);
+exit(0);
     return 0;
 }
 //============================================================================//
