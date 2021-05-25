@@ -107,9 +107,9 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         break;
       }
 
-      // MTH: This is where we should break:
+      // MTH: This is where we should leave the ring:
       if (retval == GET_NONE){
-        printf("MTH: Break out of while loop!\n");
+        //printf("MTH: Break out of while loop!\n");
         break;
       }
 
@@ -174,9 +174,6 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
           memory_free8c(&msgWork);
         }
       }
-
-      // End of ring - time to leave
-      //if (retval == GET_NONE){break;}
     } // while true
 
   memory_free8c(&msg);
