@@ -407,8 +407,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                                                  + (double) l*dt;
 
                 //printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
-                printf("  Set scnl=%s kndx+l=%d times[%d]=%.2f val=%.2f\n", 
-                    buf, (kndx+l), tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
+                printf("  Set scnl=%s kndx+l=%4d times[%4d]=%.2f val=%.2f\n", 
+                    buf, (kndx+l), (kndx+l), tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
 
             }
             kndx = kndx + npts; 
