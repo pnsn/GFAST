@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "gfast_core.h"
+#include <math.h>
 /*!
  * @brief Adds a new event to the working events list.
  *
