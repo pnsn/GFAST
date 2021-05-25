@@ -72,7 +72,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 0;
+    int debug = 1;
 
     //------------------------------------------------------------------------//
     //
@@ -118,11 +118,11 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
           printf("unpackTB2: msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
               i, msg_logos[i], times[i], nsamps[i], nRead);
         }
-        */
         if (debug){
           printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
               i, msg_logos[i], times[i], nsamps[i]);
         }
+        */
     }
 
     // MTH
@@ -211,6 +211,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     } // Loop on waveforms
     //printf("unpackTB2: Finished First Loop on SCNLs. nRead:%d\n", nRead);
     // MTH
+    /*
     if (debug){
       for (k=0; k<tb2Data->ntraces; k++){
         sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
@@ -219,6 +220,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 k, buf, kpts[k], nmsg[k]);
       }
     }
+    */
+
     //exit(0);
 //LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", ISCL_time_timeStamp());
 
@@ -237,24 +240,29 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
     // MTH
+    /*
     if (debug){
       for (i=0; i<nRead; i++){
         printf("imap[%d]=%d msg_logos[%d]=%s iperm[%d]=%d logo:%s\n",
             i, imap[i], i, msg_logos[i], i, iperm[i], msg_logos[iperm[i]]);
       }
     }
+    */
 
     // Apply the permutations
     ierr = sorting_applyPermutation32i_work(nRead, iperm, imap,  imap);
     ierr = sorting_applyPermutation32i_work(nRead, iperm, imsg,  imsg);
     ierr = sorting_applyPermutation64f_work(nRead, iperm, times, times);
 
+    /*
     if (debug) {
       for (i=0; i<nRead; i++){
         printf("imap[%d]=%d iperm[%d]=%d imsg[%d]=%d\n",
                 i, imap[i], i, iperm[i], i, imsg[i]);
       }
     }
+    */
+
     //exit(0);
     // Make a list so that the messages will be unpacked in order of
     // of SNCL matches as to reduce cache conflicts.
@@ -399,6 +407,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                                                  + (double) l*dt;
 
                 //printf("  Set tb2Data->traces[k].times[%d]=%.2f\n", (kndx+l), tb2Data->traces[k].times[kndx+l]);
+                printf("  Set scnl=%s kndx+l=%d times[%d]=%.2f val=%.2f\n", 
+                    buf, (kndx+l), tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
 
             }
             kndx = kndx + npts; 

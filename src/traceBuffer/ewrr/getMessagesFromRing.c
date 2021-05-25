@@ -54,7 +54,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
   unsigned char sequenceNumber;
   long gotSize;
   int kdx, nblock, ncopy, nwork, retval, maxMessages, maxSpace;
-  int debug = 1;
+  int debug = 0;
   //size_t nbytes; //, npcopy;
   //------------------------------------------------------------------------//
   //  
