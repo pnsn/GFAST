@@ -21,6 +21,10 @@ static int fastUnpack(const int npts, const int lswap,
                       const char *__restrict__ msg,
                       int *__restrict__ resp);
 
+static int myCompare(const void* a, const void* b);
+void sort(const char* arr[], int n);
+
+
 /*!
  * @brief Unpacks the tracebuf2 messages read from the ring and returns
  *        the concatenated data for the desired SNCL's in the tb2Data struct
@@ -118,12 +122,21 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
           printf("unpackTB2: msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
               i, msg_logos[i], times[i], nsamps[i], nRead);
         }
+        */
         if (debug){
           printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
               i, msg_logos[i], times[i], nsamps[i]);
         }
-        */
     }
+
+    printf("\nAfter Sort:\n");
+    sort(msg_logos);
+    for (i=0; i<nRead; i++)
+    {
+          printf("unpackTB2: sorted msg_logos[%4d]=%s\n",
+              i, msg_logos[i]);
+    }
+    exit(0);
 
     // MTH
     /*
@@ -610,3 +623,47 @@ static int fastUnpack(const int npts, const int lswap,
     }
     return 0;
 }
+
+
+// Defining comparator function as per the requirement
+static int myCompare(const void* a, const void* b)
+{
+  // setting up rules for comparison
+  return strcmp(*(const char**)a, *(const char**)b);
+}
+
+// Function to sort the array
+void sort(const char* arr[], int n)
+{
+  // calling qsort function to sort the array
+  // with the help of Comparator
+  qsort(arr, n, sizeof(const char*), myCompare);
+}
+
+/*
+int main()
+{
+
+	// Get the array of names to be sorted
+	const char* arr[]
+		= { "geeksforgeeks", "geeksquiz", "clanguage" };
+
+	int n = sizeof(arr) / sizeof(arr[0]);
+	int i;
+
+	// Print the given names
+	printf("Given array is\n");
+	for (i = 0; i < n; i++)
+		printf("%d: %s \n", i, arr[i]);
+
+	// Sort the given names
+	sort(arr, n);
+
+	// Print the sorted names
+	printf("\nSorted array is\n");
+	for (i = 0; i < n; i++)
+		printf("%d: %s \n", i, arr[i]);
+
+	return 0;
+}
+*/
