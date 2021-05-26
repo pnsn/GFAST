@@ -23,7 +23,7 @@ static int fastUnpack(const int npts, const int lswap,
 
 static int myCompare(const void* a, const void* b);
 //void sort(const char* arr[], int n);
-void sort(const char *arr[], int n)
+void sort(const char *arr[], int n);
 
 
 /*!
