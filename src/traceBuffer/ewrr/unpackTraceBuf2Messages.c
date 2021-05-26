@@ -23,7 +23,8 @@ static int fastUnpack(const int npts, const int lswap,
 
 static int myCompare(const void* a, const void* b);
 //void sort(const char* arr[], int n);
-void sort(const char *arr[], int n);
+//void sort(const char *arr[], int n);
+void sort(char arr[n][15], int n);
 
 
 /*!
@@ -635,7 +636,8 @@ static int myCompare(const void* a, const void* b)
 
 // Function to sort the array
 //void sort(const char* arr[], int n)
-void sort(const char *arr[], int n)
+//void sort(const char *arr[], int n)
+void sort(char arr[n][15], int n);
 {
   // calling qsort function to sort the array
   // with the help of Comparator
