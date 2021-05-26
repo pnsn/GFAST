@@ -1,6 +1,6 @@
 # Makefile for GFAST/src/traceBuffer/h5
 # 
-#
+
 GFASTROOT=../..
 ifndef MAKEHOST
 MAKEHOST=$(shell uname)
@@ -11,10 +11,9 @@ OBJS	= copyTraceBufferToGFAST.o getDoubleArray.o readData.o \
 setScalars.o finalize.o getScalars.o setData.o setTraceBufferFromGFAST.o \
 getData.o initialize.o setFileName.o
 
-
 DEBUG	= -g
 
-INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(ISCL_INCL) $(CBLAS_INCL)
+INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(CBLAS_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

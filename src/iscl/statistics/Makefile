@@ -1,4 +1,4 @@
-# Makefile for GFAST/src/traceBuffer/ewrr
+# Makefile for GFAST/src/iscl/statistics
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -6,20 +6,19 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= classifyRetval.o flushRing.o freetb2Trace.o initialize.o \
-unpackTraceBuf2Messages.o finalize.o freetb2Data.o getMessagesFromRing.o \
-settb2Data.o
+OBJS	= percentile.o
 
 DEBUG	= -g
+CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL)
+INCL            = -I ../../../include
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
 all: $(OBJS)
 
 %.o:    %.c
-	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
+	$(CC) -c $< $(CFLAGS) -Wno-unknown-pragmas $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/iscl/array
-#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -7,7 +6,7 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= argmin.o argmax.o copy.o min.o set.o zeros.o
+OBJS	= argmin.o argmax.o copy.o min.o set.o zeros.o abs.o absArgmin.o reverse.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
