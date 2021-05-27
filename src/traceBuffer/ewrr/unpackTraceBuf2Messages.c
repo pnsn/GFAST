@@ -78,7 +78,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 1;
+    int debug = 0;
 
     //------------------------------------------------------------------------//
     //
@@ -131,6 +131,15 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         }
     }
 
+    for (k=0; k<tb2Data->ntraces; k++)
+    {
+      printf("%s.%s.%s.%s\n",
+          tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
+          tb2Data->traces[k].netw, tb2Data->traces[k].loc);
+    }
+    exit(0);
+    /*
+
     printf("\nAfter Sort:\n");
     sort(msg_logos);
     for (i=0; i<nRead; i++)
@@ -139,6 +148,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
               i, msg_logos[i]);
     }
     exit(0);
+    */
 
     // MTH
     /*
