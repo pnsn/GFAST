@@ -41,7 +41,7 @@ for net in SAnetList:
                     outstr += ' '.join(coord[toks[1]][0:3])+' '
                 else:
                     #outstr += 'nan nan nan '
-                    print '%s has no coordinate metadata for %s. Skipping.'%(SAchanFile%net,toks[1])
+                    print '%s has no coordinate metadata for %s. Skipping.'%(SAcoordFile,toks[1])
                     continue
                 outstr += ' '.join(toks[4:8])+' '
                 if toks[7] == 'DIF':

@@ -110,7 +110,6 @@ void core_properties_print(struct GFAST_props_struct props)
                    props.utm_zone);
     }
     LOG_DEBUGMSG("%s GFAST verbosity level is %d", lspace, props.verbose);
-    LOG_DEBUGMSG("%s GFAST stream file: %s", lspace, props.metaDataFile);
     if (cfileexists(props.siteMaskFile))
     {
         LOG_DEBUGMSG("%s GFAST will use site maskfile: %s", lspace,

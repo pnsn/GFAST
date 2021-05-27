@@ -30,7 +30,7 @@ int core_data_initialize(struct GFAST_props_struct props,
     ierr = core_data_readMetaDataFile(props.metaDataFile, gps_data);
     if (ierr != 0)
     {
-        LOG_ERRMSG("%s", "Error reading sites file!");
+        LOG_ERRMSG("Error reading sites file: %s", props.metaDataFile);
         return -1;
     }
     if (cfileexists(props.siteMaskFile))

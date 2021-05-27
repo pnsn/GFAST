@@ -46,7 +46,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     // Require the site file exists
     if (!cfileexists(metaDataFile))
     {
-        LOG_ERRMSG("%s", "Error site file does not exist!");
+        LOG_ERRMSG("Error site file does not exist: %s", metaDataFile);
         return -1;
     }
     // Open the file for reading and count the sites
