@@ -167,6 +167,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         i++;
 
     }
+    print_struct(vals, nRead);
+    exit(0);
 
     for (i=0; i<nRead; i++){
       memcpy(&tmp[i], &vals[i], sizeof(struct string_index));
@@ -552,4 +554,12 @@ void sort2(struct string_index values[], int n)
   // calling qsort function to sort the array
   // with the help of Comparator
   qsort((void *) values, (size_t) n, sizeof(struct string_index), myCompare2);
+}
+
+void print_struct(struct string_index *d, int n){
+  int i;
+  for (i=0; i<n; i++){
+    printf("struct[%d] indx:%5d: logo:%s nsamps:%d time:%.2f\n",.
+        i, d[i].indx, d[i].logo, d[i].nsamps, d[i].time);
+  }
 }
