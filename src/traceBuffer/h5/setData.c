@@ -47,6 +47,7 @@ int traceBuffer_h5_setData(const double currentTime,
     hsize_t dims[2];
     hid_t attribute, groupID, dataSet, dataSpace;
     herr_t status;
+    int debug = 0;
     //------------------------------------------------------------------------//
     //
     // Require both items are set
@@ -217,7 +218,7 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     // MTH: The current data point is always getting inserted to the same indx as
                     // the buffer moves along, so does ts1, ts2, tb2Data[i].times[is], maintaining their offset
 
-      if (1){
+      if (debug){
       printf("setData: is:%4d scnl:%s.%s.%s.%s ch:%d indx0:%4d ts1:%.3f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f chk:dwork[%4d]:%8.2f\n", 
         is,
         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
