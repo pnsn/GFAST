@@ -288,16 +288,16 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             if (im > i1) {
                 if (fabs( (tb2Data->traces[k].times[kndx-1] + dt) - trh->starttime ) > 1.e-6) {
                 //printf("    starttime exceeds dt --> start a new chunk\n");
-                printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d start a new chunk\n,
-                    ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks");
+                printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d start a new chunk\n",
+                    ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx;
                     tb2Data->traces[k].nchunks += 1;
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
                 else {
                 //printf("    starttime is within dt --> simply extend current chunk\n");
-                printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d extend current chunk\n,
-                    ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks");
+                printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d extend current chunk\n",
+                    ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
             }
