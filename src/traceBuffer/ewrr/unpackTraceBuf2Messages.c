@@ -360,6 +360,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
     memory_free8c(&logo);
+ exit(0);
     return 0;
 }
 //============================================================================//
