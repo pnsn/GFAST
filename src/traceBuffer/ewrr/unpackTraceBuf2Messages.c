@@ -322,6 +322,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
         } // Loop on messages for this SNCL
 
+        // Special case for one message
+        if (i2 - i1 == 1 && kpts[k] > 0) {
+            tb2Data->traces[k].nchunks = 1;
+            tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kpts[k];
+        }
+
         // Reality check
         if (kndx != kpts[k])
         {
