@@ -559,7 +559,7 @@ void sort2(struct string_index values[], int n)
 void print_struct(struct string_index *d, int n){
   int i;
   for (i=0; i<n; i++){
-    printf("struct[%d] indx:%5d: logo:%s nsamps:%d time:%.2f\n",.
+    printf("struct[%d] indx:%5d: logo:%s nsamps:%d time:%.2f\n",
         i, d[i].indx, d[i].logo, d[i].nsamps, d[i].time);
   }
 }
