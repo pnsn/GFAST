@@ -96,7 +96,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 1;
+    int debug = 0;
 
     int kold;
     struct string_index *vals, *tmp;
@@ -224,18 +224,21 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     nReadPtr = ir;
 
-    printf("nRead:%d ntraces:%d nReadPtr:%d\n",
-        nRead, tb2Data->ntraces, nReadPtr);
+    //printf("nRead:%d ntraces:%d nReadPtr:%d\n", nRead, tb2Data->ntraces, nReadPtr);
 
     for (ir=0; ir<nReadPtr; ir++) {
       i1 = imapPtr[ir];
       //i2 = imapPtr[ir+1];
       k = imap[i1]; // k always = ir ?
       i2 = i1 + nmsg[k];
-      printf("ir:%d i1:%d i2:%d k:%d nmsg[k]:%d kpts[k]:%d\n", ir, i1, i2, k, nmsg[k], kpts[k]);
+      if (debug){
+        printf("ir:%d i1:%d i2:%d k:%d nmsg[k]:%d kpts[k]:%d\n", ir, i1, i2, k, nmsg[k], kpts[k]);
+      }
       for (im=i1; im<i2; im++){
             j=imsg[im];
-            printf("  im:%5d msg %5d: %s time:%.1f\n", im, j, vals[j].logo, vals[j].time);
+            if (debug){
+              printf("  im:%5d msg %5d: %s time:%.1f\n", im, j, vals[j].logo, vals[j].time);
+            }
       }
     }
 
@@ -253,7 +256,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         }
     }
 
-    printf("MTH: Final Loop to load traces\n");
+    //printf("MTH: Final Loop to load traces\n");
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
@@ -261,8 +264,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         k = imap[i1];
         i2 = i1 + nmsg[k];
         kndx = 0;
-        //if (debug) {
-        if (1) {
+        if (debug) {
           sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                   tb2Data->traces[k].chan, tb2Data->traces[k].loc);
         }
@@ -295,16 +297,20 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             if (im > i1) {
                 if (fabs( (tb2Data->traces[k].times[kndx-1] + dt) - trh->starttime ) > 1.e-6) {
                 //printf("    starttime exceeds dt --> start a new chunk\n");
-                printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d start a new chunk\n",
-                    ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
+                    if (debug) {
+                        printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d start a new chunk\n",
+                            ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
+                    }
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx;
                     tb2Data->traces[k].nchunks += 1;
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
                 else {
                 //printf("    starttime is within dt --> simply extend current chunk\n");
-                printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d extend current chunk\n",
-                    ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
+                    if (debug) {
+                        printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d extend current chunk\n",
+                            ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
+                    }
                     tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
             }
@@ -318,7 +324,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 tb2Data->traces[k].data[kndx+l] = resp[l];
                 tb2Data->traces[k].times[kndx+l] = trh->starttime + (double) l*dt;
 
-                if (1) {
+                if (debug) {
                   printf("unpackTB2 k:%4d scnl:%s time:%.2f val:%d\n", 
                             k, buf, tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
                 }
@@ -378,7 +384,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
     memory_free8c(&logo);
- exit(0);
+    free(vals);
+    free(tmp);
+ //exit(0);
     return 0;
 }
 //============================================================================//
