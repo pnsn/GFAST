@@ -96,7 +96,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 0;
+    int debug = 1;
 
     int kold;
     struct string_index *vals, *tmp;
@@ -173,7 +173,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     // Sort the msg records by scnl + time:
     sort2(tmp, nRead);
-    //print_struct(tmp, nRead);
+    if (debug){
+        print_struct(tmp, nRead);
+    }
     //exit(0);
 
     for (i=0; i<nRead; i++){
@@ -222,6 +224,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     nReadPtr = ir;
 
+    printf("nRead:%d ntraces:%d nReadPtr:%d\n",
+        nRead, tb2Data->ntraces, nReadPtr);
+
     for (ir=0; ir<nReadPtr; ir++) {
       i1 = imapPtr[ir];
       //i2 = imapPtr[ir+1];
@@ -252,8 +257,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
-        i2 = imapPtr[ir+1];
+        //i2 = imapPtr[ir+1];
         k = imap[i1];
+        i2 = i1 + nmsg[k];
         kndx = 0;
         //if (debug) {
         if (1) {
