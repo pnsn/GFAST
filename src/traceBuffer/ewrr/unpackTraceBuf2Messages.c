@@ -81,7 +81,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     double *times, dt;
     int *nsamps;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
-        dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l,
+        dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l, j,
         lswap, nchunks, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = false;
@@ -188,7 +188,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     for (i=0; i<nRead; i++){
       j = tmp[i].indx;
       imsg[i] = j;
-      for (k=klast; k<ntraces; k++) {
+      for (k=klast; k<tb2Data->ntraces; k++) {
           if (strcmp(vals[j].sta, tbData[k].stnm) == 0){
             if (strcmp(vals[j].cha, tbData[k].chan) == 0){
               //tmp[i].k = k;
