@@ -190,8 +190,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       imsg[i] = j;
       for (k=klast; k<tb2Data->ntraces; k++) {
         // MTH: may want to also check net + loc if mixing networks
-          if (strcmp(vals[j].sta, tbData->traces[k].stnm) == 0){
-            if (strcmp(vals[j].cha, tbData->traces[k].chan) == 0){
+          if (strcmp(vals[j].sta, tb2Data->traces[k].stnm) == 0){
+            if (strcmp(vals[j].cha, tb2Data->traces[k].chan) == 0){
               //tmp[i].k = k;
               imap[i] = k;
               kpts[k] += vals[j].nsamps;
