@@ -248,6 +248,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         }
     }
 
+    printf("MTH: Final Loop to load traces\n");
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
