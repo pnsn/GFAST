@@ -164,8 +164,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         vals[i].time = trh->starttime;
         vals[i].nsamps = trh->nsamp;
         //vals[i].data = data;
-        i++;
-
     }
     print_struct(vals, nRead);
     exit(0);
