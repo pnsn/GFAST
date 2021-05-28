@@ -173,8 +173,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     // Sort the msg records by scnl + time:
     sort2(tmp, nRead);
-    print_struct(tmp, nRead);
-    exit(0);
+    //print_struct(tmp, nRead);
+    //exit(0);
 
     for (i=0; i<nRead; i++){
       tmp[i].k = -9;
