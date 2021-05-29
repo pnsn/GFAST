@@ -134,6 +134,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
 
     bool dump_tb2Data = false;
+    bool dump_nRead = true;
 
     if (dump_tb2Data) {
       for (k=0; k<tb2Data->ntraces; k++){
@@ -169,7 +170,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         vals[i].nsamps = trh->nsamp;
         //vals[i].data = data;
     }
-    //print_struct(vals, nRead);
+    if (dump_nRead) {
+      print_struct(vals, nRead);
+    }
 
     for (i=0; i<nRead; i++){
       memcpy(&tmp[i], &vals[i], sizeof(struct string_index));
@@ -177,7 +180,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     // Sort the msg records by scnl + time:
     sort2(tmp, nRead);
-    if (debug){
+    if (dump_nRead){
+        printf("MTH: Dump sorted structs:\n");
         print_struct(tmp, nRead);
     }
     //exit(0);
