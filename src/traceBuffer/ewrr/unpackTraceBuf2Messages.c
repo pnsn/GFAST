@@ -96,7 +96,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 1;
+    int debug = 0;
 
     int kold;
     struct string_index *vals, *tmp;
@@ -268,7 +268,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         k = imap[i1];
         i2 = i1 + nmsg[k];
         kndx = 0;
-        if (debug) {
+        //if (debug) {
+        if (1) {
           sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
                   tb2Data->traces[k].chan, tb2Data->traces[k].loc);
         }
@@ -342,6 +343,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         if (i2 - i1 == 1 && kpts[k] > 0) {
             tb2Data->traces[k].nchunks = 1;
             tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kpts[k];
+        }
+        if (1) {
+          printf("unpackTB2: k:%4d scnl:%s nmsg:%d kpts:%d i1:%d i2:%d nchunks:%d\n",
+              k, buf, nmsg[k], kpts[k], i1, i2, tb2Data->traces[k].nchunks);
         }
 
         // Reality check
