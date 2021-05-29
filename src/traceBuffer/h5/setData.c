@@ -47,7 +47,7 @@ int traceBuffer_h5_setData(const double currentTime,
     hsize_t dims[2];
     hid_t attribute, groupID, dataSet, dataSpace;
     herr_t status;
-    int debug = 0;
+    int debug = 1;
     //------------------------------------------------------------------------//
     //
     // Require both items are set
