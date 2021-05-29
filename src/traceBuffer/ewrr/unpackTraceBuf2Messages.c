@@ -96,7 +96,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *ll = NULL;
 
     bool found = false;
-    int debug = 0;
+    int debug = 1;
 
     int kold;
     struct string_index *vals, *tmp;
@@ -131,17 +131,18 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
 
-    for (i=0; i<10; i++) {
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
+
+    bool dump_tb2Data = false;
+
+    if (dump_tb2Data) {
+      for (k=0; k<tb2Data->ntraces; k++){
+        printf("%s.%s.%s.%s\n",
+            tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
+            tb2Data->traces[k].netw, tb2Data->traces[k].loc);
+      }
+      exit(0);
     }
-    for (k=0; k<tb2Data->ntraces; k++){
-      printf("%s.%s.%s.%s\n",
-          tb2Data->traces[k].stnm,
-          tb2Data->traces[k].chan,
-          tb2Data->traces[k].netw,
-          tb2Data->traces[k].loc);
-    }
-    exit(0);
 
 
     // MTH: load up the msg logos once
