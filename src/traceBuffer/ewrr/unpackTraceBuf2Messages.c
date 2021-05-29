@@ -159,6 +159,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     //print_struct(vals, nRead);
 
+    /*
+
     for (i=0; i<nRead; i++){
       memcpy(&tmp[i], &vals[i], sizeof(struct string_index));
     }
@@ -176,6 +178,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
     int klast = 0;
+    */
 
     for (k=0; i<tb2Data->ntraces; k++){
       printf("%s.%s.%s.%s\n",
