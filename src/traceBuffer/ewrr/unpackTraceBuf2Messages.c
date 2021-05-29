@@ -144,14 +144,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
-        if (strcmp(msg_logos[i], "CI.0001.LYZ.20")==0) {
-          printf("unpackTB2: msg_logos[%d]=%s time:%f nsamps:%d nRead:%d\n",
-              i, msg_logos[i], times[i], nsamps[i], nRead);
-        }
-        if (debug){
-          printf("unpackTB2: incoming msg_logos[%4d]=%s time:%.2f nsamps:%d\n",
-              i, msg_logos[i], times[i], nsamps[i]);
-        }
         */
 
         sprintf(logo, "%s.%s.%s.%s", trh->sta, trh->chan, trh->net, trh->loc);
@@ -184,6 +176,15 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
     int klast = 0;
+
+    for (k=0; i<tb2Data->ntraces; k++){
+      printf("%s.%s.%s.%s\n",
+          tb2Data->traces[k].stnm,
+          tb2Data->traces[k].chan,
+          tb2Data->traces[k].netw,
+          tb2Data->traces[k].loc);
+    }
+    exit(0);
 
     // Loop on waveforms and get workspace count
     // Loop through nRead msgs in sorted order and assign a k value to each
