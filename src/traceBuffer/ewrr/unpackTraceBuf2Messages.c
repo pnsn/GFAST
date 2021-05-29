@@ -135,8 +135,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     bool dump_tb2Data = false;
     bool dump_nRead = false;
-    bool dump_imap = false;
-    bool dump_nchunks = false;
+    bool debug_imap = false;
+    bool debug_nchunks = false;
 
     if (dump_tb2Data) {
       for (k=0; k<tb2Data->ntraces; k++){
