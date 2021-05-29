@@ -177,8 +177,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       imap[i]  = -9;
     }
 
-    int klast = 0;
     */
+    int klast = 0;
 
     for (k=0; i<tb2Data->ntraces; k++){
       printf("%s.%s.%s.%s\n",
