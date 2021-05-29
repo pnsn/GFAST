@@ -221,7 +221,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
     // Step through the sorted imap[i]=k and figure out where each new k starts = imap[imapPtr[ir]]
-    kold = imap[0];
+    //kold = imap[0];
+    kold = -999;
     ir = 0;
     for (i=0; i<nRead; i++) {
       k = imap[i];
