@@ -131,7 +131,18 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
 
+    for (i=0; i<10; i++) {
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
+    }
+    for (k=0; k<tb2Data->ntraces; k++){
+      printf("%s.%s.%s.%s\n",
+          tb2Data->traces[k].stnm,
+          tb2Data->traces[k].chan,
+          tb2Data->traces[k].netw,
+          tb2Data->traces[k].loc);
+    }
+    exit(0);
+
 
     // MTH: load up the msg logos once
     for (i=0; i<nRead; i++)
@@ -159,8 +170,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
     //print_struct(vals, nRead);
 
-    /*
-
     for (i=0; i<nRead; i++){
       memcpy(&tmp[i], &vals[i], sizeof(struct string_index));
     }
@@ -177,17 +186,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       imap[i]  = -9;
     }
 
-    */
     int klast = 0;
-
-    for (k=0; i<tb2Data->ntraces; k++){
-      printf("%s.%s.%s.%s\n",
-          tb2Data->traces[k].stnm,
-          tb2Data->traces[k].chan,
-          tb2Data->traces[k].netw,
-          tb2Data->traces[k].loc);
-    }
-    exit(0);
 
     // Loop on waveforms and get workspace count
     // Loop through nRead msgs in sorted order and assign a k value to each
