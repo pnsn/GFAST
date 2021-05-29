@@ -213,6 +213,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
     }
 
+    if (1) {
+      for (i=0; i<nRead; i++){
+        k = imap[i];
+        printf("imap[%d] --> k:%d %s.%s\n", i, k, tb2Data->traces[k].stnm, tb2Data->traces[k].chan);
+      }
+    }
+
     // Step through the sorted imap[i]=k and figure out where each new k starts = imap[imapPtr[ir]]
     kold = imap[0];
     ir = 0;
