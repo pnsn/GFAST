@@ -193,13 +193,12 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
             nchunks = tb2Data.traces[i].nchunks;
             c1 = tb2Data.traces[i].chunkPtr[0]; 
             c2 = tb2Data.traces[i].chunkPtr[nchunks];
-            printf("setData: i=%d tb2Data %s.%s npts:%d nchunks:%d chunkPtr[0]=%d chunkPtr[nchunks]=%d (c2-c1) != npts!\n",
-                i, tb2Data.traces[i].stnm, tb2Data.traces[i].chan, tb2Data.traces[i].npts,
-                c1, c2);
             if (c2 - c1 <= 0 || c2 - c1 != tb2Data.traces[i].npts)
             {
                 LOG_ERRMSG("npts to update is invalid %d %d %d",
                            c1, c2, tb2Data.traces[i].npts);
+            printf("setData: i=%d tb2Data %s.%s npts:%d nchunks:%d chunkPtr[0]=%d chunkPtr[nchunks]=%d (c2-c1) != npts!\n",
+                i, tb2Data.traces[i].stnm, tb2Data.traces[i].chan, tb2Data.traces[i].npts, tb2Data.traces[i].nchunks, c1, c2);
                 return -1;
             }
             for (chunk=0; chunk<nchunks; chunk++)

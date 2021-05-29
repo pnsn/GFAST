@@ -134,7 +134,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
 
     bool dump_tb2Data = false;
-    bool dump_nRead = true;
+    bool dump_nRead = false;
+    bool dump_imap = false;
+    bool dump_nchunks = false;
 
     if (dump_tb2Data) {
       for (k=0; k<tb2Data->ntraces; k++){
@@ -213,7 +215,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
     }
 
-    if (1) {
+    if (debug_imap) {
       for (i=0; i<nRead; i++){
         k = imap[i];
         printf("imap[%d] --> k:%d %s.%s\n", i, k, tb2Data->traces[k].stnm, tb2Data->traces[k].chan);
@@ -356,7 +358,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             tb2Data->traces[k].nchunks = 1;
             tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kpts[k];
         }
-        if (1) {
+        if (debug_nchunks) {
           printf("unpackTB2: k:%4d scnl:%s nmsg:%d kpts:%d i1:%d i2:%d nchunks:%d\n",
               k, buf, nmsg[k], kpts[k], i1, i2, tb2Data->traces[k].nchunks);
         }
