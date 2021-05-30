@@ -133,9 +133,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
 
-    bool dump_tb2Data = false;
-    bool dump_nRead = false;
-    bool debug_imap = false;
+    bool dump_tb2Data = true;
+    bool dump_nRead = true;
+    bool debug_imap = true;
     bool debug_nchunks = false;
 
     if (dump_tb2Data) {
@@ -144,7 +144,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
             tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
             tb2Data->traces[k].netw, tb2Data->traces[k].loc);
       }
-      exit(0);
+      //exit(0);
     }
 
 
