@@ -167,6 +167,7 @@ NEXT_TRACE:;
         //dwork = array_set64f(maxpts*ntraces, (double) NAN, &ierr);
         // MTH: quick hack to prevent mem leak on line 205
         dwork = array_set64f((maxpts+1)*ntraces, (double) NAN, &ierr);
+        //dwork = array_set64f((maxpts+1)*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
 printf("ishift=%d\n", ishift);
@@ -224,19 +225,6 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
       printf("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f\n",
                         is,
                         ts2,
-                        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-                        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-                        chunk,
-                        (k*maxpts),
-                        ts1,
-                        tb2Data.traces[i].times[is],
-                        indx,
-                        indx,
-                        dwork[indx],
-                        indx-1,
-                        dwork[indx-1]);
-      printf("setData: is:%4d scnl:%s.%s.%s.%s ch:%d indx0:%4d ts1:%.3f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f chk:dwork[%4d]:%8.2f\n", 
-                        is,
                         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
                         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
                         chunk,
