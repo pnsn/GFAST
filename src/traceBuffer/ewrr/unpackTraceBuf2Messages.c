@@ -22,6 +22,12 @@ static int fastUnpack(const int npts, const int lswap,
                       int *__restrict__ resp);
 
 /*!
+ * MTH: 2021/05 Rewrite of unpackTraceBuf2Messages.c
+ *              Replace 4 loops/sorts with one sort of record struct
+ *
+ */
+
+/*!
  * @brief Unpacks the tracebuf2 messages read from the ring and returns
  *        the concatenated data for the desired SNCL's in the tb2Data struct
  *
@@ -60,9 +66,9 @@ struct string_index {
   char loc[8];
   double time;
   int indx;
-  int k;
   int nsamps;
-  float data;
+  //int k;
+  //float data;
 };
 void print_struct(struct string_index *d, int n);
 void sort2(struct string_index *vals, int n);
@@ -76,8 +82,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *msg, netw[64], stat[64], chan[64], loc[64];
     TRACE2_HEADER traceHeader;
     TRACE2_HEADER  *trh;
-    //long *longData;
-    //short *shortData;
     double *times, dt;
     int *nsamps;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
@@ -87,13 +91,9 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const bool clearSNCL = false;
 
     //char **msg_logos = (char **)malloc(sizeof(char *) * nRead);
+    //char msg_logos[nRead][15];
     char buf[15];
-    char msg_logos[nRead][15];
     char *logo;
-    char *nn = NULL;
-    char *ss = NULL;
-    char *cc = NULL;
-    char *ll = NULL;
 
     bool found = false;
     int debug = 0;
@@ -148,13 +148,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     }
 
 
-    // MTH: load up the msg logos once
+    // MTH: load up the msg logos, times and nsamp into records to sort once
     for (i=0; i<nRead; i++)
     {
         indx = i*MAX_TRACEBUF_SIZ;
         trh  = (TRACE2_HEADER *) &msgs[indx];
         /*
-        //msg_logos[i] = (char *)malloc(15);
         sprintf(msg_logos[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
@@ -180,16 +179,15 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       memcpy(&tmp[i], &vals[i], sizeof(struct string_index));
     }
 
-    // Sort the msg records by scnl + time:
+    // Sort the msg records by scnl + time to align with tb2Data slots:
     sort2(tmp, nRead);
     if (dump_nRead){
         printf("MTH: Dump sorted structs:\n");
         print_struct(tmp, nRead);
     }
-    //exit(0);
 
     for (i=0; i<nRead; i++){
-      tmp[i].k = -9;
+      //tmp[i].k = -9;
       imap[i]  = -9;
     }
 
@@ -199,6 +197,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Loop through nRead msgs in sorted order and assign a k value to each
     for (i=0; i<nRead; i++){
       j = tmp[i].indx;
+      // imsg keeps msg sort order
       imsg[i] = j;
       for (k=klast; k<tb2Data->ntraces; k++) {
         // MTH: may want to also check net + loc if mixing networks
@@ -214,6 +213,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
           }
       }
     }
+    // It's now sorted so that as you step through i: 1, ..., nRead,
+    // imgs[i] = next msg in sort order, while imap[i] = kth tb2Data scnl msg target
 
     if (debug_imap) {
       for (i=0; i<nRead; i++){
@@ -249,14 +250,8 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       //i2 = imapPtr[ir+1];
       k = imap[i1]; // k always = ir ?
       i2 = i1 + nmsg[k];
-      if (debug){
-        printf("ir:%d i1:%d i2:%d k:%d nmsg[k]:%d kpts[k]:%d\n", ir, i1, i2, k, nmsg[k], kpts[k]);
-      }
       for (im=i1; im<i2; im++){
-            j=imsg[im];
-            if (debug){
-              printf("  im:%5d msg %5d: %s time:%.1f\n", im, j, vals[j].logo, vals[j].time);
-            }
+        j=imsg[im];
       }
     }
 
@@ -385,7 +380,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         }
 
 
-        if (0) {
+        if (debug) {
           printf("unpackTB2  k:%4d nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
                    k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks],
                   tb2Data->traces[k].npts);
@@ -393,7 +388,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     } // Loop on pointers
     //exit(0);
-//LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_time_timeStamp());
 
     // Free space
     memory_free8c(&msg);

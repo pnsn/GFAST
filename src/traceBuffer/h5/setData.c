@@ -106,7 +106,7 @@ int traceBuffer_h5_setData(const double currentTime,
                                   tb2Data.traces[k].chan) == 0) &&
                 (strcasecmp(h5traceBuffer.traces[i].loc,
                                   tb2Data.traces[k].loc)  == 0)) 
-            {   
+            {
                 map[i] = k;
                 if (tb2Data.traces[i].npts > 0)
                 {
@@ -220,57 +220,37 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
                     // MTH: The current data point is always getting inserted to the same indx as
                     // the buffer moves along, so does ts1, ts2, tb2Data[i].times[is], maintaining their offset
 
-      if (debug){
+                    if (debug){
+      printf("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f\n",
+                        is,
+                        ts2,
+                        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+                        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+                        chunk,
+                        (k*maxpts),
+                        ts1,
+                        tb2Data.traces[i].times[is],
+                        indx,
+                        indx,
+                        dwork[indx],
+                        indx-1,
+                        dwork[indx-1]);
       printf("setData: is:%4d scnl:%s.%s.%s.%s ch:%d indx0:%4d ts1:%.3f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f chk:dwork[%4d]:%8.2f\n", 
-        is,
-        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-        chunk,
-        (k*maxpts),
-        ts1,
-        tb2Data.traces[i].times[is],
-        indx,
-        indx,
-        dwork[indx],
-        indx-1,
-        dwork[indx-1]);
-      }
+                        is,
+                        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+                        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+                        chunk,
+                        (k*maxpts),
+                        ts1,
+                        tb2Data.traces[i].times[is],
+                        indx,
+                        indx,
+                        dwork[indx],
+                        indx-1,
+                        dwork[indx-1]);
+                      }
 
-        /*
-      printf("%s.%s.%s.%s val:%8.2f ts1:%f time:%f offset:%d\n",
-        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-        (double)tb2Data.traces[i].data[is],
-        ts1,
-        tb2Data.traces[i].times[is],
-        (int)((tb2Data.traces[i].times[is] - ts1)/dt + 0.5)
-        );
-        */
-
-                    //LOG_DEBUGMSG("i:%d is:%d time:%f insert dwork[%d]=%f", 
-                             //i, is, tb2Data.traces[i].times[is], indx, dwork[indx]);
-                             //
-                    /*
-                    LOG_MSG("   Insert tb2Data %s.%s.%s.%s t:%f (npts:%d) (int) data:%d ts1:%f indx:%d",
-                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
-                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
-                                  tb2Data.traces[i].times[is],
-                                  tb2Data.traces[i].npts, tb2Data.traces[i].data[is],
-                                  ts1, indx);
-                    */
-                    /*
-                    LOG_DEBUGMSG("%s.%s.%s.%s t:%f (t-ts1):%f k:%d k*maxpts:%d indx:%d",
-                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
-                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
-                                  tb2Data.traces[i].times[is], (tb2Data.traces[i].times[is] - ts1),
-                                  k, (k*maxpts), indx);
-
-                    LOG_DEBUGMSG("   Insert tb2Data %s.%s.%s.%s t:%f data:%d into dwork[indx=%d]",
-                                  tb2Data.traces[i].stnm, tb2Data.traces[i].chan,
-                                  tb2Data.traces[i].netw, tb2Data.traces[i].loc,
-                                  tb2Data.traces[i].times[is], tb2Data.traces[i].data[is], indx);
-                    */
-                }
+                } // for is
             } // Loop on data chunks 
         } // Loop on waveforms in this group
         // Write the new dataset
@@ -312,107 +292,3 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
     memory_free8l(&lhaveData);
     return ierrAll;
 }
-//============================================================================//
-/*!
- * @brief Updates the subset of data in the existing dataSetName
- *        to dataSet[i1:i2] inclusive
- *
- * @param[in] groupID      HDF5 group handle containing dataSetID
- * @param[in] dataSetName  null terminated name of HDF5 dataset
- * @param[in] i1           first index in HDF5 (C numbered)
- * @param[in] i2           last index in HDF5 to write data (C numbered)
- * @param[in] npts         number of data points to write (should = i2 - i1 + 1)
- * @param[in] data         dataset to write [npts]
- *
- * @result 0 indicates success
- *
- * @author Ben Baker (ISTI)
- *
- */
-/*
-static int update_dataSet(const hid_t groupID,
-                          const char *dataSetName,  
-                          int i1, int i2, const int npts,
-                          const double *__restrict__ data)
-{
-    hid_t dataSetID, dataSpace, memSpace;
-    herr_t status;
-    hsize_t block[1], count[1], dims[1], offset[1], stride[1];
-    const int rank = 1; // Data is 1 dimensional
-    //------------------------------------------------------------------------//
-    //
-    // Nothing to do
-    if (npts == 0){return 0;}
-    // Check the inputs
-    if (i2 < i1 || npts != i2 - i1 + 1 || data == NULL)
-    {
-        if (i2 < i1){LOG_ERRMSG("%s", "Error i2 < i1!");}
-        if (npts != i2 - i1 + 1)
-        {
-            LOG_ERRMSG("%s", "Error npts != i2 - i1 + 1");
-        }
-        if (data == NULL){LOG_ERRMSG("%s", "data is NULL");}
-        return -1;
-    }
-    if (H5Lexists(groupID, dataSetName, H5P_DEFAULT) != 1)
-    {
-        LOG_ERRMSG("Dataset %s does not exist", dataSetName); 
-        return -1;
-    }
-    // Open the dataspace
-    dataSetID = H5Dopen(groupID, dataSetName, H5P_DEFAULT);
-    dataSpace = H5Dget_space(dataSetID);
-    if (H5Sget_simple_extent_ndims(dataSpace) != rank)
-    {
-        LOG_ERRMSG("%s", "Invalid rank");
-        status =-1;
-        goto ERROR1;
-    }
-    status = H5Sget_simple_extent_dims(dataSpace, dims, NULL);
-    if (dims[0] < (hsize_t) npts)
-    {
-        LOG_ERRMSG("Too many points to write %d %d!",
-                    npts, (int) dims[0]);
-        status =-1;
-        goto ERROR1;
-    }
-    if (dims[0] < (hsize_t) (i1 + npts))
-    {
-        LOG_ERRMSG("Trying to write past end of data %d %d %d!\n",
-                   i1, npts, (int) dims[0]);
-        status =-1;
-        goto ERROR1;
-    }
-    dims[0] = (hsize_t) npts;
-    memSpace = H5Screate_simple(rank, dims, NULL); 
-    // Select HDF5 chunk
-    status = 0;
-    offset[0] = (hsize_t) i1;
-    stride[0] = 1;
-    count[0] = (hsize_t) npts;
-    block[0] = 1;
-    status = H5Sselect_hyperslab(dataSpace, H5S_SELECT_SET, offset, stride,
-                                 count, block);
-    if (status < 0)
-    {
-        LOG_ERRMSG("%s", "Error selecting hyperslab");
-        status =-1;
-        goto ERROR2;
-    }
-    // Write the data to that space
-    status = H5Dwrite(dataSetID, H5T_NATIVE_DOUBLE, memSpace, dataSpace,
-                      H5P_DEFAULT, data);
-    if (status < 0)
-    {
-        LOG_ERRMSG("%s", "Error writing data");
-        status =-1;
-        goto ERROR2;
-    }
-ERROR2:;
-    status = H5Sclose(memSpace);
-ERROR1:;
-    status = H5Sclose(dataSpace);
-    status = H5Dclose(dataSetID);
-    return status;
-}
-*/
