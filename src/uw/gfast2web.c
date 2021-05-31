@@ -360,7 +360,7 @@ iopt =-1;
 
     printf("MTH: pgdResults.nsites:%d ndeps:%d\n", pgd.nsites, pgd.ndeps);
     for (i=0; i<pgd.nsites; i++){
-      printf("mpgd[%d]:%.2f vr:%f\n", i, pgd.mpgd[i], pgd.mgpd_vr[i]);
+      printf("mpgd[%d]:%.2f vr:%f\n", i, pgd.mpgd[i], pgd.mpgd_vr[i]);
     }
     //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
       hdf5_memory_freePGDResults(&h5pgd);
