@@ -234,7 +234,7 @@ iopt =-1;
 
         printf("MTH: pgdResults.nsites:%d ndeps:%d\n", pgd.nsites, pgd.ndeps);
         int imin = -9;
-        float vrmin = 1e10;
+        float vrmin = 0;
         for (i=0; i<pgd.ndeps; i++){
             if (pgd.mpgd_vr[i] > vrmin) {
               imin = i;
