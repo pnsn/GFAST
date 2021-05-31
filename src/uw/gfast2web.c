@@ -232,7 +232,7 @@ iopt =-1;
         H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
         hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
 
-        printf("MTH: pgdResults.nsites:%d ndeps:%d\n", pgd.nsites, pgd.ndeps);
+        //printf("MTH: pgdResults.nsites:%d ndeps:%d\n", pgd.nsites, pgd.ndeps);
         int imin = -9;
         float vrmin = 0;
         for (i=0; i<pgd.ndeps; i++){
@@ -240,9 +240,9 @@ iopt =-1;
               imin = i;
               vrmin = pgd.mpgd_vr[i];
             }
-            printf("mpgd[%d]:%.2f vr:%f\n", i, pgd.mpgd[i], pgd.mpgd_vr[i]);
+            //printf("mpgd[%d]:%.2f vr:%f\n", i, pgd.mpgd[i], pgd.mpgd_vr[i]);
         }
-        printf("PGD_Mw:%.f vr:%f imin:%d\n", pgd.mpgd[imin], pgd.mpgd_vr[imin], imin);
+        printf("PGD_Mw:%.2f vr:%.2f imin_dep:%d ndeps:%d\n", pgd.mpgd[imin], pgd.mpgd_vr[imin], imin, pgd.ndeps);
       //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
         hdf5_memory_freePGDResults(&h5pgd);
         H5Sclose(memSpace);
