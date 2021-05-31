@@ -226,25 +226,23 @@ iopt =-1;
     {
         LOG_WARNMSG("%s", "cmt not yet computed");
     }
-    memset(&h5cmt, 0, sizeof(struct h5_cmtResults_struct));
-    memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
-    dataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
-    dataSet = H5Dopen(groupID, CMT_RES, H5P_DEFAULT);
-    dataSpace = H5Dget_space(dataSet);
-    memSpace = H5Screate_simple(1, dims, NULL);
-    H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5cmt);
-    hdf5_copyCMTResults(COPY_H5_TO_DATA, &cmt, &h5cmt);
+    else {
+      memset(&h5cmt, 0, sizeof(struct h5_cmtResults_struct));
+      memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+      dataType = H5Topen(h5fl, CMT_STRUCT, H5P_DEFAULT);
+      dataSet = H5Dopen(groupID, CMT_RES, H5P_DEFAULT);
+      dataSpace = H5Dget_space(dataSet);
+      memSpace = H5Screate_simple(1, dims, NULL);
+      H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5cmt);
+      hdf5_copyCMTResults(COPY_H5_TO_DATA, &cmt, &h5cmt);
 
-    iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
-    idep =-1;
-    getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
-//printf("iopt=%d idep=%d\n", iopt, idep);
-//printf("cmt.opt_indx=%d\n", cmt.opt_indx);
-//printf("Mw[opt_indx]=%.2f\n", cmt.Mw[cmt.opt_indx]);
-
-    printf("Mw:%.2f plane1: (%.1f, %.1f, %.1f) plane2: (%.1f, %.1f, %.1f) nsites:%d\n", 
-        cmt.Mw[iopt], cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt],
-                      cmt.str2[iopt], cmt.dip2[iopt], cmt.rak2[iopt], cmt.nsites);
+      iopt = array_argmin64f(cmt.nlats*cmt.nlons*cmt.ndeps, cmt.objfn, &ierr);
+      idep =-1;
+      getCMTopt(cmt, &iopt, &idep, &latOpt, &lonOpt);
+      printf("Mw:%.2f plane1: (%.1f, %.1f, %.1f) plane2: (%.1f, %.1f, %.1f) nsites:%d\n", 
+          cmt.Mw[iopt], cmt.str1[iopt], cmt.dip1[iopt], cmt.rak1[iopt],
+                        cmt.str2[iopt], cmt.dip2[iopt], cmt.rak2[iopt], cmt.nsites);
+    }
 
 
     // gps data
