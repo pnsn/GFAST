@@ -345,28 +345,32 @@ iopt =-1;
         //core_scaling_pgd_finalizeData(&pgd_data);
     }
 
-    exit(0);
+    //exit(0);
 
     // pgdResults
-    memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
-    memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
-    dataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
-    dataSet = H5Dopen(groupID, PGD_RES, H5P_DEFAULT);
-    dataSpace = H5Dget_space(dataSet);
-    memSpace = H5Screate_simple(1, dims, NULL);
-    H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
-    hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
+    if (H5Lexists(groupID, PGD_STRUCT, H5P_DEFAULT) > 0) {
+      memset(&h5pgd, 0, sizeof(struct h5_pgdResults_struct));
+      memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+      dataType = H5Topen(h5fl, PGD_STRUCT, H5P_DEFAULT);
+      dataSet = H5Dopen(groupID, PGD_RES, H5P_DEFAULT);
+      dataSpace = H5Dget_space(dataSet);
+      memSpace = H5Screate_simple(1, dims, NULL);
+      H5Dread(dataSet, dataType, memSpace, dataSpace, H5P_DEFAULT, &h5pgd);
+      hdf5_copyPGDResults(COPY_H5_TO_DATA, &pgd, &h5pgd);
 
-    //printf("MTH: pgdResults.nsites=%d\n", pgd.nsites);
-    //for (i=0; i<pgd.nsites; i++){
-      //printf("lsiteUsed[%i]: %d\n", i, pgd.lsiteUsed[i]);
-    //}
+    printf("MTH: pgdResults.nsites:%d ndeps:%d\n", pgd.nsites, pgd.ndeps);
+    for (i=0; i<pgd.nsites; i++){
+      printf("mpgd[%d]:%.2f vr:%f\n", i, pgd.mpgd[i], pgd.mgpd_vr[i]);
+    }
     //cpgd = gfast2json_packPGD(evid, gpsData, pgd);
-    hdf5_memory_freePGDResults(&h5pgd);
-    H5Sclose(memSpace);
-    H5Sclose(dataSpace);
-    H5Dclose(dataSet);
-    H5Tclose(dataType);
+      hdf5_memory_freePGDResults(&h5pgd);
+      H5Sclose(memSpace);
+      H5Sclose(dataSpace);
+      H5Dclose(dataSet);
+      H5Tclose(dataType);
+    }
+
+    exit(0);
     //core_scaling_pgd_finalizeResults(&pgd);
 
             // cmt
