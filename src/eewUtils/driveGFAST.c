@@ -368,7 +368,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                 //LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
 
                 // MTH: This is just a sanity check, could be done anywhere:
-                if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) == 0){
+                if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) != 0){
                   LOG_MSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
                            SA.eventid, iev, xml_status->SA_status[iev].eventid);
                   LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",

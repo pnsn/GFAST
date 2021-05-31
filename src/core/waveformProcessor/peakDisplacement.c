@@ -179,6 +179,7 @@ int core_waveformProcessor_peakDisplacement(
             // Compute the peak displacement max(norm(u + n + e, 2))
             tmin = distance / svel_window;
             tmax = distance / min_svel_window;
+            printf("Call __getPeakDisplacement dist:%.2f tmin:%.2f tmax:%.2f\n", distance, tmin, tmax);
             peakDisp = __getPeakDisplacement(gps_data.data[k].npts,
                                              gps_data.data[k].dt,
                                              ev_time,
@@ -313,6 +314,8 @@ static double __getPeakDisplacement(const int npts,
       indx1 = npts;
     }
 
+    printf("__getPeak indx0:%d tmax:%.2f indx1:%d npts:%d\n", indx0, tmax, indx1, npts);
+
     // Prevent a problem
     //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
              //diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
@@ -353,6 +356,8 @@ static double __getPeakDisplacement(const int npts,
     }
     if (!isnan(peakDisplacement)){
     LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
+             peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
+    printf("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f)\n",
              peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
     }
 
