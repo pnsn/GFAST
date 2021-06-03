@@ -14,7 +14,8 @@
 
 //#define MAX_MESSAGES 1024
 //#define MAX_MESSAGES 183000
-#define MAX_MESSAGES 200000
+//#define MAX_MESSAGES 200000
+#define MAX_MESSAGES 10000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
@@ -38,6 +39,7 @@ int main(int argc, char **argv)
   char propfilename[PATH_MAX];
   char *message_dir; 
   struct GFAST_activeEvents_struct events;
+  struct GFAST_activeEvents_xml_status xml_status;
   struct GFAST_cmtResults_struct cmt;
   struct GFAST_ffResults_struct ff;
   struct h5traceBuffer_struct h5traceBuffer;
@@ -74,6 +76,8 @@ int main(int argc, char **argv)
   bool check_message_dir = false;
   bool USE_AMQ = true;
   int niter = 0;
+  int iev;
+  int i, j, i1, i2, is, chunk;
 #ifdef GFAST_USE_AMQ
   USE_AMQ = true;
 #endif
@@ -365,9 +369,26 @@ int main(int argc, char **argv)
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
 	  goto ERROR;
         }
-      printf("end %d %8.4f\n", nTracebufs2Read, time_timeStamp() - tbeger);
-      tbeger = time_timeStamp();
+ 
+      if (0) {
+	for (i=0;i<tb2Data.ntraces;i++){
+	  if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
+	    for (chunk=0;chunk<tb2Data.traces[i].nchunks; chunk++){
+	      i1 = tb2Data.traces[i].chunkPtr[chunk];
+	      i2 = tb2Data.traces[i].chunkPtr[chunk+1];
+	      for (is=i1; is<i2; is++) {
+		printf("%s.%s.%s.%s time:%f val:%8.2f [tb2Data]\n",
+		       tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+		       tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+		       tb2Data.traces[i].times[is], (double)tb2Data.traces[i].data[is]);
+	      }
+	    }
+	  }
+	}
+      }
+      
       // Update the hdf5 buffers
+      
       LOG_MSG("%s", "== Update the hdf5 buffers");
       ierr = traceBuffer_h5_setData(t1,
 				    tb2Data,
@@ -378,7 +399,11 @@ int main(int argc, char **argv)
 	  LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
 	  goto ERROR;
         }
-
+      //exit(0);
+      //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
+      //printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
+      // early quit
+      
       // Check for an event
       if (USE_AMQ){
 	if (props.verbose > 2) {
@@ -421,14 +446,14 @@ int main(int argc, char **argv)
             }
 	  //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
 	  // If this is a new event we have some file handling to do
-	  lnewEvent = GFAST_core_events_newEvent(SA, &events);
+	  lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
 	  if (lnewEvent){
 	    LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
 	  }
 	  else{
 	    LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
 	  }
-
+	  
 	  if (lnewEvent)
             {
 	      // And the logs
@@ -490,26 +515,13 @@ int main(int argc, char **argv)
 				 &pgd,
 				 &cmt,
 				 &ff,
-				 &xmlMessages);
+				 &xmlMessages,
+				 &xml_status);
       if (ierr != 0)
 	{
 	  LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
 	  goto ERROR; 
 	}
-      /* does not compile.
-      if (props.verbose > 2) {
-	for (iev=0;iev<events.nev;iev++){
-	  printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
-		 events.SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
-	}
-	printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
-	       cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
-	printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
-	       cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
-	printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
-	       events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
-      }
-      */
 
       // Send the messages where they need to go
       if (xmlMessages.mmessages > 0)

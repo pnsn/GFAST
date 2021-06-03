@@ -25,6 +25,17 @@
  */
 
 int eewUtils_writeXML(const char *dirname, const char *eventid, const char *msg_type, const char *message, int interval, bool interval_in_mins);
+
+bool check_mins_against_intervals(
+      struct GFAST_props_struct props,
+      int mins,
+      char * eventid,
+      char * suffix,
+      char * xml,
+      bool * interval_complete,
+      double age
+      );
+
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -70,7 +81,8 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_pgdResults_struct *pgd,
                         struct GFAST_cmtResults_struct *cmt,
                         struct GFAST_ffResults_struct *ff,
-                        struct GFAST_xmlMessages_struct *xmlMessages)
+                        struct GFAST_xmlMessages_struct *xmlMessages,
+                        struct GFAST_activeEvents_xml_status *xml_status)
 {
   struct GFAST_shakeAlert_struct SA;
   char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
@@ -192,6 +204,7 @@ int eewUtils_driveGFAST(const double currentTime,
       // Extract the peak displacement from the waveform buffer
       nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(props.pgd_props.utm_zone,
 								 props.pgd_props.window_vel,
+								 props.pgd_props.min_window_vel,
 								 SA.lat,
 								 SA.lon,
 								 SA.dep,
@@ -368,21 +381,27 @@ int eewUtils_driveGFAST(const double currentTime,
 	      
 	      //LOG_MSG("Age_of_event=%f [%d] mins %.3f secs", age_of_event, mins, secs);
 	      
+	      // MTH: This is just a sanity check, could be done anywhere:
+	      if (strcmp(SA.eventid, xml_status->SA_status[iev].eventid) != 0){
+		LOG_MSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
+			SA.eventid, iev, xml_status->SA_status[iev].eventid);
+		LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
+			   SA.eventid, iev, xml_status->SA_status[iev].eventid);
+	      }
+	      
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
 		int index = (int)(currentTime - SA.time);
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
 	      }
-	      else {
-		for (i=0; i<props.n_intervals; i++){
-		  if (mins == props.output_interval_mins[i] && secs < 1.){
-		    LOG_MSG("Age_of_event=%f --> Output minute %d PGD solution",
-			    age_of_event, props.output_interval_mins[i]);
-		    ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd",
-					     pgdXML, props.output_interval_mins[i], true);
-		  }
-		}
+	      else if (secs < 3.) {
+		LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check PGD writeXML\n",
+			SA.eventid, age_of_event, mins, secs);
+		check_mins_against_intervals(props, mins, SA.eventid, "pgd", pgdXML,
+					     xml_status->SA_status[iev].interval_complete[0],
+					     age_of_event);
 	      }
             } //if lpgdSuccess
+
             // Make the CMT quakeML
             if (lcmtSuccess)
 	      {
@@ -415,6 +434,14 @@ int eewUtils_driveGFAST(const double currentTime,
                   ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
                                            cmtQML, index, false);
                 }
+                else if (secs < 3.) {
+                  LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
+                           SA.eventid, age_of_event, mins, secs);
+                  check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtQML,
+                                               xml_status->SA_status[iev].interval_complete[1],
+                                               age_of_event);
+                }
+                /*
                 else {
                   for (i=0; i<props.n_intervals; i++){
                     if (mins == props.output_interval_mins[i] && secs < 1.){
@@ -425,9 +452,10 @@ int eewUtils_driveGFAST(const double currentTime,
                     }
                   }
                 }
+                */
 	      }
-	    // Make the finite fault XML
-	    if (lffSuccess)
+            // Make the finite fault XML
+            if (lffSuccess)
             {
 	      if (props.verbose > 2)
                 {
@@ -474,16 +502,24 @@ int eewUtils_driveGFAST(const double currentTime,
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
 					 ffXML, index, false);
 	      }
-	      else {
-		for (i=0; i<props.n_intervals; i++){
-		  if (mins == props.output_interval_mins[i] && secs < 1.){
-		    LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
-			    age_of_event, props.output_interval_mins[i]);
-		    ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
-					     ffXML, props.output_interval_mins[i], true);
-		  }
-		}
+	      else if (secs < 3.) {
+		LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check FF writeXML\n",
+			SA.eventid, age_of_event, mins, secs);
+		check_mins_against_intervals(props, mins, SA.eventid, "ff", ffXML,
+					     xml_status->SA_status[iev].interval_complete[2],
+					     age_of_event);
 	      }
+	      /*
+                else {
+		  for (i=0; i<props.n_intervals; i++){
+		    if (mins == props.output_interval_mins[i] && secs < 1.){
+		      LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
+		               age_of_event, props.output_interval_mins[i]);
+		      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+		                               ffXML, props.output_interval_mins[i], true);
+		  }
+                }
+	      */
             }
 	  xmlMessages->evids[xmlMessages->nmessages]
 	    = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
@@ -606,6 +642,7 @@ int eewUtils_driveGFAST(const double currentTime,
 						 currentTime,
 						 props.verbose,
 						 events);
+      core_events_syncXMLStatusWithEvents(events, xml_status);
       LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
       if (nRemoved != nPop)
         {
@@ -622,7 +659,7 @@ int eewUtils_writeXML(const char *dirname,
                       const char *msg_type,
                       const char *message,
                       int interval,
-		      bool interval_in_mins
+                      bool interval_in_mins
                       )
 {
   char fullpath[128];
@@ -644,9 +681,12 @@ int eewUtils_writeXML(const char *dirname,
 
   if (access( fullpath, F_OK ) != -1 ) {
     LOG_MSG("File:%s already exists!\n", fullpath);
-  } else {
+  }
+  /*
+  else {
     LOG_MSG("File:%s doesn't exist\n", fullpath);
   }
+  */
 
   fp = fopen(fullpath, "w");
   fprintf(fp, "%s\n", message);
@@ -654,4 +694,43 @@ int eewUtils_writeXML(const char *dirname,
 
   return 0;
 
+}
+
+bool check_mins_against_intervals(
+      struct GFAST_props_struct props,
+      int mins,
+      char * eventid,
+      char * suffix,
+      char * xml,
+      bool * interval_complete,
+      double age
+      )
+{
+   int i, ierr;
+
+   i = props.n_intervals - 1;
+   if (mins == props.output_interval_mins[i] && interval_complete[i] == false) {
+      LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s [FINAL MIN INTERVAL]",
+                  eventid, age, props.output_interval_mins[i], suffix);
+      ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
+                               props.output_interval_mins[i], true);
+      interval_complete[i] = true;
+      return true;
+   }
+
+   for (i=0; i<props.n_intervals-1; i++){
+      if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
+        if (interval_complete[i] == false) {
+          LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s",
+                  eventid, age, props.output_interval_mins[i], suffix);
+
+          ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
+                                   props.output_interval_mins[i], true);
+          interval_complete[i] = true;
+          return true;
+      }
+    }
+   }
+
+   return false;
 }

@@ -157,7 +157,11 @@ double core_events_getMinOriginTime(struct GFAST_props_struct props,
                                     bool *lnoEvents);
 /* Adds a new event to the event list */
 bool core_events_newEvent(struct GFAST_shakeAlert_struct SA, 
-                          struct GFAST_activeEvents_struct *events);
+                          struct GFAST_activeEvents_struct *events,
+                          struct GFAST_activeEvents_xml_status *xml_status);
+bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *events,
+                                         struct GFAST_activeEvents_xml_status *xml_status);
+
 /* Print the events in the event list */
 void core_events_printEvents(struct GFAST_shakeAlert_struct SA);
 /* Remove a cancelled event from the events list */
@@ -550,6 +554,7 @@ int core_waveformProcessor_offset(const int utm_zone,
 int core_waveformProcessor_peakDisplacement(
     const int utm_zone,
     const double svel_window,
+    const double min_svel_window,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,
@@ -605,6 +610,9 @@ int core_waveformProcessor_peakDisplacement(
               core_events_getMinOriginTime(__VA_ARGS__)
 #define GFAST_core_events_newEvent(...)       \
               core_events_newEvent(__VA_ARGS__)
+#define GFAST_core_events_syncXMLStatusWithEvents(...)       \
+              core_events_syncXMLStatusWithEvents(__VA_ARGS__)
+
 #define GFAST_core_events_printEvents(...)       \
               core_events_printEvents(__VA_ARGS__)
 #define GFAST_core_events_removeCancelledEvent(...)       \
