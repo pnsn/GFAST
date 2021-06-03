@@ -390,6 +390,8 @@ printf("%s\n", amqMessage);
             lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
             if (lnewEvent){
               LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
+              printf("New event evid:%s lat:%8.3f lon:%8.3f dep:%5.3f mag:%.2f time:%f age_now:%f\n",
+                  SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
             }
             else{
               LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
