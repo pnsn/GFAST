@@ -16,7 +16,7 @@
 //#define MAX_MESSAGES 1024
 //#define MAX_MESSAGES 183000
 //#define MAX_MESSAGES 200000
-#define MAX_MESSAGES 10000
+#define MAX_MESSAGES 80000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
