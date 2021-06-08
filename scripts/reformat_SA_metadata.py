@@ -7,7 +7,7 @@
 #SAmetaDir='/app/share/etc/geodetic/'
 SAmetaDir='/home/kress/geodeticMetadata/'
 SAcoordFile=SAmetaDir+'station_coords.dat'
-SAnetList=['bk','ci','nc','pw']
+SAnetList=['bk','ci','nc','pb','pw']
 SAchanFile=SAmetaDir+'chanfile_%s.dat'
 
 GFASTmetaDir='/home/kress/temp/'

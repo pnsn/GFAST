@@ -78,10 +78,11 @@ int stopDestinationConnection() {
   if ( destinationConnection==NULL ) {
     printf("%s: connection already dead\n",fcnm);
     return 0;
+  } else {
+    destinationConnection->close();
+    delete destinationConnection;
+    destinationConnection=NULL;
   }
-  destinationConnection->close();
-  delete destinationConnection;
-  destinationConnection=NULL;
   return 1;
 }
 
@@ -234,10 +235,11 @@ int stopHBProducer() {
   if (hbproducer==NULL) {
     printf("%s: HB producer not running\n",fcnm);
       return 0;
+  } else {
+    hbproducer->stop();
+    delete hbproducer;
+    hbproducer=NULL;
   }
-  hbproducer->stop();
-  delete hbproducer;
-  hbproducer=NULL;
   return 1;
 }
 
