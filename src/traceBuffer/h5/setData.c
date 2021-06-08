@@ -223,8 +223,8 @@ LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
 
                     if (debug){
       printf("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f\n",
-                        is,
                         ts2,
+                        is,
                         tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
                         tb2Data.traces[i].chan, tb2Data.traces[i].loc,
                         chunk,
