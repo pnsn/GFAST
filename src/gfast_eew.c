@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include "gfast.h"
 #include "gfast_core.h"
 #include "iscl/memory/memory.h"
@@ -190,20 +191,26 @@ int main(int argc, char **argv)
       goto ERROR;
     }
     /* start heartbeat producer and set to manual heartbeats */
-    if (props.verbose > 0)
-      {
-	LOG_INFOMSG("%s: Initializing heartbeat sender on %s...\n", fcnm,
-		    props.activeMQ_props.hbTopic);
-	LOG_MSG("%s: Initializing heartbeat sender on %s...", fcnm,
-		props.activeMQ_props.hbTopic);
+    if ((props.activeMQ_props.hbTopic!=NULL) &&
+	(strlen(props.activeMQ_props.hbTopic)>0)) {
+      char senderstr[100];
+      strcpy(senderstr,"gfast.");
+      gethostname(senderstr+strlen(senderstr),90); /*append hostname*/
+      if (props.verbose > 0)
+	{
+	  LOG_INFOMSG("%s: Initializing heartbeat sender %s on %s...\n", fcnm,
+		      senderstr,props.activeMQ_props.hbTopic);
+	  LOG_MSG("%s: Initializing heartbeat sender %s on %s...", fcnm,
+		  senderstr,props.activeMQ_props.hbTopic);
+	}
+      ierr=startHBProducer(senderstr, props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
+      if (ierr==0) {
+	LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
       }
-    ierr=startHBProducer("gfast", props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
-    if (ierr==0) {
-      LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
-    }
-    if (ierr<0) {
-      LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
-      goto ERROR;
+      if (ierr<0) {
+	LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
+	goto ERROR;
+      }
     }
     /*start message sender*/
     if (props.verbose > 0)
