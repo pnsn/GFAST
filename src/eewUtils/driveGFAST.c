@@ -629,6 +629,7 @@ LOG_MSG("time:%lf RemoveExpiredEvents", currentTime);
                                                    currentTime,
                                                    props.verbose,
                                                    events);
+LOG_MSG("time:%lf syncXMLStatusWithEvents", currentTime);
         core_events_syncXMLStatusWithEvents(events, xml_status);
 LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
         if (nRemoved != nPop)

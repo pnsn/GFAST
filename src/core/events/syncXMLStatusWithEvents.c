@@ -27,8 +27,19 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
     nev = events->nev;
     nstats = xml_status->nev;
 
+    if (nev == 0){
+      for (iev=0; iev<nstats; iev++){
+        LOG_MSG("events is empty --> release xml_status[%d]=%s", iev, xml_status->SA_status[iev].eventid);
+      }
+      free(xml_status->SA_status);
+      LOG_MSG("events is empty --> release the %d xml status and return", nstats);
+      return true;
+    }
+
     Xtemp.nev = nev;
     Xtemp.SA_status = (struct GFAST_xml_output_status *) calloc((size_t) Xtemp.nev, sizeof(struct GFAST_xml_output_status));
+
+    LOG_MSG("events is NOT empty nev=%d --> sync xml_status with events", nev);
 
     for (iev=0; iev<nev; iev++){
       strcpy(eventid, events->SA[iev].eventid);
@@ -71,6 +82,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
     }
 
     // Free xml_status and copy Xtemp back in
+    LOG_MSG("free xml_status->SA_status and copy nev=%d back in", nev);
     free(xml_status->SA_status);
     //memset(xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
     xml_status->nev = Xtemp.nev;
@@ -78,6 +90,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
                       xml_status->nev, sizeof(struct GFAST_xml_output_status));
 
     // Copy new list back to xml_status:
+    LOG_MSG("copy nev=%d back in to xml_status and release Xtemp.SA_status", nev);
     for (iev=0; iev<xml_status->nev; iev++){
       memcpy(&xml_status->SA_status[iev], &Xtemp.SA_status[iev], sizeof(struct GFAST_xml_output_status));
     }
