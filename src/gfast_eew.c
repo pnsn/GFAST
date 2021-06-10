@@ -193,9 +193,13 @@ int main(int argc, char **argv)
     /* start heartbeat producer and set to manual heartbeats */
     if ((props.activeMQ_props.hbTopic!=NULL) &&
 	(strlen(props.activeMQ_props.hbTopic)>0)) {
-      char senderstr[100];
+      char senderstr[100],*pp;
+      int ii;
       strcpy(senderstr,"gfast.");
-      gethostname(senderstr+strlen(senderstr),90); /*append hostname*/
+      ii=strlen(senderstr);
+      gethostname(senderstr+ii,90); /*append hostname*/
+      pp=strchr(senderstr+ii,'.');  /*find . in hostname if any*/
+      if (pp != NULL) *pp = '\0';   /*truncate long hostname*/
       if (props.verbose > 0)
 	{
 	  LOG_INFOMSG("%s: Initializing heartbeat sender %s on %s...\n", fcnm,

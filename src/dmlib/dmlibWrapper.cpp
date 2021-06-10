@@ -192,7 +192,7 @@ int startHBProducer(const char sender[],
   hbSender=string(sender);
   hbTopic=string(hbtopic);
   if (hbVerbose > 2) {
-    printf("%s: Starting heartbeat prodicer on topic: %s\n",__func__, hbtopic);
+    printf("%s: Starting heartbeat producer on topic: %s\n",__func__, hbtopic);
   }
   try {
     hbproducer = new HBProducer(destinationConnection,hbSender,hbTopic,interval);

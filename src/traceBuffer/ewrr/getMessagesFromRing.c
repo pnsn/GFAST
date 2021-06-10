@@ -137,7 +137,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         memcpy(&msgs[kdx], msg, MAX_TRACEBUF_SIZ*sizeof(char));
         (*nRead)+=1;
 
-        //check if sane allocation limits reached
+        //exit if sane allocation limits reached
         if (*nRead >= maxMessages) {
           LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Single-call message limits reached.",
           *nRead, nblock, messageBlock);

@@ -134,7 +134,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
 
     bool dump_tb2Data = false;
-    bool dump_nRead = false;
+    bool dump_nRead = true;
     bool debug_imap = false;
     bool debug_nchunks = false;
 
