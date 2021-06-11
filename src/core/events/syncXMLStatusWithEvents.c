@@ -97,6 +97,6 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
     }
 
     // Free Xtemp
-    //free(Xtemp.SA_status);
-    free(&Xtemp->SA_status);
+    LOG_MSG("syncXMLStatus xml_status->nev=%d Free Xtemp.SA_status and return", xml_status->nev);
+    free(Xtemp.SA_status);
 }
