@@ -32,6 +32,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
         LOG_MSG("events is empty --> release xml_status[%d]=%s", iev, xml_status->SA_status[iev].eventid);
       }
       free(xml_status->SA_status);
+      xml_status->nev = 0;
       LOG_MSG("events is empty --> release the %d xml status and return", nstats);
       return true;
     }
@@ -96,5 +97,6 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
     }
 
     // Free Xtemp
-    free(Xtemp.SA_status);
+    //free(Xtemp.SA_status);
+    free(&Xtemp->SA_status);
 }
