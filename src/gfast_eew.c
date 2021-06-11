@@ -16,7 +16,7 @@
 //#define MAX_MESSAGES 1024
 //#define MAX_MESSAGES 183000
 //#define MAX_MESSAGES 200000
-#define MAX_MESSAGES 10000
+#define MAX_MESSAGES 100000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
@@ -53,12 +53,8 @@ int main(int argc, char **argv)
   struct GFAST_shakeAlert_struct SA;
   struct GFAST_xmlMessages_struct xmlMessages;
   struct ewRing_struct ringInfo;
-  char *msgs;
+  char msgs[MAX_MESSAGES];
   double t0, t1;
-  /* vck: unused variables
-  double tbeg, t_now;
-  int first_time = 1;
-  */
   const enum opmode_type opmode = REAL_TIME_EEW;
   /*activeMQ variables*/
   char *eventMessage;
@@ -77,8 +73,7 @@ int main(int argc, char **argv)
   bool check_message_dir = false;
   bool USE_AMQ = true;
   int niter = 0;
-  int iev;
-  int i, j, i1, i2, is, chunk;
+  int i, i1, i2, is, chunk;
 #ifdef GFAST_USE_AMQ
   USE_AMQ = true;
 #endif
@@ -91,7 +86,6 @@ int main(int argc, char **argv)
   }
 
   ierr = 0;
-  msgs = NULL;
   memset(&props,    0, sizeof(struct GFAST_props_struct));
   memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
   memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
@@ -331,18 +325,17 @@ int main(int argc, char **argv)
         } 
 
       double tbeger = time_timeStamp();
-      /* vck unused variable      double tbeger0 = tbeger;*/
+
       // Read my messages off the ring
-      memory_free8c(&msgs); 
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
-      msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
+      ierr = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
 						  false,
 						  &ringInfo,
 						  &nTracebufs2Read,
-						  &ierr);
+						  msgs);
       LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
-      if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
+      if (ierr < 0)
         {
 	  if (ierr ==-1)
             {
@@ -373,8 +366,6 @@ int main(int argc, char **argv)
       LOG_MSG("%s", "== unpackTraceBuf2Messages");
       ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
 						      msgs, &tb2Data);
-      LOG_MSG("%s", "== free msgs memory");
-      memory_free8c(&msgs);
       if (ierr != 0)
         {
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
@@ -587,7 +578,6 @@ int main(int argc, char **argv)
  ERROR:;
   // Close the big logfile
   core_log_closeLog();
-  memory_free8c(&msgs);
   core_events_freeEvents(&events);
   traceBuffer_ewrr_freetb2Data(&tb2Data);
   traceBuffer_ewrr_finalize(&ringInfo);
@@ -638,7 +628,7 @@ int main(int argc, char **argv)
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data)
 {
-  const char *fcnm = "settb2DataFromH5TraceBuffer\0";
+  const char *fcnm = __func__;
   int i, it, k;
   if (gpsData.stream_length == 0)
     {

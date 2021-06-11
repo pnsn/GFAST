@@ -7,7 +7,7 @@ endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= classifyRetval.o flushRing.o freetb2Trace.o initialize.o \
-unpackTraceBuf2Messages.o finalize.o freetb2Data.o getMessagesFromRing.o \
+unpackTraceBuf2Messages.o finalize.o freetb2Data.o getMessagesFromRingSA.o \
 settb2Data.o
 
 DEBUG	= -g
