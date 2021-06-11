@@ -154,13 +154,13 @@ int traceBuffer_ewrr_classifyGetRetval(const int retval);
 int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
 /* Flush an earthworm ring */
 int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
-/* Read messages from the ring *
+  /* Read messages from the ring */
 char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                                            const bool showWarnings,
                                            struct ewRing_struct *ringInfo,
-                                           int *nRead, int *ierr);*/
+                                           int *nRead, int *ierr);
 /* Read messages from the ring SA version*/
-int traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
+int traceBuffer_ewrr_getMessagesFromRingSA(const int messageBlock,
 					 const bool showWarnings,
 					 struct ewRing_struct *ringInfo,
 					 int *nRead, char *msgs);

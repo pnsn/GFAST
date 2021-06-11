@@ -328,11 +328,11 @@ int main(int argc, char **argv)
 
       // Read my messages off the ring
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
-      ierr = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
-						  false,
-						  &ringInfo,
-						  &nTracebufs2Read,
-						  msgs);
+      ierr = traceBuffer_ewrr_getMessagesFromRingSA(MAX_MESSAGES,
+						    false,
+						    &ringInfo,
+						    &nTracebufs2Read,
+						    msgs);
       LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
       if (ierr < 0)

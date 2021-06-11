@@ -45,10 +45,10 @@
  * @copyright ISTI distribted under Apache 2.
  *
  */
-int traceBuffer_ewrr_getMessagesFromRing(const int maxMessages,
-					 const bool showWarnings,
-					 struct ewRing_struct *ringInfo,
-					 int *nRead, char *msgs)
+int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
+					   const bool showWarnings,
+					   struct ewRing_struct *ringInfo,
+					   int *nRead, char *msgs)
 {
   MSG_LOGO gotLogo; 
   TRACE2_HEADER traceHeader;
