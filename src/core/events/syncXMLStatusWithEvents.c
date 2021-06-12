@@ -17,7 +17,7 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
     struct GFAST_xml_output_status output_status;
     struct GFAST_activeEvents_xml_status Xtemp;
 
-    char *eventid;
+    char eventid[128];
 
     memset(&output_status, 0, sizeof( struct GFAST_xml_output_status));
 
