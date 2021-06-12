@@ -136,7 +136,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
         (*nRead)+=1;
 
         //check if sane allocation limits reached
-        if (*nRead >= maxMessages) {
+        if (*nRead+1 >= maxMessages) {
           LOG_MSG("XXgetMessagesFromRingXX: nRead=%d nblock=%d messageBlock=%d --> Single-call message limits reached.",
           *nRead, nblock, messageBlock);
           if (showWarnings) {
@@ -155,13 +155,12 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
             LOG_WARNMSG("%s", "Reallocating msgs block");
           }
           ncopy = MAX_TRACEBUF_SIZ*(*nRead);
-
+	  nblock+=1;
+	  nwork = MAX_TRACEBUF_SIZ*messageBlock*nblock;
           //avoid exceeding limits
-          if (maxSpace-ncopy < MAX_TRACEBUF_SIZ*messageBlock) {
-            nwork = maxSpace;
-          } else {
-            nwork = ncopy + MAX_TRACEBUF_SIZ*messageBlock;
-            nblock+=1;
+          if (nwork >= maxSpace) {
+	    LOG_MSG("%s: Redundant Single-call message limits check reached. ",__func__);
+            break;
           }
           // set workspace and copy old messages
           msgWork = memory_calloc8c(ncopy);
