@@ -106,7 +106,7 @@ bool core_events_removeExpiredEvent(const double maxtime,
         for (iev=0; iev<events->nev; iev++)
         {
             //LOG_MSG("memcpy SAtemp.SA[%d] evid:%s back to events->SA",
-                    iev, SAtemp.SA[iev].eventid);
+                    //iev, SAtemp.SA[iev].eventid);
             memcpy(&events->SA[iev], &SAtemp.SA[iev], sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
