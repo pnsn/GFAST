@@ -54,7 +54,8 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         LOG_MSG("MTH: SA.eventid=%s xml has changed OLD OT:%.3f lat:%6.3f lon:%6.3f dep:%.2f mag:%.2f",
                 SA.eventid, SA.time, SA.lat, SA.lon, SA.dep, SA.mag);
         LOG_MSG("MTH: SA.eventid=%s xml has changed NEW OT:%.3f lat:%6.3f lon:%6.3f dep:%.2f mag:%.2f",
-                SA[iev].eventid, SA[iev].time, SA[iev].lat, SA[iev].lon, SA[iev].dep, SA[iev].mag);
+                events->SA[iev].eventid, events->SA[iev].time, events->SA[iev].lat, 
+                events->SA[iev].lon, events->SA[iev].dep, events->SA[iev].mag);
                 }
             break;
         }
