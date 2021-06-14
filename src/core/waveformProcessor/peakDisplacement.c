@@ -135,10 +135,12 @@ int core_waveformProcessor_peakDisplacement(
                        + pow(ev_dep*1000.0 + gps_data.data[k].sta_alt, 2));
         distance = distance*1.e-3; // convert to km
         if (lnorthp != lnorthp_event) {
+          /*
           LOG_MSG("Ignore: %s.%s.%s.%s lnorthp=%d != lnorthp_event=%d",
                   gps_data.data[k].stnm, gps_data.data[k].chan[0],
                   gps_data.data[k].netw, gps_data.data[k].loc,
                   lnorthp, lnorthp_event);
+          */
 
           distance = 99999;  // Don't use this station
         }
@@ -297,8 +299,8 @@ static double __getPeakDisplacement(const int npts,
             u0 = ubuff[indx0];
             n0 = nbuff[indx0];
             e0 = ebuff[indx0];
-            LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
-                    nMaxLeader, indx0, u0, n0, e0);
+            //LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
+                    //nMaxLeader, indx0, u0, n0, e0);
             break;
         }
       }
@@ -306,11 +308,11 @@ static double __getPeakDisplacement(const int npts,
 
     indx1 = (int)(tmax/dt + 0.5);
     if (indx1 <= indx0) {
-      LOG_MSG("ERROR: indx0=%d >= indx1=%d (tmax=%f)", indx0, indx1, tmax);
+      //LOG_MSG("ERROR: indx0=%d >= indx1=%d (tmax=%f)", indx0, indx1, tmax);
       return (double) NAN;
     }
     if (indx1 > npts) {
-      LOG_MSG("npts=%d <= indx1=%d --> Set indx1=npts", npts, indx1);
+      LOG_MSG("tmin=%.1f tmax=%.1f npts=%d <= indx1=%d --> Set indx1=npts", tmin, tmax, npts, indx1);
       indx1 = npts;
     }
 

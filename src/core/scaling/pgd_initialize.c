@@ -70,7 +70,7 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         pgd_data->sta_alt[i] = gps_data.data[i].sta_alt;
         pgd_data->stnm[i] = (char *)calloc(64, sizeof(char));
 
-        sprintf(pgd_data->stnm[i],"%s.%s.%s.%s\0",
+        sprintf(pgd_data->stnm[i],"%s.%s.%s.%s",
             gps_data.data[i].netw,
             gps_data.data[i].stnm,
             gps_data.data[i].chan[0],

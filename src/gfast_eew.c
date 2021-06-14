@@ -16,7 +16,7 @@
 //#define MAX_MESSAGES 1024
 //#define MAX_MESSAGES 183000
 //#define MAX_MESSAGES 200000
-#define MAX_MESSAGES 100000
+#define MAX_MESSAGES 80000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   double t0, t1;
   const enum opmode_type opmode = REAL_TIME_EEW;
   /*activeMQ variables*/
-  char *eventMessage;
+  char *amqMessage;
   const bool useTopic = true;              /**< ShakeAlert uses topics */
   const bool clientAck = false;            /**< False means set session acknowledge transacations */
   const bool luseListener = false;         /**< C can't trigger so turn this off (remove?) */
@@ -285,7 +285,7 @@ int main(int argc, char **argv)
   // Begin the acquisition loop
   LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
   LOG_MSG("%s: Beginning the acquisition...", fcnm);
-  eventMessage = NULL;
+  amqMessage = NULL;
   t0 = time_timeStamp();
   //unused: t_now = (double) (long) (time_timeStamp() + 0.5);
   //unused: tbeg = t0; 
@@ -298,7 +298,7 @@ int main(int argc, char **argv)
   while(lacquire)
     {
       // Initialize the iteration
-      eventMessage = NULL;
+      amqMessage = NULL;
       // Don't start loop until prop.waitTime has elapsed (default 1 second)
       t1 = time_timeStamp();
       double tloop = t1-t0;
@@ -412,13 +412,13 @@ int main(int argc, char **argv)
 	  LOG_MSG("%s: Checking Activemq for events", fcnm);
 	}
 	msWait = props.activeMQ_props.msWaitForMessage;
-	eventMessage = GFAST_activeMQ_consumer_getMessage(amqMessageListener, msWait, &ierr);
-	if ((props.verbose > 2)&&(eventMessage == NULL)) {
+	amqMessage = GFAST_activeMQ_consumer_getMessage(amqMessageListener, msWait, &ierr);
+	if ((props.verbose > 2)&&(amqMessage == NULL)) {
 	  LOG_MSG("%s: Activemq returned NULL", fcnm);
 	}
       } else if (check_message_dir) {
 	// Alternatively, check for SA message trigger in message_dir
-	eventMessage = check_dir_for_messages(message_dir, &ierr);
+	amqMessage = check_dir_for_messages(message_dir, &ierr);
 	if ((ierr != 0)&&(props.verbose > 2)) {
 	  LOG_MSG("check_dir_for_messages returned ierr=%d\n", ierr);
 	  ierr=0;
@@ -431,20 +431,29 @@ int main(int argc, char **argv)
 	  goto ERROR;
         }
       // If there's a message then process it
-      if (eventMessage != NULL)
+      if (amqMessage != NULL)
         {
-	  LOG_MSG("== [GFAST t0:%f] Got new eventMessage:", t0);
-	  LOG_MSG("%s", eventMessage);
-	  printf("== [GFAST t0:%f] Got new eventMessage:\n", t0);
-	  printf("%s\n", eventMessage);
+	  LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
+	  LOG_MSG("%s", amqMessage);
+	  printf("== [GFAST t0:%f] Got new amqMessage:\n", t0);
+	  printf("%s\n", amqMessage);
 	  // Parse the event message 
-	  ierr = GFAST_eewUtils_parseCoreXML(eventMessage, -12345.0, &SA);
+	  ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
 	  if (ierr != 0)
             {
 	      LOG_ERRMSG("%s: Error parsing the decision module message\n",
 			 fcnm);
-	      LOG_ERRMSG("%s\n", eventMessage);
+	      LOG_ERRMSG("%s\n", amqMessage);
 	      goto ERROR;
+            }
+            // If this is a new event we have some file handling to do
+            lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
+            if (lnewEvent){
+              LOG_MSG("NEW event evid:%s lat:%8.3f lon:%8.3f dep:%5.3f mag:%.2f time:%f age_now:%f",
+                      SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
+            }
+            else{
+              LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
             }
 	  //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
 	  // If this is a new event we have some file handling to do
@@ -494,8 +503,8 @@ int main(int argc, char **argv)
 		  goto ERROR;
                 }
             }
-	  free(eventMessage);
-	  eventMessage = NULL;
+	  free(amqMessage);
+	  amqMessage = NULL;
         } // End check on ActiveMQ message
 
       // Are there events to process?

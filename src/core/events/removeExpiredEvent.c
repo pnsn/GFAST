@@ -49,7 +49,7 @@ bool core_events_removeExpiredEvent(const double maxtime,
 
             if ((currentTime - SA.time) > maxtime)
             {
-              LOG_MSG("time:%lf Remove evid:%s otime:%f from event list\n",
+              LOG_MSG("time:%lf Remove evid:%s otime:%f from event list",
                        currentTime, SA.eventid, SA.time);
                 if (verbose > 0)
                 {
@@ -82,15 +82,18 @@ bool core_events_removeExpiredEvent(const double maxtime,
             return lpopped;
         }
         // Copy old events into workspace ignoring event at pop_indx 
+        //LOG_MSG("Copy nev0-1=%d events into workspace, ignore expired event[%d]", nev0-1, pop_indx);
         SAtemp.nev = nev0 - 1;
         SAtemp.SA = (struct GFAST_shakeAlert_struct *)
                             calloc((size_t) SAtemp.nev, sizeof(struct GFAST_shakeAlert_struct));
         jev = 0;
         for (iev=0; iev<nev0; iev++)
         {
-	  if (iev == pop_indx){continue;}
-	  memcpy(&SAtemp.SA[jev], &events->SA[iev], sizeof(struct GFAST_shakeAlert_struct));
-	  jev = jev + 1;
+            if (iev == pop_indx){continue;}
+            //LOG_MSG("memcpy events.SA[%d] evid:%s into SAtemp.SA[%d]",
+                    //iev, events->SA[iev].eventid, jev);
+            memcpy(&SAtemp.SA[jev], &events->SA[iev], sizeof(struct GFAST_shakeAlert_struct));
+            jev = jev + 1;
         }
         //LOG_MSG("%s", "Copy SAtemp into SA");
         //memcpy(&SAtemp.SA[nev0], &SA, sizeof(struct GFAST_shakeAlert_struct));
@@ -102,7 +105,9 @@ bool core_events_removeExpiredEvent(const double maxtime,
         // Copy old events back
         for (iev=0; iev<events->nev; iev++)
         {
-	  memcpy(&events->SA[iev], &SAtemp.SA[iev], sizeof(struct GFAST_shakeAlert_struct));
+            //LOG_MSG("memcpy SAtemp.SA[%d] evid:%s back to events->SA",
+                    //iev, SAtemp.SA[iev].eventid);
+            memcpy(&events->SA[iev], &SAtemp.SA[iev], sizeof(struct GFAST_shakeAlert_struct));
         }
         // Free SAtemp
         core_events_freeEvents(&SAtemp);
