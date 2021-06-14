@@ -48,7 +48,7 @@ int core_events_removeExpiredEvents(const double processingTime,
         t2 = currentTime;
         ldownDate = false;
         if (t2 - t1 >= processingTime){ldownDate = true;}
-LOG_MSG("removeExpiredEvents: iev=%d ldownDate=%d", iev, ldownDate);
+//LOG_MSG("removeExpiredEvents: iev=%d ldownDate=%d", iev, ldownDate);
         if (ldownDate)
         {
             lgone = core_events_removeExpiredEvent(processingTime,
@@ -65,8 +65,8 @@ LOG_MSG("removeExpiredEvents: iev=%d ldownDate=%d", iev, ldownDate);
             }
         }
     }
-LOG_MSG("removeExpiredEvents: nrem=%d free(SAall)", nrem);
+//LOG_MSG("removeExpiredEvents: nrem=%d free(SAall)", nrem);
     free(SAall);
-LOG_MSG("removeExpiredEvents: nrem=%d free(SAall) DONE --> return", nrem);
+//LOG_MSG("removeExpiredEvents: nrem=%d free(SAall) DONE --> return", nrem);
     return nrem;
 }

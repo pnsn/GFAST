@@ -243,16 +243,6 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
         t0 = t1;
         tstatus1 = t0;
 
-/*
-        if ((t0 - tbeg) >= 300.) {
-LOG_MSG("== [GFAST t0:%f >= 300 sec since we started --> EXIT CODE", t0);
-          goto ERROR;
-        }
-*/
-
-        //printf("\n== [Iter:%d t0:%f] ==\n", niter,t0);
-        //printf("\n== [GFAST t0:%f] ==\n", t0);
-//LOG_MSG("== [GFAST t0:%f]", t0);
 LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
 
         if (tstatus1 - tstatus0 > 3600.0)
@@ -266,7 +256,7 @@ LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
         double tbeger0 = tbeger;
         // Read my messages off the ring
         memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
-//LOG_MSG("%s", "== Get the msgs off the EW ring");
+
         msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
                                                     false,
                                                     &ringInfo,
@@ -302,10 +292,10 @@ LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", ISCL_time_ti
 //printf("scrounge %8.4f\n", ISCL_time_timeStamp() - tbeger);
 tbeger = ISCL_time_timeStamp();
         // Unpackage the tracebuf2 messages
-LOG_MSG("%s", "== unpackTraceBuf2Messages");
+//LOG_MSG("%s", "== unpackTraceBuf2Messages");
         ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
                                                         msgs, &tb2Data);
-LOG_MSG("%s", "== free msgs memory");
+//LOG_MSG("%s", "== free msgs memory");
         memory_free8c(&msgs);
         if (ierr != 0)
         {
@@ -334,11 +324,11 @@ if (0) {
 
         // Update the hdf5 buffers
 
-LOG_MSG("%s", "== Update the hdf5 buffers");
+//LOG_MSG("%s", "== Update the hdf5 buffers");
         ierr = traceBuffer_h5_setData(t1,
                                       tb2Data,
                                       h5traceBuffer);
-LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
+
         if (ierr != 0)
         {
             LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
@@ -374,8 +364,6 @@ ierr=0;
         {
 LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
 LOG_MSG("%s", amqMessage);
-printf("== [GFAST t0:%f] Got new amqMessage:\n", t0);
-printf("%s\n", amqMessage);
             // Parse the event message 
             ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
             if (ierr != 0)
@@ -389,9 +377,8 @@ printf("%s\n", amqMessage);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
             if (lnewEvent){
-              LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
-              printf("New event evid:%s lat:%8.3f lon:%8.3f dep:%5.3f mag:%.2f time:%f age_now:%f\n",
-                  SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
+              LOG_MSG("NEW event evid:%s lat:%8.3f lon:%8.3f dep:%5.3f mag:%.2f time:%f age_now:%f",
+                      SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
             }
             else{
               LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
@@ -446,7 +433,7 @@ printf("%s\n", amqMessage);
             LOG_DEBUGMSG("%s: Processing events...\n", fcnm);
         }
 LOG_DEBUGMSG("%s: MTH: Call driveGFAST DEBUG msg\n", fcnm);
-LOG_MSG("== [GFAST t0:%f] Call driveGFAST:", t0);
+//LOG_MSG("== [GFAST t0:%f] Call driveGFAST:", t0);
         ierr = eewUtils_driveGFAST(t1, //currentTime,
                                    props,
                                    &events,
@@ -488,7 +475,7 @@ cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
          {
              for (im=0; im<xmlMessages.nmessages; im++)
              {
-LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+//LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 //printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
 //printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
                  if (xmlMessages.evids[im] != NULL)

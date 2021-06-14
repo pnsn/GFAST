@@ -50,8 +50,8 @@ int traceBuffer_h5_getData(const double t1, const double t2,
         gain = memory_calloc64f(ntraces);
         work = traceBuffer_h5_readData(groupID, ntraces,
                                        &maxpts, &dt, &ts1, &ts2, gain, &ierr);
-LOG_MSG("                Request: t1:%f - t2:%f", t1, t2);
-LOG_MSG("h5 is buffered to hold: ts1:%f -ts2:%f", ts1, ts2);
+//LOG_MSG("                Request: t1:%f - t2:%f", t1, t2);
+//LOG_MSG("h5 is buffered to hold: ts1:%f -ts2:%f", ts1, ts2);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error reading data");
