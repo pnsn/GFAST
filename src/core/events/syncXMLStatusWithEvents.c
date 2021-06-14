@@ -56,13 +56,13 @@ bool core_events_syncXMLStatusWithEvents(struct GFAST_activeEvents_struct *event
       if (found) {
         // copy this xml_status output_status record to Xtemp
         //LOG_MSG("Events iev:%d eventid:%s : Copy xml_status SA_status[%d] to Xtemp SA_status[%d]",
-            iev, eventid, ifound, iev);
+            //iev, eventid, ifound, iev);
         memcpy(&Xtemp.SA_status[iev], &xml_status->SA_status[ifound], sizeof(struct GFAST_xml_output_status));
       }
       else {
         // create new one from this eventid
         //LOG_MSG("Events iev:%d eventid:%s not found in xml_status : Create new xml_status SA record for this eventid",
-            iev, eventid);
+            //iev, eventid);
         strcpy(output_status.eventid, eventid);
         memcpy(&Xtemp.SA_status[iev], &output_status, sizeof(struct GFAST_xml_output_status));
       }
