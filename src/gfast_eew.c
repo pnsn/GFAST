@@ -243,7 +243,7 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
         t0 = t1;
         tstatus1 = t0;
 
-LOG_MSG("== [GFAST t0:%f Get the msgs off the EW ring]", ISCL_time_timeStamp());
+LOG_MSG("== [GFAST t0:%f] getMessages from the EW ring", ISCL_time_timeStamp());
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
