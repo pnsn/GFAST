@@ -243,7 +243,7 @@ LOG_MSG("%s: Beginning the acquisition...", fcnm);
         t0 = t1;
         tstatus1 = t0;
 
-LOG_MSG("== [GFAST t0:%f] getMessages from the EW ring", ISCL_time_timeStamp());
+//LOG_MSG("== [GFAST t0:%f] getMessages from the EW ring", ISCL_time_timeStamp());
 
         if (tstatus1 - tstatus0 > 3600.0)
         {
@@ -377,7 +377,7 @@ LOG_MSG("%s", amqMessage);
             // If this is a new event we have some file handling to do
             lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
             if (lnewEvent){
-              LOG_MSG("NEW event evid:%s lat:%8.3f lon:%8.3f dep:%5.3f mag:%.2f time:%f age_now:%f",
+              LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
                       SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
             }
             else{
