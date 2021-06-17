@@ -77,10 +77,10 @@ int stopDestinationConnection() {
     return 0;
   } else {
     try {
-      if ( not destinationConnection->isClosed() {
+      /*if ( not destinationConnection->isClosed() {
 	  destinationConnection->stop();
 	  destinationConnection->close();
-	}
+	  }*/
       delete destinationConnection;
       destinationConnection=NULL;
     }
