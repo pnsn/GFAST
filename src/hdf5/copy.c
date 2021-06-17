@@ -23,7 +23,7 @@ int hdf5_copyPeakDisplacementData(
     struct h5_peakDisplacementData_struct *h5_pgd_data)
 {
     int *lactiveTemp, *lmaskTemp, i, ierr;
-    char *stnTemp;
+    //char *stnTemp; unused
     char *ctemp;
     char (*ptr)[64];
     size_t nsites;
@@ -119,7 +119,7 @@ int hdf5_copyPeakDisplacementData(
         pgd_data->stnm = (char **)calloc((size_t)pgd_data->nsites, sizeof(char *));
         ptr = h5_pgd_data->stnm.p;
         //ctemp = (char *)calloc((size_t)64, sizeof(char));
-        for (i=0;i<h5_pgd_data->stnm.len;i++){
+        for (i=0;i<(int)h5_pgd_data->stnm.len;i++){
         //strcpy(ctemp, ptr[i]);
           pgd_data->stnm[i] = (char *)calloc((size_t)64, sizeof(char));
           strcpy(pgd_data->stnm[i], ptr[i]);
@@ -1049,7 +1049,7 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
     char *netw, *stnm, *chan, *loc;
     double nanv[1] = {(double) NAN};
     int ierr, npts;
-    int i;
+    //int i; unused
     size_t nalloc;
     //------------------------------------------------------------------------//
     ierr = 0;

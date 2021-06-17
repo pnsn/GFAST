@@ -727,6 +727,7 @@ bool check_mins_against_intervals(
                   eventid, age, props.output_interval_mins[i], suffix);
       ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
                                props.output_interval_mins[i], true);
+      if (ierr!=0) LOG_MSG("%s: ierr=%d from eewUtils_writeXML()",__func__,ierr);
       interval_complete[i] = true;
       return true;
    }

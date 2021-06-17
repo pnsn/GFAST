@@ -7,6 +7,7 @@
 #include "trace_buf.h"
 #include "gfast_traceBuffer.h"
 #include "gfast_core.h"
+#include "iscl/memory/memory.h"
 
 /*!
  * @brief Reads the tracebuffer2 messages from the Earthworm ring specified
@@ -52,7 +53,7 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
 {
   MSG_LOGO gotLogo; 
   TRACE2_HEADER traceHeader;
-  char msg[MAX_TRACEBUF_SIZ];
+  char *msg=NULL;
   unsigned char sequenceNumber;
   long gotSize;
   int kdx,retval;
@@ -71,7 +72,7 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
       return ierr;
     }
 
-  if ((maxMessages == 1)||(maxMessages*MAX_TRACEBUF_SIZ > INT_MAX))
+  if ((maxMessages == 1)||(maxMessages > INT_MAX/MAX_TRACEBUF_SIZ))
     {
       LOG_ERRMSG("%s: invalid maxMessages %d", __func__, maxMessages);
       ierr =-4;
@@ -79,6 +80,7 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
     }
   // Set space
   memset(&gotLogo, 0, sizeof(MSG_LOGO));
+  msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
 
   // Unpack the ring
   while (true)
@@ -134,14 +136,16 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
           LOG_MSG("%s: nRead=%d maxMessages=%d --> Exit read loop with full buffer.",
 		  __func__,*nRead, maxMessages);
           if (showWarnings) {
-            LOG_WARNMSG("%s: nRead=%d maxMessages=%d --> Exit read loop with full buffer.",
-			__func__,*nRead, maxMessages);
+            LOG_WARNMSG("%s: nRead=%d MAX_TRACEBUF_SIZ=%d maxMessages=%d --> Exit read loop with full buffer.",
+			__func__,*nRead, MAX_TRACEBUF_SIZ, maxMessages);
           }
 	  ierr=0;
           break;
         }
       }
     } // while true
+
+  memory_free8c(&msg);
 
   if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
   return ierr;

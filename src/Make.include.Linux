@@ -84,7 +84,7 @@ else
 endif
 # compiler stuff
 DEBUG=-g
-CFLAGS=-Wall -Wextra -Wno-format-truncation -Wno-deprecated-declarations -m$(TARGET) -D_LINUX -D_INTEL -fPIC
+CFLAGS=-Wall -Wextra -Wno-deprecated-declarations -O0 -m$(TARGET) -D_LINUX -D_INTEL -fPIC
 CCFLAGS=$(CFLAGS)
 cc=gcc
 CC=gcc

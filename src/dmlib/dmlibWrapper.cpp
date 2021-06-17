@@ -76,9 +76,23 @@ int stopDestinationConnection() {
     printf("%s: connection already dead\n",__func__);
     return 0;
   } else {
-    destinationConnection->close();
-    delete destinationConnection;
-    destinationConnection=NULL;
+    try {
+      if ( not destinationConnection->isClosed() {
+	  destinationConnection->stop();
+	  destinationConnection->close();
+	}
+      delete destinationConnection;
+      destinationConnection=NULL;
+    }
+    catch (cms::CMSException &e) {
+      printf("%s: CMSException encountered closing dmlib destination connection\n%s",__func__,e.what());
+      e.printStackTrace();
+      return -1;
+    }
+    catch (exception &e) {
+      printf("%s: Exception encountered closing dmlib destination connection\n%s",__func__,e.what());
+      return -1;
+    }
   }
   return 1;
 }

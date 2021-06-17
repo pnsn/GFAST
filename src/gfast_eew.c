@@ -13,10 +13,7 @@
 
 #include <time.h>
 
-//#define MAX_MESSAGES 1024
-//#define MAX_MESSAGES 183000
-//#define MAX_MESSAGES 200000
-#define MAX_MESSAGES 80000
+#define MAX_MESSAGES 100000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
@@ -53,7 +50,7 @@ int main(int argc, char **argv)
   struct GFAST_shakeAlert_struct SA;
   struct GFAST_xmlMessages_struct xmlMessages;
   struct ewRing_struct ringInfo;
-  char msgs[MAX_MESSAGES];
+  char *msgs;
   double t0, t1;
   const enum opmode_type opmode = REAL_TIME_EEW;
   /*activeMQ variables*/
@@ -86,6 +83,7 @@ int main(int argc, char **argv)
   }
 
   ierr = 0;
+  msgs = memory_calloc8c(MAX_MESSAGES*MAX_TRACEBUF_SIZ);
   memset(&props,    0, sizeof(struct GFAST_props_struct));
   memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
   memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
@@ -305,7 +303,7 @@ int main(int argc, char **argv)
       if (tloop < props.waitTime) {
 	continue;
       }
-      else if ((tloop) >= 2*props.waitTime) {
+      else if ((props.waitTime>0.0)&&((tloop) >= 2*props.waitTime)) {
 	LOG_MSG("== [GFAST main loop took %fs >= 2x%fs waitTimes. not keeping up", tloop, props.waitTime);
       }
 
@@ -329,7 +327,7 @@ int main(int argc, char **argv)
       // Read my messages off the ring
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
       ierr = traceBuffer_ewrr_getMessagesFromRingSA(MAX_MESSAGES,
-						    false,
+						    true,
 						    &ringInfo,
 						    &nTracebufs2Read,
 						    msgs);
@@ -585,8 +583,7 @@ int main(int argc, char **argv)
    * End of main acquisition loop
    ***************************************************/
  ERROR:;
-  // Close the big logfile
-  core_log_closeLog();
+  memory_free8c(&msgs);
   core_events_freeEvents(&events);
   traceBuffer_ewrr_freetb2Data(&tb2Data);
   traceBuffer_ewrr_finalize(&ringInfo);
@@ -595,7 +592,7 @@ int main(int argc, char **argv)
       activeMQ_consumer_finalize(amqMessageListener);
       stopHBProducer();
       stopEventSender();
-      stopDestinationConnection();
+      //stopDestinationConnection();
       activeMQ_stop();
     }
   core_cmt_finalize(&props.cmt_props,
@@ -611,6 +608,8 @@ int main(int argc, char **argv)
   GFAST_core_properties_finalize(&props);
   traceBuffer_h5_finalize(&h5traceBuffer);
   //vck delete candidate iscl_finalize();
+  // Close the big logfile
+  core_log_closeLog();
   if (ierr != 0)
     {
       printf("%s: Terminating with error\n", fcnm);
