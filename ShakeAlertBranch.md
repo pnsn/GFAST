@@ -195,13 +195,17 @@ Used only in gfast2web in uw directory which ShakeAlert does not use.  Ubuntu li
 
 ### LibGeographic
 
+No longer needed in ShakeAlert branch.
+
 Used in unit tests. I suspect that functionality may need to be re-implemented
 in current library equivalents. Could not find any mention of this
 in code, so may be obsolete. Not part of ShakeAlert install.  Seems to compile without it but you need to specify -DISCL_USE_GEOLIB=FALSE in [ISCL](#ISCL) compile.  Looks like this is a dependency of a dependency, not of the main code.
 
 ### FFTw
 
-FFTw is no longer needed in ShakeAlert branch.  The dependency was eliminated with minor non-functional changes to the iscl/iscl code. Documentation suggests Fourier transforms are not computed in GFAST, so this is an artifact of including ISCL. We may want to customize ISCL or eliminate ISCL all together to remove dependency in the future.
+No longer needed in ShakeAlert branch.
+
+The dependency was eliminated with minor non-functional changes to the iscl/iscl code. Documentation suggests Fourier transforms are not computed in GFAST, so this is an artifact of including ISCL. We may want to customize ISCL or eliminate ISCL all together to remove dependency in the future.
 
 This is available on Ubuntu via libftw3-bin and libftw3-dev
 
@@ -247,13 +251,44 @@ As of 12/1/2020 the master branch for GFAST is pnsn.github/2020.  To merge the l
 4. > git pull [ remote-name SAdev ]
 5. > git merge 2020
 
+# Tuning
+
+## MAX_MESSAGES
+
+In normal operation as of June 2021, 13407 distinct channels are streamed every second.  These consist of a 64 byte header plus 4 bytes of data for each of 3 axes plus quality channels etc.
+
+Internally, tracebuf messages are pulled off the ring and put on a char array.  The minimum loop time (as configured) is 1 second, which means the minimum size of this storage array is:
+
+13407*MAX_TRACEBUF_SIZ:
+
+MAX_TRACEUF_SIZ is defined in include/gfast_traceBuffer.h but it is also defined in ew_v7.x/include/trace_buf.h and we have found that at least some functions supercede the gfast version with the earthworm version.  Given that MAX_TRACEBUF_SIZ is used for both dynamic memory allocation and data access location calculations among several functions, it is critical that the gfast version match the earthworm value of 4096 to avoid memory overflow, or indexing errors.
+
+Given that, the minimum size of the storage array to process real-time data in ideal circumstances is:
+
+13407*4096=54915072
+
+Because this array is indexed with signed integers, to avoid integer overflow, the maximum size of the storage array is INT_MAX=2147483648 and the maximum value of MAX_MESSAGES is 
+
+INT_MAX/MAX_TRACEBUF_SIZ = 524288
+
+So as currently configured, MAX_MESSAGES must be between 13407 and 524287.
+
+Problem is, the bigger MAX_MESSAGES is, the longer the unpack takes to run and thus the longer the loop.  Setting MAX_MESSAGES = 100000 (about 7 seconds of data) creates a loop time of about 30 seconds (essentially all in unpackTraceBuf2Messages() and tracebuffer_h5_setData().  Lots of messages are dropped.  Smaller values of MAX_MESSAGES speed up the loop considerably but not enough to keep up with RT data flow.  Decreasing the minimum loop slows the backlog accumulation but does not change the ultimate result.
+
+Several remedies are obvious and probably more than one will be required to fix the problem.
+
+The "lowest hanging fruit" would include: 
+1. turn on compiler optimization, which can speed up marginal code substantially but complicates problem finding.
+2. replace all MAX_TRACEBUF_SIZ with something exclusive to gfast code like MAX_GFAST_TB_SIZ which we can set to something more appropriate to geodetic tracebuffers like 100.
+
+Of course, all of this is an unfortunate consequence of the original decision to run all geodetic data through standard seismic tracebuf2 format, but that train left the station long ago. :)
+
 # To do
 
 ##Concrete tasks
 
 - Metadata reader needs to be converted to ShakeAlert file format.
 - ShakeAlertConsumer should be revamped to allow asynchronous read loop.
-- figure out why remove_expired_event kills program.
 - Investigate why the main loop requires 5-6 seconds to complete.  Are we actually processing all the data?  Optimize.
 - Properly flag non-existant SA_events_dir and disable looking for trigger file in SA deployments.
 - unify and clean up the various logging systems.
