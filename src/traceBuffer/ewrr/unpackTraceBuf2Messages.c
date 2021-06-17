@@ -203,12 +203,16 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
         // MTH: may want to also check net + loc if mixing networks
           if (strcmp(vals[j].sta, tb2Data->traces[k].stnm) == 0){
             if (strcmp(vals[j].cha, tb2Data->traces[k].chan) == 0){
-              //tmp[i].k = k;
-              imap[i] = k;
-              kpts[k] += vals[j].nsamps;
-              nmsg[k] += 1;
-              klast = k;
-              break;
+              if (strcmp(vals[j].net, tb2Data->traces[k].net) == 0){
+                if (strcmp(vals[j].loc, tb2Data->traces[k].loc) == 0){
+                 //tmp[i].k = k;
+                  imap[i] = k;
+                  kpts[k] += vals[j].nsamps;
+                  nmsg[k] += 1;
+                  klast = k;
+                  break;
+                }
+              }
             }
           }
       }
