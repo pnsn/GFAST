@@ -561,30 +561,33 @@ static int myCompare2(const void *x, const void *y)
   const struct string_index yy = *(const struct string_index *) y;
   int inet, ista, icha, iloc;
 
-  if (strcmp(xx.net, yy.net)==0) {
-    if (strcmp(xx.loc, yy.loc)==0) {
-      ista = strcmp(xx.sta, yy.sta);
-      if (ista == 0){
-        icha = strcmp(xx.cha, yy.cha);
-        if (icha == 0){
-          if (xx.time > yy.time) {
-            return 1;
-          }
-          else if (xx.time < yy.time) {
-            return -1;
-          }
-          else {
-            return 0;
-          }
+
+  ista = strcmp(xx.sta, yy.sta);
+  if (ista == 0){
+    icha = strcmp(xx.cha, yy.cha);
+    if (icha == 0){
+      inet = strcmp(xx.net, yy.net);
+      if (inet == 0) {
+        if (xx.time > yy.time) {
+          return 1;
         }
-        else {  // order by sta + {LYZ, LYN, LYE} to match tb2Data
-          return -1*icha;
+        else if (xx.time < yy.time) {
+          return -1;
+        }
+        else {
+          return 0;
         }
       }
       else {
-        return ista;
+        return inet;
       }
     }
+    else {  // order by sta + {LYZ, LYN, LYE} to match tb2Data
+      return -1*icha;
+    }
+  }
+  else {
+    return ista;
   }
 
   printf("**** MTH: qsort HERE: xx.logo=%s \t yy.logo=%s\n", xx.logo, yy.logo);

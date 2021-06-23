@@ -528,6 +528,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                                              SA.eventid,
                                              h5k,
                                              *gps_data);
+LOG_MSG("MTH: h5_update_gpsData returned ierr=%d\n", ierr);
             if (props.verbose > 2)
             {
                 LOG_DEBUGMSG("Writing hypocenter for iteration %d", h5k);
@@ -536,6 +537,7 @@ LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\
                                                SA.eventid,
                                                h5k,
                                                SA);
+LOG_MSG("MTH: h5_updateHypocenter returned ierr=%d\n", ierr);
             if (lpgdSuccess)
             {
                 if (props.verbose > 2)
@@ -663,12 +665,12 @@ int eewUtils_writeXML(const char *dirname,
 
    if (interval_in_mins){
        sprintf(fullpath, "%s/%s.%s.%d_min", dirname, eventid, msg_type, interval);
-       LOG_MSG("driveGFAST: evid=%s SA xml index=%d --> output XML to file=[%s]\n",
+       LOG_MSG("driveGFAST: evid=%s SA xml mins=%d --> output XML to file=[%s]\n",
            eventid, interval, fullpath);
    }
    else {
        sprintf(fullpath, "%s/%s.%s.%d", dirname, eventid, msg_type, interval);
-       LOG_MSG("driveGFAST: evid=%s min=%d --> output XML to file=[%s]\n",
+       LOG_MSG("driveGFAST: evid=%s interval=%d --> output XML to file=[%s]\n",
            eventid, interval, fullpath);
    }
    //puts(fullpath);
