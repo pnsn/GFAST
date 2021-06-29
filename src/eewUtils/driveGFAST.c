@@ -405,6 +405,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
 		int index = (int)(currentTime - SA.time);
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
+LOG_MSG("writeXML for PGD returned ierr=%d\n", ierr);
 	      }
 	      else if (secs < 3.) {
 		LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check PGD writeXML\n",
@@ -415,6 +416,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      }
             } //if lpgdSuccess
 
+LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
             // Make the CMT quakeML
             if (lcmtSuccess)
 	      {
@@ -539,6 +541,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	  strcpy(xmlMessages->evids[xmlMessages->nmessages], SA.eventid);
 	  xmlMessages->nmessages = xmlMessages->nmessages + 1;
         } // End check on finalizing
+LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
       // Update the archive
       if (lfinalize || !props.lh5SummaryOnly)
         {
@@ -547,7 +550,8 @@ int eewUtils_driveGFAST(const double currentTime,
             h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
                                                 SA.eventid,
                                                 currentTime);
-            //LOG_MSG("time:%lf evid:%s iteration=%d Update h5 archive", t2, SA.eventid, h5k);
+            LOG_MSG("time:%lf evid:%s h5k iteration=%d dir=%s Update h5 archive",
+			t2, SA.eventid, h5k, props.h5ArchiveDir);
             if (props.verbose > 2)
             {
 	      LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
@@ -556,6 +560,7 @@ int eewUtils_driveGFAST(const double currentTime,
 					   SA.eventid,
 					   h5k,
 					   *gps_data);
+	 LOG_MSG("update gpsData for iteration:%d returned ierr=%d", h5k, ierr);
 	  if (props.verbose > 2)
             {
 	      LOG_DEBUGMSG("Writing hypocenter for iteration %d", h5k);
@@ -564,6 +569,7 @@ int eewUtils_driveGFAST(const double currentTime,
 					     SA.eventid,
 					     h5k,
 					     SA);
+	 LOG_MSG("updateHypocenter for iteration:%d returned ierr=%d", h5k, ierr);
 	  if (lpgdSuccess)
             {
 	      if (props.verbose > 2)
@@ -646,6 +652,7 @@ int eewUtils_driveGFAST(const double currentTime,
       core_log_closeLogs();
       //printf("driveGFAST: next event\n");
     } // Loop on the events
+LOG_MSG("MTH: end loop on events ierr=%d\n", ierr);
   // Need to down-date the events should any have expired
   if (nPop > 0)
     {

@@ -8,7 +8,7 @@
 #include "iscl/memory/memory.h"
 #include "timeutils.h"
 #include "fileutils.h"
-#include <dirent.h>  // Needed for DIR
+#include <dirent.h>
 #include "dmlibWrapper.h"
 
 #include <time.h>
@@ -87,6 +87,8 @@ int main(int argc, char **argv)
   memset(&props,    0, sizeof(struct GFAST_props_struct));
   memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
   memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
+// MTH: The line below is in my source code but not in VK's ??
+  memset(&xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
   memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
   memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
   memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
@@ -389,11 +391,11 @@ int main(int argc, char **argv)
       
       // Update the hdf5 buffers
       
-      LOG_MSG("%s", "== Update the hdf5 buffers");
+      //LOG_MSG("%s", "== Update the hdf5 buffers");
       ierr = traceBuffer_h5_setData(t1,
 				    tb2Data,
 				    h5traceBuffer);
-      LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
+      //LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
       if (ierr != 0)
         {
 	  LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
@@ -414,7 +416,9 @@ int main(int argc, char **argv)
 	if ((props.verbose > 2)&&(amqMessage == NULL)) {
 	  LOG_MSG("%s: Activemq returned NULL", fcnm);
 	}
-      } else if (check_message_dir) {
+      } 
+      //else if (check_message_dir) {
+      if (amqMessage == NULL && check_message_dir) {
 	// Alternatively, check for SA message trigger in message_dir
 	amqMessage = check_dir_for_messages(message_dir, &ierr);
 	if ((ierr != 0)&&(props.verbose > 2)) {
@@ -445,7 +449,9 @@ int main(int argc, char **argv)
 	      goto ERROR;
             }
             // If this is a new event we have some file handling to do
+            printf("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
             lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
+            printf("MTH: call newEvent DONE\n");
             if (lnewEvent){
               LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
                       SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
@@ -453,8 +459,10 @@ int main(int argc, char **argv)
             else{
               LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
             }
+/* VK redundant block that was causing problems:
 	  //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
 	  // If this is a new event we have some file handling to do
+          printf("MTH: lnewEvent=%d\n", lnewEvent);
 	  lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
 	  if (lnewEvent){
 	    LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
@@ -462,7 +470,7 @@ int main(int argc, char **argv)
 	  else{
 	    LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
 	  }
-	  
+*/
 	  if (lnewEvent)
             {
 	      // And the logs

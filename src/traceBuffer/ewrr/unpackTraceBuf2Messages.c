@@ -133,10 +133,10 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
 
-    bool dump_tb2Data = true;
-    bool dump_nRead = true;
-    bool debug_imap = true;
-    bool debug_nchunks = true;
+    bool dump_tb2Data = false;
+    bool dump_nRead = false;
+    bool debug_imap = false;
+    bool debug_nchunks = false;
 
     if (dump_tb2Data) {
       for (k=0; k<tb2Data->ntraces; k++){
@@ -560,20 +560,26 @@ static int myCompare2(const void *x, const void *y)
   const struct string_index yy = *(const struct string_index *) y;
   int inet, ista, icha, iloc;
 
-  if (strcmp(xx.net, yy.net)==0) {
-    if (strcmp(xx.loc, yy.loc)==0) {
+  //if (strcmp(xx.net, yy.net)==0) {
+    //if (strcmp(xx.loc, yy.loc)==0) {
       ista = strcmp(xx.sta, yy.sta);
       if (ista == 0){
         icha = strcmp(xx.cha, yy.cha);
         if (icha == 0){
-          if (xx.time > yy.time) {
-            return 1;
-          }
-          else if (xx.time < yy.time) {
-            return -1;
+	  inet = strcmp(xx.net, yy.net);
+	  if (inet == 0) {
+            if (xx.time > yy.time) {
+              return 1;
+            }
+            else if (xx.time < yy.time) {
+              return -1;
+            }
+            else {
+              return 0;
+            }
           }
           else {
-            return 0;
+	    return inet;
           }
         }
         else {  // order by sta + {LYZ, LYN, LYE} to match tb2Data
@@ -583,8 +589,8 @@ static int myCompare2(const void *x, const void *y)
       else {
         return ista;
       }
-    }
-  }
+//    }
+//  }
 
   printf("**** MTH: qsort HERE: xx.logo=%s \t yy.logo=%s\n", xx.logo, yy.logo);
   return strcmp(xx.logo, yy.logo);
