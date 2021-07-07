@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <libgen.h>
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 enum logFileType_enum
 {
@@ -108,7 +108,7 @@ static int core_log_createLogFile(const char *fileName,
     // Check the output
     char *dirc = strdup(fileName);
     dirName = dirname(dirc); 
-    if (!cdirexists(dirName))
+    if (!os_path_isdir(dirName))
     {
       ierr = mkdir(dirName,0755);
       if (ierr)
@@ -122,7 +122,7 @@ static int core_log_createLogFile(const char *fileName,
 
     if (ierr != 0){return ierr;}
     // Just point out this file is going to be over-written 
-    if (cfileexists(fileName))
+    if (os_path_isfile(fileName))
     {
         fprintf(stdout, "[WARNING]: (%s:%s:line=%d) Overwriting file %s\n",
                  __FILE__, __func__, __LINE__, fileName);
@@ -194,11 +194,11 @@ static int core_log_openLogFile(const char *fileName,
         return ierr;
     }
     // Does the file exist?  If not then give it an output directory
-    if (!cfileexists(fileName))
+    if (!os_path_isfile(fileName))
     {
       char *dirc = strdup(fileName);
       dirName = dirname(dirc);
-      if (!cdirexists(dirName))
+      if (!os_path_isdir(dirName))
 	{
 	  ierr = mkdir(dirName, 0755);
 	  if (ierr)

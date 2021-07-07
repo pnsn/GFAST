@@ -6,8 +6,9 @@
 #include "gfast.h"
 #include "gfast_core.h"
 #include "iscl/memory/memory.h"
+#include "iscl/os/os.h"
+/*#include "iscl/time/time.h"*/
 #include "timeutils.h"
-#include "fileutils.h"
 #include <dirent.h>
 #include "dmlibWrapper.h"
 
@@ -471,19 +472,19 @@ int main(int argc, char **argv)
 	      eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
 				       errorLogFileName, infoLogFileName,
 				       debugLogFileName, warnLogFileName);
-	      if (cfileexists(errorLogFileName))
+	      if (os_path_isfile(errorLogFileName))
                 {
 		  remove(errorLogFileName);
                 }
-	      if (cfileexists(infoLogFileName))
+	      if (os_path_isfile(infoLogFileName))
                 {
 		  remove(infoLogFileName);
                 }
-	      if (cfileexists(debugLogFileName))
+	      if (os_path_isfile(debugLogFileName))
                 {
                   remove(debugLogFileName);
                 }
-	      if (cfileexists(warnLogFileName))
+	      if (os_path_isfile(warnLogFileName))
                 {
                   remove(warnLogFileName);
                 }

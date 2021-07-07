@@ -4,7 +4,7 @@
 #include <limits.h>
 #include "gfast_traceBuffer.h"
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Sets the HDF5 trace buffer file name
@@ -48,7 +48,7 @@ int traceBuffer_h5_setFileName(const char *h5dir,
         }
         else
         {
-            if (!cdirexists(h5dir))
+            if (!os_path_isdir(h5dir))
             {
                 LOG_ERRMSG("Directory %s does not exist", h5dir);
                 return -1;

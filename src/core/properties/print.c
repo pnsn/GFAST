@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Prints the GFAST properties to the debug file.  Note, there is 
@@ -110,7 +110,7 @@ void core_properties_print(struct GFAST_props_struct props)
                    props.utm_zone);
     }
     LOG_DEBUGMSG("%s GFAST verbosity level is %d", lspace, props.verbose);
-    if (cfileexists(props.siteMaskFile))
+    if (os_path_isfile(props.siteMaskFile))
     {
         LOG_DEBUGMSG("%s GFAST will use site maskfile: %s", lspace,
                      props.siteMaskFile);

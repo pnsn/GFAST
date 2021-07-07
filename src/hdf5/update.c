@@ -4,7 +4,7 @@
 #include <limits.h>
 #include "gfast_hdf5.h"
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Initializes the current directory for this GFAST iteration.
@@ -39,7 +39,7 @@ int hdf5_updateGetIteration(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
@@ -100,7 +100,7 @@ int hdf5_updateHypocenter(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
@@ -186,7 +186,7 @@ int hdf5_updatePGD(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
@@ -297,7 +297,7 @@ int hdf5_updateCMT(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;
@@ -397,7 +397,7 @@ int hdf5_updateXMLMessage(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1; 
     }
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         LOG_ERRMSG("Error file %s does not exist!\n", h5fl);
         return -1;
@@ -460,7 +460,7 @@ int hdf5_updateFF(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1; 
     }   
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {   
         LOG_ERRMSG("Error file %s does not exist!\n", h5fl);
         return -1; 
@@ -555,7 +555,7 @@ int hdf5_update_gpsData(const char *adir,
         LOG_ERRMSG("%s", "Error setting filename");
         return -1;
     }
-    if (!cfileexists(h5fl))
+    if (!os_path_isfile(h5fl))
     {
         LOG_ERRMSG("Error file %s does not exist!", h5fl);
         return -1;

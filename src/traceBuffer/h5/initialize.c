@@ -9,7 +9,7 @@
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
 #include "iscl/time/time.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 /*!
  * @brief Initializes the HDF5 file for archiving the acquisition or
  *        reading in playback mode. 
@@ -63,7 +63,7 @@ int traceBuffer_h5_initialize(const int job,
     if (job == 1)
     {
         // If scratch file was saved then remove it
-        if (!cfileexists(h5name))
+        if (!os_path_isfile(h5name))
         {
             LOG_ERRMSG("Error HDF5 file does %s not exist!", h5name);
             return -1;
@@ -151,7 +151,7 @@ FOUND_TRACE:;
         // Set the time to now
         tbeg = (double) ((long) (time_timeStamp())); 
         // If scratch file was saved then remove it 
-        if (cfileexists(h5name))
+        if (os_path_isfile(h5name))
         {
             LOG_WARNMSG("Deleting file %s", h5name);
         }

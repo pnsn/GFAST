@@ -9,8 +9,8 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-#include "fileutils.h"
 #include "gfast_core.h"
+#include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,
                        char *var)
@@ -46,7 +46,7 @@ int core_scaling_pgd_readIni(const char *propfilename,
     dictionary *ini;
     ierr = 1;
     memset(pgd_props, 0, sizeof(struct  GFAST_pgd_props_struct));
-    if (!cfileexists(propfilename))
+    if (!os_path_isfile(propfilename))
     {   
         LOG_ERRMSG("Properties file: %s does not exist", propfilename);
         return ierr;

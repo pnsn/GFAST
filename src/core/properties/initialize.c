@@ -14,7 +14,7 @@
 #pragma clang diagnostic pop
 #endif
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 #ifdef GFAST_USE_AMQ
 #include "gfast_activeMQ.h"
 #endif
@@ -45,7 +45,7 @@ int core_properties_initialize(const char *propfilename,
   dictionary *ini;
   //------------------------------------------------------------------------//
   // Require the properties file exists
-  if (!cfileexists(propfilename))
+  if (!os_path_isfile(propfilename))
     {
       printf("properties file (%s) does not exist\n", propfilename);
       return -1;
@@ -69,7 +69,7 @@ int core_properties_initialize(const char *propfilename,
 			  "gfast.log\0");
   printf("Opening %s for log output\n",s);
   core_log_openLog(s);
-  if (!cfileexists(s))
+  if (!os_path_isfile(s))
     {
       printf("Cannot open log output file %s\n", s);
       return -1;
@@ -79,7 +79,7 @@ int core_properties_initialize(const char *propfilename,
   s = iniparser_getstring(ini, "general:metaDataFile\0",
 			  "GFAST_streams.txt\0");
   strcpy(props->metaDataFile, s);
-  if (!cfileexists(props->metaDataFile))
+  if (!os_path_isfile(props->metaDataFile))
     {
       LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
       return -1;
@@ -90,7 +90,7 @@ int core_properties_initialize(const char *propfilename,
   if (s != NULL)
     {
       strcpy(props->siteMaskFile, s);
-      if (!cfileexists(props->siteMaskFile))
+      if (!os_path_isfile(props->siteMaskFile))
         {
 	  memset(props->siteMaskFile, 0, sizeof(props->siteMaskFile));
         }
@@ -131,7 +131,7 @@ int core_properties_initialize(const char *propfilename,
   if (s != NULL)
     {
       strcpy(props->SAeventsDir, s);
-      if (!cdirexists(props->SAeventsDir))
+      if (!os_path_isdir(props->SAeventsDir))
         {
 	  LOG_ERRMSG("SA events directory %s doesn't exist",
 		     props->SAeventsDir);
@@ -160,7 +160,7 @@ int core_properties_initialize(const char *propfilename,
   if (s != NULL)
     {
       strcpy(props->SAoutputDir, s);
-      if (!cdirexists(props->SAoutputDir))
+      if (!os_path_isdir(props->SAoutputDir))
 	{
 	  LOG_ERRMSG("SA output directory %s doesn't exist",
 		     props->SAoutputDir);
@@ -203,7 +203,7 @@ int core_properties_initialize(const char *propfilename,
       if (s != NULL)
         {
 	  strcpy(props->obsdataDir, s);
-	  if (!cdirexists(props->obsdataDir))
+	  if (!os_path_isdir(props->obsdataDir))
             {
 	      LOG_ERRMSG("Observed data directory %s doesn't exist",
 			 props->obsdataDir);
@@ -232,7 +232,7 @@ int core_properties_initialize(const char *propfilename,
 	  memset(cwork, 0, sizeof(cwork));
 	  strcpy(cwork, props->obsdataDir);
 	  strcat(cwork, props->obsdataFile);
-	  if (!cfileexists(cwork))
+	  if (!os_path_isfile(cwork))
             {
 	      LOG_ERRMSG("Observed data file %s doesn't exist", cwork);
 	      goto ERROR;
@@ -278,7 +278,7 @@ int core_properties_initialize(const char *propfilename,
   if (props->opmode == OFFLINE)
     {
       // Make sure the EEW XML file exists
-      if (!cfileexists(props->eewsfile))
+      if (!os_path_isfile(props->eewsfile))
         {
 	  LOG_ERRMSG("Cannot find EEW XML file %s!", props->eewsfile);
 	  goto ERROR;
@@ -369,7 +369,7 @@ int core_properties_initialize(const char *propfilename,
   else
     {
       strcpy(props->h5ArchiveDir, s);
-      if (!cdirexists(props->h5ArchiveDir))
+      if (!os_path_isdir(props->h5ArchiveDir))
         {
 	  LOG_WARNMSG("Archive directory %s doesn't exist",
 		      props->h5ArchiveDir);

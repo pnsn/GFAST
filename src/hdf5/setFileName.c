@@ -3,9 +3,10 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
+#include <sys/stat.h>
 #include "gfast_hdf5.h"
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 /*!
  * @brief Sets the HDF5 archive filename
@@ -54,13 +55,13 @@ int hdf5_setFileName(const char *adir,
         else
         {
             // Require the directory exists - if not make it
-            if (!cdirexists(adir))
+            if (!os_path_isdir(adir))
             {
 	      ierr = mkdir(adir,0755);
-                if (ierr != 0)
+	      if (ierr != 0)
                 {
-                    LOG_ERRMSG("Failed making directory %s\n", adir);
-                    return -1;
+		  LOG_ERRMSG("Failed making directory %s\n", adir);
+		  return -1;
                 }
             }
             strcpy(fname, adir);
