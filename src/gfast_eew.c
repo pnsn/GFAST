@@ -459,18 +459,6 @@ int main(int argc, char **argv)
             else{
               LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
             }
-/* VK redundant block that was causing problems:
-	  //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
-	  // If this is a new event we have some file handling to do
-          printf("MTH: lnewEvent=%d\n", lnewEvent);
-	  lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
-	  if (lnewEvent){
-	    LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
-	  }
-	  else{
-	    LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
-	  }
-*/
 	  if (lnewEvent)
             {
 	      // And the logs

@@ -170,46 +170,25 @@ int eewUtils_driveGFAST(const double currentTime,
         log_initDebugLog(&__debugToLog);
         log_initWarnLog(&__warnToLog);
       */
-        // Get the data for this event
-        //LOG_MSG("get data t1:%f t2:%f", t1, t2);
-        ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
-        if (ierr != 0)
+      // Get the data for this event
+      //LOG_MSG("get data t1:%f t2:%f", t1, t2);
+      ierr = GFAST_traceBuffer_h5_getData(t1, t2, h5traceBuffer);
+      if (ierr != 0)
         {
 	  //printf("driveGFAST: Error getting the data for event --> continue\n");
 	  LOG_MSG("%s: Error getting the data for event:%s --> continue", fcnm, SA.eventid);
 	  LOG_ERRMSG("%s: Error getting the data for event %s", fcnm,  SA.eventid);
 	  continue; 
         }
-        // Copy the data onto the buffer
-        //LOG_MSG("%s", "CopyTraceBufferToGFAST");
-        ierr = GFAST_traceBuffer_h5_copyTraceBufferToGFAST(h5traceBuffer,
-                                                           gps_data);
-        //LOG_MSG("%s returned ierr=%d", "CopyTraceBufferToGFAST", ierr);
-        if (ierr != 0)
+      // Copy the data onto the buffer
+      //LOG_MSG("%s", "CopyTraceBufferToGFAST");
+      ierr = GFAST_traceBuffer_h5_copyTraceBufferToGFAST(h5traceBuffer,
+							 gps_data);
+      //LOG_MSG("%s returned ierr=%d", "CopyTraceBufferToGFAST", ierr);
+      if (ierr != 0)
         {
 	  LOG_ERRMSG("%s", "Error copying trace buffer");
 	  continue;
-        }
-        //LOG_MSG("%s", "Get peakDisp");
-        //printf("driveGFAST: Get peakDisp\n");
-        // Extract the peak displacement from the waveform buffer
-        nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(
-                                    props.pgd_props.utm_zone,
-                                    props.pgd_props.window_vel,
-                                    props.pgd_props.min_window_vel,
-                                    SA.lat,
-                                    SA.lon,
-                                    SA.dep,
-                                    SA.time,
-                                    *gps_data,
-                                    pgd_data,
-                                    &ierr);
-        LOG_MSG("%s returned ierr=%d nsites_pgd=%d", "Get peakDisp", ierr, nsites_pgd);
-        if (ierr != 0)
-        {
-	  LOG_MSG("%s: No gps data available for event:%s --> continue", fcnm, SA.eventid);
-	  LOG_ERRMSG("%s: No gps data available for event %s", fcnm,  SA.eventid);
-	  continue; 
         }
 	
       LOG_MSG("%s", "Get peakDisp");
@@ -525,15 +504,16 @@ LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
 					     age_of_event);
 	      }
 	      /*
-                else {
-		  for (i=0; i<props.n_intervals; i++){
-		    if (mins == props.output_interval_mins[i] && secs < 1.){
-		      LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
-		               age_of_event, props.output_interval_mins[i]);
-		      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
-		                               ffXML, props.output_interval_mins[i], true);
+	      else {
+		for (i=0; i<props.n_intervals; i++){
+		  if (mins == props.output_interval_mins[i] && secs < 1.){
+		    LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
+			    age_of_event, props.output_interval_mins[i]);
+		    ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+					     ffXML, props.output_interval_mins[i], true);
 		  }
-                }
+		}
+	      }
 	      */
             }
 	  xmlMessages->evids[xmlMessages->nmessages]

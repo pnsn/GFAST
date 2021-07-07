@@ -6,7 +6,7 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-SDIRS	= array iscl memory sorting time linalg statistics
+SDIRS	= array iscl memory os sorting time linalg statistics
 LIB	= iscl.a
 OBJS := $(foreach dir,$(SDIRS),$(dir)/*.o)
 
