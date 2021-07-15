@@ -449,55 +449,58 @@ int main(int argc, char **argv)
 	      LOG_ERRMSG("%s\n", amqMessage);
 	      goto ERROR;
             }
-            // If this is a new event we have some file handling to do
-            printf("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
-            lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
-            printf("MTH: call newEvent DONE\n");
-            if (lnewEvent){
-              LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
-                      SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
-            }
-            else{
-              LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
-            }
-	  if (lnewEvent)
-            {
-	      // And the logs
-	      if (props.verbose > 0)
-                {
-		  LOG_INFOMSG("%s: New event %s added\n", fcnm, SA.eventid);
-		  if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
-                }
-	      // Set the log file names
-	      eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
-				       errorLogFileName, infoLogFileName,
-				       debugLogFileName, warnLogFileName);
-	      if (os_path_isfile(errorLogFileName))
-                {
-		  remove(errorLogFileName);
-                }
-	      if (os_path_isfile(infoLogFileName))
-                {
-		  remove(infoLogFileName);
-                }
-	      if (os_path_isfile(debugLogFileName))
-                {
-                  remove(debugLogFileName);
-                }
-	      if (os_path_isfile(warnLogFileName))
-                {
-                  remove(warnLogFileName);
-                }
-	      // Initialize the HDF5 file
-	      ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
-					   SA.eventid,
-					   props.propfilename);
-	      if (ierr != 0)
-                {
-		  LOG_ERRMSG("%s: Error initializing the archive file\n", fcnm);
-		  goto ERROR;
-                }
-            }
+	  if (!strcmp(SA.orig_sys,"gfast")) 
+	    { //don't trigger on gfast messages
+	      // If this is a new event we have some file handling to do
+	      printf("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
+	      lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
+	      printf("MTH: call newEvent DONE\n");
+	      if (lnewEvent){
+		LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
+			SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
+	      }
+	      else{
+		LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
+	      }
+	      if (lnewEvent)
+		{
+		  // And the logs
+		  if (props.verbose > 0)
+		    {
+		      LOG_INFOMSG("%s: New event %s added\n", fcnm, SA.eventid);
+		      if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
+		    }
+		  // Set the log file names
+		  eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
+					   errorLogFileName, infoLogFileName,
+					   debugLogFileName, warnLogFileName);
+		  if (os_path_isfile(errorLogFileName))
+		    {
+		      remove(errorLogFileName);
+		    }
+		  if (os_path_isfile(infoLogFileName))
+		    {
+		      remove(infoLogFileName);
+		    }
+		  if (os_path_isfile(debugLogFileName))
+		    {
+		      remove(debugLogFileName);
+		    }
+		  if (os_path_isfile(warnLogFileName))
+		    {
+		      remove(warnLogFileName);
+		    }
+		  // Initialize the HDF5 file
+		  ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
+					       SA.eventid,
+					       props.propfilename);
+		  if (ierr != 0)
+		    {
+		      LOG_ERRMSG("%s: Error initializing the archive file\n", fcnm);
+		      goto ERROR;
+		    }
+		}
+	    }  //end if not gfast message
 	  free(amqMessage);
 	  amqMessage = NULL;
         } // End check on ActiveMQ message

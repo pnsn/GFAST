@@ -443,6 +443,8 @@ struct GFAST_data_struct
 struct GFAST_shakeAlert_struct
 {
   char eventid[128];  /*!< Event ID. */
+  char orig_sys[12];  /*!< originating algorithm */
+  int version;        /*!< message version */
   double lat;         /*!< Event latitude (degrees). */
   double lon;         /*!< Event longitude (degrees). */
   double dep;         /*!< Event depth (kilometers). */ 
@@ -461,7 +463,8 @@ struct GFAST_activeEvents_struct
 
 struct GFAST_xml_output_status
 {
-  char eventid[128];  /*!< Event ID. */
+  char eventid[128];                               /*!< Event ID. */
+  int version;                                     /*!< GFAST iteration version for this event ID. */
   bool interval_complete[3][MAX_OUTPUT_INTERVALS]; /*!< intervals_complete[] for pgd + cmt + ff = 3 */
 };
 

@@ -27,14 +27,14 @@
 int eewUtils_writeXML(const char *dirname, const char *eventid, const char *msg_type, const char *message, int interval, bool interval_in_mins);
 
 bool check_mins_against_intervals(
-      struct GFAST_props_struct props,
-      int mins,
-      char * eventid,
-      char * suffix,
-      char * xml,
-      bool * interval_complete,
-      double age
-      );
+				  struct GFAST_props_struct props,
+				  int mins,
+				  char * eventid,
+				  char * suffix,
+				  char * xml,
+				  bool * interval_complete,
+				  double age
+				  );
 
 //static void setFileNames(const char *eventid);
 
@@ -338,6 +338,7 @@ int eewUtils_driveGFAST(const double currentTime,
         {
 	  LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
 		  lpgdSuccess, lcmtSuccess, lffSuccess);
+	  int iversion =  xml_status->SA_status[iev].version;
 	  lfinalize = true;
 	  // Make the PGD xml
 	  if (lpgdSuccess)
@@ -351,8 +352,8 @@ int eewUtils_driveGFAST(const double currentTime,
 					     "GFAST\0",
 					     GFAST_VERSION,
 					     GFAST_INSTANCE,
-					     "new\0",
-					     "0\0",
+					     (iversion==0)?"new\0":"update\0",
+					     sprintf("%d",iversion),
 					     SA.eventid,
 					     SA.lat,
 					     SA.lon,
@@ -384,7 +385,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
 		int index = (int)(currentTime - SA.time);
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
-LOG_MSG("writeXML for PGD returned ierr=%d\n", ierr);
+		LOG_MSG("writeXML for PGD returned ierr=%d\n", ierr);
 	      }
 	      else if (secs < 3.) {
 		LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check PGD writeXML\n",
@@ -395,61 +396,61 @@ LOG_MSG("writeXML for PGD returned ierr=%d\n", ierr);
 	      }
             } //if lpgdSuccess
 
-LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
-            // Make the CMT quakeML
-            if (lcmtSuccess)
-	      {
-		if (props.verbose > 2)
-		  {
-		    LOG_DEBUGMSG("%s", "Generating CMT QuakeML");
-		  }
-		cmtQML = eewUtils_makeXML__quakeML(props.anssNetwork,
-						   props.anssDomain,
-						   SA.eventid,
-						   SA.lat,
-						   SA.lon,
-						   cmt->srcDepths[cmt->opt_indx],
-						   SA.time,
-						   &cmt->mts[6*cmt->opt_indx],
-						   &ierr);
-		if (ierr != 0)
-		  {
-		    LOG_ERRMSG("%s", "Error generating CMT quakeML");
-		    if (cmtQML != NULL)
-		      {
-			free(cmtQML);
-			cmtQML = NULL;
-		      }
-		  }
-		xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
-                if (props.output_interval_mins[0] == 0) { // Output at every iteration
-		  int index = (int)(currentTime - SA.time);
-                  LOG_MSG("Age_of_event=%f --> Output CMT solution at iter:%d", age_of_event, index);
-                  ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
-                                           cmtQML, index, false);
-                }
-                else if (secs < 3.) {
-                  LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
-                           SA.eventid, age_of_event, mins, secs);
-                  check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtQML,
-                                               xml_status->SA_status[iev].interval_complete[1],
-                                               age_of_event);
-                }
-                /*
-                else {
-                  for (i=0; i<props.n_intervals; i++){
-                    if (mins == props.output_interval_mins[i] && secs < 1.){
-                      LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution",
-			      age_of_event, props.output_interval_mins[i]);
-                      ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
-                                               cmtQML, props.output_interval_mins[i], true);
-                    }
-                  }
-                }
-                */
+	  LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
+	  // Make the CMT quakeML
+	  if (lcmtSuccess)
+	    {
+	      if (props.verbose > 2)
+		{
+		  LOG_DEBUGMSG("%s", "Generating CMT QuakeML");
+		}
+	      cmtQML = eewUtils_makeXML__quakeML(props.anssNetwork,
+						 props.anssDomain,
+						 SA.eventid,
+						 SA.lat,
+						 SA.lon,
+						 cmt->srcDepths[cmt->opt_indx],
+						 SA.time,
+						 &cmt->mts[6*cmt->opt_indx],
+						 &ierr);
+	      if (ierr != 0)
+		{
+		  LOG_ERRMSG("%s", "Error generating CMT quakeML");
+		  if (cmtQML != NULL)
+		    {
+		      free(cmtQML);
+		      cmtQML = NULL;
+		    }
+		}
+	      xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
+	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
+		int index = (int)(currentTime - SA.time);
+		LOG_MSG("Age_of_event=%f --> Output CMT solution at iter:%d", age_of_event, index);
+		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
+					 cmtQML, index, false);
 	      }
-            // Make the finite fault XML
-            if (lffSuccess)
+	      else if (secs < 3.) {
+		LOG_MSG("eventid:%s age:%f mins:%d secs:%f --> check CMT writeXML\n",
+			SA.eventid, age_of_event, mins, secs);
+		check_mins_against_intervals(props, mins, SA.eventid, "cmt", cmtQML,
+					     xml_status->SA_status[iev].interval_complete[1],
+					     age_of_event);
+	      }
+	      /*
+                else {
+		for (i=0; i<props.n_intervals; i++){
+		if (mins == props.output_interval_mins[i] && secs < 1.){
+		LOG_MSG("Age_of_event=%f --> Output minute %d CMT solution",
+		age_of_event, props.output_interval_mins[i]);
+		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
+		cmtQML, props.output_interval_mins[i], true);
+		}
+		}
+                }
+	      */
+	    }
+	  // Make the finite fault XML
+	  if (lffSuccess)
             {
 	      if (props.verbose > 2)
                 {
@@ -462,8 +463,8 @@ LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
 					   "GFAST\0",
 					   GFAST_VERSION,
 					   GFAST_INSTANCE,
-					   "new\0",
-					   GFAST_VERSION,
+					   (iversion==0)?"new\0":"update\0",
+					   sprintf("%d",iversion),
 					   SA.eventid,
 					   SA.lat,
 					   SA.lon,
@@ -504,16 +505,16 @@ LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
 					     age_of_event);
 	      }
 	      /*
-	      else {
+		else {
 		for (i=0; i<props.n_intervals; i++){
-		  if (mins == props.output_interval_mins[i] && secs < 1.){
-		    LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
-			    age_of_event, props.output_interval_mins[i]);
-		    ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
-					     ffXML, props.output_interval_mins[i], true);
-		  }
+		if (mins == props.output_interval_mins[i] && secs < 1.){
+		LOG_MSG("Age_of_event=%f --> Output minute %d FF solution",
+		age_of_event, props.output_interval_mins[i]);
+		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
+		ffXML, props.output_interval_mins[i], true);
 		}
-	      }
+		}
+		}
 	      */
             }
 	  xmlMessages->evids[xmlMessages->nmessages]
@@ -521,18 +522,18 @@ LOG_MSG("MTH Leaving PGD writeXML ierr=%d\n", ierr);
 	  strcpy(xmlMessages->evids[xmlMessages->nmessages], SA.eventid);
 	  xmlMessages->nmessages = xmlMessages->nmessages + 1;
         } // End check on finalizing
-LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
+      LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
       // Update the archive
       if (lfinalize || !props.lh5SummaryOnly)
         {
-            // Get the iteration number in the H5 file
-            h5k = 0;
-            h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
-                                                SA.eventid,
-                                                currentTime);
-            LOG_MSG("time:%lf evid:%s h5k iteration=%d dir=%s Update h5 archive",
-			t2, SA.eventid, h5k, props.h5ArchiveDir);
-            if (props.verbose > 2)
+	  // Get the iteration number in the H5 file
+	  h5k = 0;
+	  h5k = GFAST_hdf5_updateGetIteration(props.h5ArchiveDir,
+					      SA.eventid,
+					      currentTime);
+	  LOG_MSG("time:%lf evid:%s h5k iteration=%d dir=%s Update h5 archive",
+		  t2, SA.eventid, h5k, props.h5ArchiveDir);
+	  if (props.verbose > 2)
             {
 	      LOG_DEBUGMSG("Writing GPS data for iteration %d", h5k);
             }
@@ -540,7 +541,7 @@ LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
 					   SA.eventid,
 					   h5k,
 					   *gps_data);
-	 LOG_MSG("update gpsData for iteration:%d returned ierr=%d", h5k, ierr);
+	  LOG_MSG("update gpsData for iteration:%d returned ierr=%d", h5k, ierr);
 	  if (props.verbose > 2)
             {
 	      LOG_DEBUGMSG("Writing hypocenter for iteration %d", h5k);
@@ -549,7 +550,7 @@ LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
 					     SA.eventid,
 					     h5k,
 					     SA);
-	 LOG_MSG("updateHypocenter for iteration:%d returned ierr=%d", h5k, ierr);
+	  LOG_MSG("updateHypocenter for iteration:%d returned ierr=%d", h5k, ierr);
 	  if (lpgdSuccess)
             {
 	      if (props.verbose > 2)
@@ -632,19 +633,19 @@ LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
       core_log_closeLogs();
       //printf("driveGFAST: next event\n");
     } // Loop on the events
-LOG_MSG("MTH: end loop on events ierr=%d\n", ierr);
+  LOG_MSG("MTH: end loop on events ierr=%d\n", ierr);
   // Need to down-date the events should any have expired
   if (nPop > 0)
     {
-        LOG_MSG("time:%lf RemoveExpiredEvents", currentTime);
-        nRemoved = core_events_removeExpiredEvents(props.processingTime,
-                                                   currentTime,
-                                                   props.verbose,
-                                                   events);
-        LOG_MSG("time:%lf syncXMLStatusWithEvents", currentTime);
-        core_events_syncXMLStatusWithEvents(events, xml_status);
-        LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
-        if (nRemoved != nPop)
+      LOG_MSG("time:%lf RemoveExpiredEvents", currentTime);
+      nRemoved = core_events_removeExpiredEvents(props.processingTime,
+						 currentTime,
+						 props.verbose,
+						 events);
+      LOG_MSG("time:%lf syncXMLStatusWithEvents", currentTime);
+      core_events_syncXMLStatusWithEvents(events, xml_status);
+      LOG_MSG("time:%lf RemoveExpiredEvents nRemoved=%d", currentTime, nRemoved);
+      if (nRemoved != nPop)
         {
 	  LOG_WARNMSG("%s", "Strange - check removeExpiredEvents");
         }
@@ -683,9 +684,9 @@ int eewUtils_writeXML(const char *dirname,
     LOG_MSG("File:%s already exists!\n", fullpath);
   }
   /*
-  else {
+    else {
     LOG_MSG("File:%s doesn't exist\n", fullpath);
-  }
+    }
   */
 
   fp = fopen(fullpath, "w");
@@ -697,41 +698,41 @@ int eewUtils_writeXML(const char *dirname,
 }
 
 bool check_mins_against_intervals(
-      struct GFAST_props_struct props,
-      int mins,
-      char * eventid,
-      char * suffix,
-      char * xml,
-      bool * interval_complete,
-      double age
-      )
+				  struct GFAST_props_struct props,
+				  int mins,
+				  char * eventid,
+				  char * suffix,
+				  char * xml,
+				  bool * interval_complete,
+				  double age
+				  )
 {
-   int i, ierr;
+  int i, ierr;
 
-   i = props.n_intervals - 1;
-   if (mins == props.output_interval_mins[i] && interval_complete[i] == false) {
-      LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s [FINAL MIN INTERVAL]",
-                  eventid, age, props.output_interval_mins[i], suffix);
-      ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
-                               props.output_interval_mins[i], true);
-      if (ierr!=0) LOG_MSG("%s: ierr=%d from eewUtils_writeXML()",__func__,ierr);
-      interval_complete[i] = true;
-      return true;
-   }
+  i = props.n_intervals - 1;
+  if (mins == props.output_interval_mins[i] && interval_complete[i] == false) {
+    LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s [FINAL MIN INTERVAL]",
+	    eventid, age, props.output_interval_mins[i], suffix);
+    ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
+			     props.output_interval_mins[i], true);
+    if (ierr!=0) LOG_MSG("%s: ierr=%d from eewUtils_writeXML()",__func__,ierr);
+    interval_complete[i] = true;
+    return true;
+  }
 
-   for (i=0; i<props.n_intervals-1; i++){
-      if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
-        if (interval_complete[i] == false) {
-          //LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s",
-                  //eventid, age, props.output_interval_mins[i], suffix);
+  for (i=0; i<props.n_intervals-1; i++){
+    if (mins >= props.output_interval_mins[i] && mins < props.output_interval_mins[i+1]) {
+      if (interval_complete[i] == false) {
+	//LOG_MSG("Eventid:%s age_of_event:%f --> Output minute %d solution for suff:%s",
+	//eventid, age, props.output_interval_mins[i], suffix);
 
-          ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
-                                   props.output_interval_mins[i], true);
-          interval_complete[i] = true;
-          return true;
+	ierr = eewUtils_writeXML(props.SAoutputDir, eventid, suffix, xml,
+				 props.output_interval_mins[i], true);
+	interval_complete[i] = true;
+	return true;
       }
     }
-   }
+  }
 
-   return false;
+  return false;
 }

@@ -95,6 +95,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
         // MTH: Same thing for xml output status structs
         // Create a status output_status from incoming SA eventid
         strcpy(output_status.eventid, SA.eventid);
+	output_status.version=0;
         // Append this output_status to the incoming xml_status list of records
         Xtemp.nev = nev0 + 1;
         Xtemp.SA_status = (struct GFAST_xml_output_status *) calloc((size_t) Xtemp.nev, sizeof(struct GFAST_xml_output_status));
@@ -130,6 +131,7 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
       if (lupdateEvent){
         //LOG_MSG("MTH: SA.eventid=%s xml has changed --> update events->SA[%d]", SA.eventid, imodified);
         memcpy(&events->SA[imodified], &SA, sizeof(struct GFAST_shakeAlert_struct));
+	xml_status->SA_status[imodified]->version += 1;
       }
     }
     return lnewEvent;

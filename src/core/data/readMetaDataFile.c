@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "gfast_core.h"
-#include "iscl/os/os.h""
+#include "iscl/os/os.h"
 
 static int splitLine(const char *cline,
                      char netw[64], char stat[64], char loc[64], char chan[64],
