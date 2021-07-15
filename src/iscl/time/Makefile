@@ -7,7 +7,7 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= calendar2epoch.o epoch2calendar.o
+OBJS	= calendar2epoch.o epoch2calendar.o timestamp.o tictoc.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config

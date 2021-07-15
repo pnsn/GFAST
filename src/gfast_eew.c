@@ -7,8 +7,7 @@
 #include "gfast_core.h"
 #include "iscl/memory/memory.h"
 #include "iscl/os/os.h"
-/*#include "iscl/time/time.h"*/
-#include "timeutils.h"
+#include "iscl/time/time.h"
 #include <dirent.h>
 #include "dmlibWrapper.h"
 

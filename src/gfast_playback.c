@@ -7,7 +7,7 @@
 #include "gfast_eewUtils.h"
 #include "iscl/iscl/iscl.h"
 #include "iscl/os/os.h"
-#include "timeutils.h"
+#include "iscl/time/time.h"
 
 int main(int argc, char *argv[])
 {

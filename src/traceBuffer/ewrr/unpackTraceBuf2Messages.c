@@ -8,7 +8,7 @@
 #include "iscl/memory/memory.h"
 #include "iscl/sorting/sorting.h"
 
-#include "timeutils.h"
+#include "iscl/time/time.h"
 
 static void fastUnpackI4(const int npts, const int lswap,
                          const char *__restrict__ msg,
