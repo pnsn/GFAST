@@ -338,7 +338,10 @@ int eewUtils_driveGFAST(const double currentTime,
         {
 	  LOG_MSG("driveGFAST: make XML msgs: lpgdSuccess=%d lcmtSuccess=%d lffSuccess=%d\n",
 		  lpgdSuccess, lcmtSuccess, lffSuccess);
-	  int iversion =  xml_status->SA_status[iev].version;
+	  xml_status->SA_status[iev].version+=1;
+	  char *message_type =  (xml_status->SA_status[iev].version==0)?"new\0":"update\0";
+	  char sversion[5];
+	  sprintf(sversion,"%4d",xml_status->SA_status[iev].version);
 	  lfinalize = true;
 	  // Make the PGD xml
 	  if (lpgdSuccess)
@@ -352,8 +355,8 @@ int eewUtils_driveGFAST(const double currentTime,
 					     "GFAST\0",
 					     GFAST_VERSION,
 					     GFAST_INSTANCE,
-					     (iversion==0)?"new\0":"update\0",
-					     sprintf("%d",iversion),
+					     message_type,
+					     sversion,
 					     SA.eventid,
 					     SA.lat,
 					     SA.lon,
@@ -463,8 +466,8 @@ int eewUtils_driveGFAST(const double currentTime,
 					   "GFAST\0",
 					   GFAST_VERSION,
 					   GFAST_INSTANCE,
-					   (iversion==0)?"new\0":"update\0",
-					   sprintf("%d",iversion),
+					   message_type,
+					   sversion,
 					   SA.eventid,
 					   SA.lat,
 					   SA.lon,

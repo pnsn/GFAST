@@ -131,7 +131,6 @@ bool core_events_newEvent(struct GFAST_shakeAlert_struct SA,
       if (lupdateEvent){
         //LOG_MSG("MTH: SA.eventid=%s xml has changed --> update events->SA[%d]", SA.eventid, imodified);
         memcpy(&events->SA[imodified], &SA, sizeof(struct GFAST_shakeAlert_struct));
-	xml_status->SA_status[imodified]->version += 1;
       }
     }
     return lnewEvent;
