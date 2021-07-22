@@ -443,12 +443,16 @@ int main(int argc, char **argv)
 	  ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
 	  if (ierr != 0)
             {
-	      LOG_ERRMSG("%s: Error parsing the decision module message\n",
+	      LOG_ERRMSG("%s: Error parsing the activeMQ trigger message\n",
 			 fcnm);
 	      LOG_ERRMSG("%s\n", amqMessage);
 	      goto ERROR;
             }
-	  if (!strcmp(SA.orig_sys,"gfast")) 
+	  if (strcmp(SA.orig_sys,"gfast")==0) 
+	    {
+	      LOG_MSG("ignoring activeMQ message from gfast: evid=%s orig_sys=%s",SA.eventid,SA.orig_sys);
+	    }
+	  else 
 	    { //don't trigger on gfast messages
 	      // If this is a new event we have some file handling to do
 	      printf("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
@@ -499,7 +503,7 @@ int main(int argc, char **argv)
 		      goto ERROR;
 		    }
 		}
-	    }  //end if not gfast message
+	    }  //end gfast message if/else check
 	  free(amqMessage);
 	  amqMessage = NULL;
         } // End check on ActiveMQ message
