@@ -448,7 +448,7 @@ int main(int argc, char **argv)
 	      LOG_ERRMSG("%s\n", amqMessage);
 	      goto ERROR;
             }
-	  if (strcmp(SA.orig_sys,"gfast")==0) 
+	  if (strncasecmp(SA.orig_sys,"gfast",5)==0) 
 	    {
 	      LOG_MSG("ignoring activeMQ message from gfast: evid=%s orig_sys=%s",SA.eventid,SA.orig_sys);
 	    }

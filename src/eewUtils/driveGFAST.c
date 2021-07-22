@@ -340,8 +340,8 @@ int eewUtils_driveGFAST(const double currentTime,
 		  lpgdSuccess, lcmtSuccess, lffSuccess);
 	  xml_status->SA_status[iev].version+=1;
 	  char *message_type =  (xml_status->SA_status[iev].version==0)?"new\0":"update\0";
-	  char sversion[5];
-	  sprintf(sversion,"%4d",xml_status->SA_status[iev].version);
+	  char sversion[6];
+	  snprintf(sversion,6,"%d",xml_status->SA_status[iev].version);
 	  lfinalize = true;
 	  // Make the PGD xml
 	  if (lpgdSuccess)
