@@ -524,7 +524,6 @@ int eewUtils_driveGFAST(const double currentTime,
 	    = (char *)calloc(strlen(SA.eventid)+1, sizeof(char));
 	  strcpy(xmlMessages->evids[xmlMessages->nmessages], SA.eventid);
 	  xmlMessages->nmessages = xmlMessages->nmessages + 1;
-	  free(message_type);
         } // End check on finalizing
       LOG_MSG("MTH Leaving FF writeXML ierr=%d lfinalize=%d\n", ierr, lfinalize);
       // Update the archive
