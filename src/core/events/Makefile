@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/core/events
-#   CCFLAGS
 #
 
 GFASTROOT=../..
@@ -9,7 +8,7 @@ endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 OBJS	= freeEvents.o newEvent.o removeCancelledEvent.o removeExpiredEvents.o\
- getMinOriginTime.o printEvent.o removeExpiredEvent.o updateEvent.o
+ getMinOriginTime.o printEvent.o removeExpiredEvent.o updateEvent.o syncXMLStatusWithEvents.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
@@ -21,7 +20,7 @@ SYSLIBS		= -lpthread -lnsl -lrt -lz
 all: $(OBJS)
 
 %.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(CC) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

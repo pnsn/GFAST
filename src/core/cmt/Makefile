@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/core/cmt
-#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -14,7 +13,7 @@ weightObservations.o finalize.o readIni.o setRHS.o
 DEBUG	= -g
 
 #INIPARSER_INCL to be deleted later
-INCL            = -I ../../../include $(COMPEARTH_INCL) $(ISCL_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL)
+INCL            = -I ../../../include $(COMPEARTH_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

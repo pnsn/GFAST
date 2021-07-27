@@ -5,6 +5,7 @@
 #include "gfast_hdf5.h"
 #include "gfast_core.h"
 #include "iscl/os/os.h"
+
 /*!
  * @brief Initializes the current directory for this GFAST iteration.
  *

@@ -69,6 +69,14 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         pgd_data->sta_lon[i] = gps_data.data[i].sta_lon; 
         pgd_data->sta_alt[i] = gps_data.data[i].sta_alt;
         pgd_data->stnm[i] = (char *)calloc(64, sizeof(char));
+
+        sprintf(pgd_data->stnm[i],"%s.%s.%s.%s",
+            gps_data.data[i].netw,
+            gps_data.data[i].stnm,
+            gps_data.data[i].chan[0],
+            gps_data.data[i].loc);
+
+        /*
         strcpy(pgd_data->stnm[i], gps_data.data[i].netw);
         strcat(pgd_data->stnm[i], ".\0");
         strcat(pgd_data->stnm[i], gps_data.data[i].stnm);
@@ -79,8 +87,16 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         {
             strcat(pgd_data->stnm[i], gps_data.data[i].loc);
         }
+        */
+
+        /*
+        printf("pgd_initialize: gps_data: netw:%s stnm:%s chan[0]:%s loc:%s --> pgd_data.stnm:%s\n",
+            gps_data.data[i].netw, gps_data.data[i].stnm, gps_data.data[i].chan[0], gps_data.data[i].loc,
+            pgd_data->stnm[i]);
+        */
         if (gps_data.data[i].lskip_pgd){pgd_data->lmask[i] = true;}
     }
+
     nloc = pgd->ndeps*pgd->nlats*pgd->nlons;
     pgd->mpgd       = memory_calloc64f(nloc);
     pgd->mpgd_vr    = memory_calloc64f(nloc);

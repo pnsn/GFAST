@@ -8,8 +8,8 @@
 #include "gfast_hdf5.h"
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
-#include "iscl/os/os.h"
 #include "iscl/time/time.h"
+#include "iscl/os/os.h"
 /*!
  * @brief Initializes the HDF5 file for archiving the acquisition or
  *        reading in playback mode. 

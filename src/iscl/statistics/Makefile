@@ -1,27 +1,24 @@
-# Makefile for GFAST/src/utils
-# This directory includes files that are obtained from
-# the ISTI ISCL software package
+# Makefile for GFAST/src/iscl/statistics
 #
-GFASTROOT=..
+GFASTROOT=../..
 ifndef MAKEHOST
 MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= timeutils.o fileutils.o
+OBJS	= percentile.o
 
-LIB     =
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config ${GFAST_VERSION}
+CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL     = -I ../../include/
+INCL            = -I ../../../include
 
-SYSLIBS	 = -lpthread -lnsl -lrt -lz
+SYSLIBS		= -lpthread -lnsl -lrt -lz
 
 all: $(OBJS)
 
 %.o:    %.c
-	$(cc) -c $< -o $@ $(CCFLAGS) $(DEBUG) $(INCL)
+	$(CC) -c $< $(CFLAGS) -Wno-unknown-pragmas $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

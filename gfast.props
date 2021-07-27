@@ -6,9 +6,6 @@
 logFileName = logs/gfast.log
 # File with station names
 metaDataFile = etc/GFASTmeta.dat
-SA_output_dir = out
-# Not sure what this is but can be specified
-#siteMaskFile=
 # note: if SA_events_dir is set, activemq will be ignored!
 SA_events_dir=
 SA_output_dir=out

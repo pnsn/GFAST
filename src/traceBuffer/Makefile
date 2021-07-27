@@ -8,7 +8,7 @@ include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
 DEBUG	= -g
 
-INCL            = -I ../../include $(HDF5_INCL) $(EW_INCL) $(ISCL_INCL) $(CBLAS_INCL)
+INCL            = -I ../../include $(HDF5_INCL) $(EW_INCL) $(CBLAS_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

@@ -1,5 +1,4 @@
-# Makefile for GFAST/src/core/data
-#   CCFLAGS
+# Makefile for GFAST/src/core/coordtools
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -12,14 +11,14 @@ OBJS	= ll2utm.o utm2ll.o
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(ISCL_INCL)
+INCL            = -I ../../../include
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
 all: $(OBJS)
 
 %.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(CC) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

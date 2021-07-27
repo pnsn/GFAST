@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_core.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 static int splitLine(const char *cline,
                      char netw[64], char stnm[64], char loc[64],  char chan[64],
@@ -33,7 +33,7 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
     char cline[1024], netw[64], stnm[64], chan[64], loc[64];
     int i, ierr, iuseCMT, iuseFF, iusePGD, k, nlines;
     // No mask file so nothing to do
-    if (!cfileexists(siteMaskFile)){return 0;}
+    if (!os_path_isfile(siteMaskFile)){return 0;}
     infl = fopen(siteMaskFile, "r");
     nlines = 0;
     while (fgets(cline, 1024, infl) != NULL)

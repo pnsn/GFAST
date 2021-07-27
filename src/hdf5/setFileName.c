@@ -3,6 +3,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
+#include <sys/stat.h>
 #include "gfast_hdf5.h"
 #include "gfast_core.h"
 #include "iscl/os/os.h"
@@ -56,11 +57,11 @@ int hdf5_setFileName(const char *adir,
             // Require the directory exists - if not make it
             if (!os_path_isdir(adir))
             {
-                ierr = os_makedirs(adir);
-                if (ierr != 0)
+	      ierr = mkdir(adir,0755);
+	      if (ierr != 0)
                 {
-                    LOG_ERRMSG("Failed making directory %s\n", adir);
-                    return -1;
+		  LOG_ERRMSG("Failed making directory %s\n", adir);
+		  return -1;
                 }
             }
             strcpy(fname, adir);

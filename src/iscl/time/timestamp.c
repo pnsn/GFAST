@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <time.h>
-#include "iscl_time.h"
+#include <iscl/time/time.h>
 #ifdef MPI
 #include <mpi.h>
 #endif

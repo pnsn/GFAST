@@ -1,5 +1,4 @@
 # Makefile for GFAST/src/xml/shakeAlert
-#   CCFLAGS
 #
 GFASTROOT=../..
 ifndef MAKEHOST
@@ -10,16 +9,16 @@ include $(GFASTROOT)/Make.include.$(MAKEHOST)
 OBJS	= coreInfo.o segment.o slip.o vertex.o vertices.o
 
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
+CFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(XML_INCL) $(ISCL_INCL)
+INCL            = -I ../../../include $(XML_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
 all: $(OBJS)
 
 %.o:    %.c
-	$(CXX) -c $< $(CCFLAGS) $(DEBUG) $(INCL)
+	$(CC) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
 ids:    *.cc *.h
         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)

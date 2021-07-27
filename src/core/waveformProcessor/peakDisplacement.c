@@ -20,7 +20,9 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ubuff,
                                     const double *__restrict__ nbuff,
                                     const double *__restrict__ ebuff,
-                                    const int nMaxLeader);
+                                    const int nMaxLeader,
+                                    const double tmin,
+                                    const double tmax);
 /*!
  * @brief Computes the peak displacement for each GPS precise point position
  *        data stream with the additional requirement that the shear wave
@@ -34,6 +36,7 @@ static double __getPeakDisplacement(const int npts,
  *                          (km/s).  if the site/source distance is less than
  *                           (current_time - ev_time)*svel_window 
  *                          then the site will be excluded
+ * @param[in] min_svel_window   the *minimum* shear wave velocity (km/s) used in data windowing
  * @param[in] ev_lat        source hypocentral latitude (degrees) [-90,90]
  * @param[in] ev_lon        source hypocentral longitude (degrees) [0,360]
  * @param[in] ev_dep        source hypocentral depth (km) (this is positive
@@ -60,6 +63,7 @@ static double __getPeakDisplacement(const int npts,
 int core_waveformProcessor_peakDisplacement(
     const int utm_zone,
     const double svel_window,
+    const double min_svel_window,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,
@@ -69,7 +73,7 @@ int core_waveformProcessor_peakDisplacement(
     int *ierr)
 {
     double currentTime, distance, effectiveHypoDist, epoch,
-           peakDisp, x1, x2, y1, y2;
+           peakDisp, x1, x2, y1, y2, tmin, tmax;
     int k, nsites, zone_loc;
     //unused int i;
     bool lnorthp;
@@ -131,10 +135,12 @@ int core_waveformProcessor_peakDisplacement(
                        + pow(ev_dep*1000.0 + gps_data.data[k].sta_alt, 2));
         distance = distance*1.e-3; // convert to km
         if (lnorthp != lnorthp_event) {
+          /*
           LOG_MSG("Ignore: %s.%s.%s.%s lnorthp=%d != lnorthp_event=%d",
                   gps_data.data[k].stnm, gps_data.data[k].chan[0],
                   gps_data.data[k].netw, gps_data.data[k].loc,
                   lnorthp, lnorthp_event);
+          */
 
           distance = 99999;  // Don't use this station
         }
@@ -169,9 +175,13 @@ int core_waveformProcessor_peakDisplacement(
               gps_data.data[k].netw, gps_data.data[k].loc);
         */
 
+        //if (distance < effectiveHypoDist)
         if (distance < effectiveHypoDist)
         {
             // Compute the peak displacement max(norm(u + n + e, 2))
+            tmin = distance / svel_window;
+            tmax = distance / min_svel_window;
+            //printf("Call __getPeakDisplacement dist:%.2f tmin:%.2f tmax:%.2f\n", distance, tmin, tmax);
             peakDisp = __getPeakDisplacement(gps_data.data[k].npts,
                                              gps_data.data[k].dt,
                                              ev_time,
@@ -179,7 +189,7 @@ int core_waveformProcessor_peakDisplacement(
                                              gps_data.data[k].ubuff,
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff,
-                                             nMaxLeader);
+                                             nMaxLeader, tmin, tmax);
 
             /*
 The Crowell et al. [2016] coefficients are
@@ -259,10 +269,13 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ubuff,
                                     const double *__restrict__ nbuff,
                                     const double *__restrict__ ebuff,
-                                    const int nMaxLeader)
+                                    const int nMaxLeader,
+                                    const double tmin,
+                                    const double tmax
+                                    )
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
-    int i, indx0;
+    int i, indx0, indx1;
     int ipeak=0;
     int debug=0;
     //------------------------------------------------------------------------//
@@ -286,12 +299,24 @@ static double __getPeakDisplacement(const int npts,
             u0 = ubuff[indx0];
             n0 = nbuff[indx0];
             e0 = ebuff[indx0];
-            LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
-                    nMaxLeader, indx0, u0, n0, e0);
+            //LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
+                    //nMaxLeader, indx0, u0, n0, e0);
             break;
         }
       }
     }
+
+    indx1 = (int)(tmax/dt + 0.5);
+    if (indx1 <= indx0) {
+      //LOG_MSG("ERROR: indx0=%d >= indx1=%d (tmax=%f)", indx0, indx1, tmax);
+      return (double) NAN;
+    }
+    if (indx1 > npts) {
+      LOG_MSG("tmin=%.1f tmax=%.1f npts=%d <= indx1=%d --> Set indx1=npts", tmin, tmax, npts, indx1);
+      indx1 = npts;
+    }
+
+    //printf("__getPeak indx0:%d tmax:%.2f indx1:%d npts:%d\n", indx0, tmax, indx1, npts);
 
     // Prevent a problem
     //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
@@ -299,7 +324,7 @@ static double __getPeakDisplacement(const int npts,
     if (isnan(u0) || isnan(n0) || isnan(e0))
     {
       LOG_MSG("Returning NAN instead of calculating epoch:%f diffT=%f indx0=%d",
-          epoch, diffT, indx0)
+          epoch, diffT, indx0);
         return (double) NAN;
     }
     // Compute the maximum peak ground displacement 
@@ -307,7 +332,8 @@ static double __getPeakDisplacement(const int npts,
     if (debug){
       LOG_MSG("Loop to find peakDisp: from i=indx0=%d to i<npts=%d", indx0, npts);
     }
-    for (i=indx0; i<npts; i++)
+    //for (i=indx0; i<npts; i++)
+    for (i=indx0; i<indx1; i++)
     {
         peakDisplacement_i = PD_MAX_NAN;
         if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) )
@@ -333,6 +359,8 @@ static double __getPeakDisplacement(const int npts,
     if (!isnan(peakDisplacement)){
     LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
              peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
+    //printf("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f)\n",
+             //peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
     }
 
     return peakDisplacement;

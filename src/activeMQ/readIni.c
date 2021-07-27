@@ -11,7 +11,7 @@
 #endif
 #include "gfast_core.h"
 #include "gfast_activeMQ.h"
-#include "fileutils.h"
+#include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,
                        char *var)
@@ -43,7 +43,7 @@ int activeMQ_readIni(const char *propfilename,
   dictionary *ini;
   ierr = 1;
   memset(activeMQ_props, 0, sizeof(struct  GFAST_activeMQ_struct));
-  if (!cfileexists(propfilename))
+  if (!os_path_isfile(propfilename))
     {
       LOG_ERRMSG("%s: Properties file: %s does not exist\n",
 		 __func__, propfilename);

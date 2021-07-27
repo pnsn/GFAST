@@ -9,8 +9,8 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-#include "fileutils.h"
 #include "gfast_core.h"
+#include "iscl/os/os.h"
 
 static void setVarName(const char *group, const char *variable,
                        char *var)
@@ -46,7 +46,7 @@ int core_scaling_pgd_readIni(const char *propfilename,
     dictionary *ini;
     ierr = 1;
     memset(pgd_props, 0, sizeof(struct  GFAST_pgd_props_struct));
-    if (!cfileexists(propfilename))
+    if (!os_path_isfile(propfilename))
     {   
         LOG_ERRMSG("Properties file: %s does not exist", propfilename);
         return ierr;
@@ -55,15 +55,17 @@ int core_scaling_pgd_readIni(const char *propfilename,
     // Read the properties
     pgd_props->verbose = verbose;
     pgd_props->utm_zone = utm_zone;
-    setVarName(group, "dist_tolerance\0", var);
-    pgd_props->dist_tol = iniparser_getdouble(ini, var, 6.0);
+    setVarName(group, "minimum_pgd_cm\0", var);
+    // MTH: Not ideal that minimum_pgd_cm still maps to dist_tol
+    pgd_props->dist_tol = iniparser_getdouble(ini, var, 0.5);
     if (pgd_props->dist_tol < 0.0)
     {
         LOG_ERRMSG("Error ndistance tolerance %f cannot be negative",
                    pgd_props->dist_tol);
         goto ERROR;
     }
-    setVarName(group, "disp_default\0", var);
+    setVarName(group, "pgd_default_cm\0", var);
+    // MTH: Not ideal that pgd_default_cm still maps to disp_def
     pgd_props->disp_def = iniparser_getdouble(ini, var, 0.01);
     if (pgd_props->disp_def <= 0.0)
     {
@@ -134,6 +136,14 @@ int core_scaling_pgd_readIni(const char *propfilename,
         LOG_ERRMSG("%s", "Error window velocity must be positive!");
         goto ERROR;
     }
+    setVarName(group, "pgd_min_window_vel\0", var);
+    pgd_props->min_window_vel = iniparser_getdouble(ini, var, 0.01);
+    if (pgd_props->min_window_vel <= 0.0)
+    {
+        LOG_ERRMSG("%s", "Error min window velocity must be positive!");
+        goto ERROR;
+    }
+
     setVarName(group, "pgd_min_sites\0", var);
     pgd_props->min_sites = iniparser_getint(ini, var, 4);
     if (pgd_props->min_sites < 1)

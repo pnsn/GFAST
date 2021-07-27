@@ -23,7 +23,9 @@ int hdf5_copyPeakDisplacementData(
     struct h5_peakDisplacementData_struct *h5_pgd_data)
 {
     int *lactiveTemp, *lmaskTemp, i, ierr;
+    //char *stnTemp; unused
     char *ctemp;
+    char (*ptr)[64];
     size_t nsites;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -74,6 +76,7 @@ int hdf5_copyPeakDisplacementData(
             lactiveTemp[i] = pgd_data->lactive[i];
             lmaskTemp[i] = pgd_data->lmask[i];
             strcpy(&ctemp[i*64], pgd_data->stnm[i]);
+            //printf("copy peakDisplacement pgd_data to h5: pgd_data->stnm[%d]=%s\n", i, pgd_data->stnm[i]);
         }
         h5_pgd_data->stnm.p = ctemp;
         h5_pgd_data->lactive.p = lactiveTemp;
@@ -83,14 +86,67 @@ int hdf5_copyPeakDisplacementData(
     }
     else if (job == COPY_H5_TO_DATA)
     {
-        LOG_ERRMSG("job = %d not yet done\n", job);
-        ierr = 1;
+      //printf("MTH: copy h5 peakDisplacementData to GFAST struct\n");
+        //memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
+
+        // Make sure there is something to do
+        nsites = (size_t)  h5_pgd_data->nsites;
+      //printf("MTH: copy h5 peakDisplacementData nsites=%d\n", nsites);
+        if (nsites < 1)
+        {
+            LOG_ERRMSG("%s", "No sites!");
+            ierr = 1;
+            return ierr;
+        }
+
+        pgd_data->nsites = nsites;
+
+        pgd_data->pd = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->pd.p, 1, pgd_data->pd, 1);
+
+        pgd_data->wt = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->wt.p, 1, pgd_data->wt, 1);
+
+        pgd_data->sta_lat = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_lat.p, 1, pgd_data->sta_lat, 1);
+
+        pgd_data->sta_lon = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_lon.p, 1, pgd_data->sta_lon, 1);
+
+        pgd_data->sta_alt = memory_calloc64f(pgd_data->nsites);
+        cblas_dcopy(pgd_data->nsites, h5_pgd_data->sta_alt.p, 1, pgd_data->sta_alt, 1);
+
+        pgd_data->stnm = (char **)calloc((size_t)pgd_data->nsites, sizeof(char *));
+        ptr = h5_pgd_data->stnm.p;
+        //ctemp = (char *)calloc((size_t)64, sizeof(char));
+        for (i=0;i<(int)h5_pgd_data->stnm.len;i++){
+        //strcpy(ctemp, ptr[i]);
+          pgd_data->stnm[i] = (char *)calloc((size_t)64, sizeof(char));
+          strcpy(pgd_data->stnm[i], ptr[i]);
+          //puts(pgd_data->stnm[i]);
+        }
+
+        lmaskTemp = (int *) h5_pgd_data->lmask.p;
+        pgd_data->lmask = memory_calloc8l(pgd_data->nsites);
+        for (i=0; i<pgd_data->nsites; i++)
+        {
+            pgd_data->lmask[i] = (bool) lmaskTemp[i];
+        }
+        lactiveTemp = (int *) h5_pgd_data->lactive.p;
+        pgd_data->lactive = memory_calloc8l(pgd_data->nsites);
+        for (i=0; i<pgd_data->nsites; i++)
+        {
+            pgd_data->lactive[i] = (bool) lactiveTemp[i];
+        }
+
     }
+
     else
     {
         LOG_ERRMSG("Invalid job=%d", job);
         ierr = 1;
     }
+    //printf("MTH: copy h5 peakDisplacementData return ierr=%d\n", ierr);
     return ierr;
 }
 //============================================================================//
@@ -993,6 +1049,7 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
     char *netw, *stnm, *chan, *loc;
     double nanv[1] = {(double) NAN};
     int ierr, npts;
+    //int i; unused
     size_t nalloc;
     //------------------------------------------------------------------------//
     ierr = 0;
@@ -1046,6 +1103,10 @@ int hdf5_copyWaveform3CData(const enum data2h5_enum job,
         h5_data->stnm.len = 1;
         h5_data->stnm.p = stnm;
 
+        // MTH: h5py segfaults reading array of strings (??)
+        //chan = (char *)calloc(64, sizeof(char));
+        //strcpy(chan,   data->chan[0]);
+        //h5_data->chan.len = 1;
         chan = (char *)calloc(3*64, sizeof(char));
         strcpy(&chan[0],   data->chan[0]);
         strcpy(&chan[64],  data->chan[1]);
@@ -1168,7 +1229,13 @@ int hdf5_copyGPSData(const enum data2h5_enum job,
         {
             ierr = GFAST_hdf5_copyWaveform3CData(job,
                                                  &gps_data->data[k],
-                                                 &h5_data[k]); 
+                                                 &h5_data[k]);
+            // h5_data[].npts == h5_data[].ubuff.len
+            /*
+            printf("MTH: h5_data[%d] stnm=%s chan=%s sta_lat:%8.3f sta_lon:%8.3f npts:%d ubuff.len:%d ubuff[last]:%9.6f\n", 
+                k, h5_data[k].stnm.p, h5_data[k].chan.p, h5_data[k].sta_lat, h5_data[k].sta_lon,
+                h5_data[k].npts, h5_data[k].ubuff.len, h5_data[k].ubuff.p[h5_data[k].npts-1]);
+            */
             if (ierr != 0)
             {
                 LOG_ERRMSG("%s", "Error copying 3C data");

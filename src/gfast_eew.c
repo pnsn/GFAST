@@ -2,19 +2,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include "gfast.h"
 #include "gfast_core.h"
 #include "iscl/memory/memory.h"
-#include "timeutils.h"
-#include "fileutils.h"
-#include <dirent.h>  // Needed for DIR
+#include "iscl/os/os.h"
+#include "iscl/time/time.h"
+#include <dirent.h>
 #include "dmlibWrapper.h"
 
 #include <time.h>
 
-//#define MAX_MESSAGES 1024
-//#define MAX_MESSAGES 183000
-#define MAX_MESSAGES 200000
+#define MAX_MESSAGES 100000
 
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data);
@@ -38,6 +37,7 @@ int main(int argc, char **argv)
   char propfilename[PATH_MAX];
   char *message_dir; 
   struct GFAST_activeEvents_struct events;
+  struct GFAST_activeEvents_xml_status xml_status;
   struct GFAST_cmtResults_struct cmt;
   struct GFAST_ffResults_struct ff;
   struct h5traceBuffer_struct h5traceBuffer;
@@ -52,13 +52,9 @@ int main(int argc, char **argv)
   struct ewRing_struct ringInfo;
   char *msgs;
   double t0, t1;
-  /* vck: unused variables
-  double tbeg, t_now;
-  int first_time = 1;
-  */
   const enum opmode_type opmode = REAL_TIME_EEW;
   /*activeMQ variables*/
-  char *eventMessage;
+  char *amqMessage;
   const bool useTopic = true;              /**< ShakeAlert uses topics */
   const bool clientAck = false;            /**< False means set session acknowledge transacations */
   const bool luseListener = false;         /**< C can't trigger so turn this off (remove?) */
@@ -74,6 +70,7 @@ int main(int argc, char **argv)
   bool check_message_dir = false;
   bool USE_AMQ = true;
   int niter = 0;
+  int i, i1, i2, is, chunk;
 #ifdef GFAST_USE_AMQ
   USE_AMQ = true;
 #endif
@@ -86,10 +83,12 @@ int main(int argc, char **argv)
   }
 
   ierr = 0;
-  msgs = NULL;
+  msgs = memory_calloc8c(MAX_MESSAGES*MAX_TRACEBUF_SIZ);
   memset(&props,    0, sizeof(struct GFAST_props_struct));
   memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
   memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
+// MTH: The line below is in my source code but not in VK's ??
+  memset(&xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
   memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
   memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
   memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
@@ -186,20 +185,30 @@ int main(int argc, char **argv)
       goto ERROR;
     }
     /* start heartbeat producer and set to manual heartbeats */
-    if (props.verbose > 0)
-      {
-	LOG_INFOMSG("%s: Initializing heartbeat sender on %s...\n", fcnm,
-		    props.activeMQ_props.hbTopic);
-	LOG_MSG("%s: Initializing heartbeat sender on %s...", fcnm,
-		props.activeMQ_props.hbTopic);
+    if ((props.activeMQ_props.hbTopic!=NULL) &&
+	(strlen(props.activeMQ_props.hbTopic)>0)) {
+      char senderstr[100],*pp;
+      int ii;
+      strcpy(senderstr,"gfast.");
+      ii=strlen(senderstr);
+      gethostname(senderstr+ii,90); /*append hostname*/
+      pp=strchr(senderstr+ii,'.');  /*find . in hostname if any*/
+      if (pp != NULL) *pp = '\0';   /*truncate long hostname*/
+      if (props.verbose > 0)
+	{
+	  LOG_INFOMSG("%s: Initializing heartbeat sender %s on %s...\n", fcnm,
+		      senderstr,props.activeMQ_props.hbTopic);
+	  LOG_MSG("%s: Initializing heartbeat sender %s on %s...", fcnm,
+		  senderstr,props.activeMQ_props.hbTopic);
+	}
+      ierr=startHBProducer(senderstr, props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
+      if (ierr==0) {
+	LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
       }
-    ierr=startHBProducer("gfast", props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
-    if (ierr==0) {
-      LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
-    }
-    if (ierr<0) {
-      LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
-      goto ERROR;
+      if (ierr<0) {
+	LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
+	goto ERROR;
+      }
     }
     /*start message sender*/
     if (props.verbose > 0)
@@ -276,7 +285,7 @@ int main(int argc, char **argv)
   // Begin the acquisition loop
   LOG_INFOMSG("%s: Beginning the acquisition...\n", fcnm);
   LOG_MSG("%s: Beginning the acquisition...", fcnm);
-  eventMessage = NULL;
+  amqMessage = NULL;
   t0 = time_timeStamp();
   //unused: t_now = (double) (long) (time_timeStamp() + 0.5);
   //unused: tbeg = t0; 
@@ -289,14 +298,14 @@ int main(int argc, char **argv)
   while(lacquire)
     {
       // Initialize the iteration
-      eventMessage = NULL;
+      amqMessage = NULL;
       // Don't start loop until prop.waitTime has elapsed (default 1 second)
       t1 = time_timeStamp();
       double tloop = t1-t0;
       if (tloop < props.waitTime) {
 	continue;
       }
-      else if ((tloop) >= 2*props.waitTime) {
+      else if ((props.waitTime>0.0)&&((tloop) >= 2*props.waitTime)) {
 	LOG_MSG("== [GFAST main loop took %fs >= 2x%fs waitTimes. not keeping up", tloop, props.waitTime);
       }
 
@@ -316,18 +325,17 @@ int main(int argc, char **argv)
         } 
 
       double tbeger = time_timeStamp();
-      /* vck unused variable      double tbeger0 = tbeger;*/
+
       // Read my messages off the ring
-      memory_free8c(&msgs); 
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
-      msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
-						  false,
-						  &ringInfo,
-						  &nTracebufs2Read,
-						  &ierr);
+      ierr = traceBuffer_ewrr_getMessagesFromRingSA(MAX_MESSAGES,
+						    true,
+						    &ringInfo,
+						    &nTracebufs2Read,
+						    msgs);
       LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
-      if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
+      if (ierr < 0)
         {
 	  if (ierr ==-1)
             {
@@ -358,40 +366,61 @@ int main(int argc, char **argv)
       LOG_MSG("%s", "== unpackTraceBuf2Messages");
       ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
 						      msgs, &tb2Data);
-      LOG_MSG("%s", "== free msgs memory");
-      memory_free8c(&msgs);
       if (ierr != 0)
         {
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);
 	  goto ERROR;
         }
-      printf("end %d %8.4f\n", nTracebufs2Read, time_timeStamp() - tbeger);
-      tbeger = time_timeStamp();
+ 
+      if (0) {
+	for (i=0;i<tb2Data.ntraces;i++){
+	  if (strcmp(tb2Data.traces[i].stnm, "0001")==0 && strcmp(tb2Data.traces[i].chan, "LYZ")==0) {
+	    for (chunk=0;chunk<tb2Data.traces[i].nchunks; chunk++){
+	      i1 = tb2Data.traces[i].chunkPtr[chunk];
+	      i2 = tb2Data.traces[i].chunkPtr[chunk+1];
+	      for (is=i1; is<i2; is++) {
+		printf("%s.%s.%s.%s time:%f val:%8.2f [tb2Data]\n",
+		       tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+		       tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+		       tb2Data.traces[i].times[is], (double)tb2Data.traces[i].data[is]);
+	      }
+	    }
+	  }
+	}
+      }
+      
       // Update the hdf5 buffers
-      LOG_MSG("%s", "== Update the hdf5 buffers");
+      
+      //LOG_MSG("%s", "== Update the hdf5 buffers");
       ierr = traceBuffer_h5_setData(t1,
 				    tb2Data,
 				    h5traceBuffer);
-      LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
+      //LOG_MSG("%s returned ierr=%d", "== Update the hdf5 buffers", ierr);
       if (ierr != 0)
         {
 	  LOG_ERRMSG("%s: Error setting data in H5 file\n", fcnm);
 	  goto ERROR;
         }
-
+      //exit(0);
+      //printf("update %8.4f\n", ISCL_time_timeStamp() - tbeger);
+      //printf("full %8.4f\n", ISCL_time_timeStamp() - tbeger0);
+      // early quit
+      
       // Check for an event
       if (USE_AMQ){
 	if (props.verbose > 2) {
 	  LOG_MSG("%s: Checking Activemq for events", fcnm);
 	}
 	msWait = props.activeMQ_props.msWaitForMessage;
-	eventMessage = GFAST_activeMQ_consumer_getMessage(amqMessageListener, msWait, &ierr);
-	if ((props.verbose > 2)&&(eventMessage == NULL)) {
+	amqMessage = GFAST_activeMQ_consumer_getMessage(amqMessageListener, msWait, &ierr);
+	if ((props.verbose > 2)&&(amqMessage == NULL)) {
 	  LOG_MSG("%s: Activemq returned NULL", fcnm);
 	}
-      } else if (check_message_dir) {
+      } 
+      //else if (check_message_dir) {
+      if (amqMessage == NULL && check_message_dir) {
 	// Alternatively, check for SA message trigger in message_dir
-	eventMessage = check_dir_for_messages(message_dir, &ierr);
+	amqMessage = check_dir_for_messages(message_dir, &ierr);
 	if ((ierr != 0)&&(props.verbose > 2)) {
 	  LOG_MSG("check_dir_for_messages returned ierr=%d\n", ierr);
 	  ierr=0;
@@ -404,71 +433,79 @@ int main(int argc, char **argv)
 	  goto ERROR;
         }
       // If there's a message then process it
-      if (eventMessage != NULL)
+      if (amqMessage != NULL)
         {
-	  LOG_MSG("== [GFAST t0:%f] Got new eventMessage:", t0);
-	  LOG_MSG("%s", eventMessage);
-	  printf("== [GFAST t0:%f] Got new eventMessage:\n", t0);
-	  printf("%s\n", eventMessage);
+	  LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
+	  LOG_MSG("%s", amqMessage);
+	  printf("== [GFAST t0:%f] Got new amqMessage:\n", t0);
+	  printf("%s\n", amqMessage);
 	  // Parse the event message 
-	  ierr = GFAST_eewUtils_parseCoreXML(eventMessage, -12345.0, &SA);
+	  ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
 	  if (ierr != 0)
             {
-	      LOG_ERRMSG("%s: Error parsing the decision module message\n",
+	      LOG_ERRMSG("%s: Error parsing the activeMQ trigger message\n",
 			 fcnm);
-	      LOG_ERRMSG("%s\n", eventMessage);
+	      LOG_ERRMSG("%s\n", amqMessage);
 	      goto ERROR;
             }
-	  //printf("eventid:%s time:%f lat:%f lon:%f\n", SA.eventid, SA.time, SA.lat, SA.lon);
-	  // If this is a new event we have some file handling to do
-	  lnewEvent = GFAST_core_events_newEvent(SA, &events);
-	  if (lnewEvent){
-	    LOG_MSG("This is a NEW event: evid=%s", SA.eventid);
-	  }
-	  else{
-	    LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
-	  }
-
-	  if (lnewEvent)
-            {
-	      // And the logs
-	      if (props.verbose > 0)
-                {
-		  LOG_INFOMSG("%s: New event %s added\n", fcnm, SA.eventid);
-		  if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
-                }
-	      // Set the log file names
-	      eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
-				       errorLogFileName, infoLogFileName,
-				       debugLogFileName, warnLogFileName);
-	      if (cfileexists(errorLogFileName))
-                {
-		  remove(errorLogFileName);
-                }
-	      if (cfileexists(infoLogFileName))
-                {
-		  remove(infoLogFileName);
-                }
-	      if (cfileexists(debugLogFileName))
-                {
-                  remove(debugLogFileName);
-                }
-	      if (cfileexists(warnLogFileName))
-                {
-                  remove(warnLogFileName);
-                }
-	      // Initialize the HDF5 file
-	      ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
-					   SA.eventid,
-					   props.propfilename);
-	      if (ierr != 0)
-                {
-		  LOG_ERRMSG("%s: Error initializing the archive file\n", fcnm);
-		  goto ERROR;
-                }
-            }
-	  free(eventMessage);
-	  eventMessage = NULL;
+	  if (strncasecmp(SA.orig_sys,"gfast",5)==0) 
+	    {
+	      LOG_MSG("ignoring activeMQ message from gfast: evid=%s orig_sys=%s",SA.eventid,SA.orig_sys);
+	    }
+	  else 
+	    { //don't trigger on gfast messages
+	      // If this is a new event we have some file handling to do
+	      printf("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
+	      lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
+	      printf("MTH: call newEvent DONE\n");
+	      if (lnewEvent){
+		LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
+			SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
+	      }
+	      else{
+		LOG_MSG("This is NOT a new event: evid=%s", SA.eventid);
+	      }
+	      if (lnewEvent)
+		{
+		  // And the logs
+		  if (props.verbose > 0)
+		    {
+		      LOG_INFOMSG("%s: New event %s added\n", fcnm, SA.eventid);
+		      if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
+		    }
+		  // Set the log file names
+		  eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
+					   errorLogFileName, infoLogFileName,
+					   debugLogFileName, warnLogFileName);
+		  if (os_path_isfile(errorLogFileName))
+		    {
+		      remove(errorLogFileName);
+		    }
+		  if (os_path_isfile(infoLogFileName))
+		    {
+		      remove(infoLogFileName);
+		    }
+		  if (os_path_isfile(debugLogFileName))
+		    {
+		      remove(debugLogFileName);
+		    }
+		  if (os_path_isfile(warnLogFileName))
+		    {
+		      remove(warnLogFileName);
+		    }
+		  // Initialize the HDF5 file
+		  ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
+					       SA.eventid,
+					       props.propfilename);
+		  if (ierr != 0)
+		    {
+		      LOG_ERRMSG("%s: Error initializing the archive file\n", fcnm);
+		      goto ERROR;
+		    }
+		}
+	    }  //end gfast message if/else check
+	  free(amqMessage);
+	  amqMessage = NULL;
         } // End check on ActiveMQ message
 
       // Are there events to process?
@@ -490,26 +527,13 @@ int main(int argc, char **argv)
 				 &pgd,
 				 &cmt,
 				 &ff,
-				 &xmlMessages);
+				 &xmlMessages,
+				 &xml_status);
       if (ierr != 0)
 	{
 	  LOG_ERRMSG("%s: Error calling GFAST driver!\n", fcnm);
 	  goto ERROR; 
 	}
-      /* does not compile.
-      if (props.verbose > 2) {
-	for (iev=0;iev<events.nev;iev++){
-	  printf("GFAST: eventid:%s pgd mag nsites=%d ndeps=%d mpgd[0]=%f\n",
-		 events.SA[iev].eventid, pgd[iev].nsites, pgd[iev].ndeps, pgd[iev].mpgd[0]);
-	}
-	printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[0]=%f str=%.1f dip=%.1f rake=%.1f\n",
-	       cmt.nsites, cmt.ndeps, cmt.Mw[0], cmt.str1[0], cmt.dip1[0], cmt.rak1[0]);
-	printf("GFAST: cmt mag nsites=%d ndeps=%d Mw[3]=%f str=%.1f dip=%.1f rake=%.1f\n",
-	       cmt.nsites, cmt.ndeps, cmt.Mw[3], cmt.str1[3], cmt.dip1[3], cmt.rak1[3]);
-	printf("GFAST: events.nev=%d xmlMessages.nmessages=%d mmessages=%d\n", 
-	       events.nev, xmlMessages.nmessages, xmlMessages.mmessages);
-      }
-      */
 
       // Send the messages where they need to go
       if (xmlMessages.mmessages > 0)
@@ -562,8 +586,6 @@ int main(int argc, char **argv)
    * End of main acquisition loop
    ***************************************************/
  ERROR:;
-  // Close the big logfile
-  core_log_closeLog();
   memory_free8c(&msgs);
   core_events_freeEvents(&events);
   traceBuffer_ewrr_freetb2Data(&tb2Data);
@@ -573,7 +595,7 @@ int main(int argc, char **argv)
       activeMQ_consumer_finalize(amqMessageListener);
       stopHBProducer();
       stopEventSender();
-      stopDestinationConnection();
+      //stopDestinationConnection();
       activeMQ_stop();
     }
   core_cmt_finalize(&props.cmt_props,
@@ -589,6 +611,8 @@ int main(int argc, char **argv)
   GFAST_core_properties_finalize(&props);
   traceBuffer_h5_finalize(&h5traceBuffer);
   //vck delete candidate iscl_finalize();
+  // Close the big logfile
+  core_log_closeLog();
   if (ierr != 0)
     {
       printf("%s: Terminating with error\n", fcnm);
@@ -615,7 +639,7 @@ int main(int argc, char **argv)
 static int settb2DataFromGFAST(struct GFAST_data_struct gpsData,
                                struct tb2Data_struct *tb2Data)
 {
-  const char *fcnm = "settb2DataFromH5TraceBuffer\0";
+  const char *fcnm = __func__;
   int i, it, k;
   if (gpsData.stream_length == 0)
     {

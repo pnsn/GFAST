@@ -98,6 +98,7 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     const double C =-0.214;
     const double q[2] = {25.0, 75.0}; 
     const int nq = 2;
+    int debug = 0;
     //const double A = -4.434; /* TODO remove with approval */
     //const double B = 1.047;  /* TODO remove with approval */
     //const double C = -0.138; /* TODO remove with approval */
@@ -179,12 +180,13 @@ int core_scaling_pgd_depthGridSearch(const int l1, const int ndeps,
     }
     // Sort and print
     //
-    LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks");
-    ierr = core_scaling_pgd_sanityChecks(l1,
-                                         dist_tol,
-                                         disp_def,
-                                         repi, d);
-    LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks DONE");
+    if (debug) {
+      LOG_MSG("%s", "Call core_scaling_pgd_sanityChecks");
+      ierr = core_scaling_pgd_sanityChecks(l1,
+                                           dist_tol,
+                                           disp_def,
+                                           repi, d);
+    }
 
     // Set the RHS log10(d) - A
     ierr = core_scaling_pgd_setRHS(l1,

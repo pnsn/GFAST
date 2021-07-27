@@ -1,24 +1,20 @@
-#include <sys/time.h>
 #include <stdio.h>
-#include "timeutils.h"
-
-/*!
- * @defgroup timeutils
- * @brief time utilities. 
- */
+#include <stdlib.h>
+#include <stdbool.h>
+#ifdef OPENMP
+#include <omp.h>
+#endif
+#include "iscl/time/time.h"
 
 static double tic = 0.0;
-
-/*! @brief Returns the current system time as double */
-double time_timeStamp(void)
-{
-  struct timeval now;
-  double dnow;
-  gettimeofday(&now, NULL);
-  dnow = ( (double) now.tv_usec
-	   + (double) now.tv_sec*1000000)*10.e-7;
-  return dnow;
-}
+#ifdef OPENMP
+#pragma omp threadprivate(tic)
+#endif
+/*!
+ * @defgroup time_tictoc tictoc
+ * @brief Routines that are useful for timing functions. 
+ * @ingroup time 
+ */
 /*!
  * @brief Begins the time for toc.
  *

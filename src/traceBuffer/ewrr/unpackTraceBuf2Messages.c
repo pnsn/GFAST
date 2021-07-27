@@ -22,6 +22,12 @@ static int fastUnpack(const int npts, const int lswap,
                       int *__restrict__ resp);
 
 /*!
+ * MTH: 2021/05 Rewrite of unpackTraceBuf2Messages.c
+ *              Replace 4 loops/sorts with one sort of record struct
+ *
+ */
+
+/*!
  * @brief Unpacks the tracebuf2 messages read from the ring and returns
  *        the concatenated data for the desired SNCL's in the tb2Data struct
  *
@@ -44,6 +50,30 @@ static int fastUnpack(const int npts, const int lswap,
  * @copyright Apache 2
  *
  */
+
+struct tb_struct {
+  char netw[8];
+  char stnm[8];
+  char chan[8];
+  char loc[8];
+};
+
+struct string_index {
+  char logo[15];
+  char net[8];
+  char sta[8];
+  char cha[8];
+  char loc[8];
+  double time;
+  int indx;
+  int nsamps;
+  //int k;
+  //float data;
+};
+void print_struct(struct string_index *d, int n);
+void sort2(struct string_index *vals, int n);
+
+
 int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int nRead,
     const char *msgs,
@@ -52,23 +82,27 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char *msg, netw[64], stat[64], chan[64], loc[64];
     TRACE2_HEADER traceHeader;
     TRACE2_HEADER  *trh;
-    //long *longData;
-    //short *shortData;
     double *times, dt;
     int *nsamps;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
-        dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l,
+        dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l, j,
         lswap, nchunks, nReadPtr, nsamp0, npts, nsort;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = false;
 
     //char **msg_logos = (char **)malloc(sizeof(char *) * nRead);
-    char msg_logos[nRead][15];
+    //char msg_logos[nRead][15];
+    char buf[15];
     char *logo;
-    char *nn = NULL;
-    char *ss = NULL;
-    char *cc = NULL;
-    char *ll = NULL;
+
+    bool found = false;
+    int debug = 0;
+
+    int kold;
+    struct string_index *vals, *tmp;
+    vals = (struct string_index *) calloc((size_t) nRead, sizeof(struct string_index));
+    tmp = (struct string_index *) calloc((size_t) nRead, sizeof(struct string_index));
+    char *ret;
 
     //------------------------------------------------------------------------//
     //
@@ -81,7 +115,7 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     // Nothing to do
     if (tb2Data->ntraces == 0){return 0;}
     if (nRead == 0){return 0;}
-//printf("%d\n", nRead);
+
     // Set the workspace
     msg   = memory_calloc8c(MAX_TRACEBUF_SIZ);
     imap  = memory_calloc32i(nRead+1);
@@ -97,161 +131,134 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
 
     for (i=0; i<nRead+1; i++){imap[i] = tb2Data->ntraces + 1;}
 
-    // MTH: load up the msg logos once
+    printf("unpackTB2: Enter  nTraces:%d nRead:%d\n", tb2Data->ntraces, nRead);
+
+    bool dump_tb2Data = false;
+    bool dump_nRead = false;
+    bool debug_imap = false;
+    bool debug_nchunks = false;
+
+    if (dump_tb2Data) {
+      for (k=0; k<tb2Data->ntraces; k++){
+        printf("%s.%s.%s.%s\n",
+            tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
+            tb2Data->traces[k].netw, tb2Data->traces[k].loc);
+      }
+      //exit(0);
+    }
+
+
+    // MTH: load up the msg logos, times and nsamp into records to sort once
     for (i=0; i<nRead; i++)
     {
         indx = i*MAX_TRACEBUF_SIZ;
         trh  = (TRACE2_HEADER *) &msgs[indx];
-        //msg_logos[i] = (char *)malloc(15);
+        /*
         sprintf(msg_logos[i], "%s.%s.%s.%s",
                 trh->net, trh->sta, trh->chan, trh->loc);
         times[i] = trh->starttime;
         nsamps[i]= trh->nsamp;
+        */
+
+        sprintf(logo, "%s.%s.%s.%s", trh->sta, trh->chan, trh->net, trh->loc);
+        strcpy(vals[i].logo, logo);
+        strcpy(vals[i].sta, trh->sta);
+        strcpy(vals[i].cha, trh->chan);
+        strcpy(vals[i].net, trh->net);
+        strcpy(vals[i].loc, trh->loc);
+        vals[i].indx = i;
+        vals[i].time = trh->starttime;
+        vals[i].nsamps = trh->nsamp;
+        //vals[i].data = data;
     }
-    /*
-    for (i=0;i<nRead;i++){
-      puts(msg_logos[i]);
-      puts(msg_logos2[i]);
+    if (dump_nRead) {
+      print_struct(vals, nRead);
     }
-    exit(0);
-    */
+
+    for (i=0; i<nRead; i++){
+      memcpy(&tmp[i], &vals[i], sizeof(struct string_index));
+    }
+
+    // Sort the msg records by scnl + time to align with tb2Data slots:
+    sort2(tmp, nRead);
+    if (dump_nRead){
+        printf("MTH: Dump sorted structs:\n");
+        print_struct(tmp, nRead);
+    }
+
+    for (i=0; i<nRead; i++){
+      //tmp[i].k = -9;
+      imap[i]  = -9;
+    }
+
+    int klast = 0;
 
     // Loop on waveforms and get workspace count
-
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs ntraces=%d nRead=%d]", time_timeStamp(), tb2Data->ntraces, nRead);
-    for (k=0; k<tb2Data->ntraces; k++)
-    {
-        // Copy on the SNCL
-        // Loop on the messages and hunt for matching SNCL
-        for (i=0; i<nRead; i++)
-        {
-/*
-            indx = i*MAX_TRACEBUF_SIZ;
-            memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-            // Get the bytes in right endianness
-            nsamp0 = traceHeader.nsamp;
-            ierr = WaveMsg2MakeLocal(&traceHeader);
-            if (ierr < 0)
-            {
-                 LOG_ERRMSG("%s", "Error flipping bytes");
-                 return -1;
-            }
-*/
-            memcpy(logo, msg_logos[i], 15);
-            //puts(logo);
-            nn = strtok(logo, ".");
-            ss = strtok(NULL, ".");
-            cc = strtok(NULL, ".");
-            ll = strtok(NULL, ".");
-
-            if ((strcmp(tb2Data->traces[k].netw, nn)  == 0) &&
-                (strcmp(tb2Data->traces[k].stnm, ss)  == 0) &&
-                (strcmp(tb2Data->traces[k].chan, cc) == 0) &&
-                (strcmp(tb2Data->traces[k].loc,  ll)  == 0))
-            {
-              /*
-                printf("%s.%s.%s.%s matches %s.%s.%s.%s\n",
-                        tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
-                        tb2Data->traces[k].chan, tb2Data->traces[k].loc, nn, ss, cc, ll);
-              */
-
-                if (imap[i] < tb2Data->ntraces + 1)
-                {
-                    LOG_ERRMSG("%s", "Error multiply mapped wave");
-                    return -1;
-                }
-                imap[i] = k;
-                imsg[i] = i;
-                //npts = traceHeader.nsamp;
-                npts = nsamps[i];
-                if (npts < 0 || npts > maxpts)
-                {
-                    LOG_ERRMSG("Invalid number of points %d %d", npts, maxpts);
-                    return -1;
-                }
-                //times[i] = traceHeader.starttime;
-                //kpts[k] = kpts[k] + traceHeader.nsamp;
-                kpts[k] = kpts[k] + nsamps[i];
-                nmsg[k] = nmsg[k] + 1;
-                break;
-            }
-        } // Loop on messages read
-    } // Loop on waveforms
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f First Loop over SCNLs DONE", time_timeStamp());
-    // Argsort the messages to their destinations (SNCLs).  Note, if using
-    // intel performance primitives the sort will be stable.  Therefore, if
-    // the messages are ordered temporally (more likely case) the unpacking
-    // will be faster
-
-    imap[nRead] =-1;
-//LOG_MSG("== [unpackTraceBuf t0:%f call sorting_argsort32i_work]", ISCL_time_timeStamp());
-    ierr = sorting_argsort32i_work(nRead, imap, SORT_ASCENDING, iperm);
-    if (ierr != 0)
-    {
-        LOG_ERRMSG("%s", "Error sorting messages");
-        return -1;
-    }
-    // Apply the permutations
-    ierr = sorting_applyPermutation32i_work(nRead, iperm, imap,  imap);
-    ierr = sorting_applyPermutation32i_work(nRead, iperm, imsg,  imsg);
-    ierr = sorting_applyPermutation64f_work(nRead, iperm, times, times);
-    // Make a list so that the messages will be unpacked in order of
-    // of SNCL matches as to reduce cache conflicts.
-    nReadPtr = 0;
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs. nRead=%d]", time_timeStamp(), nRead);
-    for (i=0; i<nRead; i++)
-    {
-        if (imap[i] == tb2Data->ntraces + 1){break;} // Out of things to do 
-        // update next station
-        if (imap[i+1] != imap[i])
-        {
-            imapPtr[nReadPtr+1] = i + 1;
-            i1 = imapPtr[nReadPtr];
-            i2 = imapPtr[nReadPtr+1];
-            // Do a partial sort based on start times
-            nsort = i2 - i1;
-            if (nsort > 1)
-            {
-                // Verify sort is necessary (benefit of stable sort) 
-                if (!sorting_issorted64f(nsort, &times[i1],
-                                              SORT_ASCENDING, &ierr))
-                {
-                    ierr = sorting_argsort64f_work(nsort, &times[i1],
-                                                        SORT_ASCENDING, iperm);
-                    if (ierr != 0)
-                    {
-                        LOG_ERRMSG("%s", "Failed partial sort");
-                        return -1;
-                    }
-                    sorting_applyPermutation32i_work(nsort, iperm,
-                                                     &imap[i1],
-                                                     &imap[i1]);
-                    sorting_applyPermutation32i_work(nsort, iperm,
-                                                     &imsg[i1],
-                                                     &imsg[i1]);
-                    sorting_applyPermutation64f_work(nsort, iperm,
-                                                     &times[i1],
-                                                     &times[i1]);
-                }
-            }
-            else if (nsort == 0)
-            {
-                LOG_ERRMSG("%s", "Counting error");
-                return -1;
-            }
-            nReadPtr = nReadPtr + 1;
-        }
-    }
-
-    /*
+    // Loop through nRead msgs in sorted order and assign a k value to each
     for (i=0; i<nRead; i++){
-      free(msg_logos[i]);
+      j = tmp[i].indx;
+      // imsg keeps msg sort order
+      imsg[i] = j;
+      for (k=klast; k<tb2Data->ntraces; k++) {
+        // MTH: may want to also check net + loc if mixing networks
+	if (strcmp(vals[j].sta, tb2Data->traces[k].stnm) == 0){
+	  if (strcmp(vals[j].cha, tb2Data->traces[k].chan) == 0){
+	    if (strcmp(vals[j].net, tb2Data->traces[k].netw) == 0){
+	      if (strcmp(vals[j].loc, tb2Data->traces[k].loc) == 0){
+		//tmp[i].k = k;
+		imap[i] = k;
+		kpts[k] += vals[j].nsamps;
+		nmsg[k] += 1;
+		klast = k;
+		break;
+	      }
+	    }
+	  }
+	}
+      }
     }
-    free(msg_logos);
-    */
+    // It's now sorted so that as you step through i: 1, ..., nRead,
+    // imgs[i] = next msg in sort order, while imap[i] = kth tb2Data scnl msg target
 
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", time_timeStamp());
+    if (debug_imap) {
+      for (i=0; i<nRead; i++){
+        k = imap[i];
+        printf("imap[%d] --> k:%d %s.%s\n", i, k, tb2Data->traces[k].stnm, tb2Data->traces[k].chan);
+      }
+    }
+
+    // Step through the sorted imap[i]=k and figure out where each new k starts = imap[imapPtr[ir]]
+    //kold = imap[0];
+    kold = -999;
+    ir = 0;
+    for (i=0; i<nRead; i++) {
+      k = imap[i];
+      //printf("i=%d k:%d\n", i,k);
+      if (k != kold) {
+        //printf("** k has changed from:%d to %d\n", kold, k);
+        if (k > -1) {
+          imapPtr[ir] = i;
+          //printf("   set imapPtr[%d] = %d\n", ir, imapPtr[ir]);
+          ir += 1;
+        }
+        kold = k;
+      }
+    }
+
+    nReadPtr = ir;
+
+    //printf("nRead:%d ntraces:%d nReadPtr:%d\n", nRead, tb2Data->ntraces, nReadPtr);
+
+    for (ir=0; ir<nReadPtr; ir++) {
+      i1 = imapPtr[ir];
+      //i2 = imapPtr[ir+1];
+      k = imap[i1]; // k always = ir ?
+      i2 = i1 + nmsg[k];
+      for (im=i1; im<i2; im++){
+        j=imsg[im];
+      }
+    }
+
     // Now set the workspace
     for (k=0; k<tb2Data->ntraces; k++)
     {
@@ -264,16 +271,23 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Second loop over ring msgs DONE]", time_t
             tb2Data->traces[k].npts = kpts[k];
         }
     }
-//printf("nReadPtr: %d\n", nReadPtr);
-    // Unpack the traces
-LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", time_timeStamp());
+
+    //printf("MTH: Final Loop to load traces\n");
     for (ir=0; ir<nReadPtr; ir++)
     {
         i1 = imapPtr[ir];
-        i2 = imapPtr[ir+1];
+        //i2 = imapPtr[ir+1];
         k = imap[i1];
+        i2 = i1 + nmsg[k];
         kndx = 0;
-//printf("%d %d %d %d %d %d\n", tb2Data->ntraces, k, ir, i1, i2, kpts[k]);
+        //if (debug) {
+        if (1) {
+          sprintf(buf, "%s.%s.%s.%s", tb2Data->traces[k].netw, tb2Data->traces[k].stnm,
+                  tb2Data->traces[k].chan, tb2Data->traces[k].loc);
+        }
+
+        tb2Data->traces[k].nchunks = 1;
+
         // Loop on the messages for this SNCL
         for (im=i1; im<i2; im++)
         {
@@ -285,51 +299,39 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", time_
             }
             indx = i*MAX_TRACEBUF_SIZ;
             trh  = (TRACE2_HEADER *) &msgs[indx];
-/*
-            //memcpy(msg, &msgs[indx], MAX_TRACEBUF_SIZ*sizeof(char));
-            //memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-            nsamp0 = traceHeader.nsamp;
-            ierr = WaveMsg2MakeLocal(&traceHeader);
-            if (ierr < 0)
-            {
-                 LOG_ERRMSG("%s", "Error flipping bytes");
-            }
-            dtype = 4;
-            //if (strcasecmp(traceHeader.datatype, "s2\0") == 0 ||
-                //strcasecmp(traceHeader.datatype, "i2\0") == 0)
-            if (strcmp(traceHeader.datatype, "s2\0") == 0 ||
-                strcmp(traceHeader.datatype, "i2\0") == 0)
-            }
-            npts = traceHeader.nsamp;
-*/
             dtype = 4;
             lswap = 0;
-            //if (nsamp0 != traceHeader.nsamp){lswap = 1;}
-
             npts = trh->nsamp;
-
-            ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
-            if (ierr != 0)
-            {
-                LOG_ERRMSG("%s", "Error unpacking data");
-            }
-            // Update the points
-            //dt = 1.0/traceHeader.samprate;
             dt = 1.0/trh->samprate;
             tb2Data->traces[k].dt = dt;
+
+            ierr = fastUnpack(npts, lswap, dtype, &msgs[indx], resp);
+            if (ierr != 0) {
+                LOG_ERRMSG("%s", "Error unpacking data");
+            }
+
             // Is a new chunk beginning?
-            if (im > i1)
-            {
-                //if (fabs( (tb2Data->traces[k].times[kndx] + dt)
-                        //- traceHeader.starttime ) < 1.e-6)
-                if (fabs( (tb2Data->traces[k].times[kndx] + dt)
-                        - trh->starttime ) < 1.e-6)
-                {
-                    tb2Data->traces[k].nchunks = tb2Data->traces[k].nchunks + 1;
-                    nchunks = tb2Data->traces[k].nchunks;
-                    tb2Data->traces[k].chunkPtr[nchunks] = kndx + 1;
+            if (im > i1) {
+                if (fabs( (tb2Data->traces[k].times[kndx-1] + dt) - trh->starttime ) > 1.e-6) {
+                //printf("    starttime exceeds dt --> start a new chunk\n");
+                    if (debug) {
+                        printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d start a new chunk\n",
+                            ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
+                    }
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx;
+                    tb2Data->traces[k].nchunks += 1;
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
+                }
+                else {
+                //printf("    starttime is within dt --> simply extend current chunk\n");
+                    if (debug) {
+                        printf("ir:%d i1:%d im:%d k:%d %s kndx:%d npts:%d nchunks:%d extend current chunk\n",
+                            ir, i1, im, k, buf, kndx, npts, tb2Data->traces[k].nchunks);
+                    }
+                    tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kndx + npts;
                 }
             }
+
             // Update the points
 #ifdef _OPENMP
             #pragma omp simd
@@ -337,33 +339,28 @@ LOG_DEBUGMSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping]", time_
             for (l=0; l<npts; l++)
             {
                 tb2Data->traces[k].data[kndx+l] = resp[l];
-                //tb2Data->traces[k].times[kndx+l] = traceHeader.starttime
-                tb2Data->traces[k].times[kndx+l] = trh->starttime
-                                                 + (double) l*dt;
+                tb2Data->traces[k].times[kndx+l] = trh->starttime + (double) l*dt;
 
-                /*
-                LOG_MSG("%s.%s.%s.%s t:%f (npts:%d) (int) data:%d",
-                    tb2Data->traces[k].stnm, tb2Data->traces[k].chan,
-                    tb2Data->traces[k].netw, tb2Data->traces[k].loc,
-                    tb2Data->traces[k].times[kndx+l],
-                    npts,
-                    tb2Data->traces[k].data[kndx+l]);
-                */
+                if (debug) {
+                  printf("unpackTB2 k:%4d scnl:%s time:%.2f val:%d\n", 
+                            k, buf, tb2Data->traces[k].times[kndx+l], tb2Data->traces[k].data[kndx+l]);
+                }
+
             }
-            kndx = kndx + npts; 
-/*
-printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
-                                trh->net, trh->sta,
-                                trh->chan, trh->loc,
-                                trh->nsamp, (double) resp[0]/1000000); 
-*/
+            kndx = kndx + npts;
+
         } // Loop on messages for this SNCL
+
         // Special case for one message
-        if (i2 - i1 == 1 && kpts[k] > 0)
-        {
+        if (i2 - i1 == 1 && kpts[k] > 0) {
             tb2Data->traces[k].nchunks = 1;
             tb2Data->traces[k].chunkPtr[tb2Data->traces[k].nchunks] = kpts[k];
         }
+        if (debug_nchunks) {
+          printf("unpackTB2: k:%4d scnl:%s nmsg:%d kpts:%d i1:%d i2:%d nchunks:%d\n",
+              k, buf, nmsg[k], kpts[k], i1, i2, tb2Data->traces[k].nchunks);
+        }
+
         // Reality check
         if (kndx != kpts[k])
         {
@@ -375,14 +372,25 @@ printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
             nchunks = tb2Data->traces[k].nchunks;
             if (tb2Data->traces[k].chunkPtr[nchunks] != tb2Data->traces[k].npts)
             {
+                printf("**** Inconsistent number of points %d %d\n",
+                           tb2Data->traces[k].chunkPtr[nchunks],
+                           tb2Data->traces[k].npts);
                 LOG_ERRMSG("Inconsistent number of points %d %d",
                            tb2Data->traces[k].chunkPtr[nchunks],
                            tb2Data->traces[k].npts);
                 return -1;
             }
         }
+
+
+        if (debug) {
+          printf("unpackTB2  k:%4d nchunks:%d chunkPtr[0]:%d chunkPtr[nchunks]:%d total_npts:%d\n",
+                   k, tb2Data->traces[k].nchunks, tb2Data->traces[k].chunkPtr[0], tb2Data->traces[k].chunkPtr[nchunks],
+                  tb2Data->traces[k].npts);
+        }
+
     } // Loop on pointers
-//LOG_MSG("== [unpackTraceBuf t0:%f Third loop over nReadPtr mapping DONE]", ISCL_time_timeStamp());
+    //exit(0);
 
     // Free space
     memory_free8c(&msg);
@@ -396,6 +404,9 @@ printf("%16.8f %s %s %s %s %d %f\n", trh->starttime,
     memory_free32i(&imapPtr);
     memory_free32i(&nsamps);
     memory_free8c(&logo);
+    free(vals);
+    free(tmp);
+ //exit(0);
     return 0;
 }
 //============================================================================//
@@ -539,4 +550,66 @@ static int fastUnpack(const int npts, const int lswap,
         return -1;
     }
     return 0;
+}
+
+
+// Defining comparator function as per the requirement
+static int myCompare2(const void *x, const void *y)
+{
+  const struct string_index xx = *(const struct string_index *) x;
+  const struct string_index yy = *(const struct string_index *) y;
+  int inet, ista, icha, iloc;
+
+  //if (strcmp(xx.net, yy.net)==0) {
+    //if (strcmp(xx.loc, yy.loc)==0) {
+      ista = strcmp(xx.sta, yy.sta);
+      if (ista == 0){
+        icha = strcmp(xx.cha, yy.cha);
+        if (icha == 0){
+	  inet = strcmp(xx.net, yy.net);
+	  if (inet == 0) {
+            if (xx.time > yy.time) {
+              return 1;
+            }
+            else if (xx.time < yy.time) {
+              return -1;
+            }
+            else {
+              return 0;
+            }
+          }
+          else {
+	    return inet;
+          }
+        }
+        else {  // order by sta + {LYZ, LYN, LYE} to match tb2Data
+          return -1*icha;
+        }
+      }
+      else {
+        return ista;
+      }
+//    }
+//  }
+
+  printf("**** MTH: qsort HERE: xx.logo=%s \t yy.logo=%s\n", xx.logo, yy.logo);
+  return strcmp(xx.logo, yy.logo);
+
+  //return strcmp(*(const char**)a, *(const char**)b);
+}
+
+// Function to sort the array
+void sort2(struct string_index values[], int n)
+{
+  // calling qsort function to sort the array
+  // with the help of Comparator
+  qsort((void *) values, (size_t) n, sizeof(struct string_index), myCompare2);
+}
+
+void print_struct(struct string_index *d, int n){
+  int i;
+  for (i=0; i<n; i++){
+    printf("struct[%d] indx:%5d: logo:%s nsamps:%d time:%.2f\n",
+        i, d[i].indx, d[i].logo, d[i].nsamps, d[i].time);
+  }
 }

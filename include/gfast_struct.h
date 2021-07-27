@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include "gfast_enum.h"
 #ifndef PATH_MAX
-#define PATH_MAX 512
+#define PATH_MAX 4096
 #endif
 #include "gfast_config.h"
 
@@ -19,6 +19,7 @@ struct GFAST_pgd_props_struct
   double window_vel;    /*!< Velocity (km/s) used in determining if enough
 			  data has arrived at a station in PGD
 			  inversion. */
+  double min_window_vel; /*!< min S vel to use for tmax=dist/min_s_vel PGD peak search*/
   double dist_tol;      /*!< Source-receiver distance tolerance (km). */
   double disp_def;      /*!< If the source receiver epicentral distance
 			  is less than dist_tol this is the value assigned
@@ -442,6 +443,8 @@ struct GFAST_data_struct
 struct GFAST_shakeAlert_struct
 {
   char eventid[128];  /*!< Event ID. */
+  char orig_sys[12];  /*!< originating algorithm */
+  int version;        /*!< message version */
   double lat;         /*!< Event latitude (degrees). */
   double lon;         /*!< Event longitude (degrees). */
   double dep;         /*!< Event depth (kilometers). */ 
@@ -456,6 +459,20 @@ struct GFAST_activeEvents_struct
 					an array with dimension [nev]. */
   int nev;                            /*!< Number of events. */ 
   char pad1[4];
+};
+
+struct GFAST_xml_output_status
+{
+  char eventid[128];                               /*!< Event ID. */
+  int version;                                     /*!< GFAST iteration version for this event ID. */
+  bool interval_complete[3][MAX_OUTPUT_INTERVALS]; /*!< intervals_complete[] for pgd + cmt + ff = 3 */
+};
+
+struct GFAST_activeEvents_xml_status
+{
+  struct GFAST_xml_output_status *SA_status;
+  int nev;
+  //char pad1[4];  /* MTH: seems to be for byte alignment but **check this** */
 };
 
 struct coreInfo_struct

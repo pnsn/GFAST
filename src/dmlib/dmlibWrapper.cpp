@@ -33,12 +33,11 @@ int startDestinationConnection(const char AMQuser[],
 			       const int maxAttempts,
 			       const int verbose=1) {
   conVerbose=verbose;
-  const char *fcnm = "startDestinationConnection\0";
   char *brokerURI;
   brokerURI = activeMQ_setTcpURIRequest(destinationURL,
 					msReconnect, maxAttempts);
   if (destinationConnection!=NULL) {
-    printf("%s: connection already exists\n",fcnm);
+    printf("%s: connection already exists\n",__func__);
     return 0;
   }
   try
@@ -47,7 +46,7 @@ int startDestinationConnection(const char AMQuser[],
       if (conVerbose > 2)
 	{
 	  printf("%s: Setting the broker URI: %s\n",
-		 fcnm, brokerURI);
+		 __func__, brokerURI);
 	}
       auto_ptr<cms::ConnectionFactory> connectionFactory(
 	   cms::ConnectionFactory::createCMSConnectionFactory(brokerURI));
@@ -55,7 +54,7 @@ int startDestinationConnection(const char AMQuser[],
       if (conVerbose > 2)
 	{
 	  printf("%s: Creating connection for username (%s)\n",
-		 fcnm, AMQuser);
+		 __func__, AMQuser);
 	}
       // Create a connection
       destinationConnection = connectionFactory->createConnection(AMQuser, AMQpassword);
@@ -65,7 +64,7 @@ int startDestinationConnection(const char AMQuser[],
     }
   catch (cms::CMSException &e)
     {
-      printf("%s: Exception encountered creating dmlib connection\n%s",fcnm,e.what());
+      printf("%s: Exception encountered creating dmlib connection\n%s",__func__,e.what());
       e.printStackTrace();
       return -1;
     }
@@ -73,41 +72,52 @@ int startDestinationConnection(const char AMQuser[],
 }
 
 int stopDestinationConnection() {
-  const char *fcnm = "stopDestinationConnection\0";
-
   if ( destinationConnection==NULL ) {
-    printf("%s: connection already dead\n",fcnm);
+    printf("%s: connection already dead\n",__func__);
     return 0;
+  } else {
+    try {
+      /*if ( not destinationConnection->isClosed() {
+	  destinationConnection->stop();
+	  destinationConnection->close();
+	  }*/
+      delete destinationConnection;
+      destinationConnection=NULL;
+    }
+    catch (cms::CMSException &e) {
+      printf("%s: CMSException encountered closing dmlib destination connection\n%s",__func__,e.what());
+      e.printStackTrace();
+      return -1;
+    }
+    catch (exception &e) {
+      printf("%s: Exception encountered closing dmlib destination connection\n%s",__func__,e.what());
+      return -1;
+    }
   }
-  destinationConnection->close();
-  delete destinationConnection;
-  destinationConnection=NULL;
   return 1;
 }
 
 bool isAMQconnected() {
-  const char *fcnm = "isAMQconnected\0";
   if (destinationConnection==NULL) {
     return false;
   }
   //vck: add real connected test here and make default -1
-  printf("%s: dummy placeholder function call\n",fcnm);
+  printf("%s: dummy placeholder function call\n",__func__);
   return true;
 }
 
 int startEventSender(const char eventtopic[]) {
-  const char *fcnm = "startEventSender\0";
   if (conVerbose > 2)
     {
       printf("%s: Starting dmlib DMMessageSender on topic: %s\n",
-	     fcnm, eventtopic);
+	     __func__, eventtopic);
     }
   if (not isAMQconnected()) {
-      printf("%s: Cannot start event sender without activeMQ connection.",fcnm);
+      printf("%s: Cannot start event sender without activeMQ connection.",__func__);
       return -1;
     }
   if (eventsender != NULL) {
-      printf("%s: Event sender already initalized\n",fcnm);
+      printf("%s: Event sender already initalized\n",__func__);
       return 0;
     }
   try {
@@ -115,7 +125,7 @@ int startEventSender(const char eventtopic[]) {
   }
   catch (exception &e)
     {
-      printf("%s: Encountered Exception creating DMMessageSender\n%s",fcnm,e.what());
+      printf("%s: Encountered Exception creating DMMessageSender\n%s",__func__,e.what());
       return -1;
     }
   try {
@@ -123,16 +133,15 @@ int startEventSender(const char eventtopic[]) {
   }
   catch (exception &e)
     {
-      printf("%s: Encountered Exception running DMMessageSender\n%s",fcnm,e.what());
+      printf("%s: Encountered Exception running DMMessageSender\n%s",__func__,e.what());
       return -1;
     }
   return 1;
 }
 
 int stopEventSender() {
-  const char *fcnm = "stopEventSender\0";
   if (eventsender==NULL) {
-    printf("%s: Event sender not running\n",fcnm);
+    printf("%s: Event sender not running\n",__func__);
     return 0;
   } else {
     delete eventsender;
@@ -146,39 +155,37 @@ int stopEventSender() {
 }
 
 int sendEventMessage() {
-  const char *fcnm = "sendEventMessage\0";
   if (conVerbose > 2)
     {
       printf("%s: Sending event message to activemq topic.\n",
-	     fcnm);
+	     __func__);
     }
   if (eventmessage==NULL) {
-    printf("%s: No message to send\n",fcnm);
+    printf("%s: No message to send\n",__func__);
     return 0;
   }
   try {
     eventsender->sendMessage(eventmessage);
   }
   catch (exception &e) {
-    printf("%s: DMMessageSender error: %s",fcnm,e.what());
+    printf("%s: DMMessageSender error: %s",__func__,e.what());
   }
   if (conVerbose>1) {
-    printf("%s: sent GFAST message to activemqfor evid:%s\n",fcnm,eventmessage->getID().c_str());
+    printf("%s: sent GFAST message to activemqfor evid:%s\n",__func__,eventmessage->getID().c_str());
   }
   return 1;
 }
 
 int sendEventXML(const char xmlstr[]) {
-  const char *fcnm = "sendEventXML\0";
   if (conVerbose > 2)
     {
       printf("%s: Sending preformatted xml message to event topic.\n",
-	     fcnm);
+	     __func__);
     }
 
   eventsender->sendString(xmlstr);
   if (conVerbose>1) {
-    printf("%s: sent xml message to activemq\n",fcnm);
+    printf("%s: sent xml message to activemq\n",__func__);
   }
   return 1;
 }
@@ -187,26 +194,25 @@ int startHBProducer(const char sender[],
 		    const char hbtopic[],
 		    int interval=0,
 		    int verbose=1) {
-  const char *fcnm = "startHBProducer\0";
   if (destinationConnection==NULL) {
-    printf("%s: Error: AMQ connection must be started before HBProducer\n",fcnm);
+    printf("%s: Error: AMQ connection must be started before HBProducer\n",__func__);
     return -1;
   }
   if (hbproducer!=NULL) {
-    printf("%s: HBProducer already started\n",fcnm);
+    printf("%s: HBProducer already started\n",__func__);
     return 0;
   }
   hbVerbose=verbose;
   hbSender=string(sender);
   hbTopic=string(hbtopic);
   if (hbVerbose > 2) {
-    printf("%s: Starting heartbeat prodicer on topic: %s\n",fcnm, hbtopic);
+    printf("%s: Starting heartbeat producer on topic: %s\n",__func__, hbtopic);
   }
   try {
     hbproducer = new HBProducer(destinationConnection,hbSender,hbTopic,interval);
   }
   catch (exception &e) {
-    printf("%s: Encountered Exception creating dmlib HB producer\n%s",fcnm,e.what());
+    printf("%s: Encountered Exception creating dmlib HB producer\n%s",__func__,e.what());
     return -1;
   }
   /* this part is not working (steals the program) 
@@ -215,7 +221,7 @@ int startHBProducer(const char sender[],
       hbproducer->run();
     }
     catch (exception &e) {
-      printf("%s: Encountered Exception in dmlib HB producer\n%s",fcnm,e.what());
+      printf("%s: Encountered Exception in dmlib HB producer\n%s",__func__,e.what());
       return -1;
     }
   }
@@ -225,27 +231,26 @@ int startHBProducer(const char sender[],
 }
 
 int stopHBProducer() {
-  const char *fcnm = "stopHBProducer\0";
   if (hbVerbose > 2)
     {
-      printf("%s: killing heartbeat producer\n",fcnm);
+      printf("%s: killing heartbeat producer\n",__func__);
     }
 
   if (hbproducer==NULL) {
-    printf("%s: HB producer not running\n",fcnm);
+    printf("%s: HB producer not running\n",__func__);
       return 0;
+  } else {
+    hbproducer->stop();
+    delete hbproducer;
+    hbproducer=NULL;
   }
-  hbproducer->stop();
-  delete hbproducer;
-  hbproducer=NULL;
   return 1;
 }
 
 int sendHeartbeat(){
-  const char *fcnm = "sendHeartbeat\0";
   std::string timestr;
   if (hbproducer==NULL) {
-    printf("%s: HB producer not running\n",fcnm);
+    printf("%s: HB producer not running\n",__func__);
       return 0;
   }
   hbproducer->sendHeartbeat("","","");
@@ -256,10 +261,9 @@ int createDMEventObject(const char evid[], double mag, double lat, double lon, d
   //taking defaults for lklihd,type,ver,category,time_stamp,alg_ver,instance,num_stations,ref_id,
   //ref_src,orig_sys,mag_units,mag_uncer_units,lat_units,lat_uncer_units,lon_units,lon_uncer_units,
   //dep_units,dep_uncer_units,o_time_units,o_time_uncer_units
-  const char *fcnm = "createDMEventObject\0";
 
   if (eventmessage!=NULL) {
-    printf("%s: DMEventObject already started\n",fcnm);
+    printf("%s: DMEventObject already started\n",__func__);
     return 0;
   }
   eventmessage = new CoreEventInfo(GFAST, evid, mag, 0.0, lat, 0.0, lon, 0.0, depth, 0.0, otime, 0.0);
@@ -267,13 +271,12 @@ int createDMEventObject(const char evid[], double mag, double lat, double lon, d
 }
 
 int modifyDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime) {
-  const char *fcnm = "modifyDMEventObject\0";
   if (eventmessage==NULL) {
-    printf("%s: DMEventObject must exist.  Call createDMEventObject first\n",fcnm);
+    printf("%s: DMEventObject must exist.  Call createDMEventObject first\n",__func__);
     return 0;
   }
   if (evid!=eventmessage->getID()) {
-    printf("%s: event id's do not match. %s!=%s\n",fcnm,evid,eventmessage->getID().c_str());
+    printf("%s: event id's do not match. %s!=%s\n",__func__,evid,eventmessage->getID().c_str());
     return -1;
   }
   eventmessage->setMagnitude(mag);
@@ -285,13 +288,12 @@ int modifyDMEventObject(const char evid[], double mag, double lat, double lon, d
 }
 
 int deleteDMEventObject(const char evid[]) {
-  const char *fcnm = "deleteDMEventObject\0";
   if (eventmessage==NULL) {
-    printf("%s: DMEventObject does not exist.",fcnm);
+    printf("%s: DMEventObject does not exist.",__func__);
     return 0;
   }
   if (evid!=eventmessage->getID()) {
-    printf("%s: event id's do not match. %s!=%s\n",fcnm,evid,eventmessage->getID().c_str());
+    printf("%s: event id's do not match. %s!=%s\n",__func__,evid,eventmessage->getID().c_str());
     return -1;
   }
   delete eventmessage;
