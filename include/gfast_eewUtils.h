@@ -66,6 +66,7 @@ char *eewUtils_makeXML__ff(const enum opmode_type mode,
                            const double *ds,
                            const double *ss_unc,
                            const double *ds_unc,
+                           const int num_stations,
                            int *ierr);
 /* Make the quakeML */
 char *eewUtils_makeXML__quakeML(const char *network,
