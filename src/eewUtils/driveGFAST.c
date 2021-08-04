@@ -363,6 +363,7 @@ int eewUtils_driveGFAST(const double currentTime,
 					     pgd->srcDepths[pgdOpt],
 					     pgd->mpgd[pgdOpt],
 					     SA.time,
+                         nsites_pgd,
 					     &ierr);
 	      if (ierr != 0)
                 {

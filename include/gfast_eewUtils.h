@@ -90,6 +90,7 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
                             const double SA_depth,
                             const double SA_mag,
                             const double SA_time,
+                            const int num_stations,
                             int *ierr);
 /* Parses the core XML message */
 int eewUtils_parseCoreXML(const char *message,

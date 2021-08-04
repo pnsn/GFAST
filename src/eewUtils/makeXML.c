@@ -524,6 +524,7 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
                             const double SA_depth,
                             const double SA_mag,
                             const double SA_time,
+                            const int num_stations,
                             int *ierr)
 {
     struct coreInfo_struct core;
@@ -653,6 +654,7 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
     core.lhaveOrigTimeUncerUnits = true;
     core.likelihood = 0.8;
     core.lhaveLikelihood = true;
+    core.numStations = num_stations;
     rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
     // </event_message>
     rc = xmlTextWriterEndElement(writer); // </event_message>
