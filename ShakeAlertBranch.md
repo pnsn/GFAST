@@ -122,7 +122,9 @@ functionality. Fortunately, most of these are not required for our SA compile.
 
 In the latest iteration, we have moved all needed iscl files into GFAST/src/iscl with include files in GFAST/include/iscl.  Only the most minor modifications in the code were required to removed the libfftw3 dependency.  Makefiles have been added so that this all compiles and links in the standard build.
 
-Alternatively, to make the full package compile on eew-uw-dev1, required following to cmake script:
+#### using cmake
+
+This is not the preferred alternative, but to make the iscl package using cmake so that it can be linked to the SA branch, include the following in cmake script:
 ~~~~
 /usr/bin/cmake $( dirname "$0" ) \
 -DCMAKE_BUILD_TYPE=DEBUG \
@@ -179,7 +181,7 @@ The "parallel" directive goes way back and is not a problem.  "simd" appears to 
 
 ShakeAlert servers currently (7/8/2020) have gcc 4.8.5 which implements OpenMP version 3.1.  OpenMP v4.0 was not included in gcc until version 4.9.  gcc v7.3 implements OpenMP v4.5.  It is possible to upgrade gcc on RHEL servers by enabling the SCL (Software Collections Libraries) but it it unclear whether this is not necessary in the ShakeAlert RHEL servers.  (unresolved)
 
-This seems to only be a problem when compiling the [ISCL](#ISCL) dependency.
+This seems to only be a problem when compiling the [ISCL](#ISCL) dependency using cmake.
 
 ### MKL
 
@@ -273,15 +275,7 @@ INT_MAX/MAX_TRACEBUF_SIZ = 524288
 
 So as currently configured, MAX_MESSAGES must be between 13407 and 524287.
 
-Problem is, the bigger MAX_MESSAGES is, the longer the unpack takes to run and thus the longer the loop.  Setting MAX_MESSAGES = 100000 (about 7 seconds of data) creates a loop time of about 30 seconds (essentially all in unpackTraceBuf2Messages() and tracebuffer_h5_setData().  Lots of messages are dropped.  Smaller values of MAX_MESSAGES speed up the loop considerably but not enough to keep up with RT data flow.  Decreasing the minimum loop slows the backlog accumulation but does not change the ultimate result.
-
-Several remedies are obvious and probably more than one will be required to fix the problem.
-
-The "lowest hanging fruit" would include: 
-1. turn on compiler optimization, which can speed up marginal code substantially but complicates problem finding.
-2. replace all MAX_TRACEBUF_SIZ with something exclusive to gfast code like MAX_GFAST_TB_SIZ which we can set to something more appropriate to geodetic tracebuffers like 100.
-
-Of course, all of this is an unfortunate consequence of the original decision to run all geodetic data through standard seismic tracebuf2 format, but that train left the station long ago. :)
+To bypass this problem and substantially speed up earthworm ring reading, traceBuffer_ewrr_getMessagesFromRing was replaced with traceBuffer_ewrr_getMessagesFromRingSA which has a slightly different call order, allocates and deallocates the message buffer only once to a single pre-set size in main and simply returns if that buffer is filled in a single call.  The resulting code is shorter, simpler, faster and more stable.  An initial size of MAX_MESSAGES = 100000 seems more than adequate to avoid filling in normal operation and might be reducable.  The MAX_TRACEBUF_SIZ multiple allocation issue is a potential future disaster that should be fixed.
 
 # To do
 
@@ -289,11 +283,11 @@ Of course, all of this is an unfortunate consequence of the original decision to
 
 - Metadata reader needs to be converted to ShakeAlert file format.
 - ShakeAlertConsumer should be revamped to allow asynchronous read loop.
-- Investigate why the main loop requires 5-6 seconds to complete.  Are we actually processing all the data?  Optimize.
+- Correct potentially conflicting definitions of MAX_TRACEBUF_SIZE.
 - Properly flag non-existant SA_events_dir and disable looking for trigger file in SA deployments.
 - unify and clean up the various logging systems.
 - replace fcnm defs and refs with cleaner \_\_func__
-- move xml message writing out of driveGFAST in into gfast_eew so we can use the dmlib xml writer.
+- move xml message writing out of driveGFAST in into gfast_eew so we can use the dmlib xml writer. This will also facilitate more correct handling of event version numbers.
 - Add threading to be able to handle peak loads.
 
 ##more substantial tasks
