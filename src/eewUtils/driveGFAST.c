@@ -363,6 +363,7 @@ int eewUtils_driveGFAST(const double currentTime,
 					     pgd->srcDepths[pgdOpt],
 					     pgd->mpgd[pgdOpt],
 					     SA.time,
+					     nsites_pgd,
 					     &ierr);
 	      if (ierr != 0)
                 {
@@ -483,6 +484,7 @@ int eewUtils_driveGFAST(const double currentTime,
 					   ff->fp[ipf].dslip,
 					   ff->fp[ipf].sslip_unc,
 					   ff->fp[ipf].dslip_unc,
+					   nsites_ff,
 					   &ierr); 
 	      if (ierr != 0)
                 {
