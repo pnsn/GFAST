@@ -22,7 +22,8 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ebuff,
                                     const int nMaxLeader,
                                     const double tmin,
-                                    const double tmax);
+                                    const double tmax,
+                                    double *obsTime);
 /*!
  * @brief Computes the peak displacement for each GPS precise point position
  *        data stream with the additional requirement that the shear wave
@@ -73,7 +74,7 @@ int core_waveformProcessor_peakDisplacement(
     int *ierr)
 {
     double currentTime, distance, effectiveHypoDist, epoch,
-           peakDisp, x1, x2, y1, y2, tmin, tmax;
+           peakDisp, x1, x2, y1, y2, tmin, tmax, obsTime;
     int k, nsites, zone_loc;
     //unused int i;
     bool lnorthp;
@@ -87,6 +88,7 @@ int core_waveformProcessor_peakDisplacement(
     // Error handling
     *ierr = 0;
     nsites = 0;
+    obsTime = 0.0;
     if (gps_data.stream_length != pgd_data->nsites)
     {
         LOG_ERRMSG("Inconsistent structure sizes %d %d",
@@ -115,11 +117,13 @@ int core_waveformProcessor_peakDisplacement(
     // Loop on streams and if they satisfy the S wave mask get their PGD
     for (k=0; k<gps_data.stream_length; k++)
     {
+        obsTime = 0.0;
         // Make sure I have the latest/greatest site location 
         pgd_data->sta_lat[k] = gps_data.data[k].sta_lat;
         pgd_data->sta_lon[k] = gps_data.data[k].sta_lon; 
         pgd_data->sta_alt[k] = gps_data.data[k].sta_alt;
         // Null out result
+        pgd_data->pd_time[k] = obsTime; // Null out result
         pgd_data->pd[k] = 0.0; // Null out result
         pgd_data->wt[k] = 0.0; // Assume no weight
         pgd_data->lactive[k] = false; // Assume site is not active in inversion
@@ -189,7 +193,7 @@ int core_waveformProcessor_peakDisplacement(
                                              gps_data.data[k].ubuff,
                                              gps_data.data[k].nbuff,
                                              gps_data.data[k].ebuff,
-                                             nMaxLeader, tmin, tmax);
+                                             nMaxLeader, tmin, tmax, &obsTime);
 
             /*
 The Crowell et al. [2016] coefficients are
@@ -231,6 +235,7 @@ LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f",
             // If it isn't a NaN then retain it for processing
             if (!isnan(peakDisp))
             {
+                pgd_data->pd_time[k] = obsTime; // epoch
                 pgd_data->pd[k] = peakDisp; // meters
                 pgd_data->wt[k] = 1.0;
                 pgd_data->lactive[k] = true;
@@ -271,7 +276,8 @@ static double __getPeakDisplacement(const int npts,
                                     const double *__restrict__ ebuff,
                                     const int nMaxLeader,
                                     const double tmin,
-                                    const double tmax
+                                    const double tmax,
+                                    double *obsTime
                                     )
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
@@ -281,6 +287,7 @@ static double __getPeakDisplacement(const int npts,
     //------------------------------------------------------------------------//
     //
     // Set the initial position
+    *obsTime = 0.0;
     u0 = 0.0;
     n0 = 0.0;
     e0 = 0.0;
@@ -357,6 +364,7 @@ static double __getPeakDisplacement(const int npts,
          peakDisplacement = (double) NAN;
     }
     if (!isnan(peakDisplacement)){
+        *obsTime = epoch + dt * ipeak;
     LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
              peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
     //printf("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f)\n",
