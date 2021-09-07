@@ -357,6 +357,7 @@ struct GFAST_peakDisplacementData_struct
   double *sta_lat; /*!< Site latitude [-90,90] (degrees) */
   double *sta_lon; /*!< Site longitude [0,360] (degrees) */
   double *sta_alt; /*!< Site altitude (m) above sea-level */
+  double *pd_time; /*!< Epoch time of peak displacement observation */
   bool *lmask;     /*!< If true then mask the i'th site in this inversion
 		     [nsites] */
   bool *lactive;   /*!< If true then the i'th site has data from the waveform
