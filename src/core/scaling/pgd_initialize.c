@@ -60,6 +60,7 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     pgd_data->sta_lat = memory_calloc64f(gps_data.stream_length);
     pgd_data->sta_lon = memory_calloc64f(gps_data.stream_length);
     pgd_data->sta_alt = memory_calloc64f(gps_data.stream_length);
+    pgd_data->pd_time = memory_calloc64f(gps_data.stream_length);
     pgd_data->lmask   = memory_calloc8l(gps_data.stream_length);
     pgd_data->lactive = memory_calloc8l(gps_data.stream_length);
     pgd_data->nsites = gps_data.stream_length;
@@ -68,6 +69,7 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
         pgd_data->sta_lat[i] = gps_data.data[i].sta_lat;
         pgd_data->sta_lon[i] = gps_data.data[i].sta_lon; 
         pgd_data->sta_alt[i] = gps_data.data[i].sta_alt;
+        pgd_data->pd_time[i] = 0;
         pgd_data->stnm[i] = (char *)calloc(64, sizeof(char));
 
         sprintf(pgd_data->stnm[i],"%s.%s.%s.%s",

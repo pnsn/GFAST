@@ -30,6 +30,7 @@ void core_scaling_pgd_finalizeData(
     memory_free64f(&pgd_data->sta_lat);
     memory_free64f(&pgd_data->sta_lon);
     memory_free64f(&pgd_data->sta_alt);
+    memory_free64f(&pgd_data->pd_time);
     memory_free8l(&pgd_data->lmask);
     memory_free8l(&pgd_data->lactive);
     memset(pgd_data, 0, sizeof(struct GFAST_peakDisplacementData_struct));
