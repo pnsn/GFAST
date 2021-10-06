@@ -12,7 +12,7 @@ settb2Data.o
 
 DEBUG	= -g
 
-INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL)
+INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(ISCL_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

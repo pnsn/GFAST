@@ -15,7 +15,7 @@ DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config ${GFAST_VERSION}
 
 #iniparser will be deleted
-INCL     = -I ../../include $(XML_INCL) $(COMPEARTH_INCL) $(EW_INCL) $(HDF5_INCL)
+INCL     = -I ../../include $(ISCL_INCL) $(XML_INCL) $(COMPEARTH_INCL) $(EW_INCL) $(HDF5_INCL)
 
 SYSLIBS	 = -lpthread -lnsl -lrt -lz
 

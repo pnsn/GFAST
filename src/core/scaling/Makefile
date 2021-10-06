@@ -14,7 +14,7 @@ pgd_weightObservations.o pgd_sanityChecks.o
 DEBUG	= -g
 
 #iniparser will be deleted
-INCL            = -I ../../../include $(INIPARSER_INCL) $(LAPACKE_INCL)
+INCL            = -I ../../../include $(ISCL_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

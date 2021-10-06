@@ -13,7 +13,7 @@ getData.o initialize.o setFileName.o
 
 DEBUG	= -g
 
-INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(CBLAS_INCL)
+INCL            = -I ../../../include $(EW_INCL) $(HDF5_INCL) $(CBLAS_INCL) $(ISCL_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

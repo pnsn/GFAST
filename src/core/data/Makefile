@@ -11,7 +11,7 @@ OBJS	= finalize.o  initialize.o  readMetaDataFile.o  readSiteMaskFile.o
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include
+INCL            = -I ../../../include $(ISCL_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

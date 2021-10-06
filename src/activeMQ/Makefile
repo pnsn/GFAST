@@ -13,7 +13,7 @@ LIB	= gfast_amq.a
 DEBUG	= -g
 #CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
 
-INCL= -I ../../include $(APR_INCL) $(ACTIVEMQ_INCL) $(INIPARSER_INCL)
+INCL= -I ../../include $(APR_INCL) $(ACTIVEMQ_INCL) $(INIPARSER_INCL) $(ISCL_INCL)
 
 all: $(LIB)
 lib: $(LIB)

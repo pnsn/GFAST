@@ -12,7 +12,7 @@ createType.o h5_cinter.o memory.o update.o
 LIB	= hdf5.a
 DEBUG	= -g
 
-INCL = -I ../../include $(HDF5_INCL) $(CBLAS_INCL)
+INCL = -I ../../include $(HDF5_INCL) $(CBLAS_INCL) $(ISCL_INCL)
 
 all: $(LIB)
 lib: $(LIB)

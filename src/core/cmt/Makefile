@@ -13,7 +13,7 @@ weightObservations.o finalize.o readIni.o setRHS.o
 DEBUG	= -g
 
 #INIPARSER_INCL to be deleted later
-INCL            = -I ../../../include $(COMPEARTH_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL)
+INCL            = -I ../../../include $(COMPEARTH_INCL) $(INIPARSER_INCL) $(LAPACKE_INCL) $(ISCL_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 
