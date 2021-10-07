@@ -312,10 +312,11 @@ many of the needed dependencies on your system automatically.
     >zbuild-gcc.sh
 
     # Make it
+    >cd build
     >make
 
     # Run the unit tests:
-    >cd unit_tests
+    >cd ../unit_tests
     >./xcoreTests
 
     main: Beginning core tests...

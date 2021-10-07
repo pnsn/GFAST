@@ -6,6 +6,12 @@ USE_INTEL=false
 USE_AMQ=true
 USE_AMQ=false
 
+# Build in build/ dir to preserve standalone make system
+if [ ! -d build ]; then
+   mkdir build
+fi
+cd build
+
 if [ -f Makefile ]; then
    make clean
 fi
@@ -61,7 +67,7 @@ else
 fi
 
 # -DGFAST_USE_AMQ=TRUE \
-cmake ./ $LINEAR -DCMAKE_BUILD_TYPE=DEBUG \
+cmake ../ $LINEAR -DCMAKE_BUILD_TYPE=DEBUG \
   -DCMAKE_INSTALL_PREFIX=./ \
   -DCMAKE_C_FLAGS="-g3 -O2 -Wno-reserved-id-macro -Wno-padded -Wno-unknown-pragmas -fopenmp" \
   -DCMAKE_CXX_FLAGS="-g3 -O2 -fopenmp" \
