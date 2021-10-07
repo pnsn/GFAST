@@ -68,7 +68,7 @@ int main(int argc, char **argv)
   char debugLogFileName[PATH_MAX];
   char warnLogFileName[PATH_MAX];
   bool check_message_dir = false;
-  bool USE_AMQ = true;
+  bool USE_AMQ = false;
   int niter = 0;
   int i, i1, i2, is, chunk;
 #ifdef GFAST_USE_AMQ
@@ -326,6 +326,7 @@ int main(int argc, char **argv)
 
       double tbeger = time_timeStamp();
 
+  if (USE_AMQ) {
       // Read my messages off the ring
       //LOG_MSG("%s", "== Get the msgs off the EW ring");
       ierr = traceBuffer_ewrr_getMessagesFromRingSA(MAX_MESSAGES,
@@ -333,6 +334,14 @@ int main(int argc, char **argv)
 						    &ringInfo,
 						    &nTracebufs2Read,
 						    msgs);
+  } else {
+
+        msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
+                                                    false,
+                                                    &ringInfo,
+                                                    &nTracebufs2Read,
+                                                    &ierr);
+  }
       LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
       if (ierr < 0)
