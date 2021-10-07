@@ -1,0 +1,165 @@
+################################################################################
+#                             Global G-FAST properties                         #
+################################################################################
+[general]
+# File for log output
+logFileName = logs/gfast.log
+# File with station names
+metaDataFile = etc/GFASTmeta.dat
+# note: if SA_events_dir is set, activemq will be ignored!
+SA_events_dir=
+SA_output_dir=out
+#if output_interval commented, it will output as available.
+#output_interval_mins=1,2,3,4,5,10
+#siteMaskFile=ridgecrest-mask.txt
+# File with station names and sampling periods
+#dtfile=GFAST_streams_dt.txt
+# ElarmS message file
+eewsfile=ElarmS_messages.txt
+# GFAST results file
+eewgfile=GFAST_output.txt
+# File of all the site locations. The format used is currently from 
+# the SOPAC SECTOR web service.
+siteposfile=site_pos.csv 
+# Buffer length (s)
+bufflen=320.
+processing_time=302.
+# GFAST operation mode
+#  1 -> GFAST is running in `real time' and being data through Earthworm 
+#  2 -> GFAST is running historical playbacks through Earthworm
+#  3 -> GFAST is running offline and is obtaining data purely from files
+opmode = 1
+# minimum time for main loop (defaults to 1 second)
+#waitTime=1.0
+# The synthetic mode driver file
+#syndriver=nisqually_driver.txt
+# The synthetic mode output file
+#synoutput=nisqually_output.txt
+# If working in specific area where the fault may straddle a UTM zone large
+# distortions can arise.  In this case it may be beneficial to set the UTM
+# zone.  Otherwise, if utm_zone is set to -12345 or not specified the UTM
+# zone will be estimated from the event hpyocenter provided in the ElarmS
+# message 
+utm_zone = 19 
+# Mechanism for initializing sampling period
+#  1 -> Sets GPS sampling period to default (dt_default)
+#  2 -> Obtains the sampling period from the dtfile 
+#  3 -> Obtains the sampling period from Earthworm
+dt_init = 3
+# Default GPS sampling period (s)
+dt_default = 1.0
+# Location initialization strategy
+#  1 -> Initialize locations from SOPAC SECTOR web service (siteposfile)
+#  2 -> Initialize from trace buffer (if running in real-time this will
+#       happen automatically)
+loc_init = 1
+# Controls verbosity:
+# 0 -> Try to output nothing
+# 1 -> Output errors only
+# 2 -> Output errors and generic information (default)
+# 3 -> Output errors, generic information, and debug information
+verbose=3
+
+synthetic_runtime = 0.0 
+processing_time = 300.0
+default_event_depth = 8.0
+
+h5ArchiveDirectory = /home/kress/gfasttest/h5archive
+H5SummaryOnly = 0
+
+anssNetwork = UW
+anssDomain = anss.org
+
+################################################################################
+#                              Earthworm Properties                            #
+################################################################################
+[earthworm]
+
+gpsRingName = GPS_RING
+moduleName = geojson2ew
+
+################################################################################
+#                                  PGD Properties                              #
+################################################################################
+[PGD]
+# PGD source-receiver distance tolerance in km (cannot be negative)
+dist_tolerance = 0.5
+# If PGD source-receiver distance tolerance falls below dist_tol this is the
+# default PGD distance value given in km (must be positive)
+dist_default = 0.01
+#some search variables
+deltaLatitude = 0.1
+deltaLongitude = 0.1
+nlats_in_pgd_gridSearch = 1
+nlons_in_pgd_gridSearch = 1
+ndepths_in_pgd_gridSearch = 10
+# These are the defaults:
+pgd_window_vel = 3.0
+pgd_min_sites = 4
+
+################################################################################
+#                            CMT/Finite Fault Properties                       #
+################################################################################
+[CMT]
+#some search variables
+deltaLatitude = 0.1
+deltaLongitude = 0.1
+nlats_in_cmt_gridSearch = 1
+nlons_in_cmt_gridSearch = 1
+ndepths_in_cmt_gridSearch = 10
+# These are the defaults:
+cmt_window_vel = 2.0
+cmt_min_sites = 4
+# Error window average must be positive
+cmt_window_avg = 0.0
+# Error general CMT inversions not yet programmed
+ldeviatoric_cmt = 1
+
+################################################################################
+#                             FF/Finite Fault Properties                       #
+################################################################################
+[FF]
+ff_number_of_faultplanes = 2
+# Number of fault patches along strike
+ff_nstr = 10
+# Number of fault patches down dip
+ff_ndip = 5
+# Min number of sites (must be greater than CMT)
+ff_min_sites = 4
+# Error window velocity
+ff_window_vel = 3.0
+# error window average time
+ff_window_avg = 10.0
+ff_flen_pct = 10.0
+ff_fwid_pct = 10.0
+
+################################################################################
+#                               ActiveMQ Properties                            #
+################################################################################
+[ActiveMQ]
+# ActiveMQ host:port
+### amq_dm openwire 61616
+### amq_sa openwire 63616
+#URL for event trigger messages
+originURL=tcp://localhost:63616
+# ActiveMQ topic to read event trigger messages from
+originTopic=eew.agg.sa.data
+#URL to publish event messages and heartbeats on
+destinationURL=tcp://localhost:61616
+# ActiveMQ topic to publish events on.
+destinationTopic = eew.alg.gfast.data
+# ActiveMQ topic to publish heartbeats on
+hbTopic=eew.alg.gfast.hb
+# heartbeat interval
+hbInterval=5
+# ActiveMQ username to access ElarmS messages
+user=glarms
+# ActiveMQ password to access ElarmS messages
+password=12345
+
+# connection settings
+msReconnect = 500
+maxAttempts = 5
+msWaitForMessage = 0
+
+maxMessages = 5
