@@ -1,4 +1,3 @@
-CMakeLists.txt
 src/gfast_eew
 src/gfast_playback
 src/*.local
