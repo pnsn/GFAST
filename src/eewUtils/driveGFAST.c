@@ -675,12 +675,12 @@ int eewUtils_writeXML(const char *dirname,
 
   if (interval_in_mins){
     sprintf(fullpath, "%s/%s.%s.%d_min", dirname, eventid, msg_type, interval);
-    LOG_MSG("driveGFAST: evid=%s SA xml index=%d --> output XML to file=[%s]\n",
+    LOG_MSG("driveGFAST: evid=%s SA xml mins=%d --> output XML to file=[%s]\n",
 	    eventid, interval, fullpath);
   }
   else {
     sprintf(fullpath, "%s/%s.%s.%d", dirname, eventid, msg_type, interval);
-    LOG_MSG("driveGFAST: evid=%s min=%d --> output XML to file=[%s]\n",
+    LOG_MSG("driveGFAST: evid=%s interval=%d --> output XML to file=[%s]\n",
 	    eventid, interval, fullpath);
   }
   //puts(fullpath);
