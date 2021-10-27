@@ -1,7 +1,6 @@
 src/gfast_eew
 src/gfast_playback
 src/*.local
-src/Make.include.*
 temp
 *.[oa]
 *.so
