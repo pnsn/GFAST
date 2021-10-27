@@ -80,7 +80,7 @@ char *traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
     }
   // Set space
   memset(&gotLogo, 0, sizeof(MSG_LOGO));
-  msgs = memory_calloc8c(MAX_TRACEBUF_SIZ*messageBlock);
+  msgs = memory_calloc8c(MAX_TRACEBUF_SIZ*maxMessages);
   msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
 
   // Unpack the ring
