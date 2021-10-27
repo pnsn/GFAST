@@ -160,10 +160,10 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                                            struct ewRing_struct *ringInfo,
                                            int *nRead, int *ierr);
 /* Read messages from the ring SA version*/
-int traceBuffer_ewrr_getMessagesFromRingSA(const int messageBlock,
-					 const bool showWarnings,
-					 struct ewRing_struct *ringInfo,
-					 int *nRead, char *msgs);
+char *traceBuffer_ewrr_getMessagesFromRingSA(const int messageBlock,
+                                             const bool showWarnings,
+                                             struct ewRing_struct *ringInfo,
+                                             int *nRead, int *ierr);
 /* Initialize the earthworm ring reader connection */
 int traceBuffer_ewrr_initialize(const char *ewRing,
                                 const int msWait,
@@ -248,6 +248,13 @@ int traceBuffer_h5_setIntegerScalar(const hid_t groupID,
                                     const char *citem,
                                     const int scalar);
 
+#ifdef GFAST_USE_SA
+#define GFAST_traceBuffer_ewrr_getMessagesFromRing(...)       \
+              traceBuffer_ewrr_getMessagesFromRingSA(__VA_ARGS__)
+#else
+#define GFAST_traceBuffer_ewrr_getMessagesFromRing(...)       \
+              traceBuffer_ewrr_getMessagesFromRing(__VA_ARGS__)
+#endif
 #define GFAST_traceBuffer_h5_copyTraceBufferToGFAST(...)       \
               traceBuffer_h5_copyTraceBufferToGFAST(__VA_ARGS__)
 #define GFAST_traceBuffer_h5_finalize(...)       \

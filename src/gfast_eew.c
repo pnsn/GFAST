@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   }
 
   ierr = 0;
-  msgs = memory_calloc8c(MAX_MESSAGES*MAX_TRACEBUF_SIZ);
+  msgs = NULL;
   memset(&props,    0, sizeof(struct GFAST_props_struct));
   memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
   memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
@@ -325,26 +325,16 @@ int main(int argc, char **argv)
         } 
 
       double tbeger = time_timeStamp();
+      memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
 
-  if (USE_AMQ) {
-      // Read my messages off the ring
-      //LOG_MSG("%s", "== Get the msgs off the EW ring");
-      ierr = traceBuffer_ewrr_getMessagesFromRingSA(MAX_MESSAGES,
-						    true,
-						    &ringInfo,
-						    &nTracebufs2Read,
-						    msgs);
-  } else {
-
-        msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
-                                                    false,
-                                                    &ringInfo,
-                                                    &nTracebufs2Read,
-                                                    &ierr);
-  }
+      msgs = GFAST_traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
+                                                        false,
+                                                        &ringInfo,
+                                                    	&nTracebufs2Read,
+                                                    	&ierr);
       LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
-      if (ierr < 0)
+      if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
         {
 	  if (ierr ==-1)
             {
@@ -375,6 +365,7 @@ int main(int argc, char **argv)
       LOG_MSG("%s", "== unpackTraceBuf2Messages");
       ierr = traceBuffer_ewrr_unpackTraceBuf2Messages(nTracebufs2Read,
 						      msgs, &tb2Data);
+      memory_free8c(&msgs);
       if (ierr != 0)
         {
 	  LOG_ERRMSG("%s: Error unpacking tracebuf2 messages\n", fcnm);

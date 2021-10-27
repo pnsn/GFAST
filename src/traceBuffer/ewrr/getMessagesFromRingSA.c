@@ -27,11 +27,7 @@
  *
  * @param[out] nRead         Number of traceBuffer2 messages read.
  *
- *
- * @param[out] msgs          An array of [nRead] traceBuffer2 messages read from the Earthworm
- *                           ring.  The k'th message start index (for k=1,2,...,nRead) is given
- *                           by: (k - 1)*MAX_TRACEBUF_SIZE [nRead*MAX_TRACEBUF_SIZE]
- * @result ierr              0 Indicates success. <br>
+ * @param[out] ierr          0 Indicates success. <br>
  *                          -1 Indicates a terminate signal from the ring. <br>
  *                             the user should call traceBuffer_ewrr_finalize
  *                             and quit. <br>
@@ -39,47 +35,52 @@
  *                          -3 Indicates the ringInfo structure was not
  *                             initalized. <br> 
  *                          -4 Indicates tracebuf2 type is unknown.
-
+ * @result msgs              An array of [nRead] traceBuffer2 messages read from the Earthworm
+ *                           ring.  The k'th message start index (for k=1,2,...,nRead) is given
+ *                           by: (k - 1)*MAX_TRACEBUF_SIZE [nRead*MAX_TRACEBUF_SIZE]
  *
  * @author Ben Baker
  *
  * @copyright ISTI distribted under Apache 2.
  *
  */
-int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
-					   const bool showWarnings,
-					   struct ewRing_struct *ringInfo,
-					   int *nRead, char *msgs)
+char *traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
+					     const bool showWarnings,
+					     struct ewRing_struct *ringInfo,
+					     int *nRead, int *ierr)
 {
   MSG_LOGO gotLogo; 
   TRACE2_HEADER traceHeader;
-  char *msg=NULL;
+  char *msg, *msgs;
   unsigned char sequenceNumber;
   long gotSize;
   int kdx,retval;
   int debug = 0;
-  int ierr=0;
   //size_t nbytes; //, npcopy;
   //------------------------------------------------------------------------//
   //  
   // Make sure this is initialized
+  *ierr = 0;
   *nRead = 0;
+  msg = NULL;
+  msgs = NULL;
 
   if (!ringInfo->linit)
     {
       LOG_ERRMSG("%s", "Error ringInfo not initialized");
-      ierr =-3;
-      return ierr;
+      *ierr =-3;
+      return msgs;
     }
 
   if ((maxMessages == 1)||(maxMessages > INT_MAX/MAX_TRACEBUF_SIZ))
     {
       LOG_ERRMSG("%s: invalid maxMessages %d", __func__, maxMessages);
-      ierr =-4;
-      return ierr;
+      *ierr =-4;
+      return msgs;
     }
   // Set space
   memset(&gotLogo, 0, sizeof(MSG_LOGO));
+  msgs = memory_calloc8c(MAX_TRACEBUF_SIZ*messageBlock);
   msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
 
   // Unpack the ring
@@ -89,7 +90,7 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
       retval = tport_getflag(&ringInfo->region);
       if (retval == TERMINATE) {
         LOG_ERRMSG("Receiving kill signal from ring %s", ringInfo->ewRingName);
-        ierr =-1;
+        *ierr =-1;
         break;
       }
       // Copy from the memory
@@ -99,7 +100,7 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
       retval = traceBuffer_ewrr_classifyGetRetval(retval);
       if (retval ==-2) {
         LOG_ERRMSG("%s", "An error was encountered getting message");
-        ierr =-2;
+        *ierr =-2;
         break;
       }
 
@@ -114,10 +115,10 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
       {
         // Get the header
         memcpy(&traceHeader, msg, sizeof(TRACE2_HEADER));
-        ierr = WaveMsg2MakeLocal(&traceHeader);
-        if (ierr < 0) {
+        *ierr = WaveMsg2MakeLocal(&traceHeader);
+        if (*ierr < 0) {
           LOG_ERRMSG("%s", "Error flipping bytes");
-          ierr =-2;
+          *ierr =-2;
           break;
         }
 
@@ -139,7 +140,7 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
             LOG_WARNMSG("%s: nRead=%d MAX_TRACEBUF_SIZ=%d maxMessages=%d --> Exit read loop with full buffer.",
 			__func__,*nRead, MAX_TRACEBUF_SIZ, maxMessages);
           }
-	  ierr=0;
+	  *ierr=0;
           break;
         }
       }
@@ -148,5 +149,5 @@ int traceBuffer_ewrr_getMessagesFromRingSA(const int maxMessages,
   memory_free8c(&msg);
 
   if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
-  return ierr;
+  return msgs;
 }
