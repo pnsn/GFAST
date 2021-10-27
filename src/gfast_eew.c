@@ -99,6 +99,7 @@ int main(int argc, char **argv)
   memset(&xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
   memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
+  ISCL_iscl_init(); // Fire up the computational library
 
   printf("%s: Reading configuration from %s\n", fcnm, propfilename);
   // Read the program properties
@@ -610,7 +611,7 @@ int main(int argc, char **argv)
   GFAST_core_data_finalize(&gps_data);
   GFAST_core_properties_finalize(&props);
   traceBuffer_h5_finalize(&h5traceBuffer);
-  //vck delete candidate iscl_finalize();
+  iscl_finalize();
   // Close the big logfile
   core_log_closeLog();
   if (ierr != 0)
