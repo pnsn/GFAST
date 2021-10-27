@@ -456,7 +456,7 @@ int main(int argc, char **argv)
 	      // If this is a new event we have some file handling to do
 	      LOG_MSG("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
 	      lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
-	      LOG_MSG("MTH: call newEvent DONE\n");
+	      LOG_MSG("%s", "MTH: call newEvent DONE");
 	      if (lnewEvent){
 		LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
 			SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
