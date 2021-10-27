@@ -101,12 +101,12 @@ int main(int argc, char **argv)
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
   ISCL_iscl_init(); // Fire up the computational library
 
-  printf("%s: Reading configuration from %s\n", fcnm, propfilename);
+  LOG_MSG("%s: Reading configuration from %s\n", fcnm, propfilename);
   // Read the program properties
   ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
   if (ierr != 0)
     {
-      printf("%s: Error reading GFAST initialization file: %s\n", fcnm, propfilename);
+      LOG_ERRMSG("%s: Error reading GFAST initialization file: %s\n", fcnm, propfilename);
       goto ERROR;
     }
 
@@ -438,8 +438,6 @@ int main(int argc, char **argv)
         {
 	  LOG_MSG("== [GFAST t0:%f] Got new amqMessage:", t0);
 	  LOG_MSG("%s", amqMessage);
-	  printf("== [GFAST t0:%f] Got new amqMessage:\n", t0);
-	  printf("%s\n", amqMessage);
 	  // Parse the event message 
 	  ierr = GFAST_eewUtils_parseCoreXML(amqMessage, -12345.0, &SA);
 	  if (ierr != 0)
@@ -456,9 +454,9 @@ int main(int argc, char **argv)
 	  else 
 	    { //don't trigger on gfast messages
 	      // If this is a new event we have some file handling to do
-	      printf("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
+	      LOG_MSG("MTH: call newEvent events.nev=%d xml_status.nev=%d\n", events.nev, xml_status.nev);
 	      lnewEvent = GFAST_core_events_newEvent(SA, &events, &xml_status);
-	      printf("MTH: call newEvent DONE\n");
+	      LOG_MSG("MTH: call newEvent DONE\n");
 	      if (lnewEvent){
 		LOG_MSG("NEW event evid:%s lat:%7.3f lon:%8.3f dep:%6.2f mag:%.2f time:%.2f age_now:%.0f",
 			SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, t0 - SA.time);
