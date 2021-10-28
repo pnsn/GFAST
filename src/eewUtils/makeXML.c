@@ -36,12 +36,7 @@ char *eewUtils_makeXML__ff(const enum opmode_type mode,
                            const char *instance,
                            const char *message_type,
                            const char *version,
-                           const char *evid,
-                           const double SA_lat,
-                           const double SA_lon,
-                           const double SA_depth,
-                           const double SA_mag,
-                           const double SA_time,
+                           const struct coreInfo_struct *core,
                            const int nseg,
                            const int *fault_ptr,
                            const double *lat_vtx,
@@ -51,15 +46,12 @@ char *eewUtils_makeXML__ff(const enum opmode_type mode,
                            const double *ds,
                            const double *ss_unc,
                            const double *ds_unc,
-                           const int num_stations,
                            int *ierr)
 {
-    struct coreInfo_struct core;
     char *xmlmsg, cnow[128], cmode[64], cseg[64];
     enum xml_segmentShape_enum shape;
     xmlTextWriterPtr writer;
     xmlBufferPtr buf;
-    //xmlChar *tmp;
     double now;
     int indx, iseg, nv, msglen, rc;
     //------------------------------------------------------------------------//
@@ -139,52 +131,7 @@ char *eewUtils_makeXML__ff(const enum opmode_type mode,
         return xmlmsg;
     }
     //-------------------------------<core_info>------------------------------//
-    memset(&core, 0, sizeof(struct coreInfo_struct));
-    strcpy(core.id, evid);
-    core.mag = SA_mag;
-    core.lhaveMag = true;
-    core.magUnits = MOMENT_MAGNITUDE;
-    core.lhaveMagUnits = true;
-    core.magUncer = 0.5;
-    core.lhaveMagUncer = true;
-    core.magUncerUnits = MOMENT_MAGNITUDE;
-    core.lhaveMagUncerUnits = true;
-    core.lat = SA_lat; 
-    core.lhaveLat = true;
-    core.latUnits = DEGREES;
-    core.lhaveLatUnits = true;
-    core.latUncer = 0.5;
-    core.lhaveLatUncer = true;
-    core.latUncerUnits = DEGREES;
-    core.lhaveLatUncerUnits = true;
-    core.lon = SA_lon;
-    core.lhaveLon = true;
-    core.lonUnits = DEGREES;
-    core.lhaveLonUnits = true;
-    core.lonUncer = 0.5;
-    core.lhaveLonUncer = true;
-    core.lonUncerUnits = DEGREES;
-    core.lhaveLonUncerUnits = true;
-    core.depth = SA_depth;
-    core.lhaveDepth = true;
-    core.depthUnits = KILOMETERS;
-    core.lhaveDepthUnits = true;
-    core.depthUncer = 5.0;
-    core.lhaveDepthUncer = true;
-    core.depthUncerUnits = KILOMETERS;
-    core.lhaveDepthUncerUnits = true;
-    core.origTime = SA_time;
-    core.lhaveOrigTime = true;
-    core.origTimeUnits = UTC;
-    core.lhaveOrigTimeUnits = true;
-    core.origTimeUncer = 20.0;
-    core.lhaveOrigTimeUncer = true;
-    core.origTimeUncerUnits = SECONDS;
-    core.lhaveOrigTimeUncerUnits = true;
-    core.likelihood = 0.8;
-    core.lhaveLikelihood = true;
-    core.numStations = num_stations;
-    rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
+    rc = GFAST_xml_shakeAlert_writeCoreInfo(*core, (void *)writer);
     if (rc != 0)
     {
         LOG_ERRMSG("%s", "Error writing core info");
@@ -520,20 +467,12 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
                             const char *instance,
                             const char *message_type,
                             const char *version,
-                            const char *evid,
-                            const double SA_lat,
-                            const double SA_lon,
-                            const double SA_depth,
-                            const double SA_mag,
-                            const double SA_time,
-                            const int num_stations,
+                            const struct coreInfo_struct *core,
                             int *ierr)
 {
-    struct coreInfo_struct core;
     char *xmlmsg, cnow[128], cmode[64];
     xmlTextWriterPtr writer;
     xmlBufferPtr buf;
-    //xmlChar *tmp;
     double now;
     int msglen, rc;
     //------------------------------------------------------------------------//
@@ -612,52 +551,7 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
         *ierr = 1;
         return xmlmsg;
     }
-    memset(&core, 0, sizeof(struct coreInfo_struct));
-    strcpy(core.id, evid);
-    core.mag = SA_mag;
-    core.lhaveMag = true;
-    core.magUnits = MOMENT_MAGNITUDE;
-    core.lhaveMagUnits = true;
-    core.magUncer = 0.5;
-    core.lhaveMagUncer = true;
-    core.magUncerUnits = MOMENT_MAGNITUDE;
-    core.lhaveMagUncerUnits = true;
-    core.lat = SA_lat; 
-    core.lhaveLat = true;
-    core.latUnits = DEGREES;
-    core.lhaveLatUnits = true;
-    core.latUncer = 0.5;
-    core.lhaveLatUncer = true;
-    core.latUncerUnits = DEGREES;
-    core.lhaveLatUncerUnits = true;
-    core.lon = SA_lon;
-    core.lhaveLon = true;
-    core.lonUnits = DEGREES;
-    core.lhaveLonUnits = true;
-    core.lonUncer = 0.5;
-    core.lhaveLonUncer = true;
-    core.lonUncerUnits = DEGREES;
-    core.lhaveLonUncerUnits = true;
-    core.depth = SA_depth;
-    core.lhaveDepth = true;
-    core.depthUnits = KILOMETERS;
-    core.lhaveDepthUnits = true;
-    core.depthUncer = 5.0;
-    core.lhaveDepthUncer = true;
-    core.depthUncerUnits = KILOMETERS;
-    core.lhaveDepthUncerUnits = true;
-    core.origTime = SA_time;
-    core.lhaveOrigTime = true;
-    core.origTimeUnits = UTC;
-    core.lhaveOrigTimeUnits = true;
-    core.origTimeUncer = 20.0;
-    core.lhaveOrigTimeUncer = true;
-    core.origTimeUncerUnits = SECONDS;
-    core.lhaveOrigTimeUncerUnits = true;
-    core.likelihood = 0.8;
-    core.lhaveLikelihood = true;
-    core.numStations = num_stations;
-    rc = GFAST_xml_shakeAlert_writeCoreInfo(core, (void *)writer);
+    rc = GFAST_xml_shakeAlert_writeCoreInfo(*core, (void *)writer);
     // </event_message>
     rc = xmlTextWriterEndElement(writer); // </event_message>
     if (rc < 0)

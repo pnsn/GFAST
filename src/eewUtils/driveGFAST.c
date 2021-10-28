@@ -36,6 +36,20 @@ bool check_mins_against_intervals(
 				  double age
 				  );
 
+int fill_core_event_info(const char *evid,
+                         const double SA_lat,
+                         const double SA_lon,
+                         const double SA_depth,
+                         const double SA_mag,
+                         const double SA_time,
+                         const int num_stations,
+                         struct coreInfo_struct *core);
+
+int fill_pgd_used(const struct GFAST_pgdResults_struct *pgd,
+                  const struct GFAST_peakDisplacementData_struct *pgd_data,
+                  const int nsites_pgd,
+                  struct GFAST_peakDisplacementData_struct *pgd_used); 
+
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -93,7 +107,7 @@ int eewUtils_driveGFAST(const double currentTime,
   float secs;
   int h5k, ierr, iev, ipf, nPop, nRemoved,
     nsites_cmt, nsites_ff, nsites_pgd,
-    nstrdip, pgdOpt, shakeAlertMode;
+    nstrdip, pgdOpt;
   bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
 
   const char *fcnm = "driveGFAST\0";
@@ -102,9 +116,7 @@ int eewUtils_driveGFAST(const double currentTime,
   // Nothing to do 
   ierr = 0;
   if (events->nev <= 0){return 0;}
-  // Figure out the mode for generating shakeAlert messages
-  shakeAlertMode = 1;
-  if (props.opmode == PLAYBACK){shakeAlertMode = 2;}
+
   // Set memory for XML messages
   memset(xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
   xmlMessages->mmessages = events->nev;
@@ -343,6 +355,13 @@ int eewUtils_driveGFAST(const double currentTime,
 	  char sversion[6];
 	  snprintf(sversion,6,"%d",xml_status->SA_status[iev].version);
 	  lfinalize = true;
+
+          // Fill coreInfo_struct to pass to makeXML for pgd and ff
+          struct coreInfo_struct core;
+          memset(&core, 0, sizeof(struct coreInfo_struct));
+          ierr = fill_core_event_info(SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, 0,
+                                      &core);
+          
 	  // Make the PGD xml
 	  if (lpgdSuccess)
             {
@@ -350,20 +369,17 @@ int eewUtils_driveGFAST(const double currentTime,
                 {
 		  LOG_DEBUGMSG("%s", "Generating pgd XML");
                 }
+	      // Change depth, mag to match optimal pgd (by variance reduction)
 	      pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
-	      pgdXML = eewUtils_makeXML__pgd(props.opmode, //shakeAlertMode,
+	      core.depth = pgd->srcDepths[pgdOpt];
+	      core.mag = pgd->mpgd[pgdOpt];
+	      pgdXML = eewUtils_makeXML__pgd(props.opmode,
 					     "GFAST\0",
 					     GFAST_VERSION,
 					     GFAST_INSTANCE,
 					     message_type,
 					     sversion,
-					     SA.eventid,
-					     SA.lat,
-					     SA.lon,
-					     pgd->srcDepths[pgdOpt],
-					     pgd->mpgd[pgdOpt],
-					     SA.time,
-					     nsites_pgd,
+                                             &core,
 					     &ierr);
 	      if (ierr != 0)
                 {
@@ -463,18 +479,16 @@ int eewUtils_driveGFAST(const double currentTime,
                 }
 	      ipf = ff->preferred_fault_plane;
 	      nstrdip = ff->fp[ipf].nstr*ff->fp[ipf].ndip;
+	      // Reset depth and mag to be same as SA message.
+	      core.depth = SA.dep;
+	      core.mag = SA.mag;
 	      ffXML = eewUtils_makeXML__ff(props.opmode,
 					   "GFAST\0",
 					   GFAST_VERSION,
 					   GFAST_INSTANCE,
 					   message_type,
 					   sversion,
-					   SA.eventid,
-					   SA.lat,
-					   SA.lon,
-					   SA.dep,
-					   SA.mag,
-					   SA.time,
+					   &core,
 					   nstrdip,
 					   ff->fp[ipf].fault_ptr,
 					   ff->fp[ipf].lat_vtx,
@@ -484,7 +498,6 @@ int eewUtils_driveGFAST(const double currentTime,
 					   ff->fp[ipf].dslip,
 					   ff->fp[ipf].sslip_unc,
 					   ff->fp[ipf].dslip_unc,
-					   nsites_ff,
 					   &ierr); 
 	      if (ierr != 0)
                 {
@@ -740,4 +753,133 @@ bool check_mins_against_intervals(
   }
 
   return false;
+}
+
+/*!
+ * @brief Fills a given coreInfo_struct with the appropriate information
+ * @param[in] evid Event ID
+ * @param[in] SA_lat Event latitude
+ * @param[in] SA_lon Event longitude
+ * @param[in] SA_depth Event depth
+ * @param[in] SA_mag Event magnitude
+ * @param[in] SA_time Event origin time (UTC)
+ * @param[in] num_stations Number of stations contributing
+ * @param[out] core struct to fill with information
+ * @return status code.
+ */
+int fill_core_event_info(const char *evid,
+                         const double SA_lat,
+                         const double SA_lon,
+                         const double SA_depth,
+                         const double SA_mag,
+                         const double SA_time,
+                         const int num_stations,
+                         struct coreInfo_struct *core)
+{
+  strcpy(core->id, evid);
+  core->version = 0;
+  core->mag = SA_mag;
+  core->lhaveMag = true;
+  core->magUnits = MOMENT_MAGNITUDE;
+  core->lhaveMagUnits = true;
+  core->magUncer = 0.5;
+  core->lhaveMagUncer = true;
+  core->magUncerUnits = MOMENT_MAGNITUDE;
+  core->lhaveMagUncerUnits = true;
+  core->lat = SA_lat; 
+  core->lhaveLat = true;
+  core->latUnits = DEGREES;
+  core->lhaveLatUnits = true;
+  core->latUncer = 0.5;
+  core->lhaveLatUncer = true;
+  core->latUncerUnits = DEGREES;
+  core->lhaveLatUncerUnits = true;
+  core->lon = SA_lon;
+  core->lhaveLon = true;
+  core->lonUnits = DEGREES;
+  core->lhaveLonUnits = true;
+  core->lonUncer = 0.5;
+  core->lhaveLonUncer = true;
+  core->lonUncerUnits = DEGREES;
+  core->lhaveLonUncerUnits = true;
+  core->depth = SA_depth;
+  core->lhaveDepth = true;
+  core->depthUnits = KILOMETERS;
+  core->lhaveDepthUnits = true;
+  core->depthUncer = 5.0;
+  core->lhaveDepthUncer = true;
+  core->depthUncerUnits = KILOMETERS;
+  core->lhaveDepthUncerUnits = true;
+  core->origTime = SA_time;
+  core->lhaveOrigTime = true;
+  core->origTimeUnits = UTC;
+  core->lhaveOrigTimeUnits = true;
+  core->origTimeUncer = 20.0;
+  core->lhaveOrigTimeUncer = true;
+  core->origTimeUncerUnits = SECONDS;
+  core->lhaveOrigTimeUncerUnits = true;
+  core->likelihood = 0.8;
+  core->lhaveLikelihood = true;
+  core->numStations = num_stations;
+  return 0;
+}
+
+/*!
+ * @brief Fills a GFAST_peakDisplacementData_struct with only those stations that have
+ * PGD observations
+ * @param[in] pgd Has information about which sites were used
+ * @param[in] pgd_data Has the actual observations
+ * @param[in] nsites_pgd The number of sites that there should be - check against n_pgd_used
+ * @param[out] pgd_used struct to fill
+ * @return status code.
+ */
+int fill_pgd_used(const struct GFAST_pgdResults_struct *pgd,
+                  const struct GFAST_peakDisplacementData_struct *pgd_data,
+                  const int nsites_pgd,
+                  struct GFAST_peakDisplacementData_struct *pgd_used) {
+
+  int n_pgd_used = 0;
+  int i_site;
+  int *i_used;
+  i_used = (int *) calloc((size_t) pgd->nsites, sizeof(int));
+
+  for (i_site=0; i_site<pgd->nsites; i_site++) 
+    {
+      if (pgd->lsiteUsed[i_site]) 
+        { 
+          i_used[n_pgd_used] = i_site;
+          n_pgd_used++; 
+        }
+    }
+
+  LOG_MSG("driveGFAST: CWU_TEST n_pgd_used=%d, nsites_pgd=%d", n_pgd_used, nsites_pgd);
+
+  //   fill pgd_used
+  pgd_used->stnm = (char **)calloc((size_t) n_pgd_used, sizeof(char *));
+  pgd_used->pd = memory_calloc64f(n_pgd_used);
+  pgd_used->wt = memory_calloc64f(n_pgd_used);
+  pgd_used->sta_lat = memory_calloc64f(n_pgd_used);
+  pgd_used->sta_lon = memory_calloc64f(n_pgd_used);
+  pgd_used->sta_alt = memory_calloc64f(n_pgd_used);
+  pgd_used->pd_time = memory_calloc64f(n_pgd_used);
+  pgd_used->lmask = memory_calloc8l(n_pgd_used);
+  pgd_used->lactive = memory_calloc8l(n_pgd_used);
+  pgd_used->nsites = n_pgd_used;
+
+  for (i_site=0; i_site<n_pgd_used; i_site++) 
+    {
+      pgd_used->stnm[i_site] = (char *)calloc(64, sizeof(char));
+      strcpy(pgd_used->stnm[i_site], pgd_data->stnm[i_used[i_site]]);
+      pgd_used->pd[i_site] = pgd_data->pd[i_used[i_site]];
+      pgd_used->wt[i_site] = pgd_data->wt[i_used[i_site]];
+      pgd_used->sta_lat[i_site] = pgd_data->sta_lat[i_used[i_site]];
+      pgd_used->sta_lon[i_site] = pgd_data->sta_lon[i_used[i_site]];
+      pgd_used->sta_alt[i_site] = pgd_data->sta_alt[i_used[i_site]];
+      pgd_used->pd_time[i_site] = pgd_data->pd_time[i_used[i_site]];
+      pgd_used->lmask[i_site] = pgd_data->lmask[i_used[i_site]];
+      pgd_used->lactive[i_site] = pgd_data->lactive[i_used[i_site]];
+    }
+
+  memory_free32i(&i_used);
+  return 0;
 }
