@@ -327,11 +327,11 @@ int main(int argc, char **argv)
       double tbeger = time_timeStamp();
       memory_free8c(&msgs); //ISCL_memory_free__char(&msgs);
 
-      msgs = GFAST_traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
-                                                        false,
-                                                        &ringInfo,
-                                                    	&nTracebufs2Read,
-                                                    	&ierr);
+      msgs = traceBuffer_ewrr_getMessagesFromRing(MAX_MESSAGES,
+                                                  false,
+                                                  &ringInfo,
+                                                  &nTracebufs2Read,
+                                                  &ierr);
       LOG_MSG("== [GFAST t0:%f] getMessages returned nTracebufs2Read:%d", time_timeStamp(), nTracebufs2Read);
 
       if (ierr < 0 || (msgs == NULL && nTracebufs2Read > 0))
