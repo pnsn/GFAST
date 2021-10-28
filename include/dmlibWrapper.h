@@ -110,6 +110,21 @@ extern "C" {
   */
   int deleteDMEventObject(const char evid[]);
 
+  /*!
+    @brief create xml message from coreEvent_info and GFAST_peakDisplacementData_struct
+    @param[in] core          CoreEventInfo to go into message
+    @param[in] pgd_obs       PGD observations to go into gm_info
+    @param[in] message_type  Describes a new or updated message
+    @param[in] mode          Live or test mode
+    @param[in] alg_vers      Version of GFAST
+    @param[in] instance      Instance running the code
+    @param[out] ierr         0 for success, -1 for error
+    @return returns a ShakeAlert xml message
+  */
+  char *createPGDXML(const struct coreInfo_struct *core,
+                     const struct GFAST_peakDisplacementData_struct *pgd_obs,
+                     const char *message_type, const enum opmode_type mode, const char *alg_vers,
+                     const char *instance, int *ierr);
   
 #ifdef __cplusplus
 } /*end of extern "C"*/

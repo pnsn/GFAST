@@ -14,6 +14,16 @@
 #include "gfast_activeMQ.h"
 #include "gfast_struct.h"
 
+#include <string>
+#include "gfast_core.h"
+#include "AlgMessage.h"
+#include "FiniteFaultMessage.h"
+#include "DMMessageEncoder.h"
+#include "gfast_enum.h"
+#include "iscl/iscl/iscl_enum.h"
+#include "iscl/time/time.h"
+#include "gfast_xml.h"
+
 /*static variables local to this file*/
 namespace {
   static cms::Connection *destinationConnection=NULL;
@@ -24,6 +34,7 @@ namespace {
   static std::string hbTopic="";
   static int conVerbose=0;
   static int hbVerbose=0;
+  static FiniteFaultMessage *algMessage=NULL;
 }
 
 int startDestinationConnection(const char AMQuser[],
@@ -299,4 +310,155 @@ int deleteDMEventObject(const char evid[]) {
   delete eventmessage;
   eventmessage=NULL;
   return 1;
+}
+
+char *createPGDXML(const struct coreInfo_struct *core,
+                     const struct GFAST_peakDisplacementData_struct *pgd_obs,
+                     const char *message_type, const enum opmode_type mode, const char *alg_vers,
+                     const char *instance, int *ierr) {
+
+  char *xmlmsg;
+  xmlmsg = NULL;
+  *ierr = 0;
+
+  // Create AlgMessage. Delete previous if it exists
+  if (algMessage != NULL) 
+    {
+      delete algMessage;
+      algMessage = NULL;
+    }
+
+  // Convert enum units to char
+  char magUnits[32], magUncerUnits[32], latUnits[32], latUncerUnits[32], lonUnits[32],
+      lonUncerUnits[32], depthUnits[32], depthUncerUnits[32], origTimeUnits[32],
+      origTimeUncerUnits[32];
+  __xml_units__enum2string(core->magUnits, magUnits);
+  __xml_units__enum2string(core->magUncerUnits, magUncerUnits);
+  __xml_units__enum2string(core->latUnits, latUnits);
+  __xml_units__enum2string(core->latUncerUnits, latUncerUnits);
+  __xml_units__enum2string(core->lonUnits, lonUnits);
+  __xml_units__enum2string(core->lonUncerUnits, lonUncerUnits);
+  __xml_units__enum2string(core->depthUnits, depthUnits);
+  __xml_units__enum2string(core->depthUncerUnits, depthUncerUnits);
+  __xml_units__enum2string(core->origTimeUnits, origTimeUnits);
+  __xml_units__enum2string(core->origTimeUncerUnits, origTimeUncerUnits);
+
+  // LOG_MSG("%s", "createEventXML - set unit chars");
+
+  // convert to CoreEventInfo MessageCategory
+  enum MessageCategory imode;
+  if (mode == REAL_TIME_EEW) {
+    imode = LIVE;
+  } else if (mode == PLAYBACK) {
+    imode = TEST;
+  } else if (mode == OFFLINE) {
+    imode = TEST;
+  } else {
+    printf("%s\n", "Defaulting to live mode");
+    imode = LIVE;
+  }
+
+  // convert to CoreEventInfo nudMessageType
+  enum nudMessageType itype;
+  if (strcmp(message_type, "new") == 0) {
+    itype = NEW;
+  } else if (strcmp(message_type, "update") == 0) {
+    itype = UPDATE;
+  } else {
+    printf("%s\n", "Message type not recognized! Defaulting to update");
+    itype = UPDATE;
+  }
+
+  // required to create FiniteFaultMessage
+  enum FaultSegment::FaultSegmentShape shape = FaultSegment::UNKNOWN_SEGMENT;
+
+  // Get time stamp for when message is sent
+  int rc;
+  char cnow[128];
+  double now;
+  now = time_timeStamp();
+  rc = xml_epoch2string(now, cnow);
+  if (rc != 0) {
+    printf("%s\n", "Error getting time string!");
+  }
+
+  algMessage = new FiniteFaultMessage(GFAST, shape, core->id, core->mag, core->magUncer, core->lat,
+      core->latUncer, core->lon, core->lonUncer, core->depth, core->depthUncer, core->origTime,
+      core->origTimeUncer, core->likelihood, itype, core->version, imode, cnow, alg_vers,
+      instance, core->numStations, magUnits, magUncerUnits, latUnits,
+      latUncerUnits, lonUnits, lonUncerUnits, depthUnits, depthUncerUnits, origTimeUnits,
+      origTimeUncerUnits);
+
+  // LOG_MSG("%s", "createEventXML - created algMessage");
+
+  // Now add pgd observations to algMessage
+  int i;
+  int scnl_n = 8;
+  char obs_sta[scnl_n], obs_net[scnl_n], obs_chan[scnl_n], obs_loc[scnl_n];
+  char *token, *work = NULL;
+
+  enum ObservationType obs_type = DISPLACEMENT_OBS;
+  
+  for ( i = 0; i < pgd_obs->nsites; i++ ) 
+    {
+      // LOG_MSG("createEventXML - i = %d, setting chars", i);
+      // see core/data/readMetaDataFile for similar SNCL parsing
+      memset(obs_sta, 0, scnl_n*sizeof(char));
+      memset(obs_net, 0, scnl_n*sizeof(char));
+      memset(obs_chan, 0, scnl_n*sizeof(char));
+      memset(obs_loc, 0, scnl_n*sizeof(char));
+
+      work = (char *)calloc(strlen(pgd_obs->stnm[i])+1, sizeof(char));
+      strcpy(work, pgd_obs->stnm[i]);
+
+      // LOG_MSG("%s", "createEventXML - starting NSCL tokenizing");
+      token = strtok(work, ".");
+      int i_tok = 0;
+      while (token) 
+        {
+          if (i_tok == 0) { strcpy(obs_net, token); }
+          if (i_tok == 1) { strcpy(obs_sta, token); }
+          if (i_tok == 2) { strcpy(obs_chan, token); }
+          if (i_tok == 3) { strcpy(obs_loc, token); }
+          i_tok++;
+          token = strtok(NULL, ".");
+        }
+      // LOG_MSG("%s", "createEventXML - done NSCL tokenizing, freeing work");
+      delete work;
+      work = NULL;
+      // LOG_MSG("%s", "createEventXML - freed work, adding gmobs");
+
+      // Make sure to convert pgd to cm (from m)
+      algMessage->addGMObservation(obs_type,
+                                   obs_sta,
+                                   obs_net,
+                                   obs_chan,
+                                   obs_loc,
+                                   pgd_obs->pd[i] * 100.,
+                                   pgd_obs->sta_lat[i],
+                                   pgd_obs->sta_lon[i],
+                                   pgd_obs->pd_time[i],
+                                   "cm\0");
+    }
+
+  LOG_MSG("%s", "createEventXML - finished adding gmobs, encoding message");
+
+  // Finaly, encode algMessage as xml
+  std::string msg_tmp;
+
+  try {
+    msg_tmp = eventsender->getEncodedMessage(algMessage);
+  }
+  catch (exception &e) {
+    printf("%s: DMMessageSender error while encoding: %s",__func__,e.what());
+    *ierr = -1;
+    return xmlmsg;
+  }
+
+  xmlmsg = (char *)calloc(msg_tmp.length() + 1, sizeof(char));
+  strncpy(xmlmsg, msg_tmp.c_str(), msg_tmp.length());
+
+  free(token);
+  LOG_MSG("%s", "createEventXML - Returning");
+  return xmlmsg;
 }

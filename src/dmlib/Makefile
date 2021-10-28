@@ -11,7 +11,7 @@ LIB	=
 DEBUG	= -g
 #CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
 
-INCL= -I ../../include $(DMLIB_INCL) $(ACTIVEMQ_INCL) $(APR_INCL)
+INCL= -I ../../include $(DMLIB_INCL) $(ACTIVEMQ_INCL) $(APR_INCL) $(ISCL_INCL)
 
 all: $(OBJS)
 #lib: $(LIB)
