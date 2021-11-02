@@ -312,10 +312,13 @@ int deleteDMEventObject(const char evid[]) {
   return 1;
 }
 
-char *createPGDXML(const struct coreInfo_struct *core,
-                     const struct GFAST_peakDisplacementData_struct *pgd_obs,
-                     const char *message_type, const enum opmode_type mode, const char *alg_vers,
-                     const char *instance, int *ierr) {
+char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
+                                const char *alg_vers,
+                                const char *instance,
+                                const char *message_type, 
+                                const struct coreInfo_struct *core,
+                                const struct GFAST_peakDisplacementData_struct *pgd_obs,
+                                int *ierr) {
 
   char *xmlmsg;
   xmlmsg = NULL;

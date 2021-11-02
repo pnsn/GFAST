@@ -8,9 +8,9 @@
 #include "gfast_eewUtils.h"
 #include "gfast_hdf5.h"
 #include "gfast_traceBuffer.h"
+#include "dmlibWrapper.h"
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
-//#include "iscl_time.h"
 
 /*!
  * @brief writes xml message to flat file
@@ -36,6 +36,18 @@ bool check_mins_against_intervals(
 				  double age
 				  );
 
+/*!
+ * @brief Fills a given coreInfo_struct with the appropriate information
+ * @param[in] evid Event ID
+ * @param[in] SA_lat Event latitude
+ * @param[in] SA_lon Event longitude
+ * @param[in] SA_depth Event depth
+ * @param[in] SA_mag Event magnitude
+ * @param[in] SA_time Event origin time (UTC)
+ * @param[in] num_stations Number of stations contributing
+ * @param[out] core struct to fill with information
+ * @return status code.
+ */
 int fill_core_event_info(const char *evid,
                          const double SA_lat,
                          const double SA_lon,
@@ -45,6 +57,15 @@ int fill_core_event_info(const char *evid,
                          const int num_stations,
                          struct coreInfo_struct *core);
 
+/*!
+ * @brief Fills a GFAST_peakDisplacementData_struct with only those stations that have
+ * PGD observations
+ * @param[in] pgd Has information about which sites were used
+ * @param[in] pgd_data Has the actual observations
+ * @param[in] nsites_pgd The number of sites that there should be - check against n_pgd_used
+ * @param[out] pgd_used struct to fill
+ * @return status code.
+ */
 int fill_pgd_used(const struct GFAST_pgdResults_struct *pgd,
                   const struct GFAST_peakDisplacementData_struct *pgd_data,
                   const int nsites_pgd,
@@ -373,6 +394,24 @@ int eewUtils_driveGFAST(const double currentTime,
 	      pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
 	      core.depth = pgd->srcDepths[pgdOpt];
 	      core.mag = pgd->mpgd[pgdOpt];
+
+#ifdef GFAST_USE_SA
+	      //   get pgd_obs for this event
+	      LOG_MSG("%s", "driveGFAST: CWU_TEST fill pgd_used");
+	      struct GFAST_peakDisplacementData_struct pgd_used;
+	      memset(&pgd_used, 0, sizeof(struct GFAST_peakDisplacementData_struct));
+	      ierr = fill_pgd_used(pgd, pgd_data, nsites_pgd, &pgd_used);
+	      
+	      //   Encode xml with dmlib
+	      LOG_MSG("%s", "driveGFAST: CWU_TEST dmlib encoding");
+	      pgdXML = dmlibWrapper_createPGDXML(props.opmode,
+                                                 GFAST_VERSION,
+                                                 GFAST_INSTANCE,
+                                                 message_type,
+                                                 &core,
+                                                 &pgd_used,
+                                                 &ierr);
+#else
 	      pgdXML = eewUtils_makeXML__pgd(props.opmode,
 					     "GFAST\0",
 					     GFAST_VERSION,
@@ -381,6 +420,8 @@ int eewUtils_driveGFAST(const double currentTime,
 					     sversion,
                                              &core,
 					     &ierr);
+#endif
+
 	      if (ierr != 0)
                 {
 		  LOG_ERRMSG("%s", "Error generating PGD XML");
@@ -755,18 +796,6 @@ bool check_mins_against_intervals(
   return false;
 }
 
-/*!
- * @brief Fills a given coreInfo_struct with the appropriate information
- * @param[in] evid Event ID
- * @param[in] SA_lat Event latitude
- * @param[in] SA_lon Event longitude
- * @param[in] SA_depth Event depth
- * @param[in] SA_mag Event magnitude
- * @param[in] SA_time Event origin time (UTC)
- * @param[in] num_stations Number of stations contributing
- * @param[out] core struct to fill with information
- * @return status code.
- */
 int fill_core_event_info(const char *evid,
                          const double SA_lat,
                          const double SA_lon,
@@ -824,15 +853,6 @@ int fill_core_event_info(const char *evid,
   return 0;
 }
 
-/*!
- * @brief Fills a GFAST_peakDisplacementData_struct with only those stations that have
- * PGD observations
- * @param[in] pgd Has information about which sites were used
- * @param[in] pgd_data Has the actual observations
- * @param[in] nsites_pgd The number of sites that there should be - check against n_pgd_used
- * @param[out] pgd_used struct to fill
- * @return status code.
- */
 int fill_pgd_used(const struct GFAST_pgdResults_struct *pgd,
                   const struct GFAST_peakDisplacementData_struct *pgd_data,
                   const int nsites_pgd,
