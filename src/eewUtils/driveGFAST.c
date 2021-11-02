@@ -39,6 +39,7 @@ bool check_mins_against_intervals(
 /*!
  * @brief Fills a given coreInfo_struct with the appropriate information
  * @param[in] evid Event ID
+ * @param[in] version Event version number
  * @param[in] SA_lat Event latitude
  * @param[in] SA_lon Event longitude
  * @param[in] SA_depth Event depth
@@ -49,6 +50,7 @@ bool check_mins_against_intervals(
  * @return status code.
  */
 int fill_core_event_info(const char *evid,
+                         const int version,
                          const double SA_lat,
                          const double SA_lon,
                          const double SA_depth,
@@ -380,8 +382,8 @@ int eewUtils_driveGFAST(const double currentTime,
           // Fill coreInfo_struct to pass to makeXML for pgd and ff
           struct coreInfo_struct core;
           memset(&core, 0, sizeof(struct coreInfo_struct));
-          ierr = fill_core_event_info(SA.eventid, SA.lat, SA.lon, SA.dep, SA.mag, SA.time, 0,
-                                      &core);
+          ierr = fill_core_event_info(SA.eventid, xml_status->SA_status[iev].version, SA.lat,
+                                      SA.lon, SA.dep, SA.mag, SA.time, 0, &core);
           
 	  // Make the PGD xml
 	  if (lpgdSuccess)
@@ -797,6 +799,7 @@ bool check_mins_against_intervals(
 }
 
 int fill_core_event_info(const char *evid,
+                         const int version,
                          const double SA_lat,
                          const double SA_lon,
                          const double SA_depth,
@@ -806,7 +809,7 @@ int fill_core_event_info(const char *evid,
                          struct coreInfo_struct *core)
 {
   strcpy(core->id, evid);
-  core->version = 0;
+  core->version = version;
   core->mag = SA_mag;
   core->lhaveMag = true;
   core->magUnits = MOMENT_MAGNITUDE;
