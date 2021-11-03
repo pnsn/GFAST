@@ -398,7 +398,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      core.mag = pgd->mpgd[pgdOpt];
               core.numStations = nsites_pgd;
 
-#ifdef GFAST_USE_SA
+#ifdef GFAST_USE_DMLIB
 	      //   get pgd_obs for this event
 	      LOG_MSG("%s", "driveGFAST: CWU_TEST fill pgd_used");
 	      struct GFAST_peakDisplacementData_struct pgd_used;
