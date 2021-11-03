@@ -414,6 +414,8 @@ int eewUtils_driveGFAST(const double currentTime,
                                                  &core,
                                                  &pgd_used,
                                                  &ierr);
+	      // Don't need this anymore
+	      core_scaling_pgd_finalizeData(&pgd_used);
 #else
 	      pgdXML = eewUtils_makeXML__pgd(props.opmode,
 					     "GFAST\0",
