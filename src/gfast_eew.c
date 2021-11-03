@@ -69,11 +69,17 @@ int main(int argc, char **argv)
   char warnLogFileName[PATH_MAX];
   bool check_message_dir = false;
   bool USE_AMQ = false;
+  bool USE_DMLIB = false;
   int niter = 0;
   int i, i1, i2, is, chunk;
 #ifdef GFAST_USE_AMQ
   USE_AMQ = true;
+// GFAST_USE_DMLIB defined inside GFAST_USE_AMQ since dmlib won't work without amq
+#ifdef GFAST_USE_DMLIB
+  USE_DMLIB = true;
 #endif
+#endif
+
 
   // Initialize
   if (argc>1) {
@@ -170,62 +176,68 @@ int main(int argc, char **argv)
 	goto ERROR;
       }
     /* dmlib startup */
-    /* start connection */
-    ierr=startDestinationConnection(props.activeMQ_props.user,
-				    props.activeMQ_props.password,
-				    props.activeMQ_props.destinationURL,
-				    props.activeMQ_props.msReconnect,
-				    props.activeMQ_props.maxAttempts,
-				    props.verbose);
-    if (ierr==0) {
-      LOG_ERRMSG("%s: Attemted to re-initialize activeMQ connection object", fcnm);
-    }
-    if (ierr<0) {
-      LOG_ERRMSG("%s: Error initializing activeMQ connection object", fcnm);
-      goto ERROR;
-    }
-    /* start heartbeat producer and set to manual heartbeats */
-    if ((props.activeMQ_props.hbTopic!=NULL) &&
-	(strlen(props.activeMQ_props.hbTopic)>0)) {
-      char senderstr[100],*pp;
-      int ii;
-      strcpy(senderstr,"gfast.");
-      ii=strlen(senderstr);
-      gethostname(senderstr+ii,90); /*append hostname*/
-      pp=strchr(senderstr+ii,'.');  /*find . in hostname if any*/
-      if (pp != NULL) *pp = '\0';   /*truncate long hostname*/
-      if (props.verbose > 0)
-	{
-	  LOG_INFOMSG("%s: Initializing heartbeat sender %s on %s...\n", fcnm,
-		      senderstr,props.activeMQ_props.hbTopic);
-	  LOG_MSG("%s: Initializing heartbeat sender %s on %s...", fcnm,
-		  senderstr,props.activeMQ_props.hbTopic);
-	}
-      ierr=startHBProducer(senderstr, props.activeMQ_props.hbTopic, props.activeMQ_props.hbInterval, props.verbose);
-      if (ierr==0) {
-	LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
-      }
-      if (ierr<0) {
-	LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
-	goto ERROR;
-      }
-    }
-    /*start message sender*/
-    if (props.verbose > 0)
+    if (USE_DMLIB)
       {
-	LOG_INFOMSG("%s: Initializing event sender on %s...\n", fcnm,
-		    props.activeMQ_props.hbTopic);
-	LOG_MSG("%s: Initializing event sender on %s...", fcnm,
-		props.activeMQ_props.destinationTopic);
-      }
-    ierr=startEventSender(props.activeMQ_props.destinationTopic);
-    if (ierr==0) {
-      LOG_ERRMSG("%s: Attemted to re-initialize active event sender object", fcnm);
-    }
-    if (ierr<0) {
-      LOG_ERRMSG("%s: Error initializing event sender object", fcnm);
-      goto ERROR;
-    }
+        /* start connection */
+        ierr = startDestinationConnection(props.activeMQ_props.user,
+                                          props.activeMQ_props.password,
+                                          props.activeMQ_props.destinationURL,
+                                          props.activeMQ_props.msReconnect,
+                                          props.activeMQ_props.maxAttempts,
+                                          props.verbose);
+        if (ierr == 0) {
+          LOG_ERRMSG("%s: Attemted to re-initialize activeMQ connection object", fcnm);
+        }
+        if (ierr < 0) {
+          LOG_ERRMSG("%s: Error initializing activeMQ connection object", fcnm);
+          goto ERROR;
+        }
+        /* start heartbeat producer and set to manual heartbeats */
+        if ((props.activeMQ_props.hbTopic != NULL) &&
+            (strlen(props.activeMQ_props.hbTopic) > 0)) {
+          char senderstr[100], *pp;
+          int ii;
+          strcpy(senderstr, "gfast.");
+          ii = strlen(senderstr);
+          gethostname(senderstr + ii, 90);   /*append hostname*/
+          pp = strchr(senderstr + ii, '.');  /*find . in hostname if any*/
+          if (pp != NULL) *pp = '\0';        /*truncate long hostname*/
+          if (props.verbose > 0)
+            {
+              LOG_INFOMSG("%s: Initializing heartbeat sender %s on %s...\n", fcnm,
+                          senderstr, props.activeMQ_props.hbTopic);
+              LOG_MSG("%s: Initializing heartbeat sender %s on %s...", fcnm,
+                      senderstr, props.activeMQ_props.hbTopic);
+            }
+          ierr = startHBProducer(senderstr,
+                                 props.activeMQ_props.hbTopic,
+                                 props.activeMQ_props.hbInterval,
+                                 props.verbose);
+          if (ierr == 0) {
+            LOG_ERRMSG("%s: Attemted to re-initialize active HB producer object", fcnm);
+          }
+          if (ierr < 0) {
+            LOG_ERRMSG("%s: Error initializing HB producer object", fcnm);
+            goto ERROR;
+          }
+        }
+        /*start message sender*/
+        if (props.verbose > 0)
+          {
+            LOG_INFOMSG("%s: Initializing event sender on %s...\n", fcnm,
+                        props.activeMQ_props.hbTopic);
+            LOG_MSG("%s: Initializing event sender on %s...", fcnm,
+                    props.activeMQ_props.destinationTopic);
+          }
+        ierr = startEventSender(props.activeMQ_props.destinationTopic);
+        if (ierr == 0) {
+          LOG_ERRMSG("%s: Attemted to re-initialize active event sender object", fcnm);
+        }
+        if (ierr < 0) {
+          LOG_ERRMSG("%s: Error initializing event sender object", fcnm);
+          goto ERROR;
+        }
+      } /* end of if USE_DMLIB */
   } /* end if USE_AMQ */
 
   if (strlen(props.SAeventsDir)) {
@@ -538,10 +550,11 @@ int main(int argc, char **argv)
 	{
 	  for (im=0; im<xmlMessages.nmessages; im++)
 	    {
-	      if ((USE_AMQ)&&(xmlMessages.pgdXML[im] != NULL)) {
+	      if ((USE_DMLIB) && (xmlMessages.pgdXML[im] != NULL)) {
 		sendEventXML(xmlMessages.pgdXML[im]);
 	      }
-	      LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n", t0,xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+	      LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n",
+                      t0, xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 	      //printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
 	      //printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
 	      if (xmlMessages.evids[im] != NULL)
@@ -591,9 +604,12 @@ int main(int argc, char **argv)
   if (USE_AMQ)
     {
       activeMQ_consumer_finalize(amqMessageListener);
-      stopHBProducer();
-      stopEventSender();
-      //stopDestinationConnection();
+      if (USE_DMLIB)
+        {
+          stopHBProducer();
+          stopEventSender();
+          //stopDestinationConnection();
+        }
       activeMQ_stop();
     }
   core_cmt_finalize(&props.cmt_props,
