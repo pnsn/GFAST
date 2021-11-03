@@ -61,6 +61,7 @@ install:
 	done
 
 clean:
+	-rm -f *.o $(EXE)
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir clean ; \
 	done
