@@ -396,6 +396,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
 	      core.depth = pgd->srcDepths[pgdOpt];
 	      core.mag = pgd->mpgd[pgdOpt];
+              core.numStations = nsites_pgd;
 
 #ifdef GFAST_USE_SA
 	      //   get pgd_obs for this event
@@ -525,6 +526,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      // Reset depth and mag to be same as SA message.
 	      core.depth = SA.dep;
 	      core.mag = SA.mag;
+              core.numStations = nsites_ff;
 	      ffXML = eewUtils_makeXML__ff(props.opmode,
 					   "GFAST\0",
 					   GFAST_VERSION,
