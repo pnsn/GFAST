@@ -59,20 +59,6 @@ int fill_core_event_info(const char *evid,
                          const int num_stations,
                          struct coreInfo_struct *core);
 
-/*!
- * @brief Fills a GFAST_peakDisplacementData_struct with only those stations that have
- * PGD observations
- * @param[in] pgd Has information about which sites were used
- * @param[in] pgd_data Has the actual observations
- * @param[in] nsites_pgd The number of sites that there should be - check against n_pgd_used
- * @param[out] pgd_used struct to fill
- * @return status code.
- */
-int fill_pgd_used(const struct GFAST_pgdResults_struct *pgd,
-                  const struct GFAST_peakDisplacementData_struct *pgd_data,
-                  const int nsites_pgd,
-                  struct GFAST_peakDisplacementData_struct *pgd_used); 
-
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -399,12 +385,6 @@ int eewUtils_driveGFAST(const double currentTime,
               core.numStations = nsites_pgd;
 
 #ifdef GFAST_USE_DMLIB
-	      //   get pgd_obs for this event
-	      LOG_MSG("%s", "driveGFAST: CWU_TEST fill pgd_used");
-	      struct GFAST_peakDisplacementData_struct pgd_used;
-	      memset(&pgd_used, 0, sizeof(struct GFAST_peakDisplacementData_struct));
-	      ierr = fill_pgd_used(pgd, pgd_data, nsites_pgd, &pgd_used);
-	      
 	      //   Encode xml with dmlib
 	      LOG_MSG("%s", "driveGFAST: CWU_TEST dmlib encoding");
 	      pgdXML = dmlibWrapper_createPGDXML(props.opmode,
@@ -412,10 +392,9 @@ int eewUtils_driveGFAST(const double currentTime,
                                                  GFAST_INSTANCE,
                                                  message_type,
                                                  &core,
-                                                 &pgd_used,
+                                                 pgd,
+                                                 pgd_data,
                                                  &ierr);
-	      // Don't need this anymore
-	      core_scaling_pgd_finalizeData(&pgd_used);
 #else
 	      pgdXML = eewUtils_makeXML__pgd(props.opmode,
 					     "GFAST\0",
@@ -857,56 +836,5 @@ int fill_core_event_info(const char *evid,
   core->likelihood = 0.8;
   core->lhaveLikelihood = true;
   core->numStations = num_stations;
-  return 0;
-}
-
-int fill_pgd_used(const struct GFAST_pgdResults_struct *pgd,
-                  const struct GFAST_peakDisplacementData_struct *pgd_data,
-                  const int nsites_pgd,
-                  struct GFAST_peakDisplacementData_struct *pgd_used) {
-
-  int n_pgd_used = 0;
-  int i_site;
-  int *i_used;
-  i_used = (int *) calloc((size_t) pgd->nsites, sizeof(int));
-
-  for (i_site=0; i_site<pgd->nsites; i_site++) 
-    {
-      if (pgd->lsiteUsed[i_site]) 
-        { 
-          i_used[n_pgd_used] = i_site;
-          n_pgd_used++; 
-        }
-    }
-
-  LOG_MSG("driveGFAST: CWU_TEST n_pgd_used=%d, nsites_pgd=%d", n_pgd_used, nsites_pgd);
-
-  //   fill pgd_used
-  pgd_used->stnm = (char **)calloc((size_t) n_pgd_used, sizeof(char *));
-  pgd_used->pd = memory_calloc64f(n_pgd_used);
-  pgd_used->wt = memory_calloc64f(n_pgd_used);
-  pgd_used->sta_lat = memory_calloc64f(n_pgd_used);
-  pgd_used->sta_lon = memory_calloc64f(n_pgd_used);
-  pgd_used->sta_alt = memory_calloc64f(n_pgd_used);
-  pgd_used->pd_time = memory_calloc64f(n_pgd_used);
-  pgd_used->lmask = memory_calloc8l(n_pgd_used);
-  pgd_used->lactive = memory_calloc8l(n_pgd_used);
-  pgd_used->nsites = n_pgd_used;
-
-  for (i_site=0; i_site<n_pgd_used; i_site++) 
-    {
-      pgd_used->stnm[i_site] = (char *)calloc(64, sizeof(char));
-      strcpy(pgd_used->stnm[i_site], pgd_data->stnm[i_used[i_site]]);
-      pgd_used->pd[i_site] = pgd_data->pd[i_used[i_site]];
-      pgd_used->wt[i_site] = pgd_data->wt[i_used[i_site]];
-      pgd_used->sta_lat[i_site] = pgd_data->sta_lat[i_used[i_site]];
-      pgd_used->sta_lon[i_site] = pgd_data->sta_lon[i_used[i_site]];
-      pgd_used->sta_alt[i_site] = pgd_data->sta_alt[i_used[i_site]];
-      pgd_used->pd_time[i_site] = pgd_data->pd_time[i_used[i_site]];
-      pgd_used->lmask[i_site] = pgd_data->lmask[i_used[i_site]];
-      pgd_used->lactive[i_site] = pgd_data->lactive[i_used[i_site]];
-    }
-
-  memory_free32i(&i_used);
   return 0;
 }

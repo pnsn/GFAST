@@ -117,6 +117,7 @@ extern "C" {
     @param[in] instance      Instance running the code
     @param[in] message_type  Describes a new or updated message
     @param[in] core          CoreEventInfo to go into message
+    @param[in] pgd           Contains information on if a site was used for pgd
     @param[in] pgd_obs       PGD observations to go into gm_info
     @param[out] ierr         0 for success, -1 for error
     @return returns a ShakeAlert xml message
@@ -126,12 +127,9 @@ extern "C" {
                                   const char *instance,
                                   const char *message_type, 
                                   const struct coreInfo_struct *core,
+                                  const struct GFAST_pgdResults_struct *pgd,
                                   const struct GFAST_peakDisplacementData_struct *pgd_obs,
                                   int *ierr);
-  // char *dmlibWrapper_createPGDXML(const struct coreInfo_struct *core,
-  //                                 const struct GFAST_peakDisplacementData_struct *pgd_obs,
-  //                                 const char *message_type, const enum opmode_type mode,
-  //                                 const char *alg_vers, const char *instance, int *ierr);
   
 #ifdef __cplusplus
 } /*end of extern "C"*/

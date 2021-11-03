@@ -3,26 +3,22 @@
  * @brief variables and functions to expose dmlib functionality to GFAST c code
  */
 
+#include <string>
 #include <activemq/core/ActiveMQConnectionFactory.h>
 #include <cms/Connection.h>
 #include "DMLib.h"
-#include "AlgMessage.h"
+#include "FiniteFaultMessage.h"
 #include "CoreEventInfo.h"
 #include "HBProducer.h"
-#include "dmlibWrapper.h"
 #include "DMMessageSender.h"
+#include "dmlibWrapper.h"
 #include "gfast_activeMQ.h"
 #include "gfast_struct.h"
-
-#include <string>
 #include "gfast_core.h"
-#include "AlgMessage.h"
-#include "FiniteFaultMessage.h"
-#include "DMMessageEncoder.h"
 #include "gfast_enum.h"
+#include "gfast_xml.h"
 #include "iscl/iscl/iscl_enum.h"
 #include "iscl/time/time.h"
-#include "gfast_xml.h"
 
 /*static variables local to this file*/
 namespace {
@@ -34,7 +30,6 @@ namespace {
   static std::string hbTopic="";
   static int conVerbose=0;
   static int hbVerbose=0;
-  static FiniteFaultMessage *algMessage=NULL;
 }
 
 int startDestinationConnection(const char AMQuser[],
@@ -317,19 +312,13 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                 const char *instance,
                                 const char *message_type, 
                                 const struct coreInfo_struct *core,
-                                const struct GFAST_peakDisplacementData_struct *pgd_obs,
+                                const struct GFAST_pgdResults_struct *pgd,
+                                const struct GFAST_peakDisplacementData_struct *pgd_data,
                                 int *ierr) {
 
   char *xmlmsg;
   xmlmsg = NULL;
   *ierr = 0;
-
-  // Create AlgMessage. Delete previous if it exists
-  if (algMessage != NULL) 
-    {
-      delete algMessage;
-      algMessage = NULL;
-    }
 
   // Convert enum units to char
   char magUnits[32], magUncerUnits[32], latUnits[32], latUncerUnits[32], lonUnits[32],
@@ -385,7 +374,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
     printf("%s\n", "Error getting time string!");
   }
 
-  algMessage = new FiniteFaultMessage(GFAST, shape, core->id, core->mag, core->magUncer, core->lat,
+  FiniteFaultMessage algMessage(GFAST, shape, core->id, core->mag, core->magUncer, core->lat,
       core->latUncer, core->lon, core->lonUncer, core->depth, core->depthUncer, core->origTime,
       core->origTimeUncer, core->likelihood, itype, core->version, imode, cnow, alg_vers,
       instance, core->numStations, magUnits, magUncerUnits, latUnits,
@@ -402,8 +391,19 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
 
   enum ObservationType obs_type = DISPLACEMENT_OBS;
   
-  for ( i = 0; i < pgd_obs->nsites; i++ ) 
+  // Assumes pgd->nsites = pgd_data->nsites and indices correspond
+  if (pgd->nsites != pgd_data->nsites) 
     {
+      printf("%s: nsites don't match for pgd, pgd_data! %d, %d\n" ,__func__, pgd->nsites,
+             pgd_data->nsites);
+      *ierr = -1;
+      return xmlmsg;
+    }
+  for ( i = 0; i < pgd->nsites; i++ ) 
+    {
+      // skip site if it wasn't used
+      if (!pgd->lsiteUsed) { continue; }
+
       // LOG_MSG("createEventXML - i = %d, setting chars", i);
       // see core/data/readMetaDataFile for similar SNCL parsing
       memset(obs_sta, 0, scnl_n*sizeof(char));
@@ -411,8 +411,8 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       memset(obs_chan, 0, scnl_n*sizeof(char));
       memset(obs_loc, 0, scnl_n*sizeof(char));
 
-      work = (char *)calloc(strlen(pgd_obs->stnm[i])+1, sizeof(char));
-      strcpy(work, pgd_obs->stnm[i]);
+      work = (char *)calloc(strlen(pgd_data->stnm[i])+1, sizeof(char));
+      strcpy(work, pgd_data->stnm[i]);
 
       // LOG_MSG("%s", "createEventXML - starting NSCL tokenizing");
       token = strtok(work, ".");
@@ -432,16 +432,16 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       // LOG_MSG("%s", "createEventXML - freed work, adding gmobs");
 
       // Make sure to convert pgd to cm (from m)
-      algMessage->addGMObservation(obs_type,
-                                   obs_sta,
-                                   obs_net,
-                                   obs_chan,
-                                   obs_loc,
-                                   pgd_obs->pd[i] * 100.,
-                                   pgd_obs->sta_lat[i],
-                                   pgd_obs->sta_lon[i],
-                                   pgd_obs->pd_time[i],
-                                   "cm\0");
+      algMessage.addGMObservation(obs_type,
+                                  obs_sta,
+                                  obs_net,
+                                  obs_chan,
+                                  obs_loc,
+                                  pgd_data->pd[i] * 100.,
+                                  pgd_data->sta_lat[i],
+                                  pgd_data->sta_lon[i],
+                                  pgd_data->pd_time[i],
+                                  "cm\0");
     }
 
   LOG_MSG("%s", "createEventXML - finished adding gmobs, encoding message");
@@ -450,7 +450,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   std::string msg_tmp;
 
   try {
-    msg_tmp = eventsender->getEncodedMessage(algMessage);
+    msg_tmp = eventsender->getEncodedMessage(&algMessage);
   }
   catch (exception &e) {
     printf("%s: DMMessageSender error while encoding: %s",__func__,e.what());
