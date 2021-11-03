@@ -379,10 +379,10 @@ int eewUtils_driveGFAST(const double currentTime,
 	  snprintf(sversion,6,"%d",xml_status->SA_status[iev].version);
 	  lfinalize = true;
 
-          // Fill coreInfo_struct to pass to makeXML for pgd and ff
-          struct coreInfo_struct core;
-          memset(&core, 0, sizeof(struct coreInfo_struct));
-          ierr = fill_core_event_info(SA.eventid, xml_status->SA_status[iev].version, SA.lat,
+	  // Fill coreInfo_struct to pass to makeXML for pgd and ff
+	  struct coreInfo_struct core;
+	  memset(&core, 0, sizeof(struct coreInfo_struct));
+	  ierr = fill_core_event_info(SA.eventid, xml_status->SA_status[iev].version, SA.lat,
                                       SA.lon, SA.dep, SA.mag, SA.time, 0, &core);
           
 	  // Make the PGD xml

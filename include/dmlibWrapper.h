@@ -127,7 +127,7 @@ extern "C" {
                                   const char *message_type, 
                                   const struct coreInfo_struct *core,
                                   const struct GFAST_peakDisplacementData_struct *pgd_obs,
-                                  int *ierr)
+                                  int *ierr);
   // char *dmlibWrapper_createPGDXML(const struct coreInfo_struct *core,
   //                                 const struct GFAST_peakDisplacementData_struct *pgd_obs,
   //                                 const char *message_type, const enum opmode_type mode,
