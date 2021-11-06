@@ -8,9 +8,9 @@
 #include "gfast_eewUtils.h"
 #include "gfast_hdf5.h"
 #include "gfast_traceBuffer.h"
+#include "dmlibWrapper.h"
 #include "iscl/array/array.h"
 #include "iscl/memory/memory.h"
-//#include "iscl_time.h"
 
 /*!
  * @brief writes xml message to flat file
@@ -35,6 +35,29 @@ bool check_mins_against_intervals(
 				  bool * interval_complete,
 				  double age
 				  );
+
+/*!
+ * @brief Fills a given coreInfo_struct with the appropriate information
+ * @param[in] evid Event ID
+ * @param[in] version Event version number
+ * @param[in] SA_lat Event latitude
+ * @param[in] SA_lon Event longitude
+ * @param[in] SA_depth Event depth
+ * @param[in] SA_mag Event magnitude
+ * @param[in] SA_time Event origin time (UTC)
+ * @param[in] num_stations Number of stations contributing
+ * @param[out] core struct to fill with information
+ * @return status code.
+ */
+int fill_core_event_info(const char *evid,
+                         const int version,
+                         const double SA_lat,
+                         const double SA_lon,
+                         const double SA_depth,
+                         const double SA_mag,
+                         const double SA_time,
+                         const int num_stations,
+                         struct coreInfo_struct *core);
 
 //static void setFileNames(const char *eventid);
 
@@ -93,7 +116,7 @@ int eewUtils_driveGFAST(const double currentTime,
   float secs;
   int h5k, ierr, iev, ipf, nPop, nRemoved,
     nsites_cmt, nsites_ff, nsites_pgd,
-    nstrdip, pgdOpt, shakeAlertMode;
+    nstrdip, pgdOpt;
   bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
 
   const char *fcnm = "driveGFAST\0";
@@ -102,9 +125,7 @@ int eewUtils_driveGFAST(const double currentTime,
   // Nothing to do 
   ierr = 0;
   if (events->nev <= 0){return 0;}
-  // Figure out the mode for generating shakeAlert messages
-  shakeAlertMode = 1;
-  if (props.opmode == PLAYBACK){shakeAlertMode = 2;}
+
   // Set memory for XML messages
   memset(xmlMessages, 0, sizeof(struct GFAST_xmlMessages_struct));
   xmlMessages->mmessages = events->nev;
@@ -343,6 +364,13 @@ int eewUtils_driveGFAST(const double currentTime,
 	  char sversion[6];
 	  snprintf(sversion,6,"%d",xml_status->SA_status[iev].version);
 	  lfinalize = true;
+
+	  // Fill coreInfo_struct to pass to makeXML for pgd and ff
+	  struct coreInfo_struct core;
+	  memset(&core, 0, sizeof(struct coreInfo_struct));
+	  ierr = fill_core_event_info(SA.eventid, xml_status->SA_status[iev].version, SA.lat,
+                                      SA.lon, SA.dep, SA.mag, SA.time, 0, &core);
+          
 	  // Make the PGD xml
 	  if (lpgdSuccess)
             {
@@ -350,21 +378,34 @@ int eewUtils_driveGFAST(const double currentTime,
                 {
 		  LOG_DEBUGMSG("%s", "Generating pgd XML");
                 }
+	      // Change depth, mag to match optimal pgd (by variance reduction)
 	      pgdOpt = array_argmax64f(pgd->ndeps, pgd->dep_vr_pgd, &ierr);
-	      pgdXML = eewUtils_makeXML__pgd(props.opmode, //shakeAlertMode,
+	      core.depth = pgd->srcDepths[pgdOpt];
+	      core.mag = pgd->mpgd[pgdOpt];
+              core.numStations = nsites_pgd;
+
+#ifdef GFAST_USE_DMLIB
+	      //   Encode xml with dmlib
+	      LOG_MSG("%s", "driveGFAST: CWU_TEST dmlib encoding");
+	      pgdXML = dmlibWrapper_createPGDXML(props.opmode,
+                                                 GFAST_VERSION,
+                                                 GFAST_INSTANCE,
+                                                 message_type,
+                                                 &core,
+                                                 pgd,
+                                                 pgd_data,
+                                                 &ierr);
+#else
+	      pgdXML = eewUtils_makeXML__pgd(props.opmode,
 					     "GFAST\0",
 					     GFAST_VERSION,
 					     GFAST_INSTANCE,
 					     message_type,
 					     sversion,
-					     SA.eventid,
-					     SA.lat,
-					     SA.lon,
-					     pgd->srcDepths[pgdOpt],
-					     pgd->mpgd[pgdOpt],
-					     SA.time,
-					     nsites_pgd,
+                                             &core,
 					     &ierr);
+#endif
+
 	      if (ierr != 0)
                 {
 		  LOG_ERRMSG("%s", "Error generating PGD XML");
@@ -463,18 +504,17 @@ int eewUtils_driveGFAST(const double currentTime,
                 }
 	      ipf = ff->preferred_fault_plane;
 	      nstrdip = ff->fp[ipf].nstr*ff->fp[ipf].ndip;
+	      // Reset depth and mag to be same as SA message.
+	      core.depth = SA.dep;
+	      core.mag = SA.mag;
+              core.numStations = nsites_ff;
 	      ffXML = eewUtils_makeXML__ff(props.opmode,
 					   "GFAST\0",
 					   GFAST_VERSION,
 					   GFAST_INSTANCE,
 					   message_type,
 					   sversion,
-					   SA.eventid,
-					   SA.lat,
-					   SA.lon,
-					   SA.dep,
-					   SA.mag,
-					   SA.time,
+					   &core,
 					   nstrdip,
 					   ff->fp[ipf].fault_ptr,
 					   ff->fp[ipf].lat_vtx,
@@ -484,7 +524,6 @@ int eewUtils_driveGFAST(const double currentTime,
 					   ff->fp[ipf].dslip,
 					   ff->fp[ipf].sslip_unc,
 					   ff->fp[ipf].dslip_unc,
-					   nsites_ff,
 					   &ierr); 
 	      if (ierr != 0)
                 {
@@ -740,4 +779,62 @@ bool check_mins_against_intervals(
   }
 
   return false;
+}
+
+int fill_core_event_info(const char *evid,
+                         const int version,
+                         const double SA_lat,
+                         const double SA_lon,
+                         const double SA_depth,
+                         const double SA_mag,
+                         const double SA_time,
+                         const int num_stations,
+                         struct coreInfo_struct *core)
+{
+  strcpy(core->id, evid);
+  core->version = version;
+  core->mag = SA_mag;
+  core->lhaveMag = true;
+  core->magUnits = MOMENT_MAGNITUDE;
+  core->lhaveMagUnits = true;
+  core->magUncer = 0.5;
+  core->lhaveMagUncer = true;
+  core->magUncerUnits = MOMENT_MAGNITUDE;
+  core->lhaveMagUncerUnits = true;
+  core->lat = SA_lat; 
+  core->lhaveLat = true;
+  core->latUnits = DEGREES;
+  core->lhaveLatUnits = true;
+  core->latUncer = 0.5;
+  core->lhaveLatUncer = true;
+  core->latUncerUnits = DEGREES;
+  core->lhaveLatUncerUnits = true;
+  core->lon = SA_lon;
+  core->lhaveLon = true;
+  core->lonUnits = DEGREES;
+  core->lhaveLonUnits = true;
+  core->lonUncer = 0.5;
+  core->lhaveLonUncer = true;
+  core->lonUncerUnits = DEGREES;
+  core->lhaveLonUncerUnits = true;
+  core->depth = SA_depth;
+  core->lhaveDepth = true;
+  core->depthUnits = KILOMETERS;
+  core->lhaveDepthUnits = true;
+  core->depthUncer = 5.0;
+  core->lhaveDepthUncer = true;
+  core->depthUncerUnits = KILOMETERS;
+  core->lhaveDepthUncerUnits = true;
+  core->origTime = SA_time;
+  core->lhaveOrigTime = true;
+  core->origTimeUnits = UTC;
+  core->lhaveOrigTimeUnits = true;
+  core->origTimeUncer = 20.0;
+  core->lhaveOrigTimeUncer = true;
+  core->origTimeUncerUnits = SECONDS;
+  core->lhaveOrigTimeUncerUnits = true;
+  core->likelihood = 0.8;
+  core->lhaveLikelihood = true;
+  core->numStations = num_stations;
+  return 0;
 }

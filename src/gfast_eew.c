@@ -106,7 +106,8 @@ int main(int argc, char **argv)
   memset(&h5traceBuffer, 0, sizeof(struct h5traceBuffer_struct));
   memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
 
-  LOG_MSG("%s: Reading configuration from %s\n", fcnm, propfilename);
+  printf("%s Version: %s\n", fcnm, GFAST_VERSION);
+  printf("%s: Reading configuration from %s\n", fcnm, propfilename);
   // Read the program properties
   ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
   if (ierr != 0)
