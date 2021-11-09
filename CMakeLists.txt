@@ -130,7 +130,7 @@ ENDIF()
 #ADD_SUBDIRECTORY(src/xml)
 SET(SRCS_XML src/xml/shakeAlert/coreInfo.c src/xml/shakeAlert/segment.c
              src/xml/shakeAlert/slip.c src/xml/shakeAlert/vertex.c
-             src/xml/shakeAlert/vertices.c
+             src/xml/shakeAlert/vertices.c src/xml/shakeAlert/geometry.c
              src/xml/quakeML/depth.c src/xml/quakeML/epoch2string.c
              src/xml/quakeML/focalMechanism.c src/xml/quakeML/latitude.c
              src/xml/quakeML/longitude.c src/xml/quakeML/magnitude.c
