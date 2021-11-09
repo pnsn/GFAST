@@ -119,6 +119,15 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
         LOG_ERRMSG("%s", "Error writing slip");
         return -1;
     }
+    // Write the fault geometry
+    rc = xml_shakeAlert_writeGeometry(strike, strike_units,
+                                      dip, dip_units,
+                                      (void *)writer);
+    if (rc < 0)
+    {
+        LOG_ERRMSG("%s", "Error writing fault geometry");
+        return -1;
+    }
     // </segment>
     rc += xmlTextWriterEndElement(writer); // </segment>
     if (rc < 0)
