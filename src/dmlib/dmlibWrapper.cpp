@@ -402,7 +402,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   for ( i = 0; i < pgd->nsites; i++ ) 
     {
       // skip site if it wasn't used
-      if (!pgd->lsiteUsed) { continue; }
+      if (!pgd->lsiteUsed[i]) { continue; }
 
       // LOG_MSG("createEventXML - i = %d, setting chars", i);
       // see core/data/readMetaDataFile for similar SNCL parsing
