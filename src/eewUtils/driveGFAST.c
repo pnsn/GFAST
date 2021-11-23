@@ -59,6 +59,8 @@ int fill_core_event_info(const char *evid,
                          const int num_stations,
                          struct coreInfo_struct *core);
 
+bool send_xml_filter(struct GFAST_props_struct *props, struct GFAST_shakeAlert_struct *SA);
+
 //static void setFileNames(const char *eventid);
 
 /*!
@@ -426,6 +428,17 @@ int eewUtils_driveGFAST(const double currentTime,
 		LOG_ERRMSG("Mismatch between SA.eventid=%s and xml_status.SA_status[%d].eventid=%s --> Can't output PGD!\n",
 			   SA.eventid, iev, xml_status->SA_status[iev].eventid);
 	      }
+
+#if defined GFAST_USE_AMQ && defined GFAST_USE_DMLIB
+              // Send message via ActiveMQ if appropriate
+              if (!send_xml_filter(&props, &SA)) {
+                if (pgdXML != NULL) {
+                  sendEventXML(pgdXML);
+                }
+                LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n",
+                        currentTime, SA.eventid, pgdXML);
+              }
+#endif /* GFAST_USE_AMQ && GFAST_USE_DMLIB */
 	      
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
 		int index = (int)(currentTime - SA.time);
@@ -839,4 +852,15 @@ int fill_core_event_info(const char *evid,
   core->lhaveLikelihood = true;
   core->numStations = num_stations;
   return 0;
+}
+
+/*
+ * Return true if this message should not be sent
+ */
+bool send_xml_filter(struct GFAST_props_struct *props,
+                     struct GFAST_shakeAlert_struct *SA) {
+  if (SA->mag > props->SA_mag_threshold) {
+    return true;
+  }
+  return false;
 }
