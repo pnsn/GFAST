@@ -88,7 +88,8 @@ int core_ff_meshFaultPlane(const double ev_lat,
            fact_len, fact_wid,
            fault_X, fault_X1, fault_X2, fault_X3, fault_X4,
            fault_Y, fault_Y1, fault_Y2, fault_Y3, fault_Y4,
-           fault_Z, latF, len, lonF, wid,
+           fault_Z, fault_Z1, fault_Z2, fault_Z3, fault_Z4,
+           latF, len, lonF, wid,
            x0, xdoff, xsoff, y0, ydoff, ysoff, z0;
     int i, j, k, zone_loc;
     bool lnorthp;
@@ -194,15 +195,19 @@ int core_ff_meshFaultPlane(const double ev_lat,
 
             fault_X1 = (x0 + di*xsoff + dj*xdoff)*1.e3;
             fault_Y1 = (y0 + di*ysoff + dj*ydoff)*1.e3;
+            fault_Z1 = z0 + dj*dalt; // km
 
             fault_X2 = (x0 + (di + 1.0)*xsoff + dj*xdoff)*1.e3;
             fault_Y2 = (y0 + (di + 1.0)*ysoff + dj*ydoff)*1.e3;
+            fault_Z2 = z0 + dj*dalt; // km
 
             fault_X3 = (x0 + (di + 1.0)*xsoff + (dj + 1.0)*xdoff)*1.e3; //km->m
             fault_Y3 = (y0 + (di + 1.0)*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
+            fault_Z3 = z0 + (dj + 1.0)*dalt; // km
 
             fault_X4 = (x0 + di*xsoff + (dj + 1.0)*xdoff)*1.e3; //km->m
             fault_Y4 = (y0 + di*ysoff + (dj + 1.0)*ydoff)*1.e3; //km->m
+            fault_Z4 = z0 + (dj + 1.0)*dalt; // km
 
             // Convert from UTMs back to lat/lon 
             fault_X = fault_X*1000.0; // km -> m
@@ -225,10 +230,10 @@ int core_ff_meshFaultPlane(const double ev_lat,
             core_coordtools_utm2ll(zone_loc, lnorthp,
                                    fault_Y4, fault_X4,
                                    &lat_vtx[4*k+3], &lon_vtx[4*k+3]);
-            dep_vtx[4*k+0] = fault_Z; //depF;
-            dep_vtx[4*k+1] = fault_Z; //depF;
-            dep_vtx[4*k+2] = fault_Z; //depF;
-            dep_vtx[4*k+3] = fault_Z; //depF;
+            dep_vtx[4*k+0] = fault_Z1; //depF;
+            dep_vtx[4*k+1] = fault_Z2; //depF;
+            dep_vtx[4*k+2] = fault_Z3; //depF;
+            dep_vtx[4*k+3] = fault_Z4; //depF;
             // Save the fault patch centers for the actual inversion 
             fault_xutm[k] = fault_X;
             fault_yutm[k] = fault_Y;

@@ -243,6 +243,10 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
                                 const enum alert_units_enum lon_units,
                                 const double *depths,
                                 const enum alert_units_enum depth_units,
+                                const double strike, 
+                                const enum alert_units_enum strike_units,
+                                const double dip, 
+                                const enum alert_units_enum dip_units,
                                 const double ss, 
                                 const enum alert_units_enum ss_units,
                                 const double ds, 
@@ -266,6 +270,12 @@ int xml_shakeAlert_writeSlip(const double ss,
                              const double ds_uncer,
                              const enum alert_units_enum ds_uncer_units,
                              void *xml_writer);
+/* Write fault geometry */
+int xml_shakeAlert_writeGeometry(const double strike,
+                                 const enum alert_units_enum strike_units,
+                                 const double dip,
+                                 const enum alert_units_enum dip_units,
+                                 void *xml_writer);
 /* Read shakeAlert finite fault vertices */
 int xml_shakeAlert_readVertices(void *xml_reader,
                                 const enum xml_segmentShape_enum shape,
@@ -327,6 +337,8 @@ int xml_shakeAlert_writeVertex(const double lat,
               xml_shakeAlert_readSlip(__VA_ARGS__)
 #define GFAST_xml_shakeAlert_writeSlip(...)       \
               xml_shakeAlert_writeSlip(__VA_ARGS__)
+#define GFAST_xml_shakeAlert_writeGeometry(...)       \
+              xml_shakeAlert_writeGeometry(__VA_ARGS__)
 #define GFAST_xml_shakeAlert_readVertex(...)       \
 	      xml_shakeAlert_readVertex(__VA_ARGS__)
 #define GFAST_xml_shakeAlert_writeVertex(...)       \

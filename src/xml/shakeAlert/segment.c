@@ -66,6 +66,10 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
                                 const enum alert_units_enum lon_units,
                                 const double *depths,
                                 const enum alert_units_enum depth_units,
+                                const double strike,
+                                const enum alert_units_enum strike_units,
+                                const double dip,
+                                const enum alert_units_enum dip_units,
                                 const double ss,
                                 const enum alert_units_enum ss_units,
                                 const double ds,
@@ -113,6 +117,15 @@ int xml_shakeAlert_writeSegment(const enum xml_segmentShape_enum shape,
     if (rc < 0)
     {
         LOG_ERRMSG("%s", "Error writing slip");
+        return -1;
+    }
+    // Write the fault geometry
+    rc = xml_shakeAlert_writeGeometry(strike, strike_units,
+                                      dip, dip_units,
+                                      (void *)writer);
+    if (rc < 0)
+    {
+        LOG_ERRMSG("%s", "Error writing fault geometry");
         return -1;
     }
     // </segment>
