@@ -163,3 +163,4 @@ maxAttempts = 5
 msWaitForMessage = 0
 
 maxMessages = 5
+SA_mag_threshold = 6.0
