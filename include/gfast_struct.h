@@ -131,6 +131,7 @@ struct GFAST_activeMQ_struct
 				(default is 0). */
   unsigned int maxMessages;   /*!< Maximum messages in consumer FIFO buffer 
 				(default is 5). */
+  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
 };
 
 struct GFAST_ew_struct
@@ -179,7 +180,6 @@ struct GFAST_props_struct
 				runtime. */
   double eqDefaultDepth;      /*!< Default earthquake depth (km) to be applied
 				to shakeAlert structure */
-  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
   double synthetic_runtime;   /*!< Simulation runtime (s) for offline mode. */
   double waitTime;            /*!< Number of seconds to wait before running
 				another iteration of the realtime code. */

@@ -59,7 +59,7 @@ int fill_core_event_info(const char *evid,
                          const int num_stations,
                          struct coreInfo_struct *core);
 
-bool send_xml_filter(struct GFAST_props_struct *props, struct GFAST_shakeAlert_struct *SA);
+bool send_xml_filter(struct GFAST_props_struct props, struct GFAST_shakeAlert_struct *SA);
 
 //static void setFileNames(const char *eventid);
 
@@ -431,7 +431,7 @@ int eewUtils_driveGFAST(const double currentTime,
 
 #if defined GFAST_USE_AMQ && defined GFAST_USE_DMLIB
               // Send message via ActiveMQ if appropriate
-              if (!send_xml_filter(&props, &SA)) {
+              if (!send_xml_filter(props, &SA)) {
                 if (pgdXML != NULL) {
                   sendEventXML(pgdXML);
                 }
@@ -857,9 +857,9 @@ int fill_core_event_info(const char *evid,
 /*
  * Return true if this message should not be sent
  */
-bool send_xml_filter(struct GFAST_props_struct *props,
+bool send_xml_filter(struct GFAST_props_struct props,
                      struct GFAST_shakeAlert_struct *SA) {
-  if (SA->mag > props->SA_mag_threshold) {
+  if (SA->mag > props.activeMQ_props.SA_mag_threshold) {
     return true;
   }
   return false;

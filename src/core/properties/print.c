@@ -97,6 +97,8 @@ void core_properties_print(struct GFAST_props_struct props)
             }
             LOG_DEBUGMSG("%s Will wait %d milliseconds for a message",
                          lspace, props.activeMQ_props.msWaitForMessage);
+            LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
+                         lspace, props.activeMQ_props.SA_mag_threshold);
         }
     }
     LOG_DEBUGMSG("%s GFAST buffer length is %f seconds", lspace, props.bufflen);

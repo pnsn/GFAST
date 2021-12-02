@@ -184,9 +184,6 @@ int core_properties_initialize(const char *propfilename,
       LOG_MSG("No SA output directory specified --> Use:%s", ".");
     }
 
-  // send XML for SA magnitude above this threshold
-  props->SA_mag_threshold = iniparser_getdouble(ini, "general:SA_mag_threshold\0", -10);
-
   props->bufflen = iniparser_getdouble(ini, "general:bufflen\0", 1800.0);
   if (props->bufflen <= 0.0)
     {
