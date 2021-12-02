@@ -387,7 +387,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   int i;
   int scnl_n = 8;
   char obs_sta[scnl_n], obs_net[scnl_n], obs_chan[scnl_n], obs_loc[scnl_n];
-  char *token, *work = NULL;
+  char *token = NULL, *work = NULL;
 
   enum ObservationType obs_type = DISPLACEMENT_OBS;
   
