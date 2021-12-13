@@ -435,7 +435,7 @@ int eewUtils_driveGFAST(const double currentTime,
                 if (pgdXML != NULL) {
                   sendEventXML(pgdXML);
                 }
-                LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n",
+                LOG_MSG("== Sending xml, [GFAST t0:%f] evid:%s pgdXML=[%s]\n",
                         currentTime, SA.eventid, pgdXML);
               }
 #endif /* GFAST_USE_AMQ && GFAST_USE_DMLIB */
@@ -859,8 +859,12 @@ int fill_core_event_info(const char *evid,
  */
 bool send_xml_filter(struct GFAST_props_struct props,
                      struct GFAST_shakeAlert_struct *SA) {
-  if (SA->mag > props.activeMQ_props.SA_mag_threshold) {
+  if (SA->mag < props.activeMQ_props.SA_mag_threshold) {
+    LOG_MSG("Message throttled! SA mag: %f, threshold mag: %f",
+            SA->mag, props.activeMQ_props.SA_mag_threshold)
     return true;
   }
+  LOG_MSG("Message not throttled! SA mag: %f, threshold mag: %f",
+          SA->mag, props.activeMQ_props.SA_mag_threshold)
   return false;
 }

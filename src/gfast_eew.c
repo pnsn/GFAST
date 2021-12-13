@@ -546,6 +546,8 @@ int main(int argc, char **argv)
 	  goto ERROR; 
 	}
 
+      // This whole xmlMessages struct isn't currently necessary since messages are handled and
+      // sent in driveGFAST, but keeping for now in case we want to change back - CWU
       // Send the messages where they need to go
       if (xmlMessages.mmessages > 0)
 	{
