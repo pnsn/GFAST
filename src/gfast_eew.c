@@ -546,16 +546,18 @@ int main(int argc, char **argv)
 	  goto ERROR; 
 	}
 
+      // This whole xmlMessages struct isn't currently necessary since messages are handled and
+      // sent in driveGFAST, but keeping for now in case we want to change back - CWU
       // Send the messages where they need to go
       if (xmlMessages.mmessages > 0)
 	{
 	  for (im=0; im<xmlMessages.nmessages; im++)
 	    {
-	      if ((USE_DMLIB) && (xmlMessages.pgdXML[im] != NULL)) {
-		sendEventXML(xmlMessages.pgdXML[im]);
-	      }
-	      LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n",
-                      t0, xmlMessages.evids[im], xmlMessages.pgdXML[im]);
+	//       if ((USE_DMLIB) && (xmlMessages.pgdXML[im] != NULL)) {
+	// 	sendEventXML(xmlMessages.pgdXML[im]);
+	//       }
+	//       LOG_MSG("== [GFAST t0:%f] evid:%s pgdXML=[%s]\n",
+        //               t0, xmlMessages.evids[im], xmlMessages.pgdXML[im]);
 	      //printf("GFAST: evid:%s cmtQML=[%s]\n", xmlMessages.evids[im], xmlMessages.cmtQML[im]);
 	      //printf("GFAST: evid:%s  ffXML=[%s]\n", xmlMessages.evids[im], xmlMessages.ffXML[im]);
 	      if (xmlMessages.evids[im] != NULL)

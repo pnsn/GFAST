@@ -131,6 +131,7 @@ struct GFAST_activeMQ_struct
 				(default is 0). */
   unsigned int maxMessages;   /*!< Maximum messages in consumer FIFO buffer 
 				(default is 5). */
+  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
 };
 
 struct GFAST_ew_struct
