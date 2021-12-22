@@ -820,7 +820,7 @@ int fill_core_event_info(const char *evid,
   core->lhaveLat = true;
   core->latUnits = DEGREES;
   core->lhaveLatUnits = true;
-  core->latUncer = 0.5;
+  core->latUncer = (double) NAN;
   core->lhaveLatUncer = true;
   core->latUncerUnits = DEGREES;
   core->lhaveLatUncerUnits = true;
@@ -828,7 +828,7 @@ int fill_core_event_info(const char *evid,
   core->lhaveLon = true;
   core->lonUnits = DEGREES;
   core->lhaveLonUnits = true;
-  core->lonUncer = 0.5;
+  core->lonUncer = (double) NAN;
   core->lhaveLonUncer = true;
   core->lonUncerUnits = DEGREES;
   core->lhaveLonUncerUnits = true;
@@ -836,7 +836,7 @@ int fill_core_event_info(const char *evid,
   core->lhaveDepth = true;
   core->depthUnits = KILOMETERS;
   core->lhaveDepthUnits = true;
-  core->depthUncer = 5.0;
+  core->depthUncer = (double) NAN;
   core->lhaveDepthUncer = true;
   core->depthUncerUnits = KILOMETERS;
   core->lhaveDepthUncerUnits = true;
@@ -844,7 +844,7 @@ int fill_core_event_info(const char *evid,
   core->lhaveOrigTime = true;
   core->origTimeUnits = UTC;
   core->lhaveOrigTimeUnits = true;
-  core->origTimeUncer = 20.0;
+  core->origTimeUncer = (double) NAN;
   core->lhaveOrigTimeUncer = true;
   core->origTimeUncerUnits = SECONDS;
   core->lhaveOrigTimeUncerUnits = true;
