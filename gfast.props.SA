@@ -97,6 +97,13 @@ ndepths_in_pgd_gridSearch = 10
 pgd_window_vel = 3.0
 pgd_min_sites = 4
 
+# Message throttling logic
+SA_mag_threshold = 6.0
+# Only send a pgd xml if the number of stations with pgd above
+# throttle_pgd_threshold (cm) is more than throttle_num_stations
+throttle_num_stations = 3
+throttle_pgd_threshold = 25
+
 ################################################################################
 #                            CMT/Finite Fault Properties                       #
 ################################################################################
@@ -163,4 +170,3 @@ maxAttempts = 5
 msWaitForMessage = 0
 
 maxMessages = 5
-SA_mag_threshold = 6.0

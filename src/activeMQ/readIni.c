@@ -172,9 +172,6 @@ int activeMQ_readIni(const char *propfilename,
 		  __func__);
       activeMQ_props->maxMessages = 5;
     }
-  // send XML for SA magnitude above this threshold
-  setVarName(group, "SA_mag_threshold\0", var);
-  activeMQ_props->SA_mag_threshold  = iniparser_getdouble(ini, var, -10);
 
   ierr = 0;
  ERROR:;

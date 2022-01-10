@@ -859,12 +859,12 @@ int fill_core_event_info(const char *evid,
  */
 bool send_xml_filter(struct GFAST_props_struct *props,
                      struct GFAST_shakeAlert_struct *SA) {
-  if (SA->mag < props->activeMQ_props.SA_mag_threshold) {
+  if (SA->mag < props->pgd_props.SA_mag_threshold) {
     LOG_MSG("Message throttled! SA mag: %f, threshold mag: %f",
-            SA->mag, props->activeMQ_props.SA_mag_threshold)
+            SA->mag, props->pgd_props.SA_mag_threshold)
     return true;
   }
   LOG_MSG("Message not throttled! SA mag: %f, threshold mag: %f",
-          SA->mag, props->activeMQ_props.SA_mag_threshold)
+          SA->mag, props->pgd_props.SA_mag_threshold)
   return false;
 }

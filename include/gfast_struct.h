@@ -44,6 +44,9 @@ struct GFAST_pgd_props_struct
   int ngridSearch_lats; /*!< Number of latitudes in epicentral grid-search. */
   int ngridSearch_lons; /*!< Number of longitudes in epicentral grid-search.*/
   int ngridSearch_deps; /*!< Number of depths in PGD grid-search. */
+  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
+  int throttle_num_stations; /*!< Threshold number of stations to send a message */
+  double throttle_pgd_threshold; /*!< Threshold pgd value (cm) */
 };
 
 struct GFAST_cmt_props_struct
@@ -131,7 +134,6 @@ struct GFAST_activeMQ_struct
 				(default is 0). */
   unsigned int maxMessages;   /*!< Maximum messages in consumer FIFO buffer 
 				(default is 5). */
-  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
 };
 
 struct GFAST_ew_struct
