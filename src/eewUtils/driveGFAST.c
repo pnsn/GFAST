@@ -59,7 +59,10 @@ int fill_core_event_info(const char *evid,
                          const int num_stations,
                          struct coreInfo_struct *core);
 
-bool send_xml_filter(struct GFAST_props_struct *props, struct GFAST_shakeAlert_struct *SA);
+bool send_xml_filter(const struct GFAST_props_struct *props,
+					 const struct GFAST_shakeAlert_struct *SA
+					 const struct GFAST_pgdResults_struct *pgd,
+					 const struct GFAST_peakDisplacementData_struct *pgd_data);
 
 //static void setFileNames(const char *eventid);
 
@@ -431,7 +434,7 @@ int eewUtils_driveGFAST(const double currentTime,
 
 #if defined GFAST_USE_AMQ && defined GFAST_USE_DMLIB
               // Send message via ActiveMQ if appropriate
-              if (!send_xml_filter(&props, &SA)) {
+              if (!send_xml_filter(&props, &SA, pgd, pgd_data)) {
                 if (pgdXML != NULL) {
                   sendEventXML(pgdXML);
                 }
@@ -857,8 +860,18 @@ int fill_core_event_info(const char *evid,
 /*
  * Return true if this message should not be sent
  */
-bool send_xml_filter(struct GFAST_props_struct *props,
-                     struct GFAST_shakeAlert_struct *SA) {
+bool send_xml_filter(const struct GFAST_props_struct *props,
+                     const struct GFAST_shakeAlert_struct *SA
+					 const struct GFAST_pgdResults_struct *pgd,
+					 const struct GFAST_peakDisplacementData_struct *pgd_data) {
+
+  for ( i = 0; i < pgd->nsites; i++ ) 
+  {
+	// skip site if it wasn't used
+	if (!pgd->lsiteUsed[i]) { continue; }
+
+  }
+
   if (SA->mag < props->pgd_props.SA_mag_threshold) {
     LOG_MSG("Message throttled! SA mag: %f, threshold mag: %f",
             SA->mag, props->pgd_props.SA_mag_threshold)
