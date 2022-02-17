@@ -381,6 +381,12 @@ int core_properties_initialize(const char *propfilename,
   // Only write summary HDF5 files?
   props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
 					       false);
+  // send XML for SA magnitude above this threshold
+  props->SA_mag_threshold  = iniparser_getdouble(ini, "SA_mag_threshold\0", -10.0);
+  // send XML for SA magnitude above this threshold
+  props->throttle_num_stations  = iniparser_getint(ini, "throttle_num_stations\0", 0);
+  // send XML for SA magnitude above this threshold
+  props->throttle_pgd_threshold  = iniparser_getdouble(ini, "throttle_pgd_threshold\0", 0.0);
   // ANSS informaiton
   s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
   strcpy(props->anssNetwork, s);

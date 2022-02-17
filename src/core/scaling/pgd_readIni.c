@@ -151,15 +151,6 @@ int core_scaling_pgd_readIni(const char *propfilename,
         LOG_ERRMSG("%s", "Error at least one site needed to estimate PGD!");
         goto ERROR;
     }
-    // send XML for SA magnitude above this threshold
-    setVarName(group, "SA_mag_threshold\0", var);
-    pgd_props->SA_mag_threshold  = iniparser_getdouble(ini, var, -10.0);
-    // send XML for SA magnitude above this threshold
-    setVarName(group, "throttle_num_stations\0", var);
-    pgd_props->throttle_num_stations  = iniparser_getint(ini, var, 0);
-    // send XML for SA magnitude above this threshold
-    setVarName(group, "throttle_pgd_threshold\0", var);
-    pgd_props->throttle_pgd_threshold  = iniparser_getdouble(ini, var, 0.0);
     ierr = 0;
     ERROR:;
     iniparser_freedict(ini);

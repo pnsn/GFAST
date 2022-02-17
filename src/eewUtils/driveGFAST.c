@@ -862,8 +862,8 @@ int fill_core_event_info(const char *evid,
  */
 bool send_xml_filter(const struct GFAST_props_struct *props,
                      const struct GFAST_shakeAlert_struct *SA,
-		     const struct GFAST_pgdResults_struct *pgd,
-		     const struct GFAST_peakDisplacementData_struct *pgd_data) {
+                     const struct GFAST_pgdResults_struct *pgd,
+                     const struct GFAST_peakDisplacementData_struct *pgd_data) {
 
   // Determine if pgd threshold is exceeded n times
   int num_pgd_exceeded = 0, i;
@@ -880,31 +880,31 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
     // skip site if it wasn't used
     if (!pgd->lsiteUsed[i]) { continue; }
     // pd is in meters, so convert to cm before comparing to threshold
-    if (pgd_data->pd[i] * 100. > props->pgd_props.throttle_pgd_threshold) {
+    if (pgd_data->pd[i] * 100. > props->throttle_pgd_threshold) {
       num_pgd_exceeded++;
     }
   }
 
   if (props->verbose > 2) {
-    LOG_DEBUGMSG("PGD threshold of %f cm  exceeded at %d stations (threshold num: %d)",
-                 props->pgd_props.throttle_pgd_threshold, num_pgd_exceeded,
-                 props->pgd_props.throttle_num_stations);
+    LOG_DEBUGMSG("PGD threshold of %.2f cm exceeded at %d stations (threshold num: %d)",
+                 props->throttle_pgd_threshold, num_pgd_exceeded,
+                 props->throttle_num_stations);
   }
-  if (num_pgd_exceeded >= props->pgd_props.throttle_num_stations) {
-    LOG_MSG("PGD threshold of %f cm  exceeded at %d stations (threshold num: %d)",
-            props->pgd_props.throttle_pgd_threshold, num_pgd_exceeded,
-            props->pgd_props.throttle_num_stations);
+  if (num_pgd_exceeded >= props->throttle_num_stations) {
+    LOG_MSG("PGD threshold of %.2f cm exceeded at %d stations (threshold num: %d)",
+            props->throttle_pgd_threshold, num_pgd_exceeded,
+            props->throttle_num_stations);
     pgd_exceeded = true;
   }
 
   if (props->verbose > 2) {
     LOG_DEBUGMSG("SA mag: %f, threshold mag: %f",
-                 SA->mag, props->pgd_props.SA_mag_threshold);
+                 SA->mag, props->SA_mag_threshold);
   }
-  if (SA->mag >= props->pgd_props.SA_mag_threshold) {
+  if (SA->mag >= props->SA_mag_threshold) {
     mag_exceeded = true;
     LOG_MSG("SA magnitude exceeded! SA mag: %f, threshold mag: %f",
-            SA->mag, props->pgd_props.SA_mag_threshold);
+            SA->mag, props->SA_mag_threshold);
   }
 
   if (pgd_exceeded && mag_exceeded) {

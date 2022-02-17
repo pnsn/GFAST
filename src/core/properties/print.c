@@ -132,6 +132,12 @@ void core_properties_print(struct GFAST_props_struct props)
     {
         LOG_DEBUGMSG("%s GFAST will save all steps to HDF5", lspace);
     }
+    LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
+                 lspace, props.SA_mag_threshold);
+    LOG_DEBUGMSG("%s Number of stations exceeding PGD to send xml is %d",
+                 lspace, props.throttle_num_stations);
+    LOG_DEBUGMSG("%s PGD threshold for sending xml is %f (cm)",
+                 lspace, props.throttle_pgd_threshold);
     //--------------------------------pgd-------------------------------------//
     LOG_DEBUGMSG("%s GFAST PGD source receiver distance tolerance %f (km)",
                lspace, props.pgd_props.dist_tol);
@@ -157,12 +163,6 @@ void core_properties_print(struct GFAST_props_struct props)
         LOG_DEBUGMSG("%s GFAST PGD longitude grid spacing %f",
                    lspace, props.pgd_props.dLon);
     }
-    LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
-                 lspace, props.pgd_props.SA_mag_threshold);
-    LOG_DEBUGMSG("%s Number of stations exceeding PGD to send xml is %d",
-                 lspace, props.pgd_props.throttle_num_stations);
-    LOG_DEBUGMSG("%s PGD threshold for sending xml is %f (cm)",
-                 lspace, props.pgd_props.throttle_pgd_threshold);
     //--------------------------------cmt-------------------------------------//
     LOG_DEBUGMSG("%s GFAST Number of latitudes in CMT grid search %d",
                lspace, props.cmt_props.ngridSearch_lats);
