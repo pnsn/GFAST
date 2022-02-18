@@ -201,8 +201,11 @@ struct GFAST_props_struct
   bool lh5SummaryOnly;        /*!< If true then only the HDF5 summary
 				will be written. */
   double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
-  int throttle_num_stations; /*!< Threshold number of stations to send a message */
-  double throttle_pgd_threshold; /*!< Threshold pgd value (cm) */
+  int n_throttle;             /*!< number of throttle criteria. num_stations, pgd_threshold,
+                                time_threshold should be the same length */
+  int throttle_num_stations[16]; /*!< Threshold number of stations to send a message */
+  int throttle_pgd_threshold[16]; /*!< Threshold pgd value (cm) */
+  int throttle_time_threshold[16]; /*!< Threshold time value (s) */
   enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
 				playback, offline). */
   enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling

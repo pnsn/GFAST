@@ -134,10 +134,24 @@ void core_properties_print(struct GFAST_props_struct props)
     }
     LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
                  lspace, props.SA_mag_threshold);
-    LOG_DEBUGMSG("%s Number of stations exceeding PGD to send xml is %d",
-                 lspace, props.throttle_num_stations);
-    LOG_DEBUGMSG("%s PGD threshold for sending xml is %f (cm)",
-                 lspace, props.throttle_pgd_threshold);
+    LOG_DEBUGMSG("%s Using %d time-dependent throttling criteria", lspace, props.n_throttle);
+    int nbuffer = 128;
+    char buffer_n[nbuffer], buffer_pgd[nbuffer], buffer_time[nbuffer];
+    int cx_n = 0, cx_pgd = 0, cx_time = 0, i;
+    for (i = 0; i < props.n_throttle; i++) {
+        if (i == props.n_throttle - 1) {
+            cx_n = snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d", props.throttle_num_stations[i]);
+            cx_pgd = snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d", props.throttle_pgd_threshold[i]);
+            cx_time = snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d", props.throttle_time_threshold[i]);
+        } else {
+            cx_n = snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d,", props.throttle_num_stations[i]);
+            cx_pgd = snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d,", props.throttle_pgd_threshold[i]);
+            cx_time = snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d,", props.throttle_time_threshold[i]);
+        }
+    }
+    LOG_DEBUGMSG("%s Number of stations throttling values are [%s]", lspace, buffer_n);
+    LOG_DEBUGMSG("%s PGD threshold throttling values are [%s]", lspace, buffer_pgd);
+    LOG_DEBUGMSG("%s Time throttling values are [%s]", lspace, buffer_time);
     //--------------------------------pgd-------------------------------------//
     LOG_DEBUGMSG("%s GFAST PGD source receiver distance tolerance %f (km)",
                lspace, props.pgd_props.dist_tol);
