@@ -4,18 +4,18 @@
 # BUILD_UTIL
 #Local
 LIB_DIR=/usr/lib64
-EEWDIR=/home/kress/git/ShakeAlert/
+EEWDIR=/home/ulbergc/WORK/ShakeAlert
 BUILD_UTILS=$(EEWDIR)/build-utils
-COMPEARTH_HOME=/home/kress/git/compearth/momenttensor/c_src
+COMPEARTH_HOME=/home/ulbergc/WORK/kress/git/compearth/momenttensor/c_src
 COMPEARTH_INCL=-I $(COMPEARTH_HOME)/include
 COMPEARTH_LIB =$(COMPEARTH_HOME)/lib/libcompearth_static.a
-ISCL_HOME=/home/kress/git/iscl
+ISCL_HOME=/home/ulbergc/WORK/kress/git/iscl
 ISCL_INCL=-I $(ISCL_HOME)/include
 ISCL_LIB=$(ISCL_HOME)/lib/libiscl_static.a
-INIPARSER_HOME=/home/kress/git/iniparser
+INIPARSER_HOME=/home/ulbergc/WORK/kress/git/iniparser
 INIPARSER_INCL=-I $(INIPARSER_HOME)/src
 INIPARSER_LIB=$(INIPARSER_HOME)/libiniparser.a
-EW_HOME=/home/kress/ew_v7.10
+EW_HOME=/home/ulbergc/WORK/kress/ew_v7.10
 EW_INCL=-I $(EW_HOME)/include
 EW_LIB=$(EW_HOME)/lib/libew_util.a $(EW_HOME)/lib/libew_mt.a
 APR_INCL=-I /usr/include/apr-1
@@ -42,7 +42,7 @@ SSL_LIB=/usr/lib64/libssl.so.10
 CRYPTO_LIB=/usr/lib64/libcrypto.so.10
 #DM_LIB=/app/share/lib64/libdm.a
 #DMLIB_INCL=/app/share/include
-DMLIB_DIR=/home/kress/git/ShakeAlert/libs/dmlib
+DMLIB_DIR=$(EEWDIR)/libs/dmlib
 DM_LIB=$(DMLIB_DIR)/libdm.a
 DMLIB_INCL=-I $(DMLIB_DIR)
 
