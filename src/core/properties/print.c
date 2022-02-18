@@ -140,13 +140,13 @@ void core_properties_print(struct GFAST_props_struct props)
     int cx_n = 0, cx_pgd = 0, cx_time = 0, i;
     for (i = 0; i < props.n_throttle; i++) {
         if (i == props.n_throttle - 1) {
-            cx_n = snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d", props.throttle_num_stations[i]);
-            cx_pgd = snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d", props.throttle_pgd_threshold[i]);
-            cx_time = snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d", props.throttle_time_threshold[i]);
+            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d", props.throttle_num_stations[i]);
+            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d", props.throttle_pgd_threshold[i]);
+            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d", props.throttle_time_threshold[i]);
         } else {
-            cx_n = snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d,", props.throttle_num_stations[i]);
-            cx_pgd = snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d,", props.throttle_pgd_threshold[i]);
-            cx_time = snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d,", props.throttle_time_threshold[i]);
+            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d,", props.throttle_num_stations[i]);
+            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d,", props.throttle_pgd_threshold[i]);
+            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d,", props.throttle_time_threshold[i]);
         }
     }
     LOG_DEBUGMSG("%s Number of stations throttling values are [%s]", lspace, buffer_n);
