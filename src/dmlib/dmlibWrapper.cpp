@@ -118,7 +118,7 @@ int startEventSender(const char eventtopic[]) {
       printf("%s: Starting dmlib DMMessageSender on topic: %s\n",
 	     __func__, eventtopic);
     }
-  if (not isAMQconnected()) {
+  if (!isAMQconnected()) {
       printf("%s: Cannot start event sender without activeMQ connection.",__func__);
       return -1;
     }
