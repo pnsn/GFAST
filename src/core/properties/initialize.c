@@ -19,6 +19,8 @@
 #include "gfast_activeMQ.h"
 #endif
 
+int set_array_from_string_int(const char *s, int *array, int max_size);
+
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
  *
@@ -97,34 +99,16 @@ int core_properties_initialize(const char *propfilename,
     }
 
   s = iniparser_getstring(ini, "general:output_interval_mins\0", NULL);
-  if (s != NULL)
-    {
-      j=0;
-      LOG_MSG("parse output_interval_mins=[%s]", s);
-      //int arr[10] = {0};
-      int *arr = props->output_interval_mins;
-      //// Traverse the string
-      for (i = 0; s[i] != '\0'; i++) {
-        //printf("s[%d]=%d\n", i, s[i]);
-        if (s[i] == ',') {
-	  j++;
-        }
-        else {
-	  arr[j] = arr[j] * 10 + (s[i] - 48);
-	  //printf(" After: j=%d --> arr[%d]=%d\n", j, j, arr[j]);
-        }
-      }
-      props->n_intervals = j+1;
-      if (props->n_intervals > MAX_OUTPUT_INTERVALS){
-        LOG_MSG("ERROR: props->n_intervals=%d exceeds MAX_OUTPUT_INTERVALS=%d\n",
-            props->n_intervals, MAX_OUTPUT_INTERVALS);
-      }
-      for (j=0; j<props->n_intervals; j++){
-        LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
-      }
-    }
-  else{
-    props->output_interval_mins[0] = 0;
+  int n_intervals;
+  n_intervals = set_array_from_string_int(s, props->output_interval_mins, MAX_OUTPUT_INTERVALS);
+  if (n_intervals > MAX_OUTPUT_INTERVALS) {
+    LOG_MSG("WARNING: output_interval_mins exceeds MAX_OUTPUT_INTERVALS=%d, capping at %d!\n",
+            MAX_OUTPUT_INTERVALS, MAX_OUTPUT_INTERVALS);
+    n_intervals = MAX_OUTPUT_INTERVALS;
+  }
+  props->n_intervals = n_intervals;
+  for (j=0; j<props->n_intervals; j++){
+    LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
   }
 
   s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
@@ -381,6 +365,57 @@ int core_properties_initialize(const char *propfilename,
   // Only write summary HDF5 files?
   props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
 					       false);
+
+  // send XML for SA magnitude above this threshold
+  props->SA_mag_threshold  = iniparser_getdouble(ini, "general:SA_mag_threshold\0", -10.0);
+
+  // Parse time-dependent throttling criteria
+  int n_num_stations, n_pgd_threshold, n_time_threshold, n_throttle;
+  // Time-dependent throttling criteria: number of stations
+  s = iniparser_getstring(ini, "general:throttle_num_stations\0", NULL);
+  n_num_stations = set_array_from_string_int(s, props->throttle_num_stations,
+                                             MAX_THROTTLING_THRESHOLDS);
+  if (n_num_stations > MAX_THROTTLING_THRESHOLDS) {
+    LOG_MSG("WARNING: throttle_num_stations exceeds MAX_THROTTLING_THRESHOLDS=%d, capping at %d!",
+            MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
+    n_num_stations = MAX_THROTTLING_THRESHOLDS;
+  }
+  // Time-dependent throttling criteria: pgd threshold (cm)
+  s = iniparser_getstring(ini, "general:throttle_pgd_threshold\0", NULL);
+  n_pgd_threshold = set_array_from_string_int(s, props->throttle_pgd_threshold,
+                                              MAX_THROTTLING_THRESHOLDS);
+  if (n_pgd_threshold > MAX_THROTTLING_THRESHOLDS) {
+    LOG_MSG("WARNING: throttle_pgd_threshold exceeds MAX_THROTTLING_THRESHOLDS=%d, capping at %d!",
+            MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
+    n_pgd_threshold = MAX_THROTTLING_THRESHOLDS;
+  }
+  // Time-dependent throttling criteria: time threshold (s)
+  s = iniparser_getstring(ini, "general:throttle_time_threshold\0", NULL);
+  n_time_threshold = set_array_from_string_int(s, props->throttle_time_threshold,
+                                               MAX_THROTTLING_THRESHOLDS);
+  if (n_time_threshold > MAX_THROTTLING_THRESHOLDS) {
+    LOG_MSG("WARNING: throttle_time_threshold exceeds MAX_THROTTLING_THRESHOLDS=%d, capping at %d!",
+            MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
+    n_time_threshold = MAX_THROTTLING_THRESHOLDS;
+  }
+
+  // Compare lengths of throttle arrays, they should be the same. If not, use the shortest one
+  if ((n_num_stations != n_pgd_threshold) || (n_num_stations != n_time_threshold)) {
+    int min_tmp = (n_num_stations < n_pgd_threshold) ? n_num_stations : n_pgd_threshold;
+    n_throttle = (min_tmp < n_time_threshold) ? min_tmp : n_time_threshold;
+    LOG_MSG("WARNING: throttle arrays don't have the same length, capping at the first %d values!",
+            n_throttle);
+  } else {
+    n_throttle = n_num_stations;
+  }
+  props->n_throttle = n_throttle;
+
+  LOG_MSG("%s", "Throttle values:\n[index] throttle_num_stations throttle_pgd_threshold throttle_time_threshold");
+  for (j = 0; j < props->n_throttle; j++) {
+    LOG_MSG("[%d] %4d %4d %4d", j, props->throttle_num_stations[j], props->throttle_pgd_threshold[j],
+            props->throttle_time_threshold[j]);
+  }
+
   // ANSS informaiton
   s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
   strcpy(props->anssNetwork, s);
@@ -463,4 +498,31 @@ int core_properties_initialize(const char *propfilename,
   return ierr;
  ERROR:;
   return ierr;
+}
+
+int set_array_from_string_int(const char *s, int *array, int max_size) {
+  int i, j = 0;
+  int *arr = array;
+  // ensure the array is initialized to zeros
+  arr[0] = 0;
+  if (s != NULL)
+    {
+      //// Traverse the string
+      for (i = 0; s[i] != '\0'; i++) {
+        if (s[i] == ',') {
+          j++;
+          // stop if the max_size is exceeded
+          if (j >= max_size) break;
+          // ensure the array is initialized to zeros
+          arr[j] = 0;
+        }
+        else {
+          // ASCII decimal for '0' is 48
+          arr[j] = arr[j] * 10 + (s[i] - 48);
+        }
+      }
+    }
+
+  // return the number of items added to the array
+  return j + 1;
 }

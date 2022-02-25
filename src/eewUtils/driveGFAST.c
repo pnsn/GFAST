@@ -59,7 +59,11 @@ int fill_core_event_info(const char *evid,
                          const int num_stations,
                          struct coreInfo_struct *core);
 
-bool send_xml_filter(struct GFAST_props_struct *props, struct GFAST_shakeAlert_struct *SA);
+bool send_xml_filter(const struct GFAST_props_struct *props,
+                     const struct GFAST_shakeAlert_struct *SA,
+                     const struct GFAST_pgdResults_struct *pgd,
+                     const struct GFAST_peakDisplacementData_struct *pgd_data,
+                     const double age_of_event);
 
 //static void setFileNames(const char *eventid);
 
@@ -431,7 +435,7 @@ int eewUtils_driveGFAST(const double currentTime,
 
 #if defined GFAST_USE_AMQ && defined GFAST_USE_DMLIB
               // Send message via ActiveMQ if appropriate
-              if (!send_xml_filter(&props, &SA)) {
+              if (!send_xml_filter(&props, &SA, pgd, pgd_data, age_of_event)) {
                 if (pgdXML != NULL) {
                   sendEventXML(pgdXML);
                 }
@@ -855,16 +859,79 @@ int fill_core_event_info(const char *evid,
 }
 
 /*
- * Return true if this message should not be sent
+ * Return true if this message should not be sent (false if it should be sent)
  */
-bool send_xml_filter(struct GFAST_props_struct *props,
-                     struct GFAST_shakeAlert_struct *SA) {
-  if (SA->mag < props->activeMQ_props.SA_mag_threshold) {
-    LOG_MSG("Message throttled! SA mag: %f, threshold mag: %f",
-            SA->mag, props->activeMQ_props.SA_mag_threshold)
-    return true;
+bool send_xml_filter(const struct GFAST_props_struct *props,
+                     const struct GFAST_shakeAlert_struct *SA,
+                     const struct GFAST_pgdResults_struct *pgd,
+                     const struct GFAST_peakDisplacementData_struct *pgd_data,
+                     const double age_of_event) {
+
+  // Determine if pgd threshold is exceeded n times
+  int num_pgd_exceeded = 0, i, i_throttle;
+  bool pgd_exceeded = false;
+  bool mag_exceeded = false;
+
+  // Find the correct throttle criteria based on the time after origin
+  i_throttle = -1;
+  for ( i = 0; i < props->n_throttle; i++ ) {
+    if (props->throttle_time_threshold[i] > age_of_event) break;
+    i_throttle++;
   }
-  LOG_MSG("Message not throttled! SA mag: %f, threshold mag: %f",
-          SA->mag, props->activeMQ_props.SA_mag_threshold)
-  return false;
+  i_throttle = (i_throttle < 0) ? 0: i_throttle;
+  if (props->verbose > 2) {
+    LOG_DEBUGMSG("For age_of_event %.2f, using i_throttle=%d, thresholds for time=%d, pgd=%d, nsta=%d",
+                 age_of_event,
+                 i_throttle,
+                 props->throttle_time_threshold[i_throttle],
+                 props->throttle_pgd_threshold[i_throttle],
+                 props->throttle_num_stations[i_throttle])
+  }
+
+  // Assumes pgd->nsites = pgd_data->nsites and indices correspond
+  if (pgd->nsites != pgd_data->nsites) {
+    LOG_ERRMSG("nsites don't match for pgd, pgd_data! %d, %d\n" , pgd->nsites,
+               pgd_data->nsites);
+    return false;
+  }
+  for ( i = 0; i < pgd->nsites; i++ ) {
+    // skip site if it wasn't used
+    if (!pgd->lsiteUsed[i]) { continue; }
+    // pd is in meters, so convert to cm before comparing to threshold
+    if (pgd_data->pd[i] * 100. > props->throttle_pgd_threshold[i_throttle]) {
+      num_pgd_exceeded++;
+    }
+  }
+
+  if (props->verbose > 2) {
+    LOG_DEBUGMSG("PGD threshold of %d cm exceeded at %d stations (threshold num: %d)",
+                 props->throttle_pgd_threshold[i_throttle], num_pgd_exceeded,
+                 props->throttle_num_stations[i_throttle]);
+  }
+  if (num_pgd_exceeded >= props->throttle_num_stations[i_throttle]) {
+    LOG_MSG("PGD threshold of %d cm exceeded at %d stations (threshold num: %d)",
+            props->throttle_pgd_threshold[i_throttle], num_pgd_exceeded,
+            props->throttle_num_stations[i_throttle]);
+    pgd_exceeded = true;
+  }
+
+  if (props->verbose > 2) {
+    LOG_DEBUGMSG("SA mag: %f, threshold mag: %f",
+                 SA->mag, props->SA_mag_threshold);
+  }
+  if (SA->mag >= props->SA_mag_threshold) {
+    mag_exceeded = true;
+    LOG_MSG("SA magnitude exceeded! SA mag: %f, threshold mag: %f",
+            SA->mag, props->SA_mag_threshold);
+  }
+
+  if (pgd_exceeded && mag_exceeded) {
+    LOG_MSG("Message not throttled! pgd_exceeded: %d, mag_exceeded: %d",
+            pgd_exceeded, mag_exceeded);
+    return false;
+  }
+
+  LOG_MSG("Message throttled! pgd_exceeded: %d, mag_exceeded: %d",
+          pgd_exceeded, mag_exceeded);
+  return true;
 }
