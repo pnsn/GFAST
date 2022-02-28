@@ -319,6 +319,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   char *xmlmsg;
   xmlmsg = NULL;
   *ierr = 0;
+  int max_assoc_stations = 6;
 
   // Convert enum units to char
   char magUnits[32], magUncerUnits[32], latUnits[32], latUncerUnits[32], lonUnits[32],
@@ -388,6 +389,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   int scnl_n = 8;
   char obs_sta[scnl_n], obs_net[scnl_n], obs_chan[scnl_n], obs_loc[scnl_n];
   char *token = NULL, *work = NULL;
+  bool assoc_flag = false;
 
   enum ObservationType obs_type = DISPLACEMENT_OBS;
   
@@ -441,7 +443,12 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                   pgd_data->sta_lat[i],
                                   pgd_data->sta_lon[i],
                                   pgd_data->pd_time[i],
-                                  "cm\0");
+                                  "cm\0",
+                                  "deg\0",
+                                  "deg\0",
+                                  "UTC\0",
+                                  "\0",
+                                  assoc_flag);
     }
 
   LOG_MSG("%s", "createEventXML - finished adding gmobs, encoding message");
