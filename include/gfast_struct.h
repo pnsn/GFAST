@@ -333,6 +333,7 @@ struct GFAST_cmtResults_struct
 struct GFAST_pgdResults_struct
 {
   double *mpgd;      /*!< PGD magnitude at id'th depth [ndeps] */
+  double *mpgd_sigma;/*!< PGD magnitude uncertainty at id'th depth [ndeps] */
   double *mpgd_vr;   /*!< PGD variance reduction at id'th depth [ndeps] */
   double *dep_vr_pgd;/*!< PGD variance reduction at id'th depth 
 		       normalized by the interquartile range [ndeps] */

@@ -151,6 +151,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     array_zeros64f_work(pgd->nsites, pgd->UPinp);
     array_zeros8l_work( pgd->nsites, pgd->lsiteUsed);
     array_zeros64f_work(nloc, pgd->mpgd);
+    array_zeros64f_work(nloc, pgd->mpgd_sigma);
     array_zeros64f_work(nloc, pgd->mpgd_vr);
     array_zeros64f_work(nloc, pgd->dep_vr_pgd);
     array_zeros64f_work(nloc, pgd->iqr);
@@ -253,8 +254,10 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
       iqrMin = array_min64f(pgd->ndeps, pgd->iqr, &isclerr);
     }
     // Extract the estimates and compute weighted objective function
+    // Also add uncertainty estimate
     for (idep=0; idep<pgd->ndeps; idep++)
     {
+        pgd->mpgd_sigma[idep] = 0.5;
         pgd->dep_vr_pgd[idep] = pgd->mpgd[idep]*iqrMin/pgd->iqr[idep];
         j = 0;
         for (i=0; i<pgd->nsites; i++)
