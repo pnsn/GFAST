@@ -287,7 +287,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	  //printf("driveGFAST: drivePGD\n");
 	  LOG_MSG("Call drivePGD eventid=%s", SA.eventid);
 	  ierr = eewUtils_drivePGD(props.pgd_props,
-				   SA.lat, SA.lon, SA.dep,
+				   SA.lat, SA.lon, SA.dep, age_of_event,
 				   *pgd_data,
 				   pgd);
 	  LOG_MSG("drivePGD returned ierr=%d", ierr);

@@ -15,6 +15,7 @@
  * @param[in] SA_lat     event latitude (degrees) [-90,90]
  * @param[in] SA_lon     event longitude (degrees) [0,360]
  * @param[in] SA_dep     event depth (km)
+ * @param[in] age_of_event time since event origin time (s)
  * @param[in] pgd_data   data structure holding the peak ground displacement
  *                       data, weights, and logical mask indicating site is
  *                       a candidate for inversion
@@ -38,6 +39,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
                       const double SA_lat,
                       const double SA_lon,
                       const double SA_dep,
+                      const double age_of_event,
                       struct GFAST_peakDisplacementData_struct pgd_data,
                       struct GFAST_pgdResults_struct *pgd)
 {
@@ -255,9 +257,17 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
     }
     // Extract the estimates and compute weighted objective function
     // Also add uncertainty estimate
+    // First get last index value before lookup time is greater than age_of_event
+    int i99;
+    for (i99 = 0; (i99 < pgd_props.n99) && (pgd_props.t99[i99] <= age_of_event); i99++) {}
+    i99 = (i99 <= 0) ? 0 : i99 - 1;
     for (idep=0; idep<pgd->ndeps; idep++)
     {
-        pgd->mpgd_sigma[idep] = 0.5;
+        if (pgd_props.n99 == 0) {
+            pgd->mpgd_sigma[idep] = 0.5;
+        } else {
+            pgd->mpgd_sigma[idep] = 0.5 * exp(pgd_props.m99[i99] - pgd->mpgd[idep]);
+        }
         pgd->dep_vr_pgd[idep] = pgd->mpgd[idep]*iqrMin/pgd->iqr[idep];
         j = 0;
         for (i=0; i<pgd->nsites; i++)
