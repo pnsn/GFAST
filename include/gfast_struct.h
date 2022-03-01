@@ -44,6 +44,9 @@ struct GFAST_pgd_props_struct
   int ngridSearch_lats; /*!< Number of latitudes in epicentral grid-search. */
   int ngridSearch_lons; /*!< Number of longitudes in epicentral grid-search.*/
   int ngridSearch_deps; /*!< Number of depths in PGD grid-search. */
+  double t99[MAX_SIGMA_LOOKUP_VALUES];/*!< Time after origin (s) from lookup table [n99] */
+  double m99[MAX_SIGMA_LOOKUP_VALUES];/*!< Magnitude from lookup table [n99] */
+  int n99;              /*!< Number of t99, m99 values */
 };
 
 struct GFAST_cmt_props_struct

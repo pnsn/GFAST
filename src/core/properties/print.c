@@ -16,6 +16,7 @@
 void core_properties_print(struct GFAST_props_struct props)
 {
     const char *lspace = "    \0";
+    int i;
     LOG_DEBUGMSG("\n%s", "GFAST properties");
     if (props.opmode == OFFLINE)
     {
@@ -137,16 +138,22 @@ void core_properties_print(struct GFAST_props_struct props)
     LOG_DEBUGMSG("%s Using %d time-dependent throttling criteria", lspace, props.n_throttle);
     int nbuffer = 128;
     char buffer_n[nbuffer], buffer_pgd[nbuffer], buffer_time[nbuffer];
-    int cx_n = 0, cx_pgd = 0, cx_time = 0, i;
+    int cx_n = 0, cx_pgd = 0, cx_time = 0;
     for (i = 0; i < props.n_throttle; i++) {
         if (i == props.n_throttle - 1) {
-            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d", props.throttle_num_stations[i]);
-            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d", props.throttle_pgd_threshold[i]);
-            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d", props.throttle_time_threshold[i]);
+            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d",
+                             props.throttle_num_stations[i]);
+            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d",
+                               props.throttle_pgd_threshold[i]);
+            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d",
+                                props.throttle_time_threshold[i]);
         } else {
-            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d,", props.throttle_num_stations[i]);
-            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d,", props.throttle_pgd_threshold[i]);
-            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d,", props.throttle_time_threshold[i]);
+            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d,",
+                             props.throttle_num_stations[i]);
+            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d,",
+                               props.throttle_pgd_threshold[i]);
+            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d,",
+                                props.throttle_time_threshold[i]);
         }
     }
     LOG_DEBUGMSG("%s Number of stations throttling values are [%s]", lspace, buffer_n);
@@ -176,6 +183,13 @@ void core_properties_print(struct GFAST_props_struct props)
     {
         LOG_DEBUGMSG("%s GFAST PGD longitude grid spacing %f",
                    lspace, props.pgd_props.dLon);
+    }
+    if (props.pgd_props.n99 > 0)
+    {
+        for (i = 0; i < props.pgd_props.n99; i++) {
+            LOG_DEBUGMSG("%s GFAST PGD sigma lookup: %5.1f %5.2f",
+                         lspace, props.pgd_props.t99[i], props.pgd_props.m99[i]);
+        }
     }
     //--------------------------------cmt-------------------------------------//
     LOG_DEBUGMSG("%s GFAST Number of latitudes in CMT grid search %d",

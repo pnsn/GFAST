@@ -536,6 +536,9 @@ int core_scaling_pgd_weightObservations(const int l1,
                                         const double *__restrict__ W,
                                         const double *__restrict__ b,
                                         double *__restrict__ Wb);
+/* Reads the sigma lookup table */
+int core_scaling_readSigmaLookupFile(const char *sigmaLookupFile,
+                                     struct GFAST_pgd_props_struct *pgd_props);
 
 //----------------------------------------------------------------------------//
 //                            Waveform processor                              //

@@ -105,6 +105,9 @@ ndepths_in_pgd_gridSearch = 10
 # These are the defaults:
 pgd_window_vel = 3.0
 pgd_min_sites = 4
+# Lookup table for non-density corrected value to generate magnitude 
+# uncertainty based on time and magnitude
+sigmaLookupFile = M99.txt
 
 ################################################################################
 #                            CMT/Finite Fault Properties                       #
