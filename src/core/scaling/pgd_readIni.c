@@ -143,7 +143,6 @@ int core_scaling_pgd_readIni(const char *propfilename,
         LOG_ERRMSG("%s", "Error min window velocity must be positive!");
         goto ERROR;
     }
-
     setVarName(group, "pgd_min_sites\0", var);
     pgd_props->min_sites = iniparser_getint(ini, var, 4);
     if (pgd_props->min_sites < 1)
@@ -151,7 +150,12 @@ int core_scaling_pgd_readIni(const char *propfilename,
         LOG_ERRMSG("%s", "Error at least one site needed to estimate PGD!");
         goto ERROR;
     }
-    ierr = 0;
+    setVarName(group, "sigmaLookupFile\0", var);
+    const char *sigmaLookupFile;
+    sigmaLookupFile = iniparser_getstring(ini, var, "M99.txt\0");
+    ierr = core_scaling_readSigmaLookupFile(sigmaLookupFile,
+                                            pgd_props);
+
     ERROR:;
     iniparser_freedict(ini);
     return ierr;

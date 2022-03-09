@@ -61,7 +61,7 @@ install:
 	done
 
 clean:
-	-rm -f *.o $(EXE)
+	-rm -f *.o $(EXE) $(OBJS)
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir clean ; \
 	done

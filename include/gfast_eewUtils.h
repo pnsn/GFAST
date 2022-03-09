@@ -42,6 +42,7 @@ int eewUtils_drivePGD(const struct GFAST_pgd_props_struct pgd_props,
                       const double SA_lat,
                       const double SA_lon,
                       const double SA_dep,
+                      const double age_of_event,
                       struct GFAST_peakDisplacementData_struct pgd_data,
                       struct GFAST_pgdResults_struct *pgd);
 /* Make finite fault XML for shakeAlert */

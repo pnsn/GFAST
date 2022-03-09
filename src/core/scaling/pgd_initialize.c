@@ -101,6 +101,7 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
 
     nloc = pgd->ndeps*pgd->nlats*pgd->nlons;
     pgd->mpgd       = memory_calloc64f(nloc);
+    pgd->mpgd_sigma = memory_calloc64f(nloc);
     pgd->mpgd_vr    = memory_calloc64f(nloc);
     pgd->dep_vr_pgd = memory_calloc64f(nloc);
     pgd->srcDepths  = memory_calloc64f(pgd->ndeps);
