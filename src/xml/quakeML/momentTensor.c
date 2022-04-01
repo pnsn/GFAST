@@ -72,7 +72,7 @@ int xml_quakeML_writeMomentTensor(const char *publicIDroot,
     lenos = strlen(publicID);
     if (lenos > 0)
     {
-        if (publicID[lenos] != '/'){strcat(publicID, "/\0");}
+        if (publicID[lenos - 1] != '/'){strcat(publicID, "/\0");}
     } 
     strcat(publicID, "momenttensor/\0");
     if (evid != NULL){
