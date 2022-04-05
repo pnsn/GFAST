@@ -414,18 +414,22 @@ char *eewUtils_makeXML__quakeML(const char *network,
     origin.originTime.time = t0;
     origin.originTime.time_units = UTC;
     origin.originTime.lhaveTime = true;
+    origin.lhaveOriginTime = true;
 
     origin.latitude.latitude = evla;
     origin.latitude.latitude_units = DEGREES;
     origin.latitude.lhaveLat = true;
+    origin.lhaveLatitude = true;
 
     origin.longitude.longitude = evlo;
     origin.longitude.longitude_units = DEGREES;
     origin.longitude.lhaveLon = true;
+    origin.lhaveLongitude = true;
 
     origin.depth.depth = evdp;
     origin.depth.depth_units = KILOMETERS;
     origin.depth.lhaveDepth = true;
+    origin.lhaveDepth = true;
 
     *ierr = GFAST_xml_quakeML_writeOrigin(publicIDroot,
                                           evid,

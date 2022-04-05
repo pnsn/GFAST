@@ -6,7 +6,7 @@ ENABLE_LANGUAGE(CXX)
 ENABLE_TESTING()
 SET(GFAST_VERSION_MAJOR 1)
 SET(GFAST_VERSION_MINOR 1)
-SET(GFAST_VERSION_PATCH 5)
+SET(GFAST_VERSION_PATCH 6)
 SET(GFAST_VERSION ${GFAST_VERSION_MAJOR}.${GFAST_VERSION_MINOR}.${GFAST_VERSION_PATCH})
 IF ("${GFAST_INSTANCE}" STREQUAL "")
   SET(GFAST_INSTANCE "DEFAULT")
@@ -104,6 +104,7 @@ SET(SRCS_CORE
     src/core/scaling/pgd_setRHS.c src/core/scaling/pgd_weightForwardModel.c
     src/core/scaling/pgd_sanityChecks.c 
     src/core/scaling/pgd_weightObservations.c 
+    src/core/scaling/readSigmaLookupFile.c 
     src/core/waveformProcessor/offset.c src/core/waveformProcessor/peakDisplacement.c
 )
 #ADD_SUBDIRECTORY(src/eewUtils)

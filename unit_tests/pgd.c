@@ -181,13 +181,14 @@ int pgd_inversion_test2(void)
     struct GFAST_pgd_props_struct pgd_props;
     struct GFAST_peakDisplacementData_struct pgd_data;
     struct GFAST_pgdResults_struct pgd_ref, pgd;
-    double SA_lat, SA_lon, SA_dep;
+    double SA_lat, SA_lon, SA_dep, age_of_event;
     const double tol = 1.e-4;
     int i, ierr;
     memset(&pgd_props, 0, sizeof(pgd_props));
     memset(&pgd_data, 0, sizeof(pgd_data));
     memset(&pgd_ref, 0, sizeof(pgd_ref));
     memset(&pgd, 0, sizeof(pgd));
+    age_of_event = 0;
     ierr = read_results(filenm,
                         &pgd_props,
                         &pgd_data,
@@ -217,7 +218,7 @@ int pgd_inversion_test2(void)
         pgd.srcDepths[i] = pgd_ref.srcDepths[i];
     }
     ierr = eewUtils_drivePGD(pgd_props,
-                             SA_lat, SA_lon, SA_dep,
+                             SA_lat, SA_lon, SA_dep, age_of_event,
                              pgd_data, &pgd);
     if (ierr != PGD_SUCCESS)
     {

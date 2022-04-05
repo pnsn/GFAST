@@ -68,7 +68,7 @@ int xml_quakeML_writeFocalMechanism(const char *publicIDroot,
     lenos = strlen(publicID);
     if (lenos > 0)
     {   
-        if (publicID[lenos] != '/'){strcat(publicID, "/\0");}
+        if (publicID[lenos - 1] != '/'){strcat(publicID, "/\0");}
     }   
     strcat(publicID, "focalmechanism/\0");
     if (evid != NULL)
