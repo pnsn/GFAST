@@ -93,7 +93,6 @@ int main(int argc, char **argv)
   memset(&props,    0, sizeof(struct GFAST_props_struct));
   memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
   memset(&events, 0, sizeof(struct GFAST_activeEvents_struct));
-// MTH: The line below is in my source code but not in VK's ??
   memset(&xml_status, 0, sizeof(struct GFAST_activeEvents_xml_status));
   memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
   memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));

@@ -55,17 +55,15 @@ int core_scaling_pgd_readIni(const char *propfilename,
     // Read the properties
     pgd_props->verbose = verbose;
     pgd_props->utm_zone = utm_zone;
-    setVarName(group, "minimum_pgd_cm\0", var);
-    // MTH: Not ideal that minimum_pgd_cm still maps to dist_tol
+    setVarName(group, "dist_tolerance\0", var);
     pgd_props->dist_tol = iniparser_getdouble(ini, var, 0.5);
     if (pgd_props->dist_tol < 0.0)
     {
-        LOG_ERRMSG("Error ndistance tolerance %f cannot be negative",
+        LOG_ERRMSG("Error distance tolerance %f cannot be negative",
                    pgd_props->dist_tol);
         goto ERROR;
     }
-    setVarName(group, "pgd_default_cm\0", var);
-    // MTH: Not ideal that pgd_default_cm still maps to disp_def
+    setVarName(group, "dist_default\0", var);
     pgd_props->disp_def = iniparser_getdouble(ini, var, 0.01);
     if (pgd_props->disp_def <= 0.0)
     {
@@ -155,6 +153,16 @@ int core_scaling_pgd_readIni(const char *propfilename,
     sigmaLookupFile = iniparser_getstring(ini, var, "M99.txt\0");
     ierr = core_scaling_readSigmaLookupFile(sigmaLookupFile,
                                             pgd_props);
+    setVarName(group, "minimum_pgd_cm\0", var);
+    pgd_props->minimum_pgd_cm = iniparser_getdouble(ini, var, -1.0);
+    setVarName(group, "maximum_pgd_cm\0", var);
+    pgd_props->maximum_pgd_cm = iniparser_getdouble(ini, var, 10000.);
+    if (pgd_props->maximum_pgd_cm < pgd_props->minimum_pgd_cm)
+    {
+        LOG_ERRMSG("Error maximum_pgd_cm %f must be greater than minimum_pgd_cm %f",
+                   pgd_props->maximum_pgd_cm, pgd_props->minimum_pgd_cm);
+        goto ERROR;
+    }
 
     ERROR:;
     iniparser_freedict(ini);

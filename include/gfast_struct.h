@@ -47,6 +47,8 @@ struct GFAST_pgd_props_struct
   double t99[MAX_SIGMA_LOOKUP_VALUES];/*!< Time after origin (s) from lookup table [n99] */
   double m99[MAX_SIGMA_LOOKUP_VALUES];/*!< Magnitude from lookup table [n99] */
   int n99;              /*!< Number of t99, m99 values */
+  double minimum_pgd_cm; /*!< Minimum value to include a pgd value in inversion (cm) */
+  double maximum_pgd_cm; /*!< Maximum value to include a pgd value in inversion (cm) */
 };
 
 struct GFAST_cmt_props_struct
