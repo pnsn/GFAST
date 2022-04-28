@@ -38,6 +38,8 @@ static double __getPeakDisplacement(const int npts,
  *                           (current_time - ev_time)*svel_window 
  *                          then the site will be excluded
  * @param[in] min_svel_window   the *minimum* shear wave velocity (km/s) used in data windowing
+ * @param[in] min_pgd_cm    the *minimum* pgd value (cm) to pass on to inversion. Ignore others
+ * @param[in] max_pgd_cm    the *maximum* pgd value (cm) to pass on to inversion. Ignore others
  * @param[in] ev_lat        source hypocentral latitude (degrees) [-90,90]
  * @param[in] ev_lon        source hypocentral longitude (degrees) [0,360]
  * @param[in] ev_dep        source hypocentral depth (km) (this is positive
@@ -65,6 +67,8 @@ int core_waveformProcessor_peakDisplacement(
     const int utm_zone,
     const double svel_window,
     const double min_svel_window,
+    const double min_pgd_cm,
+    const double max_pgd_cm,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,
@@ -215,25 +219,46 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
 
             if (isnan(peakDisp))
             {
-LOG_MSG("currentTime:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
-         currentTime,
-         gps_data.data[k].stnm, gps_data.data[k].chan[0],
-         gps_data.data[k].netw, gps_data.data[k].loc,
-         gps_data.data[k].ubuff[gps_data.data[k].npts-1],
-         gps_data.data[k].nbuff[gps_data.data[k].npts-1],
-         gps_data.data[k].ebuff[gps_data.data[k].npts-1]);
+                LOG_MSG("currentTime:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
+                        currentTime,
+                        gps_data.data[k].stnm, gps_data.data[k].chan[0],
+                        gps_data.data[k].netw, gps_data.data[k].loc,
+                        gps_data.data[k].ubuff[gps_data.data[k].npts-1],
+                        gps_data.data[k].nbuff[gps_data.data[k].npts-1],
+                        gps_data.data[k].ebuff[gps_data.data[k].npts-1]);
             }
             else
             {
-LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f",
-         gps_data.data[k].stnm, gps_data.data[k].chan[0],
-         gps_data.data[k].netw, gps_data.data[k].loc,
-         peakDisp,
-         distance);
+                LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f",
+                        gps_data.data[k].stnm, gps_data.data[k].chan[0],
+                        gps_data.data[k].netw, gps_data.data[k].loc,
+                        peakDisp,
+                        distance);
             }
 
-            // If it isn't a NaN then retain it for processing
-            if (!isnan(peakDisp))
+            if (peakDisp * 100 <= min_pgd_cm)
+            {
+                LOG_MSG("currentTime:%f %s.%s.%s.%s Ignoring pgd, %f cm <= min_pgd_cm %f",
+                        currentTime,
+                        gps_data.data[k].stnm, gps_data.data[k].chan[0],
+                        gps_data.data[k].netw, gps_data.data[k].loc,
+                        peakDisp * 100, min_pgd_cm);
+            }
+
+            if (peakDisp * 100 >= max_pgd_cm)
+            {
+                LOG_MSG("currentTime:%f %s.%s.%s.%s Ignoring pgd, %f cm >= min_pgd_cm %f",
+                        currentTime,
+                        gps_data.data[k].stnm, gps_data.data[k].chan[0],
+                        gps_data.data[k].netw, gps_data.data[k].loc,
+                        peakDisp * 100, max_pgd_cm);
+            }
+
+            // If it isn't a NaN and within the sanity bounds then retain it for processing
+            if (!isnan(peakDisp) &&
+                peakDisp * 100 > min_pgd_cm &&
+                peakDisp * 100 < max_pgd_cm
+                )
             {
                 pgd_data->pd_time[k] = obsTime; // epoch
                 pgd_data->pd[k] = peakDisp; // meters

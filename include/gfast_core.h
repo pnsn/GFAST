@@ -558,6 +558,8 @@ int core_waveformProcessor_peakDisplacement(
     const int utm_zone,
     const double svel_window,
     const double min_svel_window,
+    const double min_pgd_cm,
+    const double max_pgd_cm,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,
