@@ -118,7 +118,7 @@ int eewUtils_driveGFAST(const double currentTime,
     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
   char *cmtQML, *ffXML, *pgdXML;
   double t1, t2, age_of_event;
-  int mins, i;
+  int mins;
   float secs;
   int h5k, ierr, iev, ipf, nPop, nRemoved,
     nsites_cmt, nsites_ff, nsites_pgd,
@@ -224,6 +224,8 @@ int eewUtils_driveGFAST(const double currentTime,
       nsites_pgd = GFAST_core_waveformProcessor_peakDisplacement(props.pgd_props.utm_zone,
 								 props.pgd_props.window_vel,
 								 props.pgd_props.min_window_vel,
+								 props.pgd_props.minimum_pgd_cm,
+								 props.pgd_props.maximum_pgd_cm,
 								 SA.lat,
 								 SA.lon,
 								 SA.dep,

@@ -46,7 +46,8 @@ int core_scaling_pgd_sanityChecks(const int n,
     {
         dist = d[i];
         if (dist - dist_tol < 0.0){
-          LOG_MSG("Warning: d[%d]=%f < dist_tol=%f !!!", i, d[i], dist_tol);
+          LOG_MSG("Warning: d[%d]=%f < dist_tol=%f, set to dist_def=%f? !!!",
+                  i, d[i], dist_tol, dist_def);
         }
         //if (dist - dist_tol < 0.0){dist = dist_def;}
     }

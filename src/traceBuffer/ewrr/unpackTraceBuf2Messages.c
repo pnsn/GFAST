@@ -79,14 +79,13 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const char *msgs,
     struct tb2Data_struct *tb2Data)
 {
-    char *msg, netw[64], stat[64], chan[64], loc[64];
-    TRACE2_HEADER traceHeader;
+    char *msg;
     TRACE2_HEADER  *trh;
     double *times, dt;
     int *nsamps;
     int *imap, *imapPtr, *imsg, *iperm, *kpts, *nmsg, *resp,
         dtype, i, i1, i2, ierr, im, indx, ir, k, kndx, l, j,
-        lswap, nchunks, nReadPtr, nsamp0, npts, nsort;
+        lswap, nchunks, nReadPtr, npts;
     const int maxpts = MAX_TRACEBUF_SIZ/16; // MAX_TRACEBUF_SIZ/sizeof(int16_t)
     const bool clearSNCL = false;
 
@@ -95,14 +94,12 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
     char buf[15];
     char *logo;
 
-    bool found = false;
     int debug = 0;
 
     int kold;
     struct string_index *vals, *tmp;
     vals = (struct string_index *) calloc((size_t) nRead, sizeof(struct string_index));
     tmp = (struct string_index *) calloc((size_t) nRead, sizeof(struct string_index));
-    char *ret;
 
     //------------------------------------------------------------------------//
     //
@@ -146,7 +143,6 @@ int traceBuffer_ewrr_unpackTraceBuf2Messages(
       }
       //exit(0);
     }
-
 
     // MTH: load up the msg logos, times and nsamp into records to sort once
     for (i=0; i<nRead; i++)
@@ -558,7 +554,7 @@ static int myCompare2(const void *x, const void *y)
 {
   const struct string_index xx = *(const struct string_index *) x;
   const struct string_index yy = *(const struct string_index *) y;
-  int inet, ista, icha, iloc;
+  int inet, ista, icha;
 
   ista = strcmp(xx.sta, yy.sta);
   if (ista == 0){
