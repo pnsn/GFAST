@@ -191,6 +191,10 @@ void core_properties_print(struct GFAST_props_struct props)
                          lspace, props.pgd_props.t99[i], props.pgd_props.m99[i]);
         }
     }
+    LOG_DEBUGMSG("%s GFAST Minimum PGD value to include in inversion (cm): %f",
+               lspace, props.pgd_props.minimum_pgd_cm);
+    LOG_DEBUGMSG("%s GFAST Maximum PGD value to include in inversion (cm): %f",
+               lspace, props.pgd_props.maximum_pgd_cm);
     //--------------------------------cmt-------------------------------------//
     LOG_DEBUGMSG("%s GFAST Number of latitudes in CMT grid search %d",
                lspace, props.cmt_props.ngridSearch_lats);
