@@ -80,6 +80,29 @@ int main(int argc, char **argv)
 #endif
 #endif
 
+  // Get program instance for ShakeAlert-approved xml header
+  char longprog[PATH_MAX], program_instance[PATH_MAX];
+
+  // Get program name
+  strncpy(longprog, argv[0], PATH_MAX - 1);
+  char *pch = strrchr(longprog, '/');
+  size_t lenshort = &longprog[strlen(longprog)] - pch;
+  if (pch != NULL) {
+    memcpy(program_instance, pch + 1, lenshort - 1);
+    program_instance[lenshort] = '\0';
+  } else {
+    strncpy(program_instance, argv[0], PATH_MAX - 1);
+  }
+  
+  // Add host name to program_instance
+  char name[1000];
+  if(gethostname(name, (int)sizeof(name) - 1) == 0) {
+    // if eew-bk-dev1.geo.berkeley.edu, shorten to eew-bk-dev1
+    char *c = strstr(name, ".");
+    if(c != NULL) *c = '\0';
+    strcat(program_instance, "@\0");
+    strcat(program_instance, name);
+  }
 
   // Initialize
   if (argc>1) {
