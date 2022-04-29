@@ -49,6 +49,7 @@ struct GFAST_pgd_props_struct
   int n99;              /*!< Number of t99, m99 values */
   double minimum_pgd_cm; /*!< Minimum value to include a pgd value in inversion (cm) */
   double maximum_pgd_cm; /*!< Maximum value to include a pgd value in inversion (cm) */
+  int max_assoc_stations; /*!< Maximum stations to add the 'assoc' tag to in xml */
 };
 
 struct GFAST_cmt_props_struct

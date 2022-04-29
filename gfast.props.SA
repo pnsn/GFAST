@@ -111,6 +111,7 @@ sigmaLookupFile = M99.txt
 # Minimum and maximum thresholds for using pgd values in inversion, in cm
 minimum_pgd_cm = 0.0
 maximum_pgd_cm = 3500.0
+max_assoc_stations = 6
 
 ################################################################################
 #                            CMT/Finite Fault Properties                       #
