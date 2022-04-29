@@ -311,6 +311,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                 const char *alg_vers,
                                 const char *instance,
                                 const char *message_type, 
+                                const int max_assoc_stations,
                                 const struct coreInfo_struct *core,
                                 const struct GFAST_pgdResults_struct *pgd,
                                 const struct GFAST_peakDisplacementData_struct *pgd_data,
@@ -319,7 +320,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   char *xmlmsg;
   xmlmsg = NULL;
   *ierr = 0;
-  int max_assoc_stations = 6;
+  // int max_assoc_stations = 6;
 
   // Convert enum units to char
   char magUnits[32], magUncerUnits[32], latUnits[32], latUncerUnits[32], lonUnits[32],

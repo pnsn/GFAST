@@ -126,6 +126,7 @@ extern "C" {
                                   const char *alg_vers,
                                   const char *instance,
                                   const char *message_type, 
+                                  const int max_assoc_stations,
                                   const struct coreInfo_struct *core,
                                   const struct GFAST_pgdResults_struct *pgd,
                                   const struct GFAST_peakDisplacementData_struct *pgd_obs,
