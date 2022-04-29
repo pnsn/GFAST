@@ -25,6 +25,7 @@ int eewUtils_driveFF(struct GFAST_ff_props_struct ff_props,
                      struct GFAST_ffResults_struct *ff);
 /* Drive GFAST */
 int eewUtils_driveGFAST(const double currentTime,
+                        const char *program_instance,
                         struct GFAST_props_struct props,
                         struct GFAST_activeEvents_struct *events,
                         struct GFAST_data_struct *gps_data,

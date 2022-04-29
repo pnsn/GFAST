@@ -550,6 +550,7 @@ int main(int argc, char **argv)
       LOG_DEBUGMSG("%s: MTH: Call driveGFAST DEBUG msg\n", fcnm);
       LOG_MSG("== [GFAST t0:%f] Call driveGFAST:", t0);
       ierr = eewUtils_driveGFAST(t1, //currentTime,
+                                 program_instance,
 				 props,
 				 &events,
 				 &gps_data,
