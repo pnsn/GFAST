@@ -32,6 +32,16 @@ namespace {
   static int hbVerbose=0;
 }
 
+/*
+ * compareDist and dist_index are both used to sort pgd observations by distance from source
+ * when creating xml message. Needed for adding the 'assoc' attribute correctly.
+ */
+static int compareDist(const void *x, const void *y);
+struct dist_index {
+  double dist;
+  int indx;
+};
+
 int startDestinationConnection(const char AMQuser[],
 			       const char AMQpassword[],
 			       const char destinationURL[],
@@ -311,6 +321,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                 const char *alg_vers,
                                 const char *instance,
                                 const char *message_type, 
+                                const int max_assoc_stations,
                                 const struct coreInfo_struct *core,
                                 const struct GFAST_pgdResults_struct *pgd,
                                 const struct GFAST_peakDisplacementData_struct *pgd_data,
@@ -319,6 +330,10 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   char *xmlmsg;
   xmlmsg = NULL;
   *ierr = 0;
+
+  struct dist_index *vals;
+  vals = (struct dist_index *) calloc((size_t) pgd->nsites, sizeof(struct dist_index));
+  // int max_assoc_stations = 6;
 
   // Convert enum units to char
   char magUnits[32], magUncerUnits[32], latUnits[32], latUncerUnits[32], lonUnits[32],
@@ -384,14 +399,16 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   // LOG_MSG("%s", "createEventXML - created algMessage");
 
   // Now add pgd observations to algMessage
-  int i;
+  int i, j;
   int scnl_n = 8;
   char obs_sta[scnl_n], obs_net[scnl_n], obs_chan[scnl_n], obs_loc[scnl_n];
   char *token = NULL, *work = NULL;
+  bool assoc_flag = false;
+  int n_assoc = 0;
 
   enum ObservationType obs_type = DISPLACEMENT_OBS;
   
-  // Assumes pgd->nsites = pgd_data->nsites and indices correspond
+  // Later we assume pgd->nsites = pgd_data->nsites and indices correspond
   if (pgd->nsites != pgd_data->nsites) 
     {
       printf("%s: nsites don't match for pgd, pgd_data! %d, %d\n" ,__func__, pgd->nsites,
@@ -399,8 +416,26 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       *ierr = -1;
       return xmlmsg;
     }
+
+  // Extra step to sort observations by distance, so that the first max_assoc_stations get the
+  // assoc_flag = true. This is used by the Solution Aggregator to associate events. Other
+  // algorithms might sort by observation value, but in this case we want to be sure to associate
+  // with the input location, since GFAST doesn't determine its own event location.
+  // Load distance and index to sort pgd obs by distance from source
   for ( i = 0; i < pgd->nsites; i++ ) 
     {
+      vals[i].indx = i;
+      // srdist has ndep*nsites. Just use the first depth, they should all be relatively the same
+      vals[i].dist = pgd->srdist[i];
+    }
+  
+  // Sort by distance
+  qsort((void *) vals, (size_t) pgd->nsites, sizeof(struct dist_index), compareDist);
+
+  // Go through the observations in ascending order of source-receiver distance
+  for ( j = 0; j < pgd->nsites; j++ ) 
+    {
+      i = vals[j].indx;
       // skip site if it wasn't used
       if (!pgd->lsiteUsed[i]) { continue; }
 
@@ -430,6 +465,8 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       delete work;
       work = NULL;
       // LOG_MSG("%s", "createEventXML - freed work, adding gmobs");
+      
+      assoc_flag = (n_assoc >= max_assoc_stations) ? false : true;
 
       // Make sure to convert pgd to cm (from m)
       algMessage.addGMObservation(obs_type,
@@ -441,12 +478,22 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                   pgd_data->sta_lat[i],
                                   pgd_data->sta_lon[i],
                                   pgd_data->pd_time[i],
-                                  "cm\0");
+                                  "cm\0",
+                                  "deg\0",
+                                  "deg\0",
+                                  "UTC\0",
+                                  "\0",
+                                  assoc_flag);
+
+      n_assoc++;
+
+      LOG_MSG("createEventXML - added obs=%f, sta=%s, i=%d, j=%d, dist=%f, assoc=%d, n_assoc=%d",
+              pgd_data->pd[i] * 100., pgd_data->stnm[i], i, j, vals[j].dist, assoc_flag, n_assoc);
     }
 
   LOG_MSG("%s", "createEventXML - finished adding gmobs, encoding message");
 
-  // Finaly, encode algMessage as xml
+  // Finally, encode algMessage as xml
   std::string msg_tmp;
 
   try {
@@ -462,6 +509,16 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   strncpy(xmlmsg, msg_tmp.c_str(), msg_tmp.length());
 
   free(token);
+  free(vals);
   LOG_MSG("%s", "createEventXML - Returning");
   return xmlmsg;
+}
+
+static int compareDist(const void *x, const void *y) {
+  const struct dist_index xx = *(const struct dist_index *) x;
+  const struct dist_index yy = *(const struct dist_index *) y;
+
+  if (xx.dist < yy.dist) return -1;
+  if (xx.dist > yy.dist) return 1;
+  return 0;
 }

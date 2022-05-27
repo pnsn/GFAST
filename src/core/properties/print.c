@@ -195,6 +195,8 @@ void core_properties_print(struct GFAST_props_struct props)
                lspace, props.pgd_props.minimum_pgd_cm);
     LOG_DEBUGMSG("%s GFAST Maximum PGD value to include in inversion (cm): %f",
                lspace, props.pgd_props.maximum_pgd_cm);
+    LOG_DEBUGMSG("%s GFAST Maximum stations to include assoc tag: %d",
+               lspace, props.pgd_props.max_assoc_stations);
     //--------------------------------cmt-------------------------------------//
     LOG_DEBUGMSG("%s GFAST Number of latitudes in CMT grid search %d",
                lspace, props.cmt_props.ngridSearch_lats);

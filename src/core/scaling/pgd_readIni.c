@@ -163,6 +163,13 @@ int core_scaling_pgd_readIni(const char *propfilename,
                    pgd_props->maximum_pgd_cm, pgd_props->minimum_pgd_cm);
         goto ERROR;
     }
+    setVarName(group, "max_assoc_stations\0", var);
+    pgd_props->max_assoc_stations = iniparser_getint(ini, var, 6);
+    if (pgd_props->max_assoc_stations < 0)
+    {
+        LOG_ERRMSG("%s", "Error max_assoc_stations must be positive!");
+        goto ERROR;
+    }
 
     ERROR:;
     iniparser_freedict(ini);
