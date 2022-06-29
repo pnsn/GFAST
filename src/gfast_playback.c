@@ -219,6 +219,7 @@ int main(int argc, char *argv[])
         // Compute the current time
         currentTime = t0sim + (double) kt*dtmax;
         ierr = eewUtils_driveGFAST(currentTime,
+                                   "gfast\0",
                                    props,
                                    &events,
                                    &gps_data,

@@ -63,7 +63,8 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
                      const struct GFAST_shakeAlert_struct *SA,
                      const struct GFAST_pgdResults_struct *pgd,
                      const struct GFAST_peakDisplacementData_struct *pgd_data,
-                     const double age_of_event);
+                     const double age_of_event,
+                     const double mag_uncer);
 
 //static void setFileNames(const char *eventid);
 
@@ -100,6 +101,7 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
  * 
  */
 int eewUtils_driveGFAST(const double currentTime,
+                        const char *program_instance,
                         struct GFAST_props_struct props,
                         struct GFAST_activeEvents_struct *events,
                         struct GFAST_data_struct *gps_data,
@@ -398,7 +400,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      LOG_MSG("%s", "driveGFAST: CWU_TEST dmlib encoding");
 	      pgdXML = dmlibWrapper_createPGDXML(props.opmode,
                                                  GFAST_VERSION,
-                                                 GFAST_INSTANCE,
+                                                 program_instance,
                                                  message_type,
                                                  props.pgd_props.max_assoc_stations,
                                                  &core,
@@ -409,7 +411,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      pgdXML = eewUtils_makeXML__pgd(props.opmode,
 					     "GFAST\0",
 					     GFAST_VERSION,
-					     GFAST_INSTANCE,
+					     program_instance,
 					     message_type,
 					     sversion,
                                              &core,
@@ -439,7 +441,7 @@ int eewUtils_driveGFAST(const double currentTime,
 
 #if defined GFAST_USE_AMQ && defined GFAST_USE_DMLIB
               // Send message via ActiveMQ if appropriate
-              if (!send_xml_filter(&props, &SA, pgd, pgd_data, age_of_event)) {
+              if (!send_xml_filter(&props, &SA, pgd, pgd_data, age_of_event, core.magUncer)) {
                 if (pgdXML != NULL) {
                   sendEventXML(pgdXML);
                 }
@@ -533,7 +535,7 @@ int eewUtils_driveGFAST(const double currentTime,
 	      ffXML = eewUtils_makeXML__ff(props.opmode,
 					   "GFAST\0",
 					   GFAST_VERSION,
-					   GFAST_INSTANCE,
+					   program_instance,
 					   message_type,
 					   sversion,
 					   &core,
@@ -870,12 +872,17 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
                      const struct GFAST_shakeAlert_struct *SA,
                      const struct GFAST_pgdResults_struct *pgd,
                      const struct GFAST_peakDisplacementData_struct *pgd_data,
-                     const double age_of_event) {
+                     const double age_of_event,
+                     const double mag_uncer) {
 
-  // Determine if pgd threshold is exceeded n times
-  int num_pgd_exceeded = 0, i, i_throttle;
+  // Conditions can be met or exceeded.
+  // Exceeded is used if a value being more than a threshold means no throttling
+  // Met is used if a value being less than a threshold means no throttling 
   bool pgd_exceeded = false;
   bool mag_exceeded = false;
+  bool mag_sigma_met = false;
+  // Determine if pgd threshold is exceeded n times
+  int num_pgd_exceeded = 0, i, i_throttle;
 
   // Find the correct throttle criteria based on the time after origin
   i_throttle = -1;
@@ -920,6 +927,7 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
     pgd_exceeded = true;
   }
 
+  // Determine if SA mag threshold is exceeded
   if (props->verbose > 2) {
     LOG_DEBUGMSG("SA mag: %f, threshold mag: %f",
                  SA->mag, props->SA_mag_threshold);
@@ -930,13 +938,24 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
             SA->mag, props->SA_mag_threshold);
   }
 
-  if (pgd_exceeded && mag_exceeded) {
-    LOG_MSG("Message not throttled! pgd_exceeded: %d, mag_exceeded: %d",
-            pgd_exceeded, mag_exceeded);
+  // Determine if pgd magnitude sigma threshold is met
+  if (props->verbose > 2) {
+    LOG_DEBUGMSG("PGD mag sigma: %f, threshold mag sigma: %f",
+                 mag_uncer, props->pgd_sigma_throttle);
+  }
+  if (mag_uncer < props->pgd_sigma_throttle) {
+    mag_sigma_met = true;
+    LOG_MSG("PGD mag sigma met! PGD mag sigma: %f, threshold mag sigma: %f",
+            mag_uncer, props->pgd_sigma_throttle);
+  }
+
+  if (pgd_exceeded && mag_exceeded && mag_sigma_met) {
+    LOG_MSG("Message not throttled! pgd_exceeded: %d, mag_exceeded: %d, mag_sigma_met: %d",
+            pgd_exceeded, mag_exceeded, mag_sigma_met);
     return false;
   }
 
-  LOG_MSG("Message throttled! pgd_exceeded: %d, mag_exceeded: %d",
-          pgd_exceeded, mag_exceeded);
+  LOG_MSG("Message throttled! pgd_exceeded: %d, mag_exceeded: %d, mag_sigma_met: %d",
+          pgd_exceeded, mag_exceeded, mag_sigma_met);
   return true;
 }

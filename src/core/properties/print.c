@@ -135,6 +135,8 @@ void core_properties_print(struct GFAST_props_struct props)
     }
     LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
                  lspace, props.SA_mag_threshold);
+    LOG_DEBUGMSG("%s Will throttle messages above pgd mag sigma %f",
+                 lspace, props.pgd_sigma_throttle);
     LOG_DEBUGMSG("%s Using %d time-dependent throttling criteria", lspace, props.n_throttle);
     int nbuffer = 128;
     char buffer_n[nbuffer], buffer_pgd[nbuffer], buffer_time[nbuffer];
@@ -195,6 +197,8 @@ void core_properties_print(struct GFAST_props_struct props)
                lspace, props.pgd_props.minimum_pgd_cm);
     LOG_DEBUGMSG("%s GFAST Maximum PGD value to include in inversion (cm): %f",
                lspace, props.pgd_props.maximum_pgd_cm);
+    LOG_DEBUGMSG("%s GFAST Maximum stations to include assoc tag: %d",
+               lspace, props.pgd_props.max_assoc_stations);
     LOG_DEBUGMSG("%s GFAST Maximum stations to include assoc tag: %d",
                lspace, props.pgd_props.max_assoc_stations);
     //--------------------------------cmt-------------------------------------//
