@@ -398,6 +398,14 @@ int core_properties_initialize(const char *propfilename,
             MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
     n_time_threshold = MAX_THROTTLING_THRESHOLDS;
   }
+  // only send XML for pgd magnitude sigma below this threshold
+  props->pgd_sigma_throttle  = iniparser_getdouble(ini, "general:pgd_sigma_throttle\0", 10);
+  if (props->pgd_sigma_throttle <= 0)
+    {
+      LOG_ERRMSG("Error pgd_sigma_throttle must be positive: %f",
+                 props->pgd_sigma_throttle);
+      goto ERROR;
+    }
 
   // Compare lengths of throttle arrays, they should be the same. If not, use the shortest one
   if ((n_num_stations != n_pgd_threshold) || (n_num_stations != n_time_threshold)) {
