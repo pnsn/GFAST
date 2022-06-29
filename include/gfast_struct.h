@@ -209,6 +209,7 @@ struct GFAST_props_struct
   int throttle_num_stations[16]; /*!< Threshold number of stations to send a message */
   int throttle_pgd_threshold[16]; /*!< Threshold pgd value (cm) */
   int throttle_time_threshold[16]; /*!< Threshold time value (s) */
+  double pgd_sigma_throttle; /*!< Maximum pgd magnitude uncertainty to allow in sending xml */
   enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
 				playback, offline). */
   enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling

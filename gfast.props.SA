@@ -68,6 +68,8 @@ SA_mag_threshold = 6.0
 throttle_num_stations = 3,3,4,5
 throttle_pgd_threshold = 20,25,40,80
 throttle_time_threshold = 0,25,40,70
+# If defined, don't send xml if pgd_sigma is greater than this value
+pgd_sigma_throttle = 0.5
 
 synthetic_runtime = 0.0 
 processing_time = 300.0
