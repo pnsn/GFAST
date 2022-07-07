@@ -183,16 +183,15 @@ But here's how to do it in stand-alone
         >make              // will build lib/libiscl_shared.so and lib/libiscl_static.a
 
 
-7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
+7. [mtbeach](https://github.com/carltape/mtbeach) for the moment tensor decompositions. Note, this came from Ben Baker's [compearth](https://github.com/bakerb845/compearth) fork of Carl Tape's compearth repository. You'll need to descend into c_src.
 
         Clone and build
-        >git clonehttps://github.com/bakerb845/compearth
-        >cd compearth/momenttensor/c_src
-        Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
-        USE_INTEL=false
-        // MTH: Need to add this zbuild_gcc.sh into the compearth/momenttensor/c_src repo!
-        >zbuild_gcc.sh      // This will run cmake and update CMakeCache.txt, etc.
+        >git clone https://github.com/carltape/mtbeach.git
+        >cd mtbeach/c_src
+        Copy make.sh into directory. CWU: Note, this should be added to the repo?
+        >make.sh            // This will run cmake and update CMakeCache.txt, etc.
         >make               // will build lib/libcompearth_shared.so and lib/libcompearth_static.a
+
         
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
@@ -301,6 +300,8 @@ Start up the broker *before* starting gfast_eew:
 
 ## Configure, Build, Unit Test 
 
+### Using CMake
+
 Look in zbuild-gcc.sh for the paths to the various dependencies.
 If you downloaded/installed them as outlined above, then it's
 possible you only need to set PKG_DIR to point to whatever
@@ -336,6 +337,12 @@ many of the needed dependencies on your system automatically.
     [INFO] cmt_inversion_test: Success!
     [INFO] ff_inversion_test: Success!
     main: All tests passed
+
+### Using regular make system
+
+    # Compile
+    >make all
+
 
 ## Ridgecrest example 
 
