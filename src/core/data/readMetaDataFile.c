@@ -9,8 +9,7 @@ static int splitLine(const char *cline,
                      char netw[64], char stat[64], char loc[64], char chan[64],
                      double *lat, double *lon, double *elev,
                      double *dt, double *gain,
-                     char units[64], char sensorType[64],
-                     double *reflat, double *reflon);
+                     char units[64], char sensorType[64]);
 /*!
  * @brief Reads the site metadata file.  From this we initialize the site
  *        network, station, channel, and location code, it's position (latitude,
@@ -33,7 +32,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
          site[256], chan[64], chan1[64], loc[64], loc1[64],
          netw[64], netw1[64], stat[64], stat1[64],
          sensorType[64], units[64];
-    double gain0[3], dt, elev, gain, lat, lon, reflat, reflon;
+    double gain0[3], dt, elev, gain, lat, lon;
     int *lines, i, ierr, j, k, lfound, nlines, nlines_total, ns;
     // Initialize 
     ierr = 0;
@@ -116,8 +115,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                          netw, stat, loc, chan,
                          &lat, &lon, &elev,
                          &dt, &gain,
-                         units, sensorType,
-                         &reflat, &reflon);
+                         units, sensorType);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error parsing line!");
@@ -157,8 +155,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                              netw1, stat1, loc1, chan1,
                              &lat, &lon, &elev,
                              &dt, &gain,
-                             units, sensorType,
-                             &reflat, &reflon);
+                             units, sensorType);
             if (ierr != 0)
             {
                 LOG_ERRMSG("%s", "Error parsing line!");
@@ -217,8 +214,7 @@ NEXT_LINE:; // Try another site to match
                          netw, stat, loc, chan,
                          &lat, &lon, &elev,
                          &dt, &gain,
-                         units, sensorType,
-                         &reflat, &reflon);
+                         units, sensorType);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error parsing line!");
@@ -317,8 +313,7 @@ static int splitLine(const char *cline,
                      char netw[64], char stat[64], char loc[64], char chan[64],
                      double *lat, double *lon, double *elev,
                      double *dt, double *gain,
-                     char units[64], char sensorType[64],
-                     double *reflat, double *reflon)
+                     char units[64], char sensorType[64])
 {
     char *token, *work;
     int i, ierr;
@@ -340,8 +335,6 @@ static int splitLine(const char *cline,
     *gain = 0;
     memset(units,      0, sizeof(char)*64);
     memset(sensorType, 0, sizeof(char)*64); 
-    *reflat = (double) NAN;
-    *reflon = (double) NAN;
     token = strtok(work, split);
     while (token)
     {
@@ -356,16 +349,15 @@ static int splitLine(const char *cline,
         if (i == 8){*gain = (double) atof(token);}
         if (i == 9){strcpy(units, token);}
         if (i == 10){strcpy(sensorType, token);}
-        if (i == 11){*reflat = (double) atof(token);}
-        if (i == 12){*reflon = (double) atof(token);}
         i = i + 1;
         token = strtok(NULL, split);
     }
 
-    //printf("spliteLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
+    //printf("splitLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
 
     /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used */
-    if (i != 13 && i != 14)
+    /* CWU: 2022-07-13 Only require reading up to the gain, since other bits aren't used (yet)*/
+    if (i < 9)
     {
         LOG_ERRMSG("Failed to split line %d %s", i, cline);
         ierr = 1;
