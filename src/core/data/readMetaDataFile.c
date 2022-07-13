@@ -34,7 +34,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
          netw[64], netw1[64], stat[64], stat1[64],
          sensorType[64], units[64];
     double gain0[3], dt, elev, gain, lat, lon, reflat, reflon;
-    int *lines, i, ierr, j, k, lfound, nlines, ns;
+    int *lines, i, ierr, j, k, lfound, nlines, nlines_total, ns;
     // Initialize 
     ierr = 0;
     infl = NULL;
@@ -42,6 +42,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     sites = NULL;
     lines = NULL;
     nlines = 0;
+    nlines_total = 0;
     ns = 0;
     // Require the site file exists
     if (!os_path_isfile(metaDataFile))
@@ -49,44 +50,43 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         LOG_ERRMSG("Error site file does not exist: %s", metaDataFile);
         return -1;
     }
-    // Open the file for reading and count the sites
+    // Open the file for reading and count the total lines (including comments)
     infl = fopen(metaDataFile, "r");
     while (fgets(cline, 1024, infl) != NULL)
     {
-        nlines = nlines + 1;
+        nlines_total = nlines_total + 1;
     }
-    if (nlines < 1)
+    if (nlines_total < 1)
     {
         LOG_ERRMSG("%s", "Error no data read!");
         ierr = 1;
         goto ERROR;
     }
     rewind(infl);
+
+    // Allocate space (potentially over-allocated with comments)
+    textfl = (char **)calloc((size_t) nlines_total, sizeof(char *));
+    sites = (char **)calloc((size_t) nlines_total, sizeof(char *));
+    for (i=0; i<nlines_total; i++){sites[i] = NULL;}
+    lines = (int *)calloc((size_t) nlines_total, sizeof(int));
+
     // Read the text file into memory
-    nlines = nlines - 1; // remove the header
-    textfl = (char **)calloc((size_t) nlines, sizeof(char *));
-    sites = (char **)calloc((size_t) nlines, sizeof(char *));
-    for (i=0; i<nlines; i++){sites[i] = NULL;}
-    lines = (int *)calloc((size_t) nlines, sizeof(int));
-    for (i=0; i<nlines+1; i++)
+    for (i=0; i<nlines_total; i++)
     {
         memset(cline, 0, sizeof(cline));
-        k = i - 1;
         if (fgets(cline, 1024, infl) == NULL)
         {
             ierr = 1;
             LOG_ERRMSG("%s", "Premature end of file");
             goto ERROR;
         }
-        if (i == 0){continue;} // Skip the header
-        //MTH: skip comment lines:
-        /*
+        
+        // Skip comment lines:
         if (cline[0] == '#')
           {
-            LOG_MSG("MTH: skip line:%s", cline);
+            LOG_MSG("Skip comment line: %s", cline);
             continue;
           }
-        */
 
         if (strlen(cline) == 0)
         {
@@ -94,13 +94,18 @@ int core_data_readMetaDataFile(const char *metaDataFile,
             LOG_ERRMSG("%s", "Blank line - invalid input!");
             goto ERROR;
         }
+        
         // Get rid of the end of line
         if (cline[strlen(cline)-1] == '\n'){cline[strlen(cline)-1] = '\0';}
-        textfl[k] = (char *)calloc(strlen(cline)+1, sizeof(cline));
-        strcpy(textfl[k], cline);
+
+        // This should be a valid channel line, save it to memory
+        nlines = nlines + 1;
+        textfl[nlines - 1] = (char *)calloc(strlen(cline)+1, sizeof(cline));
+        strcpy(textfl[nlines - 1], cline);
     }
     fclose(infl);
     infl = NULL;
+
     // Now match up the three component data streams
     ns = 0;
     for (i=0; i<nlines; i++)
@@ -290,7 +295,7 @@ ERROR:;
     if (lines != NULL){free(lines);}
     if (textfl != NULL)
     {
-       for (i=0; i<nlines; i++)
+       for (i=0; i<nlines_total; i++)
        {
            if (textfl[i] != NULL){free(textfl[i]);}
        }
@@ -298,7 +303,7 @@ ERROR:;
     }
     if (sites != NULL)
     {
-       for (i=0; i<nlines; i++)
+       for (i=0; i<nlines_total; i++)
        {
            if (sites[i] != NULL){free(sites[i]);}
        }
