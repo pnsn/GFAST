@@ -451,7 +451,8 @@ int eewUtils_driveGFAST(const double currentTime,
 #endif /* GFAST_USE_AMQ && GFAST_USE_DMLIB */
 	      
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
-		int index = (int)(currentTime - SA.time);
+		// int index = (int)(currentTime - SA.time);
+		int index = core.version;
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "pgd", pgdXML, index, false);
 		LOG_MSG("writeXML for PGD returned ierr=%d\n", ierr);
 	      }
@@ -492,7 +493,8 @@ int eewUtils_driveGFAST(const double currentTime,
 		}
 	      xmlMessages->cmtQML[xmlMessages->nmessages] = cmtQML;
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
-		int index = (int)(currentTime - SA.time);
+		// int index = (int)(currentTime - SA.time);
+		int index = core.version;
 		LOG_MSG("Age_of_event=%f --> Output CMT solution at iter:%d", age_of_event, index);
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "cmt",
 					 cmtQML, index, false);
@@ -562,7 +564,8 @@ int eewUtils_driveGFAST(const double currentTime,
                 }
 	      xmlMessages->ffXML[xmlMessages->nmessages] = ffXML;
 	      if (props.output_interval_mins[0] == 0) { // Output at every iteration
-		int index = (int)(currentTime - SA.time);
+		// int index = (int)(currentTime - SA.time);
+		int index = core.version;
 		LOG_MSG("Age_of_event=%f --> Output FF solution at iter:%d", age_of_event, index);
 		ierr = eewUtils_writeXML(props.SAoutputDir, SA.eventid, "ff",
 					 ffXML, index, false);
