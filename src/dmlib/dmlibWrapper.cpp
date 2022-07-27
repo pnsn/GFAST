@@ -482,7 +482,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                   "deg\0",
                                   "deg\0",
                                   "UTC\0",
-                                  "\0",
+                                  "gfast\0",
                                   assoc_flag);
 
       n_assoc++;
