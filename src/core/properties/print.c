@@ -73,6 +73,28 @@ void core_properties_print(struct GFAST_props_struct props)
                      props.waitTime);
         LOG_DEBUGMSG("%s GFAST site position file %s", lspace,
                      props.metaDataFile);
+        if (props.n_networks == 0)
+        {
+            LOG_DEBUGMSG("%s GFAST will use any networks available from the position file", 
+                         lspace);
+        }
+        else
+        {
+            int nbuffer = 128;
+            char buffer_network[nbuffer];
+            int cx = 0;
+            for (i = 0; i < props.n_networks; i++) {
+                if (i == props.n_networks - 1) {
+                    cx += snprintf(buffer_network + cx, nbuffer - cx, "%s",
+                                    props.metaDataNetworks[i]);
+                } else {
+                    cx += snprintf(buffer_network + cx, nbuffer - cx, "%s, ",
+                                    props.metaDataNetworks[i]);
+                }
+            }
+            LOG_DEBUGMSG("%s GFAST will only use %d networks from the position file: %s", 
+                         lspace, props.n_networks, buffer_network);
+        }
         LOG_DEBUGMSG("%s GFAST default sampling period is %f (s)", lspace,
                    props.dt_default);
         if (props.opmode == REAL_TIME_EEW)

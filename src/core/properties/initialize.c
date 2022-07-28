@@ -19,7 +19,8 @@
 #include "gfast_activeMQ.h"
 #endif
 
-int set_array_from_string_int(const char *s, int *array, int max_size);
+int set_array_from_string_int(const char *prop, int *array, int max_size);
+int set_array_from_string_str(const char *prop, char **array, int max_size);
 
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
@@ -86,6 +87,12 @@ int core_properties_initialize(const char *propfilename,
       LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
       return -1;
     }
+
+  // Option to restrict the networks used
+  int n_networks;
+  s = iniparser_getstring(ini, "general:metaDataNetworks\0", "\0");
+  n_networks = set_array_from_string_str(s, props->metaDataNetworks, 16);
+  props->n_networks = n_networks;
     
   //site mask file
   s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
@@ -508,16 +515,16 @@ int core_properties_initialize(const char *propfilename,
   return ierr;
 }
 
-int set_array_from_string_int(const char *s, int *array, int max_size) {
+int set_array_from_string_int(const char *prop, int *array, int max_size) {
   int i, j = 0;
   int *arr = array;
   // ensure the array is initialized to zeros
   arr[0] = 0;
-  if (s != NULL)
+  if (prop != NULL)
     {
       //// Traverse the string
-      for (i = 0; s[i] != '\0'; i++) {
-        if (s[i] == ',') {
+      for (i = 0; prop[i] != '\0'; i++) {
+        if (prop[i] == ',') {
           j++;
           // stop if the max_size is exceeded
           if (j >= max_size) break;
@@ -526,7 +533,7 @@ int set_array_from_string_int(const char *s, int *array, int max_size) {
         }
         else {
           // ASCII decimal for '0' is 48
-          arr[j] = arr[j] * 10 + (s[i] - 48);
+          arr[j] = arr[j] * 10 + (prop[i] - 48);
         }
       }
     }
@@ -534,3 +541,23 @@ int set_array_from_string_int(const char *s, int *array, int max_size) {
   // return the number of items added to the array
   return j + 1;
 }
+
+int set_array_from_string_str(const char *prop, char **array, int max_size) {
+
+    char *tok, *p, *last;
+    char *s = strdup(prop);
+    int i = 0, lens;
+
+    tok = s;
+    while(((p = strtok_r(tok, ", \t", &last)) != NULL) && (i < max_size)) {
+        tok = NULL;
+
+        lens = (int) (strlen(p));
+        array[i] = (char *)calloc((size_t) (lens+1), sizeof(char));
+        strcpy(array[i], p);
+        i++;
+    }
+    free(s);
+
+    return i;
+} 

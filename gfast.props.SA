@@ -6,6 +6,8 @@
 logFileName = logs/gfast.log
 # File with station names
 metaDataFile = etc/GFASTmeta.dat
+# If set, only use channels from the given networks
+metaDataNetworks = PW
 # note: if SA_events_dir is set, activemq will be ignored!
 SA_events_dir=
 SA_output_dir=out

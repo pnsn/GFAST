@@ -17,6 +17,10 @@ static int splitLine(const char *cline,
  *
  * @param[in] metaDataFile    name of GPS metadata file
  *
+ * @param[in] metaDataNetworks    networks to use (ignore the rest)
+ *
+ * @param[in] n_networks    number of networks
+ *
  * @param[out] gps_data       GPS streams with
  *
  * @result 0 indicates success
@@ -25,6 +29,8 @@ static int splitLine(const char *cline,
  *
  */ 
 int core_data_readMetaDataFile(const char *metaDataFile,
+                               char **metaDataNetworks,
+                               int n_networks,
                                struct GFAST_data_struct *gps_data)
 {
     FILE *infl;
@@ -121,6 +127,25 @@ int core_data_readMetaDataFile(const char *metaDataFile,
             LOG_ERRMSG("%s", "Error parsing line!");
             goto ERROR;
         }
+        // Skip channel if it isn't in the network list. If list is empty, allow all
+        if (n_networks > 0)
+        {
+            bool skipLine = true;
+            for (k = 0; k < n_networks; k++)
+            {
+                if (strcasecmp(netw, metaDataNetworks[k]) == 0)
+                {
+                    skipLine = false;
+                    break;
+                }
+            }
+            if (skipLine) 
+            {
+                LOG_MSG("Skip line, not in metaDataNetworks: %s", textfl[i]);
+                continue;
+            }
+        }
+
         // Make the site name
         strcpy(site, netw);
         strcat(site, "_\0");
@@ -207,6 +232,7 @@ NEXT_LINE:; // Try another site to match
                      calloc((size_t) gps_data->stream_length,
                             sizeof(struct GFAST_waveform3CData_struct));
     // Now parse the lines
+    LOG_DEBUGMSG("Creating %d data streams", gps_data->stream_length);
     for (k=0; k<gps_data->stream_length; k++)
     {
         // Parse the line

@@ -156,6 +156,8 @@ struct GFAST_props_struct
 				 which defines the sites, locations,
 				 sampling periods, etc. to be used
 				 by GFAST. */
+  char *metaDataNetworks[16]; /*!< Networks that are allowed to be used */
+  int n_networks; /*!< Number of networks to use. If 0, use any available */
   char SAeventsDir[PATH_MAX]; /*!< Location of dir containing SA events 
 				SA.xml to trigger on */
   char SAoutputDir[PATH_MAX]; /*!< Location of dir where SA XML files will be written

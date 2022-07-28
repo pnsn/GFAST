@@ -27,7 +27,10 @@ int core_data_initialize(struct GFAST_props_struct props,
     // Get the sites to be used
     ierr = 0;
     if (props.verbose > 0){LOG_DEBUGMSG("%s", "Initializing metadata...");}
-    ierr = core_data_readMetaDataFile(props.metaDataFile, gps_data);
+    ierr = core_data_readMetaDataFile(props.metaDataFile,
+                                      props.metaDataNetworks,
+                                      props.n_networks,
+                                      gps_data);
     if (ierr != 0)
     {
         LOG_ERRMSG("Error reading sites file: %s", props.metaDataFile);

@@ -140,6 +140,8 @@ int core_data_initialize(struct GFAST_props_struct props,
                          struct GFAST_data_struct *gps_data);
 /* Reads the metadata file */
 int core_data_readMetaDataFile(const char *metaDataFile,
+                               char **metaDataNetworks,
+                               int n_networks,
                                struct GFAST_data_struct *gps_data);
 /* Reads the site mask file */
 int core_data_readSiteMaskFile(const char *siteMaskFile,
