@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<event_message alg_vers="2.6.4 2022-07-18" category="live" instance="sa@eew-uw-dev1.ess.washington.edu" message_type="new" orig_sys="sa" ref_id="0" ref_src="" timestamp="2022-09-16T08:20:40.042Z" version="0">
+
+  <core_info id="1663316440">
+    <mag units="Mw">2.0021</mag>
+    <mag_uncer units="Mw">0.3366</mag_uncer>
+    <lat units="deg">36.4340</lat>
+    <lat_uncer units="deg">0.1000</lat_uncer>
+    <lon units="deg">-120.8092</lon>
+    <lon_uncer units="deg">0.1000</lon_uncer>
+    <depth units="km">8.0000</depth>
+    <depth_uncer units="km">5.0000</depth_uncer>
+    <orig_time units="UTC">2022-09-16T08:20:31.233Z</orig_time>
+    <orig_time_uncer units="sec">1.6751</orig_time_uncer>
+    <likelihood>0.9256</likelihood>
+    <num_stations>5</num_stations>
+  </core_info>
+
+  <contributors>
+    <contributor alg_instance="epic@eew-nc-dev1" alg_name="epic" alg_version="3.3.4-2021-10-15" category="live" event_id="67028" version="0"/>
+  </contributors>
+
+  <gm_info>
+    <gmpoint_obs>
+      <pgv_obs number="1">
+        <obs assoc="true" orig_sys="epic">
+          <SNCL>BBGB.NC.HHZ.--</SNCL>
+          <value units="cm/s">0.0011</value>
+          <lat units="deg">36.5785</lat>
+          <lon units="deg">-121.0396</lon>
+          <time units="UTC">2022-09-16T08:20:08.983Z</time>
+        </obs>
+      </pgv_obs>
+      <pga_obs number="4">
+        <obs assoc="true" orig_sys="epic">
+          <SNCL>BABI.BK.HNZ.00</SNCL>
+          <value units="cm/s/s">0.1890</value>
+          <lat units="deg">36.5158</lat>
+          <lon units="deg">-120.8530</lon>
+          <time units="UTC">2022-09-16T08:20:06.590Z</time>
+        </obs>
+        <obs assoc="true" orig_sys="epic">
+          <SNCL>PBC.NC.HNZ.01</SNCL>
+          <value units="cm/s/s">0.1142</value>
+          <lat units="deg">36.3203</lat>
+          <lon units="deg">-120.9541</lon>
+          <time units="UTC">2022-09-16T08:20:07.790Z</time>
+        </obs>
+        <obs assoc="true" orig_sys="epic">
+          <SNCL>BBGB.NC.HNZ.--</SNCL>
+          <value units="cm/s/s">0.0894</value>
+          <lat units="deg">36.5785</lat>
+          <lon units="deg">-121.0396</lon>
+          <time units="UTC">2022-09-16T08:20:09.053Z</time>
+        </obs>
+        <obs assoc="true" orig_sys="epic">
+          <SNCL>BTV.NC.HNZ.01</SNCL>
+          <value units="cm/s/s">0.0492</value>
+          <lat units="deg">36.4553</lat>
+          <lon units="deg">-121.0580</lon>
+          <time units="UTC">2022-09-16T08:20:08.110Z</time>
+        </obs>
+      </pga_obs>
+    </gmpoint_obs>
+  </gm_info>
+
+</event_message>
