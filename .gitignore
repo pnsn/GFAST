@@ -1,0 +1,3 @@
+# local files to be ignored by git
+
+src/gfast_eew
