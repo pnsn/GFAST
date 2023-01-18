@@ -24,6 +24,37 @@
  */
 char *check_dir_for_messages(const char *dirname, int *ierr);
 
+/*!
+ * @brief Print program and library information
+ * @param[in] use_dmlib Is dmlib being used?
+ * @param[in] fcnm What is the name of the main function?
+ */
+
+void printProgramInfo(bool use_dmlib, const char *fcnm) {
+    const int bufflen = 1024;
+    char *message=NULL;
+    int ind;
+    unsigned H5majnum, H5minnum, H5relnum;
+
+    ind = 0;
+    message = (char *)malloc(bufflen * sizeof(char));
+
+    ind += snprintf(message + ind, bufflen - ind, "%s Version: %s (Build %s %s by %s)\n",
+        fcnm, GFAST_VERSION, __DATE__, __TIME__, BUILDER);
+    
+    if (use_dmlib) {
+        char *dmlib_version = getDmLibVersion();
+        ind += snprintf(message + ind, bufflen - ind, "%s\n", dmlib_version);
+        free(dmlib_version);
+    }
+    H5get_libversion(&H5majnum, &H5minnum, &H5relnum);
+    ind += snprintf(message + ind, bufflen - ind, "HDF5 library version: %u.%u.%u\n", 
+        H5majnum, H5minnum, H5relnum);
+    ind += snprintf(message + ind, bufflen - ind, "ISCL library version: %s\n", ISCL_VERSION);
+    
+    LOG_MSG("%s", message);
+    free(message);
+}
 
 /*!
  * @brief GFAST earthquake early warning driver routine
@@ -81,8 +112,8 @@ int main(int argc, char **argv)
     // logging stuff
     init_plog();
 
-    LOG_MSG("%s Version: %s (Build %s %s by %s)",
-        fcnm, GFAST_VERSION, __DATE__, __TIME__, BUILDER);
+    printProgramInfo(USE_DMLIB, fcnm);
+
     // Initialize. Only works if propfile is specified
     if (argc > 1) {
         strncpy(propfilename, argv[1], PATH_MAX - 1);
@@ -237,6 +268,16 @@ int main(int argc, char **argv)
                     goto ERROR;
                 }
             }
+            /*start message encoder*/
+            if (props.verbose > 0) {
+                LOG_MSG("%s: Initializing event xml encoder...", fcnm);
+            }
+            ierr = startEventEncoder();
+            if (ierr < 0) {
+                LOG_ERRMSG("%s: Error initializing event encoder object", fcnm);
+                goto ERROR;
+            }
+
             /*start message sender*/
             if (props.verbose > 0) {
                 LOG_MSG("%s: Initializing event sender on %s...", 
@@ -340,10 +381,10 @@ int main(int argc, char **argv)
         LOG_MSG("== [GFAST t0:%f] Beginning main loop", t0);
 
         if (tstatus1 - tstatus0 > 3600.0) {
-            LOG_DEBUGMSG("%s: GFAST has been running for %d hours, start time %f",
+            LOG_MSG("%s: GFAST has been running for %d hours, start time %f",
                 fcnm, (int) ((tstatus1 - tstatus)/3600.0), tstatus);
-            LOG_DEBUGMSG("%s: Version %s (Build %s %s by %s)\n",
-                fcnm, GFAST_VERSION, __DATE__, __TIME__, BUILDER);
+            printProgramInfo(USE_DMLIB, fcnm);
+            
             tstatus0 = tstatus1;
         } 
 
@@ -549,6 +590,7 @@ int main(int argc, char **argv)
             stopEventReceiver();
             stopHBProducer();
             stopEventSender();
+            stopEventEncoder();
             //stopDestinationConnection();
         }
         activeMQ_stop();

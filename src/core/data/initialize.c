@@ -57,6 +57,7 @@ int core_data_initialize(struct GFAST_props_struct props,
         gps_data->data[k].usigmabuff = memory_calloc64f(mpts);
         gps_data->data[k].nsigmabuff = memory_calloc64f(mpts);
         gps_data->data[k].esigmabuff = memory_calloc64f(mpts);
+        gps_data->data[k].qbuff = memory_calloc64f(mpts);
         gps_data->data[k].tbuff = memory_calloc64f(mpts);
     }
     return 0;

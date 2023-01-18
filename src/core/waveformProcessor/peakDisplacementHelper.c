@@ -56,16 +56,12 @@ double core_waveformProcessor_peakDisplacementHelper(
     const double *__restrict__ ubuff,
     const double *__restrict__ nbuff,
     const double *__restrict__ ebuff,
-    const double *__restrict__ usigmabuff,
-    const double *__restrict__ nsigmabuff,
-    const double *__restrict__ esigmabuff,
     const int nMaxLeader,
     const double tmin,
     const double tmax,
     double *obsTime,
-    double *uMaxUncertainty,
-    double *nMaxUncertainty,
-    double *eMaxUncertainty
+    int *iRef,
+    int *iPeak
     )
 {
     double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
@@ -76,9 +72,8 @@ double core_waveformProcessor_peakDisplacementHelper(
     //
     // Set the initial position
     *obsTime = 0.0;
-    *uMaxUncertainty = 0.0;
-    *nMaxUncertainty = 0.0;
-    *eMaxUncertainty = 0.0;
+    *iRef = 0;
+    *iPeak = 0;
     u0 = 0.0;
     n0 = 0.0;
     e0 = 0.0;
@@ -123,11 +118,6 @@ double core_waveformProcessor_peakDisplacementHelper(
         return (double) NAN;
     }
 
-    // Get initial uncertainty for each component
-    if (!isnan(usigmabuff[indx0])) *uMaxUncertainty = usigmabuff[indx0];
-    if (!isnan(nsigmabuff[indx0])) *nMaxUncertainty = nsigmabuff[indx0];
-    if (!isnan(esigmabuff[indx0])) *eMaxUncertainty = esigmabuff[indx0];
-
     // Compute the maximum peak ground displacement 
     peakDisplacement = PD_MAX_NAN;
     if (debug) {
@@ -154,16 +144,6 @@ double core_waveformProcessor_peakDisplacementHelper(
         peakDisplacement = fmax(peakDisplacement_i, peakDisplacement);
     } // Loop on data points
 
-    if (debug) {
-        LOG_DEBUGMSG("Uncertainties at indx0:%d (%f,%f,%f), at ipeak:%d (%f,%f,%f",
-            indx0, *uMaxUncertainty, *nMaxUncertainty, *eMaxUncertainty,
-            ipeak, usigmabuff[ipeak], nsigmabuff[ipeak], esigmabuff[ipeak]);
-    }
-
-    if (!isnan(usigmabuff[ipeak])) *uMaxUncertainty = fmax(usigmabuff[ipeak], *uMaxUncertainty);
-    if (!isnan(nsigmabuff[ipeak])) *nMaxUncertainty = fmax(nsigmabuff[ipeak], *nMaxUncertainty);
-    if (!isnan(esigmabuff[ipeak])) *eMaxUncertainty = fmax(esigmabuff[ipeak], *eMaxUncertainty);
-
     if (fabs(peakDisplacement - PD_MAX_NAN)/fabs(PD_MAX_NAN) < 1.e-10)
     {
          LOG_MSG("%s", "Returning NAN because peakDisp is ~ PD_MAX_NAN");
@@ -171,6 +151,8 @@ double core_waveformProcessor_peakDisplacementHelper(
     }
     if (!isnan(peakDisplacement)){
         *obsTime = epoch + dt * ipeak;
+        *iRef = indx0;
+        *iPeak = ipeak;
         // LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
         //     peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
     }
