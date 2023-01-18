@@ -38,8 +38,8 @@ int core_data_readMetaDataFile(const char *metaDataFile,
          site[256], chan[64], chan1[64], loc[64], loc1[64],
          netw[64], netw1[64], stat[64], stat1[64],
          sensorType[64], units[64];
-    double gain0[6], dt, elev, gain, lat, lon;
-    int *lines, i, ierr, j, k, lfound, nlines, nlines_total, ns;
+    double gain0[7], dt, elev, gain, lat, lon;
+    int *lines, i, ierr, j, k, lfound, nlines, nlines_total, ns, debug;
     // Initialize 
     ierr = 0;
     infl = NULL;
@@ -49,6 +49,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     nlines = 0;
     nlines_total = 0;
     ns = 0;
+    debug = 0;
     // Require the site file exists
     if (!os_path_isfile(metaDataFile))
     {
@@ -115,7 +116,6 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     ns = 0;
     for (i=0; i<nlines; i++)
     {
-//printf("readMetaDataFile: textfl[%d]=%s\n",i,textfl[i]);
         // Get the root name (ignoring the channel orientation) 
         ierr = splitLine(textfl[i],
                          netw, stat, loc, chan,
@@ -160,16 +160,21 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         strncat(site, chan, 2);
         strcat(site, "_\0");
         strcat(site, loc);
-//printf("readMetaDataFile: %s.%s.%s.%s gain:%e site:%s\n",netw, stat, chan, loc, gain, site);
+        
         // Does this site exist?
         for (k=0; k<ns; k++)
         {
-            if (strcasecmp(sites[k], site) == 0){goto NEXT_LINE;}
+            if (strcasecmp(sites[k], site) == 0) {
+                if (debug) {
+                    LOG_DEBUGMSG("Going to NEXT_LINE, site=%s, ns=%d, k=%d", site, ns, k);
+                }
+                goto NEXT_LINE;
+            }
         }
         sites[ns] = (char *)calloc(strlen(site)+1, sizeof(char));
         strcpy(sites[ns], site);
         ns = ns + 1;
-        // Now verify at least 1 or 3 or 6 sites are specified 
+        // Now verify at least 1 or 3 or 6 sites are specified (not counting Q channel)
         lfound = 0;
         gain0[0] = (double) NAN;
         gain0[1] = (double) NAN;
@@ -177,6 +182,7 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         gain0[3] = (double) NAN;
         gain0[4] = (double) NAN;
         gain0[5] = (double) NAN;
+        gain0[6] = (double) NAN;
         for (j=0; j<nlines; j++)
         {
             ierr = splitLine(textfl[j],
@@ -194,14 +200,21 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                 strcasecmp( loc1,  loc)  == 0 &&
                 strncasecmp(chan1, chan, 2) == 0)
             {
-                // gain0[lfound] = gain;
                 if (chan1[2] == 'Z'){lfound = lfound + 1; gain0[2] = gain;}
                 if (chan1[2] == 'N'){lfound = lfound + 1; gain0[1] = gain;}
                 if (chan1[2] == 'E'){lfound = lfound + 1; gain0[0] = gain;}
                 if (chan1[2] == '3'){lfound = lfound + 1; gain0[5] = gain;}
                 if (chan1[2] == '2'){lfound = lfound + 1; gain0[4] = gain;}
                 if (chan1[2] == '1'){lfound = lfound + 1; gain0[3] = gain;}
+                if (chan1[2] == 'Q'){gain0[6] = gain;} // Don't count quality channel in lfound
+                if (debug) {
+                    LOG_DEBUGMSG("Matched %s.%s.%s.%s, lfound=%d, line=%s",
+                        netw, stat, loc, chan, lfound, textfl[j]);
+                }
             }
+        }
+        if (debug) {
+            LOG_DEBUGMSG("%s.%s.%s.%s, lfound=%d", netw, stat, loc, chan, lfound);
         }
         if (lfound == 1 || lfound == 3 || lfound == 6)
         {
@@ -301,6 +314,8 @@ NEXT_LINE:; // Try another site to match
         strcat( gps_data->data[k].chan[4], "2\0");
         strncpy(gps_data->data[k].chan[5], chan, 2); 
         strcat( gps_data->data[k].chan[5], "1\0");
+        strncpy(gps_data->data[k].chan[6], chan, 2); 
+        strcat( gps_data->data[k].chan[6], "Q\0");
         strcpy(gps_data->data[k].loc, loc);
         gps_data->data[k].sta_lat = lat;
         gps_data->data[k].sta_lon = lon;
@@ -312,6 +327,7 @@ NEXT_LINE:; // Try another site to match
         gps_data->data[k].gain[3] = gain;
         gps_data->data[k].gain[4] = gain;
         gps_data->data[k].gain[5] = gain;
+        gps_data->data[k].gain[6] = 1; // Quality channel has no gain
         if (gain == 0.0 || dt <= 0.0 || isnan(dt))
         {
             if (gain == 0.0)

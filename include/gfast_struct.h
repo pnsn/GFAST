@@ -420,7 +420,7 @@ struct GFAST_waveform3CData_struct
 {
   char netw[64];    /*!< Network name */
   char stnm[64];    /*!< Station name */
-  char chan[6][64]; /*!< Channel codes (Z, N, E, 3, 2, 1) */
+  char chan[7][64]; /*!< Channel codes (Z, N, E, 3, 2, 1, Q) */
   char loc[64];     /*!< Location code */ 
   double *ubuff;    /*!< Up precise-point position buffer (meters).  If any
 		      sample is not known it should be a NAN. [maxpts] */
@@ -434,6 +434,8 @@ struct GFAST_waveform3CData_struct
 		      sample is not known it should be a NAN. [maxpts] */
   double *esigmabuff;    /*!< East precise-point position buffer (meters).  If any
 		      sample is not known it should be a NAN. */
+  double *qbuff;         /*!< Quality channel value. Multiple pieces of information are
+          encoded here. */
   double *tbuff;    /*!< Epochal time buffer (s) [maxpts] */ 
   //double epoch;     /*!< Epoch time (seconds) corresponding to first sample 
   //                      of u, n, and e traces */
@@ -441,7 +443,8 @@ struct GFAST_waveform3CData_struct
   double sta_lat;   /*!< Site latitude [-90,90] (degrees) */
   double sta_lon;   /*!< Site longitude [0,360] (degrees) */
   double sta_alt;   /*!< Site altitude (m) */
-  double gain[6];   /*!< Instrument gain on all three channels */
+  double gain[7];   /*!< Instrument gain on all 3 channels + 3 channel sigmas + 
+          quality channel */
   int maxpts;       /*!< Max number of poitns in buffer.  This is 
 		      computed from the site sampling period and
 		      the GFAST_parm_struct's bufflen */

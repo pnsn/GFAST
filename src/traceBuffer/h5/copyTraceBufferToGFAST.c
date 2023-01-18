@@ -37,13 +37,13 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     double dt, gain;
     int i, ierr, ierr1, j, k, l;
     bool *ltInit;
-    const int ncomp = 6;
+    const int ncomp = 7;
     int debug = 0;
     ierr = 0;
     if (traceBuffer->ntraces < 1){return ierr;} // Nothing to do
     if (fmod(traceBuffer->ntraces, ncomp) != 0)
     {
-        LOG_WARNMSG("%s", "Expecting multiple of 6 traces");
+        LOG_WARNMSG("%s", "Expecting multiple of 7 traces");
     }
     ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/ncomp, 1)));
     // Copy the data back
@@ -216,6 +216,21 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].esigmabuff, 1);
         }
+        else if (j == 6)
+        {
+            gps_data->data[k].npts = traceBuffer->traces[i].ncopy;
+            ierr1 = copyTrace(gps_data->data[k].npts,
+                              traceBuffer->traces[i].data, 
+                              gps_data->data[k].maxpts,
+                              gps_data->data[k].qbuff);
+            memory_free64f(&traceBuffer->traces[i].data);
+            if (ierr1 != 0)
+            {
+                LOG_ERRMSG("%s", "Error copying qbuff");
+                ierr = ierr + 1;
+            }
+            // No gain for quality channel
+        }
     }
 
     if (debug) {
@@ -223,7 +238,7 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
         LOG_DEBUGMSG("copyTB2GFAST data values, ncomp: %d", ncomp);
         for (k = 0; k < gps_data->stream_length; k++) {
             npts = gps_data->data[k].npts;
-            LOG_DEBUGMSG("%s.%s.%sNE321.%s: [%f %f %f %f %f %f]",
+            LOG_DEBUGMSG("%s.%s.%sNE321Q.%s: [%f %f %f %f %f %f %f]",
                 gps_data->data[k].netw,
                 gps_data->data[k].stnm,
                 gps_data->data[k].chan[0],
@@ -233,7 +248,8 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 gps_data->data[k].ebuff[npts - 1],
                 gps_data->data[k].usigmabuff[npts - 1],
                 gps_data->data[k].nsigmabuff[npts - 1],
-                gps_data->data[k].esigmabuff[npts - 1]
+                gps_data->data[k].esigmabuff[npts - 1],
+                gps_data->data[k].qbuff[npts - 1]
             );
         }
     }

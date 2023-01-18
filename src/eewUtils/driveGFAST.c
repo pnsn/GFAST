@@ -421,6 +421,7 @@ int eewUtils_driveGFAST(const double currentTime,
             //   Encode xml with dmlib
             LOG_MSG("%s", "driveGFAST: CWU_TEST dmlib encoding");
             pgdXML = dmlibWrapper_createPGDXML(
+                currentTime,
                 props.opmode,
                 GFAST_VERSION,
                 program_instance,

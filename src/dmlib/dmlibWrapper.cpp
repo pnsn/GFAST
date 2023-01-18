@@ -12,6 +12,7 @@
 #include "HBProducer.h"
 #include "DMMessageReceiver.h"
 #include "DMMessageSender.h"
+#include "DMMessageEncoder.h"
 #include "dmlibWrapper.h"
 #include "gfast_activeMQ.h"
 #include "gfast_struct.h"
@@ -27,6 +28,7 @@ namespace {
   static HBProducer *hbproducer=NULL;
   static DMMessageReceiver *eventreceiver=NULL;
   static DMMessageSender *eventsender=NULL;
+  static DMMessageEncoder *eventencoder=NULL;
   static CoreEventInfo *eventmessage=NULL;
   static std::string hbSender="";
   static std::string hbTopic="";
@@ -197,12 +199,12 @@ char *eventReceiverGetMessage(const int ms_wait, int *ierr) {
 }
 
 int stopEventReceiver() {
-  if (eventreceiver==NULL) {
-    LOG_DEBUGMSG("%s: Event receiver not running",__func__);
+  if (eventreceiver == NULL) {
+    LOG_DEBUGMSG("%s: Event receiver not running", __func__);
     return 0;
   } else {
     delete eventreceiver;
-    eventreceiver=NULL;
+    eventreceiver = NULL;
   }
   return 1;
 }
@@ -241,16 +243,47 @@ int startEventSender(const char eventtopic[]) {
 }
 
 int stopEventSender() {
-  if (eventsender==NULL) {
-    LOG_DEBUGMSG("%s: Event sender not running",__func__);
+  if (eventsender == NULL) {
+    LOG_DEBUGMSG("%s: Event sender not running", __func__);
     return 0;
   } else {
     delete eventsender;
-    eventsender=NULL;
+    eventsender = NULL;
   }
-  if (eventmessage!=NULL) {
+  if (eventmessage != NULL) {
     delete eventmessage;
-    eventmessage=NULL;
+    eventmessage = NULL;
+  }
+  return 1;
+}
+
+int startEventEncoder() {
+  if (conVerbose > 2)
+    {
+      LOG_DEBUGMSG("%s: Starting dmlib DMMessageEncoder", __func__);
+    }
+  if (eventencoder != NULL) {
+      LOG_DEBUGMSG("%s: Event encoder already initalized", __func__);
+      return 0;
+    }
+  try {
+    eventencoder = new DMMessageEncoder();
+  }
+  catch (exception &e)
+    {
+      LOG_ERRMSG("%s: Encountered Exception creating DMMessageEncoder\n%s",__func__,e.what());
+      return -1;
+    }
+  return 1;
+}
+
+int stopEventEncoder() {
+  if (eventencoder == NULL) {
+    LOG_DEBUGMSG("%s: Event encoder not running",__func__);
+    return 0;
+  } else {
+    delete eventencoder;
+    eventencoder = NULL;
   }
   return 1;
 }
@@ -363,7 +396,19 @@ int sendHeartbeat(){
   return 1;
 }
 
-char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
+char *getDmLibVersion() {
+  char *version=NULL;
+  std::string version_string;
+  version_string = DMLib::getVersion();
+
+  version = (char *)calloc(version_string.length() + 1, sizeof(char));
+  strcpy(version, version_string.c_str());
+
+  return version;
+}
+
+char *dmlibWrapper_createPGDXML(const double currentTime,
+                                const enum opmode_type mode,
                                 const char *alg_vers,
                                 const char *instance,
                                 const char *message_type, 
@@ -425,12 +470,12 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   // required to create FiniteFaultMessage
   enum FaultSegment::FaultSegmentShape shape = FaultSegment::UNKNOWN_SEGMENT;
 
-  // Get time stamp for when message is sent
+  // Get time stamp for when message is sent. Corresponds to currentTime from 
+  // the outer driveGFAST loop to be consistent with the last time we have
+  // data for.
   int rc;
   char cnow[128];
-  double now;
-  now = time_timeStamp();
-  rc = xml_epoch2string(now, cnow);
+  rc = xml_epoch2string(currentTime, cnow);
   if (rc != 0) {
     LOG_DEBUGMSG("%s", "Error getting time string!");
   }
@@ -441,6 +486,19 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       instance, core->numStations, magUnits, magUncerUnits, latUnits,
       latUncerUnits, lonUnits, lonUncerUnits, depthUnits, depthUncerUnits, origTimeUnits,
       origTimeUncerUnits);
+
+  // Replace time based on datestr. Accounts for potential leapseconds issues when switching
+  // between ISCL and ShakeAlert/qlib2 time handling. 
+  // ShakeAlert wants 2011-05-06T18:12:37.038Z" format which is provided by xml_epoch2string
+  char origTimeChar[128];
+  rc = xml_epoch2string(core->origTime, origTimeChar);
+  if (rc != 0) {
+    LOG_DEBUGMSG("%s", "Error getting time string!");
+  }
+  std::string origTimeStr(origTimeChar);
+  algMessage.setOriginTime(origTimeStr);
+  LOG_DEBUGMSG("old origTime: %lf, origTimeChar: %s, origTimeStr: %s, new origTime: %lf",
+    core->origTime, origTimeChar, origTimeStr.c_str(), algMessage.getOriginTime());
 
   // LOG_MSG("%s", "createEventXML - created algMessage");
 
@@ -547,7 +605,10 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   std::string msg_tmp;
 
   try {
-    msg_tmp = eventsender->getEncodedMessage(&algMessage);
+    // Using separate Encoder instead of the Sender's Encoder allows for easier testing and separation
+    // of tasks.
+    msg_tmp = eventencoder->encodeMessage(&algMessage);
+    // msg_tmp = eventsender->getEncodedMessage(&algMessage);
   }
   catch (exception &e) {
     LOG_ERRMSG("%s: DMMessageSender error while encoding: %s",__func__,e.what());

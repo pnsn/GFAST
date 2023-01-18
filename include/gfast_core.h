@@ -535,6 +535,12 @@ int core_scaling_readRawSigmaThresholdLookupFile(const char *rawSigmaThresholdLo
 //----------------------------------------------------------------------------//
 //                            Waveform processor                              //
 //----------------------------------------------------------------------------//
+/* Parse the packed quality channel, return chi^2 value */
+double core_waveformProcessor_parseQChannelChi2CWU(
+    const double q_value);
+/* Parse the packed quality channel, return mapped chi^2 value*/
+int core_waveformProcessor_parseQChannelChi2CWUmap(
+    const double q_value);
 /* Compute the offset in north, east, and up */
 int core_waveformProcessor_offset(const int utm_zone,
                                   const double svel_window,
@@ -564,16 +570,12 @@ double core_waveformProcessor_peakDisplacementHelper(
     const double *__restrict__ ubuff,
     const double *__restrict__ nbuff,
     const double *__restrict__ ebuff,
-    const double *__restrict__ usigmabuff,
-    const double *__restrict__ nsigmabuff,
-    const double *__restrict__ esigmabuff,
     const int nMaxLeader,
     const double tmin,
     const double tmax,
     double *obsTime,
-    double *uMaxUncertainty,
-    double *nMaxUncertainty,
-    double *eMaxUncertainty);
+    int *iRef,
+    int *iPeak);
 
 #define GFAST_core_cmt_decomposeMomentTensor(...)       \
               core_cmt_decomposeMomentTensor(__VA_ARGS__)

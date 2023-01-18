@@ -222,8 +222,8 @@ NEXT_TRACE:;
             {
                 LOG_ERRMSG("npts to update is invalid %d %d %d",
                            c1, c2, tb2Data.traces[i].npts);
-            LOG_DEBUGMSG("setData: i=%d tb2Data %s.%s npts:%d nchunks:%d chunkPtr[0]=%d chunkPtr[nchunks]=%d (c2-c1) != npts!",
-                i, tb2Data.traces[i].stnm, tb2Data.traces[i].chan, tb2Data.traces[i].npts, tb2Data.traces[i].nchunks, c1, c2);
+                LOG_DEBUGMSG("setData: i=%d tb2Data %s.%s npts:%d nchunks:%d chunkPtr[0]=%d chunkPtr[nchunks]=%d (c2-c1) != npts!",
+                        i, tb2Data.traces[i].stnm, tb2Data.traces[i].chan, tb2Data.traces[i].npts, tb2Data.traces[i].nchunks, c1, c2);
                 return -1;
             }
             for (chunk=0; chunk<nchunks; chunk++)
@@ -245,21 +245,21 @@ NEXT_TRACE:;
                     // MTH: The current data point is always getting inserted to the same indx as
                     // the buffer moves along, so does ts1, ts2, tb2Data[i].times[is], maintaining their offset
 
-                    if (debug){
-    LOG_DEBUGMSG("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f",
-                        ts2,
-                        is,
-                        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-                        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-                        chunk,
-                        (k*maxpts),
-                        ts1,
-                        tb2Data.traces[i].times[is],
-                        indx,
-                        indx,
-                        dwork[indx],
-                        indx-1,
-                        dwork[indx-1]);
+                    if (debug) {
+                        LOG_DEBUGMSG("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f",
+                            ts2,
+                            is,
+                            tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+                            tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+                            chunk,
+                            (k*maxpts),
+                            ts1,
+                            tb2Data.traces[i].times[is],
+                            indx,
+                            indx,
+                            dwork[indx],
+                            indx-1,
+                            dwork[indx-1]);
                       }
 
                 } // for is
