@@ -34,7 +34,7 @@ int traceBuffer_ewrr_settb2DataFromGFAST(struct GFAST_data_struct *gpsData,
     }
 
     // Init tb2Data_struct
-    tb2Data->ntraces = 6 * gpsData->stream_length;
+    tb2Data->ntraces = 7 * gpsData->stream_length;
     tb2Data->traces = (struct tb2Trace_struct *)
         calloc( (size_t) tb2Data->ntraces, sizeof(struct tb2Trace_struct) );
     tb2Data->hashmap = (struct tb2_hashmap_struct *)
@@ -47,8 +47,8 @@ int traceBuffer_ewrr_settb2DataFromGFAST(struct GFAST_data_struct *gpsData,
     // Copy channel names
     it = 0;
     for (k = 0; k < gpsData->stream_length; k++) {
-        // Loop over each channel: Z, N, E, 3, 2, 1
-        for (i = 0; i < 6; i++) {
+        // Loop over each channel: Z, N, E, 3, 2, 1, Q
+        for (i = 0; i < 7; i++) {
             strcpy(tb2Data->traces[it].netw, gpsData->data[k].netw);
             strcpy(tb2Data->traces[it].stnm, gpsData->data[k].stnm);
             strcpy(tb2Data->traces[it].chan, gpsData->data[k].chan[i]);

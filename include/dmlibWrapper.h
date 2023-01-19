@@ -65,6 +65,17 @@ extern "C" {
     @return 1 if success, 0 if not initialized and -1 for error
   */
   int stopEventSender();
+
+  /*!
+    @brief instantiates and starts new DMMessageEncoder for event xmls.
+    @return 1 if success, 0 if already connected and -1 for error
+  */
+  int startEventEncoder();
+  /*!
+    @brief stops active DMMessageEncoder for events.
+    @return 1 if success, 0 if not initialized and -1 for error
+  */
+  int stopEventEncoder();
   
   /*!
     @brief sends static event message
@@ -101,6 +112,11 @@ extern "C" {
     @return 1 if success, 0 if not initialized and -1 for error
   */
   int sendHeartbeat();
+  /*!
+    @brief Returns the dmlib version string
+    @return Version string
+  */
+  char *getDmLibVersion();
 
   /*!
     @brief create xml message from coreEvent_info and GFAST_peakDisplacementData_struct
@@ -116,7 +132,8 @@ extern "C" {
     @param[out] ierr         0 for success, -1 for error
     @return returns a ShakeAlert xml message
   */
-  char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
+  char *dmlibWrapper_createPGDXML(const double currentTime,
+                                  const enum opmode_type mode,
                                   const char *alg_vers,
                                   const char *instance,
                                   const char *message_type, 
