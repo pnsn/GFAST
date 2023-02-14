@@ -14,7 +14,7 @@ CFLAGS+=$(GFAST_USE_AMQ)
 CFLAGS+=$(GFAST_USE_DMLIB)
 #endif
 
-OBJS	= offset.o peakDisplacement.o peakDisplacementHelper.o
+OBJS	= offset.o peakDisplacement.o peakDisplacementHelper.o parseQChannel.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config

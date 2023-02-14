@@ -4,7 +4,7 @@
 #                         starting and stopping gfast in ShakeAlert context
 #
 
-echo -e 'Version: 0.0 dev: run_gfast.sh\n'
+echo -e 'Version: $Id: run_gfast.sh 001 2023-01-11 18:00:00Z ulbergc $\n'
 
 RETVAL=0
 ulimit -c unlimited
@@ -22,16 +22,15 @@ APP_LOGDIR="${APP_RUNDIR}/logs"
 APP_CMD="${APP_BINDIR}/${APP} ${APP_CFGDIR}/gfast.props" 
 APP_LOG="/app/share/bin/conlog -l ${APP_LOGDIR}/${APP}"
 
-#earthworm environment
-export EW_PARAMS=/app/eewdata/run/params
-export EW_INSTALLATION=INST_UW
-
 # Location of PID file(s)
 PIDDIR="${APP_RUNDIR}/pids"
 
 # Timeout for starting and stopping APP
 NUMBER_OF_CHECKS=10
 PAUSE=1
+
+# Setup environment before running program. This includes Earthworm settings
+source ${APP_RUNDIR}/bin/${APP}_env.sh
 
 # Kill running process(es)
 kill_proc() {

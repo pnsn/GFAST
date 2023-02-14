@@ -47,8 +47,8 @@ int core_waveformProcessor_peakDisplacement(
 {
     double currentTime, distance, effectiveHypoDist, epoch,
            peakDisp, x1, x2, y1, y2, tmin, tmax, obsTime,
-           uMaxUncertainty, nMaxUncertainty, eMaxUncertainty;
-    int k, nsites, zone_loc;
+           uMaxUncertainty, nMaxUncertainty, eMaxUncertainty, qMax, qRef, qPeak;
+    int k, nsites, zone_loc, iRef, iPeak;
     //unused int i;
     bool lnorthp;
     bool lnorthp_event;
@@ -85,9 +85,12 @@ int core_waveformProcessor_peakDisplacement(
     *ierr = 0;
     nsites = 0;
     obsTime = 0.0;
+    iRef = 0;
+    iPeak = 0;
     uMaxUncertainty = 0.0;
     eMaxUncertainty = 0.0;
     nMaxUncertainty = 0.0;
+    qMax = 0.0;
     if (gps_data.stream_length != pgd_data->nsites)
     {
         LOG_ERRMSG("Inconsistent structure sizes %d %d",
@@ -117,9 +120,12 @@ int core_waveformProcessor_peakDisplacement(
     for (k=0; k<gps_data.stream_length; k++)
     {
         obsTime = 0.0;
+        iRef = 0;
+        iPeak = 0;
         uMaxUncertainty = 0.0;
         eMaxUncertainty = 0.0;
         nMaxUncertainty = 0.0;
+        qMax = 0.0;
         // Make sure I have the latest/greatest site location 
         pgd_data->sta_lat[k] = gps_data.data[k].sta_lat;
         pgd_data->sta_lon[k] = gps_data.data[k].sta_lon; 
@@ -196,16 +202,12 @@ int core_waveformProcessor_peakDisplacement(
                 gps_data.data[k].ubuff,
                 gps_data.data[k].nbuff,
                 gps_data.data[k].ebuff,
-                gps_data.data[k].usigmabuff,
-                gps_data.data[k].nsigmabuff,
-                gps_data.data[k].esigmabuff,
                 nMaxLeader,
                 tmin,
                 tmax,
                 &obsTime,
-                &uMaxUncertainty,
-                &nMaxUncertainty,
-                &eMaxUncertainty);
+                &iRef,
+                &iPeak);
 
             /*
 The Crowell et al. [2016] coefficients are
@@ -241,14 +243,31 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
             }
             else
             {
-                LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f, peakSigmas=(%.4f,%.4f,%.4f)",
+                // If there is a real observation, get the associated max uncertainties and q values
+                if (!isnan(gps_data.data[k].usigmabuff[iRef]) && !isnan(gps_data.data[k].usigmabuff[iPeak])) {
+                    uMaxUncertainty = fmax(gps_data.data[k].usigmabuff[iRef], gps_data.data[k].usigmabuff[iPeak]);
+                }
+                if (!isnan(gps_data.data[k].nsigmabuff[iRef]) && !isnan(gps_data.data[k].nsigmabuff[iPeak])) {
+                    nMaxUncertainty = fmax(gps_data.data[k].nsigmabuff[iRef], gps_data.data[k].nsigmabuff[iPeak]);
+                }
+                if (!isnan(gps_data.data[k].esigmabuff[iRef]) && !isnan(gps_data.data[k].esigmabuff[iPeak])) {
+                    eMaxUncertainty = fmax(gps_data.data[k].esigmabuff[iRef], gps_data.data[k].esigmabuff[iPeak]);
+                }
+                if (!isnan(gps_data.data[k].qbuff[iRef]) && !isnan(gps_data.data[k].qbuff[iPeak])) {
+                    qRef = core_waveformProcessor_parseQChannelChi2CWU(gps_data.data[k].qbuff[iRef]);
+                    qPeak = core_waveformProcessor_parseQChannelChi2CWU(gps_data.data[k].qbuff[iPeak]);
+                    qMax = fmax(qRef, qPeak);
+                }
+
+                LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f, peakSigmas=(%.4f,%.4f,%.4f), peakQ=%.4f",
                         gps_data.data[k].stnm, gps_data.data[k].chan[0],
                         gps_data.data[k].netw, gps_data.data[k].loc,
                         peakDisp,
                         distance,
                         uMaxUncertainty,
                         nMaxUncertainty,
-                        eMaxUncertainty);
+                        eMaxUncertainty,
+                        qMax);
             }
 
             // Is the observation above the defined minimum?

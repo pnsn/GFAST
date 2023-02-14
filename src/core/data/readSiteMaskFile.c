@@ -18,7 +18,7 @@ static int splitLine(const char *cline,
  * @param[in,out] gps_data  on input contains the sites and SNCL's.
  *                          on output, if the SNCL is located in the
  *                          site mask file, the site is masked from the
- *                          inverserions.
+ *                          inversions.
  * 
  * @result 0 indicates success
  *
@@ -55,7 +55,7 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
             LOG_ERRMSG("%s", "Premature end of file");
             return -1;
         }
-        if (i == 0){continue;}
+        // if (i == 0){continue;}
         if (strlen(cline) == 0)
         {
             LOG_ERRMSG("%s", "Error line is blank!");
@@ -64,6 +64,14 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
         if (cline[strlen(cline)-1] == '\n')
         {
             cline[strlen(cline)-1] = '\0';
+        }
+        // Skip comment lines:
+        if (cline[0] == '#')
+        {
+            if (verbose > 0) {
+                LOG_DEBUGMSG("Skip comment line: %s", cline);
+            }
+            continue;
         }
         ierr = splitLine(cline,
                          netw, stnm, loc, chan,
@@ -87,12 +95,13 @@ int core_data_readSiteMaskFile(const char *siteMaskFile,
                     strcasecmp(gps_data->data[k].chan[2], chan) == 0 ||
                     strcasecmp(gps_data->data[k].chan[3], chan) == 0 ||
                     strcasecmp(gps_data->data[k].chan[4], chan) == 0 ||
-                    strcasecmp(gps_data->data[k].chan[5], chan) == 0)
+                    strcasecmp(gps_data->data[k].chan[5], chan) == 0 ||
+                    strcasecmp(gps_data->data[k].chan[6], chan) == 0)
                 {
                     if (verbose > 0)
                     {
-                        LOG_INFOMSG("Masking %s.%s.%s.%s",
-                                    netw, stnm, chan, loc);
+                        LOG_INFOMSG("Masking %s.%s.%s",
+                                    netw, stnm, loc);
                     }
                     if (iusePGD == 0)
                     {

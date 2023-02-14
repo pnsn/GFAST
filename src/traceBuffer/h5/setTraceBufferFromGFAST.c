@@ -42,7 +42,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
         {
             continue;
         }
-        traceBuffer->ntraces = traceBuffer->ntraces + 6; // Z, N, E, 3, 2, 1
+        traceBuffer->ntraces = traceBuffer->ntraces + 7; // Z, N, E, 3, 2, 1, Q
     }
     if (traceBuffer->ntraces < 1)
     {
@@ -101,8 +101,8 @@ NEXT_STATION:;
         {
             continue;
         }
-        // Loop for number of channels (z, n, e, 3, 2, 1)
-        for (j = 0; j < 6; j++)
+        // Loop for number of channels (z, n, e, 3, 2, 1, q)
+        for (j = 0; j < 7; j++)
         {
             memset(traceBuffer->traces[i].netw, 0,
                    sizeof(traceBuffer->traces[i].netw));
@@ -117,7 +117,7 @@ NEXT_STATION:;
             strcpy(traceBuffer->traces[i].chan, gps_data.data[k].chan[j]);
             strcpy(traceBuffer->traces[i].loc,  gps_data.data[k].loc);
             traceBuffer->traces[i].dtGroupNumber = ndtGroups[k];
-            traceBuffer->traces[i].idest = k * 6 + j;
+            traceBuffer->traces[i].idest = k * 7 + j;
 
             if (debug) {
                 LOG_DEBUGMSG("setH5: Check traceBuffer->traces[%d].chan = %s",

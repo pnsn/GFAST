@@ -130,7 +130,7 @@ struct h5trace_struct
     double dt;            /*!< Sampling period (seconds) */
     double gain;          /*!< Instrument gain */
     int idest;            /*!< Maps this trace back to the appropriate
-                               six-component data stream */
+                               seven-component data stream */
     int maxpts;           /*!< Max number of points in data buffers */
     int npts1;            /*!< Number of points in buffer 1 - TODO - delete */
     int npts2;            /*!< Number of points in buffer 2 - TODO - delete */

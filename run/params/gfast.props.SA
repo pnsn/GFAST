@@ -39,7 +39,7 @@ waitTime=1.0
 # zone.  Otherwise, if utm_zone is set to -12345 or not specified the UTM
 # zone will be estimated from the event hpyocenter provided in the ElarmS
 # message 
-utm_zone = 10
+utm_zone = -12345
 # Mechanism for initializing sampling period
 #  1 -> Sets GPS sampling period to default (dt_default)
 #  2 -> Obtains the sampling period from the dtfile 
