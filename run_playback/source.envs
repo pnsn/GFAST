@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export RUN_DIR=/home/mhagerty/run_playback/EW
+export EW_PARAMS=${RUN_DIR}/params
+export EW_LOG=${RUN_DIR}/log
+export EW_DATA_DIR=${RUN_DIR}/data
+export EW_BITS=64
+export EW_VERSION=earthworm_svn
+export EW_HOME=/opt/earthworm
+export EW_INSTALLATION=INST_UNKNOWN
+export PATH=${PATH}:${EW_HOME}/${EW_VERSION}/bin:

@@ -1,0 +1,202 @@
+# Makefile.env for GFAST EEW on Linux
+# Centos7 version
+# The following environment variables can be used to override the variables here:
+# BUILD_UTIL
+#Local
+LIB_DIR=/usr/lib64
+EEWDIR=/home/ulbergc/WORK/ShakeAlert
+THIRD_PARTY=/home/ulbergc/WORK/GFAST_third_party
+BUILD_UTILS=$(EEWDIR)/build-utils
+COMPEARTH_HOME=$(THIRD_PARTY)/mtbeach/c_src
+COMPEARTH_INCL=-I $(COMPEARTH_HOME)/include
+COMPEARTH_LIB =$(COMPEARTH_HOME)/lib/libcompearth_static.a
+ISCL_HOME=$(THIRD_PARTY)/iscl
+ISCL_INCL=-I $(ISCL_HOME)/include
+ISCL_LIB=$(ISCL_HOME)/lib/libiscl_static.a
+INIPARSER_HOME=$(THIRD_PARTY)/iniparser
+INIPARSER_INCL=-I $(INIPARSER_HOME)/src
+INIPARSER_LIB=$(INIPARSER_HOME)/libiniparser.a
+EW_HOME=$(THIRD_PARTY)/ew_v7.10
+#EW_HOME=/app/eewdata/ew/earthworm_7.9
+EW_INCL=-I $(EW_HOME)/include
+# libew_util.a was introduced in earthworm_7.10, but all we need is swap.o
+EW_LIB=$(EW_HOME)/lib/libew_util.a $(EW_HOME)/lib/libew_mt.a
+#EW_LIB=$(EW_HOME)/lib/swap.o $(EW_HOME)/lib/libew_mt.a
+APR_INCL=-I /usr/include/apr-1
+#APR_LIB=$(LIB_DIR)/libapr-1.a
+APR_LIB=-lapr-1
+HDF5_INCL=-I /usr/include/
+#HDF5_LIB=$(LIB_DIR)/hdf5/serial/libhdf5.a
+HDF5_LIB=-lhdf5
+ACTIVEMQ=/usr/include/activemq-cpp-3.9.3
+ACTIVEMQ_INCL=-I $(ACTIVEMQ)
+#ACTIVEMQ_LIB=$(ACTIVEMQ)/lib/libactivemq-cpp.a
+ACTIVEMQ_LIB=-lactivemq-cpp
+CBLAS_INCL=-I /usr/include/openblas
+CBLAS_LIB=-L/usr/lib64/atlas -ltatlas
+LAPACKE_INCL=-I /usr/include/lapacke
+LAPACKE_LIB= $(LIB_DIR)/liblapack.so.3 $(LIB_DIR)/liblapacke.so.3 
+#LAPACKE_LIB= $(LIB_DIR)/liblapack_atlas.a
+#LAPACKE_LIB=-llapack -llapacke
+XML_INCL=-I /usr/include/libxml2
+XML_LIB=-lxml2
+FFTW_INCL=
+FFTW_LIB=
+SSL_LIB=/usr/lib64/libssl.so.10
+CRYPTO_LIB=/usr/lib64/libcrypto.so.10
+#DM_LIB=/app/share/lib64/libdm.a
+#DMLIB_INCL=/app/share/include
+DMLIB_DIR=$(EEWDIR)/libs/dmlib
+DM_LIB=$(DMLIB_DIR)/libdm.a
+DMLIB_INCL=-I $(DMLIB_DIR)
+
+#some GFAST-specific environment variables
+ENABLE_EARTHWORM=-DENABLE_EARTHWORM
+GFAST_USE_EW=-DGFAST_USE_EW
+GFAST_USE_AMQ=-DGFAST_USE_AMQ
+GFAST_USE_DMLIB=-DGFAST_USE_DMLIB
+
+# Uncomment the next line to enable Multicast support
+# ENABLE_MCAST=-DENABLE_MCAST
+
+# Uncomment the next line to enable static file support
+ENABLE_FLFEED=-DENABLE_FLFEED
+
+# Uncomment the next line to enable using plog library for logging
+#ENABLE_PLOG=-DENABLE_PLOG
+
+# Uncomment the next line to enable SAC file writing
+#ENABLE_WRITE2SAC=-DWRITE2SAC
+
+#uncomment the next line to enable mass recenter notification support
+#NOTIFY_EEW=-DNOTIFY_EEW
+
+# builder info
+HOSTNAME=`hostname | cut -d'.' -f1`
+HOSTNAME=$(shell hostname | cut -d'.' -f1)
+BUILDER=$(USER)@$(HOSTNAME)
+UNAME:=$(shell uname)
+
+# location of Id expansion scripts
+ifeq ($(BUILD_UTILS),)
+  $(error Set the BUILD_UTILS environmental variable to absolute path of build_utils directory)
+endif
+
+# 32 or 64 bit, default is 64 bit
+ifeq ($(TARGET),32)
+  BITS=
+else
+  TARGET=64
+  BITS=64
+endif
+# compiler stuff
+DEBUG=-g
+CFLAGS=-Wall -Wextra -Wno-deprecated-declarations -O0 -m$(TARGET) -D_LINUX -D_INTEL -fPIC
+CCFLAGS=$(CFLAGS) -std=c++1y -O0 -D_REENTRANT -Dstatic_config
+cc=gcc
+CC=gcc
+CXX=g++
+CPP=g++
+AR=ar -rcsv
+
+# For Multicast
+PCAP=/usr/local
+
+ifeq ($(APRUTIL),)
+  APRUTIL=/usr
+  APRUTIL_LIB=-laprutil-1
+else
+  APRUTIL_LIB=-L$(APRUTIL)/lib$(BITS) -laprutil-1
+endif
+APRUTIL_INCL=-I$(APRUTIL)/include/apr-1.0
+
+ifeq ($(XERCES),)
+  XERCES=/usr
+  XERCES_LIB=-lxerces-c
+else
+ifeq ($(XERCES_LIB),)
+  XERCES_LIB=-L$(XERCES)/lib$(BITS) -lxerces-c
+endif
+endif
+XERCES_INCL=-I$(XERCES)/include -I$(XERCES)/include/xercesc
+
+ifeq ($(ACTIVEMQ),)
+  ACTIVEMQ=/usr
+endif
+ifeq ($(ACTIVEMQ_INCL),)
+  ACTIVEMQ_INCL=-I$(ACTIVEMQ)/include/activemq-cpp-3.9.5
+endif
+ifeq ($(ACTIVEMQ_LIB),)
+  ACTIVEMQ_LIB=-L$(ACTIVEMQ)/lib$(BITS) -lactivemq-cpp
+endif
+
+ifeq ($(GMT),)
+  GMT=/usr
+endif
+ifeq ($(GMT_INCL),)
+  GMT_INCL=-I$(GMT)/include
+endif
+ifeq ($(GMT_LIB),)
+  GMT_LIB=-L$(GMT)/lib$(BITS) -Wl,-R$(GMT)/lib$(BITS) -lgmt
+endif
+
+ifeq ($(GTEST),)
+  GTEST=/usr
+  GTEST_LIB=-lgtest
+else
+  GTEST_LIB=-L$(GTEST) -lgtest
+endif
+GTEST_INCL=-I$(GTEST)/include
+
+ACTIVEMQ_CLASS_PATH=$(ACTIVEMQ_JAR_DIR)/*:$(ACTIVEMQ_JAR_DIR)/optional/*:$(ACTIVEMQ_JAR_DIR)/camel/*
+
+QMASERV_INCL=-isystem$(QMASERV)
+ifeq ($(QLIB2_INCL),)
+  QLIB2_INCL = -isystem$(EEWDIR)/third_party/qlib2
+endif
+ifeq ($(QLIB2_LIB),)
+  QLIB2_LIB  = -L$(EEWDIR)/third_party/qlib2/lib$(BITS) -lqlib2
+endif
+
+# AQMS
+AQMS=$(EEWDIR)/third_party
+
+# Support for plog library
+#ifdef ENABLE_PLOG
+CFLAGS+=$(ENABLE_PLOG)
+#endif
+#ifdef GFAST_USE_EW
+CFLAGS+=$(GFAST_USE_EW)
+#endif
+#ifdef GFAST_USE_AMQ
+CFLAGS+=$(GFAST_USE_AMQ)
+#endif
+#ifdef GFAST_USE_DMLIB
+CFLAGS+=$(GFAST_USE_DMLIB)
+#endif
+
+AQMS_INCL+=-isystem$(AQMS)/libtnchnl/include \
+           -isystem$(AQMS)/libtndb/include \
+           -isystem$(AQMS)/libtntime/include \
+           -isystem$(AQMS)/librtseis/include \
+           -isystem$(AQMS)/libtnwave/include \
+           -isystem$(AQMS)/libtnstd/include
+
+AQMS_LIB+=$(AQMS)/libtndb/libtndb.a \
+         $(AQMS)/libtnchnl/libtnchnl.a \
+         $(AQMS)/libtntime/libtntime.a \
+         $(AQMS)/libtnstd/libtnstd.a 
+
+
+# define initial LIBS
+LIBS=-lnsl -lm -lrt -pthread -lz
+
+# Generator script location for propertiesST files handling config variables
+EEW_SCRIPT_DIR	 = $(EEWDIR)/libs/utils
+PROPGEN = $(EEW_SCRIPT_DIR)/propertiesSTGen.py
+PROPGENNEW = $(EEW_SCRIPT_DIR)/propertiesGen_new.py
+
+# make depend stuff
+MAKEFILE=$(firstword $(MAKEFILE_LIST))
+MAKEDEPEND=makedepend
+DEPENDFILES=.$(MAKEFILE).d
