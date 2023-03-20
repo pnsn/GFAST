@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <iostream>
 #include "gfast_activeMQ.h"
+#include "gfast_core.h"
 #include "ShakeAlertProducer.h"
 
 //static ShakeAlertProducer producer;
@@ -56,6 +57,9 @@
  *                            and the acknowledgement of messages is 
  *                            handled internally.
  * @param[in] verbose         Controls verobosity.  0 is quiet.
+ * 
+ * @param[in] ierr            0 indicates success\n
+ *                            1 indicates an internal error has occurred.
  *
  * @return pointer to ShakeAlertProducer class instance cast to (void *) so it can be passed in c.
  *
@@ -64,7 +68,7 @@
  */
 extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
                                               const char AMQpassword[],
-					      const char AMQurl[],
+                                              const char AMQurl[],
                                               const char AMQdestination[],
                                               const bool useTopic,
                                               const bool clientAck,
@@ -110,7 +114,7 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
   if (!activeMQ_isInit()){activeMQ_start();}
   if (verbose > 0)
     {
-      printf("%s: Initializing the producer...\n", fcnm);
+      LOG_MSG("%s: Initializing the producer...", fcnm);
     }
   producer = new ShakeAlertProducer;
   producer->initialize(username, password, destination, brokerURI,
@@ -118,7 +122,7 @@ extern "C" void *activeMQ_producer_initialize(const char AMQuser[],
   producer->startMessageSender();
   if (!producer->isInitialized())
     {
-      printf("%s: Failed to initialize the producer\n", fcnm);
+      LOG_WARNMSG("%s: Failed to initialize the producer", fcnm);
       *ierr = 1;
     }
   brokerURI = "";
@@ -161,7 +165,7 @@ extern "C" int activeMQ_producer_sendMessage(void *producerIn,
   producer = NULL;
   if (ierr != 0)
     {
-      printf("%s: Error sending message\n", fcnm);
+      LOG_ERRMSG("%s: Error sending message", fcnm);
     }
   return ierr;
 }

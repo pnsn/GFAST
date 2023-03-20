@@ -12,6 +12,7 @@
  * @param[in] adir     Archive directory.  If NULL then the current working
  *                     directory will be used.
  * @param[in] evid     Event ID.
+ * @param[in] epoch    The current time for this iteration.
  *
  * @retval If -1 an error occurred.
  * @retval Otherwise, this is the is iteration number for writing GFAST's

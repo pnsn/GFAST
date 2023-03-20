@@ -208,7 +208,7 @@ double *__read_xyz(const char *fname, int *l1, int *l2, int *ierr)
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){return NULL;}
     sscanf(cline, "%d %d\n", l1, l2); 
-    pos = (double *)calloc((size_t) (*l1**l2), sizeof(double));
+    pos = (double *)calloc((size_t) (*l1 * *l2), sizeof(double));
     indx = 0;
     for (i=0; i<*l2; i++)
     {

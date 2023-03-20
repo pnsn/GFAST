@@ -10,7 +10,9 @@
 #include "FiniteFaultMessage.h"
 #include "CoreEventInfo.h"
 #include "HBProducer.h"
+#include "DMMessageReceiver.h"
 #include "DMMessageSender.h"
+#include "DMMessageEncoder.h"
 #include "dmlibWrapper.h"
 #include "gfast_activeMQ.h"
 #include "gfast_struct.h"
@@ -24,7 +26,9 @@
 namespace {
   static cms::Connection *destinationConnection=NULL;
   static HBProducer *hbproducer=NULL;
+  static DMMessageReceiver *eventreceiver=NULL;
   static DMMessageSender *eventsender=NULL;
+  static DMMessageEncoder *eventencoder=NULL;
   static CoreEventInfo *eventmessage=NULL;
   static std::string hbSender="";
   static std::string hbTopic="";
@@ -48,20 +52,20 @@ int startDestinationConnection(const char AMQuser[],
 			       const int msReconnect,
 			       const int maxAttempts,
 			       const int verbose=1) {
-  conVerbose=verbose;
+  conVerbose = verbose;
+  if (destinationConnection != NULL) {
+    LOG_DEBUGMSG("%s: connection already exists",__func__);
+    return 0;
+  }
   char *brokerURI;
   brokerURI = activeMQ_setTcpURIRequest(destinationURL,
 					msReconnect, maxAttempts);
-  if (destinationConnection!=NULL) {
-    printf("%s: connection already exists\n",__func__);
-    return 0;
-  }
   try
     {
       // Create a connection factory
       if (conVerbose > 2)
 	{
-	  printf("%s: Setting the broker URI: %s\n",
+	  LOG_DEBUGMSG("%s: Setting the broker URI: %s",
 		 __func__, brokerURI);
 	}
       auto_ptr<cms::ConnectionFactory> connectionFactory(
@@ -69,27 +73,28 @@ int startDestinationConnection(const char AMQuser[],
 
       if (conVerbose > 2)
 	{
-	  printf("%s: Creating connection for username (%s)\n",
+	  LOG_DEBUGMSG("%s: Creating connection for username (%s)",
 		 __func__, AMQuser);
 	}
       // Create a connection
       destinationConnection = connectionFactory->createConnection(AMQuser, AMQpassword);
       connectionFactory.reset();
-      delete[] brokerURI;
+      free(brokerURI);
       if (destinationConnection==NULL) return -1;
     }
   catch (cms::CMSException &e)
     {
-      printf("%s: Exception encountered creating dmlib connection\n%s",__func__,e.what());
+      LOG_ERRMSG("%s: Exception encountered creating dmlib connection\n%s",__func__,e.what());
       e.printStackTrace();
+      free(brokerURI);
       return -1;
     }
   return 1;
 }
 
 int stopDestinationConnection() {
-  if ( destinationConnection==NULL ) {
-    printf("%s: connection already dead\n",__func__);
+  if ( destinationConnection == NULL ) {
+    LOG_DEBUGMSG("%s: connection already dead",__func__);
     return 0;
   } else {
     try {
@@ -101,12 +106,12 @@ int stopDestinationConnection() {
       destinationConnection=NULL;
     }
     catch (cms::CMSException &e) {
-      printf("%s: CMSException encountered closing dmlib destination connection\n%s",__func__,e.what());
+      LOG_ERRMSG("%s: CMSException encountered closing dmlib destination connection\n%s",__func__,e.what());
       e.printStackTrace();
       return -1;
     }
     catch (exception &e) {
-      printf("%s: Exception encountered closing dmlib destination connection\n%s",__func__,e.what());
+      LOG_ERRMSG("%s: Exception encountered closing dmlib destination connection\n%s",__func__,e.what());
       return -1;
     }
   }
@@ -118,22 +123,104 @@ bool isAMQconnected() {
     return false;
   }
   //vck: add real connected test here and make default -1
-  printf("%s: dummy placeholder function call\n",__func__);
+  LOG_DEBUGMSG("%s: dummy placeholder function call",__func__);
   return true;
+}
+
+int startEventReceiver(const char originURL[],
+                       const char user[],
+                       const char password[],
+                       const char originTopic[],
+                       const int msReconnect,
+                       const int maxAttempts) {
+  std::string brokerURI;
+  if (conVerbose > 2)
+    {
+      LOG_DEBUGMSG("%s: Starting dmlib DMMessageReceiver on topic: %s",
+	     __func__, originTopic);
+    }
+  if (eventreceiver != NULL) 
+    {
+      LOG_DEBUGMSG("%s: Event receiver already initalized",__func__);
+      return 0;
+    }
+  try {
+    // Set the URI 
+    char *brokerURIchar;
+    brokerURIchar = activeMQ_setTcpURIRequest(originURL, msReconnect, maxAttempts);
+    brokerURI = std::string(brokerURIchar);
+    delete[] brokerURIchar;
+
+    eventreceiver = new DMMessageReceiver(brokerURI, std::string(user), std::string(password),
+        std::string(originTopic));
+  }
+  catch (exception &e)
+    {
+      LOG_ERRMSG("%s: Encountered Exception creating DMMessageReceiver\n%s",__func__,e.what());
+      return -1;
+    }
+  try {
+    eventreceiver->run();
+  }
+  catch (exception &e)
+    {
+      LOG_ERRMSG("%s: Encountered Exception running DMMessageReceiver%s",__func__,e.what());
+      return -1;
+    }
+  return 1;
+}
+
+char *eventReceiverGetMessage(const int ms_wait, int *ierr) {
+  char *message = NULL;
+  CoreEventInfo *cei = NULL;
+  *ierr = 0;
+  if (eventreceiver == NULL) 
+    {
+      LOG_DEBUGMSG("%s: Event receiver not started!",__func__);
+      *ierr = -1;
+      return message;
+    }
+
+  // Finally, encode algMessage as xml, using the eventsenders encoder
+  std::string msg_tmp = "";
+  // LOG_DEBUGMSG("%s: Calling eventreceiver->receive(%d, msg_tmp)", __func__, ms_wait);
+  cei = eventreceiver->receive(ms_wait, msg_tmp);
+
+  if (msg_tmp.length() > 0) 
+    {
+      message = (char *)calloc(msg_tmp.length() + 1, sizeof(char));
+      strncpy(message, msg_tmp.c_str(), msg_tmp.length());
+    }
+
+  // LOG_MSG("%s - Returning", __func__);
+  delete cei;
+  cei = NULL;
+  return message;
+}
+
+int stopEventReceiver() {
+  if (eventreceiver == NULL) {
+    LOG_DEBUGMSG("%s: Event receiver not running", __func__);
+    return 0;
+  } else {
+    delete eventreceiver;
+    eventreceiver = NULL;
+  }
+  return 1;
 }
 
 int startEventSender(const char eventtopic[]) {
   if (conVerbose > 2)
     {
-      printf("%s: Starting dmlib DMMessageSender on topic: %s\n",
+      LOG_DEBUGMSG("%s: Starting dmlib DMMessageSender on topic: %s",
 	     __func__, eventtopic);
     }
   if (!isAMQconnected()) {
-      printf("%s: Cannot start event sender without activeMQ connection.",__func__);
+      LOG_ERRMSG("%s: Cannot start event sender without activeMQ connection.",__func__);
       return -1;
     }
   if (eventsender != NULL) {
-      printf("%s: Event sender already initalized\n",__func__);
+      LOG_DEBUGMSG("%s: Event sender already initalized",__func__);
       return 0;
     }
   try {
@@ -141,7 +228,7 @@ int startEventSender(const char eventtopic[]) {
   }
   catch (exception &e)
     {
-      printf("%s: Encountered Exception creating DMMessageSender\n%s",__func__,e.what());
+      LOG_ERRMSG("%s: Encountered Exception creating DMMessageSender\n%s",__func__,e.what());
       return -1;
     }
   try {
@@ -149,23 +236,54 @@ int startEventSender(const char eventtopic[]) {
   }
   catch (exception &e)
     {
-      printf("%s: Encountered Exception running DMMessageSender\n%s",__func__,e.what());
+      LOG_ERRMSG("%s: Encountered Exception running DMMessageSender%s",__func__,e.what());
       return -1;
     }
   return 1;
 }
 
 int stopEventSender() {
-  if (eventsender==NULL) {
-    printf("%s: Event sender not running\n",__func__);
+  if (eventsender == NULL) {
+    LOG_DEBUGMSG("%s: Event sender not running", __func__);
     return 0;
   } else {
     delete eventsender;
-    eventsender=NULL;
+    eventsender = NULL;
   }
-  if (eventmessage!=NULL) {
+  if (eventmessage != NULL) {
     delete eventmessage;
-    eventmessage=NULL;
+    eventmessage = NULL;
+  }
+  return 1;
+}
+
+int startEventEncoder() {
+  if (conVerbose > 2)
+    {
+      LOG_DEBUGMSG("%s: Starting dmlib DMMessageEncoder", __func__);
+    }
+  if (eventencoder != NULL) {
+      LOG_DEBUGMSG("%s: Event encoder already initalized", __func__);
+      return 0;
+    }
+  try {
+    eventencoder = new DMMessageEncoder();
+  }
+  catch (exception &e)
+    {
+      LOG_ERRMSG("%s: Encountered Exception creating DMMessageEncoder\n%s",__func__,e.what());
+      return -1;
+    }
+  return 1;
+}
+
+int stopEventEncoder() {
+  if (eventencoder == NULL) {
+    LOG_DEBUGMSG("%s: Event encoder not running",__func__);
+    return 0;
+  } else {
+    delete eventencoder;
+    eventencoder = NULL;
   }
   return 1;
 }
@@ -173,21 +291,21 @@ int stopEventSender() {
 int sendEventMessage() {
   if (conVerbose > 2)
     {
-      printf("%s: Sending event message to activemq topic.\n",
+      LOG_DEBUGMSG("%s: Sending event message to activemq topic.",
 	     __func__);
     }
   if (eventmessage==NULL) {
-    printf("%s: No message to send\n",__func__);
+    LOG_DEBUGMSG("%s: No message to send",__func__);
     return 0;
   }
   try {
     eventsender->sendMessage(eventmessage);
   }
   catch (exception &e) {
-    printf("%s: DMMessageSender error: %s",__func__,e.what());
+    LOG_ERRMSG("%s: DMMessageSender error: %s",__func__,e.what());
   }
   if (conVerbose>1) {
-    printf("%s: sent GFAST message to activemqfor evid:%s\n",__func__,eventmessage->getID().c_str());
+    LOG_MSG("%s: sent GFAST message to activemqfor evid:%s",__func__,eventmessage->getID().c_str());
   }
   return 1;
 }
@@ -195,13 +313,18 @@ int sendEventMessage() {
 int sendEventXML(const char xmlstr[]) {
   if (conVerbose > 2)
     {
-      printf("%s: Sending preformatted xml message to event topic.\n",
-	     __func__);
+      LOG_DEBUGMSG("%s: Sending preformatted xml message to event topic.",
+	           __func__);
+    }
+  if (eventsender == NULL)
+    {
+      LOG_WARNMSG("%s: Event sender not running", __func__);
+      return 0;
     }
 
   eventsender->sendString(xmlstr);
   if (conVerbose>1) {
-    printf("%s: sent xml message to activemq\n",__func__);
+    LOG_MSG("%s: sent xml message to activemq",__func__);
   }
   return 1;
 }
@@ -211,24 +334,24 @@ int startHBProducer(const char sender[],
 		    int interval=0,
 		    int verbose=1) {
   if (destinationConnection==NULL) {
-    printf("%s: Error: AMQ connection must be started before HBProducer\n",__func__);
+    LOG_ERRMSG("%s: Error: AMQ connection must be started before HBProducer",__func__);
     return -1;
   }
   if (hbproducer!=NULL) {
-    printf("%s: HBProducer already started\n",__func__);
+    LOG_DEBUGMSG("%s: HBProducer already started",__func__);
     return 0;
   }
   hbVerbose=verbose;
   hbSender=string(sender);
   hbTopic=string(hbtopic);
   if (hbVerbose > 2) {
-    printf("%s: Starting heartbeat producer on topic: %s\n",__func__, hbtopic);
+    LOG_DEBUGMSG("%s: Starting heartbeat producer on topic: %s",__func__, hbtopic);
   }
   try {
     hbproducer = new HBProducer(destinationConnection,hbSender,hbTopic,interval);
   }
   catch (exception &e) {
-    printf("%s: Encountered Exception creating dmlib HB producer\n%s",__func__,e.what());
+    LOG_ERRMSG("%s: Encountered Exception creating dmlib HB producer%s",__func__,e.what());
     return -1;
   }
   /* this part is not working (steals the program) 
@@ -249,11 +372,11 @@ int startHBProducer(const char sender[],
 int stopHBProducer() {
   if (hbVerbose > 2)
     {
-      printf("%s: killing heartbeat producer\n",__func__);
+      LOG_DEBUGMSG("%s: killing heartbeat producer",__func__);
     }
 
   if (hbproducer==NULL) {
-    printf("%s: HB producer not running\n",__func__);
+    LOG_DEBUGMSG("%s: HB producer not running",__func__);
       return 0;
   } else {
     hbproducer->stop();
@@ -266,58 +389,26 @@ int stopHBProducer() {
 int sendHeartbeat(){
   std::string timestr;
   if (hbproducer==NULL) {
-    printf("%s: HB producer not running\n",__func__);
+    LOG_DEBUGMSG("%s: HB producer not running",__func__);
       return 0;
   }
   hbproducer->sendHeartbeat("","","");
   return 1;
 }
 
-int createDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime) {
-  //taking defaults for lklihd,type,ver,category,time_stamp,alg_ver,instance,num_stations,ref_id,
-  //ref_src,orig_sys,mag_units,mag_uncer_units,lat_units,lat_uncer_units,lon_units,lon_uncer_units,
-  //dep_units,dep_uncer_units,o_time_units,o_time_uncer_units
+char *getDmLibVersion() {
+  char *version=NULL;
+  std::string version_string;
+  version_string = DMLib::getVersion();
 
-  if (eventmessage!=NULL) {
-    printf("%s: DMEventObject already started\n",__func__);
-    return 0;
-  }
-  eventmessage = new CoreEventInfo(GFAST, evid, mag, 0.0, lat, 0.0, lon, 0.0, depth, 0.0, otime, 0.0);
-  return 1;
+  version = (char *)calloc(version_string.length() + 1, sizeof(char));
+  strcpy(version, version_string.c_str());
+
+  return version;
 }
 
-int modifyDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime) {
-  if (eventmessage==NULL) {
-    printf("%s: DMEventObject must exist.  Call createDMEventObject first\n",__func__);
-    return 0;
-  }
-  if (evid!=eventmessage->getID()) {
-    printf("%s: event id's do not match. %s!=%s\n",__func__,evid,eventmessage->getID().c_str());
-    return -1;
-  }
-  eventmessage->setMagnitude(mag);
-  eventmessage->setLatitude(lat);
-  eventmessage->setLongitude(lon);
-  eventmessage->setDepth(depth);
-  eventmessage->setOriginTime(otime);
-  return 1;
-}
-
-int deleteDMEventObject(const char evid[]) {
-  if (eventmessage==NULL) {
-    printf("%s: DMEventObject does not exist.",__func__);
-    return 0;
-  }
-  if (evid!=eventmessage->getID()) {
-    printf("%s: event id's do not match. %s!=%s\n",__func__,evid,eventmessage->getID().c_str());
-    return -1;
-  }
-  delete eventmessage;
-  eventmessage=NULL;
-  return 1;
-}
-
-char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
+char *dmlibWrapper_createPGDXML(const double currentTime,
+                                const enum opmode_type mode,
                                 const char *alg_vers,
                                 const char *instance,
                                 const char *message_type, 
@@ -361,7 +452,7 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   } else if (mode == OFFLINE) {
     imode = TEST;
   } else {
-    printf("%s\n", "Defaulting to live mode");
+    LOG_DEBUGMSG("%s", "Defaulting to live mode");
     imode = LIVE;
   }
 
@@ -372,21 +463,21 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   } else if (strcmp(message_type, "update") == 0) {
     itype = UPDATE;
   } else {
-    printf("%s\n", "Message type not recognized! Defaulting to update");
+    LOG_DEBUGMSG("%s", "Message type not recognized! Defaulting to update");
     itype = UPDATE;
   }
 
   // required to create FiniteFaultMessage
   enum FaultSegment::FaultSegmentShape shape = FaultSegment::UNKNOWN_SEGMENT;
 
-  // Get time stamp for when message is sent
+  // Get time stamp for when message is sent. Corresponds to currentTime from 
+  // the outer driveGFAST loop to be consistent with the last time we have
+  // data for.
   int rc;
   char cnow[128];
-  double now;
-  now = time_timeStamp();
-  rc = xml_epoch2string(now, cnow);
+  rc = xml_epoch2string(currentTime, cnow);
   if (rc != 0) {
-    printf("%s\n", "Error getting time string!");
+    LOG_DEBUGMSG("%s", "Error getting time string!");
   }
 
   FiniteFaultMessage algMessage(GFAST, shape, core->id, core->mag, core->magUncer, core->lat,
@@ -395,6 +486,19 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       instance, core->numStations, magUnits, magUncerUnits, latUnits,
       latUncerUnits, lonUnits, lonUncerUnits, depthUnits, depthUncerUnits, origTimeUnits,
       origTimeUncerUnits);
+
+  // Replace time based on datestr. Accounts for potential leapseconds issues when switching
+  // between ISCL and ShakeAlert/qlib2 time handling. 
+  // ShakeAlert wants 2011-05-06T18:12:37.038Z" format which is provided by xml_epoch2string
+  char origTimeChar[128];
+  rc = xml_epoch2string(core->origTime, origTimeChar);
+  if (rc != 0) {
+    LOG_DEBUGMSG("%s", "Error getting time string!");
+  }
+  std::string origTimeStr(origTimeChar);
+  algMessage.setOriginTime(origTimeStr);
+  LOG_DEBUGMSG("old origTime: %lf, origTimeChar: %s, origTimeStr: %s, new origTime: %lf",
+    core->origTime, origTimeChar, origTimeStr.c_str(), algMessage.getOriginTime());
 
   // LOG_MSG("%s", "createEventXML - created algMessage");
 
@@ -405,14 +509,15 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   char *token = NULL, *work = NULL;
   bool assoc_flag = false;
   int n_assoc = 0;
+  double tmp_lon;
 
   enum ObservationType obs_type = DISPLACEMENT_OBS;
   
   // Later we assume pgd->nsites = pgd_data->nsites and indices correspond
   if (pgd->nsites != pgd_data->nsites) 
     {
-      printf("%s: nsites don't match for pgd, pgd_data! %d, %d\n" ,__func__, pgd->nsites,
-             pgd_data->nsites);
+      LOG_WARNMSG("%s: nsites don't match for pgd, pgd_data! %d, %d" ,__func__, pgd->nsites,
+                   pgd_data->nsites);
       *ierr = -1;
       return xmlmsg;
     }
@@ -467,6 +572,9 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
       // LOG_MSG("%s", "createEventXML - freed work, adding gmobs");
       
       assoc_flag = (n_assoc >= max_assoc_stations) ? false : true;
+      // Make sure longitude follows ShakeAlert convention
+      tmp_lon = pgd_data->sta_lon[i];
+      tmp_lon = (tmp_lon > 180) ? tmp_lon - 360 : tmp_lon;
 
       // Make sure to convert pgd to cm (from m)
       algMessage.addGMObservation(obs_type,
@@ -476,19 +584,19 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
                                   obs_loc,
                                   pgd_data->pd[i] * 100.,
                                   pgd_data->sta_lat[i],
-                                  pgd_data->sta_lon[i],
+                                  tmp_lon,
                                   pgd_data->pd_time[i],
                                   "cm\0",
                                   "deg\0",
                                   "deg\0",
                                   "UTC\0",
-                                  "\0",
+                                  "gfast\0",
                                   assoc_flag);
 
       n_assoc++;
 
-      LOG_MSG("createEventXML - added obs=%f, sta=%s, i=%d, j=%d, dist=%f, assoc=%d, n_assoc=%d",
-              pgd_data->pd[i] * 100., pgd_data->stnm[i], i, j, vals[j].dist, assoc_flag, n_assoc);
+      // LOG_DEBUGMSG("createEventXML - added obs=%f, sta=%s, i=%d, j=%d, dist=%f, assoc=%d, n_assoc=%d",
+      //         pgd_data->pd[i] * 100., pgd_data->stnm[i], i, j, vals[j].dist, assoc_flag, n_assoc);
     }
 
   LOG_MSG("%s", "createEventXML - finished adding gmobs, encoding message");
@@ -497,10 +605,13 @@ char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
   std::string msg_tmp;
 
   try {
-    msg_tmp = eventsender->getEncodedMessage(&algMessage);
+    // Using separate Encoder instead of the Sender's Encoder allows for easier testing and separation
+    // of tasks.
+    msg_tmp = eventencoder->encodeMessage(&algMessage);
+    // msg_tmp = eventsender->getEncodedMessage(&algMessage);
   }
   catch (exception &e) {
-    printf("%s: DMMessageSender error while encoding: %s",__func__,e.what());
+    LOG_ERRMSG("%s: DMMessageSender error while encoding: %s",__func__,e.what());
     *ierr = -1;
     return xmlmsg;
   }

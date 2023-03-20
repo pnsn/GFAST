@@ -18,14 +18,14 @@ OBJS := $(foreach dir,$(SDIRS),$(dir)/*.o)
 
 all: $(LIB)
 lib: $(LIB)
-%.o:    %.c
-	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
+# %.o:    %.c
+# 	$(cc) -c $< $(CFLAGS) $(DEBUG) $(INCL)
 
-ids:    *.cc *.h
-        $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)
+# ids:    *.cc *.h
+#         $(foreach f, $^, $(BUILD_UTILS)/updateId $f;)
 
-rm-ids:    *.cc *.h
-        $(foreach f, $^, $(BUILD_UTILS)/updateId $f -r;)
+# rm-ids:    *.cc *.h
+#         $(foreach f, $^, $(BUILD_UTILS)/updateId $f -r;)
 
 $(LIB): $(SDIRS) $(OBJS)
 	for dir in $(SDIRS) ; do \
@@ -55,6 +55,7 @@ cleandocs:
 	rm -rf ../docs/epic
 
 clean:
+	-rm -f *.o $(LIB)
 	for dir in $(SDIRS) ; do \
 		make -C $$dir clean ; \
 	done

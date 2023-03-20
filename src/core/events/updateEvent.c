@@ -61,7 +61,7 @@ bool core_events_updateEvent(struct GFAST_shakeAlert_struct SA,
                      SA.eventid);
         // MTH: I don't believe updateEvent is used, but just in case:
         //lnew_event = core_events_newEvent(SA, events);
-        printf("MTH: ERROR: updateEvent was called!! --> Exit!\n");
+        LOG_ERRMSG("%s", "MTH: ERROR: updateEvent was called!! --> Exit!");
         exit(2);
 
         if (!lnew_event)

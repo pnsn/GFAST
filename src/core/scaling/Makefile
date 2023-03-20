@@ -9,7 +9,8 @@ include $(GFASTROOT)/Make.include.$(MAKEHOST)
 OBJS	= pgd_depthGridSearch.o pgd_gridSearch.o pgd_readIni.o \
 pgd_setForwardModel.o pgd_weightForwardModel.o pgd_finalize.o \
 pgd_initialize.o pgd_setDiagonalWeightMatrix.o pgd_setRHS.o \
-pgd_weightObservations.o pgd_sanityChecks.o readSigmaLookupFile.o
+pgd_weightObservations.o pgd_sanityChecks.o readSigmaLookupFile.o \
+readPgdThresholdLookupFile.o readRawSigmaThresholdLookupFile.o
 
 DEBUG	= -g
 

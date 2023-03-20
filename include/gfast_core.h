@@ -140,6 +140,8 @@ int core_data_initialize(struct GFAST_props_struct props,
                          struct GFAST_data_struct *gps_data);
 /* Reads the metadata file */
 int core_data_readMetaDataFile(const char *metaDataFile,
+                               char **metaDataNetworks,
+                               int n_networks,
                                struct GFAST_data_struct *gps_data);
 /* Reads the site mask file */
 int core_data_readSiteMaskFile(const char *siteMaskFile,
@@ -301,6 +303,18 @@ int core_ff_weightObservations(const int mrows,
 //----------------------------------------------------------------------------//
 //                                 Logging                                    //
 //----------------------------------------------------------------------------//
+
+#ifdef ENABLE_PLOG
+void init_plog();
+void core_log_plog_V(const char *msg);
+void core_log_plog_D(const char *msg);
+void core_log_plog_I(const char *msg);
+void core_log_plog_W(const char *msg);
+void core_log_plog_E(const char *msg);
+void core_log_plog_F(const char *msg);
+void core_log_plog_N(const char *msg);
+#endif
+
 #ifndef ERRMSG
 #define ERRMSG(msg, fmt, ...)                                                \
 { \
@@ -313,6 +327,17 @@ int core_ff_weightObservations(const int mrows,
 };
 #endif
 
+#ifdef ENABLE_PLOG
+#ifndef LOG_ERRMSG 
+#define LOG_ERRMSG(fmt, ...) \
+{ \
+   char errmsg[GFAST_MAXMSG_LEN]; \
+   memset(errmsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   snprintf(errmsg, GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   core_log_plog_E(errmsg); \
+};
+#endif
+#else
 #ifndef LOG_ERRMSG 
 #define LOG_ERRMSG(fmt, ...) \
 { \
@@ -326,12 +351,24 @@ int core_ff_weightObservations(const int mrows,
    core_log_logErrorMessage(errmsg); \
 };
 #endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_WARNMSG 
 #define LOG_WARNMSG(fmt, ...) \
 { \
    char warnmsg[GFAST_MAXMSG_LEN]; \
-   memset(warnmsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   memset(warnmsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   snprintf(warnmsg, GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   core_log_plog_W(warnmsg); \
+};
+#endif
+#else
+#ifndef LOG_WARNMSG 
+#define LOG_WARNMSG(fmt, ...) \
+{ \
+   char warnmsg[GFAST_MAXMSG_LEN]; \
+   memset(warnmsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
    sprintf(warnmsg, "[WARNING]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
    do \
    {  \
@@ -340,12 +377,24 @@ int core_ff_weightObservations(const int mrows,
    core_log_logWarningMessage(warnmsg); \
 };
 #endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_INFOMSG 
 #define LOG_INFOMSG(fmt, ...) \
 { \
    char infoMsg[GFAST_MAXMSG_LEN]; \
-   memset(infoMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   memset(infoMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   snprintf(infoMsg, GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   core_log_plog_I(infoMsg); \
+};
+#endif
+#else
+#ifndef LOG_INFOMSG 
+#define LOG_INFOMSG(fmt, ...) \
+{ \
+   char infoMsg[GFAST_MAXMSG_LEN]; \
+   memset(infoMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
    sprintf(infoMsg, "[INFO] %s: ", __func__); \
    do \
    {  \
@@ -354,12 +403,24 @@ int core_ff_weightObservations(const int mrows,
    core_log_logInfoMessage(infoMsg); \
 };
 #endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_DEBUGMSG 
 #define LOG_DEBUGMSG(fmt, ...) \
 { \
    char debugMsg[GFAST_MAXMSG_LEN]; \
-   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   snprintf(debugMsg, GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   core_log_plog_D(debugMsg); \
+};
+#endif
+#else
+#ifndef LOG_DEBUGMSG 
+#define LOG_DEBUGMSG(fmt, ...) \
+{ \
+   char debugMsg[GFAST_MAXMSG_LEN]; \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
    sprintf(debugMsg, "[DEBUG] %s: ", __func__); \
    do \
    {  \
@@ -368,12 +429,24 @@ int core_ff_weightObservations(const int mrows,
    core_log_logDebugMessage(debugMsg); \
 };
 #endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_MSG 
 #define LOG_MSG(fmt, ...) \
 { \
    char debugMsg[GFAST_MAXMSG_LEN]; \
-   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char));                           \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   snprintf(debugMsg, GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   core_log_plog_I(debugMsg); \
+};
+#endif
+#else
+#ifndef LOG_MSG 
+#define LOG_MSG(fmt, ...) \
+{ \
+   char debugMsg[GFAST_MAXMSG_LEN]; \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
    struct tm *gtime; \
    time_t now; \
    time(&now); \
@@ -387,6 +460,7 @@ int core_ff_weightObservations(const int mrows,
    } while(0); \
    core_log_logMessage(debugMsg); \
 };
+#endif
 #endif
 
 int core_log_closeLogs(void);
@@ -536,13 +610,25 @@ int core_scaling_pgd_weightObservations(const int l1,
                                         const double *__restrict__ W,
                                         const double *__restrict__ b,
                                         double *__restrict__ Wb);
-/* Reads the sigma lookup table */
+/* Reads the sigma-time-magnitude lookup table */
 int core_scaling_readSigmaLookupFile(const char *sigmaLookupFile,
                                      struct GFAST_pgd_props_struct *pgd_props);
+/* Reads the pgd thresholds */
+int core_scaling_readPgdThresholdLookupFile(const char *pgdThresholdLookupFile,
+                                            struct GFAST_pgd_props_struct *pgd_props);
+/* Reads the raw sigma threshold file */
+int core_scaling_readRawSigmaThresholdLookupFile(const char *rawSigmaThresholdLookupFile,
+                                                 struct GFAST_pgd_props_struct *pgd_props);
 
 //----------------------------------------------------------------------------//
 //                            Waveform processor                              //
 //----------------------------------------------------------------------------//
+/* Parse the packed quality channel, return chi^2 value */
+double core_waveformProcessor_parseQChannelChi2CWU(
+    const double q_value);
+/* Parse the packed quality channel, return mapped chi^2 value*/
+int core_waveformProcessor_parseQChannelChi2CWUmap(
+    const double q_value);
 /* Compute the offset in north, east, and up */
 int core_waveformProcessor_offset(const int utm_zone,
                                   const double svel_window,
@@ -553,13 +639,9 @@ int core_waveformProcessor_offset(const int utm_zone,
                                   struct GFAST_data_struct gps_data,
                                   struct GFAST_offsetData_struct *offset_data,
                                   int *ierr);
-/* Compute the peak displacement */
+/* Compute the peak displacement from gps_data*/
 int core_waveformProcessor_peakDisplacement(
-    const int utm_zone,
-    const double svel_window,
-    const double min_svel_window,
-    const double min_pgd_cm,
-    const double max_pgd_cm,
+    const struct GFAST_pgd_props_struct *pgd_props,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,
@@ -567,6 +649,21 @@ int core_waveformProcessor_peakDisplacement(
     struct GFAST_data_struct gps_data,
     struct GFAST_peakDisplacementData_struct *pgd_data,
     int *ierr);
+/* Compute the peak displacement from buffers. Called by peakDisplacement */
+double core_waveformProcessor_peakDisplacementHelper(
+    const int npts,
+    const double dt,
+    const double ev_time,
+    const double epoch,
+    const double *__restrict__ ubuff,
+    const double *__restrict__ nbuff,
+    const double *__restrict__ ebuff,
+    const int nMaxLeader,
+    const double tmin,
+    const double tmax,
+    double *obsTime,
+    int *iRef,
+    int *iPeak);
 
 #define GFAST_core_cmt_decomposeMomentTensor(...)       \
               core_cmt_decomposeMomentTensor(__VA_ARGS__)
@@ -698,6 +795,8 @@ int core_waveformProcessor_peakDisplacement(
               core_waveformProcessor_offset(__VA_ARGS__)
 #define GFAST_core_waveformProcessor_peakDisplacement(...)       \
               core_waveformProcessor_peakDisplacement(__VA_ARGS__)
+#define GFAST_core_waveformProcessor_peakDisplacementHelper(...)       \
+              core_waveformProcessor_peakDisplacementHelper(__VA_ARGS__)
 
 #ifdef __cplusplus
 }

@@ -16,6 +16,7 @@
 
 struct GFAST_pgd_props_struct
 {
+  bool do_pgd;          /*!< Should PGD be calculated? */
   double window_vel;    /*!< Velocity (km/s) used in determining if enough
 			  data has arrived at a station in PGD
 			  inversion. */
@@ -47,6 +48,16 @@ struct GFAST_pgd_props_struct
   double t99[MAX_SIGMA_LOOKUP_VALUES];/*!< Time after origin (s) from lookup table [n99] */
   double m99[MAX_SIGMA_LOOKUP_VALUES];/*!< Magnitude from lookup table [n99] */
   int n99;              /*!< Number of t99, m99 values */
+  int throttle_num_stations[MAX_THROTTLING_THRESHOLDS]; /*!< Threshold number of stations to send a message */
+  double throttle_pgd_threshold[MAX_THROTTLING_THRESHOLDS]; /*!< Threshold pgd value (cm) */
+  double throttle_time_threshold[MAX_THROTTLING_THRESHOLDS]; /*!< Threshold time value (s) */
+  int n_throttle;             /*!< number of throttle criteria. num_stations, pgd_threshold,
+                                time_threshold should be the same length */
+  double u_raw_sigma_threshold; /*!< Maximum raw sigma (up) to allow in pd calculations (cm) */
+  double n_raw_sigma_threshold; /*!< Maximum raw sigma (east) to allow in pd calculations (cm) */
+  double e_raw_sigma_threshold; /*!< Maximum raw sigma (north) to allow in pd calculations (cm) */
+  double pgd_sigma_throttle; /*!< Maximum pgd magnitude uncertainty to allow in sending xml */
+  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
   double minimum_pgd_cm; /*!< Minimum value to include a pgd value in inversion (cm) */
   double maximum_pgd_cm; /*!< Maximum value to include a pgd value in inversion (cm) */
   int max_assoc_stations; /*!< Maximum stations to add the 'assoc' tag to in xml */
@@ -54,6 +65,7 @@ struct GFAST_pgd_props_struct
 
 struct GFAST_cmt_props_struct
 {
+  bool do_cmt;          /*!< Should CMT be calculated? */
   double window_vel;    /*!< Velocity (km/s) used in determining if S wave
 			  has passed through the station in CMT
 			  inversion. */
@@ -88,6 +100,7 @@ struct GFAST_cmt_props_struct
 
 struct GFAST_ff_props_struct
 {
+  bool do_ff;          /*!< Should FF be calculated? */
   double window_vel;   /*!< Velocity (km/s) used in determining if S wave
 			 has passed through the station in FF 
 			 inversion. */
@@ -156,6 +169,8 @@ struct GFAST_props_struct
 				 which defines the sites, locations,
 				 sampling periods, etc. to be used
 				 by GFAST. */
+  char *metaDataNetworks[16]; /*!< Networks that are allowed to be used */
+  int n_networks; /*!< Number of networks to use. If 0, use any available */
   char SAeventsDir[PATH_MAX]; /*!< Location of dir containing SA events 
 				SA.xml to trigger on */
   char SAoutputDir[PATH_MAX]; /*!< Location of dir where SA XML files will be written
@@ -203,13 +218,6 @@ struct GFAST_props_struct
 				and debug information. */
   bool lh5SummaryOnly;        /*!< If true then only the HDF5 summary
 				will be written. */
-  double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
-  int n_throttle;             /*!< number of throttle criteria. num_stations, pgd_threshold,
-                                time_threshold should be the same length */
-  int throttle_num_stations[16]; /*!< Threshold number of stations to send a message */
-  int throttle_pgd_threshold[16]; /*!< Threshold pgd value (cm) */
-  int throttle_time_threshold[16]; /*!< Threshold time value (s) */
-  double pgd_sigma_throttle; /*!< Maximum pgd magnitude uncertainty to allow in sending xml */
   enum opmode_type opmode;    /*!< GFAST operation mode (realtime, 
 				playback, offline). */
   enum dtinit_type dt_init;   /*!< Defines how to initialize GPS sampling
@@ -412,7 +420,7 @@ struct GFAST_waveform3CData_struct
 {
   char netw[64];    /*!< Network name */
   char stnm[64];    /*!< Station name */
-  char chan[3][64]; /*!< Channel codes (Z, N, E) */
+  char chan[7][64]; /*!< Channel codes (Z, N, E, 3, 2, 1, Q) */
   char loc[64];     /*!< Location code */ 
   double *ubuff;    /*!< Up precise-point position buffer (meters).  If any
 		      sample is not known it should be a NAN. [maxpts] */
@@ -420,6 +428,14 @@ struct GFAST_waveform3CData_struct
 		      sample is not known it should be a NAN. [maxpts] */
   double *ebuff;    /*!< East precise-point position buffer (meters).  If any
 		      sample is not known it should be a NAN. */
+  double *usigmabuff;    /*!< Up precise-point position buffer (meters).  If any
+		      sample is not known it should be a NAN. [maxpts] */
+  double *nsigmabuff;    /*!< North precise-point position buffer (meters).  If any
+		      sample is not known it should be a NAN. [maxpts] */
+  double *esigmabuff;    /*!< East precise-point position buffer (meters).  If any
+		      sample is not known it should be a NAN. */
+  double *qbuff;         /*!< Quality channel value. Multiple pieces of information are
+          encoded here. */
   double *tbuff;    /*!< Epochal time buffer (s) [maxpts] */ 
   //double epoch;     /*!< Epoch time (seconds) corresponding to first sample 
   //                      of u, n, and e traces */
@@ -427,7 +443,8 @@ struct GFAST_waveform3CData_struct
   double sta_lat;   /*!< Site latitude [-90,90] (degrees) */
   double sta_lon;   /*!< Site longitude [0,360] (degrees) */
   double sta_alt;   /*!< Site altitude (m) */
-  double gain[3];   /*!< Instrument gain on all three channels */
+  double gain[7];   /*!< Instrument gain on all 3 channels + 3 channel sigmas + 
+          quality channel */
   int maxpts;       /*!< Max number of poitns in buffer.  This is 
 		      computed from the site sampling period and
 		      the GFAST_parm_struct's bufflen */

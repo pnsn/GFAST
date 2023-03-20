@@ -15,6 +15,7 @@
 #pragma clang diagnostic pop
 #endif
 
+#include "gfast_core.h"
 #include "ShakeAlertConsumer.h"
  
 ShakeAlertConsumer::ShakeAlertConsumer() {
@@ -54,7 +55,6 @@ void ShakeAlertConsumer::initialize(const string username,
   __isInitialized = true;
   __lconnected = false;
   __textMessage = "";
-  memset(__pad, 0, sizeof(__pad));
   return;
 }
 
@@ -66,7 +66,7 @@ void ShakeAlertConsumer::startMessageListener()
       // Create a connection factory
       if (__verbose > 2)
 	{
-	  printf("%s: Setting the broker URI: %s\n",
+	  LOG_DEBUGMSG("%s: Setting the broker URI: %s",
 		 fcnm, __brokerURI.c_str());
 	}
       auto_ptr<cms::ConnectionFactory> connectionFactory(
@@ -74,7 +74,7 @@ void ShakeAlertConsumer::startMessageListener()
 
       if (__verbose > 2)
 	{
-	  printf("%s: Creating connection for username (%s)\n",
+	  LOG_DEBUGMSG("%s: Creating connection for username (%s)",
 		 fcnm, __user.c_str());
 	}
       // Create a connection
@@ -93,17 +93,17 @@ void ShakeAlertConsumer::startMessageListener()
       __connection->setExceptionListener(this); 
       if (__connection == NULL)
 	{
-	  printf("%s: Failed to start connection!\n", fcnm);
+	  LOG_DEBUGMSG("%s: Failed to start connection!", fcnm);
 	  return;
 	}
-      if (__verbose > 2){printf("%s: Connection set\n", fcnm);}
+      if (__verbose > 2){LOG_DEBUGMSG("%s: Connection set", fcnm);}
 
       // Create a session
       if (!__clientAck)
 	{
 	  if (__verbose > 2)
 	    {   
-	      printf("%s: Automatic message acknowledgement\n", fcnm);
+	      LOG_DEBUGMSG("%s: Automatic message acknowledgement", fcnm);
 	    }   
 	  __session
 	    = __connection->createSession(cms::Session::AUTO_ACKNOWLEDGE);
@@ -112,7 +112,7 @@ void ShakeAlertConsumer::startMessageListener()
 	{ 
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Client will acknowledge transaction\n",
+	      LOG_DEBUGMSG("%s: Client will acknowledge transaction",
 		     fcnm);
 	    }
 	  __session
@@ -123,7 +123,7 @@ void ShakeAlertConsumer::startMessageListener()
 	{
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Topic destination is %s\n",
+	      LOG_DEBUGMSG("%s: Topic destination is %s",
 		     fcnm, __destURI.c_str());
 	    }
 	  __destination = __session->createTopic(__destURI);
@@ -132,7 +132,7 @@ void ShakeAlertConsumer::startMessageListener()
 	{
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Queue destination is %s\n",
+	      LOG_DEBUGMSG("%s: Queue destination is %s",
 		     fcnm, __destURI.c_str());
 	    }
 	  __destination = __session->createQueue(__destURI);
@@ -140,23 +140,23 @@ void ShakeAlertConsumer::startMessageListener()
       // Create a messageConsumer from the session
       if (__verbose > 2)
 	{
-	  printf("%s: Creating message consumer...\n", fcnm);
+	  LOG_DEBUGMSG("%s: Creating message consumer...", fcnm);
 	}
       __consumer = __session->createConsumer(__destination);
       if (__luseListener){
 	__consumer->setMessageListener(this);
       }
-      if (__verbose > 2){printf("%s: Starting connection\n", fcnm);}
+      if (__verbose > 2){LOG_DEBUGMSG("%s: Starting connection", fcnm);}
       __connection->start();
       if (__connection == NULL)
 	{
-	  fprintf(stderr, "%s: Failed to start connection!\n", fcnm);
+	  LOG_WARNMSG("%s: Failed to start connection!", fcnm);
 	  return;
 	}
-      if (__verbose > 2){printf("%s: Connection set\n", fcnm);}
+      if (__verbose > 2){LOG_DEBUGMSG("%s: Connection set", fcnm);}
       if (__verbose > 2)
 	{
-	  printf("%s: ActiveMQ consumer on-line...\n", fcnm);
+	  LOG_DEBUGMSG("%s: ActiveMQ consumer on-line...", fcnm);
 	}
       __lconnected = true;
     }
@@ -183,13 +183,13 @@ void ShakeAlertConsumer::onMessage(const cms::Message *message)
 	  int ndel=__maxMessages-__messageBuffer.size()+1;
 	  while (ndel>0) {
 	    if (__verbose > 2) {
-	      printf("%s: delete old msg to make space in messageBuffer", fcnm);
+	      LOG_DEBUGMSG("%s: delete old msg to make space in messageBuffer", fcnm);
 	    }
 	    __messageBuffer.pop();
 	  }
 	  __messageBuffer.push(newmsg);
 	  if (__verbose > 2) {
-	    printf("%s: Message received:\n%s\n",
+	    LOG_DEBUGMSG("%s: Message received:\n%s",
 		   fcnm, newmsg.c_str());
 	  }
 	}
@@ -224,7 +224,7 @@ int ShakeAlertConsumer::pollAMQ(const int ms_wait, int *ierr)
   }
   if (! __lconnected)
     {
-      printf("%s: The listener isn't connected!\n", fcnm);
+      LOG_ERRMSG("%s: The listener isn't connected!", fcnm);
       *ierr = 1;
       return 0;
     }
@@ -245,7 +245,7 @@ int ShakeAlertConsumer::pollAMQ(const int ms_wait, int *ierr)
 	text = textMessage->getText();
 	if (__messageBuffer.size()==__maxMessages) {
 	  if (__verbose > 2) {
-	    printf("%s: delete old msg to make space in messageBuffer", fcnm);
+	    LOG_WARNMSG("%s: delete old msg to make space in messageBuffer", fcnm);
 	  }
 	  __messageBuffer.pop();
 	}
@@ -276,8 +276,8 @@ char *ShakeAlertConsumer::getMessage()
 
 void ShakeAlertConsumer::onException(const cms::CMSException& ex AMQCPP_UNUSED)
 {
-  fprintf(stderr, "%s",
-	  "CMS Exception occurred.  Shutting down client.\n");
+  LOG_ERRMSG("%s",
+	  "CMS Exception occurred.  Shutting down client.");
   ex.printStackTrace();
   exit(1); // This looks dangerous
 }
@@ -288,11 +288,11 @@ void ShakeAlertConsumer::cleanup()
   
   if (!__isInitialized)
     {
-      printf("%s: Program was never initialized\n", fcnm);
+      LOG_WARNMSG("%s: Program was never initialized", fcnm);
     }
   if (__verbose > 0)
     {
-      printf("%s: Closing consumer...\n", fcnm);      
+      LOG_MSG("%s: Closing consumer...", fcnm);      
     }
   // Close the connection
   try

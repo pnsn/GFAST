@@ -15,6 +15,7 @@
 #pragma clang diagnostic pop
 #endif
 
+#include "gfast_core.h"
 #include "ShakeAlertProducer.h"
 
 using namespace decaf::lang;
@@ -76,7 +77,7 @@ void ShakeAlertProducer::startMessageSender()
       // Create a connection factory
       if (__verbose > 2)
 	{
-	  printf("%s: Setting the broker URI: %s\n",
+	  LOG_DEBUGMSG("%s: Setting the broker URI: %s",
 		 fcnm, __brokerURI.c_str());
 	}
       auto_ptr<cms::ConnectionFactory> connectionFactory(
@@ -86,7 +87,7 @@ void ShakeAlertProducer::startMessageSender()
 
       if (__verbose > 2)
 	{
-	  printf("%s: Creating connection for username (%s)\n",
+	  LOG_DEBUGMSG("%s: Creating connection for username (%s)",
 		 fcnm, __user.c_str());
 	}
       // Create a connection
@@ -96,7 +97,7 @@ void ShakeAlertProducer::startMessageSender()
       __connection->setExceptionListener(this);
       if (__connection == NULL)
 	{
-	  printf("%s: Failed to start connection!\n", fcnm);
+	  LOG_WARNMSG("%s: Failed to start connection!", fcnm);
 	  return;
 	}
       
@@ -105,7 +106,7 @@ void ShakeAlertProducer::startMessageSender()
 	{
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Automatic message acknowledgement\n", fcnm);
+	      LOG_DEBUGMSG("%s: Automatic message acknowledgement", fcnm);
 	    }
 	  __session
 	    = __connection->createSession(cms::Session::AUTO_ACKNOWLEDGE);
@@ -114,7 +115,7 @@ void ShakeAlertProducer::startMessageSender()
 	{
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Session will acknowledge transaction\n",
+	      LOG_DEBUGMSG("%s: Session will acknowledge transaction",
 		     fcnm);
 	    }
 	  __session
@@ -122,7 +123,7 @@ void ShakeAlertProducer::startMessageSender()
 	}
       if (__session == NULL)
 	{
-	  fprintf(stderr, "%s: Error session not made\n", fcnm);
+	  LOG_ERRMSG("%s: Error session not made", fcnm);
 	  return;
 	}
       // Create the destination (topic or queue)
@@ -130,7 +131,7 @@ void ShakeAlertProducer::startMessageSender()
 	{
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Topic destination is %s\n",
+	      LOG_DEBUGMSG("%s: Topic destination is %s",
 		     fcnm, __destURI.c_str());
 	    }
 	  __destination = __session->createTopic(__destURI);
@@ -139,7 +140,7 @@ void ShakeAlertProducer::startMessageSender()
 	{
 	  if (__verbose > 2)
 	    {
-	      printf("%s: Queue destination is %s\n",
+	      LOG_DEBUGMSG("%s: Queue destination is %s",
 		     fcnm, __destURI.c_str());
 	    }
 	  __destination = __session->createQueue(__destURI);
@@ -147,22 +148,22 @@ void ShakeAlertProducer::startMessageSender()
       // Create a messageConsumer from the session
       if (__verbose > 2)
 	{
-	  printf("%s: Creating message producer...\n", fcnm);
+	  LOG_MSG("%s: Creating message producer...", fcnm);
 	}
       __producer = __session->createProducer(__destination);
 
-      if (__verbose > 2){printf("%s: Starting connection\n", fcnm);}
+      if (__verbose > 2){LOG_DEBUGMSG("%s: Starting connection", fcnm);}
       __connection->start();
       if (__connection == NULL)
 	{
-	  fprintf(stderr, "%s: Failed to start connection!\n", fcnm);
+	  LOG_WARNMSG("%s: Failed to start connection!", fcnm);
 	  return;
 	}
-      if (__verbose > 2){printf("%s: Connection set\n", fcnm);}
+      if (__verbose > 2){LOG_DEBUGMSG("%s: Connection set", fcnm);}
                 
       if (__verbose > 2)
 	{
-	  printf("%s: ActiveMQ producer on-line...\n", fcnm);
+	  LOG_DEBUGMSG("%s: ActiveMQ producer on-line...", fcnm);
 	}
       __lconnected = true;
 
@@ -179,17 +180,17 @@ int ShakeAlertProducer::sendMessage(const char *message)
   const char *fcnm = "ShakeAlertSender sendMessage\0";
   if (!__isInitialized)
     {
-      fprintf(stderr, "%s: Producer not yet initialized\n", fcnm);
+      LOG_ERRMSG("%s: Producer not yet initialized", fcnm);
       return -1;
     }
   if (!__lconnected)
     {
-      fprintf(stderr, "%s: Producer not yet connected\n", fcnm);
+      LOG_ERRMSG("%s: Producer not yet connected", fcnm);
       return -1;
     }
   if (message == NULL)
     {
-      fprintf(stderr, "%s: NULL message!\n", fcnm);
+      LOG_WARNMSG("%s: NULL message!", fcnm);
       return -1;
     }
   string msg = string(message);
@@ -212,8 +213,8 @@ int ShakeAlertProducer::sendBytesMessage(const unsigned char *cbytes,
 
 void ShakeAlertProducer::onException(const cms::CMSException& ex AMQCPP_UNUSED)
 {
-  fprintf(stderr, "%s",
-	  "CMS Exception occurred.  Shutting down client.\n");
+  LOG_ERRMSG("%s",
+	  "CMS Exception occurred.  Shutting down client.");
   ex.printStackTrace();
   exit(1); // This looks dangerous
 }
@@ -223,11 +224,11 @@ void ShakeAlertProducer::cleanup()
   const char *fcnm = "cleanup\0";
   if (__verbose > 0)
     {
-      printf("%s: Closing producer...\n", fcnm);
+      LOG_MSG("%s: Closing producer...", fcnm);
     }
   if (!__isInitialized)
     {
-      fprintf(stderr, "%s: Program was never initialized\n", fcnm);
+      LOG_WARNMSG("%s: Program was never initialized", fcnm);
     }
 
   // Close the connection

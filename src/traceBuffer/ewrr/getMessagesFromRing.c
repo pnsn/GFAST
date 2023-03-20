@@ -24,6 +24,7 @@
  * @param[in] showWarnings   If true then the print warnings about having read
  *                           maximum number of messages.
  * @param[in] ringInfo       Earthworm ring reader structure.
+ * @param[in] hashmap        Hashmap of NSLCs we want to keep.
  *
  * @param[out] nRead         Number of traceBuffer2 messages read.
  *
@@ -48,14 +49,15 @@
 char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                                            const bool showWarnings,
                                            struct ewRing_struct *ringInfo,
+                                           struct tb2_hashmap_struct *hashmap,
                                            int *nRead, int *ierr)
 {
   MSG_LOGO gotLogo; 
   TRACE2_HEADER traceHeader;
-  char *msg, *msgs, *msgWork;
+  char *msg, *msgs, *msgWork, *nscl;
   unsigned char sequenceNumber;
   long gotSize;
-  int kdx, nblock, ncopy, nwork, retval, maxMessages, maxSpace;
+  int kdx, nblock, ncopy, nwork, retval, maxMessages, maxSpace, ntotal, nskip;
   int debug = 0;
   //size_t nbytes; //, npcopy;
   //------------------------------------------------------------------------//
@@ -65,6 +67,9 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
   *nRead = 0;
   msg = NULL;
   msgs = NULL;
+  nscl = NULL;
+  ntotal = 0;
+  nskip = 0;
 
   if (!ringInfo->linit)
     {
@@ -87,6 +92,7 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
   memset(&gotLogo, 0, sizeof(MSG_LOGO));
   msgs = memory_calloc8c(MAX_TRACEBUF_SIZ*messageBlock);
   msg  = memory_calloc8c(MAX_TRACEBUF_SIZ);
+  nscl = memory_calloc8c(31);
   nblock = 1;
   // Unpack the ring
   while (true)
@@ -126,11 +132,25 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
           *ierr =-2;
           break;
         }
+        ntotal += 1;
+
+        memory_free8c(&nscl);
+        nscl = memory_calloc8c(31);
+        sprintf(nscl, "%s.%s.%s.%s", 
+          traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc);
 
         if (debug){
-          printf("getMsgs: %s.%s.%s.%s time:%f npts:%d\n",
-          traceHeader.net, traceHeader.sta, traceHeader.chan, traceHeader.loc,
-          traceHeader.starttime, traceHeader.nsamp);
+          LOG_DEBUGMSG("CCC getMsgs: %s time:%f npts:%d",
+            nscl, traceHeader.starttime, traceHeader.nsamp);
+        }
+
+        // Skip message if it isn't in the tb2_trace NSLC list
+        if (traceBuffer_ewrr_hashmap_contains(hashmap, nscl) == NULL) {
+          if (debug) {
+            LOG_DEBUGMSG("CCC getMsgs: skipping %s, not in hashmap", nscl);
+          }
+          nskip += 1;
+          continue;
         }
 
         kdx = *nRead*MAX_TRACEBUF_SIZ;
@@ -178,7 +198,14 @@ char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
     } // while true
 
   memory_free8c(&msg);
+  memory_free8c(&nscl);
 
   if (ringInfo->msWait > 0){sleep_ew(ringInfo->msWait);}
+  if (*nRead != ntotal - nskip) {
+    LOG_WARNMSG("getMessagesFromRing: nRead != ntotal - nskip: %d != %d - %d = %d",
+                *nRead, ntotal, nskip, ntotal - nskip);
+  }
+  LOG_DEBUGMSG("getMessagesFromRing: nRead/ntotal/nskip: %d/%d/%d",
+               *nRead, ntotal, nskip);
   return msgs;
 }

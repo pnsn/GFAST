@@ -9,14 +9,17 @@ static int splitLine(const char *cline,
                      char netw[64], char stat[64], char loc[64], char chan[64],
                      double *lat, double *lon, double *elev,
                      double *dt, double *gain,
-                     char units[64], char sensorType[64],
-                     double *reflat, double *reflon);
+                     char units[64], char sensorType[64]);
 /*!
  * @brief Reads the site metadata file.  From this we initialize the site
  *        network, station, channel, and location code, it's position (latitude,
  *        longitude, elevation), sampling period, and gain)
  *
  * @param[in] metaDataFile    name of GPS metadata file
+ *
+ * @param[in] metaDataNetworks    networks to use (ignore the rest)
+ *
+ * @param[in] n_networks    number of networks
  *
  * @param[out] gps_data       GPS streams with
  *
@@ -26,6 +29,8 @@ static int splitLine(const char *cline,
  *
  */ 
 int core_data_readMetaDataFile(const char *metaDataFile,
+                               char **metaDataNetworks,
+                               int n_networks,
                                struct GFAST_data_struct *gps_data)
 {
     FILE *infl;
@@ -33,8 +38,8 @@ int core_data_readMetaDataFile(const char *metaDataFile,
          site[256], chan[64], chan1[64], loc[64], loc1[64],
          netw[64], netw1[64], stat[64], stat1[64],
          sensorType[64], units[64];
-    double gain0[3], dt, elev, gain, lat, lon, reflat, reflon;
-    int *lines, i, ierr, j, k, lfound, nlines, ns;
+    double gain0[7], dt, elev, gain, lat, lon;
+    int *lines, i, ierr, j, k, lfound, nlines, nlines_total, ns, debug;
     // Initialize 
     ierr = 0;
     infl = NULL;
@@ -42,51 +47,45 @@ int core_data_readMetaDataFile(const char *metaDataFile,
     sites = NULL;
     lines = NULL;
     nlines = 0;
+    nlines_total = 0;
     ns = 0;
+    debug = 0;
     // Require the site file exists
     if (!os_path_isfile(metaDataFile))
     {
         LOG_ERRMSG("Error site file does not exist: %s", metaDataFile);
         return -1;
     }
-    // Open the file for reading and count the sites
+    // Open the file for reading and count the total lines (including comments)
     infl = fopen(metaDataFile, "r");
     while (fgets(cline, 1024, infl) != NULL)
     {
-        nlines = nlines + 1;
+        nlines_total = nlines_total + 1;
     }
-    if (nlines < 1)
+    if (nlines_total < 1)
     {
         LOG_ERRMSG("%s", "Error no data read!");
         ierr = 1;
         goto ERROR;
     }
     rewind(infl);
+
+    // Allocate space (potentially over-allocated with comments)
+    textfl = (char **)calloc((size_t) nlines_total, sizeof(char *));
+    sites = (char **)calloc((size_t) nlines_total, sizeof(char *));
+    for (i=0; i<nlines_total; i++){sites[i] = NULL;}
+    lines = (int *)calloc((size_t) nlines_total, sizeof(int));
+
     // Read the text file into memory
-    nlines = nlines - 1; // remove the header
-    textfl = (char **)calloc((size_t) nlines, sizeof(char *));
-    sites = (char **)calloc((size_t) nlines, sizeof(char *));
-    for (i=0; i<nlines; i++){sites[i] = NULL;}
-    lines = (int *)calloc((size_t) nlines, sizeof(int));
-    for (i=0; i<nlines+1; i++)
+    for (i=0; i<nlines_total; i++)
     {
         memset(cline, 0, sizeof(cline));
-        k = i - 1;
         if (fgets(cline, 1024, infl) == NULL)
         {
             ierr = 1;
             LOG_ERRMSG("%s", "Premature end of file");
             goto ERROR;
         }
-        if (i == 0){continue;} // Skip the header
-        //MTH: skip comment lines:
-        /*
-        if (cline[0] == '#')
-          {
-            LOG_MSG("MTH: skip line:%s", cline);
-            continue;
-          }
-        */
 
         if (strlen(cline) == 0)
         {
@@ -94,30 +93,59 @@ int core_data_readMetaDataFile(const char *metaDataFile,
             LOG_ERRMSG("%s", "Blank line - invalid input!");
             goto ERROR;
         }
+        
         // Get rid of the end of line
         if (cline[strlen(cline)-1] == '\n'){cline[strlen(cline)-1] = '\0';}
-        textfl[k] = (char *)calloc(strlen(cline)+1, sizeof(cline));
-        strcpy(textfl[k], cline);
+        
+        // Skip comment lines:
+        if (cline[0] == '#')
+          {
+            LOG_DEBUGMSG("Skip comment line: %s", cline);
+            continue;
+          }
+
+        // This should be a valid channel line, save it to memory
+        textfl[nlines] = (char *)calloc(strlen(cline)+1, sizeof(cline));
+        strcpy(textfl[nlines], cline);
+        nlines = nlines + 1;
     }
     fclose(infl);
     infl = NULL;
+
     // Now match up the three component data streams
     ns = 0;
     for (i=0; i<nlines; i++)
     {
-//printf("readMetaDataFile: textfl[%d]=%s\n",i,textfl[i]);
         // Get the root name (ignoring the channel orientation) 
         ierr = splitLine(textfl[i],
                          netw, stat, loc, chan,
                          &lat, &lon, &elev,
                          &dt, &gain,
-                         units, sensorType,
-                         &reflat, &reflon);
+                         units, sensorType);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error parsing line!");
             goto ERROR;
         }
+        // Skip channel if it isn't in the network list. If list is empty, allow all
+        if (n_networks > 0)
+        {
+            bool skipLine = true;
+            for (k = 0; k < n_networks; k++)
+            {
+                if (strcasecmp(netw, metaDataNetworks[k]) == 0)
+                {
+                    skipLine = false;
+                    break;
+                }
+            }
+            if (skipLine) 
+            {
+                LOG_DEBUGMSG("Skip line, not in metaDataNetworks: %s", textfl[i]);
+                continue;
+            }
+        }
+
         // Make the site name
         strcpy(site, netw);
         strcat(site, "_\0");
@@ -132,28 +160,36 @@ int core_data_readMetaDataFile(const char *metaDataFile,
         strncat(site, chan, 2);
         strcat(site, "_\0");
         strcat(site, loc);
-//printf("readMetaDataFile: %s.%s.%s.%s gain:%e site:%s\n",netw, stat, chan, loc, gain, site);
+        
         // Does this site exist?
         for (k=0; k<ns; k++)
         {
-            if (strcasecmp(sites[k], site) == 0){goto NEXT_LINE;}
+            if (strcasecmp(sites[k], site) == 0) {
+                if (debug) {
+                    LOG_DEBUGMSG("Going to NEXT_LINE, site=%s, ns=%d, k=%d", site, ns, k);
+                }
+                goto NEXT_LINE;
+            }
         }
+        sites[ns] = (char *)calloc(strlen(site)+1, sizeof(char));
+        strcpy(sites[ns], site);
         ns = ns + 1;
-        sites[ns-1] = (char *)calloc(strlen(site)+1, sizeof(char));
-        strcpy(sites[ns-1], site);
-        // Now verify at least 1 or 3 sites are specified 
+        // Now verify at least 1 or 3 or 6 sites are specified (not counting Q channel)
         lfound = 0;
         gain0[0] = (double) NAN;
         gain0[1] = (double) NAN;
         gain0[2] = (double) NAN;
+        gain0[3] = (double) NAN;
+        gain0[4] = (double) NAN;
+        gain0[5] = (double) NAN;
+        gain0[6] = (double) NAN;
         for (j=0; j<nlines; j++)
         {
             ierr = splitLine(textfl[j],
                              netw1, stat1, loc1, chan1,
                              &lat, &lon, &elev,
                              &dt, &gain,
-                             units, sensorType,
-                             &reflat, &reflon);
+                             units, sensorType);
             if (ierr != 0)
             {
                 LOG_ERRMSG("%s", "Error parsing line!");
@@ -164,20 +200,40 @@ int core_data_readMetaDataFile(const char *metaDataFile,
                 strcasecmp( loc1,  loc)  == 0 &&
                 strncasecmp(chan1, chan, 2) == 0)
             {
-                gain0[lfound] = gain;
-                if (chan1[2] == 'Z'){lfound = lfound + 1;}
-                if (chan1[2] == 'N'){lfound = lfound + 1;}
-                if (chan1[2] == 'E'){lfound = lfound + 1;}
+                if (chan1[2] == 'Z'){lfound = lfound + 1; gain0[2] = gain;}
+                if (chan1[2] == 'N'){lfound = lfound + 1; gain0[1] = gain;}
+                if (chan1[2] == 'E'){lfound = lfound + 1; gain0[0] = gain;}
+                if (chan1[2] == '3'){lfound = lfound + 1; gain0[5] = gain;}
+                if (chan1[2] == '2'){lfound = lfound + 1; gain0[4] = gain;}
+                if (chan1[2] == '1'){lfound = lfound + 1; gain0[3] = gain;}
+                if (chan1[2] == 'Q'){gain0[6] = gain;} // Don't count quality channel in lfound
+                if (debug) {
+                    LOG_DEBUGMSG("Matched %s.%s.%s.%s, lfound=%d, line=%s",
+                        netw, stat, loc, chan, lfound, textfl[j]);
+                }
             }
         }
-        if (lfound == 1 || lfound == 3)
+        if (debug) {
+            LOG_DEBUGMSG("%s.%s.%s.%s, lfound=%d", netw, stat, loc, chan, lfound);
+        }
+        if (lfound == 1 || lfound == 3 || lfound == 6)
         {
             lines[gps_data->stream_length] = i;
             gps_data->stream_length = gps_data->stream_length + 1;
-            if (lfound == 3)
+            if (lfound == 3 || lfound == 6)
             {
                 if (fabs(gain0[0] - gain0[1]) > 1.e-6 ||
                     fabs(gain0[0] - gain0[2]) > 1.e-6)
+                {
+                    LOG_ERRMSG("%s", "Error inconsistent gain");
+                    goto ERROR;
+                }
+            }
+            else if (lfound == 6)
+            {
+                if (fabs(gain0[3] - gain0[4]) > 1.e-6 ||
+                    fabs(gain0[3] - gain0[5]) > 1.e-6 ||
+                    fabs(gain0[3] - gain0[0]) > 1.e-6)
                 {
                     LOG_ERRMSG("%s", "Error inconsistent gain");
                     goto ERROR;
@@ -205,6 +261,7 @@ NEXT_LINE:; // Try another site to match
                      calloc((size_t) gps_data->stream_length,
                             sizeof(struct GFAST_waveform3CData_struct));
     // Now parse the lines
+    LOG_DEBUGMSG("Creating %d data streams", gps_data->stream_length);
     for (k=0; k<gps_data->stream_length; k++)
     {
         // Parse the line
@@ -212,8 +269,7 @@ NEXT_LINE:; // Try another site to match
                          netw, stat, loc, chan,
                          &lat, &lon, &elev,
                          &dt, &gain,
-                         units, sensorType,
-                         &reflat, &reflon);
+                         units, sensorType);
         if (ierr != 0)
         {
             LOG_ERRMSG("%s", "Error parsing line!");
@@ -252,6 +308,14 @@ NEXT_LINE:; // Try another site to match
         strcat( gps_data->data[k].chan[1], "N\0");
         strncpy(gps_data->data[k].chan[2], chan, 2); 
         strcat( gps_data->data[k].chan[2], "E\0");
+        strncpy(gps_data->data[k].chan[3], chan, 2); 
+        strcat( gps_data->data[k].chan[3], "3\0");
+        strncpy(gps_data->data[k].chan[4], chan, 2); 
+        strcat( gps_data->data[k].chan[4], "2\0");
+        strncpy(gps_data->data[k].chan[5], chan, 2); 
+        strcat( gps_data->data[k].chan[5], "1\0");
+        strncpy(gps_data->data[k].chan[6], chan, 2); 
+        strcat( gps_data->data[k].chan[6], "Q\0");
         strcpy(gps_data->data[k].loc, loc);
         gps_data->data[k].sta_lat = lat;
         gps_data->data[k].sta_lon = lon;
@@ -260,6 +324,10 @@ NEXT_LINE:; // Try another site to match
         gps_data->data[k].gain[0] = gain;
         gps_data->data[k].gain[1] = gain;
         gps_data->data[k].gain[2] = gain;
+        gps_data->data[k].gain[3] = gain;
+        gps_data->data[k].gain[4] = gain;
+        gps_data->data[k].gain[5] = gain;
+        gps_data->data[k].gain[6] = 1; // Quality channel has no gain
         if (gain == 0.0 || dt <= 0.0 || isnan(dt))
         {
             if (gain == 0.0)
@@ -290,7 +358,7 @@ ERROR:;
     if (lines != NULL){free(lines);}
     if (textfl != NULL)
     {
-       for (i=0; i<nlines; i++)
+       for (i=0; i<nlines_total; i++)
        {
            if (textfl[i] != NULL){free(textfl[i]);}
        }
@@ -298,7 +366,7 @@ ERROR:;
     }
     if (sites != NULL)
     {
-       for (i=0; i<nlines; i++)
+       for (i=0; i<nlines_total; i++)
        {
            if (sites[i] != NULL){free(sites[i]);}
        }
@@ -312,8 +380,7 @@ static int splitLine(const char *cline,
                      char netw[64], char stat[64], char loc[64], char chan[64],
                      double *lat, double *lon, double *elev,
                      double *dt, double *gain,
-                     char units[64], char sensorType[64],
-                     double *reflat, double *reflon)
+                     char units[64], char sensorType[64])
 {
     char *token, *work;
     int i, ierr;
@@ -335,8 +402,6 @@ static int splitLine(const char *cline,
     *gain = 0;
     memset(units,      0, sizeof(char)*64);
     memset(sensorType, 0, sizeof(char)*64); 
-    *reflat = (double) NAN;
-    *reflon = (double) NAN;
     token = strtok(work, split);
     while (token)
     {
@@ -351,16 +416,15 @@ static int splitLine(const char *cline,
         if (i == 8){*gain = (double) atof(token);}
         if (i == 9){strcpy(units, token);}
         if (i == 10){strcpy(sensorType, token);}
-        if (i == 11){*reflat = (double) atof(token);}
-        if (i == 12){*reflon = (double) atof(token);}
         i = i + 1;
         token = strtok(NULL, split);
     }
 
-    //printf("spliteLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
+    //printf("splitLine: %s.%s.%s.%s gain:%e\n",netw, stat, chan, loc, *gain);
 
     /* MTH: 2020-09-09 I don't see anywhere that units, sensorType, reflat, reflon are used */
-    if (i != 13 && i != 14)
+    /* CWU: 2022-07-13 Only require reading up to the gain, since other bits aren't used (yet)*/
+    if (i < 9)
     {
         LOG_ERRMSG("Failed to split line %d %s", i, cline);
         ierr = 1;

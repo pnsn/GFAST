@@ -19,7 +19,8 @@
 #include "gfast_activeMQ.h"
 #endif
 
-int set_array_from_string_int(const char *s, int *array, int max_size);
+int set_array_from_string_int(const char *prop, int *array, int max_size);
+int set_array_from_string_str(const char *prop, char **array, int max_size);
 
 /*!
  * @brief Initializes the GFAST properties (parameter) structure
@@ -43,13 +44,18 @@ int core_properties_initialize(const char *propfilename,
 {
   const char *s;
   char cwork[PATH_MAX];
-  int i, j, ierr, itemp, lenos;
+  int ierr, itemp;
+  // int lenos;
   dictionary *ini;
   //------------------------------------------------------------------------//
   // Require the properties file exists
   if (!os_path_isfile(propfilename))
     {
+#ifdef ENABLE_PLOG
+      LOG_ERRMSG("properties file (%s) does not exist\n", propfilename);
+#else
       printf("properties file (%s) does not exist\n", propfilename);
+#endif
       return -1;
     }
    
@@ -60,12 +66,17 @@ int core_properties_initialize(const char *propfilename,
   // Load the ini file
   ini = iniparser_load(propfilename);
   if (ini == NULL) {
+#ifdef ENABLE_PLOG
+    LOG_ERRMSG("Iniparser could not read: %s\n", propfilename);
+#else
     printf("Iniparser could not read: %s\n", propfilename);
+#endif
     return -1;
   }
   strcpy(props->propfilename, propfilename);
   //-------------------------GFAST General Parameters-----------------------//
 
+#ifndef ENABLE_PLOG
   // set open output log file.
   s = iniparser_getstring(ini, "general:logFileName\0",
 			  "gfast.log\0");
@@ -76,6 +87,7 @@ int core_properties_initialize(const char *propfilename,
       printf("Cannot open log output file %s\n", s);
       return -1;
     }
+#endif
 
   //metadata file
   s = iniparser_getstring(ini, "general:metaDataFile\0",
@@ -86,6 +98,12 @@ int core_properties_initialize(const char *propfilename,
       LOG_ERRMSG("Cannot find station list (%s)\n", props->metaDataFile);
       return -1;
     }
+
+  // Option to restrict the networks used
+  int n_networks;
+  s = iniparser_getstring(ini, "general:metaDataNetworks\0", "\0");
+  n_networks = set_array_from_string_str(s, props->metaDataNetworks, 16);
+  props->n_networks = n_networks;
     
   //site mask file
   s = iniparser_getstring(ini, "general:siteMaskFile\0", NULL);
@@ -107,9 +125,6 @@ int core_properties_initialize(const char *propfilename,
     n_intervals = MAX_OUTPUT_INTERVALS;
   }
   props->n_intervals = n_intervals;
-  for (j=0; j<props->n_intervals; j++){
-    LOG_MSG("output_interval_mins[%d]=%d", j, props->output_interval_mins[j]);
-  }
 
   s = iniparser_getstring(ini, "general:SA_events_dir\0", ".\0");
   if (s != NULL)
@@ -366,79 +381,9 @@ int core_properties_initialize(const char *propfilename,
   props->lh5SummaryOnly = iniparser_getboolean(ini, "general:H5SummaryOnly\0",
 					       false);
 
-  // send XML for SA magnitude above this threshold
-  props->SA_mag_threshold  = iniparser_getdouble(ini, "general:SA_mag_threshold\0", -10.0);
-
-  // Parse time-dependent throttling criteria
-  int n_num_stations, n_pgd_threshold, n_time_threshold, n_throttle;
-  // Time-dependent throttling criteria: number of stations
-  s = iniparser_getstring(ini, "general:throttle_num_stations\0", NULL);
-  n_num_stations = set_array_from_string_int(s, props->throttle_num_stations,
-                                             MAX_THROTTLING_THRESHOLDS);
-  if (n_num_stations > MAX_THROTTLING_THRESHOLDS) {
-    LOG_MSG("WARNING: throttle_num_stations exceeds MAX_THROTTLING_THRESHOLDS=%d, capping at %d!",
-            MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
-    n_num_stations = MAX_THROTTLING_THRESHOLDS;
-  }
-  // Time-dependent throttling criteria: pgd threshold (cm)
-  s = iniparser_getstring(ini, "general:throttle_pgd_threshold\0", NULL);
-  n_pgd_threshold = set_array_from_string_int(s, props->throttle_pgd_threshold,
-                                              MAX_THROTTLING_THRESHOLDS);
-  if (n_pgd_threshold > MAX_THROTTLING_THRESHOLDS) {
-    LOG_MSG("WARNING: throttle_pgd_threshold exceeds MAX_THROTTLING_THRESHOLDS=%d, capping at %d!",
-            MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
-    n_pgd_threshold = MAX_THROTTLING_THRESHOLDS;
-  }
-  // Time-dependent throttling criteria: time threshold (s)
-  s = iniparser_getstring(ini, "general:throttle_time_threshold\0", NULL);
-  n_time_threshold = set_array_from_string_int(s, props->throttle_time_threshold,
-                                               MAX_THROTTLING_THRESHOLDS);
-  if (n_time_threshold > MAX_THROTTLING_THRESHOLDS) {
-    LOG_MSG("WARNING: throttle_time_threshold exceeds MAX_THROTTLING_THRESHOLDS=%d, capping at %d!",
-            MAX_THROTTLING_THRESHOLDS, MAX_THROTTLING_THRESHOLDS);
-    n_time_threshold = MAX_THROTTLING_THRESHOLDS;
-  }
-  // only send XML for pgd magnitude sigma below this threshold
-  props->pgd_sigma_throttle  = iniparser_getdouble(ini, "general:pgd_sigma_throttle\0", 10);
-  if (props->pgd_sigma_throttle <= 0)
-    {
-      LOG_ERRMSG("Error pgd_sigma_throttle must be positive: %f",
-                 props->pgd_sigma_throttle);
-      goto ERROR;
-    }
-
-  // Compare lengths of throttle arrays, they should be the same. If not, use the shortest one
-  if ((n_num_stations != n_pgd_threshold) || (n_num_stations != n_time_threshold)) {
-    int min_tmp = (n_num_stations < n_pgd_threshold) ? n_num_stations : n_pgd_threshold;
-    n_throttle = (min_tmp < n_time_threshold) ? min_tmp : n_time_threshold;
-    LOG_MSG("WARNING: throttle arrays don't have the same length, capping at the first %d values!",
-            n_throttle);
-  } else {
-    n_throttle = n_num_stations;
-  }
-  props->n_throttle = n_throttle;
-
-  LOG_MSG("%s", "Throttle values:\n[index] throttle_num_stations throttle_pgd_threshold throttle_time_threshold");
-  for (j = 0; j < props->n_throttle; j++) {
-    LOG_MSG("[%d] %4d %4d %4d", j, props->throttle_num_stations[j], props->throttle_pgd_threshold[j],
-            props->throttle_time_threshold[j]);
-  }
-
   // ANSS informaiton
   s = iniparser_getstring(ini, "general:anssNetwork\0", "UW\0");
   strcpy(props->anssNetwork, s);
-  lenos = (int) (strlen(props->anssNetwork));
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdisabled-macro-expansion"
-#endif
-  for (i=0; i<lenos; i++)
-    {
-      putchar(props->anssNetwork[i]);
-    }
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
   s = iniparser_getstring(ini, "general:anssDomain\0", "anss.org\0"); 
   strcpy(props->anssDomain, s);
   //---------------------------Earthworm parameters-------------------------//
@@ -508,16 +453,16 @@ int core_properties_initialize(const char *propfilename,
   return ierr;
 }
 
-int set_array_from_string_int(const char *s, int *array, int max_size) {
+int set_array_from_string_int(const char *prop, int *array, int max_size) {
   int i, j = 0;
   int *arr = array;
   // ensure the array is initialized to zeros
   arr[0] = 0;
-  if (s != NULL)
+  if (prop != NULL)
     {
       //// Traverse the string
-      for (i = 0; s[i] != '\0'; i++) {
-        if (s[i] == ',') {
+      for (i = 0; prop[i] != '\0'; i++) {
+        if (prop[i] == ',') {
           j++;
           // stop if the max_size is exceeded
           if (j >= max_size) break;
@@ -526,7 +471,7 @@ int set_array_from_string_int(const char *s, int *array, int max_size) {
         }
         else {
           // ASCII decimal for '0' is 48
-          arr[j] = arr[j] * 10 + (s[i] - 48);
+          arr[j] = arr[j] * 10 + (prop[i] - 48);
         }
       }
     }
@@ -534,3 +479,23 @@ int set_array_from_string_int(const char *s, int *array, int max_size) {
   // return the number of items added to the array
   return j + 1;
 }
+
+int set_array_from_string_str(const char *prop, char **array, int max_size) {
+
+    char *tok, *p, *last;
+    char *s = strdup(prop);
+    int i = 0, lens;
+
+    tok = s;
+    while(((p = strtok_r(tok, ", \t", &last)) != NULL) && (i < max_size)) {
+        tok = NULL;
+
+        lens = (int) (strlen(p));
+        array[i] = (char *)calloc((size_t) (lens+1), sizeof(char));
+        strcpy(array[i], p);
+        i++;
+    }
+    free(s);
+
+    return i;
+} 

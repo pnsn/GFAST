@@ -432,7 +432,6 @@ iopt =-1;
     /* MTH: not using this
     freeEvents(&events);
     activeMQ_consumer_finalize(consumer);
-    if (ldebug){activeMQ_producer_finalize(webProduct);}
     */
     //curl_easy_cleanup(curl);
     //iscl_finalize();

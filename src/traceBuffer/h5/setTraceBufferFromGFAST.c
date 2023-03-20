@@ -28,6 +28,10 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
     char temp[1024];
     double *dtGroups, dt0, dt;
     int *ndtGroups, i, itn, j, k, ng;
+    int debug = 0;
+    if (debug) {
+        LOG_DEBUGMSG("%s", "Entering traceBuffer_h5_setTraceBufferFromGFAST");
+    }
     // Count the number of traces
     traceBuffer->ntraces = 0;
     for (k=0; k<gps_data.stream_length; k++)
@@ -38,7 +42,7 @@ int traceBuffer_h5_setTraceBufferFromGFAST(
         {
             continue;
         }
-        traceBuffer->ntraces = traceBuffer->ntraces + 3; // Z, N, E
+        traceBuffer->ntraces = traceBuffer->ntraces + 7; // Z, N, E, 3, 2, 1, Q
     }
     if (traceBuffer->ntraces < 1)
     {
@@ -97,14 +101,15 @@ NEXT_STATION:;
         {
             continue;
         }
-        for (j=0; j<3; j++)
+        // Loop for number of channels (z, n, e, 3, 2, 1, q)
+        for (j = 0; j < 7; j++)
         {
             memset(traceBuffer->traces[i].netw, 0,
                    sizeof(traceBuffer->traces[i].netw));
             memset(traceBuffer->traces[i].stnm, 0,
                    sizeof(traceBuffer->traces[i].stnm));
             memset(traceBuffer->traces[i].chan, 0,
-                   sizeof(traceBuffer->traces[i].chan[j]));
+                   sizeof(traceBuffer->traces[i].chan));
             memset(traceBuffer->traces[i].loc, 0,
                    sizeof(traceBuffer->traces[i].loc));
             strcpy(traceBuffer->traces[i].netw, gps_data.data[k].netw);
@@ -112,6 +117,12 @@ NEXT_STATION:;
             strcpy(traceBuffer->traces[i].chan, gps_data.data[k].chan[j]);
             strcpy(traceBuffer->traces[i].loc,  gps_data.data[k].loc);
             traceBuffer->traces[i].dtGroupNumber = ndtGroups[k];
+            traceBuffer->traces[i].idest = k * 7 + j;
+
+            if (debug) {
+                LOG_DEBUGMSG("setH5: Check traceBuffer->traces[%d].chan = %s",
+                    i, traceBuffer->traces[i].chan)
+            }
 
             memset(temp, 0, sizeof(temp));
             strcpy(temp, "/MetaData/\0");
@@ -122,7 +133,6 @@ NEXT_STATION:;
             strcat(temp, gps_data.data[k].chan[j]);
             strcat(temp, ".\0");
             strcat(temp, gps_data.data[k].loc);
-            traceBuffer->traces[i].idest = k*3 + j;
             traceBuffer->traces[i].metaGroupName
                 = (char *)calloc(strlen(temp)+1, sizeof(char));
             strcpy(traceBuffer->traces[i].metaGroupName, temp);
@@ -130,17 +140,10 @@ NEXT_STATION:;
             memset(temp, 0, sizeof(temp)); 
             sprintf(temp, "/Data/SamplingPeriodGroup_%d/",
                     traceBuffer->traces[i].dtGroupNumber);
-            //strcat(temp, gps_data.data[k].netw);
-            //strcat(temp, ".\0");
-            //strcat(temp, gps_data.data[k].stnm);
-            //strcat(temp, ".\0");
-            //strcat(temp, gps_data.data[k].chan[j]);
-            //strcat(temp, ".\0");
-            //strcat(temp, gps_data.data[k].loc);
-            traceBuffer->traces[i].idest = k*3 + j;
             traceBuffer->traces[i].groupName
                 = (char *)calloc(strlen(temp)+1, sizeof(char));
             strcpy(traceBuffer->traces[i].groupName, temp);
+            
             if (isnan(dt0))
             {
                 traceBuffer->dtGroupName[ng] = (char *)calloc(64, sizeof(char)); 
@@ -164,11 +167,28 @@ NEXT_STATION:;
                 = (int) (bufflen/traceBuffer->traces[i].dt + 0.5) + 1;
             traceBuffer->traces[i].dt = gps_data.data[k].dt;
             traceBuffer->traces[i].gain = gps_data.data[k].gain[j];
+
+            if (debug) {
+                LOG_DEBUGMSG("setH5: Made trace %d, groupName: %s, dtGroupNumber: %d, idest: %d",
+                    i,
+                    traceBuffer->traces[i].groupName,
+                    traceBuffer->traces[i].dtGroupNumber,
+                    traceBuffer->traces[i].idest)
+            }
+
             i = i + 1; 
             itn = itn + 1;
         }
     }
     traceBuffer->dtPtr[ng] = traceBuffer->ntraces; 
+
+    if (debug) {
+        LOG_DEBUGMSG("setH5: ng: %d, ndtGroups: %d, ntraces: %d",
+            ng,
+            traceBuffer->ndtGroups,
+            traceBuffer->ntraces)
+    }
+
     // free space
     free(dtGroups);
     free(ndtGroups);

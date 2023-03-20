@@ -6,7 +6,7 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= offset.o peakDisplacement.o
+OBJS	= offset.o peakDisplacement.o peakDisplacementHelper.o parseQChannel.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config

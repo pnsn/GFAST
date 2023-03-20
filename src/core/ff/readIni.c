@@ -57,6 +57,8 @@ int core_ff_readIni(const char *propfilename,
     // Read the properties
     ff_props->verbose = verbose;
     ff_props->utm_zone = utm_zone;
+    setVarName(group, "do_ff\0", var);
+    ff_props->do_ff = iniparser_getboolean(ini, var, true);
     setVarName(group, "ff_number_of_faultplanes\0", var);
     ff_props->nfp = iniparser_getint(ini, var, 2);
     if (ff_props->nfp != 2)

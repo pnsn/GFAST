@@ -21,7 +21,7 @@
  * @copyright Apache 2
  *
  */
-void traceBfufer_ewrr_freetb2Trace(const bool clearSNCL,
+void traceBuffer_ewrr_freetb2Trace(const bool clearSNCL,
                                    struct tb2Trace_struct *trace)
 {
     memory_free32i(&trace->data);

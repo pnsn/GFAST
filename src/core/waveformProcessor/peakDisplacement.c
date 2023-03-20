@@ -5,41 +5,13 @@
 #include <float.h>
 #include "gfast_core.h"
 
-#define PD_MAX_NAN -DBL_MAX
-#ifndef MAX
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
-#endif
-#ifndef MIN
-#define MIN(x,y) (((x) < (y)) ? (x) : (y))
-#endif
-
-static double __getPeakDisplacement(const int npts,
-                                    const double dt,
-                                    const double ev_time,
-                                    const double epoch,
-                                    const double *__restrict__ ubuff,
-                                    const double *__restrict__ nbuff,
-                                    const double *__restrict__ ebuff,
-                                    const int nMaxLeader,
-                                    const double tmin,
-                                    const double tmax,
-                                    double *obsTime);
 /*!
  * @brief Computes the peak displacement for each GPS precise point position
  *        data stream with the additional requirement that the shear wave
  *        has passed through the site.
  *
- * @param[in] utm_zone      if not -12345 then this is the desired UTM zone
- *                          in which to compute source and receiver positions.
- *                          otherwise, the UTM zone will be estimated from
- *                          the source location
- * @param[in] svel_window   the shear wave velocity used in data windowing
- *                          (km/s).  if the site/source distance is less than
- *                           (current_time - ev_time)*svel_window 
- *                          then the site will be excluded
- * @param[in] min_svel_window   the *minimum* shear wave velocity (km/s) used in data windowing
- * @param[in] min_pgd_cm    the *minimum* pgd value (cm) to pass on to inversion. Ignore others
- * @param[in] max_pgd_cm    the *maximum* pgd value (cm) to pass on to inversion. Ignore others
+ * @param[in] pgd_props     PGD properties, including utm_zone, window_vel, min_window_vel,
+ *                          minimum_pgd_cm, maximum_pgd_cm, [une]_raw_sigma_threshold
  * @param[in] ev_lat        source hypocentral latitude (degrees) [-90,90]
  * @param[in] ev_lon        source hypocentral longitude (degrees) [0,360]
  * @param[in] ev_dep        source hypocentral depth (km) (this is positive
@@ -64,11 +36,7 @@ static double __getPeakDisplacement(const int npts,
  *
  */
 int core_waveformProcessor_peakDisplacement(
-    const int utm_zone,
-    const double svel_window,
-    const double min_svel_window,
-    const double min_pgd_cm,
-    const double max_pgd_cm,
+    const struct GFAST_pgd_props_struct *pgd_props,
     const double ev_lat,
     const double ev_lon,
     const double ev_dep,
@@ -78,14 +46,38 @@ int core_waveformProcessor_peakDisplacement(
     int *ierr)
 {
     double currentTime, distance, effectiveHypoDist, epoch,
-           peakDisp, x1, x2, y1, y2, tmin, tmax, obsTime;
-    int k, nsites, zone_loc;
+           peakDisp, x1, x2, y1, y2, tmin, tmax, obsTime,
+           uMaxUncertainty, nMaxUncertainty, eMaxUncertainty, qMax, qRef, qPeak;
+    int k, nsites, zone_loc, iRef, iPeak;
     //unused int i;
     bool lnorthp;
     bool lnorthp_event;
+    bool l_use_observation;
 
     double s_arr_time;
     int nMaxLeader;
+
+    // Values from properties file
+
+    // If not -12345 then this is the desired UTM zone in which to compute source and receiver positions.
+    // Otherwise, the UTM zone will be estimated from the source location
+    const int utm_zone = pgd_props->utm_zone;
+    // The shear wave velocity used in data windowing (km/s).
+    // If the site/source distance is less than (current_time - ev_time)*svel_window
+    // then the site will be excluded
+    const double svel_window = pgd_props->window_vel;
+    // The *minimum* shear wave velocity (km/s) used in data windowing
+    const double min_svel_window = pgd_props->min_window_vel;
+    // The *minimum* pgd value (cm) to pass on to inversion. Ignore others
+    const double min_pgd_cm = pgd_props->minimum_pgd_cm;
+    // The *maximum* pgd value (cm) to pass on to inversion. Ignore others
+    const double max_pgd_cm = pgd_props->maximum_pgd_cm;
+    // Threshold values for raw positional uncertainties (cm). If observed
+    // peak sigma is greater than threshold, ignore the associated pd
+    // observation. If sigma_threshold is < 0, allow any sigma.
+    const double u_raw_sigma_threshold = pgd_props->u_raw_sigma_threshold;
+    const double n_raw_sigma_threshold = pgd_props->n_raw_sigma_threshold;
+    const double e_raw_sigma_threshold = pgd_props->e_raw_sigma_threshold;
 
     //------------------------------------------------------------------------//
     //
@@ -93,6 +85,12 @@ int core_waveformProcessor_peakDisplacement(
     *ierr = 0;
     nsites = 0;
     obsTime = 0.0;
+    iRef = 0;
+    iPeak = 0;
+    uMaxUncertainty = 0.0;
+    eMaxUncertainty = 0.0;
+    nMaxUncertainty = 0.0;
+    qMax = 0.0;
     if (gps_data.stream_length != pgd_data->nsites)
     {
         LOG_ERRMSG("Inconsistent structure sizes %d %d",
@@ -122,6 +120,12 @@ int core_waveformProcessor_peakDisplacement(
     for (k=0; k<gps_data.stream_length; k++)
     {
         obsTime = 0.0;
+        iRef = 0;
+        iPeak = 0;
+        uMaxUncertainty = 0.0;
+        eMaxUncertainty = 0.0;
+        nMaxUncertainty = 0.0;
+        qMax = 0.0;
         // Make sure I have the latest/greatest site location 
         pgd_data->sta_lat[k] = gps_data.data[k].sta_lat;
         pgd_data->sta_lon[k] = gps_data.data[k].sta_lon; 
@@ -190,14 +194,20 @@ int core_waveformProcessor_peakDisplacement(
             tmin = distance / svel_window;
             tmax = distance / min_svel_window;
             //printf("Call __getPeakDisplacement dist:%.2f tmin:%.2f tmax:%.2f\n", distance, tmin, tmax);
-            peakDisp = __getPeakDisplacement(gps_data.data[k].npts,
-                                             gps_data.data[k].dt,
-                                             ev_time,
-                                             epoch,
-                                             gps_data.data[k].ubuff,
-                                             gps_data.data[k].nbuff,
-                                             gps_data.data[k].ebuff,
-                                             nMaxLeader, tmin, tmax, &obsTime);
+            peakDisp = core_waveformProcessor_peakDisplacementHelper(
+                gps_data.data[k].npts,
+                gps_data.data[k].dt,
+                ev_time,
+                epoch,
+                gps_data.data[k].ubuff,
+                gps_data.data[k].nbuff,
+                gps_data.data[k].ebuff,
+                nMaxLeader,
+                tmin,
+                tmax,
+                &obsTime,
+                &iRef,
+                &iPeak);
 
             /*
 The Crowell et al. [2016] coefficients are
@@ -217,8 +227,12 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
             peakDisp /= 100; // Pretty sure gfast wants peakDisp in meters
 */
 
+            // At this point, use observation unless proven guilty
+            l_use_observation = true; 
+            // Do we have a real observation?
             if (isnan(peakDisp))
             {
+                l_use_observation = false;
                 LOG_MSG("currentTime:%f %s.%s.%s.%s Got peakDisp = nan ubuf=%f nbuf=%f ebuf=%f",
                         currentTime,
                         gps_data.data[k].stnm, gps_data.data[k].chan[0],
@@ -229,15 +243,37 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
             }
             else
             {
-                LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f",
+                // If there is a real observation, get the associated max uncertainties and q values
+                if (!isnan(gps_data.data[k].usigmabuff[iRef]) && !isnan(gps_data.data[k].usigmabuff[iPeak])) {
+                    uMaxUncertainty = fmax(gps_data.data[k].usigmabuff[iRef], gps_data.data[k].usigmabuff[iPeak]);
+                }
+                if (!isnan(gps_data.data[k].nsigmabuff[iRef]) && !isnan(gps_data.data[k].nsigmabuff[iPeak])) {
+                    nMaxUncertainty = fmax(gps_data.data[k].nsigmabuff[iRef], gps_data.data[k].nsigmabuff[iPeak]);
+                }
+                if (!isnan(gps_data.data[k].esigmabuff[iRef]) && !isnan(gps_data.data[k].esigmabuff[iPeak])) {
+                    eMaxUncertainty = fmax(gps_data.data[k].esigmabuff[iRef], gps_data.data[k].esigmabuff[iPeak]);
+                }
+                if (!isnan(gps_data.data[k].qbuff[iRef]) && !isnan(gps_data.data[k].qbuff[iPeak])) {
+                    qRef = core_waveformProcessor_parseQChannelChi2CWU(gps_data.data[k].qbuff[iRef]);
+                    qPeak = core_waveformProcessor_parseQChannelChi2CWU(gps_data.data[k].qbuff[iPeak]);
+                    qMax = fmax(qRef, qPeak);
+                }
+
+                LOG_MSG("%s.%s.%s.%s peakDisp=%f dist=%.2f, peakSigmas=(%.4f,%.4f,%.4f), peakQ=%.4f",
                         gps_data.data[k].stnm, gps_data.data[k].chan[0],
                         gps_data.data[k].netw, gps_data.data[k].loc,
                         peakDisp,
-                        distance);
+                        distance,
+                        uMaxUncertainty,
+                        nMaxUncertainty,
+                        eMaxUncertainty,
+                        qMax);
             }
 
+            // Is the observation above the defined minimum?
             if (peakDisp * 100 <= min_pgd_cm)
             {
+                l_use_observation = false;
                 LOG_MSG("currentTime:%f %s.%s.%s.%s Ignoring pgd, %f cm <= min_pgd_cm %f",
                         currentTime,
                         gps_data.data[k].stnm, gps_data.data[k].chan[0],
@@ -245,8 +281,10 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
                         peakDisp * 100, min_pgd_cm);
             }
 
+            // Is the observation below the defined maximum?
             if (peakDisp * 100 >= max_pgd_cm)
             {
+                l_use_observation = false;
                 LOG_MSG("currentTime:%f %s.%s.%s.%s Ignoring pgd, %f cm >= min_pgd_cm %f",
                         currentTime,
                         gps_data.data[k].stnm, gps_data.data[k].chan[0],
@@ -254,12 +292,29 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
                         peakDisp * 100, max_pgd_cm);
             }
 
-            // If it isn't a NaN and within the sanity bounds then retain it for processing
-            if (!isnan(peakDisp) &&
-                peakDisp * 100 > min_pgd_cm &&
-                peakDisp * 100 < max_pgd_cm
-                )
+            // Is the observation within the uncertainty bounds?
+            // const double u_raw_sigma_threshold = 35; // cm
+            // const double n_raw_sigma_threshold = 17; // cm
+            // const double e_raw_sigma_threshold = 14; // cm
+            if (((u_raw_sigma_threshold > 0) && (uMaxUncertainty * 100 >= u_raw_sigma_threshold)) ||
+                ((n_raw_sigma_threshold > 0) && (nMaxUncertainty * 100 >= n_raw_sigma_threshold)) ||
+                ((e_raw_sigma_threshold > 0) && (eMaxUncertainty * 100 >= e_raw_sigma_threshold))) 
             {
+                l_use_observation = false;
+                LOG_DEBUGMSG("CCC PeakDisp, %s.%s.%s.%s ignoring observation, ZNE sigmas: (%.1f,%.1f,%.1f), thresholds: (%.1f,%.1f,%.1f) cm",
+                    gps_data.data[k].stnm, gps_data.data[k].chan[0],
+                    gps_data.data[k].netw, gps_data.data[k].loc,
+                    uMaxUncertainty * 100,
+                    nMaxUncertainty * 100,
+                    eMaxUncertainty * 100,
+                    u_raw_sigma_threshold,
+                    n_raw_sigma_threshold,
+                    e_raw_sigma_threshold
+                );
+            }
+
+            // If it isn't a NaN and within the sanity bounds then retain it for processing
+            if (l_use_observation) {
                 pgd_data->pd_time[k] = obsTime; // epoch
                 pgd_data->pd[k] = peakDisp; // meters
                 pgd_data->wt[k] = 1.0;
@@ -269,132 +324,4 @@ M 9 at 100km: -6.687 + 150 - 21.4*2 = 100 cm(?)
         } // End check on S-wave mask
     } // Loop on data streams
     return nsites;
-}
-//============================================================================//
-/*!
- * @brief Waveform processor to estimate the peak displacement observed
- *        on a 3 channel GPS stream where the peak displacement at any
- *        sample is Euclidean norm of it's displacement.
- *
- * @param[in] npts             number of points in time series
- * @param[in] dt               sampling period (s) of GPS buffers
- * @param[in] ev_time          epochal UTC origin time (s)
- * @param[in] epoch            epochal UTC start time (s) of GPS traces
- * @param[in] ubuff            vertical position [npts]
- * @param[in] nbuff            north position [npts]
- * @param[in] ebuff            east position [npts]
- *
- * @result the peak displacement observed on a trace.  this has the same
- *         units as ubuff, nbuff, and ebuff.
- *
- * @author Brendan Crowell (PNSN) and Ben Baker (ISTI)
- *
- * @date May 2016
- *
- */
-static double __getPeakDisplacement(const int npts,
-                                    const double dt,
-                                    const double ev_time,
-                                    const double epoch,
-                                    const double *__restrict__ ubuff,
-                                    const double *__restrict__ nbuff,
-                                    const double *__restrict__ ebuff,
-                                    const int nMaxLeader,
-                                    const double tmin,
-                                    const double tmax,
-                                    double *obsTime
-                                    )
-{
-    double diffT, peakDisplacement_i, peakDisplacement, e0, n0, u0;
-    int i, indx0, indx1;
-    int ipeak=0;
-    int debug=0;
-    //------------------------------------------------------------------------//
-    //
-    // Set the initial position
-    *obsTime = 0.0;
-    u0 = 0.0;
-    n0 = 0.0;
-    e0 = 0.0;
-    diffT = ev_time - epoch;
-    indx0 = MAX(0, (int) (diffT/dt + 0.5));
-    indx0 = MIN(npts-1, indx0);
-    // Compute the offset
-    u0 = ubuff[indx0];
-    n0 = nbuff[indx0];
-    e0 = ebuff[indx0];
-
-    if (isnan(u0) || isnan(n0) || isnan(e0)){
-      for (i=indx0; i<nMaxLeader; i++){
-        if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i])){
-            indx0 = i;
-            u0 = ubuff[indx0];
-            n0 = nbuff[indx0];
-            e0 = ebuff[indx0];
-            //LOG_MSG("Search leader for t0:  nMax:%d indx0:%d u0:%f n0:%f e0:%f",
-                    //nMaxLeader, indx0, u0, n0, e0);
-            break;
-        }
-      }
-    }
-
-    indx1 = (int)(tmax/dt + 0.5);
-    if (indx1 <= indx0) {
-      //LOG_MSG("ERROR: indx0=%d >= indx1=%d (tmax=%f)", indx0, indx1, tmax);
-      return (double) NAN;
-    }
-    if (indx1 > npts) {
-      LOG_MSG("tmin=%.1f tmax=%.1f npts=%d <= indx1=%d --> Set indx1=npts", tmin, tmax, npts, indx1);
-      indx1 = npts;
-    }
-
-    //printf("__getPeak indx0:%d tmax:%.2f indx1:%d npts:%d\n", indx0, tmax, indx1, npts);
-
-    // Prevent a problem
-    //LOG_MSG("diffT=%f indx0=%d npts=%d u0=%f n0=%f e0=%f Final:u=%f n=%f e=%f", 
-             //diffT, indx0, npts, u0, n0, e0, ubuff[npts-1], nbuff[npts-1], ebuff[npts-1]);
-    if (isnan(u0) || isnan(n0) || isnan(e0))
-    {
-      LOG_MSG("Returning NAN instead of calculating epoch:%f diffT=%f indx0=%d",
-          epoch, diffT, indx0);
-        return (double) NAN;
-    }
-    // Compute the maximum peak ground displacement 
-    peakDisplacement = PD_MAX_NAN;
-    if (debug){
-      LOG_MSG("Loop to find peakDisp: from i=indx0=%d to i<npts=%d", indx0, npts);
-    }
-    //for (i=indx0; i<npts; i++)
-    for (i=indx0; i<indx1; i++)
-    {
-        peakDisplacement_i = PD_MAX_NAN;
-        if (!isnan(ubuff[i]) && !isnan(nbuff[i]) && !isnan(ebuff[i]) )
-        {
-            peakDisplacement_i = sqrt( pow(ubuff[i] - u0, 2)
-                                     + pow(nbuff[i] - n0, 2)
-                                     + pow(ebuff[i] - e0, 2));
-    if (debug){
-    LOG_MSG("  i=%d peakdDisplacement_i=%f ubuff:%f u0:%f nbuff:%f n0:%f ebuff:%f e0:%f",
-        i, peakDisplacement_i, ubuff[i],u0,nbuff[i],n0,ebuff[i],e0);
-    }
-        }
-        if (peakDisplacement_i > peakDisplacement) {
-            ipeak = i;
-        }
-        peakDisplacement = fmax(peakDisplacement_i, peakDisplacement);
-    } // Loop on data points
-    if (fabs(peakDisplacement - PD_MAX_NAN)/fabs(PD_MAX_NAN) < 1.e-10)
-    {
-         LOG_MSG("%s", "Returning NAN because peakDisp is ~ PD_MAX_NAN");
-         peakDisplacement = (double) NAN;
-    }
-    if (!isnan(peakDisplacement)){
-        *obsTime = epoch + dt * ipeak;
-    LOG_MSG("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f) ",
-             peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
-    //printf("Got peak [%f] at ipeak:%d ubuff[i]=%f (u0=%f)  nbuff[i]=%f (n0=%f)  ebuff[i]=%f (e0=%f)\n",
-             //peakDisplacement, ipeak, ubuff[ipeak], u0, nbuff[ipeak], n0, ebuff[ipeak], e0);
-    }
-
-    return peakDisplacement;
 }

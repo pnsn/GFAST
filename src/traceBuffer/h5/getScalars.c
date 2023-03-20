@@ -73,6 +73,8 @@ int traceBuffer_h5_getScalars(const hid_t groupID,
  * @param[in] citem       name of scalar dataset
  * @param[in] scalarNaN   default value for double if dataset cannot
  *                        be found or read
+ * 
+ * @param[out] ierr       0 indicates success
  *
  * @result on successful exit this is the desired double number otherwise
  *         it is scalarNaN
@@ -116,6 +118,8 @@ static double traceBuffer_h5_getDoubleScalar(const hid_t groupID,
  * @param[in] citem       name of scalar dataset
  * @param[in] scalarNaN   default value for integer if dataset cannot
  *                        be found or read
+ * 
+ * @param[out] ierr       0 indicates success
  *
  * @result on successful exit this is the desired integer number otherwise
  *         it is scalarNaN

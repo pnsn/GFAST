@@ -266,12 +266,12 @@ char *eewUtils_makeXML__quakeML(const char *network,
     char publicID[512], publicIDroot[512], datasource[512], dataid[512];
     char networkLower[64];
     double mag;
-    int i, msglen, rc;
+    int msglen, rc;
     struct qmlOrigin_struct origin;
     struct qmlMagnitude_struct magnitude;
     xmlTextWriterPtr writer;
     xmlBufferPtr buf;
-    int lenos;
+    // int lenos;
     const char *method = "gps\0";
     const char *xmlns = "http://quakeml.org/xmlns/bed/1.2\0";
     const char *xmlns_cat = "http://anss.org/xmlns/catalog/0.1\0";
@@ -285,11 +285,11 @@ char *eewUtils_makeXML__quakeML(const char *network,
     // Set the network code (all lower case)
     memset(networkLower, 0, 64*sizeof(char));
     strcpy(networkLower, network);
-    lenos = (int) (strlen(network)); 
-    for (i=0; i<lenos; i++)
-    {
-        putchar(tolower(network[i]));
-    }
+    // lenos = (int) (strlen(network)); 
+    // for (i=0; i<lenos; i++)
+    // {
+    //     putchar(tolower(network[i]));
+    // }
     // Make the root part of the publicID:
     //   quakeml:<network>.<domain>/<type>/<code>
     memset(publicIDroot, 0, 512*sizeof(char));
@@ -540,7 +540,7 @@ char *eewUtils_makeXML__pgd(const enum opmode_type mode,
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "category\0",
                                      BAD_CAST cmode);
     now = time_timeStamp();
-    rc = xml_epoch2string(now, cnow);
+    rc += xml_epoch2string(now, cnow);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "timestamp\0",
                                       BAD_CAST cnow);
     rc += xmlTextWriterWriteAttribute(writer, BAD_CAST "orig_sys\0",

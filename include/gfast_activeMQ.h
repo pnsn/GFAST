@@ -54,7 +54,6 @@ int activeMQ_producer_sendMessage(void *producerIn,
 char *activeMQ_setTcpURIRequest(const char *url,
                                 const int msReconnect,
                                 const int maxAttempts);
-
 /* Initialize the ActiveMQ producer */
 void *activeMQ_producer_initialize(const char AMQuser[],
                                    const char AMQpassword[],

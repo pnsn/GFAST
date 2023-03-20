@@ -6,7 +6,7 @@
 /*!
  * @brief Creates event output log file names
  * @param [in] eventid event id character string
- * @param [in] outputdir directory for output
+ * @param [in] outputDir directory for output
  * @param [out] errorLogFileName
  * @param [out] infoLogFileName
  * @param [out] debugLogFileName

@@ -35,6 +35,10 @@
  *                            correspond to the number of points indicated by 
  *                            shape.
  * @param[in] depth_units     units for the input depths (e.g. KILOMETERS)
+ * @param[in] strike          strike direction
+ * @param[in] strike_units    units for strike (e.g. DEGREES)
+ * @param[in] dip             dip direction
+ * @param[in] dip_units       units for dip (e.g. DEGREES)
  * @param[in] ss              slip in strike
  * @param[in] ss_units        units for slip in strike direction on segment
  *                            (e.g. METERS)

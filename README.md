@@ -2,8 +2,10 @@
 
 This is the source code for Geodetic First Approximation of Size and Timing (GFAST) geodetic earthquake early warning module.  For more detailed instructions check the doc/manual.pdf
 
-## Updated Instructions
+## Recent updates
 
+2023/03/20 CWU: Sync most recent changes from ShakeAlert GFAST version to the PNSN repo (GFAST v1.2.3-beta)
+~2021/10 CWU: merge 2020 and SAdev branches into one branch to use going forward, called "development"
 2020/05/27 MTH: Working on new branch (=2020) with cleaned up dependencies and build instructions.
 
 # Directories
@@ -14,7 +16,8 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 4. src contains the source code.
   + src/activeMQ contains C++ readers/writers and C interfaes for using ActiveMQ.
   + src/core contains the core GFAST computations.
-  + eewUtils contains application specific functions for performing the earthquake early warning tasks.
+  + src/dmlib contains functionality making use of some ShakeAlert libraries, primarily related to ActiveMQ connections and xml encoding/decoding. Access to the ShakeAlert code repository would be necessary to build using these codes.
+  + src/eewUtils contains application specific functions for performing the earthquake early warning tasks.
   + src/hdf5 contains the HDF5 interfaces for generating a self-describing archive or play-by-play of GFAST.
   + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.
   + src/uw contains functions specific to the University of Washington and Amazon project.
@@ -183,16 +186,16 @@ But here's how to do it in stand-alone
         >make              // will build lib/libiscl_shared.so and lib/libiscl_static.a
 
 
-7. [compearth](https://github.com/bakerb845/compearth) for the moment tensor decompositions.  Note, this will eventually be merged back into Carl Tape's compearth repository.  Also, you'll need to descend into momenttensor/c_src. 
+7. [compearth/mtbeach](https://github.com/carltape/mtbeach.git) for the moment tensor decompositions.  Note, this was in Ben Baker's [compearth repository](https://github.com/bakerb845/compearth), but was merged back into Carl Tape's repository, and the moment tensor part was renames mtbeach.  Also, you'll need to descend into c_src. 
 
         Clone and build
-        >git clonehttps://github.com/bakerb845/compearth
-        >cd compearth/momenttensor/c_src
+        >git clone https://github.com/carltape/mtbeach.git
+        >cd mtbeach/c_src
         Edit zbuild_gcc.sh to select intel (MKL/IPP) if desired:
         USE_INTEL=false
-        // MTH: Need to add this zbuild_gcc.sh into the compearth/momenttensor/c_src repo!
+        // MTH: Need to add this zbuild_gcc.sh into the mtbeach/c_src repo!
         >zbuild_gcc.sh      // This will run cmake and update CMakeCache.txt, etc.
-        >make               // will build lib/libcompearth_shared.so and lib/libcompearth_static.a
+        >make               // will build mtbeach/c_src/lib/libcompearth_shared.so and mtbeach/c_src/lib/libcompearth_static.a
         
 8. [Earthworm](http://earthworm.isti.com/trac/earthworm/) v7.8 or greater with geojson2ew.  geojson2ew will require [rabbitmq](https://github.com/alanxz/rabbitmq-c) and [Jansson](https://github.com/akheron/jansson).
 
@@ -220,6 +223,7 @@ But here's how to do it in stand-alone
         
         Therefore, by default the EW libs that GFAST needs will be put in:
         /opt/earthworm/earthworm_7.10/lib/{lib_mt.a, lib_util.a}
+        Note: versions 7.9 and before did not have lib_util.a, but all that is needed is $(EW_HOME)/lib/swap.o (see Make.include.Linux for more info)
         
         Alternatively, you can override the EW_VERSION after sourcing the env script:
         >export EW_VERSION=earthworm_svn
@@ -237,7 +241,7 @@ But here's how to do it in stand-alone
    before running it. Then run:>make and you should need to install
    either 9a. the C++ lib nor run the java jar in 9b.
 
-9a. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
+    9a. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
     Note: [MTH] I haven't found the APR to be necessary
     Note: For building GFAST, the instructions here for downloading and
@@ -272,36 +276,37 @@ But here's how to do it in stand-alone
 
     4. If libssl and libcrypto are not present:
     
-9b. [ActiveMQ](http://activemq.apache.org/) The Java portion.
+    9b. [ActiveMQ](http://activemq.apache.org/) The Java portion.
 
-For building GFAST, the instructions above for downloading and installing activemq-cpp are sufficient.
-However, as soon as gfast_eew starts, it will try to connect to an activemq broker at the url and port specified in gfast.props
+    For building GFAST, the instructions above for downloading and installing activemq-cpp are sufficient.
+    However, as soon as gfast_eew starts, it will try to connect to an activemq broker at the url and port specified in gfast.props
 
-In practice, this AMQ section of gfast.props will presumably point to the broker at PNSN.
-However, since gfast_eew must be able to connect to an activemq broker, for the purpose of local testing and development,
-I'll describe here how to set up and run a local broker.
+    In practice, this AMQ section of gfast.props will presumably point to the broker at PNSN.
+    However, since gfast_eew must be able to connect to an activemq broker, for the purpose of local testing and development,
+    I'll describe here how to set up and run a local broker.
 
-Download the java jar from:
-https://activemq.apache.org/components/classic/download/
+    Download the java jar from:
+    https://activemq.apache.org/components/classic/download/
 
-Make sure ports in conf/activemq.xml match those specified in gfast.props.
-eg., 
+    Make sure ports in conf/activemq.xml match those specified in gfast.props.
+    eg., 
 
-        [ActiveMQ]
-        # ActiveMQ hostname to access ElarmS messages
-        host=localhost
-        # ActiveMQ port to access ElarmS messages (61620)
-        port=61616
-        
-Start up the broker *before* starting gfast_eew:
+            [ActiveMQ]
+            # ActiveMQ hostname to access ElarmS messages
+            host=localhost
+            # ActiveMQ port to access ElarmS messages (61620)
+            port=61616
+            
+    Start up the broker *before* starting gfast_eew:
 
-        >java -jar activemq-all-5.14.3.jar start
+            >java -jar activemq-all-5.14.3.jar start
     
-
+10. [Plog](https://github.com/SergiusTheBest/plog) is a logging library. It currently only works within the ShakeAlert build system (using make: see below), although perhaps only minor modifications would be needed to add it to the cmake system. Simply install the code somewhere and add plog/include to the project include path.
 
 ## Configure, Build, Unit Test 
 
-Look in zbuild-gcc.sh for the paths to the various dependencies.
+### Using cmake
+The cmake system is primarily designed for use outside of ShakeAlert (i.e. not using ShakeAlert-related libraries). Look in zbuild-gcc.sh for the paths to the various dependencies.
 If you downloaded/installed them as outlined above, then it's
 possible you only need to set PKG_DIR to point to whatever
 directory you put compearth, iniparser, iscl.
@@ -314,6 +319,7 @@ many of the needed dependencies on your system automatically.
     # Make it
     >cd build
     >make
+    By default, the gfast_eew binary will be put in the bin/ directory
 
     # Run the unit tests:
     >cd ../unit_tests
@@ -336,6 +342,18 @@ many of the needed dependencies on your system automatically.
     [INFO] cmt_inversion_test: Success!
     [INFO] ff_inversion_test: Success!
     main: All tests passed
+
+### Using make
+The make system is designed primarily for use with ShakeAlert libraries, usage without them (via compile flags) is not fully supported as of March 2023. 
+
+    # At the top level, make with:
+    >make all
+
+    # Or, alternatively
+    >cd src
+    >make
+
+    # The gfast_eew binary will be at src/gfast_eew
 
 ## Ridgecrest example 
 

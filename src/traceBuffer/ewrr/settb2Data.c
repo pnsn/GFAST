@@ -8,6 +8,7 @@
  * @brief Initializes the data list which will be retained from a 
  *        ring read operation
  *
+ * @param[in] ntraces   number of traces to create in tb2data 
  * @param[in] nets      null terminated list of networks [ntraces]
  * @param[in] stats     null terminated list of stations [ntraces]
  * @param[in] chans     null terminated list of channels [ntraces]

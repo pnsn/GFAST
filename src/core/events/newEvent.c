@@ -7,13 +7,15 @@
 /*!
  * @brief Adds a new event to the working events list.
  *
- * @param[in] SA          This is the shakeAlert event whose existence is
- *                        checked for in events struture.  If it does not
- *                        exist in events then it is added. 
+ * @param[in] SA             This is the shakeAlert event whose existence is
+ *                           checked for in events struture.  If it does not
+ *                           exist in events then it is added. 
  * 
- * @param[in,out] events  On input holds the current active list of events. <br>
- *                        On output holds the new event in SA provided that 
- *                        SA does not already exist.
+ * @param[in,out] events     On input holds the current active list of events. <br>
+ *                           On output holds the new event in SA provided that 
+ *                           SA does not already exist.
+ * @param[in,out] xml_status On input holds the current active list of GFAST events
+ *                           and version numbers. On output holds the new event
  *
  * @result If true then the new event in SA has been added to the events list.
  *

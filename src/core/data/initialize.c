@@ -26,8 +26,11 @@ int core_data_initialize(struct GFAST_props_struct props,
     int ierr, k, mpts;
     // Get the sites to be used
     ierr = 0;
-    if (props.verbose > 0){LOG_DEBUGMSG("%s", "Initializing metadata...");}
-    ierr = core_data_readMetaDataFile(props.metaDataFile, gps_data);
+    if (props.verbose > 0){LOG_MSG("%s", "Initializing metadata...");}
+    ierr = core_data_readMetaDataFile(props.metaDataFile,
+                                      props.metaDataNetworks,
+                                      props.n_networks,
+                                      gps_data);
     if (ierr != 0)
     {
         LOG_ERRMSG("Error reading sites file: %s", props.metaDataFile);
@@ -51,6 +54,10 @@ int core_data_initialize(struct GFAST_props_struct props,
         gps_data->data[k].ubuff = memory_calloc64f(mpts);
         gps_data->data[k].nbuff = memory_calloc64f(mpts);
         gps_data->data[k].ebuff = memory_calloc64f(mpts);
+        gps_data->data[k].usigmabuff = memory_calloc64f(mpts);
+        gps_data->data[k].nsigmabuff = memory_calloc64f(mpts);
+        gps_data->data[k].esigmabuff = memory_calloc64f(mpts);
+        gps_data->data[k].qbuff = memory_calloc64f(mpts);
         gps_data->data[k].tbuff = memory_calloc64f(mpts);
     }
     return 0;
