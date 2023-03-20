@@ -27,7 +27,7 @@ lib: $(LIB)
 # rm-ids:    *.cc *.h
 #         $(foreach f, $^, $(BUILD_UTILS)/updateId $f -r;)
 
-$(LIB): $(SDIRS) $(OBJS)
+$(LIB): $(SDIRS)
 	for dir in $(SDIRS) ; do \
 		make -C $$dir all ; \
 	done
