@@ -37,18 +37,20 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
     double dt, gain;
     int i, ierr, ierr1, j, k, l;
     bool *ltInit;
+    const int ncomp = 7;
+    int debug = 0;
     ierr = 0;
     if (traceBuffer->ntraces < 1){return ierr;} // Nothing to do
-    if (fmod(traceBuffer->ntraces, 3) != 0)
+    if (fmod(traceBuffer->ntraces, ncomp) != 0)
     {
-        LOG_WARNMSG("%s", "Expecting multiple of 3 traces");
+        LOG_WARNMSG("%s", "Expecting multiple of 7 traces");
     }
-    ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/3, 1)));
+    ltInit = memory_calloc8l((int) (fmax(traceBuffer->ntraces/ncomp, 1)));
     // Copy the data back
     for (i=0; i<traceBuffer->ntraces; i++)
     {
-        j = (int) (fmod(traceBuffer->traces[i].idest, 3));
-        k = (traceBuffer->traces[i].idest - j)/3;
+        j = (int) (fmod(traceBuffer->traces[i].idest, ncomp));
+        k = (traceBuffer->traces[i].idest - j)/ncomp;
         if (traceBuffer->traces[i].ncopy > gps_data->data[k].maxpts)
         {
             LOG_ERRMSG("%s", "Invalid copy size");
@@ -77,22 +79,10 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
                 LOG_ERRMSG("%s", "Division by zero");
                 ierr = ierr + 1;
             }
-            /*
-            for (ii=0; ii<gps_data->data[k].npts; ii++){
-              LOG_MSG("Before: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
-                  gps_data->data[k].stnm, gps_data->data[k].chan[j],
-                  gps_data->data[k].netw, gps_data->data[k].loc,
-                  ii,
-                  gps_data->data[k].npts,
-                  gps_data->data[k].tbuff[ii],
-                  gps_data->data[k].ubuff[ii]);
-            }
-            */
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ubuff, 1);
 
-            //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
 #ifdef _OPENMP
             #pragma omp simd
 #endif
@@ -100,17 +90,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             {
                 gps_data->data[k].tbuff[l] = traceBuffer->traces[i].t1 + l*dt;
             }
-            /*
-            for (ii=0; ii<gps_data->data[k].npts; ii++){
-              LOG_MSG(" After: %s.%s.%s.%s i:%d (npts=%d) t:%f (dbl) data=%f",
-                  gps_data->data[k].stnm, gps_data->data[k].chan[j],
-                  gps_data->data[k].netw, gps_data->data[k].loc,
-                  ii,
-                  gps_data->data[k].npts,
-                  gps_data->data[k].tbuff[ii],
-                  gps_data->data[k].ubuff[ii]);
-            }
-            */
         }
         else if (j == 1)
         {
@@ -136,7 +115,6 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].nbuff, 1);
-            //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
         }
         else if (j == 2)
         {
@@ -162,9 +140,118 @@ int traceBuffer_h5_copyTraceBufferToGFAST(
             gain = 1.0/gain;
             cblas_dscal(gps_data->data[k].npts, gain,
                         gps_data->data[k].ebuff, 1);
-            //gps_data->data[k].epoch = traceBuffer->traces[i].t1;
         }
-//    printf("%d %d\n", k, j);
+        else if (j == 3)
+        {
+            gps_data->data[k].npts = traceBuffer->traces[i].ncopy;
+            ierr1 = copyTrace(gps_data->data[k].npts,
+                              traceBuffer->traces[i].data, 
+                              gps_data->data[k].maxpts,
+                              gps_data->data[k].usigmabuff);
+            memory_free64f(&traceBuffer->traces[i].data);
+            if (ierr1 != 0)
+            {
+                LOG_ERRMSG("%s", "Error copying usigmabuff");
+                ierr = ierr + 1;
+            }
+            // Apply the gain
+            gps_data->data[k].gain[j] = 1.0; // will be applied here
+            gain = traceBuffer->traces[i].gain;
+            if (gain == 0.0)
+            {
+                LOG_ERRMSG("%s", "Division by zero");
+                ierr = ierr + 1;
+            }
+            gain = 1.0/gain;
+            cblas_dscal(gps_data->data[k].npts, gain,
+                        gps_data->data[k].usigmabuff, 1);
+        }
+        else if (j == 4)
+        {
+            gps_data->data[k].npts = traceBuffer->traces[i].ncopy;
+            ierr1 = copyTrace(gps_data->data[k].npts,
+                              traceBuffer->traces[i].data, 
+                              gps_data->data[k].maxpts,
+                              gps_data->data[k].nsigmabuff);
+            memory_free64f(&traceBuffer->traces[i].data);
+            if (ierr1 != 0)
+            {
+                LOG_ERRMSG("%s", "Error copying nsigmabuff");
+                ierr = ierr + 1;
+            }
+            // Apply the gain
+            gps_data->data[k].gain[j] = 1.0; // will be applied here
+            gain = traceBuffer->traces[i].gain;
+            if (gain == 0.0)
+            {
+                LOG_ERRMSG("%s", "Division by zero");
+                ierr = ierr + 1;
+            }
+            gain = 1.0/gain;
+            cblas_dscal(gps_data->data[k].npts, gain,
+                        gps_data->data[k].nsigmabuff, 1);
+        }
+        else if (j == 5)
+        {
+            gps_data->data[k].npts = traceBuffer->traces[i].ncopy;
+            ierr1 = copyTrace(gps_data->data[k].npts,
+                              traceBuffer->traces[i].data, 
+                              gps_data->data[k].maxpts,
+                              gps_data->data[k].esigmabuff);
+            memory_free64f(&traceBuffer->traces[i].data);
+            if (ierr1 != 0)
+            {
+                LOG_ERRMSG("%s", "Error copying esigmabuff");
+                ierr = ierr + 1;
+            }
+            // Apply the gain
+            gps_data->data[k].gain[j] = 1.0; // will be applied here
+            gain = traceBuffer->traces[i].gain;
+            if (gain == 0.0)
+            {
+                LOG_ERRMSG("%s", "Division by zero");
+                ierr = ierr + 1;
+            }
+            gain = 1.0/gain;
+            cblas_dscal(gps_data->data[k].npts, gain,
+                        gps_data->data[k].esigmabuff, 1);
+        }
+        else if (j == 6)
+        {
+            gps_data->data[k].npts = traceBuffer->traces[i].ncopy;
+            ierr1 = copyTrace(gps_data->data[k].npts,
+                              traceBuffer->traces[i].data, 
+                              gps_data->data[k].maxpts,
+                              gps_data->data[k].qbuff);
+            memory_free64f(&traceBuffer->traces[i].data);
+            if (ierr1 != 0)
+            {
+                LOG_ERRMSG("%s", "Error copying qbuff");
+                ierr = ierr + 1;
+            }
+            // No gain for quality channel
+        }
+    }
+
+    if (debug) {
+        int npts;
+        LOG_DEBUGMSG("copyTB2GFAST data values, ncomp: %d", ncomp);
+        for (k = 0; k < gps_data->stream_length; k++) {
+            npts = gps_data->data[k].npts;
+            LOG_DEBUGMSG("%s.%s.%sNE321Q.%s: [%f %f %f %f %f %f %f]",
+                gps_data->data[k].netw,
+                gps_data->data[k].stnm,
+                gps_data->data[k].chan[0],
+                gps_data->data[k].loc,
+                gps_data->data[k].ubuff[npts - 1],
+                gps_data->data[k].nbuff[npts - 1],
+                gps_data->data[k].ebuff[npts - 1],
+                gps_data->data[k].usigmabuff[npts - 1],
+                gps_data->data[k].nsigmabuff[npts - 1],
+                gps_data->data[k].esigmabuff[npts - 1],
+                gps_data->data[k].qbuff[npts - 1]
+            );
+        }
     }
     memory_free8l(&ltInit);
     return ierr;
@@ -198,14 +285,6 @@ static int copyTrace(const int npts,
         LOG_ERRMSG("npts > ndest %d %d", npts, ndest);
         return 1;
     }
-/*
-    ierr = array_copy64f_work(npts, origin, dest);
-    nc = npts - ndest + 1;
-    if (nc > 0)
-    {
-        ierr = array_set64f_work(nc, NAN, &dest[npts]);
-    }
-*/
     if (ndest > 0 && dest == NULL)
     {
         LOG_ERRMSG("%s", "dest is NULL");

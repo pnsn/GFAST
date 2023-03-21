@@ -44,6 +44,16 @@ extern "C" {
     @return true if connected, false if not
   */
   bool isDestinationConnected();
+
+  int startEventReceiver(const char originURL[],
+                         const char user[],
+                         const char password[],
+                         const char originTopic[],
+                         const int msReconnect,
+                         const int maxAttempts);
+  char *eventReceiverGetMessage(const int ms_wait, int *ierr);
+  int stopEventReceiver();
+
   /*!
     @brief instantiates and starts new DMMessageSender for events.
     @return 1 if success, 0 if already connected and -1 for error
@@ -55,10 +65,20 @@ extern "C" {
     @return 1 if success, 0 if not initialized and -1 for error
   */
   int stopEventSender();
+
+  /*!
+    @brief instantiates and starts new DMMessageEncoder for event xmls.
+    @return 1 if success, 0 if already connected and -1 for error
+  */
+  int startEventEncoder();
+  /*!
+    @brief stops active DMMessageEncoder for events.
+    @return 1 if success, 0 if not initialized and -1 for error
+  */
+  int stopEventEncoder();
   
   /*!
     @brief sends static event message
-    Message must first be created with createDMEventObject
     @return 1 if success, 0 if not initialized and -1 for error
   */
   int sendEventMessage();
@@ -92,23 +112,11 @@ extern "C" {
     @return 1 if success, 0 if not initialized and -1 for error
   */
   int sendHeartbeat();
-
   /*!
-    @brief create dmlib CoreEventInfo object and store in static variable
-    @return 1 for success, 0 if already exists or -1 for error
+    @brief Returns the dmlib version string
+    @return Version string
   */
-  int createDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime);
-
-  /*!
-    @brief modify existing dmlib CoreEventInfo object
-    @return 1 for success, 0 if no object exists or -1 for error
-  */
-  int modifyDMEventObject(const char evid[], double mag, double lat, double lon, double depth, double otime);
-  /*!
-    @brief delete stored dmlib CoreEventInfo object
-    @return 1 for success, 0 no object exists or -1 for error
-  */
-  int deleteDMEventObject(const char evid[]);
+  char *getDmLibVersion();
 
   /*!
     @brief create xml message from coreEvent_info and GFAST_peakDisplacementData_struct
@@ -116,13 +124,16 @@ extern "C" {
     @param[in] alg_vers      Version of GFAST
     @param[in] instance      Instance running the code
     @param[in] message_type  Describes a new or updated message
+    @param[in] max_assoc_stations Max # of stations with the 'assoc=True' attribute for 
+                                  SA station association
     @param[in] core          CoreEventInfo to go into message
     @param[in] pgd           Contains information on if a site was used for pgd
     @param[in] pgd_obs       PGD observations to go into gm_info
     @param[out] ierr         0 for success, -1 for error
     @return returns a ShakeAlert xml message
   */
-  char *dmlibWrapper_createPGDXML(const enum opmode_type mode,
+  char *dmlibWrapper_createPGDXML(const double currentTime,
+                                  const enum opmode_type mode,
                                   const char *alg_vers,
                                   const char *instance,
                                   const char *message_type, 

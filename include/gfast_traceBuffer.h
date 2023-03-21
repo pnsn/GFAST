@@ -55,9 +55,9 @@ struct ewRing_struct
     unsigned char
        errorType;          /*!< earthworm error type */
     unsigned char  
-       instLocalID;        /*!< earthworm local instrument ID type */
+       instLocalID;        /*!< earthworm local installation ID type */
     unsigned char
-       instWildcardID;     /*!< instrument wildcard ID */
+       instWildcardID;     /*!< installation wildcard ID */
     unsigned char
        modWildcardID;      /*!< module wildcard ID */
 };
@@ -70,6 +70,18 @@ struct ewRing_struct
     bool linit;            /*!< Bogus value so that compilation proceeds */ 
 };
 #endif
+
+/* Linked list node for hash_set */
+struct tb2_node {
+    struct tb2_node *next; /* next entry in chain */
+    char *name;            /* defined name (NSCL) */
+    int i;                 /* index into tb2Data_struct for this NSCL */
+};
+
+struct tb2_hashmap_struct {
+    struct tb2_node **map; /* hash array [hashsize] */
+    uint32_t hashsize;     /* hashsize for hashmap array */
+};
 
 struct tb2Trace_struct
 {
@@ -92,7 +104,8 @@ struct tb2Data_struct
 {
     struct tb2Trace_struct *traces; /*!< Concatenated traces */
     int ntraces;                    /*!< Number of traces */
-    bool linit;                     /*!< If true thne the structure is 
+    struct tb2_hashmap_struct *hashmap; /*!< Hashmap for trace NSCLs */
+    bool linit;                     /*!< If true then the structure is 
                                          initialized. */
 };
 
@@ -117,7 +130,7 @@ struct h5trace_struct
     double dt;            /*!< Sampling period (seconds) */
     double gain;          /*!< Instrument gain */
     int idest;            /*!< Maps this trace back to the appropriate
-                               three-component data stream */
+                               seven-component data stream */
     int maxpts;           /*!< Max number of points in data buffers */
     int npts1;            /*!< Number of points in buffer 1 - TODO - delete */
     int npts2;            /*!< Number of points in buffer 2 - TODO - delete */
@@ -147,6 +160,29 @@ extern "C"
 {
 #endif
 
+///// Methods for hashing tb2 channels
+/* Hashing function */
+uint32_t traceBuffer_ewrr_hash(const char *s);
+/* Calls hash() and returns index into array with given hashsize */
+uint32_t traceBuffer_ewrr_make_hash(const char *s, uint32_t hashsize);
+/* Add a value to the set */
+struct tb2_node *traceBuffer_ewrr_hashmap_add(struct tb2_hashmap_struct *hashmap,
+                                              const char *name,
+                                              int index);
+/* Remove a value from the set */
+int traceBuffer_ewrr_hashmap_remove(struct tb2_hashmap_struct *hashmap, const char *name);
+/* Check if set contains a value */
+struct tb2_node *traceBuffer_ewrr_hashmap_contains(struct tb2_hashmap_struct *hashmap,
+                                                   const char *name);
+/* Free hashmap node */
+void traceBuffer_ewrr_free_node(struct tb2_node *np);
+/* Free hashmap table */
+void traceBuffer_ewrr_free_hashmap(struct tb2_hashmap_struct *hashmap);
+/* Print the full set structure, for debugging */
+void traceBuffer_ewrr_print_hashmap(struct tb2_hashmap_struct *hashmap);
+/* Use the un-modded hash value to determine whether there are any true collisions (debugging) */
+int traceBuffer_ewrr_print_true_collisions(struct tb2_hashmap_struct *hashmap);
+///// End hashing functions
 
 /* Classify the result of earthworm tport_copyfrom */
 int traceBuffer_ewrr_classifyGetRetval(const int retval);
@@ -158,6 +194,7 @@ int traceBuffer_ewrr_flushRing(struct ewRing_struct *ringInfo);
 char *traceBuffer_ewrr_getMessagesFromRing(const int messageBlock,
                                            const bool showWarnings,
                                            struct ewRing_struct *ringInfo,
+                                           struct tb2_hashmap_struct *hashmap,
                                            int *nRead, int *ierr);
 /* Initialize the earthworm ring reader connection */
 int traceBuffer_ewrr_initialize(const char *ewRing,
@@ -173,15 +210,11 @@ int traceBuffer_ewrr_finalize(struct ewRing_struct *ringInfo);
 /* Frees memory on the tb2data structure */
 void traceBuffer_ewrr_freetb2Data(struct tb2Data_struct *tb2data);
 /* Frees memory on the tb2data trace structure */
-void traceBfufer_ewrr_freetb2Trace(const bool clearSNCL,
+void traceBuffer_ewrr_freetb2Trace(const bool clearSNCL,
                                    struct tb2Trace_struct *trace);
-/* Set the SNCLs of messages we'll retain */
-int traceBuffer_ewrr_settb2Data(const int ntraces,
-                                const char **nets,
-                                const char **stats,
-                                const char **chans,
-                                const char **locs,
-                                struct tb2Data_struct *tb2data);
+/* Sets the tb2Data structure and desired SNCL's from the input gpsData */
+int traceBuffer_ewrr_settb2DataFromGFAST(struct GFAST_data_struct *gpsData,
+                                         struct tb2Data_struct *tb2Data);
 /* Unpack messages */
 int traceBuffer_ewrr_unpackTraceBuf2Messages(
     const int nRead,

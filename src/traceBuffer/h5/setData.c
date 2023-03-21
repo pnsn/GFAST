@@ -51,6 +51,9 @@ int traceBuffer_h5_setData(const double currentTime,
     //------------------------------------------------------------------------//
     //
     // Require both items are set
+    if (debug) {
+        LOG_DEBUGMSG("%s", "Starting traceBuffer_h5_setData");
+    }
     ierr = 0;
     ierrAll = 0;
     if (!tb2Data.linit || !h5traceBuffer.linit)
@@ -71,6 +74,9 @@ int traceBuffer_h5_setData(const double currentTime,
         return -1;
     }
     // Make a map from the HDF5 trace buffer to the tracebuffer2 data
+    if (debug) {
+        LOG_DEBUGMSG("%s", "Make a map from the HDF5 trace buffer to the tracebuffer2 data");
+    }
     map = array_set32i(h5traceBuffer.ntraces, -1, &ierr);
     lhaveData = memory_calloc8l(h5traceBuffer.ntraces);
     for (i=0; i<h5traceBuffer.ntraces; i++)
@@ -94,6 +100,14 @@ int traceBuffer_h5_setData(const double currentTime,
                 }
                 goto NEXT_TRACE; 
             }
+        }
+        if (debug) {
+            LOG_DEBUGMSG("h5traceBuffer and tb2Data didn't match, going hunting (inefficient)! i:%d, %s.%s.%s.%s",
+                i,
+                h5traceBuffer.traces[i].netw,
+                h5traceBuffer.traces[i].stnm,
+                h5traceBuffer.traces[i].chan,
+                h5traceBuffer.traces[i].loc)
         }
         // Hunt through the tracebuffers
         for (k=0; k<tb2Data.ntraces; k++)
@@ -126,6 +140,11 @@ NEXT_TRACE:;
            */
     }
 
+    if (debug) {
+        LOG_DEBUGMSG("%s", "setData: Done making map for HDF5 to tracebuffer2");
+        LOG_DEBUGMSG("setData: Looping over %d sampling groups", h5traceBuffer.ndtGroups);
+    }
+
     for (idt=0; idt<h5traceBuffer.ndtGroups; idt++)
     {
         gains = NULL;
@@ -136,6 +155,12 @@ NEXT_TRACE:;
         //printf("MTH: idt=%d ntraces=%d\n", idt, ntraces);
         if (ntraces == 0){continue;}
         // Open + read the data and attributes for this dataset 
+        if (debug) {
+            LOG_DEBUGMSG("Opening fileID: %d, dtGroupName[%d]: '%s'",
+                h5traceBuffer.fileID,
+                idt,
+                h5traceBuffer.dtGroupName[idt]);
+        }
         groupID = H5Gopen2(h5traceBuffer.fileID,
                            h5traceBuffer.dtGroupName[idt], H5P_DEFAULT);
         gains = memory_calloc64f(ntraces);
@@ -170,8 +195,7 @@ NEXT_TRACE:;
         //dwork = array_set64f((maxpts+1)*ntraces, (double) NAN, &ierr);
         ishift = (int) ((currentTime - ts2)/dt + 0.5);
         ncopy = maxpts - ishift;
-printf("ishift=%d\n", ishift);
-//LOG_MSG("currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
+        LOG_DEBUGMSG("setData: currentTime:%f - ts2:%f = ishift=%d", currentTime, ts2, ishift);
         for (k=0; k<ntraces; k++)
         {
             indx = k*maxpts + ishift;
@@ -198,8 +222,8 @@ printf("ishift=%d\n", ishift);
             {
                 LOG_ERRMSG("npts to update is invalid %d %d %d",
                            c1, c2, tb2Data.traces[i].npts);
-            printf("setData: i=%d tb2Data %s.%s npts:%d nchunks:%d chunkPtr[0]=%d chunkPtr[nchunks]=%d (c2-c1) != npts!\n",
-                i, tb2Data.traces[i].stnm, tb2Data.traces[i].chan, tb2Data.traces[i].npts, tb2Data.traces[i].nchunks, c1, c2);
+                LOG_DEBUGMSG("setData: i=%d tb2Data %s.%s npts:%d nchunks:%d chunkPtr[0]=%d chunkPtr[nchunks]=%d (c2-c1) != npts!",
+                        i, tb2Data.traces[i].stnm, tb2Data.traces[i].chan, tb2Data.traces[i].npts, tb2Data.traces[i].nchunks, c1, c2);
                 return -1;
             }
             for (chunk=0; chunk<nchunks; chunk++)
@@ -221,21 +245,21 @@ printf("ishift=%d\n", ishift);
                     // MTH: The current data point is always getting inserted to the same indx as
                     // the buffer moves along, so does ts1, ts2, tb2Data[i].times[is], maintaining their offset
 
-                    if (debug){
-      printf("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f\n",
-                        ts2,
-                        is,
-                        tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
-                        tb2Data.traces[i].chan, tb2Data.traces[i].loc,
-                        chunk,
-                        (k*maxpts),
-                        ts1,
-                        tb2Data.traces[i].times[is],
-                        indx,
-                        indx,
-                        dwork[indx],
-                        indx-1,
-                        dwork[indx-1]);
+                    if (debug) {
+                        LOG_DEBUGMSG("setData: ts2:%.2f is:%d %s.%s.%s.%s chk:%d indx0:%d ts1:%.2f msg t:%.3f =idx:%4d set dwork[%4d]:%8.2f dwork[%4d]:%8.2f",
+                            ts2,
+                            is,
+                            tb2Data.traces[i].netw, tb2Data.traces[i].stnm,
+                            tb2Data.traces[i].chan, tb2Data.traces[i].loc,
+                            chunk,
+                            (k*maxpts),
+                            ts1,
+                            tb2Data.traces[i].times[is],
+                            indx,
+                            indx,
+                            dwork[indx],
+                            indx-1,
+                            dwork[indx-1]);
                       }
 
                 } // for is
@@ -274,6 +298,10 @@ printf("ishift=%d\n", ishift);
         memory_free64f(&gains);
         memory_free64f(&work); 
         memory_free64f(&dwork);
+    }
+
+    if (debug) {
+        LOG_DEBUGMSG("%s", "Ending h5_setData");
     }
     // Free memory
     memory_free32i(&map);

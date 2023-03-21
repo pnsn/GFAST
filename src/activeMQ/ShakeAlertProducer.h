@@ -73,17 +73,6 @@ public:
    *                          to a topic (default).
    *                          If false then the message receiver connects
    *                          to a queue.
-   * @param[in] clientAck     If true then the session will acknowledge
-   *                          a message has been received.
-   *                          If false then the session automatically 
-   *                          acknowledges a client's receipt of a message
-   *                          either when the session has successfully
-   *                          returned from a call to receive or when the
-   *                          session's message listener has successfully
-   *                          processed the message (default).
-   *                          If true then the session is transacted
-   *                          and the acknowledgement of messages is 
-   *                          handled internally.
    * @param[in] sessionTransacted  Look this up.  Default=False
    * @param[in] verbose       Controls the verbosity - use 0 for reporting
    *                          of errors only.  Default=0.

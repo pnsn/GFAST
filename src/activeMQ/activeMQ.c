@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "gfast_activeMQ.h"
+#include "gfast_core.h"
 
 /*! static variable to keep track of whether activeMQCPP library has been initialized */
 static bool isinit = false;
@@ -12,7 +13,7 @@ void activeMQ_start(void)
 {
     if (isinit)
     {
-        printf("activeMQ_start: Library already initialized\n");
+        LOG_MSG("%s", "activeMQ_start: Library already initialized");
         return;
     }
     activeMQ_initialize();
@@ -24,7 +25,7 @@ void activeMQ_stop(void)
 {
     if (!isinit)
     {
-        printf("activeMQ_stop: Library already shut down\n");
+        LOG_MSG("%s", "activeMQ_stop: Library already shut down");
         return;
     }
     activeMQ_finalize();

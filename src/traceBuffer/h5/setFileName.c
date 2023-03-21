@@ -9,11 +9,12 @@
 /*!
  * @brief Sets the HDF5 trace buffer file name
  *
- * @param[in]h5dir     Name of directory where HDF5 is located or will
+ * @param[in] h5dir    Name of directory where HDF5 is located or will
  *                     reside.  If null then the current working directory
  *                     will be used.
  * @param[in] h5file   Name of the HDF5 file.  This should have the .h5
  *                     already appended.
+ * @param[out] h5name  Full path name made by concatenating h5dir, h5file
  *
  * @result the full path to the HDF5 file
  *

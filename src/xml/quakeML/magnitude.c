@@ -19,7 +19,7 @@
 #include "gfast_core.h"
 
 /*!
- * TODO: need to make a write <mag> function because this is all wrong
+ * TODO: need to make a write mag function because this is all wrong
  */
 int xml_quakeML_writeMagnitude(const double magnitude,
                                const bool lhaveMag,

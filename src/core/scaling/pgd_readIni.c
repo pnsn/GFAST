@@ -55,6 +55,8 @@ int core_scaling_pgd_readIni(const char *propfilename,
     // Read the properties
     pgd_props->verbose = verbose;
     pgd_props->utm_zone = utm_zone;
+    setVarName(group, "do_pgd\0", var);
+    pgd_props->do_pgd = iniparser_getboolean(ini, var, true);
     setVarName(group, "dist_tolerance\0", var);
     pgd_props->dist_tol = iniparser_getdouble(ini, var, 0.5);
     if (pgd_props->dist_tol < 0.0)
@@ -148,11 +150,39 @@ int core_scaling_pgd_readIni(const char *propfilename,
         LOG_ERRMSG("%s", "Error at least one site needed to estimate PGD!");
         goto ERROR;
     }
+    setVarName(group, "pgdThresholdLookupFile\0", var);
+    const char *pgdThresholdLookupFile;
+    pgdThresholdLookupFile = iniparser_getstring(ini, var, "pgd_threshold.txt\0");
+    ierr = core_scaling_readPgdThresholdLookupFile(pgdThresholdLookupFile,
+                                                   pgd_props);
+    setVarName(group, "rawSigmaThresholdLookupFile\0", var);
+    const char *rawSigmaThresholdLookupFile;
+    rawSigmaThresholdLookupFile = iniparser_getstring(ini, var, "raw_sigma_threshold.txt\0");
+    ierr = core_scaling_readRawSigmaThresholdLookupFile(rawSigmaThresholdLookupFile,
+                                                        pgd_props);
     setVarName(group, "sigmaLookupFile\0", var);
     const char *sigmaLookupFile;
     sigmaLookupFile = iniparser_getstring(ini, var, "M99.txt\0");
     ierr = core_scaling_readSigmaLookupFile(sigmaLookupFile,
                                             pgd_props);
+
+
+    // only send XML for pgd magnitude sigma below this threshold
+    setVarName(group, "pgd_sigma_throttle\0", var);
+    pgd_props->pgd_sigma_throttle = iniparser_getdouble(ini, var, 10);
+    // props->pgd_sigma_throttle  = iniparser_getdouble(ini, "general:pgd_sigma_throttle\0", 10);
+    if (pgd_props->pgd_sigma_throttle <= 0)
+    {
+        LOG_ERRMSG("Error pgd_sigma_throttle must be positive: %f",
+                    pgd_props->pgd_sigma_throttle);
+        goto ERROR;
+    }
+
+    // only send XML for SA magnitude above this threshold
+    setVarName(group, "SA_mag_threshold\0", var);
+    pgd_props->SA_mag_threshold = iniparser_getdouble(ini, var, -10.0);
+    // props->SA_mag_threshold  = iniparser_getdouble(ini, "general:SA_mag_threshold\0", -10.0);
+
     setVarName(group, "minimum_pgd_cm\0", var);
     pgd_props->minimum_pgd_cm = iniparser_getdouble(ini, var, -1.0);
     setVarName(group, "maximum_pgd_cm\0", var);

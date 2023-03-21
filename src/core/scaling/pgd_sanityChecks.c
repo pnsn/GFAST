@@ -9,19 +9,14 @@ void swap_ints(int *, int *);
 void selectionSort(const double *__restrict__ unsorted, int n, int index[]);
 
 /*!
- * @brief Computes the right hand side in the peak ground displacement 
- *        estimation s.t.
- *        \f$ \textbf{b} = \left \{ \log_{10}(d) - A \right \} \f$
- *        where A is a scalar shift and d is the distance at each station.
+ * @brief Does a sanity check on values going into inversion
  *
  * @param[in] n         number of points
  * @param[in] dist_tol  distance tolerance - if d is less than this then
  *                      it will be set to a default value (cm)
  * @param[in] dist_def  distance default value (cm)
- * @param[in] A         shift so that b = log10(d) - A
- * @param[in] d         max distance (cm) at each site [n]
- *
- * @param[out] b        right hand side in Gm = b [n]
+ * @param[in] repi      epicentral distance (km) [n]
+ * @param[in] d         max displacement (cm) at each site [n]
  *
  * @result 0 indicates success
  *

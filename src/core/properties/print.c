@@ -17,7 +17,7 @@ void core_properties_print(struct GFAST_props_struct props)
 {
     const char *lspace = "    \0";
     int i;
-    LOG_DEBUGMSG("\n%s", "GFAST properties");
+    LOG_DEBUGMSG("%s", "GFAST properties");
     if (props.opmode == OFFLINE)
     {
         LOG_DEBUGMSG("%s GFAST site metadata file %s", lspace,
@@ -73,6 +73,28 @@ void core_properties_print(struct GFAST_props_struct props)
                      props.waitTime);
         LOG_DEBUGMSG("%s GFAST site position file %s", lspace,
                      props.metaDataFile);
+        if (props.n_networks == 0)
+        {
+            LOG_DEBUGMSG("%s GFAST will use any networks available from the position file", 
+                         lspace);
+        }
+        else
+        {
+            int nbuffer = 128;
+            char buffer_network[nbuffer];
+            int cx = 0;
+            for (i = 0; i < props.n_networks; i++) {
+                if (i == props.n_networks - 1) {
+                    cx += snprintf(buffer_network + cx, nbuffer - cx, "%s",
+                                    props.metaDataNetworks[i]);
+                } else {
+                    cx += snprintf(buffer_network + cx, nbuffer - cx, "%s, ",
+                                    props.metaDataNetworks[i]);
+                }
+            }
+            LOG_DEBUGMSG("%s GFAST will only use %d networks from the position file: %s", 
+                         lspace, props.n_networks, buffer_network);
+        }
         LOG_DEBUGMSG("%s GFAST default sampling period is %f (s)", lspace,
                    props.dt_default);
         if (props.opmode == REAL_TIME_EEW)
@@ -133,121 +155,161 @@ void core_properties_print(struct GFAST_props_struct props)
     {
         LOG_DEBUGMSG("%s GFAST will save all steps to HDF5", lspace);
     }
-    LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
-                 lspace, props.SA_mag_threshold);
-    LOG_DEBUGMSG("%s Will throttle messages above pgd mag sigma %f",
-                 lspace, props.pgd_sigma_throttle);
-    LOG_DEBUGMSG("%s Using %d time-dependent throttling criteria", lspace, props.n_throttle);
-    int nbuffer = 128;
-    char buffer_n[nbuffer], buffer_pgd[nbuffer], buffer_time[nbuffer];
-    int cx_n = 0, cx_pgd = 0, cx_time = 0;
-    for (i = 0; i < props.n_throttle; i++) {
-        if (i == props.n_throttle - 1) {
-            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d",
-                             props.throttle_num_stations[i]);
-            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d",
-                               props.throttle_pgd_threshold[i]);
-            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d",
-                                props.throttle_time_threshold[i]);
-        } else {
-            cx_n += snprintf(buffer_n + cx_n, nbuffer - cx_n, "%d,",
-                             props.throttle_num_stations[i]);
-            cx_pgd += snprintf(buffer_pgd + cx_pgd, nbuffer - cx_pgd, "%d,",
-                               props.throttle_pgd_threshold[i]);
-            cx_time += snprintf(buffer_time + cx_time, nbuffer - cx_time, "%d,",
-                                props.throttle_time_threshold[i]);
-        }
-    }
-    LOG_DEBUGMSG("%s Number of stations throttling values are [%s]", lspace, buffer_n);
-    LOG_DEBUGMSG("%s PGD threshold throttling values are [%s]", lspace, buffer_pgd);
-    LOG_DEBUGMSG("%s Time throttling values are [%s]", lspace, buffer_time);
     //--------------------------------pgd-------------------------------------//
-    LOG_DEBUGMSG("%s GFAST PGD source receiver distance tolerance %f (km)",
-               lspace, props.pgd_props.dist_tol);
-    LOG_DEBUGMSG("%s GFAST PGD default distance %f (cm)",
-               lspace, props.pgd_props.disp_def);
-    LOG_DEBUGMSG("%s GFAST Number of PGD grid search latitudes %d",
-               lspace, props.pgd_props.ngridSearch_lats);
-    LOG_DEBUGMSG("%s GFAST Number of PGD grid search longitudes %d",
-               lspace, props.pgd_props.ngridSearch_lons);
-    LOG_DEBUGMSG("%s GFAST Number of PGD grid search depths is %d",
-               lspace, props.pgd_props.ngridSearch_deps);
-    LOG_DEBUGMSG("%s GFAST PGD data selection velocity is %f (km/s)",
-               lspace, props.pgd_props.window_vel);
-    LOG_DEBUGMSG("%s GFAST Number of sites required to compute PGD is %d",
-               lspace, props.pgd_props.min_sites);
-    if (props.pgd_props.ngridSearch_lats > 1)
+    if (props.pgd_props.do_pgd) 
     {
-        LOG_DEBUGMSG("%s GFAST PGD latitude grid spacing %f",
-                   lspace, props.pgd_props.dLat); 
-    }
-    if (props.pgd_props.ngridSearch_lons > 1)
-    {
-        LOG_DEBUGMSG("%s GFAST PGD longitude grid spacing %f",
-                   lspace, props.pgd_props.dLon);
-    }
-    if (props.pgd_props.n99 > 0)
-    {
-        for (i = 0; i < props.pgd_props.n99; i++) {
-            LOG_DEBUGMSG("%s GFAST PGD sigma lookup: %5.1f %5.2f",
-                         lspace, props.pgd_props.t99[i], props.pgd_props.m99[i]);
+        LOG_DEBUGMSG("%s GFAST will calculate PGD", lspace);
+        LOG_DEBUGMSG("%s GFAST PGD source receiver distance tolerance %f (km)",
+                lspace, props.pgd_props.dist_tol);
+        LOG_DEBUGMSG("%s GFAST PGD default distance %f (cm)",
+                lspace, props.pgd_props.disp_def);
+        LOG_DEBUGMSG("%s GFAST Number of PGD grid search latitudes %d",
+                lspace, props.pgd_props.ngridSearch_lats);
+        LOG_DEBUGMSG("%s GFAST Number of PGD grid search longitudes %d",
+                lspace, props.pgd_props.ngridSearch_lons);
+        LOG_DEBUGMSG("%s GFAST Number of PGD grid search depths is %d",
+                lspace, props.pgd_props.ngridSearch_deps);
+        LOG_DEBUGMSG("%s GFAST PGD data selection velocity is %f (km/s)",
+                lspace, props.pgd_props.window_vel);
+        LOG_DEBUGMSG("%s GFAST Number of sites required to compute PGD is %d",
+                lspace, props.pgd_props.min_sites);
+        if (props.pgd_props.ngridSearch_lats > 1)
+        {
+            LOG_DEBUGMSG("%s GFAST PGD latitude grid spacing %f",
+                    lspace, props.pgd_props.dLat); 
         }
-    }
-    LOG_DEBUGMSG("%s GFAST Minimum PGD value to include in inversion (cm): %f",
-               lspace, props.pgd_props.minimum_pgd_cm);
-    LOG_DEBUGMSG("%s GFAST Maximum PGD value to include in inversion (cm): %f",
-               lspace, props.pgd_props.maximum_pgd_cm);
-    LOG_DEBUGMSG("%s GFAST Maximum stations to include assoc tag: %d",
-               lspace, props.pgd_props.max_assoc_stations);
-    LOG_DEBUGMSG("%s GFAST Maximum stations to include assoc tag: %d",
-               lspace, props.pgd_props.max_assoc_stations);
-    //--------------------------------cmt-------------------------------------//
-    LOG_DEBUGMSG("%s GFAST Number of latitudes in CMT grid search %d",
-               lspace, props.cmt_props.ngridSearch_lats);
-    LOG_DEBUGMSG("%s GFAST Number of longitudes in CMT grid search %d",
-               lspace, props.cmt_props.ngridSearch_lons);
-    LOG_DEBUGMSG("%s GFAST Number of depths in CMT grid search  %d",
-               lspace, props.cmt_props.ngridSearch_deps);
-    LOG_DEBUGMSG("%s GFAST CMT data selection velocity is %f (km/s)",
-               lspace, props.cmt_props.window_vel);
-    LOG_DEBUGMSG("%s GFAST CMT data averaging window length %f (s)",
-               lspace, props.cmt_props.window_avg);
-    LOG_DEBUGMSG("%s GFAST Number of sites required to compute CMT is %d",
-               lspace, props.cmt_props.min_sites); 
-    if (props.cmt_props.ldeviatoric)
-    {
-        LOG_DEBUGMSG("%s GFAST will apply deviatoric constraint to CMT",
-                   lspace);
+        if (props.pgd_props.ngridSearch_lons > 1)
+        {
+            LOG_DEBUGMSG("%s GFAST PGD longitude grid spacing %f",
+                    lspace, props.pgd_props.dLon);
+        }
+        if (props.pgd_props.n99 > 0)
+        {
+            LOG_DEBUGMSG("%s GFAST PGD sigma lookup: %d values",
+                lspace, props.pgd_props.n99);
+            for (i = 0; i < props.pgd_props.n99; i++) {
+                LOG_DEBUGMSG("%s GFAST PGD sigma lookup: %5.1f %5.2f",
+                    lspace, props.pgd_props.t99[i], props.pgd_props.m99[i]);
+            }
+        }
+        else
+        {
+            LOG_DEBUGMSG("%s GFAST PGD sigma lookup: 0 values, using default",
+                lspace);
+        }
+        if (props.pgd_props.n_throttle > 0)
+        {
+            LOG_DEBUGMSG("%s GFAST PGD threshold lookup: %d values",
+                lspace, props.pgd_props.n_throttle);
+            for (i = 0; i < props.pgd_props.n_throttle; i++) {
+                LOG_DEBUGMSG("%s GFAST PGD threshold lookup: %5.1f %5.2f %d", lspace,
+                    props.pgd_props.throttle_time_threshold[i],
+                    props.pgd_props.throttle_pgd_threshold[i],
+                    props.pgd_props.throttle_num_stations[i]);
+            }
+        }
+        else
+        {
+            LOG_DEBUGMSG("%s GFAST PGD threshold lookup: 0 values, using default",
+                lspace);
+        }
+        if (props.pgd_props.u_raw_sigma_threshold >= 0) {
+            LOG_DEBUGMSG("%s Will ignore pd values if U raw sigma exceeds %f cm",
+                lspace, props.pgd_props.u_raw_sigma_threshold);
+        } else {
+            LOG_DEBUGMSG("%s Will allow any U raw sigma values for pd calculations", lspace);
+        }
+        if (props.pgd_props.n_raw_sigma_threshold >= 0) {
+            LOG_DEBUGMSG("%s Will ignore pd values if N raw sigma exceeds %f cm",
+                lspace, props.pgd_props.n_raw_sigma_threshold);
+        } else {
+            LOG_DEBUGMSG("%s Will allow any N raw sigma values for pd calculations", lspace);
+        }
+        if (props.pgd_props.e_raw_sigma_threshold >= 0) {
+            LOG_DEBUGMSG("%s Will ignore pd values if E raw sigma exceeds %f cm",
+                lspace, props.pgd_props.e_raw_sigma_threshold);
+        } else {
+            LOG_DEBUGMSG("%s Will allow any E raw sigma values in pd calculations", lspace);
+        }
+        LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
+                    lspace, props.pgd_props.SA_mag_threshold);
+        LOG_DEBUGMSG("%s Will throttle messages above pgd mag sigma %f",
+                    lspace, props.pgd_props.pgd_sigma_throttle);
+
+        LOG_DEBUGMSG("%s GFAST Minimum PGD value to include in inversion (cm): %f",
+                lspace, props.pgd_props.minimum_pgd_cm);
+        LOG_DEBUGMSG("%s GFAST Maximum PGD value to include in inversion (cm): %f",
+                lspace, props.pgd_props.maximum_pgd_cm);
+        LOG_DEBUGMSG("%s GFAST Maximum stations to include assoc tag: %d",
+                lspace, props.pgd_props.max_assoc_stations);
     }
     else
     {
-        LOG_DEBUGMSG("%s GFAST will invert for all 6 MT terms", lspace);
+        LOG_DEBUGMSG("%s GFAST will not calculate PGD", lspace);
     }
-    if (props.cmt_props.ngridSearch_lats > 1)
-    {   
-        LOG_DEBUGMSG("%s GFAST CMT latitude grid spacing %f",
-                   lspace, props.cmt_props.dLat); 
-    }   
-    if (props.cmt_props.ngridSearch_lons > 1)
-    {   
-        LOG_DEBUGMSG("%s GFAST CMT longitude grid spacing %f",
-                   lspace, props.cmt_props.dLon);
+    
+    //--------------------------------cmt-------------------------------------//
+    if (props.cmt_props.do_cmt) 
+    {
+        LOG_DEBUGMSG("%s GFAST will calculate CMT", lspace);
+        LOG_DEBUGMSG("%s GFAST Number of latitudes in CMT grid search %d",
+                lspace, props.cmt_props.ngridSearch_lats);
+        LOG_DEBUGMSG("%s GFAST Number of longitudes in CMT grid search %d",
+                lspace, props.cmt_props.ngridSearch_lons);
+        LOG_DEBUGMSG("%s GFAST Number of depths in CMT grid search  %d",
+                lspace, props.cmt_props.ngridSearch_deps);
+        LOG_DEBUGMSG("%s GFAST CMT data selection velocity is %f (km/s)",
+                lspace, props.cmt_props.window_vel);
+        LOG_DEBUGMSG("%s GFAST CMT data averaging window length %f (s)",
+                lspace, props.cmt_props.window_avg);
+        LOG_DEBUGMSG("%s GFAST Number of sites required to compute CMT is %d",
+                lspace, props.cmt_props.min_sites); 
+        if (props.cmt_props.ldeviatoric)
+        {
+            LOG_DEBUGMSG("%s GFAST will apply deviatoric constraint to CMT",
+                    lspace);
+        }
+        else
+        {
+            LOG_DEBUGMSG("%s GFAST will invert for all 6 MT terms", lspace);
+        }
+        if (props.cmt_props.ngridSearch_lats > 1)
+        {   
+            LOG_DEBUGMSG("%s GFAST CMT latitude grid spacing %f",
+                    lspace, props.cmt_props.dLat); 
+        }   
+        if (props.cmt_props.ngridSearch_lons > 1)
+        {   
+            LOG_DEBUGMSG("%s GFAST CMT longitude grid spacing %f",
+                    lspace, props.cmt_props.dLon);
+        }
+    }
+    else
+    {
+        LOG_DEBUGMSG("%s GFAST will not calculate CMT", lspace);
     }
     //--------------------------------ff--------------------------------------//
-    LOG_DEBUGMSG("%s GFAST will use %d fault patches along strike",
-                lspace, props.ff_props.nstr);
-    LOG_DEBUGMSG("%s GFAST will use %d fault patches down-dip",
-                lspace, props.ff_props.ndip);
-    LOG_DEBUGMSG("%s GFAST Number of sites required to compute FF is %d",
-                lspace, props.ff_props.min_sites);
-    LOG_DEBUGMSG("%s GFAST finite fault data selection velocity is %f (km/s)",
-                lspace, props.ff_props.window_vel);
-    LOG_DEBUGMSG("%s GFAST finite fault data averaging window length %f (s)",
-                lspace, props.ff_props.window_avg);
-    LOG_DEBUGMSG("%s GFAST fault length safety factor %.2f pct",
-                lspace, props.ff_props.flen_pct);
-    LOG_DEBUGMSG("%s GFAST fault width safety factor %.2f pct",
-                lspace, props.ff_props.fwid_pct); 
-    LOG_DEBUGMSG("%s", "\n");
+    if (props.ff_props.do_ff) 
+    {
+        LOG_DEBUGMSG("%s GFAST will calculate FF", lspace);
+        LOG_DEBUGMSG("%s GFAST will use %d fault patches along strike",
+                    lspace, props.ff_props.nstr);
+        LOG_DEBUGMSG("%s GFAST will use %d fault patches down-dip",
+                    lspace, props.ff_props.ndip);
+        LOG_DEBUGMSG("%s GFAST Number of sites required to compute FF is %d",
+                    lspace, props.ff_props.min_sites);
+        LOG_DEBUGMSG("%s GFAST finite fault data selection velocity is %f (km/s)",
+                    lspace, props.ff_props.window_vel);
+        LOG_DEBUGMSG("%s GFAST finite fault data averaging window length %f (s)",
+                    lspace, props.ff_props.window_avg);
+        LOG_DEBUGMSG("%s GFAST fault length safety factor %.2f pct",
+                    lspace, props.ff_props.flen_pct);
+        LOG_DEBUGMSG("%s GFAST fault width safety factor %.2f pct",
+                    lspace, props.ff_props.fwid_pct); 
+    }
+    else
+    {
+        LOG_DEBUGMSG("%s GFAST will not calculate FF", lspace);
+    }
     return;
 }

@@ -50,7 +50,6 @@ private:
   bool __luseListener;
   bool __isInitialized;
   bool __lconnected;
-  char __pad[6];
   queue<string> __messageBuffer; //!< buffer containing unprocessed messages
   unsigned int __maxMessages;             //!< maximum number of messages in messageBuffer
 

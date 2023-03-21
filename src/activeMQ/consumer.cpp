@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <iostream>
 #include "gfast_activeMQ.h"
+#include "gfast_core.h"
 #include "ShakeAlertConsumer.h"
  
 //static bool linit_amqlib = false;
@@ -66,6 +67,9 @@
  *                            language is threaded and/or uses triggers.
  * @param[in] maxMessages     Max number of messages in local message buffer
  * @param[in] verbose         controls verobosity.
+ * 
+ * @param[out] ierr           0 indicates success\n
+ *                            1 indicates an internal error has occurred.
  *
  * @return pointer to ShakeAlertConsumer class instance cast to (void *) so it can be passed in c.
  *
@@ -74,14 +78,14 @@
  */
 extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
                                               const char AMQpassword[],
-					      const char AMQurl[],
+                                              const char AMQurl[],
                                               const char AMQdestination[],
                                               const int msReconnect,
                                               const int maxAttempts,
                                               const bool useTopic,
                                               const bool clientAck,
                                               const bool luseListener,
-					      const unsigned int maxMessages,
+                                              const unsigned int maxMessages,
                                               const int verbose,
                                               int *ierr)
 {
@@ -125,7 +129,7 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     }
     if (verbose > 0)
     {
-        printf("%s: Initializing the consumer...\n", fcnm);
+        LOG_DEBUGMSG("%s: Initializing the consumer...", fcnm);
     }
     consumer = new ShakeAlertConsumer;
     consumer->initialize(username, password, destination, brokerURI,
@@ -134,7 +138,8 @@ extern "C" void *activeMQ_consumer_initialize(const char AMQuser[],
     consumer->startMessageListener();
     if (!consumer->isInitialized())
     {
-        fprintf(stderr, "%s: Failed to initialize consumer\n", fcnm);
+        LOG_ERRMSG("%s: Failed to initialize consumer", fcnm);
+        // fprintf(stderr, "%s: Failed to initialize consumer\n", fcnm);
         *ierr = 1;
         delete consumer;
         consumer = NULL;
@@ -163,6 +168,7 @@ extern "C" void activeMQ_consumer_finalize(void *consumerIn)
 /*!
  * @brief Polls ActiveMQ for new messages and returns oldest message in local queue.
  *
+ * @param[in] consumerIn Pointer to a ShakeAlertConsumer to use for getting messages 
  * @param[in] ms_wait  Number of milliseconds to wait for a message. If 0
  *                     then it will not wait.
  *
@@ -186,7 +192,7 @@ extern "C" char *activeMQ_consumer_getMessage(void *consumerIn,
     if (!consumer->isInitialized())
     {
         *ierr = 1;
-        fprintf(stderr, "%s: Error consumer never initialized\n", fcnm);
+        LOG_ERRMSG("%s: Error consumer never initialized", fcnm);
         consumer = NULL;
         return message;
     }
@@ -194,7 +200,7 @@ extern "C" char *activeMQ_consumer_getMessage(void *consumerIn,
     if (nmsg>0) message = consumer->getMessage();
     if (*ierr != 0)
     {
-        fprintf(stderr, "%s: Error getting message\n", fcnm);
+        LOG_ERRMSG("%s: Error getting message", fcnm);
     }
     consumer = NULL;
     return message;

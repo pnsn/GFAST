@@ -9,7 +9,7 @@ include $(GFASTROOT)/Make.include.$(MAKEHOST)
 OBJS	= dmlibWrapper.cpp.o
 LIB	= 
 DEBUG	= -g
-#CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
+# CCFLAGS	+= -std=c++0x -O0 -D_REENTRANT -Dstatic_config
 
 INCL= -I ../../include $(DMLIB_INCL) $(ACTIVEMQ_INCL) $(APR_INCL) $(ISCL_INCL)
 

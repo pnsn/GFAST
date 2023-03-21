@@ -5,8 +5,8 @@ ENABLE_LANGUAGE(C)
 ENABLE_LANGUAGE(CXX)
 ENABLE_TESTING()
 SET(GFAST_VERSION_MAJOR 1)
-SET(GFAST_VERSION_MINOR 1)
-SET(GFAST_VERSION_PATCH 9)
+SET(GFAST_VERSION_MINOR 2)
+SET(GFAST_VERSION_PATCH 3)
 SET(GFAST_VERSION ${GFAST_VERSION_MAJOR}.${GFAST_VERSION_MINOR}.${GFAST_VERSION_PATCH})
 IF ("${GFAST_INSTANCE}" STREQUAL "")
   SET(GFAST_INSTANCE "DEFAULT")
@@ -45,9 +45,9 @@ if (UW_AMAZON)
   MESSAGE("Will use Jansson and libpng for UW/Amazon output")
   find_package(JANSSON REQUIRED)
 endif (UW_AMAZON)
-find_package(IniParser REQUIRED)
+find_package(INIPARSER REQUIRED)
 find_package(ISCL REQUIRED)
-find_package(GEOLIB REQUIRED)
+#find_package(GEOLIB REQUIRED)
 find_package(H5 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(XML2 REQUIRED)
@@ -105,7 +105,11 @@ SET(SRCS_CORE
     src/core/scaling/pgd_sanityChecks.c 
     src/core/scaling/pgd_weightObservations.c 
     src/core/scaling/readSigmaLookupFile.c 
+    src/core/scaling/readPgdThresholdLookupFile.c 
+    src/core/scaling/readRawSigmaThresholdLookupFile.c
     src/core/waveformProcessor/offset.c src/core/waveformProcessor/peakDisplacement.c
+    src/core/waveformProcessor/peakDisplacementHelper.c 
+    src/core/waveformProcessor/parseQChannel.c
 )
 #ADD_SUBDIRECTORY(src/eewUtils)
 SET(SRCS_EEW src/eewUtils/driveCMT.c src/eewUtils/driveFF.c src/eewUtils/driveGFAST.c
@@ -125,6 +129,7 @@ IF (EW_FOUND)
        src/traceBuffer/ewrr/freetb2Trace.c src/traceBuffer/ewrr/getMessagesFromRing.c
        src/traceBuffer/ewrr/initialize.c src/traceBuffer/ewrr/settb2Data.c
        src/traceBuffer/ewrr/unpackTraceBuf2Messages.c
+       src/traceBuffer/ewrr/settb2DataFromGFAST.c src/traceBuffer/ewrr/tb2_hash.c
        #src/traceBuffer/ewrr/swap.c # This may die in subsequent versions of EW
        )
 ENDIF()
@@ -238,7 +243,7 @@ TARGET_LINK_LIBRARIES(gfast_shared ${LIB_BASE} ${EW_LIBRARY})
 TARGET_LINK_LIBRARIES(gfast_static ${LIB_BASE})
 # Target link the executables
 IF (GFAST_USE_EW)
-TARGET_LINK_LIBRARIES(gfast_eew      gfast_shared ${LIB_ALL})
+TARGET_LINK_LIBRARIES(gfast_eew      gfast_shared ${LIB_ALL} -lhdf5)
 ENDIF()
 #TARGET_LINK_LIBRARIES(gfast_playback gfast_shared ${LIB_ALL})
 TARGET_LINK_LIBRARIES(xcoreTests     gfast_shared ${LIB_ALL})
@@ -301,4 +306,3 @@ INSTALL(FILES
         ${CMAKE_BINARY_DIR}/FindGFAST.cmake
         ${LIBRARY_OUTPUT_PATH}/GFASTConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/gfast/cmake)
-

@@ -55,6 +55,8 @@ int core_cmt_readIni(const char *propfilename,
     // Read the properties
     cmt_props->verbose = verbose;
     cmt_props->utm_zone = utm_zone;
+    setVarName(group, "do_cmt\0", var);
+    cmt_props->do_cmt = iniparser_getboolean(ini, var, true);
     setVarName(group, "deltaLatitude\0", var);
     cmt_props->dLat = iniparser_getdouble(ini, var, 0.1);
     if (cmt_props->dLat < 0.0)

@@ -27,10 +27,11 @@ void traceBuffer_ewrr_freetb2Data(struct tb2Data_struct *tb2data)
     {
         for (i=0; i<tb2data->ntraces; i++)
         {
-             traceBfufer_ewrr_freetb2Trace(true, &tb2data->traces[i]);
+             traceBuffer_ewrr_freetb2Trace(true, &tb2data->traces[i]);
         }
         free(tb2data->traces);
     }
+    traceBuffer_ewrr_free_hashmap(tb2data->hashmap);
     memset(tb2data, 0, sizeof(struct tb2Data_struct));
     return;
 }

@@ -5,19 +5,23 @@
 #Local
 LIB_DIR=/usr/lib64
 EEWDIR=/home/ulbergc/WORK/ShakeAlert
+THIRD_PARTY=/home/ulbergc/WORK/GFAST_third_party
 BUILD_UTILS=$(EEWDIR)/build-utils
-COMPEARTH_HOME=/home/ulbergc/WORK/kress/git/compearth/momenttensor/c_src
+COMPEARTH_HOME=$(THIRD_PARTY)/mtbeach/c_src
 COMPEARTH_INCL=-I $(COMPEARTH_HOME)/include
 COMPEARTH_LIB =$(COMPEARTH_HOME)/lib/libcompearth_static.a
-ISCL_HOME=/home/ulbergc/WORK/kress/git/iscl
+ISCL_HOME=$(THIRD_PARTY)/iscl
 ISCL_INCL=-I $(ISCL_HOME)/include
 ISCL_LIB=$(ISCL_HOME)/lib/libiscl_static.a
-INIPARSER_HOME=/home/ulbergc/WORK/kress/git/iniparser
+INIPARSER_HOME=$(THIRD_PARTY)/iniparser
 INIPARSER_INCL=-I $(INIPARSER_HOME)/src
 INIPARSER_LIB=$(INIPARSER_HOME)/libiniparser.a
-EW_HOME=/home/ulbergc/WORK/kress/ew_v7.10
+EW_HOME=$(THIRD_PARTY)/ew_v7.10
+#EW_HOME=/app/eewdata/ew/earthworm_7.9
 EW_INCL=-I $(EW_HOME)/include
+# libew_util.a was introduced in earthworm_7.10, but all we need is swap.o
 EW_LIB=$(EW_HOME)/lib/libew_util.a $(EW_HOME)/lib/libew_mt.a
+#EW_LIB=$(EW_HOME)/lib/swap.o $(EW_HOME)/lib/libew_mt.a
 APR_INCL=-I /usr/include/apr-1
 #APR_LIB=$(LIB_DIR)/libapr-1.a
 APR_LIB=-lapr-1
@@ -48,7 +52,6 @@ DMLIB_INCL=-I $(DMLIB_DIR)
 
 #some GFAST-specific environment variables
 ENABLE_EARTHWORM=-DENABLE_EARTHWORM
-#GFAST_VERSION=-D'GFAST_VERSION="SA0.1"'
 GFAST_USE_EW=-DGFAST_USE_EW
 GFAST_USE_AMQ=-DGFAST_USE_AMQ
 GFAST_USE_DMLIB=-DGFAST_USE_DMLIB
@@ -60,7 +63,7 @@ GFAST_USE_DMLIB=-DGFAST_USE_DMLIB
 ENABLE_FLFEED=-DENABLE_FLFEED
 
 # Uncomment the next line to enable using plog library for logging
-ENABLE_PLOG=-DENABLE_PLOG
+#ENABLE_PLOG=-DENABLE_PLOG
 
 # Uncomment the next line to enable SAC file writing
 #ENABLE_WRITE2SAC=-DWRITE2SAC
@@ -89,7 +92,7 @@ endif
 # compiler stuff
 DEBUG=-g
 CFLAGS=-Wall -Wextra -Wno-deprecated-declarations -O0 -m$(TARGET) -D_LINUX -D_INTEL -fPIC
-CCFLAGS=$(CFLAGS)
+CCFLAGS=$(CFLAGS) -std=c++1y -O0 -D_REENTRANT -Dstatic_config
 cc=gcc
 CC=gcc
 CXX=g++

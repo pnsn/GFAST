@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gfast_xml.h"
+#include "gfast_core.h"
 
 /*!
  * @brief Converts the enumerated units a string.
@@ -55,7 +56,7 @@ void __xml_units__enum2string(enum alert_units_enum enum_units,
     {
         if (enum_units != UNKNOWN_UNITS)
         {
-            printf("%s: Warning unknown unit %d\n", fcnm, enum_units);
+            LOG_WARNMSG("%s: Warning unknown unit %d\n", fcnm, enum_units);
         }
     }
     return;
@@ -134,7 +135,7 @@ enum alert_units_enum
     // No idea
     else
     {
-        printf("%s: Unknown units: %s\n", fcnm, char_units);
+        LOG_WARNMSG("%s: Unknown units: %s\n", fcnm, char_units);
     }
     return enum_units;
 }

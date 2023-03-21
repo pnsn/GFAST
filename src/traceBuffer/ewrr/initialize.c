@@ -61,10 +61,10 @@ int traceBuffer_ewrr_initialize(const char *ewRing,
         LOG_ERRMSG("Invalid ring %s", ewRing);
         return -1;
     }
-    // Look up instrumentID 
+    // Look up installation ID 
     if (GetLocalInst(&ringInfo->instLocalID) != 0)
     {
-        LOG_ERRMSG("%s", "Error getting local instrument id!");
+        LOG_ERRMSG("%s", "Error getting local installation id!");
         return -1;
     }
     if (GetInst("INST_WILDCARD", &ringInfo->instWildcardID ) != 0)
