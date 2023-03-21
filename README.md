@@ -4,8 +4,8 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 
 ## Recent updates
 
-2023/03/20 CWU: Sync most recent changes from ShakeAlert GFAST version to the PNSN repo (GFAST v1.2.3-beta)
-~2021/10 CWU: merge 2020 and SAdev branches into one branch to use going forward, called "development"
+2023/03/20 CWU: Sync most recent changes from ShakeAlert GFAST version to the PNSN repo (GFAST v1.2.3-beta)  
+~2021/10 CWU: merge 2020 and SAdev branches into one branch to use going forward, called "development"  
 2020/05/27 MTH: Working on new branch (=2020) with cleaned up dependencies and build instructions.
 
 # Directories
