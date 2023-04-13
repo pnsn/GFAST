@@ -2,23 +2,15 @@
 # Modeled after libs/utils/tests/Makefile, may need additional changes
 
 EEWDIR = ../../..
-include $(EEWDIR)/Make.include.$(shell uname)
+GFAST_DIR = ../..
+# Make.include.gfast will include $(EEWDIR)/Make.include.$(shell uname)
+include $(GFAST_DIR)/Make.include.gfast
 
 EW_INCL	= -I$(EWDIR)/include
 EWLIB	= $(EWDIR)/lib
 
 DM_DIR		= $(EEWDIR)/libs/dmlib
 DM_LIB		= $(DM_DIR)/libdm.a
-
-#ifdef GFAST_USE_EW
-CCFLAGS+=$(GFAST_USE_EW)
-#endif
-#ifdef GFAST_USE_AMQ
-CCFLAGS+=$(GFAST_USE_AMQ)
-#endif
-#ifdef GFAST_USE_DMLIB
-CCFLAGS+=$(GFAST_USE_DMLIB)
-#endif
 
 OBJS = ../activeMQ/gfast_amq.a ../eewUtils/gfast_utils.a ../xml/gfast_xml.a ../core/gfast_core.a \
 	   ../traceBuffer/traceBuffer.a ../hdf5/hdf5.a ../activeMQ/gfast_amq.a

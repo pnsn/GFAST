@@ -56,6 +56,7 @@ struct GFAST_pgd_props_struct
   double u_raw_sigma_threshold; /*!< Maximum raw sigma (up) to allow in pd calculations (cm) */
   double n_raw_sigma_threshold; /*!< Maximum raw sigma (east) to allow in pd calculations (cm) */
   double e_raw_sigma_threshold; /*!< Maximum raw sigma (north) to allow in pd calculations (cm) */
+  int q_value_threshold; /*!< Don't use pd observations for a station if q value is below threshold */
   double pgd_sigma_throttle; /*!< Maximum pgd magnitude uncertainty to allow in sending xml */
   double SA_mag_threshold;    /*!< Magnitude threshold above which to send xml messages */
   double minimum_pgd_cm; /*!< Minimum value to include a pgd value in inversion (cm) */

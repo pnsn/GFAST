@@ -117,8 +117,10 @@ int eewUtils_driveGFAST(const double currentTime,
                         struct GFAST_activeEvents_xml_status *xml_status)
 {
     struct GFAST_shakeAlert_struct SA;
-    // char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
-    //     debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
+#ifndef ENABLE_PLOG
+    char errorLogFileName[PATH_MAX], infoLogFileName[PATH_MAX], 
+         debugLogFileName[PATH_MAX], warnLogFileName[PATH_MAX];
+#endif
     char *cmtQML, *ffXML, *pgdXML;
     double t1, t2, age_of_event, t_time, t_time0, t_loop, t_event;
     int mins;
@@ -159,8 +161,10 @@ int eewUtils_driveGFAST(const double currentTime,
         t1 = SA.time;     // Origin time
         t2 = currentTime;
         age_of_event = (t2 - t1);
-        LOG_MSG("%s: Starting event time:%lf evid:%s [age_of_event=%f]",
+        LOG_MSG("%s: Starting event, current time:%lf evid:%s [age_of_event=%f]",
             fcnm, t2, SA.eventid, age_of_event);
+        LOG_MSG("%s: Event info OT:%lf lat:%lf lon:%lf mag:%lf",
+            fcnm, SA.time, SA.lat, SA.lon, SA.mag);
 
         // Skip event if the times doen't make sense
         if (t1 > t2) {
@@ -188,13 +192,15 @@ int eewUtils_driveGFAST(const double currentTime,
 
         // Set the log file names. Comment out in advance of providing compile
         // option to use these (for NOAA) or plog (for ShakeAlert) - CWU
-        // eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
-        //     errorLogFileName, infoLogFileName,
-        //     debugLogFileName, warnLogFileName);
-        // core_log_openErrorLog(errorLogFileName);
-        // core_log_openInfoLog(infoLogFileName);
-        // core_log_openWarningLog(warnLogFileName);
-        // core_log_openDebugLog(debugLogFileName);
+#ifndef ENABLE_PLOG
+        eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
+            errorLogFileName, infoLogFileName,
+            debugLogFileName, warnLogFileName);
+        core_log_openErrorLog(errorLogFileName);
+        core_log_openInfoLog(infoLogFileName);
+        core_log_openWarningLog(warnLogFileName);
+        core_log_openDebugLog(debugLogFileName);
+#endif
         
         ///////////////////////////////////////////////////////////////////////////
         // Retrieve data from h5 buffer
@@ -665,8 +671,10 @@ int eewUtils_driveGFAST(const double currentTime,
                 }
             }
         } // End check on updating archive or finalizing event
+#ifndef ENABLE_PLOG
         // Close the logs
-        // core_log_closeLogs();
+        core_log_closeLogs();
+#endif
     } // Loop on the events
     LOG_MSG("MTH: end loop on events ierr=%d [Timing: %.3fs]\n",
         ierr, time_timeStamp() - t_loop);
@@ -863,7 +871,7 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
         // skip site if it wasn't used
         if (!pgd->lsiteUsed[i]) { continue; }
         // pd is in meters, so convert to cm before comparing to threshold
-        if (pgd_data->pd[i] * 100. > props->pgd_props.throttle_pgd_threshold[i_throttle]) {
+        if (pgd_data->pd[i] * 100. >= props->pgd_props.throttle_pgd_threshold[i_throttle]) {
             num_pgd_exceeded++;
         }
     }
@@ -896,7 +904,7 @@ bool send_xml_filter(const struct GFAST_props_struct *props,
         LOG_DEBUGMSG("%s: PGD mag sigma: %f, threshold mag sigma: %f, PGD mag: %f",
             __func__, core->magUncer, props->pgd_props.pgd_sigma_throttle, core->mag);
     }
-    if (core->magUncer < props->pgd_props.pgd_sigma_throttle) {
+    if (core->magUncer <= props->pgd_props.pgd_sigma_throttle) {
         mag_sigma_met = true;
         LOG_MSG("%s: PGD mag sigma met! PGD mag sigma: %f, threshold mag sigma: %f, PGD mag: %f",
             __func__, core->magUncer, props->pgd_props.pgd_sigma_throttle, core->mag);
