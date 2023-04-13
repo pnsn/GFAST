@@ -30,7 +30,7 @@ char *check_dir_for_messages(const char *dirname, int *ierr);
  * @param[in] fcnm What is the name of the main function?
  */
 
-void printProgramInfo(bool use_dmlib, const char *fcnm) {
+void printProgramInfo(const char *fcnm) {
     const int bufflen = 1024;
     char *message=NULL;
     int ind;
@@ -42,17 +42,22 @@ void printProgramInfo(bool use_dmlib, const char *fcnm) {
     ind += snprintf(message + ind, bufflen - ind, "%s Version: %s (Build %s %s by %s)\n",
         fcnm, GFAST_VERSION, __DATE__, __TIME__, BUILDER);
     
-    if (use_dmlib) {
-        char *dmlib_version = getDmLibVersion();
-        ind += snprintf(message + ind, bufflen - ind, "%s\n", dmlib_version);
-        free(dmlib_version);
-    }
+#ifdef GFAST_USE_DMLIB
+    char *dmlib_version = getDmLibVersion();
+    ind += snprintf(message + ind, bufflen - ind, "%s\n", dmlib_version);
+    free(dmlib_version);
+#endif
     H5get_libversion(&H5majnum, &H5minnum, &H5relnum);
     ind += snprintf(message + ind, bufflen - ind, "HDF5 library version: %u.%u.%u\n", 
         H5majnum, H5minnum, H5relnum);
     ind += snprintf(message + ind, bufflen - ind, "ISCL library version: %s\n", ISCL_VERSION);
     
+#ifdef ENABLE_PLOG
     LOG_MSG("%s", message);
+#else
+    // Need to use printf until GFAST_core_properties_initialize is called
+    printf("%s\n", message);
+#endif
     free(message);
 }
 
@@ -93,10 +98,12 @@ int main(int argc, char **argv)
     int ierr, im, msWait, nTracebufs2Read;
     bool lacquire, lnewEvent, in_loop;
     const int rdwt = 2; // H5 file is read only (1) or read/write (2)
-    // char errorLogFileName[PATH_MAX];
-    // char infoLogFileName[PATH_MAX];
-    // char debugLogFileName[PATH_MAX];
-    // char warnLogFileName[PATH_MAX];
+#ifndef ENABLE_PLOG
+    char errorLogFileName[PATH_MAX];
+    char infoLogFileName[PATH_MAX];
+    char debugLogFileName[PATH_MAX];
+    char warnLogFileName[PATH_MAX];
+#endif
     bool check_message_dir = false;
     bool USE_AMQ = false;
     bool USE_DMLIB = false;
@@ -109,16 +116,22 @@ int main(int argc, char **argv)
 #endif
 #endif
 
+#ifdef ENABLE_PLOG
     // logging stuff
     init_plog();
+#endif
 
-    printProgramInfo(USE_DMLIB, fcnm);
+    printProgramInfo(fcnm);
 
     // Initialize. Only works if propfile is specified
     if (argc > 1) {
         strncpy(propfilename, argv[1], PATH_MAX - 1);
     } else {
+#ifdef ENABLE_PLOG
         LOG_MSG("%s", "Usage: gfast_eew propfilename");
+#else
+        printf("%s\n", "Usage: gfast_eew propfilename");
+#endif
         return EXIT_SUCCESS;
     }
 
@@ -164,7 +177,11 @@ int main(int argc, char **argv)
     memset(&tb2Data, 0, sizeof(struct tb2Data_struct));
 
     // Read the program properties
+#ifdef ENABLE_PLOG
     LOG_MSG("%s: Reading configuration from %s", fcnm, propfilename);
+#else
+    printf("%s: Reading configuration from %s\n", fcnm, propfilename);
+#endif
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
     if (ierr != 0) {
         LOG_ERRMSG("%s: Error reading GFAST initialization file: %s\n", fcnm, propfilename);
@@ -200,26 +217,26 @@ int main(int argc, char **argv)
 
     if (USE_AMQ) {
         activeMQ_start();  // start library
-        /* 
-        Start connection, to be used by DMMessageSender.
-        This should be written using just dmlib - CWU
-        */
-        ierr = startDestinationConnection(
-            props.activeMQ_props.user,
-            props.activeMQ_props.password,
-            props.activeMQ_props.destinationURL,
-            props.activeMQ_props.msReconnect,
-            props.activeMQ_props.maxAttempts,
-            props.verbose);
-        if (ierr == 0) {
-            LOG_ERRMSG("%s: Attempted to re-initialize activeMQ connection object", fcnm);
-        }
-        if (ierr < 0) {
-            LOG_ERRMSG("%s: Error initializing activeMQ connection object", fcnm);
-            goto ERROR;
-        }
         /* dmlib startup */
         if (USE_DMLIB) {
+            /* 
+            Start connection, to be used by DMMessageSender.
+            This should be written using just dmlib - CWU
+            */
+            ierr = startDestinationConnection(
+                props.activeMQ_props.user,
+                props.activeMQ_props.password,
+                props.activeMQ_props.destinationURL,
+                props.activeMQ_props.msReconnect,
+                props.activeMQ_props.maxAttempts,
+                props.verbose);
+            if (ierr == 0) {
+                LOG_ERRMSG("%s: Attempted to re-initialize activeMQ connection object", fcnm);
+            }
+            if (ierr < 0) {
+                LOG_ERRMSG("%s: Error initializing activeMQ connection object", fcnm);
+                goto ERROR;
+            }
             /*start message receiver*/
             if (props.verbose > 0) {
                 LOG_MSG("%s: Initializing event receiver on %s...", 
@@ -358,7 +375,7 @@ int main(int argc, char **argv)
         amqMessage = NULL;
         // Don't start loop until prop.waitTime has elapsed (default 1 second)
         t1 = time_timeStamp();
-        double tloop = t1-t0;
+        double tloop = t1 - t0;
         
         // Print time for the previous iteration. Only print once until
         // props.waitTime has been reached and iteration actually starts again.
@@ -368,9 +385,12 @@ int main(int argc, char **argv)
         }
 
         if (tloop < props.waitTime) {
+            usleep((props.waitTime - tloop) * 1000 * 1000);
+            // Put in a continue here since t1 is reset at the top of the loop
+            // Want to make sure it is representing the actual start
             continue;
         }
-        else if ((props.waitTime>0.0)&&((tloop) >= 2*props.waitTime)) {
+        else if ((props.waitTime > 0.0) && (tloop >= 2 * props.waitTime)) {
             LOG_MSG("== [GFAST t :%f] Main loop [Timing: %.4fs] >= 2x%f s waitTimes. not keeping up",
                 time_timeStamp(), tloop, props.waitTime);
         }
@@ -383,7 +403,7 @@ int main(int argc, char **argv)
         if (tstatus1 - tstatus0 > 3600.0) {
             LOG_MSG("%s: GFAST has been running for %d hours, start time %f",
                 fcnm, (int) ((tstatus1 - tstatus)/3600.0), tstatus);
-            printProgramInfo(USE_DMLIB, fcnm);
+            printProgramInfo(fcnm);
             
             tstatus0 = tstatus1;
         } 
@@ -503,6 +523,24 @@ int main(int argc, char **argv)
                         LOG_INFOMSG("%s: New event %s added", fcnm, SA.eventid);
                         if (props.verbose > 2){GFAST_core_events_printEvents(SA);}
                     }
+#ifndef ENABLE_PLOG
+                    // Set the log file names
+                    eewUtils_setLogFileNames(SA.eventid,props.SAoutputDir,
+                                             errorLogFileName, infoLogFileName,
+                                             debugLogFileName, warnLogFileName);
+                    if (os_path_isfile(errorLogFileName)) {
+                        remove(errorLogFileName);
+                    }
+                    if (os_path_isfile(infoLogFileName)) {
+                        remove(infoLogFileName);
+                    }
+                    if (os_path_isfile(debugLogFileName)) {
+                        remove(debugLogFileName);
+                    }
+                    if (os_path_isfile(warnLogFileName)) {
+                        remove(warnLogFileName);
+                    }
+#endif
                     // Initialize the HDF5 file
                     ierr = GFAST_hdf5_initialize(props.h5ArchiveDir,
                                                  SA.eventid,
@@ -607,8 +645,10 @@ int main(int argc, char **argv)
     GFAST_core_data_finalize(&gps_data);
     GFAST_core_properties_finalize(&props);
     traceBuffer_h5_finalize(&h5traceBuffer);
+#ifndef ENABLE_PLOG
     // Close the big logfile
-    //   core_log_closeLog();
+    core_log_closeLog();
+#endif
     if (ierr != 0) {
         printf("%s: Terminating with error\n", fcnm);
         return EXIT_FAILURE;

@@ -166,11 +166,13 @@ int core_scaling_pgd_readIni(const char *propfilename,
     ierr = core_scaling_readSigmaLookupFile(sigmaLookupFile,
                                             pgd_props);
 
+    // only use PGD observations if Q value >= this threshold
+    setVarName(group, "q_value_threshold\0", var);
+    pgd_props->q_value_threshold = iniparser_getint(ini, var, -1);
 
     // only send XML for pgd magnitude sigma below this threshold
     setVarName(group, "pgd_sigma_throttle\0", var);
     pgd_props->pgd_sigma_throttle = iniparser_getdouble(ini, var, 10);
-    // props->pgd_sigma_throttle  = iniparser_getdouble(ini, "general:pgd_sigma_throttle\0", 10);
     if (pgd_props->pgd_sigma_throttle <= 0)
     {
         LOG_ERRMSG("Error pgd_sigma_throttle must be positive: %f",

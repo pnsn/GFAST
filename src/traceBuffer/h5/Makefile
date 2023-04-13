@@ -2,19 +2,11 @@
 # 
 
 EEWDIR = ../../../..
-include $(EEWDIR)/Make.include.$(shell uname)
+GFAST_DIR = ../../..
+# Make.include.gfast will include $(EEWDIR)/Make.include.$(shell uname)
+include $(GFAST_DIR)/Make.include.gfast
 
 EW_INCL	= -I$(EWDIR)/include
-
-#ifdef GFAST_USE_EW
-CFLAGS+=$(GFAST_USE_EW)
-#endif
-#ifdef GFAST_USE_AMQ
-CFLAGS+=$(GFAST_USE_AMQ)
-#endif
-#ifdef GFAST_USE_DMLIB
-CFLAGS+=$(GFAST_USE_DMLIB)
-#endif
 
 OBJS	= copyTraceBufferToGFAST.o getDoubleArray.o readData.o \
 setScalars.o finalize.o getScalars.o setData.o setTraceBufferFromGFAST.o \

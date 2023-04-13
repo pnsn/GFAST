@@ -1,22 +1,14 @@
 # Makefile for GFAST
 EEWDIR = ../..
-include $(EEWDIR)/Make.include.$(shell uname)
+GFAST_DIR = ..
+# Make.include.gfast will include $(EEWDIR)/Make.include.$(shell uname)
+include $(GFAST_DIR)/Make.include.gfast
 
 EW_INCL	= -I$(EWDIR)/include
 EWLIB	= $(EWDIR)/lib
 
 DM_DIR		= $(EEWDIR)/libs/dmlib
 DM_LIB		= $(DM_DIR)/libdm.a
-
-#ifdef GFAST_USE_EW
-CFLAGS+=$(GFAST_USE_EW)
-#endif
-#ifdef GFAST_USE_AMQ
-CFLAGS+=$(GFAST_USE_AMQ)
-#endif
-#ifdef GFAST_USE_DMLIB
-CFLAGS+=$(GFAST_USE_DMLIB)
-#endif
 
 # Used to add more information on program startup output
 UFLAGS = -DBUILDER=\"$(BUILDER)\"

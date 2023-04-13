@@ -304,6 +304,7 @@ int core_ff_weightObservations(const int mrows,
 //                                 Logging                                    //
 //----------------------------------------------------------------------------//
 
+#ifdef ENABLE_PLOG
 void init_plog();
 void core_log_plog_V(const char *msg);
 void core_log_plog_D(const char *msg);
@@ -312,6 +313,7 @@ void core_log_plog_W(const char *msg);
 void core_log_plog_E(const char *msg);
 void core_log_plog_F(const char *msg);
 void core_log_plog_N(const char *msg);
+#endif
 
 #ifndef ERRMSG
 #define ERRMSG(msg, fmt, ...)                                                \
@@ -325,6 +327,7 @@ void core_log_plog_N(const char *msg);
 };
 #endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_ERRMSG 
 #define LOG_ERRMSG(fmt, ...) \
 { \
@@ -334,7 +337,23 @@ void core_log_plog_N(const char *msg);
    core_log_plog_E(errmsg); \
 };
 #endif
+#else
+#ifndef LOG_ERRMSG 
+#define LOG_ERRMSG(fmt, ...) \
+{ \
+   char errmsg[GFAST_MAXMSG_LEN]; \
+   memset(errmsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   sprintf(errmsg, "[ERROR]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ );\
+   do \
+   {  \
+     snprintf(&errmsg[strlen(errmsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logErrorMessage(errmsg); \
+};
+#endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_WARNMSG 
 #define LOG_WARNMSG(fmt, ...) \
 { \
@@ -344,7 +363,23 @@ void core_log_plog_N(const char *msg);
    core_log_plog_W(warnmsg); \
 };
 #endif
+#else
+#ifndef LOG_WARNMSG 
+#define LOG_WARNMSG(fmt, ...) \
+{ \
+   char warnmsg[GFAST_MAXMSG_LEN]; \
+   memset(warnmsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   sprintf(warnmsg, "[WARNING]: (%s:%s:line=%d) ", __FILE__, __func__, __LINE__ ); \
+   do \
+   {  \
+     snprintf(&warnmsg[strlen(warnmsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logWarningMessage(warnmsg); \
+};
+#endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_INFOMSG 
 #define LOG_INFOMSG(fmt, ...) \
 { \
@@ -354,7 +389,23 @@ void core_log_plog_N(const char *msg);
    core_log_plog_I(infoMsg); \
 };
 #endif
+#else
+#ifndef LOG_INFOMSG 
+#define LOG_INFOMSG(fmt, ...) \
+{ \
+   char infoMsg[GFAST_MAXMSG_LEN]; \
+   memset(infoMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   sprintf(infoMsg, "[INFO] %s: ", __func__); \
+   do \
+   {  \
+     snprintf(&infoMsg[strlen(infoMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logInfoMessage(infoMsg); \
+};
+#endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_DEBUGMSG 
 #define LOG_DEBUGMSG(fmt, ...) \
 { \
@@ -364,7 +415,23 @@ void core_log_plog_N(const char *msg);
    core_log_plog_D(debugMsg); \
 };
 #endif
+#else
+#ifndef LOG_DEBUGMSG 
+#define LOG_DEBUGMSG(fmt, ...) \
+{ \
+   char debugMsg[GFAST_MAXMSG_LEN]; \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   sprintf(debugMsg, "[DEBUG] %s: ", __func__); \
+   do \
+   {  \
+     snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logDebugMessage(debugMsg); \
+};
+#endif
+#endif
 
+#ifdef ENABLE_PLOG
 #ifndef LOG_MSG 
 #define LOG_MSG(fmt, ...) \
 { \
@@ -373,6 +440,27 @@ void core_log_plog_N(const char *msg);
    snprintf(debugMsg, GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
    core_log_plog_I(debugMsg); \
 };
+#endif
+#else
+#ifndef LOG_MSG 
+#define LOG_MSG(fmt, ...) \
+{ \
+   char debugMsg[GFAST_MAXMSG_LEN]; \
+   memset(debugMsg, 0, GFAST_MAXMSG_LEN*sizeof(char)); \
+   struct tm *gtime; \
+   time_t now; \
+   time(&now); \
+   gtime = gmtime(&now); \
+   sprintf(debugMsg, "%4d-%02d-%02d %2d:%02d:%02d [MTH] %s: ",   \
+           gtime->tm_year+1900, gtime->tm_mon + 1, gtime->tm_mday,   \
+           gtime->tm_hour % 24, gtime->tm_min, gtime->tm_sec, __func__); \
+   do \
+   {  \
+     snprintf(&debugMsg[strlen(debugMsg)], GFAST_MAXMSG_LEN, fmt, __VA_ARGS__); \
+   } while(0); \
+   core_log_logMessage(debugMsg); \
+};
+#endif
 #endif
 
 int core_log_closeLogs(void);
@@ -538,8 +626,11 @@ int core_scaling_readRawSigmaThresholdLookupFile(const char *rawSigmaThresholdLo
 /* Parse the packed quality channel, return chi^2 value */
 double core_waveformProcessor_parseQChannelChi2CWU(
     const double q_value);
-/* Parse the packed quality channel, return mapped chi^2 value*/
+/* Parse the packed quality channel, return mapped chi^2 value */
 int core_waveformProcessor_parseQChannelChi2CWUmap(
+    const double q_value);
+/* Parse the packed quality channel, return goodness (0 or 1) */
+int core_waveformProcessor_parseQChannelGoodness(
     const double q_value);
 /* Compute the offset in north, east, and up */
 int core_waveformProcessor_offset(const int utm_zone,

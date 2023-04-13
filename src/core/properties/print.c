@@ -231,6 +231,12 @@ void core_properties_print(struct GFAST_props_struct props)
         } else {
             LOG_DEBUGMSG("%s Will allow any E raw sigma values in pd calculations", lspace);
         }
+        if (props.pgd_props.q_value_threshold >= 0) {
+            LOG_DEBUGMSG("%s Will ignore pd values if Q value < %d",
+                lspace, props.pgd_props.q_value_threshold);
+        } else {
+            LOG_DEBUGMSG("%s Will allow any Q values in pd calculations", lspace);
+        }
         LOG_DEBUGMSG("%s Will throttle messages below SA mag %f",
                     lspace, props.pgd_props.SA_mag_threshold);
         LOG_DEBUGMSG("%s Will throttle messages above pgd mag sigma %f",

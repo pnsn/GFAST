@@ -51,7 +51,11 @@ int core_properties_initialize(const char *propfilename,
   // Require the properties file exists
   if (!os_path_isfile(propfilename))
     {
+#ifdef ENABLE_PLOG
       LOG_ERRMSG("properties file (%s) does not exist\n", propfilename);
+#else
+      printf("properties file (%s) does not exist\n", propfilename);
+#endif
       return -1;
     }
    
@@ -62,22 +66,28 @@ int core_properties_initialize(const char *propfilename,
   // Load the ini file
   ini = iniparser_load(propfilename);
   if (ini == NULL) {
+#ifdef ENABLE_PLOG
     LOG_ERRMSG("Iniparser could not read: %s\n", propfilename);
+#else
+    printf("Iniparser could not read: %s\n", propfilename);
+#endif
     return -1;
   }
   strcpy(props->propfilename, propfilename);
   //-------------------------GFAST General Parameters-----------------------//
 
+#ifndef ENABLE_PLOG
   // set open output log file.
-  // s = iniparser_getstring(ini, "general:logFileName\0",
-	// 		  "gfast.log\0");
-  // LOG_DEBUGMSG("Opening %s for log output\n",s);
-  // core_log_openLog(s);
-  // if (!os_path_isfile(s))
-  //   {
-  //     LOG_ERRMSG("Cannot open log output file %s\n", s);
-  //     return -1;
-  //   }
+  s = iniparser_getstring(ini, "general:logFileName\0",
+			  "gfast.log\0");
+  printf("Opening %s for log output\n",s);
+  core_log_openLog(s);
+  if (!os_path_isfile(s))
+    {
+      printf("Cannot open log output file %s\n", s);
+      return -1;
+    }
+#endif
 
   //metadata file
   s = iniparser_getstring(ini, "general:metaDataFile\0",

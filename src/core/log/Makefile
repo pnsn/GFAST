@@ -2,20 +2,15 @@
 #
 
 EEWDIR = ../../../..
-include $(EEWDIR)/Make.include.$(shell uname)
+GFAST_DIR = ../../..
+# Make.include.gfast will include $(EEWDIR)/Make.include.$(shell uname)
+include $(GFAST_DIR)/Make.include.gfast
 
-#ifdef GFAST_USE_EW
-CFLAGS+=$(GFAST_USE_EW)
-#endif
-#ifdef GFAST_USE_AMQ
-CFLAGS+=$(GFAST_USE_AMQ)
-#endif
-#ifdef GFAST_USE_DMLIB
-CFLAGS+=$(GFAST_USE_DMLIB)
-#endif
-
+ifdef ENABLE_PLOG
 OBJS	= log.cpp.o  
-# log.c.o 
+else
+OBJS	= log.c.o 
+endif
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config

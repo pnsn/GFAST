@@ -1,17 +1,9 @@
 # Makefile for GFAST/src/core
 
 EEWDIR = ../../..
-include $(EEWDIR)/Make.include.$(shell uname)
-
-#ifdef GFAST_USE_EW
-CFLAGS+=$(GFAST_USE_EW)
-#endif
-#ifdef GFAST_USE_AMQ
-CFLAGS+=$(GFAST_USE_AMQ)
-#endif
-#ifdef GFAST_USE_DMLIB
-CFLAGS+=$(GFAST_USE_DMLIB)
-#endif
+GFAST_DIR = ../..
+# Make.include.gfast will include $(EEWDIR)/Make.include.$(shell uname)
+include $(GFAST_DIR)/Make.include.gfast
 
 SDIRS	= cmt data events ff log properties scaling waveformProcessor coordtools
 LIB	= gfast_core.a
