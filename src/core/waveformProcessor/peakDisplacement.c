@@ -106,6 +106,8 @@ int core_waveformProcessor_peakDisplacement(
     eMaxUncertainty = 0.0;
     nMaxUncertainty = 0.0;
     qMin = 0;
+    qRef = 0;
+    qPeak = 0;
     if (gps_data.stream_length != pgd_data->nsites)
     {
         LOG_ERRMSG("Inconsistent structure sizes %d %d",
@@ -141,6 +143,8 @@ int core_waveformProcessor_peakDisplacement(
         eMaxUncertainty = 0.0;
         nMaxUncertainty = 0.0;
         qMin = 0;
+        qRef = 0;
+        qPeak = 0;
         // Make sure I have the latest/greatest site location 
         pgd_data->sta_lat[k] = gps_data.data[k].sta_lat;
         pgd_data->sta_lon[k] = gps_data.data[k].sta_lon; 
