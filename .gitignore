@@ -1,3 +1,4 @@
 # local files to be ignored by git
 
 src/gfast_eew
+src/tests/data/tmp

@@ -119,6 +119,19 @@ TEST(CoreWaveformProcessor, testPeakDisplacementHelperEarlyNansMiddlePeak) {
         expPeakDisp, 1, 2);
 }
 
+TEST(CoreWaveformProcessor, testPeakDisplacementHelperMiddleNans) {
+    const int NPTS = 4;
+    double ubuff[NPTS] = {1, 2, NAN, 4};
+    double nbuff[NPTS] = {1, 2, NAN, 4};
+    double ebuff[NPTS] = {1, 2, NAN, 4};
+    int npts = NPTS;
+
+    double expPeakDisp = pow(pow(4 - 1, 2) + pow(4 - 1, 2) + pow(4 - 1, 2), 0.5);
+
+    testPDHelper_helper(npts, ubuff, nbuff, ebuff,
+        expPeakDisp, 0, 3);
+}
+
 TEST(CoreWaveformProcessor, testParseQChannel) {
     double value;
 
@@ -155,58 +168,6 @@ TEST(CoreWaveformProcessor, testParseQChannel) {
     EXPECT_EQ(1, core_waveformProcessor_parseQChannelGoodness(value));
 }
 
-void fill_gps_data(struct GFAST_data_struct *gps_data,
-                   const int k,
-                   const char *netw,
-                   const char *stat,
-                   const char *chan,
-                   const char *loc,
-                   const double lat,
-                   const double lon,
-                   const double elev,
-                   const double dt,
-                   const double gain,
-                   const int mpts) {
-    strcpy(gps_data->data[k].netw, netw);
-    strcpy(gps_data->data[k].stnm, stat);
-    strncpy(gps_data->data[k].chan[0], chan, 2);
-    strcat( gps_data->data[k].chan[0], "Z\0"); 
-    strncpy(gps_data->data[k].chan[1], chan, 2);
-    strcat( gps_data->data[k].chan[1], "N\0");
-    strncpy(gps_data->data[k].chan[2], chan, 2); 
-    strcat( gps_data->data[k].chan[2], "E\0");
-    strncpy(gps_data->data[k].chan[3], chan, 2); 
-    strcat( gps_data->data[k].chan[3], "3\0");
-    strncpy(gps_data->data[k].chan[4], chan, 2); 
-    strcat( gps_data->data[k].chan[4], "2\0");
-    strncpy(gps_data->data[k].chan[5], chan, 2); 
-    strcat( gps_data->data[k].chan[5], "1\0");
-    strncpy(gps_data->data[k].chan[6], chan, 2); 
-    strcat( gps_data->data[k].chan[6], "Q\0");
-    strcpy(gps_data->data[k].loc, loc);
-    gps_data->data[k].sta_lat = lat;
-    gps_data->data[k].sta_lon = lon;
-    gps_data->data[k].sta_alt = elev;
-    gps_data->data[k].dt = dt; 
-    gps_data->data[k].gain[0] = gain;
-    gps_data->data[k].gain[1] = gain;
-    gps_data->data[k].gain[2] = gain;
-    gps_data->data[k].gain[3] = gain;
-    gps_data->data[k].gain[4] = gain;
-    gps_data->data[k].gain[5] = gain;
-    gps_data->data[k].gain[6] = 1; // Quality channel has no gain
-
-    gps_data->data[k].maxpts = mpts;
-    gps_data->data[k].ubuff = memory_calloc64f(mpts);
-    gps_data->data[k].nbuff = memory_calloc64f(mpts);
-    gps_data->data[k].ebuff = memory_calloc64f(mpts);
-    gps_data->data[k].usigmabuff = memory_calloc64f(mpts);
-    gps_data->data[k].nsigmabuff = memory_calloc64f(mpts);
-    gps_data->data[k].esigmabuff = memory_calloc64f(mpts);
-    gps_data->data[k].qbuff = memory_calloc64f(mpts);
-    gps_data->data[k].tbuff = memory_calloc64f(mpts);
-}
-
 /*
  * Fixture for testing peakDisplacement() function
  * Has two "normal" stations that can be put out of spec in various ways
@@ -218,6 +179,7 @@ class CoreWaveformProcessorFixture : public::testing::Test {
         struct GFAST_data_struct gps_data;
         struct GFAST_peakDisplacementData_struct pgd_data;
         struct GFAST_pgdResults_struct pgd;
+        struct GFAST_offsetData_struct offset_data;
         
         double lat, lon, dep, time;
         int ierr, nsites_pgd, k, j;
@@ -263,6 +225,10 @@ class CoreWaveformProcessorFixture : public::testing::Test {
 
             ierr = core_scaling_pgd_initialize(pgd_props, gps_data, &pgd, &pgd_data);
 
+            // Also initialize offset data (for cmt, ff)
+            memset(&offset_data, 0, sizeof(struct GFAST_offsetData_struct));
+            initialize_offset_data(&gps_data, &offset_data);
+
             // Now actually put some data in gps_data
             double tdata[NPTS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
             double udata[NPTS] = {0, 3, 5, 6, 4, 3, -1, 0, 3, 4};
@@ -289,6 +255,44 @@ class CoreWaveformProcessorFixture : public::testing::Test {
         }
 
         void TearDown() {}
+
+        void initialize_offset_data(struct GFAST_data_struct *gps_data,
+                                    struct GFAST_offsetData_struct *offset_data) 
+        {
+            offset_data->stnm = (char **)calloc((size_t) gps_data->stream_length,
+                                            sizeof(char *));
+            offset_data->ubuff   = memory_calloc64f(gps_data->stream_length);
+            offset_data->nbuff   = memory_calloc64f(gps_data->stream_length); 
+            offset_data->ebuff   = memory_calloc64f(gps_data->stream_length);
+            offset_data->wtu     = memory_calloc64f(gps_data->stream_length);
+            offset_data->wtn     = memory_calloc64f(gps_data->stream_length); 
+            offset_data->wte     = memory_calloc64f(gps_data->stream_length);
+            offset_data->sta_lat = memory_calloc64f(gps_data->stream_length);
+            offset_data->sta_lon = memory_calloc64f(gps_data->stream_length);
+            offset_data->sta_alt = memory_calloc64f(gps_data->stream_length);
+            offset_data->lmask   = memory_calloc8l(gps_data->stream_length);
+            offset_data->lactive = memory_calloc8l(gps_data->stream_length);
+            offset_data->nsites = gps_data->stream_length;
+            
+            for (int i=0; i<offset_data->nsites; i++)
+            {
+                offset_data->sta_lat[i] = gps_data->data[i].sta_lat;
+                offset_data->sta_lon[i] = gps_data->data[i].sta_lon;
+                offset_data->sta_alt[i] = gps_data->data[i].sta_alt;
+                offset_data->stnm[i] = (char *)calloc(64, sizeof(char));
+                strcpy(offset_data->stnm[i], gps_data->data[i].netw);
+                strcat(offset_data->stnm[i], ".\0");
+                strcat(offset_data->stnm[i], gps_data->data[i].stnm);
+                strcat(offset_data->stnm[i], ".\0");
+                strncpy(offset_data->stnm[i], gps_data->data[i].chan[0], 2);
+                strcat(offset_data->stnm[i], "?.\0");
+                if (strlen(gps_data->data[i].loc) > 0)
+                {
+                    strcat(offset_data->stnm[i], gps_data->data[i].loc);
+                } 
+                offset_data->lmask[i] = false;
+            }
+        }
 };
 
 TEST_F(CoreWaveformProcessorFixture, testPeakDisplacementNormal) {
@@ -419,4 +423,32 @@ TEST_F(CoreWaveformProcessorFixture, testPeakDisplacementQThreshold) {
     EXPECT_EQ(1, nsites_pgd);
     EXPECT_EQ(1, pgd_data.lactive[0]);
     EXPECT_EQ(0, pgd_data.lactive[1]);
+}
+
+TEST_F(CoreWaveformProcessorFixture, testOffset) {
+    int nsites, ierr;
+    // An svel_window of 3.5 will put the swave_times at 2.41 and 2.56
+    double svel_window = 3.5;
+
+    nsites = core_waveformProcessor_offset(
+        -12345,
+        svel_window,
+        lat,
+        lon,
+        dep,
+        time,
+        gps_data,
+        &offset_data,
+        &ierr);
+
+    EXPECT_EQ(0, ierr);
+    EXPECT_EQ(2, nsites);
+    
+    double toler = 1e-5;
+    EXPECT_NEAR(3, offset_data.ubuff[0], toler);
+    EXPECT_NEAR(1.5, offset_data.nbuff[0], toler);
+    EXPECT_NEAR(-1.5, offset_data.ebuff[0], toler);
+    EXPECT_NEAR(2.71429, offset_data.ubuff[1], toler);
+    EXPECT_NEAR(1.28571, offset_data.nbuff[1], toler);
+    EXPECT_NEAR(-1, offset_data.ebuff[1], toler);
 }
