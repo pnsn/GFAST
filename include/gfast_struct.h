@@ -62,6 +62,12 @@ struct GFAST_pgd_props_struct
   double minimum_pgd_cm; /*!< Minimum value to include a pgd value in inversion (cm) */
   double maximum_pgd_cm; /*!< Maximum value to include a pgd value in inversion (cm) */
   int max_assoc_stations; /*!< Maximum stations to add the 'assoc' tag to in xml */
+  double change_threshold_mag; /*!< Minimum magnitude change threshold */
+  double change_threshold_mag_uncer; /*!< Minimum magnitude uncertainty change threshold */
+  double change_threshold_lat; /*!< Minimum latitude change threshold */
+  double change_threshold_lon; /*!< Minimum longitude change threshold */
+  double change_threshold_orig_time; /*!< Minimum origin time change threshold */
+  int change_threshold_num_stations; /*!< Minimum number of stations change threshold */
 };
 
 struct GFAST_cmt_props_struct
@@ -494,20 +500,6 @@ struct GFAST_activeEvents_struct
   char pad1[4];
 };
 
-struct GFAST_xml_output_status
-{
-  char eventid[128];                               /*!< Event ID. */
-  int version;                                     /*!< GFAST iteration version for this event ID. */
-  bool interval_complete[3][MAX_OUTPUT_INTERVALS]; /*!< intervals_complete[] for pgd + cmt + ff = 3 */
-};
-
-struct GFAST_activeEvents_xml_status
-{
-  struct GFAST_xml_output_status *SA_status;
-  int nev;
-  //char pad1[4];  /* MTH: seems to be for byte alignment but **check this** */
-};
-
 struct coreInfo_struct
 {
   char id[128];                          /*!< Event ID */
@@ -581,6 +573,22 @@ struct coreInfo_struct
   double likelihood;  /*!< TODO: I have no idea what likelihood means */
   bool lhaveLikelihood; /*!< If true then the likelihood is defined */
   int numStations;   /*!< Number of stations used in event. */
+};
+
+struct GFAST_xml_output_status
+{
+  char eventid[128];                               /*!< Event ID. */
+  int internal_version;                            /*!< GFAST internal version for this event ID. Always < 0 */
+  int external_version;                            /*!< GFAST external version for this event ID. Always >= 0 */
+  struct coreInfo_struct last_sent_core;           /*!< Core info of the last sent message */
+  bool interval_complete[3][MAX_OUTPUT_INTERVALS]; /*!< intervals_complete[] for pgd + cmt + ff = 3 */
+};
+
+struct GFAST_activeEvents_xml_status
+{
+  struct GFAST_xml_output_status *SA_status;
+  int nev;
+  //char pad1[4];  /* MTH: seems to be for byte alignment but **check this** */
 };
 
 struct GFAST_xmlMessages_struct

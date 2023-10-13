@@ -470,9 +470,8 @@ char *dmlibWrapper_createPGDXML(const double currentTime,
   // required to create FiniteFaultMessage
   enum FaultSegment::FaultSegmentShape shape = FaultSegment::UNKNOWN_SEGMENT;
 
-  // Get time stamp for when message is sent. Corresponds to currentTime from 
-  // the outer driveGFAST loop to be consistent with the last time we have
-  // data for.
+  // Get time stamp for when the message is sent, based on the timestamp sent from the outer
+  // driveGFAST loop. Could be based on the actual current time, or the last time we have data for.
   int rc;
   char cnow[128];
   rc = xml_epoch2string(currentTime, cnow);
@@ -499,8 +498,6 @@ char *dmlibWrapper_createPGDXML(const double currentTime,
   algMessage.setOriginTime(origTimeStr);
   LOG_DEBUGMSG("old origTime: %lf, origTimeChar: %s, origTimeStr: %s, new origTime: %lf",
     core->origTime, origTimeChar, origTimeStr.c_str(), algMessage.getOriginTime());
-
-  // LOG_MSG("%s", "createEventXML - created algMessage");
 
   // Now add pgd observations to algMessage
   int i, j;
@@ -544,7 +541,6 @@ char *dmlibWrapper_createPGDXML(const double currentTime,
       // skip site if it wasn't used
       if (!pgd->lsiteUsed[i]) { continue; }
 
-      // LOG_MSG("createEventXML - i = %d, setting chars", i);
       // see core/data/readMetaDataFile for similar SNCL parsing
       memset(obs_sta, 0, scnl_n*sizeof(char));
       memset(obs_net, 0, scnl_n*sizeof(char));
@@ -554,7 +550,6 @@ char *dmlibWrapper_createPGDXML(const double currentTime,
       work = (char *)calloc(strlen(pgd_data->stnm[i])+1, sizeof(char));
       strcpy(work, pgd_data->stnm[i]);
 
-      // LOG_MSG("%s", "createEventXML - starting NSCL tokenizing");
       token = strtok(work, ".");
       int i_tok = 0;
       while (token) 
@@ -566,10 +561,8 @@ char *dmlibWrapper_createPGDXML(const double currentTime,
           i_tok++;
           token = strtok(NULL, ".");
         }
-      // LOG_MSG("%s", "createEventXML - done NSCL tokenizing, freeing work");
       delete work;
       work = NULL;
-      // LOG_MSG("%s", "createEventXML - freed work, adding gmobs");
       
       assoc_flag = (n_assoc >= max_assoc_stations) ? false : true;
       // Make sure longitude follows ShakeAlert convention
@@ -594,9 +587,6 @@ char *dmlibWrapper_createPGDXML(const double currentTime,
                                   assoc_flag);
 
       n_assoc++;
-
-      // LOG_DEBUGMSG("createEventXML - added obs=%f, sta=%s, i=%d, j=%d, dist=%f, assoc=%d, n_assoc=%d",
-      //         pgd_data->pd[i] * 100., pgd_data->stnm[i], i, j, vals[j].dist, assoc_flag, n_assoc);
     }
 
   LOG_MSG("%s", "createEventXML - finished adding gmobs, encoding message");

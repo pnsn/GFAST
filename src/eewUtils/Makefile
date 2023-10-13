@@ -9,8 +9,9 @@ include $(GFAST_DIR)/Make.include.gfast
 
 EW_INCL	= -I$(EWDIR)/include
 
-OBJS	= driveCMT.o driveFF.o drivePGD.o makeXML.o\
-parseCoreXML.o setLogFileNames.o driveGFAST.o
+OBJS	= driveCMT.o driveFF.o drivePGD.o makeXML.o \
+parseCoreXML.o setLogFileNames.o driveGFAST.o fillCoreEventInfo.o \
+sendXMLFilter.o
 
 LIB     = gfast_utils.a
 DEBUG	= -g

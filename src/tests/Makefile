@@ -12,20 +12,23 @@ EWLIB	= $(EWDIR)/lib
 DM_DIR		= $(EEWDIR)/libs/dmlib
 DM_LIB		= $(DM_DIR)/libdm.a
 
-OBJS = ../activeMQ/gfast_amq.a ../eewUtils/gfast_utils.a ../xml/gfast_xml.a ../core/gfast_core.a \
-	   ../traceBuffer/traceBuffer.a ../hdf5/hdf5.a ../activeMQ/gfast_amq.a
+OBJS = ../dmlib/dmlibWrapper.cpp.o  ../activeMQ/gfast_amq.a ../eewUtils/gfast_utils.a \
+	   ../xml/gfast_xml.a ../core/gfast_core.a ../traceBuffer/traceBuffer.a ../hdf5/hdf5.a \
+	   ../activeMQ/gfast_amq.a 
 
 DATA = 
 
 UNITTESTS = \
-	CoreWaveformProcessorUT \
-	CoreActiveMqUT \
-	EewUtilsUT \
-	CoreScalingUT \
-	CoreCoordtoolsUT \
-	CoreDataUT \
-	CoreEventsUT \
-	TraceBufferEwrrUT
+    CoreActiveMqUT \
+    CoreCoordtoolsUT \
+    CoreDataUT \
+    CoreEventsUT \
+    CoreScalingUT \
+    CoreWaveformProcessorUT \
+    DmLibWrapperUT \
+    EewUtilsUT \
+	Hdf5UT \
+    TraceBufferEwrrUT
 
 INCL = -I$(THIRD_PARTY) \
 	$(AQMS_INCL) $(OTL_INCL) $(APR_INCL) $(ACTIVEMQ_INCL) $(QLIB2_INCL) \
@@ -38,13 +41,11 @@ INCL = -I$(THIRD_PARTY) \
 	-I$(EEWDIR)/libs/datapkt \
 	-I$(EEWDIR)/gfast/include
 
-LIBS += $(AQMS_LIB) $(DM_LIB) $(ACTIVEMQ_LIB) \
-	$(QLIB2_LIB) $(XERCES_LIB) $(GTEST_LIB) $(GMOCK_LIB) \
-	$(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML2_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
-	$(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) \
- 	$(CRYPTO_LIB) $(EWLIB)/libew_mt.a \
-	-L$(THIRD_PARTY)/libtntime -ltntime \
-	-L$(THIRD_PARTY)/libtnstd -ltnstd 
+LIBS  = $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML2_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
+		$(ACTIVEMQ_LIB) $(DM_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) \
+		$(XERCES_LIB) $(QLIB2_LIB) $(CRYPTO_LIB) $(EWLIB)/libew_mt.a $(GTEST_LIB) $(GMOCK_LIB)
+
+SYSLIBS = -ldl -lm -lrt -pthread -lz -lsz -lstdc++
 
 # comment this next line out to TURN OFF debugging print statments
 DEBUG =-g 
@@ -76,7 +77,7 @@ test: $(UNITTESTS)
 	-$(foreach test, $^, echo -e "\n**** $(test) ****\n"; ./$(test);)
 
 %UT: %UT.o 
-	$(CC) $< $(OBJS) $(LIBS) -o $@
+	$(CC) $< $(UFLAGS) $(CCFLAGS) $(OBJS) $(LIBS) $(SYSLIBS) -o $@
 
 # test report
 cleantestreport:
