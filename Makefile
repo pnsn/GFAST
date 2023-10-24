@@ -1,5 +1,8 @@
 # Toplevel Makefile for GFAST
 
+EEWDIR = ..
+include $(EEWDIR)/Makefile.rules
+
 SUBDIRS=src
 
 .PHONY: all show-targets $(SUBDIRS)
@@ -9,17 +12,7 @@ TARGET_LIST=show-targets
 
 all: $(SUBDIRS)
 
-# define macro to generate rules for target, list of sub targets and rule for each.
-define gen_recursive_targets
-.PHONY: $(1) $(2:%=$(1)-%)
-$(1): $(2:%=$(1)-%)
-$(2:%=$(1)-%):
-	$(MAKE) -C $$(@:$$$(1)-%=%) $1
-	@echo -e ""
-TARGET_LIST+= $(1) $(2:%=$(1)-%)
-endef
-
-# use macro to define recursive targets
+# use macro defined in Makefile.rules to define recursive targets
 $(eval $(call gen_recursive_targets, all, $(SUBDIRS)))
 $(eval $(call gen_recursive_targets, ids, $(SUBDIRS)))
 $(eval $(call gen_recursive_targets, rm-ids, $(SUBDIRS)))
