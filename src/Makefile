@@ -72,6 +72,12 @@ install:
 		make -C $$dir install ; \
 	done
 
+TESTDIR = ./tests
+ut: 
+	make -C $(TESTDIR) ut
+test: 
+	make -C $(TESTDIR) test
+
 clean:
 	-rm -f *.o $(EXE)
 	for dir in $(SUBDIRS) ; do \
@@ -83,17 +89,12 @@ veryclean: cleandocs
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir veryclean ; \
 	done
+	make -C $(TESTDIR) veryclean
 
 depend:
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir depend ; \
 	done
-
-TESTDIR = ./tests
-ut: 
-	make -C $(TESTDIR) ut
-test: 
-	make -C $(TESTDIR) test
 
 # coverage
 INFODIR = $(EEWDIR)/coverage/info
@@ -108,7 +109,7 @@ coverage: cleancoverage covdirs buildcoverage runcoverage
 
 cleancoverage: 
 	-rm -rf *.gcno *.gcda *.gcov *.info $(COVDIR)
-	make -C tests cleancoverage
+	make -C $(TESTDIR) cleancoverage
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir cleancoverage ; \
 	done
