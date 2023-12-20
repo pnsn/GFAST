@@ -13,10 +13,10 @@ OBJS	= log.c.o
 endif
 
 DEBUG	= -g
-# CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
+CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
 INCL            = -I ../../../include $(ISCL_INCL) \
-	-I$(EEWDIR)/third_party \
+	-I$(THIRD_PARTY) \
 	-I$(EEWDIR)/libs/utils
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz

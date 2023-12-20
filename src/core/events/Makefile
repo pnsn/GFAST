@@ -7,8 +7,12 @@ MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= freeEvents.o newEvent.o removeCancelledEvent.o removeExpiredEvents.o\
- getMinOriginTime.o printEvent.o removeExpiredEvent.o updateEvent.o syncXMLStatusWithEvents.o
+OBJS    = freeEvents.o newEvent.o removeExpiredEvents.o\
+          printEvent.o removeExpiredEvent.o syncXMLStatusWithEvents.o
+
+# Remove some files from compile for now since they are not used - CWU 8/18/23
+# OBJS	= freeEvents.o newEvent.o removeCancelledEvent.o removeExpiredEvents.o\
+#  getMinOriginTime.o printEvent.o removeExpiredEvent.o updateEvent.o syncXMLStatusWithEvents.o
 
 DEBUG	= -g
 CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
