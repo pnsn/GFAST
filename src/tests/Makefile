@@ -23,20 +23,23 @@ ifdef ENABLE_PLOG
 CFLAGS+=$(ENABLE_PLOG)
 endif
 
-OBJS = ../activeMQ/gfast_amq.a ../eewUtils/gfast_utils.a ../xml/gfast_xml.a ../core/gfast_core.a \
-	   ../traceBuffer/traceBuffer.a ../hdf5/hdf5.a ../activeMQ/gfast_amq.a
+OBJS = ../dmlib/dmlibWrapper.cpp.o  ../activeMQ/gfast_amq.a ../eewUtils/gfast_utils.a \
+	   ../xml/gfast_xml.a ../core/gfast_core.a ../traceBuffer/traceBuffer.a ../hdf5/hdf5.a \
+	   ../activeMQ/gfast_amq.a 
 
 DATA = 
 
 UNITTESTS = \
-	CoreWaveformProcessorUT \
-	CoreActiveMqUT \
-	EewUtilsUT \
-	CoreScalingUT \
-	CoreCoordtoolsUT \
-	CoreDataUT \
-	CoreEventsUT \
-	TraceBufferEwrrUT
+    CoreActiveMqUT \
+    CoreCoordtoolsUT \
+    CoreDataUT \
+    CoreEventsUT \
+    CoreScalingUT \
+    CoreWaveformProcessorUT \
+    DmLibWrapperUT \
+    EewUtilsUT \
+	Hdf5UT \
+    TraceBufferEwrrUT
 
 INCL = -I$(THIRD_PARTY) \
 	$(AQMS_INCL) $(OTL_INCL) $(APR_INCL) $(ACTIVEMQ_INCL) $(QLIB2_INCL) \

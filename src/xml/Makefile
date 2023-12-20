@@ -43,13 +43,14 @@ clean:
 	for dir in $(SDIRS) ; do \
 		make -C $$dir clean ; \
 	done
-	rm *.a
+	-rm -f $(LIB)
 
 veryclean: cleandocs
 	for dir in $(SDIRS) ; do \
 		make -C $$dir veryclean ; \
 	done
-	rm *.a
+	-rm -f $(LIB)
+
 depend:
 	for dir in $(SDIRS) ; do \
 		make -C $$dir depend ; \

@@ -44,6 +44,7 @@ clean:
 	for dir in $(SDIRS) ; do \
 		make -C $$dir clean ; \
 	done
+	-rm -f $(LIB)
 
 veryclean: cleandocs
 	for dir in $(SDIRS) ; do \

@@ -11,7 +11,7 @@ OBJS	= coreInfo.o segment.o slip.o vertex.o vertices.o geometry.o
 DEBUG	= -g
 CFLAGS	+= -O0 -D_REENTRANT -Dstatic_config
 
-INCL            = -I ../../../include $(XML_INCL) $(ISCL_INCL)
+INCL            = -I ../../../include $(XML2_INCL) $(ISCL_INCL)
 
 SYSLIBS		= -lpthread -lnsl -lrt -lz
 

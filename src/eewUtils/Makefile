@@ -1,21 +1,23 @@
 # Makefile for GFAST/src/eewUtils
 # 
 #
+
 GFASTROOT=..
 ifndef MAKEHOST
 MAKEHOST=$(shell uname)
 endif
 include $(GFASTROOT)/Make.include.$(MAKEHOST)
 
-OBJS	= driveCMT.o driveFF.o drivePGD.o makeXML.o\
-parseCoreXML.o setLogFileNames.o driveGFAST.o
+OBJS	= driveCMT.o driveFF.o drivePGD.o makeXML.o \
+parseCoreXML.o setLogFileNames.o driveGFAST.o fillCoreEventInfo.o \
+sendXMLFilter.o
 
 LIB     = gfast_utils.a
 DEBUG	= -g
-CCFLAGS	+= -O0 -D_REENTRANT -Dstatic_config ${GFAST_VERSION}
+CFLAGS	+= -O0 -D_REENTRANT -Dstatic_config ${GFAST_VERSION}
 
 #iniparser will be deleted
-INCL     = -I ../../include $(ISCL_INCL) $(XML_INCL) $(COMPEARTH_INCL) $(EW_INCL) $(HDF5_INCL)
+INCL     = -I ../../include $(ISCL_INCL) $(XML2_INCL) $(COMPEARTH_INCL) $(EW_INCL) $(HDF5_INCL)
 
 SYSLIBS	 = -lpthread -lnsl -lrt -lz
 
@@ -46,7 +48,7 @@ cleandepend:
 	rm -rf $(DEPENDFILES)
 
 clean:
-	-rm -f *.o $(BIN)
+	-rm -f *.o $(BIN) $(LIB)
 
 veryclean: clean rm-ids cleandepend
 
