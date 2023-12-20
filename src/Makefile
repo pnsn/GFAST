@@ -71,22 +71,22 @@ install:
 
 TESTDIR = ./tests
 ut: 
-	make -C $(TESTDIR) ut
+	# make -C $(TESTDIR) ut
 test: 
-	make -C $(TESTDIR) test
+	# make -C $(TESTDIR) test
 
 clean:
 	-rm -f *.o $(EXE)
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir clean ; \
 	done
-	make -C $(TESTDIR) clean
+	# make -C $(TESTDIR) clean
 
 veryclean: cleandocs
 	for dir in $(SUBDIRS) ; do \
 		make -C $$dir veryclean ; \
 	done
-	make -C $(TESTDIR) veryclean
+	# make -C $(TESTDIR) veryclean
 
 depend:
 	for dir in $(SUBDIRS) ; do \

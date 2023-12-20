@@ -1,5 +1,6 @@
 # Makefile for gfast unit tests
-# Modeled after libs/utils/tests/Makefile, may need additional changes
+# Currently setup to run within a ShakeAlert directory. Will need work
+# to run in a standalone GFAST installation
 
 EEWDIR = ../../..
 include $(EEWDIR)/Make.include.$(shell uname)
