@@ -4,6 +4,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 
 ## Recent updates
 
+2023/12/20 CWU: Sync most recent changes from ShakeAlert GFAST version to the PNSN repo (GFAST v1.2.4)
 2023/03/20 CWU: Sync most recent changes from ShakeAlert GFAST version to the PNSN repo (GFAST v1.2.3-beta)  
 ~2021/10 CWU: merge 2020 and SAdev branches into one branch to use going forward, called "development"  
 2020/05/27 MTH: Working on new branch (=2020) with cleaned up dependencies and build instructions.
@@ -14,7 +15,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
 2. include contains the GFAST C include files.
 3. legacy is the original Python source code.
 4. src contains the source code.
-  + src/activeMQ contains C++ readers/writers and C interfaes for using ActiveMQ.
+  + src/activeMQ contains C++ readers/writers and C interfaces for using ActiveMQ.
   + src/core contains the core GFAST computations.
   + src/dmlib contains functionality making use of some ShakeAlert libraries, primarily related to ActiveMQ connections and xml encoding/decoding. Access to the ShakeAlert code repository would be necessary to build using these codes.
   + src/eewUtils contains application specific functions for performing the earthquake early warning tasks.
@@ -22,6 +23,7 @@ This is the source code for Geodetic First Approximation of Size and Timing (GFA
   + src/traceBuffer contains routines for reading an Earthworm ring and converting to a GFAST specific buffer.
   + src/uw contains functions specific to the University of Washington and Amazon project.
   + src/xml contains functions for certainly writing and potentially reading QuakeML and ShakeAlert specific XML.
+  + src/tests contains googletest unit tests, primarily tuned to work within a ShakeAlert environment/repo
 5. unit\_tests contains some simple regression tests for the core modules.
 
 # Building GFAST 
@@ -186,7 +188,7 @@ But here's how to do it in stand-alone
         >make              // will build lib/libiscl_shared.so and lib/libiscl_static.a
 
 
-7. [compearth/mtbeach](https://github.com/carltape/mtbeach.git) for the moment tensor decompositions.  Note, this was in Ben Baker's [compearth repository](https://github.com/bakerb845/compearth), but was merged back into Carl Tape's repository, and the moment tensor part was renames mtbeach.  Also, you'll need to descend into c_src. 
+7. [compearth/mtbeach](https://github.com/carltape/mtbeach.git) for the moment tensor decompositions.  Note, this was in Ben Baker's [compearth repository](https://github.com/bakerb845/compearth), but was merged back into Carl Tape's repository, and the moment tensor part was renamed mtbeach.  Also, you'll need to descend into c_src. 
 
         Clone and build
         >git clone https://github.com/carltape/mtbeach.git
@@ -243,7 +245,7 @@ But here's how to do it in stand-alone
 
     9a. [ActiveMQ](http://activemq.apache.org/) The C++ portion.  These will require other things that you likely already have like libssl, libcrypto, and the Apache runtime library.
 
-    Note: [MTH] I haven't found the APR to be necessary
+    Note: [MTH] I haven't found the APR to be necessary  
     Note: For building GFAST, the instructions here for downloading and
           installing activemq-cpp are sufficient.
           However, as soon as gfast_eew starts, it will try to connect
