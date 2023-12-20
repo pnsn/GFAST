@@ -20,7 +20,7 @@ traceBuffer/traceBuffer.a hdf5/hdf5.a activeMQ/gfast_amq.a
 ifdef GFAST_USE_DMLIB
 OBJS	+= dmlib/dmlibWrapper.cpp.o
 endif
-LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
+LIBS    =  $(EW_LIB) $(ISCL_LIB) $(INIPARSER_LIB) $(XML2_LIB) $(HDF5_LIB) $(COMPEARTH_LIB) \
 $(ACTIVEMQ_LIB) $(DM_LIB) $(APR_LIB) $(LAPACKE_LIB) $(CBLAS_LIB) $(FFTW_LIB) $(SSL_LIB) \
 $(XERCES_LIB) $(QLIB2_LIB) $(CRYPTO_LIB)
 SYSLIBS = -ldl -lm -lnsl -lrt -pthread -lz -lsz -lstdc++
