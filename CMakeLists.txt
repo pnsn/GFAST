@@ -114,7 +114,8 @@ SET(SRCS_CORE
 #ADD_SUBDIRECTORY(src/eewUtils)
 SET(SRCS_EEW src/eewUtils/driveCMT.c src/eewUtils/driveFF.c src/eewUtils/driveGFAST.c
              src/eewUtils/drivePGD.c src/eewUtils/makeXML.c src/eewUtils/parseCoreXML.c
-             src/eewUtils/setLogFileNames.c src/eewUtils/fillCoreEventInfo.c)
+             src/eewUtils/setLogFileNames.c src/eewUtils/fillCoreEventInfo.c
+             src/eewUtils/sendXMLFilter.c)
 #ADD_SUBDIRECTORY(src/traceBuffer)
 SET(SRCS_H5TB src/traceBuffer/h5/copyTraceBufferToGFAST.c src/traceBuffer/h5/finalize.c
               src/traceBuffer/h5/getData.c src/traceBuffer/h5/getDoubleArray.c
