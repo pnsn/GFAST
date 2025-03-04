@@ -198,3 +198,45 @@ TEST(CoreScaling, testReadRawSigmaThresholdLookupFileNoExist) {
     EXPECT_DOUBLE_EQ(-1, pgd_props.n_raw_sigma_threshold);
     EXPECT_DOUBLE_EQ(-1, pgd_props.e_raw_sigma_threshold);
 }
+
+/**
+ * Test the core_scaling_pgd_readIni function that reads in properties
+ */
+TEST(CoreScaling, testReadPropertiesDepth) {
+    const char *propertiesFile;
+    int ierr;
+    struct GFAST_pgd_props_struct pgd_props;
+
+    propertiesFile = "data/gfast.props.depthsearch\0";
+    memset(&pgd_props, 0, sizeof(struct GFAST_pgd_props_struct));
+
+    ierr = core_scaling_pgd_readIni(propertiesFile, "PGD\0",
+				  1, -12345,
+				  &pgd_props);
+
+    EXPECT_EQ(0, ierr);
+    EXPECT_EQ(1, pgd_props.start_depth);
+    EXPECT_EQ(2, pgd_props.dDep);
+    
+}
+
+/**
+ * Test the core_scaling_pgd_readIni function that reads in properties
+ */
+TEST(CoreScaling, testReadPropertiesDefault) {
+    const char *propertiesFile;
+    int ierr;
+    struct GFAST_pgd_props_struct pgd_props;
+
+    propertiesFile = "data/gfast.props\0";
+    memset(&pgd_props, 0, sizeof(struct GFAST_pgd_props_struct));
+
+    ierr = core_scaling_pgd_readIni(propertiesFile, "PGD\0",
+				  1, -12345,
+				  &pgd_props);
+
+    EXPECT_EQ(0, ierr);
+    EXPECT_EQ(0, pgd_props.start_depth);
+    EXPECT_EQ(1, pgd_props.dDep);
+    
+}

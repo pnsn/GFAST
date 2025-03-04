@@ -29,6 +29,8 @@ struct GFAST_pgd_props_struct
 			  grid search. */
   double dLon;          /*!< Longitude perturbation (degrees) in epicentral
 			  grid search. */
+  double dDep;          /*!< Depth perturbation (km) in hypocentral grid search. */
+  double start_depth;   /*!< Initial depth (km) in hypocentral grid search. */
   int min_sites;        /*!< Minimum number of sites required to
 			  proceed with PGD inversion. */
   int verbose;          /*!< Controls verbosity - errors will always
@@ -83,6 +85,8 @@ struct GFAST_cmt_props_struct
 			  grid search. */
   double dLon;          /*!< Longitude perturbation (degrees) in epicentral
 			  grid search. */
+  double dDep;          /*!< Depth perturbation (km) in hypocentral grid search. */
+  double start_depth;   /*!< Initial depth (km) in hypocentral grid search. */
   int min_sites;        /*!< Minimum number of sites required to
 			  proceed with CMT inversion. */
   int verbose;          /*!< Controls verbosity - errors will always

@@ -112,10 +112,10 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     pgd->srdist     = memory_calloc64f(pgd->nsites * nloc);
     pgd->UPinp      = memory_calloc64f(pgd->nsites);
     pgd->lsiteUsed  = memory_calloc8l(pgd->nsites);
-    // TODO: fix me and make customizable!
+    
     for (i = 0; i < pgd->ndeps; i++)
     {
-        pgd->srcDepths[i] = (double) i + 1;
+        pgd->srcDepths[i] = pgd_props.start_depth + ((double) i * pgd_props.dDep);
     }
     // srcLats is a relative array centered at 0, to be added to the input latitude
     // The first latitude will be -dLat*(nlats - 1)/2

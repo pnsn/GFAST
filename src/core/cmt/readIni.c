@@ -99,6 +99,22 @@ int core_cmt_readIni(const char *propfilename,
         LOG_WARNMSG("%s", "Adding 1 point to CMT lon gridsearch");
         cmt_props->ngridSearch_lons = cmt_props->ngridSearch_lons + 1;
     }
+    setVarName(group, "deltaDepth\0", var);
+    cmt_props->dDep
+         = iniparser_getdouble(ini, var, 1);
+    if (cmt_props->dDep < 0.0)
+    {
+        LOG_ERRMSG("Error CMT depth search delta %f must be positive", cmt_props->dDep);
+        goto ERROR;
+    }
+    setVarName(group, "start_depth\0", var);
+    cmt_props->start_depth
+         = iniparser_getdouble(ini, var, 0);
+    if (cmt_props->start_depth < 0.0)
+    {
+        LOG_ERRMSG("Error CMT start depth %f must be >= 0", cmt_props->start_depth);
+        goto ERROR;
+    }
     setVarName(group, "ndepths_in_cmt_gridSearch\0", var);
     cmt_props->ngridSearch_deps = iniparser_getint(ini, var, 100);
     if (cmt_props->ngridSearch_deps < 1)

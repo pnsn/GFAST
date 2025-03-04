@@ -90,11 +90,25 @@ TEST(Eewutils, testDrivePGD) {
     pgd.UP = ISCL_memory_calloc__double(pgd.ndeps*pgd.nsites);
     pgd.UPinp = ISCL_memory_calloc__double(pgd.nsites);
     pgd.srcDepths = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.srcLats = ISCL_memory_calloc__double(pgd.nlats);
+    pgd.srcLons = ISCL_memory_calloc__double(pgd.nlons);
     pgd.srdist = ISCL_memory_calloc__double(pgd.ndeps*pgd.nsites);
     pgd.lsiteUsed = ISCL_memory_calloc__bool(pgd.nsites);
     for (i=0; i<pgd.ndeps; i++)
     {
         pgd.srcDepths[i] = pgd_ref.srcDepths[i];
+    }
+    // srcLats is a relative array centered at 0, to be added to the input latitude
+    // The first latitude will be -dLat*(nlats - 1)/2
+    for (i = 0; i < pgd.nlats; i++)
+    {
+        pgd.srcLats[i] = pgd_props.dLat * (i - (pgd.nlats - 1) / 2);
+    }
+    // srcLons is a relative array centered at 0, to be added to the input longitude
+    // The first longitude will be -dLon*(nlons - 1)/2
+    for (i = 0; i < pgd.nlons; i++)
+    {
+        pgd.srcLons[i] = pgd_props.dLon * (i - (pgd.nlons - 1) / 2);
     }
     ierr = eewUtils_drivePGD(pgd_props,
                              SA_lat, SA_lon, SA_dep, age_of_event,
@@ -154,6 +168,8 @@ TEST(Eewutils, testDriveCMT) {
     cmt.rak2 = memory_calloc64f(cmt.ndeps);
     cmt.Mw = memory_calloc64f(cmt.ndeps);
     cmt.srcDepths = memory_calloc64f(cmt.ndeps);
+    cmt.srcLats = memory_calloc64f(cmt.nlats);
+    cmt.srcLons = memory_calloc64f(cmt.nlons);
     cmt.EN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
     cmt.NN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
     cmt.UN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
@@ -164,6 +180,18 @@ TEST(Eewutils, testDriveCMT) {
     for (i=0; i<cmt.ndeps; i++)
     {
         cmt.srcDepths[i] = cmt_ref.srcDepths[i];
+    }
+    // srcLats is a relative array centered at 0, to be added to the input latitude
+    // The first latitude will be -dLat*(nlats - 1)/2
+    for (i = 0; i < cmt.nlats; i++)
+    {
+        cmt.srcLats[i] = cmt_props.dLat * (i - (cmt.nlats - 1) / 2);
+    }
+    // srcLons is a relative array centered at 0, to be added to the input longitude
+    // The first longitude will be -dLon*(nlons - 1)/2
+    for (i = 0; i < cmt.nlons; i++)
+    {
+        cmt.srcLons[i] = cmt_props.dLon * (i - (cmt.nlons - 1) / 2);
     }
     ierr = eewUtils_driveCMT(cmt_props,
                              SA_lat, SA_lon, SA_dep,

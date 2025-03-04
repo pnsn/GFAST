@@ -3,19 +3,18 @@
 ################################################################################
 [general]
 # File for log output
-logFileName = logs/gfast.log
+logFileName=data/gfast.log
 # File with station names
-metaDataFile = etc/GFASTmeta.dat
-# note: if SA_events_dir is set, activemq will be ignored!
-SA_events_dir=
-SA_output_dir=out
-#if output_interval commented, it will output as available.
+metaDataFile=data/merged_chanfile_coord.dat
+#metaDataNetworks=PW
+#SA_events_dir=xxxxx
+SA_output_dir=data
 #output_interval_mins=1,2,3,4,5,10
-#siteMaskFile=ridgecrest-mask.txt
+siteMaskFile=data/site_mask_file.dat
 # File with station names and sampling periods
 #dtfile=GFAST_streams_dt.txt
 # ElarmS message file
-eewsfile=ElarmS_messages.txt
+#eewsfile=ElarmS_messages.txt
 # GFAST results file
 eewgfile=GFAST_output.txt
 # File of all the site locations. The format used is currently from 
@@ -40,7 +39,7 @@ opmode = 1
 # zone.  Otherwise, if utm_zone is set to -12345 or not specified the UTM
 # zone will be estimated from the event hpyocenter provided in the ElarmS
 # message 
-utm_zone = 19 
+utm_zone = 10 
 # Mechanism for initializing sampling period
 #  1 -> Sets GPS sampling period to default (dt_default)
 #  2 -> Obtains the sampling period from the dtfile 
@@ -60,23 +59,12 @@ loc_init = 1
 # 3 -> Output errors, generic information, and debug information
 verbose=3
 
-# Message throttling logic
-SA_mag_threshold = 6.0
-# Only send a pgd xml if the number of stations with pgd above
-# throttle_pgd_threshold (cm) is more than throttle_num_stations
-# after throttle_time_threshold seconds
-throttle_num_stations = 3,3,4,5
-throttle_pgd_threshold = 20,25,40,80
-throttle_time_threshold = 0,25,40,70
-# If defined, don't send xml if pgd_sigma is greater than this value
-pgd_sigma_throttle = 0.5
-
 synthetic_runtime = 0.0 
 processing_time = 300.0
 default_event_depth = 8.0
 
-h5ArchiveDirectory = /home/kress/gfasttest/h5archive
-H5SummaryOnly = 0
+h5ArchiveDirectory = data
+H5SummaryOnly = 1
 
 anssNetwork = UW
 anssDomain = anss.org
@@ -94,7 +82,7 @@ moduleName = geojson2ew
 ################################################################################
 [PGD]
 # PGD source-receiver distance tolerance in km (cannot be negative)
-dist_tolerance = 0.5
+dist_tolerance = 0.6
 # If PGD source-receiver distance tolerance falls below dist_tol this is the
 # default PGD distance value given in km (must be positive)
 dist_default = 0.01
@@ -111,13 +99,38 @@ ndepths_in_pgd_gridSearch = 10
 # These are the defaults:
 pgd_window_vel = 3.0
 pgd_min_sites = 4
+
+# Message throttling logic and related
 # Lookup table for non-density corrected value to generate magnitude 
 # uncertainty based on time and magnitude
-sigmaLookupFile = M99.txt
+sigmaLookupFile = data/M99.txt
+# Lookup table for time-dependant PGD thresholds 
+# columns: time (s) | threshold (cm) | n stations
+pgdThresholdLookupFile = data/pgd_threshold_PW.txt
+# Positional uncertainty thresholds for including peak displacement observations
+# If not specified, allow any or NAN uncertainties
+rawSigmaThresholdLookupFile = data/raw_sigma_threshold_PW.txt
+
+# If defined, don't send xml if pgd_sigma is greater than this value
+pgd_sigma_throttle = 0.5
+# Message throttling logic
+SA_mag_threshold = 6.0
+
 # Minimum and maximum thresholds for using pgd values in inversion, in cm
 minimum_pgd_cm = 0.0
 maximum_pgd_cm = 3500.0
 max_assoc_stations = 6
+
+# Change thresholds to decide when to send a message, assuming other throttles
+# pass. If any of these are met or exceeded, a new message would be sent. If 
+# none are exceeded, message would not be sent.
+# If not present, threshold will be ignored
+change_threshold_mag = 0.05
+change_threshold_mag_uncer = 0.05
+change_threshold_lat = 0.05
+change_threshold_lon = 0.05
+change_threshold_orig_time = 1
+change_threshold_num_stations = 1
 
 ################################################################################
 #                            CMT/Finite Fault Properties                       #
@@ -130,8 +143,8 @@ nlats_in_cmt_gridSearch = 1
 nlons_in_cmt_gridSearch = 1
 # depth grid search will start at start_depth, increase by deltaDepth until
 # it has ndepths_in_cmt_gridSearch
-start_depth = 1
-deltaDepth = 2
+start_depth = 2
+deltaDepth = 3
 ndepths_in_cmt_gridSearch = 10
 # These are the defaults:
 cmt_window_vel = 2.0
@@ -165,13 +178,15 @@ ff_fwid_pct = 10.0
 [ActiveMQ]
 # ActiveMQ host:port
 ### amq_dm openwire 61616
+### amq_wp openwire 62616
 ### amq_sa openwire 63616
 #URL for event trigger messages
-originURL=tcp://localhost:63616
+originURL=tcp://eew-uw-dev1:63616
+#originURL=tcp://eew-uw-int1:63616
 # ActiveMQ topic to read event trigger messages from
 originTopic=eew.agg.sa.data
 #URL to publish event messages and heartbeats on
-destinationURL=tcp://localhost:61616
+destinationURL=tcp://localhost:62616
 # ActiveMQ topic to publish events on.
 destinationTopic = eew.alg.gfast.data
 # ActiveMQ topic to publish heartbeats on
@@ -181,11 +196,12 @@ hbInterval=5
 # ActiveMQ username to access ElarmS messages
 user=glarms
 # ActiveMQ password to access ElarmS messages
-password=12345
+password=abcdefg
 
 # connection settings
 msReconnect = 500
 maxAttempts = 5
 msWaitForMessage = 0
 
-maxMessages = 5
+maxMessages=5
+
