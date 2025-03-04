@@ -51,6 +51,8 @@ int read_pgd_results(const char *filenm,
            &pgd_props->utm_zone, &pgd_props->min_sites, 
            &pgd_props->dist_tol, &pgd_props->disp_def,
            &pgd_props->window_vel);
+    pgd_props->dLat = 1;
+    pgd_props->dLon = 1;
     // line 2
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){goto ERROR;}
@@ -137,6 +139,8 @@ int read_cmt_results(const char *filenm,
            &cmt_props->utm_zone, &cmt_props->min_sites, 
            &ldevi, &cmt_props->window_vel,
            &cmt_props->window_avg);
+    cmt_props->dLat = 1;
+    cmt_props->dLon = 1;
     cmt_props->ldeviatoric = true;
     if (ldevi != 1){cmt_props->ldeviatoric = false;}
     // line 2

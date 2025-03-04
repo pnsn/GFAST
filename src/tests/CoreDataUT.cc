@@ -113,11 +113,17 @@ TEST(CoreData, testReadSiteMaskFile) {
     GFAST_core_data_finalize(&gps_data);
 }
 
-TEST(CoreData, testInitialize) {
+TEST(CoreData, testInitializeDefault) {
     char propfilename[1024];
     int ierr, i;
     struct GFAST_props_struct props;
     struct GFAST_data_struct gps_data;
+    struct GFAST_pgdResults_struct pgd;
+    struct GFAST_peakDisplacementData_struct pgd_data;
+    struct GFAST_cmtResults_struct cmt;
+    struct GFAST_offsetData_struct cmt_data, ff_data;
+    struct GFAST_ffResults_struct ff;
+
     const enum opmode_type opmode = REAL_TIME_EEW;
 
     // initialize
@@ -127,6 +133,12 @@ TEST(CoreData, testInitialize) {
     ierr = 0;
     memset(&props, 0, sizeof(struct GFAST_props_struct));
     memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
+    memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+    memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+    memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
+    memset(&pgd_data, 0, sizeof( struct GFAST_peakDisplacementData_struct));
+    memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
+    memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
 
     // First read the properties
     ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
@@ -143,6 +155,90 @@ TEST(CoreData, testInitialize) {
         EXPECT_NE(gps_data.data[i].ebuff, nullptr);
         EXPECT_NE(gps_data.data[i].tbuff, nullptr);
     }
+
+    // Initialize PGD
+    ierr = core_scaling_pgd_initialize(props.pgd_props, gps_data, &pgd, &pgd_data);
+    EXPECT_EQ(0, ierr);
+    printf("PGD depths:\n");
+    for (i = 0; i < pgd.ndeps; i++) {
+        printf("%02d: %f\n", i, pgd.srcDepths[i]);
+    }
+    // Initialize CMT
+    ierr = core_cmt_initialize(props.cmt_props, gps_data, &cmt, &cmt_data);
+    EXPECT_EQ(0, ierr);
+    printf("CMT depths:\n");
+    for (i = 0; i < cmt.ndeps; i++) {
+        printf("%02d: %f\n", i, cmt.srcDepths[i]);
+    }
+    // Initialize finite fault
+    ierr = core_ff_initialize(props.ff_props, gps_data, &ff, &ff_data);
+    EXPECT_EQ(0, ierr);
+
+    // finalize
+    GFAST_core_data_finalize(&gps_data);
+    GFAST_core_properties_finalize(&props);
+}
+
+TEST(CoreData, testInitializeSpecific) {
+    char propfilename[1024];
+    int ierr, i;
+    struct GFAST_props_struct props;
+    struct GFAST_data_struct gps_data;
+    struct GFAST_pgdResults_struct pgd;
+    struct GFAST_peakDisplacementData_struct pgd_data;
+    struct GFAST_cmtResults_struct cmt;
+    struct GFAST_offsetData_struct cmt_data, ff_data;
+    struct GFAST_ffResults_struct ff;
+
+    const enum opmode_type opmode = REAL_TIME_EEW;
+
+    // initialize
+    strncpy(propfilename,
+            "data/gfast.props.depthsearch",
+            1024-1);
+    ierr = 0;
+    memset(&props, 0, sizeof(struct GFAST_props_struct));
+    memset(&gps_data, 0, sizeof(struct GFAST_data_struct));
+    memset(&pgd, 0, sizeof(struct GFAST_pgdResults_struct));
+    memset(&cmt, 0, sizeof(struct GFAST_cmtResults_struct));
+    memset(&ff, 0, sizeof(struct GFAST_ffResults_struct));
+    memset(&pgd_data, 0, sizeof( struct GFAST_peakDisplacementData_struct));
+    memset(&cmt_data, 0, sizeof(struct GFAST_offsetData_struct));
+    memset(&ff_data, 0, sizeof(struct GFAST_offsetData_struct));
+
+    // First read the properties
+    ierr = GFAST_core_properties_initialize(propfilename, opmode, &props);
+    EXPECT_EQ(0, ierr);
+
+    // Now actually test the function in question
+    ierr = core_data_initialize(props, &gps_data);
+    EXPECT_EQ(0, ierr);
+
+    for ( i = 0; i < gps_data.stream_length; i++ ) {
+        EXPECT_GT(gps_data.data[i].maxpts, 0);
+        EXPECT_NE(gps_data.data[i].ubuff, nullptr);
+        EXPECT_NE(gps_data.data[i].nbuff, nullptr);
+        EXPECT_NE(gps_data.data[i].ebuff, nullptr);
+        EXPECT_NE(gps_data.data[i].tbuff, nullptr);
+    }
+
+    // Initialize PGD
+    ierr = core_scaling_pgd_initialize(props.pgd_props, gps_data, &pgd, &pgd_data);
+    EXPECT_EQ(0, ierr);
+    printf("PGD depths:\n");
+    for (i = 0; i < pgd.ndeps; i++) {
+        printf("%02d: %f\n", i, pgd.srcDepths[i]);
+    }
+    // Initialize CMT
+    ierr = core_cmt_initialize(props.cmt_props, gps_data, &cmt, &cmt_data);
+    EXPECT_EQ(0, ierr);
+    printf("CMT depths:\n");
+    for (i = 0; i < cmt.ndeps; i++) {
+        printf("%02d: %f\n", i, cmt.srcDepths[i]);
+    }
+    // Initialize finite fault
+    ierr = core_ff_initialize(props.ff_props, gps_data, &ff, &ff_data);
+    EXPECT_EQ(0, ierr);
 
     // finalize
     GFAST_core_data_finalize(&gps_data);
