@@ -114,10 +114,10 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     cmt->Ninp      = memory_calloc64f(cmt->nsites);
     cmt->Uinp      = memory_calloc64f(cmt->nsites);
     cmt->lsiteUsed = memory_calloc8l(cmt->nsites);
-    /* TODO fix me */
+    
     for (i = 0; i < cmt->ndeps; i++)
     {
-        cmt->srcDepths[i] = (double) (i + 1);
+        cmt->srcDepths[i] = props.start_depth + ((double) i * props.dDep);
     }
     // srcLats is a relative array centered at 0, to be added to the input latitude
     // The first latitude will be -dLat*(nlats - 1)/2

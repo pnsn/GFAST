@@ -169,6 +169,10 @@ void core_properties_print(struct GFAST_props_struct props)
                 lspace, props.pgd_props.ngridSearch_lons);
         LOG_DEBUGMSG("%s GFAST Number of PGD grid search depths is %d",
                 lspace, props.pgd_props.ngridSearch_deps);
+        LOG_DEBUGMSG("%s GFAST PGD grid search starting depth is %f",
+                lspace, props.pgd_props.start_depth);
+        LOG_DEBUGMSG("%s GFAST PGD grid search depth delta is %f",
+                lspace, props.pgd_props.dDep);
         LOG_DEBUGMSG("%s GFAST PGD data selection velocity is %f (km/s)",
                 lspace, props.pgd_props.window_vel);
         LOG_DEBUGMSG("%s GFAST Number of sites required to compute PGD is %d",
@@ -300,6 +304,10 @@ void core_properties_print(struct GFAST_props_struct props)
                 lspace, props.cmt_props.ngridSearch_lons);
         LOG_DEBUGMSG("%s GFAST Number of depths in CMT grid search  %d",
                 lspace, props.cmt_props.ngridSearch_deps);
+        LOG_DEBUGMSG("%s GFAST CMT grid search starting depth is %f",
+                lspace, props.cmt_props.start_depth);
+        LOG_DEBUGMSG("%s GFAST CMT grid search depth delta is %f",
+                lspace, props.cmt_props.dDep);
         LOG_DEBUGMSG("%s GFAST CMT data selection velocity is %f (km/s)",
                 lspace, props.cmt_props.window_vel);
         LOG_DEBUGMSG("%s GFAST CMT data averaging window length %f (s)",

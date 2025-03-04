@@ -103,6 +103,10 @@ deltaLatitude = 0.1
 deltaLongitude = 0.1
 nlats_in_pgd_gridSearch = 1
 nlons_in_pgd_gridSearch = 1
+# depth grid search will start at start_depth, increase by deltaDepth until
+# it has ndepths_in_pgd_gridSearch
+start_depth = 1
+deltaDepth = 2
 ndepths_in_pgd_gridSearch = 10
 # These are the defaults:
 pgd_window_vel = 3.0
@@ -124,6 +128,10 @@ deltaLatitude = 0.1
 deltaLongitude = 0.1
 nlats_in_cmt_gridSearch = 1
 nlons_in_cmt_gridSearch = 1
+# depth grid search will start at start_depth, increase by deltaDepth until
+# it has ndepths_in_cmt_gridSearch
+start_depth = 1
+deltaDepth = 2
 ndepths_in_cmt_gridSearch = 10
 # These are the defaults:
 cmt_window_vel = 2.0

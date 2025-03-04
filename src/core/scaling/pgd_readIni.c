@@ -119,6 +119,22 @@ int core_scaling_pgd_readIni(const char *propfilename,
         pgd_props->ngridSearch_lons
            = pgd_props->ngridSearch_lons + 1;
     }
+    setVarName(group, "deltaDepth\0", var);
+    pgd_props->dDep
+         = iniparser_getdouble(ini, var, 1);
+    if (pgd_props->dDep < 0.0)
+    {
+        LOG_ERRMSG("Error PGD depth search delta %f must be positive", pgd_props->dDep);
+        goto ERROR;
+    }
+    setVarName(group, "start_depth\0", var);
+    pgd_props->start_depth
+         = iniparser_getdouble(ini, var, 0);
+    if (pgd_props->start_depth < 0.0)
+    {
+        LOG_ERRMSG("Error PGD start depth %f must be >= 0", pgd_props->start_depth);
+        goto ERROR;
+    }
     setVarName(group, "ndepths_in_pgd_gridSearch\0", var);
     pgd_props->ngridSearch_deps
          = iniparser_getint(ini, var, 100);
