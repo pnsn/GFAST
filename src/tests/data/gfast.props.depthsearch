@@ -90,9 +90,15 @@ dist_default = 0.01
 deltaLatitude = 0.1
 deltaLongitude = 0.1
 nlats_in_pgd_gridSearch = 1
-nlons_in_pgd_gridSearch = 1
-# depth grid search will start at start_depth, increase by deltaDepth until
-# it has ndepths_in_pgd_gridSearch
+nlons_in_pgd_gridSearch = 1# PGD depth grid search can be relative to the input event, or absolute
+# Relative depth grid search (pgd_depth_gridSearch_relative = 1)
+#   ndepths will be enforced to be odd. Grid search location will be centered on input
+#   After the grid search any results with depth < 0 (in air) will be ignored
+#   start_depth is ignored
+# Absolute depth grid search (pgd_depth_gridSearch_relative = 0)
+#   depth grid search will start at start_depth, increase by deltaDepth until
+#   it has ndepths_in_pgd_gridSearch
+pgd_depth_gridSearch_relative = 0
 start_depth = 1
 deltaDepth = 2
 ndepths_in_pgd_gridSearch = 10

@@ -81,7 +81,7 @@ int core_cmt_readIni(const char *propfilename,
                    cmt_props->ngridSearch_lats);
         goto ERROR;
     }
-    if (cmt_props->ngridSearch_lats%2 == 0)
+    if (cmt_props->ngridSearch_lats % 2 == 0)
     {
         LOG_WARNMSG("%s", "Adding 1 point to CMT lat gridsearch");
         cmt_props->ngridSearch_lats = cmt_props->ngridSearch_lats + 1;
@@ -94,7 +94,7 @@ int core_cmt_readIni(const char *propfilename,
                    cmt_props->ngridSearch_lons);
         goto ERROR;
     }
-    if (cmt_props->ngridSearch_lons%2 == 0)
+    if (cmt_props->ngridSearch_lons % 2 == 0)
     {
         LOG_WARNMSG("%s", "Adding 1 point to CMT lon gridsearch");
         cmt_props->ngridSearch_lons = cmt_props->ngridSearch_lons + 1;
@@ -108,20 +108,27 @@ int core_cmt_readIni(const char *propfilename,
         goto ERROR;
     }
     setVarName(group, "start_depth\0", var);
-    cmt_props->start_depth
-         = iniparser_getdouble(ini, var, 0);
+    cmt_props->start_depth = iniparser_getdouble(ini, var, 0);
     if (cmt_props->start_depth < 0.0)
     {
         LOG_ERRMSG("Error CMT start depth %f must be >= 0", cmt_props->start_depth);
         goto ERROR;
     }
+    setVarName(group, "cmt_depth_gridSearch_relative\0", var);
+    cmt_props->depth_gridSearch_relative = iniparser_getboolean(ini, var, false);
     setVarName(group, "ndepths_in_cmt_gridSearch\0", var);
-    cmt_props->ngridSearch_deps = iniparser_getint(ini, var, 100);
+    cmt_props->ngridSearch_deps = iniparser_getint(ini, var, 1);
     if (cmt_props->ngridSearch_deps < 1)
     {
         LOG_ERRMSG("Error CMT grid search depths %d must be positive",
                    cmt_props->ngridSearch_deps);
         goto ERROR;
+    }
+    if ((cmt_props->depth_gridSearch_relative) && 
+        (cmt_props->ngridSearch_deps % 2 == 0))
+    {
+        LOG_WARNMSG("%s", "Adding 1 point to CMT depth gridsearch");
+        cmt_props->ngridSearch_deps = cmt_props->ngridSearch_deps + 1;
     }
     setVarName(group, "cmt_min_sites\0", var);
     cmt_props->min_sites = iniparser_getint(ini, var, 4);

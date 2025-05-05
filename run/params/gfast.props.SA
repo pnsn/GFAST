@@ -96,7 +96,17 @@ deltaLongitude = 0.1
 # nlats/nlons will be enforced to be odd. Grid search location will be centered on input
 nlats_in_pgd_gridSearch = 1
 nlons_in_pgd_gridSearch = 1
-# depths start at 0 and increase by 1 km to (ndepths_in_pgd_gridSearch - 1)
+# PGD depth grid search can be relative to the input event, or absolute
+# Relative depth grid search (pgd_depth_gridSearch_relative = 1)
+#   ndepths will be enforced to be odd. Grid search location will be centered on input
+#   After the grid search any results with depth < 0 (in air) will be ignored
+#   start_depth is ignored
+# Absolute depth grid search (pgd_depth_gridSearch_relative = 0)
+#   depth grid search will start at start_depth, increase by deltaDepth until
+#   it has ndepths_in_pgd_gridSearch
+pgd_depth_gridSearch_relative = 1
+start_depth = 1
+deltaDepth = 1.0
 ndepths_in_pgd_gridSearch = 10
 # These are the defaults:
 pgd_window_vel = 3.0
@@ -157,7 +167,17 @@ deltaLongitude = 0.1
 # nlats/nlons will be enforced to be odd. Grid search location will be centered on input
 nlats_in_cmt_gridSearch = 1
 nlons_in_cmt_gridSearch = 1
-# depths start at 0 and increase by 1 km to (ndepths_in_cmt_gridSearch - 1)
+# CMT depth grid search can be relative to the input event, or absolute
+# Relative depth grid search (cmt_depth_gridSearch_relative = 1)
+#   ndepths will be enforced to be odd. Grid search location will be centered on input
+#   After the grid search any results with depth < 0 (in air) will be ignored
+#   start_depth is ignored
+# Absolute depth grid search (cmt_depth_gridSearch_relative = 0)
+#   depth grid search will start at start_depth, increase by deltaDepth until
+#   it has ndepths_in_cmt_gridSearch
+cmt_depth_gridSearch_relative = 1
+start_depth = 1
+deltaDepth = 1.0
 ndepths_in_cmt_gridSearch = 10
 # These are the defaults:
 cmt_window_vel = 2.0

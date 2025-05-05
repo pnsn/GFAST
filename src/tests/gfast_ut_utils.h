@@ -242,11 +242,12 @@ int read_ff_results(const char *fname,
     // line 1
     memset(cline, 0, sizeof(cline));
     if (fgets(cline, sizeof(cline), infl) == NULL){goto ERROR;}
-    sscanf(cline, "%d %d %d %d %d %lf %lf %lf %lf\n",
+    sscanf(cline, "%d %d %d %d %d %lf %lf %lf %lf %lf %lf %lf\n",
                    &ff_props->nstr, &ff_props->ndip, &ff_props->utm_zone,
                    &ff_props->nfp,  &ff_props->min_sites,
                    &ff_props->window_vel, &ff_props->window_avg,
-                   &ff_props->flen_pct, &ff_props->fwid_pct);
+                   &ff_props->flen_pct, &ff_props->fwid_pct,
+                   &ff_props->flen_pct_large, &ff_props->fwid_pct_large, &ff_props->large_m);
     l2 = ff_props->nstr*ff_props->ndip;
     // line 2
     memset(cline, 0, sizeof(cline));

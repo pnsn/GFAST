@@ -74,54 +74,47 @@ int core_scaling_pgd_readIni(const char *propfilename,
         goto ERROR;
     }
     setVarName(group, "deltaLatitude\0", var);
-    pgd_props->dLat
-         = iniparser_getdouble(ini, var, 0.1);
+    pgd_props->dLat = iniparser_getdouble(ini, var, 0.1);
     if (pgd_props->dLat < 0.0)
     {
         LOG_ERRMSG("Error PGD latitude search delta %f must be positive", pgd_props->dLat);
         goto ERROR;
     }
     setVarName(group, "deltaLongitude\0", var);
-    pgd_props->dLon
-         = iniparser_getdouble(ini, var, 0.1);
+    pgd_props->dLon = iniparser_getdouble(ini, var, 0.1);
     if (pgd_props->dLon < 0.0)
     {
         LOG_ERRMSG("Error PGD longitude search delta %f must be positive", pgd_props->dLon);
         goto ERROR;
     }
     setVarName(group, "nlats_in_pgd_gridSearch\0", var);
-    pgd_props->ngridSearch_lats
-         = iniparser_getint(ini, var, 1);
+    pgd_props->ngridSearch_lats = iniparser_getint(ini, var, 1);
     if (pgd_props->ngridSearch_lats < 1)
     {
         LOG_ERRMSG("Error PGD grid search lats %d must be positive",
                    pgd_props->ngridSearch_lats);
         goto ERROR;
     }
-    if (pgd_props->ngridSearch_lats%2 == 0)
+    if (pgd_props->ngridSearch_lats % 2 == 0)
     {
-        LOG_WARNMSG("%s", "Adding 1 point to CMT lat gridsearch");
-        pgd_props->ngridSearch_lats
-           = pgd_props->ngridSearch_lats + 1;
+        LOG_WARNMSG("%s", "Adding 1 point to PGD lat gridsearch");
+        pgd_props->ngridSearch_lats = pgd_props->ngridSearch_lats + 1;
     }
     setVarName(group, "nlons_in_pgd_gridSearch\0", var);
-    pgd_props->ngridSearch_lons
-         = iniparser_getint(ini, var, 1);
+    pgd_props->ngridSearch_lons = iniparser_getint(ini, var, 1);
     if (pgd_props->ngridSearch_lons < 1)
     {
         LOG_ERRMSG("Error PGD grid search lons %d must be positive",
                    pgd_props->ngridSearch_lons);
         goto ERROR;
     }
-    if (pgd_props->ngridSearch_lons%2 == 0)
+    if (pgd_props->ngridSearch_lons % 2 == 0)
     {
-        LOG_WARNMSG("%s", "Adding 1 point to CMT lat gridsearch");
-        pgd_props->ngridSearch_lons
-           = pgd_props->ngridSearch_lons + 1;
+        LOG_WARNMSG("%s", "Adding 1 point to PGD lat gridsearch");
+        pgd_props->ngridSearch_lons = pgd_props->ngridSearch_lons + 1;
     }
     setVarName(group, "deltaDepth\0", var);
-    pgd_props->dDep
-         = iniparser_getdouble(ini, var, 1);
+    pgd_props->dDep = iniparser_getdouble(ini, var, 1);
     if (pgd_props->dDep < 0.0)
     {
         LOG_ERRMSG("Error PGD depth search delta %f must be positive", pgd_props->dDep);
@@ -135,14 +128,21 @@ int core_scaling_pgd_readIni(const char *propfilename,
         LOG_ERRMSG("Error PGD start depth %f must be >= 0", pgd_props->start_depth);
         goto ERROR;
     }
+    setVarName(group, "pgd_depth_gridSearch_relative\0", var);
+    pgd_props->depth_gridSearch_relative = iniparser_getboolean(ini, var, false);
     setVarName(group, "ndepths_in_pgd_gridSearch\0", var);
-    pgd_props->ngridSearch_deps
-         = iniparser_getint(ini, var, 100);
+    pgd_props->ngridSearch_deps = iniparser_getint(ini, var, 1);
     if (pgd_props->ngridSearch_deps < 1)
     {
         LOG_ERRMSG("Error PGD grid search depths %d must be positive",
                    pgd_props->ngridSearch_deps);
         goto ERROR;
+    }
+    if ((pgd_props->depth_gridSearch_relative) && 
+        (pgd_props->ngridSearch_deps % 2 == 0))
+    {
+        LOG_WARNMSG("%s", "Adding 1 point to PGD lat gridsearch");
+        pgd_props->ngridSearch_deps = pgd_props->ngridSearch_deps + 1;
     }
     setVarName(group, "pgd_window_vel\0", var);
     pgd_props->window_vel = iniparser_getdouble(ini, var, 3.0);
