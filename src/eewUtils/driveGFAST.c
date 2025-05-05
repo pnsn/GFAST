@@ -96,7 +96,7 @@ int eewUtils_driveGFAST(const double currentTime,
     float secs;
     int h5k, ierr, iev, ipf, nPop, nRemoved,
         nsites_cmt, nsites_ff, nsites_pgd,
-        nstrdip, pgdOpt;
+        nstrdip;
     bool lcmtSuccess, lffSuccess, lfinalize, lpgdSuccess;
 
     const char *fcnm = "driveGFAST\0";
@@ -301,15 +301,6 @@ int eewUtils_driveGFAST(const double currentTime,
                 lpgdSuccess = false;
             }
 
-            // pgdOpt = array_argmax64f(pgd->ndeps * pgd->nlats * pgd->nlons, pgd->dep_vr_pgd, &ierr);
-            // core.depth = pgd->srcDepths[pgdOpt];
-            // core.mag = pgd->mpgd[pgdOpt];
-            // core.magUncer = pgd->mpgd_sigma[pgdOpt];
-            // core.depth = pgd->opt_dep;
-            // core.latitud
-            // core.mag = pgd->mpgd[pgd->opt_indx];
-            // core.magUncer = pgd->mpgd_sigma[pgd->opt_indx];
-
             LOG_MSG("drivePGD optimal result (%d): %.5f, %.5f, %.1f: %.3f, %.3f",
                 pgd->opt_indx,
                 pgd->opt_lat, pgd->opt_lon, pgd->opt_dep, 
@@ -421,13 +412,6 @@ int eewUtils_driveGFAST(const double currentTime,
             }
 
             bool send_pgd = false;
-
-            // Change depth, mag to match optimal pgd (by variance reduction)
-            // pgdOpt = array_argmax64f(pgd->ndeps * pgd->nlats * pgd->nlons, pgd->dep_vr_pgd, &ierr);
-            // core.depth = pgd->srcDepths[pgdOpt];
-            // core.mag = pgd->mpgd[pgdOpt];
-            // core.magUncer = pgd->mpgd_sigma[pgdOpt];
-            // core.numStations = nsites_pgd;
 
             core.depth = pgd->opt_dep;
             core.lat = pgd->opt_lat;

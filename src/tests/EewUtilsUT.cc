@@ -52,10 +52,37 @@ TEST(Eewutils, testParseXML) {
 
 }
 
+
+// class EewutilsDrivePGDFixture : public::testing::Test {
+
+//     protected:
+//         struct GFAST_pgd_props_struct pgd_props;
+//         struct GFAST_peakDisplacementData_struct pgd_data;
+//         struct GFAST_pgdResults_struct pgd_ref, pgd;
+//         double SA_lat, SA_lon, SA_dep, age_of_event;
+//         int i, ierr;
+
+//         void SetUp() {
+//             const char *filenm = "data/final_pgd.maule.txt\0";
+//             const double tol = 1.e-4;
+//             memset(&pgd_props, 0, sizeof(pgd_props));
+//             memset(&pgd_data, 0, sizeof(pgd_data));
+//             memset(&pgd_ref, 0, sizeof(pgd_ref));
+//             memset(&pgd, 0, sizeof(pgd));
+//             age_of_event = 0;
+
+//         }
+
+//         void TearDown() {
+            
+//         }
+// };
+
+
 /**
  * Test drivePGD. Based on gfast/unit_tests/pgd.c by Ben Baker
  */
-TEST(Eewutils, testDrivePGD) {
+TEST(Eewutils, testDrivePGDAbsoluteDepthSearch) {
 
     const char *filenm = "data/final_pgd.maule.txt\0";
     struct GFAST_pgd_props_struct pgd_props;
@@ -117,13 +144,96 @@ TEST(Eewutils, testDrivePGD) {
     EXPECT_EQ(0, ierr) << "Error computing PGD!";
     for (i=0; i<pgd.ndeps; i++)
     {
-        // EXPECT_NEAR(pgd_ref.mpgd[i], pgd.mpgd[i], tol) << "Error mpgd is wrong";
-        // EXPECT_NEAR(pgd_ref.mpgd_vr[i], pgd.mpgd_vr[i], tol) << "Error mpgd_vr is wrong";
-        // EXPECT_NEAR(pgd_ref.iqr[i], pgd.iqr[i], tol) << "Error iqr is wrong";
         EXPECT_TRUE(lequal(pgd_ref.mpgd[i], pgd.mpgd[i], tol)) << "Error mpgd is wrong";
         EXPECT_TRUE(lequal(pgd_ref.mpgd_vr[i], pgd.mpgd_vr[i], tol)) << "Error mpgd_vr is wrong";
         EXPECT_TRUE(lequal(pgd_ref.iqr[i], pgd.iqr[i], tol)) << "Error iqr is wrong";
     }
+
+    // Compare optimal results
+    EXPECT_EQ(40, pgd.opt_dep);
+    EXPECT_TRUE(lequal(8.6, pgd.mpgd[pgd.opt_indx], tol));
+    EXPECT_TRUE(lequal(90.6949, pgd.mpgd_vr[pgd.opt_indx], tol));
+    EXPECT_TRUE(lequal(0.582767, pgd.iqr[pgd.opt_indx], tol));
+
+    // Clean up
+    core_scaling_pgd_finalizeData(&pgd_data);
+    core_scaling_pgd_finalizeResults(&pgd);
+    core_scaling_pgd_finalizeResults(&pgd_ref);
+}
+
+/**
+ * Test drivePGD. Based on gfast/unit_tests/pgd.c by Ben Baker
+ */
+TEST(Eewutils, testDrivePGDRelativeDepthSearch) {
+
+    const char *filenm = "data/final_pgd.maule.txt\0";
+    struct GFAST_pgd_props_struct pgd_props;
+    struct GFAST_peakDisplacementData_struct pgd_data;
+    struct GFAST_pgdResults_struct pgd_ref, pgd;
+    double SA_lat, SA_lon, SA_dep, age_of_event;
+    const double tol = 1.e-4;
+    int i, ierr;
+    memset(&pgd_props, 0, sizeof(pgd_props));
+    memset(&pgd_data, 0, sizeof(pgd_data));
+    memset(&pgd_ref, 0, sizeof(pgd_ref));
+    memset(&pgd, 0, sizeof(pgd));
+    age_of_event = 0;
+    ierr = read_pgd_results(filenm,
+                            &pgd_props,
+                            &pgd_data,
+                            &pgd_ref,
+                            &SA_lat, &SA_lon, &SA_dep);
+
+    pgd_props.depth_gridSearch_relative = 1;
+    pgd_props.dDep = 1;
+
+    EXPECT_EQ(0, ierr) << "Error reading input file";
+
+    // Set space
+    pgd.nsites = pgd_ref.nsites;
+    pgd.ndeps = pgd_ref.ndeps;
+    pgd.nlats = 1;
+    pgd.nlons = 1;
+    pgd.mpgd    = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.mpgd_sigma = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.mpgd_vr = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.dep_vr_pgd = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.iqr = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.UP = ISCL_memory_calloc__double(pgd.ndeps*pgd.nsites);
+    pgd.UPinp = ISCL_memory_calloc__double(pgd.nsites);
+    pgd.srcDepths = ISCL_memory_calloc__double(pgd.ndeps);
+    pgd.srcLats = ISCL_memory_calloc__double(pgd.nlats);
+    pgd.srcLons = ISCL_memory_calloc__double(pgd.nlons);
+    pgd.srdist = ISCL_memory_calloc__double(pgd.ndeps*pgd.nsites);
+    pgd.lsiteUsed = ISCL_memory_calloc__bool(pgd.nsites);
+    for (i=0; i<pgd.ndeps; i++)
+    {
+        pgd.srcDepths[i] = pgd_props.dDep * (i - (pgd.ndeps - 1) / 2);
+    }
+    // srcLats is a relative array centered at 0, to be added to the input latitude
+    // The first latitude will be -dLat*(nlats - 1)/2
+    for (i = 0; i < pgd.nlats; i++)
+    {
+        pgd.srcLats[i] = pgd_props.dLat * (i - (pgd.nlats - 1) / 2);
+    }
+    // srcLons is a relative array centered at 0, to be added to the input longitude
+    // The first longitude will be -dLon*(nlons - 1)/2
+    for (i = 0; i < pgd.nlons; i++)
+    {
+        pgd.srcLons[i] = pgd_props.dLon * (i - (pgd.nlons - 1) / 2);
+    }
+    ierr = eewUtils_drivePGD(pgd_props,
+                             SA_lat, SA_lon, SA_dep, age_of_event,
+                             pgd_data, &pgd);
+
+    EXPECT_EQ(0, ierr) << "Error computing PGD!";
+
+    // Compare optimal results
+    EXPECT_EQ(40, pgd.opt_dep);
+    EXPECT_TRUE(lequal(8.6, pgd.mpgd[pgd.opt_indx], tol));
+    EXPECT_TRUE(lequal(90.6949, pgd.mpgd_vr[pgd.opt_indx], tol));
+    EXPECT_TRUE(lequal(0.582767, pgd.iqr[pgd.opt_indx], tol));
+
     // Clean up
     core_scaling_pgd_finalizeData(&pgd_data);
     core_scaling_pgd_finalizeResults(&pgd);
@@ -133,7 +243,7 @@ TEST(Eewutils, testDrivePGD) {
 /**
  * Test driveCMT. Based on gfast/unit_tests/cmt.c by Ben Baker
  */
-TEST(Eewutils, testDriveCMT) {
+TEST(Eewutils, testDriveCMTAbsoluteDepthSearch) {
     const char *filenm = "data/final_cmt.maule.txt\0";
     struct GFAST_cmt_props_struct cmt_props;
     struct GFAST_offsetData_struct cmt_data;
@@ -222,6 +332,108 @@ TEST(Eewutils, testDriveCMT) {
                 "Error at depth: " << cmt.srcDepths[i] << ", j: " << j;
         } 
     }
+
+    // Compare optimal result
+    EXPECT_EQ(35, cmt.opt_dep);
+    EXPECT_TRUE(lequal(0.0459552, cmt.objfn[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(8.75316, cmt.Mw[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(16.20636, cmt.str1[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(185.97024, cmt.str2[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(8.79401, cmt.dip1[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(81.34382, cmt.dip2[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(100.11829, cmt.rak1[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(88.44320, cmt.rak2[cmt.opt_indx], 1.e-4));
+
+    // Clean up
+    GFAST_core_cmt_finalizeOffsetData(&cmt_data);
+    GFAST_core_cmt_finalizeResults(&cmt);
+    GFAST_core_cmt_finalizeResults(&cmt_ref);
+}
+
+/**
+ * Test driveCMT. Based on gfast/unit_tests/cmt.c by Ben Baker
+ */
+TEST(Eewutils, testDriveCMTRelativeDepthSearch) {
+    const char *filenm = "data/final_cmt.maule.txt\0";
+    struct GFAST_cmt_props_struct cmt_props;
+    struct GFAST_offsetData_struct cmt_data;
+    struct GFAST_cmtResults_struct cmt_ref, cmt; 
+    double SA_lat, SA_lon, SA_dep;
+    int i, ierr, j;
+    memset(&cmt_props, 0, sizeof(cmt_props));
+    memset(&cmt_data, 0, sizeof(cmt_data));
+    memset(&cmt_ref, 0, sizeof(cmt_ref));
+    memset(&cmt, 0, sizeof(cmt));
+    ierr = read_cmt_results(filenm,
+                        &cmt_props,
+                        &cmt_data,
+                        &cmt_ref,
+                        &SA_lat, &SA_lon, &SA_dep);
+
+    cmt_props.depth_gridSearch_relative = 1;
+    cmt_props.dDep = 1;
+
+    EXPECT_EQ(0, ierr) << "Error reading input file";
+    // Set space
+    cmt.nsites = cmt_ref.nsites;
+    cmt.ndeps = cmt_ref.ndeps;
+    cmt.nlats = cmt_ref.nlats;
+    cmt.nlons = cmt_ref.nlons;
+    cmt.l2 = memory_calloc64f(cmt.ndeps);
+    cmt.pct_dc = memory_calloc64f(cmt.ndeps);
+    cmt.objfn = memory_calloc64f(cmt.ndeps);
+    cmt.mts = memory_calloc64f(cmt.ndeps*6);
+    cmt.str1 = memory_calloc64f(cmt.ndeps);
+    cmt.str2 = memory_calloc64f(cmt.ndeps);
+    cmt.dip1 = memory_calloc64f(cmt.ndeps);
+    cmt.dip2 = memory_calloc64f(cmt.ndeps);
+    cmt.rak1 = memory_calloc64f(cmt.ndeps);
+    cmt.rak2 = memory_calloc64f(cmt.ndeps);
+    cmt.Mw = memory_calloc64f(cmt.ndeps);
+    cmt.srcDepths = memory_calloc64f(cmt.ndeps);
+    cmt.srcLats = memory_calloc64f(cmt.nlats);
+    cmt.srcLons = memory_calloc64f(cmt.nlons);
+    cmt.EN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
+    cmt.NN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
+    cmt.UN = memory_calloc64f(cmt.ndeps*cmt_data.nsites);
+    cmt.Einp = memory_calloc64f(cmt_data.nsites);
+    cmt.Ninp = memory_calloc64f(cmt_data.nsites);
+    cmt.Uinp = memory_calloc64f(cmt_data.nsites);
+    cmt.lsiteUsed = memory_calloc8l(cmt_data.nsites);
+    for (i=0; i<cmt.ndeps; i++)
+    {
+        cmt.srcDepths[i] = cmt_props.dDep * (i - (cmt.ndeps - 1) / 2);
+    }
+    // srcLats is a relative array centered at 0, to be added to the input latitude
+    // The first latitude will be -dLat*(nlats - 1)/2
+    for (i = 0; i < cmt.nlats; i++)
+    {
+        cmt.srcLats[i] = cmt_props.dLat * (i - (cmt.nlats - 1) / 2);
+    }
+    // srcLons is a relative array centered at 0, to be added to the input longitude
+    // The first longitude will be -dLon*(nlons - 1)/2
+    for (i = 0; i < cmt.nlons; i++)
+    {
+        cmt.srcLons[i] = cmt_props.dLon * (i - (cmt.nlons - 1) / 2);
+    }
+    ierr = eewUtils_driveCMT(cmt_props,
+                             SA_lat, SA_lon, SA_dep,
+                             cmt_data,
+                             &cmt);
+
+    EXPECT_EQ(CMT_SUCCESS, ierr) << "Error computing CMT";
+    
+    // Compare optimal result
+    EXPECT_EQ(35, cmt.opt_dep);
+    EXPECT_TRUE(lequal(0.0459552, cmt.objfn[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(8.75316, cmt.Mw[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(16.20636, cmt.str1[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(185.97024, cmt.str2[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(8.79401, cmt.dip1[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(81.34382, cmt.dip2[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(100.11829, cmt.rak1[cmt.opt_indx], 1.e-4));
+    EXPECT_TRUE(lequal(88.44320, cmt.rak2[cmt.opt_indx], 1.e-4));
+
     // Clean up
     GFAST_core_cmt_finalizeOffsetData(&cmt_data);
     GFAST_core_cmt_finalizeResults(&cmt);

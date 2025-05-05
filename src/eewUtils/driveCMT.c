@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 #include "gfast_eewUtils.h"
 #include <stdbool.h>
 #include "gfast_core.h"
@@ -45,8 +46,8 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
            *eOffset, *eEst, *eWts, *nOffset, *nEst, *nWts,
            *uOffset, *uEst, *uWts,
            DC_pct, eres, nres, sum_res2, ures,
-           *utmSrcEastings, *utmSrcNorthings, wte, wtn, wtu, x1, y1, x2, y2;
-    int i, idep, ierr, ierr1, ilat, ilon, ilatLon, indx, k, l1, nlld, nlatlon, zone_loc;
+           *utmSrcEastings, *utmSrcNorthings, *srcDepths, wte, wtn, wtu, x1, y1, x2, y2, objfn_min;
+    int i, idep, ierr, ierr1, ilat, ilon, ilatLon, indx, k, l1, nlld, nlatlon, zone_loc, opt_indx;
     bool *luse, lnorthp;
     //------------------------------------------------------------------------//
     //
@@ -72,7 +73,8 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         LOG_ERRMSG("%s", "Error failed to verify data structures");
     }
     // Warn in case hypocenter is outside of grid-search
-    if (cmt_props.verbose > 1 &&
+    if ((cmt_props.verbose > 1) &&
+        (!cmt_props.depth_gridSearch_relative) &&
         (SA_dep < cmt->srcDepths[0] || SA_dep > cmt->srcDepths[cmt->ndeps-1]))
     {
         LOG_WARNMSG("%s", "Warning hypocenter isn't in grid search!");
@@ -145,6 +147,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
     uEst    = memory_calloc64f(l1 * nlld);
     utmSrcNorthings = memory_calloc64f(nlatlon);
     utmSrcEastings  = memory_calloc64f(nlatlon);
+    srcDepths = memory_calloc64f(cmt->ndeps);
     // Get the source location
     zone_loc = cmt_props.utm_zone; // Use input UTM zone
     if (zone_loc ==-12345){zone_loc =-1;} // Figure it out
@@ -157,6 +160,13 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                                    &lnorthp, &zone_loc);
             utmSrcNorthings[ilatLon] = y1; 
             utmSrcEastings[ilatLon] = x1;
+        }
+    }
+    for (idep = 0; idep < cmt->ndeps; idep++) {
+        if (cmt_props.depth_gridSearch_relative) {
+            srcDepths[idep] = SA_dep + cmt->srcDepths[idep];
+        } else {
+            srcDepths[idep] = cmt->srcDepths[idep];
         }
     }
     // Get cartesian positions and observations onto local arrays
@@ -192,7 +202,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                                cmt_props.ldeviatoric,
                                utmSrcEastings,
                                utmSrcNorthings,
-                               cmt->srcDepths,
+                               srcDepths,
                                utmRecvEasting,
                                utmRecvNorthing,
                                staAlt,
@@ -224,14 +234,13 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         cmt->lsiteUsed[k] = true;
         i = i + 1;
     }
+
+    // Track minimum objfn;
+    objfn_min = DBL_MAX;
+    opt_indx = -1;
+    
     // Extract results and weight objective fn by percent double couple
     ierr = 0;
-#ifdef PARALLEL_CMT
-    #pragma omp parallel for collapse(3) \
-     private(DC_pct, eres, i, idep, ierr1, ilat, ilon, indx, k, sum_res2, nres, ures) \
-     shared(cmt, eOffset, eEst, l1, luse, nOffset, nEst, uOffset, uEst) \
-     reduction(+:ierr), default(none) 
-#endif
     for (ilon = 0; ilon < cmt->nlons; ilon++)
     {
         for (ilat = 0; ilat < cmt->nlats; ilat++)
@@ -275,6 +284,13 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                 cmt->l2[indx] = 0.5 * sqrt(sum_res2);
                 cmt->pct_dc[indx] = DC_pct;
                 cmt->objfn[indx] = sum_res2/DC_pct;
+                // Track minimum objfn
+                if ((cmt->objfn[indx] < objfn_min) &&
+                    (srcDepths[idep] >= 0))
+                {
+                    objfn_min = cmt->objfn[indx];
+                    opt_indx = indx;
+                }
                 // Save the data
                 i = 0;
                 for (k=0; k<cmt->nsites; k++)
@@ -288,19 +304,12 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
                         cmt->EN[indx * cmt->nsites + k] = eEst[indx * l1 + i];
                         cmt->UN[indx * cmt->nsites + k] = uEst[indx * l1 + i];
                         i = i + 1;
-                        // if (cmt_props.verbose > 2) {
-                        //     LOG_DEBUGMSG("    sta obs (%3d) for %.4f, %.4f, %.1f: %s ENUobs:[%.4f,%.4f,%.4f] ENUpred:[%.4f,%.4f,%.4f]",
-                        //         indx, cmt->srcLats[ilat] + SA_lat, cmt->srcLons[ilon]+ SA_lon, cmt->srcDepths[idep],
-                        //         cmt_data.stnm[k],
-                        //         cmt->Einp[k], cmt->Ninp[k], cmt->Uinp[k],
-                        //         cmt->EN[indx * cmt->nsites + k], cmt->NN[indx * cmt->nsites + k], cmt->UN[indx * cmt->nsites + k]);
-                        // }
                     }
                 }
                 // print results
                 if (cmt_props.verbose > 2) {
                     LOG_DEBUGMSG("CMT results (%3d) for %.4f, %.4f, %.1f: str=[%.2f, %.2f], dip=[%.2f, %.2f], rake=[%.2f, %.2f], pct_dc=%.2f, objfn=%.2f",
-                        indx, cmt->srcLats[ilat] + SA_lat, cmt->srcLons[ilon]+ SA_lon, cmt->srcDepths[idep],
+                        indx, cmt->srcLats[ilat] + SA_lat, cmt->srcLons[ilon]+ SA_lon, srcDepths[idep],
                         cmt->str1[indx], cmt->str2[indx], cmt->dip1[indx], cmt->dip2[indx], cmt->rak1[indx], cmt->rak2[indx],
                         cmt->pct_dc[indx], cmt->objfn[indx]);
                 }
@@ -312,19 +321,21 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         LOG_ERRMSG("%s", "Error decomposing moment tensor");
         ierr = CMT_COMPUTE_ERROR;
     }
-    // Get the optimimum index
-    { /*vk needed for more stringent c++ compiler*/
-      enum isclError_enum isclerr = (enum isclError_enum)ierr;
-      cmt->opt_indx = array_argmin64f(nlld, cmt->objfn, &isclerr); 
-    }
+    // Get the optimum index
+    // { /*vk needed for more stringent c++ compiler*/
+    //   enum isclError_enum isclerr = (enum isclError_enum)ierr;
+    //   cmt->opt_indx = array_argmin64f(nlld, cmt->objfn, &isclerr); 
+    // }
+    cmt->opt_indx = opt_indx;
+
     // Unpack opt_indx for lat, lon, depth
-    int rem;
+    int rem; // remainder
     idep = cmt->opt_indx % cmt->ndeps;
     rem = (cmt->opt_indx - idep) / cmt->ndeps;
     ilat = rem % cmt->nlats;
     ilon = ((rem - ilat) / cmt->nlats) % cmt->nlons;
 
-    cmt->opt_dep = cmt->srcDepths[idep];
+    cmt->opt_dep = srcDepths[idep];
     cmt->opt_lat = cmt->srcLats[ilat] + SA_lat;
     cmt->opt_lon = cmt->srcLons[ilon] + SA_lon;
 
@@ -337,7 +348,7 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
             if (luse[k])
             {
                 LOG_DEBUGMSG("    sta obs (%3d) for %.4f, %.4f, %.1f: %s ENUobs:[%.4f,%.4f,%.4f] ENUpred:[%.4f,%.4f,%.4f]",
-                    indx, cmt->srcLats[ilat] + SA_lat, cmt->srcLons[ilon]+ SA_lon, cmt->srcDepths[idep],
+                    indx, cmt->srcLats[ilat] + SA_lat, cmt->srcLons[ilon]+ SA_lon, srcDepths[idep],
                     cmt_data.stnm[k],
                     cmt->Einp[k], cmt->Ninp[k], cmt->Uinp[k],
                     cmt->EN[indx * cmt->nsites + k], cmt->NN[indx * cmt->nsites + k], cmt->UN[indx * cmt->nsites + k]);
@@ -345,10 +356,6 @@ int eewUtils_driveCMT(struct GFAST_cmt_props_struct cmt_props,
         }
     }
 
-    // if (cmt->ndeps < nlld)
-    // {
-    //     LOG_WARNMSG("%s", "NEED to unpack opt_indx and make a cmt->opt_dep");
-    // }
 ERROR:;
     memory_free8l(&luse);
     memory_free64f(&utmRecvNorthing);
@@ -363,8 +370,12 @@ ERROR:;
     memory_free64f(&nWts);
     memory_free64f(&eWts);
     memory_free64f(&uWts);
+    memory_free64f(&utmSrcNorthings);
+    memory_free64f(&utmSrcEastings);
+    memory_free64f(&srcDepths);
     return ierr;
 }
+
 //============================================================================//
 /*!
  * @brief Utility function for verifying input data structures

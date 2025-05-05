@@ -91,7 +91,7 @@ deltaLatitude = 0.1
 deltaLongitude = 0.1
 nlats_in_pgd_gridSearch = 1
 nlons_in_pgd_gridSearch = 1
-ndepths_in_pgd_gridSearch = 10
+ndepths_in_pgd_gridSearch = 11
 # These are the defaults:
 pgd_window_vel = 3.0
 pgd_min_sites = 4
@@ -137,7 +137,7 @@ deltaLatitude = 0.1
 deltaLongitude = 0.1
 nlats_in_cmt_gridSearch = 1
 nlons_in_cmt_gridSearch = 1
-ndepths_in_cmt_gridSearch = 10
+ndepths_in_cmt_gridSearch = 11
 # These are the defaults:
 cmt_window_vel = 2.0
 cmt_min_sites = 4

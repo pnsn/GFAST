@@ -113,9 +113,20 @@ int core_scaling_pgd_initialize(struct GFAST_pgd_props_struct pgd_props,
     pgd->UPinp      = memory_calloc64f(pgd->nsites);
     pgd->lsiteUsed  = memory_calloc8l(pgd->nsites);
     
+    // srcDeps is a relative array centered at 0, to be added to the input depth
+    // The first depth will be -dDep*(ndeps - 1)/2
     for (i = 0; i < pgd->ndeps; i++)
     {
-        pgd->srcDepths[i] = pgd_props.start_depth + ((double) i * pgd_props.dDep);
+        if (pgd_props.depth_gridSearch_relative)
+        {
+            // srcDepths is a relative array centered at 0, to be added to the input depth
+            // The first depth will be -dDep*(ndeps - 1)/2
+            pgd->srcDepths[i] = pgd_props.dDep * (i - (pgd->ndeps - 1) / 2);
+        } else {
+            // srcDepths is an absolute array starting at start_depth, increasing by dDep 
+            // until it has ndeps
+            pgd->srcDepths[i] = pgd_props.start_depth + ((double) i * pgd_props.dDep);
+        }
     }
     // srcLats is a relative array centered at 0, to be added to the input latitude
     // The first latitude will be -dLat*(nlats - 1)/2

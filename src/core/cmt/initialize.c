@@ -117,7 +117,17 @@ int core_cmt_initialize(struct GFAST_cmt_props_struct props,
     
     for (i = 0; i < cmt->ndeps; i++)
     {
-        cmt->srcDepths[i] = props.start_depth + ((double) i * props.dDep);
+        if (props.depth_gridSearch_relative)
+        {
+            // srcDepths is a relative array centered at 0, to be added to the input depth
+            // The first depth will be -dDep*(ndeps - 1)/2
+            cmt->srcDepths[i] = props.dDep * (i - (cmt->ndeps - 1) / 2);
+        } else
+        {
+            // srcDepths is an absolute array starting at start_depth, increasing by dDep 
+            // until it has ndeps
+            cmt->srcDepths[i] = props.start_depth + ((double) i * props.dDep);
+        }
     }
     // srcLats is a relative array centered at 0, to be added to the input latitude
     // The first latitude will be -dLat*(nlats - 1)/2
